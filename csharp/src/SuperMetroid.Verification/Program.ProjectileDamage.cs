@@ -31,14 +31,14 @@ internal static partial class Program
 
         var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
         MethodInfo Method(string name) => typeof(SamusProjectileSystem).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
-        SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128, Missiles = 10, SuperMissiles = 10 };
+        SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
         void Check(SamusProjectileSlot slot, int table, int index, int direction)
         {
             int data = 0x930000 | Word(table + index * 2);
             AssertEqual(Word(data), slot.Damage, "Production initializer uses compiled damage");
             AssertEqual(Word(data + 2 + direction * 2), slot.InstructionPointer, "Animation list selection unchanged");
-            AssertEqual((ushort)rom.ReadByte(0x930000 | (slot.InstructionPointer + 4)), slot.XRadius, "Physical X radius unchanged");
-            AssertEqual((ushort)rom.ReadByte(0x930000 | (slot.InstructionPointer + 5)), slot.YRadius, "Physical Y radius unchanged");
+            AssertEqual((ushort)rom.ReadByte(0x930000 | (slot.InstructionPointer + 4)), slot.Radius.X, "Physical X radius unchanged");
+            AssertEqual((ushort)rom.ReadByte(0x930000 | (slot.InstructionPointer + 5)), slot.Radius.Y, "Physical Y radius unchanged");
             AssertEqual((ushort)1, slot.InstructionTimer, "Initializer timer unchanged");
         }
         for (ushort beam = 0; beam < 12; beam++)
@@ -175,8 +175,7 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
-                XPosition = 128,
-                YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = beam,
                 SelectedHudItem = 3,
                 PowerBombs = 10,
@@ -197,18 +196,18 @@ internal static partial class Program
                 continue;
             SamusProjectileSlot first = projectiles.Slots[0];
             ushort angle = first.Variable;
-            ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.XVelocity);
+            ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
             (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
                 angle, amplitude);
             if (beam == 2)
-                projectiles.StepIceCombo(guarded, samus, first, shared, 0, 0);
+                projectiles.StepIceCombo(guarded, samus, first, shared, Position16<RoomPixels>.Zero);
             else if (beam == 4)
                 projectiles.StepSpazerCombo(guarded, samus, first, shared, 0);
             else
-                projectiles.StepPlasmaCombo(samus, first, shared, 0, 0);
-            AssertEqual(unchecked((ushort)(samus.XPosition + offset.X)), first.XPosition,
+                projectiles.StepPlasmaCombo(samus, first, shared, Position16<RoomPixels>.Zero);
+            AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.Position.X.Whole,
                 $"beam {beam:X} production X consumes compiled sine offset");
-            AssertEqual(unchecked((ushort)(samus.YPosition + offset.Y)), first.YPosition,
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + offset.Y)), first.Position.Y.Whole,
                 $"beam {beam:X} production Y consumes compiled sine offset");
         }
 

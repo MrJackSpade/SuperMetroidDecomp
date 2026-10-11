@@ -309,7 +309,7 @@ public sealed partial class RoomEnemySystem
     {
         SamusState activeSamus = samus ?? throw new InvalidOperationException(
             "Evir facing AI requires the active Samus actor.");
-        state.FacingDirection = unchecked((short)(activeSamus.XPosition - body.XPosition)) < 0
+        state.FacingDirection = unchecked((short)(activeSamus.Position.X.Whole - body.XPosition)) < 0
             ? (ushort)0
             : (ushort)1;
         RequestEvirInstruction(
@@ -363,7 +363,7 @@ public sealed partial class RoomEnemySystem
             EnemyDefinitionId.Evir,
             "projectile body");
         if (!IsWithinStrictModularDistance(
-                activeSamus.XPosition,
+                activeSamus.Position.X.Whole,
                 body.XPosition,
                 EvirActivationDistance))
         {
@@ -373,8 +373,8 @@ public sealed partial class RoomEnemySystem
         // CalculateAngleOfSamusFromEnemy returns zero up/clockwise. The two native angle
         // transforms below feed the buggy table multipliers and produce signed 16.16 speed.
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(activeSamus.XPosition - projectile.XPosition)),
-            unchecked((short)(activeSamus.YPosition - projectile.YPosition)));
+            unchecked((short)(activeSamus.Position.X.Whole - projectile.XPosition)),
+            unchecked((short)(activeSamus.Position.Y.Whole - projectile.YPosition)));
         byte transformedAngle = unchecked((byte)-(byte)(cartridgeAngle - 0x40));
         (state.XVelocity, state.XSubvelocity) = ReadEightBitCosineFixedProduct(
             transformedAngle,

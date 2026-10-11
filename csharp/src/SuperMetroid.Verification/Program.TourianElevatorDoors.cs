@@ -54,7 +54,7 @@ internal static partial class Program
             var level = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), blocks, behaviors, new ushort[16], [], doorListPointer: list);
             var state = new SamusKinematicsState
             {
-                XPosition = 24, YPosition = 24, XRadius = 7, YRadius = 7, CollisionPose = pose,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7), CollisionPose = pose,
             };
             var bus = new DoorNoReadAddressSpace();
             BlockMoveResult result = horizontal

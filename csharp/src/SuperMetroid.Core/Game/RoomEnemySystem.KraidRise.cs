@@ -104,9 +104,9 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void RestrictSamusToKraidFirstScreen(SamusState? samus)
     {
-        if (samus is not null && unchecked((short)(samus.XPosition - 256)) >= 0)
+        if (samus is not null && unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
         {
-            samus.XPosition = 256;
+            samus.Position = samus.Position.WithWholeX(256);
             samus.WritePreviousXPosition(256);
         }
     }

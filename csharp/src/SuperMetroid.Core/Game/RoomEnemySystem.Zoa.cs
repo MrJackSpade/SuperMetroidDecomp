@@ -151,7 +151,7 @@ public sealed partial class RoomEnemySystem
         ZoaEnemyState state,
         SamusState samus)
     {
-        ushort signedDistance = unchecked((ushort)(samus.XPosition - slot.XPosition));
+        ushort signedDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
         ushort absoluteDistance = unchecked((short)signedDistance) < 0
             ? unchecked((ushort)-signedDistance)
             : signedDistance;
@@ -174,7 +174,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-        if (unchecked((short)(samus.YPosition - slot.YPosition)) < 0)
+        if (unchecked((short)(samus.Position.Y.Whole - slot.YPosition)) < 0)
         {
             // NTSC subtracts exactly 0.5 px/frame. The PAL regional constant is 0.625;
             // this project targets the user's Japan/USA retail ROM and reads NTSC data.

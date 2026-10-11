@@ -23,7 +23,7 @@ internal static partial class Program
         var drawMetadata = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponentWithMetadata", BindingFlags.Instance | BindingFlags.NonPublic)!
             .CreateDelegate<FlareMetadataDraw>(system);
         var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
         int cases = 0;
         foreach (SamusPoseId pose in new[]
         {
@@ -37,7 +37,7 @@ internal static partial class Program
         {
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
-            var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
             int record = SamusMovementRomData.Poses.Definitions + (int)pose * 8;
             bool running = bus.ReadByte(record + 1) == (byte)SamusMovementType.Running;
             bool facingLeft = bus.ReadByte(record) == 4;
@@ -52,17 +52,17 @@ internal static partial class Program
             ushort y = unchecked((ushort)(point.Y + Word(yTable + direction * 2) - yOffset));
             ushort selector = (ushort)(component == 0 ? 0 : facingLeft ? (component == 1 ? 42 : 48) : (component == 1 ? 30 : 36));
             if ((y & 0xff00) == 0) DrawImportedFlareSpritemap(bus, native, selector, x, y);
-            drawMetadata(actual, samus, 0, 0, component, transform, stock, sprites, direction, running, yOffset, facingLeft);
+            drawMetadata(actual, samus, Position16<RoomPixels>.Zero, component, transform, stock, sprites, direction, running, yOffset, facingLeft);
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Flare placement stock preserves native OAM/culling for running, facing, overread directions and Mode7");
             AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare placement preserves OAM admission");
             cases++;
         }
-        var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
+        var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
         var original = new OamBuffer(); var changed = new OamBuffer();
-        draw(bus, original, subject, 0, 0, 0, null, stock, sprites);
-        draw(bus, changed, subject, 0, 0, 0, null, edited, sprites);
+        draw(bus, original, subject, Position16<RoomPixels>.Zero, 0, null, stock, sprites);
+        draw(bus, changed, subject, Position16<RoomPixels>.Zero, 0, null, edited, sprites);
         AssertTrue(original.NextByteOffset > 0, "Edited flare placement fixture draws visible sprites");
         AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Visual shift retains sprite count");
         for (int i = 0; i < original.NextByteOffset / 4; i++)
@@ -83,8 +83,8 @@ internal static partial class Program
             subject.HyperBeam = hyper;
             original = new OamBuffer(); changed = new OamBuffer();
             var guarded = new FlarePlacementGuard(bus, subject.Pose, 2, true);
-            originalSystem.HandleChargeFlareAndDraw(guarded, original, subject, 0, 0, placement: stock, compositions: sprites);
-            editedSystem.HandleChargeFlareAndDraw(guarded, changed, subject, 0, 0, placement: edited, compositions: sprites);
+            originalSystem.HandleChargeFlareAndDraw(guarded, original, subject, new(0, 0), placement: stock, compositions: sprites);
+            editedSystem.HandleChargeFlareAndDraw(guarded, changed, subject, new(0, 0), placement: edited, compositions: sprites);
             AssertTrue(original.NextByteOffset > 0, "Public normal/Hyper flare producer emits visible components");
             AssertEqual(original.NextByteOffset, changed.NextByteOffset, "Public flare placement preserves component admission");
             for (int i = 0; i < original.NextByteOffset / 4; i++)
@@ -103,7 +103,7 @@ internal static partial class Program
         static ChargeFlarePlacementCatalog Load(JsonNode node) => ChargeFlarePlacementCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString())));
     }
     private delegate void FlareMetadataDraw(OamBuffer oam, SamusState samus,
-        ushort layer1X, ushort layer1Y, int component, SamusMode7Transform? transform,
+        Position16<RoomPixels> layer1, int component, SamusMode7Transform? transform,
         ChargeFlarePlacementCatalog? placement, ChargeFlareSpriteCatalog? sprites,
         byte direction, bool running, byte poseYOffset, bool facingLeft);
 
@@ -130,8 +130,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Samus.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100);
-        runtime.Samus.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
+        runtime.Samus.Position = runtime.Samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
         runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);
         typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles, (ushort)30);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

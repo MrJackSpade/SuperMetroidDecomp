@@ -27,9 +27,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         (ushort previousX, ushort previousY) = samus.PeekPreviousPositionWords(checkpoint);
-        if (CappedPreviousPosition(samus.YPosition, previousY) is { } cappedY)
+        if (CappedPreviousPosition(samus.Position.Y.Whole, previousY) is { } cappedY)
             samus.WritePreviousYPosition(cappedY);
-        if (CappedPreviousPosition(samus.XPosition, previousX) is { } cappedX)
+        if (CappedPreviousPosition(samus.Position.X.Whole, previousX) is { } cappedX)
             samus.WritePreviousXPosition(cappedX);
     }
 

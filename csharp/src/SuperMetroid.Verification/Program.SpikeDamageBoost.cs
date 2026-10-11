@@ -30,9 +30,8 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(0, 1);
-        samus.XPosition = 128;
-        samus.YPosition = 160;
-        samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+        samus.Position = samus.Position.WithWhole(new(128, 160));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
 
         // Original CPU contact=2, right-facing ball, lower inside point, delay zero.
         // Frame three releases direction with subpixel base speed still present. Type
@@ -50,7 +49,7 @@ internal static partial class Program
         for (int frame = 0; frame < expected.Length; frame++)
         {
             runtime.StepFrame(frame < 3 ? (ushort)0x0280 : (ushort)0x0080);
-            AssertEqual(expected[frame], (samus.Kinematics.XFixed, samus.Kinematics.YFixed,
+            AssertEqual(expected[frame], (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                 samus.Pose, samus.HorizontalSpeed.BaseFixed), $"morphed spike release frame {frame}");
             AssertEqual(83, samus.Health, "spike contact damage");
             AssertEqual(9 - frame, samus.KnockbackTimer, "spike hurt timer");
@@ -64,10 +63,10 @@ internal static partial class Program
         samus.Pose = SamusPoseId.KnockbackRightPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        samus.XPosition = 83;
-        samus.Kinematics.XSubposition = 0x4000;
-        samus.YPosition = 232;
-        samus.Kinematics.YSubposition = 0xe000;
+        samus.Position = samus.Position.WithWholeX(83);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x4000);
+        samus.Position = samus.Position.WithWholeY(232);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xe000);
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.HorizontalSpeed.BaseSpeed = 5;
@@ -78,8 +77,8 @@ internal static partial class Program
         runtime.Controller1.Latch(0x0180);
         runtime.StepFrame(0x0180);
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
-        AssertEqual(0x00534000u, samus.Kinematics.XFixed, "expired hurt floor probe keeps X");
-        AssertEqual(0x00ebffffu, samus.Kinematics.YFixed, "expired hurt floor alignment");
+        AssertEqual(0x00534000u, samus.Kinematics.Position.X.RawValue, "expired hurt floor probe keeps X");
+        AssertEqual(0x00ebffffu, samus.Kinematics.Position.Y.RawValue, "expired hurt floor alignment");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "landing clears residual hurt momentum");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "landing clears vertical direction");
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -94,10 +93,10 @@ internal static partial class Program
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
         SamusKnockbackMovement.Start(bus, samus, 0, 0, 4);
-        samus.XPosition = 131;
-        samus.Kinematics.XSubposition = 0x6000;
-        samus.YPosition = 160;
-        samus.Kinematics.YSubposition = 0;
+        samus.Position = samus.Position.WithWholeX(131);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
+        samus.Position = samus.Position.WithWholeY(160);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
         samus.HorizontalSpeed.BaseSpeed = 1;
         samus.HorizontalSpeed.BaseSubspeed = 0x6000;
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
@@ -115,7 +114,7 @@ internal static partial class Program
         {
             runtime.StepFrame(expectedFrame.Input);
             AssertEqual((expectedFrame.X, expectedFrame.Y, expectedFrame.Base, expectedFrame.Extra),
-                (samus.Kinematics.XFixed, samus.Kinematics.YFixed,
+                (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue,
                     samus.HorizontalSpeed.BaseFixed, samus.HorizontalSpeed.ExtraRunSpeed),
                 "native carried-speed hurt fallback trajectory");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "hurt fallback cancels momentum flag");
@@ -136,8 +135,8 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.SetAnimationFrameFromSpecialHandler(0, 5);
-            samus.YPosition = 200;
-            samus.Kinematics.YSubposition = 0;
+            samus.Position = samus.Position.WithWholeY(200);
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.PoseHistory.PreviousPose = retainedPose;
             samus.PoseHistory.PreviousDirectionAndMovement = (ushort)(
@@ -147,7 +146,7 @@ internal static partial class Program
             // without a new edge selects definition fallback rather than a fresh jump.
             if (retainedPose is SamusPoseId.FacingRightNormalPose or SamusPoseId.FacingLeftNormalPose or
                 SamusPoseId.TurningRightToLeftPose or SamusPoseId.TurningLeftToRightPose)
-                samus.YPosition = 235;
+                samus.Position = samus.Position.WithWholeY(235);
             runtime.Controller1.Latch(0x0080);
             runtime.StepFrame(0x0080);
             AssertEqual(retainedPose, samus.Pose, "fallback retains visible standing/spin/turn pose");
@@ -161,10 +160,10 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(2, 1);
         samus.LiquidPhysics.ConfigureWater(8);
-        samus.XPosition = 99;
-        samus.Kinematics.XSubposition = 0x3800;
-        samus.YPosition = 237;
-        samus.Kinematics.YSubposition = 0xb800;
+        samus.Position = samus.Position.WithWholeX(99);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x3800);
+        samus.Position = samus.Position.WithWholeY(237);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xb800);
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0x9800;
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -174,14 +173,14 @@ internal static partial class Program
         runtime.Controller1.Latch(0x0280);
         runtime.StepFrame(0x0280);
         AssertEqual((0x0063c000u, 0x00edffffu, 0x0000a000u),
-            (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Kinematics.VerticalSpeedFixed),
+            (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
             "underwater turn floor contact preserves native accumulated speed");
         AssertEqual(SamusPoseId.FallingLeftPose, samus.Pose, "turn animation completes at floor");
         AssertEqual(false, runtime.LastAerialSamusMovement!.Value.Landed,
             "turn suppresses collision-owned landing presentation");
         runtime.StepFrame(0x0280);
         AssertEqual((0x0062c000u, 0x00ebffffu, 0u),
-            (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Kinematics.VerticalSpeedFixed),
+            (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Kinematics.VerticalSpeedFixed),
             "following normal fall performs actual landing");
         AssertEqual(SamusPoseId.NormalLandingLeftPose, samus.Pose, "next frame selects normal landing");
     }

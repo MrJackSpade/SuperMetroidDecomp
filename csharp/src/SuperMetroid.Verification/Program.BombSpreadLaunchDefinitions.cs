@@ -22,20 +22,20 @@ internal static partial class Program
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
             samus.ProjectileFlareCounter=SamusBombSpreadRomData.RequiredChargeFrames;
-            samus.XPosition=(ushort)hold; samus.YPosition=unchecked((ushort)~hold);
+            samus.Position = samus.Position.WithWhole(new((ushort)hold, unchecked((ushort)~hold)));
             spawn(bombs,samus);
             for(int i=0;i<reference.Length;i++)
             {
                 var slot=bombs.Slots[i]; var expected=reference[i];
                 ushort y=unchecked((ushort)-(expected.YSpeed+((hold>>6)&3)));
                 AssertEqual(expected.FuseTimer,slot.BombTimer,"Spread fuse by physical slot");
-                AssertEqual(expected.XVelocity,slot.BombSpreadXVelocity,"Spread native direction/magnitude word");
+                AssertEqual(expected.XVelocity,slot.BombSpreadDirectionMagnitude,"Spread native direction/magnitude word");
                 AssertEqual(expected.YSubspeed,slot.BombSpreadInitialYSubvelocity,"Spread initial subvelocity");
                 AssertEqual(expected.YSubspeed,slot.BombSpreadYSubvelocity,"Spread live subvelocity");
                 AssertEqual(y,slot.BombSpreadYVelocity,"Spread hold modifier and negated whole velocity");
                 AssertEqual(y,slot.BombSpreadBounceYVelocity,"Spread bounce retains launch velocity");
-                AssertEqual(samus.XPosition,slot.XPosition,"Spread launch X wraps with Samus");
-                AssertEqual(samus.YPosition,slot.YPosition,"Spread launch Y wraps with Samus");
+                AssertEqual(samus.Position.X.Whole,slot.Position.X.Whole,"Spread launch X wraps with Samus");
+                AssertEqual(samus.Position.Y.Whole,slot.Position.Y.Whole,"Spread launch Y wraps with Samus");
             }
             AssertEqual(SamusBombSpreadRomData.SlotCount,bombs.BombCounter,"Spread allocates all five slots");
             AssertEqual((ushort)0,samus.ProjectileFlareCounter,"Spread consumes charge");

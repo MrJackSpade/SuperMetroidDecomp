@@ -160,8 +160,8 @@ internal static partial class Program
                     AssertEqual((ushort)0, bomb.Type, "Delete clears bomb occupancy");
                     break;
                 }
-                AssertEqual((timer, pointer, sprite, x, y, trail), (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.XRadius, slot.YRadius, slot.AnimationFrame), "Exact projectile frame matches ROM interpreter");
-                AssertEqual((timer, pointer, sprite, x, y), (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.XRadius, bomb.YRadius), "Exact bomb frame matches ROM interpreter");
+                AssertEqual((timer, pointer, sprite, x, y, trail), (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame), "Exact projectile frame matches ROM interpreter");
+                AssertEqual((timer, pointer, sprite, x, y), (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y), "Exact bomb frame matches ROM interpreter");
             }
         }
         Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");

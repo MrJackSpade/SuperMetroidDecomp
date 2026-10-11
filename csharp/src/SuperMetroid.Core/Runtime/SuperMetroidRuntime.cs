@@ -866,8 +866,7 @@ public sealed partial class SuperMetroidRuntime
         SamusDeathSequenceStartResult result = Samus.DeathSequence.Begin(
             _addressSpace,
             Samus,
-            Camera.PixelPosition.X,
-            Camera.PixelPosition.Y);
+            Camera.PixelPosition);
 
         // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
         // draws once before setup and state 16 draws the new pose on its following call;
@@ -891,8 +890,7 @@ public sealed partial class SuperMetroidRuntime
         LastSamusBodyDrawn = Samus.Draw(
             _addressSpace,
             Oam,
-            Camera.PixelPosition.X,
-            Camera.PixelPosition.Y,
+            Camera.PixelPosition,
             mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
     }
@@ -921,8 +919,7 @@ public sealed partial class SuperMetroidRuntime
             LastSamusBodyDrawn = Samus.Draw(
                 _addressSpace,
                 Oam,
-                Camera.PixelPosition.X,
-                Camera.PixelPosition.Y,
+                Camera.PixelPosition,
                 mode7Transform: ActiveSamusMode7Transform);
         }
         else if (LastDeathSequenceStep.Value.DrawExplosion)
@@ -1241,11 +1238,7 @@ public sealed partial class SuperMetroidRuntime
         // the elevatube) contributes to the next frame's distance just like enemy movement.
         FixedPosition<RoomPixels>? samusCameraPointAtFrameStart = Samus is null
             ? null
-            : FixedPosition<RoomPixels>.FromWords(
-                Samus.XPosition,
-                Samus.Kinematics.XSubposition,
-                Samus.YPosition,
-                Samus.Kinematics.YSubposition);
+            : Samus.Position;
 
         // `GameState_8_MainGameplay` begins with Determine_Which_Enemies_to_Process
         // ($82:8B47), before palette FX and Samus. The grapple scan uses this list.
@@ -1272,7 +1265,7 @@ public sealed partial class SuperMetroidRuntime
                 Cgram,
                 MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."),
-                Samus?.YPosition ?? 0,
+                Samus?.Position.Y.Whole ?? 0,
                 Samus?.EquippedItems ?? 0,
                 enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,
                 areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
@@ -1551,8 +1544,7 @@ public sealed partial class SuperMetroidRuntime
                         Samus,
                         Controller1.Current,
                         Controller1.NewlyPressed,
-                        Camera.PixelPosition.X,
-                        Camera.PixelPosition.Y,
+                        Camera.PixelPosition,
                         BombProjectiles,
                         // Locked alpha advances existing shots without dispatching the
                         // HUD weapon producer (including station command six).
@@ -1647,15 +1639,13 @@ public sealed partial class SuperMetroidRuntime
                     grappleOwnsMovement = true;
                 }
 
-                if (LastGrappleMovement is
-                    { CameraPreviousX: ushort grapplePreviousX,
-                      CameraPreviousY: ushort grapplePreviousY })
+                if (LastGrappleMovement is { CameraPrevious: { } grapplePrevious })
                 {
                     // `$9B:BAD5-$BB5F` clamps native previous-position words to twelve
                     // pixels after a close-collision snap. Feed those corrected whole words
                     // to bank-$90 tracking while preserving the pre-frame subpositions.
                     previousCameraPoint = previousCameraPoint.WithWhole(
-                        new Position16<RoomPixels>(grapplePreviousX, grapplePreviousY));
+                        grapplePrevious);
                 }
 
                 poseAtBetaMovement = Samus.Pose;
@@ -1792,9 +1782,7 @@ public sealed partial class SuperMetroidRuntime
                         // shared explosion words, then spawns `$88:A2BD/$A32A`. This beta
                         // pass occurs after bomb alpha, so the retained type-`$0300` slot
                         // observes the released flag and deletes on the following frame.
-                        BombProjectiles.PowerBombExplosion.BeginCrystalFlash(
-                            Samus.XPosition,
-                            Samus.YPosition);
+                        BombProjectiles.PowerBombExplosion.BeginCrystalFlash(Samus.Position.Whole);
                     }
                 }
                 // Drained controller functions install movement-type-$1B poses whose normal
@@ -2320,10 +2308,7 @@ Landed: true, HitCeiling: false);
             // coordinates with the same frame ordering as the cartridge.
             if (!suitOwnsSamus && LastShinesparkMovement is null)
             {
-                Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
-                    GameTime.Frames,
-                    Samus.XPosition,
-                    Samus.YPosition);
+                Samus.HorizontalSpeed.CaptureSpeedEchoPosition(GameTime.Frames, Samus.Position.Whole);
             }
 
             // Every ordinary downward collision calls `$91:F046` inside movement, before
@@ -2551,13 +2536,13 @@ Landed: true, HitCeiling: false);
                 if (!animationTransitionApplied &&
                     LastGrappleMovement is { PendingConnection: { } pendingConnection })
                 {
-                    (ushort grapplePreviousX, ushort grapplePreviousY) =
+                    Position16<RoomPixels> grapplePrevious =
                         SamusGrappleMovement.ApplyPendingConnectionPose(
                             _addressSpace,
                             Samus,
                             pendingConnection);
                     previousCameraPoint = previousCameraPoint.WithWhole(
-                        new Position16<RoomPixels>(grapplePreviousX, grapplePreviousY));
+                        grapplePrevious);
                     ProspectiveSamusPose = null;
                     ProspectiveSamusFallbackPose = null;
                     ProspectiveSamusWallCollisionPose = null;
@@ -3659,8 +3644,8 @@ Landed: true, HitCeiling: false);
                     BombProjectiles.PowerBombExplosion;
                 Enemies.ResolveOrdinaryPowerBombHits(
                     _addressSpace,
-                    powerBomb.XPosition,
-                    powerBomb.YPosition,
+                    powerBomb.Position.X,
+                    powerBomb.Position.Y,
                     unchecked((byte)(powerBomb.ExplosionRadius >> 8)),
                     Samus);
             }
@@ -3693,11 +3678,7 @@ Landed: true, HitCeiling: false);
                 ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
 
                 previousCameraPoint = Samus.ApplyPreviousPositionWrites(previousCameraPoint);
-                var currentCameraPoint = FixedPosition<RoomPixels>.FromWords(
-                    Samus.XPosition,
-                    Samus.Kinematics.XSubposition,
-                    Samus.YPosition,
-                    Samus.Kinematics.YSubposition);
+                var currentCameraPoint = Samus.Position;
 
                 // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
                 // DrawSamusEnemiesAndProjectiles regardless of which Samus input handler is
@@ -3767,8 +3748,8 @@ Landed: true, HitCeiling: false);
                     checked((byte)roomGeometry.MapPosition.Y),
                     LevelData.Size.X,
                     LevelData.Size.Y,
-                    Samus.XPosition,
-                    Samus.YPosition,
+                    Samus.Position.X.Whole,
+                    Samus.Position.Y.Whole,
                     NmiFrameCounter8,
                     MapRevealMode,
                     MapPresentation?.Get(roomGeometry.AreaIndex));
@@ -4240,8 +4221,7 @@ Landed: true, HitCeiling: false);
             SuitPickup.Begin(
                 _addressSpace,
                 Samus,
-                Camera.PixelPosition.X,
-                Camera.PixelPosition.Y,
+                Camera.PixelPosition,
                 pendingSuit,
                 soundSuppressed: BombProjectiles.PowerBombExplosion.IsActive);
             _pendingSuitPickup = null;

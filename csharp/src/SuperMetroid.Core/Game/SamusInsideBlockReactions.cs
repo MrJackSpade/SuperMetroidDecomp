@@ -12,12 +12,12 @@ public static class SamusInsideBlockReactions
     {
         var body = samus.Kinematics;
         body.SandCollisionArea = area;
-        SamusInsideBlockSamplePoints.Visit(body.YPosition, body.YRadius, (y, point) =>
+        SamusInsideBlockSamplePoints.Visit(body.Position.Y.Whole, body.Radius.Y, (y, point) =>
             Visit(y, point == SamusInsideBlockPoint.Bottom, point == SamusInsideBlockPoint.Center));
 
         void Visit(ushort y, bool bottomPoint, bool centerPoint)
         {
-            var block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)(body.XPosition >> 4)), unchecked((ushort)(y >> 4))));
+            var block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)(body.Position.X.Whole >> 4)), unchecked((ushort)(y >> 4))));
             if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block) ||
                 block.CollisionType != RoomCollisionType.SpecialAir)
                 return;
@@ -144,14 +144,12 @@ public static class SamusInsideBlockReactions
                 return;
             // The original checks only whole Y speed: fractional vertical motion does
             // not suppress carry. This replaces external X displacement, never adds to it.
-            body.ExtraXSubdisplacement = 0;
-            body.ExtraXDisplacement = rightward
-                ? ConveyorBlockRomData.RightDisplacement : ConveyorBlockRomData.LeftDisplacement;
+            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
+                rightward ? ConveyorBlockRomData.RightDisplacement : ConveyorBlockRomData.LeftDisplacement, 0));
         }
         void SetExtra(int displacement)
         {
-            body.ExtraYDisplacement = (ushort)(displacement >> 16);
-            body.ExtraYSubdisplacement = unchecked((ushort)displacement);
+            body.ExtraDisplacement = body.ExtraDisplacement.WithY(SnesSignedSixteenSixteen.FromRaw(displacement));
         }
     }
 

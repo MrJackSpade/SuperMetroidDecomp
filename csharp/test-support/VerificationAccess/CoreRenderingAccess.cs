@@ -187,7 +187,7 @@ internal static class SnesGameplayFrameRendererAccess
             // `$88:88B8-$88F3` anchors the ray three pixels in front of Samus. Standing and
             // turning bodies place it sixteen pixels above the center; only stable movement
             // type five uses the crouching twelve-pixel offset.
-            Offset16<ScreenPixels> samusOnScreen = new Position16<RoomPixels>(samus.XPosition, samus.YPosition).RelativeToCamera(layer1);
+            Offset16<ScreenPixels> samusOnScreen = samus.Position.Whole.RelativeToCamera(layer1);
             int originX = samusOnScreen.X + (facingLeft ? -3 : 3);
             int originY = samusOnScreen.Y -
                 (movementType == SamusMovementType.Crouching ? 12 : 16);

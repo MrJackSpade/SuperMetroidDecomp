@@ -30,7 +30,7 @@ internal static partial class Program
         var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
-        Func<ISnesAddressSpace, SamusState, SamusGrappleState, ushort, ushort, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
+        Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
         int locked = 0;
         var authoredPoses = Enumerable.Range(0, 253)
@@ -68,9 +68,9 @@ internal static partial class Program
                 SamusGrappleMovement.StepFiring(guarded, empty, changed, (ushort)SnesButton.X);
                 Compare();
             }
-            var expectedConnection = connect(nativeBus, native, native.Grapple, 512, 512, true, false);
-            var selectedConnection = connect(guarded, selected, selected.Grapple, 512, 512, true, false);
-            var editedConnection = connect(guarded, changed, changed.Grapple, 512, 512, true, false);
+            var expectedConnection = connect(nativeBus, native, native.Grapple, new(512, 512), true, false);
+            var selectedConnection = connect(guarded, selected, selected.Grapple, new(512, 512), true, false);
+            var editedConnection = connect(guarded, changed, changed.Grapple, new(512, 512), true, false);
             AssertEqual(expectedConnection, selectedConnection, "Stock placement retains connection result");
             AssertEqual(expectedConnection, editedConnection, "Edited placement retains connection result");
             // A non-swinging connection installs the locked-in-place grapple function.
@@ -80,7 +80,7 @@ internal static partial class Program
 
             SamusState Seed(ChargeFlarePlacementCatalog? placement)
             {
-                var samus = new SamusState { Pose = pose, XPosition = 512, YPosition = 512 };
+                var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
                 PrepareRetailSamusFixture(samus);
                 samus.Grapple.FlarePlacement = placement;
                 return samus;
@@ -91,14 +91,14 @@ internal static partial class Program
                 var a = native.Grapple; var b = changed.Grapple;
                 if (checkVisibleOffset)
                 {
-                    AssertEqual(unchecked((ushort)(a.BeamStartX + 7)), b.BeamStartX, "Edited Grapple flare X is visible");
-                    AssertEqual(unchecked((ushort)(a.BeamStartY - 9)), b.BeamStartY, "Edited Grapple flare Y is visible");
+                    AssertEqual(unchecked((ushort)(a.BeamStart.X + 7)), b.BeamStart.X, "Edited Grapple flare X is visible");
+                    AssertEqual(unchecked((ushort)(a.BeamStart.Y - 9)), b.BeamStart.Y, "Edited Grapple flare Y is visible");
                 }
-                var saved = (b.FlareXOffset, b.FlareYOffset, b.BeamStartX, b.BeamStartY);
-                b.FlareXOffset = a.FlareXOffset; b.FlareYOffset = a.FlareYOffset;
-                b.BeamStartX = a.BeamStartX; b.BeamStartY = a.BeamStartY;
+                var saved = (b.FlareOffset, b.BeamStart);
+                b.FlareOffset = a.FlareOffset;
+                b.BeamStart = a.BeamStart;
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Edited flare changes only four presentation words, not full-body/anchor/trajectory state");
-                (b.FlareXOffset, b.FlareYOffset, b.BeamStartX, b.BeamStartY) = saved;
+                (b.FlareOffset, b.BeamStart) = saved;
             }
         }
         AssertTrue(locked > 0, "Placement fixture exercises locked connections");

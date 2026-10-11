@@ -304,28 +304,28 @@ public sealed partial class RoomEnemySystem
     /// <summary>Exact wrapped-word port of <c>$A0:ABE7-$AC28</c>.</summary>
     private static bool IsSamusRidingPlatform(RoomEnemySlot slot, SamusState samus)
     {
-        ushort xDistance = unchecked((ushort)(samus.XPosition - slot.XPosition));
+        ushort xDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
         if (unchecked((short)xDistance) < 0)
             xDistance = unchecked((ushort)-xDistance);
 
         // Carry clear after subtracting Samus's radius jumps directly to Y. Otherwise the
         // remainder must be strictly less than the platform radius; equality is not overlap.
-        if (xDistance >= samus.Kinematics.XRadius)
+        if (xDistance >= samus.Kinematics.Radius.X)
         {
-            ushort remainder = unchecked((ushort)(xDistance - samus.Kinematics.XRadius));
+            ushort remainder = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
             if (remainder >= slot.XRadius)
                 return false;
         }
 
         // The +3 bias requires Samus's center to remain above the enemy center. After taking
         // the wrapped magnitude, Y accepts equality with the enemy radius (unlike X).
-        ushort yDifference = unchecked((ushort)(samus.YPosition + 3 - slot.YPosition));
+        ushort yDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - slot.YPosition));
         if (unchecked((short)yDifference) >= 0)
             return false;
         ushort yDistance = unchecked((ushort)-yDifference);
-        if (yDistance < samus.Kinematics.YRadius)
+        if (yDistance < samus.Kinematics.Radius.Y)
             return true;
-        ushort yRemainder = unchecked((ushort)(yDistance - samus.Kinematics.YRadius));
+        ushort yRemainder = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
         return yRemainder <= slot.YRadius;
     }
 
@@ -415,8 +415,7 @@ public sealed partial class RoomEnemySystem
         // wrapped whole-pixel delta to the shared producer word; fractional displacement is
         // deliberately untouched because this enemy writes only `$0B58`.
         ushort xDelta = unchecked((ushort)(slot.XPosition - state.PreviousPosition));
-        samus.Kinematics.ExtraXDisplacement = unchecked((ushort)(
-            samus.Kinematics.ExtraXDisplacement + xDelta));
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(xDelta)), 0);
 
         state.PreviousPosition = slot.YPosition;
         int displacement = ReadQuadraticEnemySpeed(
@@ -431,8 +430,7 @@ public sealed partial class RoomEnemySystem
         // This delta is measured after collision clipping, so Samus follows the platform's
         // accepted motion rather than the requested quadratic speed.
         ushort yDelta = unchecked((ushort)(slot.YPosition - state.PreviousPosition));
-        samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-            samus.Kinematics.ExtraYDisplacement + yDelta));
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
     private static void IncrementAndClampPlatformYSpeed(PlatformEnemyState state)

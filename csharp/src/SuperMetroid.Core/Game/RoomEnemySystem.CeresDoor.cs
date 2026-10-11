@@ -33,8 +33,8 @@ public sealed partial class RoomEnemySystem
                 // wrapped result as signed, then takes its absolute value independently
                 // on each axis. If either distance is at least $30, the operand is a
                 // same-bank loop target; otherwise execution skips that operand.
-                int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition)));
-                int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition)));
+                int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
+                int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole)));
                 cursor = xDistance >= 0x30 || yDistance >= 0x30
                     ? ReadEnemyInstructionMechanicsWord(
                         slot,

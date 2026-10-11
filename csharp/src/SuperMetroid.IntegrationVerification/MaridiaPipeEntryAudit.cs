@@ -33,8 +33,8 @@ internal static class MaridiaPipeEntryAudit
             else
             {
                 runtime.LoadCartridgeRoomThroughDoorForVerification(door);
-                runtime.Samus!.XPosition = 128;
-                runtime.Samus.YPosition = 64;
+                runtime.Samus!.Position = runtime.Samus!.Position.WithWholeX(128);
+                runtime.Samus.Position = runtime.Samus.Position.WithWholeY(64);
             }
         }
         Directory.CreateDirectory(output);
@@ -46,7 +46,7 @@ internal static class MaridiaPipeEntryAudit
                 !runtime.Samus!.StationaryScriptControlLocked)
                 throw new InvalidDataException("#391: incoming door fade discarded elevatube command-zero movement ownership.");
             if (frame % 30 == 0)
-                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y} pose={(int)runtime.Samus.Pose:X2}");
+                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.Position.X.Whole}/{runtime.Samus.Position.Y.Whole} camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y} pose={(int)runtime.Samus.Pose:X2}");
             if (fromNorth && !incomingDoor && frame == 120 && runtime.Camera!.PixelPosition.Y < 800)
                 throw new InvalidDataException("#391: elevatube carried Samus past Y=1000 while camera failed to follow the post-scroll room-main displacement.");
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
@@ -60,11 +60,11 @@ internal static class MaridiaPipeEntryAudit
                     (frame >= 60 && frame % 90 < 30 ? runtime.ControllerBindings.Jump : 0));
             bool checkTubeDisplacement = incomingDoor && game.GameState == SuperMetroidGameState.MainGameplay &&
                 runtime.ActiveRoom?.Pointer == MaridiaPipeFixtureDefinitions.TubeRoom &&
-                runtime.Samus!.YPosition is > 128 and < 2300;
-            uint expectedY = unchecked(runtime.Samus!.Kinematics.YFixed +
+                runtime.Samus!.Position.Y.Whole is > 128 and < 2300;
+            uint expectedY = unchecked(runtime.Samus!.Kinematics.Position.Y.RawValue +
                 (uint)((short)runtime.MaridiaElevatube.Velocity << 8));
             var result = game.StepCaptured(input, frame + 1, 1);
-            if (checkTubeDisplacement && runtime.Samus.Kinematics.YFixed != expectedY)
+            if (checkTubeDisplacement && runtime.Samus.Kinematics.Position.Y.RawValue != expectedY)
                 throw new InvalidDataException("#391: tube descent includes movement outside the native room-main velocity.");
             audio.RenderFrame(result.Frame.AudioCommands);
             if ((fromNorth || frame % 30 == 0) && result.Snapshot is { } snapshot)

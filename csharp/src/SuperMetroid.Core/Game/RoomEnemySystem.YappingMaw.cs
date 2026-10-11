@@ -313,8 +313,8 @@ public sealed partial class RoomEnemySystem
         (ushort distance, ushort angle) = CalculateYappingMawTarget(
             state.OriginX,
             state.OriginY,
-            samus.XPosition,
-            samus.YPosition);
+            samus.Position.X.Whole,
+            samus.Position.Y.Whole);
         state.DistanceToSamus = distance;
 
         if (unchecked((short)(distance - YappingMawGrabSafetyDistance)) < 0)
@@ -532,8 +532,7 @@ public sealed partial class RoomEnemySystem
             }
         }
 
-        samus.XPosition = unchecked((ushort)(slot.XPosition + state.HeldSamusXOffset));
-        samus.YPosition = unchecked((ushort)(slot.YPosition + state.HeldSamusYOffset));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(slot.XPosition + state.HeldSamusXOffset)), unchecked((ushort)(slot.YPosition + state.HeldSamusYOffset))));
         CapSamusScrollingSpeed(samus);
     }
 

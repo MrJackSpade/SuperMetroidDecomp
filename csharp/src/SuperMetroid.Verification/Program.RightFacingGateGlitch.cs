@@ -12,12 +12,10 @@ internal static partial class Program
         int ShootFrame,
         bool Opened,
         int OpenFrame,
-        int SamusX,
+        Position16<RoomPixels> Samus,
         int SamusSubX,
-        int SamusY,
         int Pose,
-        int ShotX,
-        int ShotY);
+        Position16<RoomPixels> Shot);
 
     private static void VerifyRightFacingGateGlitches()
     {
@@ -76,8 +74,7 @@ internal static partial class Program
             AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
             var samus = new SamusState
             {
-                XPosition = unchecked((ushort)x),
-                YPosition = unchecked((ushort)y),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
                 PoseId = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = 2,
                 SuperMissiles = 10,
@@ -111,15 +108,14 @@ internal static partial class Program
                     samus,
                     input,
                     input,
-                    (ushort)cameraX,
-                    (ushort)cameraY,
+                    new((ushort)cameraX, (ushort)cameraY),
                     bombs,
                     roomPlms: plms);
                 var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);
                 if (gate.LoopTimer != 0)
                 {
                     SamusProjectileSlot shot = shots.Slots[0];
-                    actual.Add($"{x},{y},{frame},{shot.XPosition},{shot.YPosition}");
+                    actual.Add($"{x},{y},{frame},{shot.Position.X.Whole},{shot.Position.Y.Whole}");
                     break;
                 }
                 plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
@@ -191,9 +187,9 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 238;
-        samus.Kinematics.XSubposition = 8191;
-        samus.YPosition = 139;
+        samus.Position = samus.Position.WithWholeX(238);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(8191);
+        samus.Position = samus.Position.WithWholeY(139);
         samus.EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots;
         samus.EquippedBeams = (ushort)(SamusBeamFlags.Ice | SamusBeamFlags.Wave);
         samus.SelectedHudItem = 2;
@@ -221,8 +217,7 @@ internal static partial class Program
             runtime.StepFrame((ushort)(SnesButton.Right | SnesButton.B));
 
         int openFrame = -1;
-        int shotX = 0;
-        int shotY = 0;
+        Position16<RoomPixels> shotPosition = Position16<RoomPixels>.Zero;
         for (int frame = 0; frame < 40; frame++)
         {
             SnesButton input = SnesButton.A | SnesButton.B | SnesButton.R;
@@ -238,8 +233,7 @@ internal static partial class Program
             // The switch consumes the projectile type in the same frame but, as on the
             // cartridge, slot zero retains the impact coordinates used by this trace.
             SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
-            shotX = shot.XPosition;
-            shotY = shot.YPosition;
+            shotPosition = shot.Position.Whole;
             break;
         }
 
@@ -248,12 +242,10 @@ internal static partial class Program
             shootFrame,
             openFrame >= 0,
             openFrame,
-            samus.XPosition,
-            samus.Kinematics.XSubposition,
-            samus.YPosition,
+            samus.Position.Whole,
+            samus.Kinematics.Position.X.Fraction,
             (int)samus.Pose,
-            shotX,
-            shotY);
+            shotPosition);
     }
 
     private static EastTunnelGateRecord ParseEastTunnelRecord(string line)
@@ -266,11 +258,9 @@ internal static partial class Program
             fields[1],
             fields[2] != 0,
             fields[3],
-            fields[4],
+            new Position16<RoomPixels>(checked((ushort)fields[4]), checked((ushort)fields[6])),
             fields[5],
-            fields[6],
             fields[7],
-            fields[8],
-            fields[9]);
+            new Position16<RoomPixels>(checked((ushort)fields[8]), checked((ushort)fields[9])));
     }
 }

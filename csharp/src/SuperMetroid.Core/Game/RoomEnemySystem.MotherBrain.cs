@@ -272,7 +272,7 @@ public sealed partial class RoomEnemySystem
         if (glassDestroyed)
         {
             state.BrainMainShakeTimer = EarthquakeTimer;
-            if (samus is not null && samus.XPosition < 0x00ec && state.Head!.Health == 0)
+            if (samus is not null && samus.Position.X.Whole < 0x00ec && state.Head!.Health == 0)
             {
                 // This is the exact first-phase exit at `$A9:87FE-$8814`. The following
                 // function remains represented by its native pointer so the next frame
@@ -475,7 +475,7 @@ public sealed partial class RoomEnemySystem
                 ref upperIndex,
                 state.NeckAngleDelta,
                 state.Head!.YPosition,
-                samus.YPosition);
+                samus.Position.Y.Whole);
             state.LowerNeckAngle = lowerAngle;
             state.UpperNeckAngle = upperAngle;
             state.LowerNeckMovementIndex = lowerIndex;
@@ -818,7 +818,7 @@ public sealed partial class RoomEnemySystem
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain onion-ring aiming requires the active Samus actor.");
-                AimMotherBrainOnionRingsAt(state, target.XPosition, target.YPosition);
+                AimMotherBrainOnionRingsAt(state, target.Position.X.Whole, target.Position.Y.Whole);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }

@@ -152,8 +152,7 @@ internal static partial class Program
             Health = 999,
             MaxHealth = 999,
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = unchecked((ushort)(actor.XPosition + 1)),
-            YPosition = state.LandingYPosition,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.XPosition + 1)), state.LandingYPosition)),
         };
         samus.RefreshCollisionRadii(rom);
         samus.InitializeAnimation(rom);
@@ -177,9 +176,9 @@ internal static partial class Program
                     selectedPresentationOperands.Add(selectedOperand);
             }
 
-            samus.XPosition = unchecked((ushort)(actor.XPosition +
-                (unchecked((short)state.XVelocity) < 0 ? -32 : 32)));
-            samus.YPosition = state.LandingYPosition;
+            samus.Position = samus.Position.WithWholeX(unchecked((ushort)(actor.XPosition +
+                (unchecked((short)state.XVelocity) < 0 ? -32 : 32))));
+            samus.Position = samus.Position.WithWholeY(state.LandingYPosition);
             foreach (RoomEnemyProjectileSlot projectile in enemies.EnemyProjectiles.Where(
                          projectile => projectile.Kind == RoomEnemyProjectileKind.AlcoonFireball))
             {

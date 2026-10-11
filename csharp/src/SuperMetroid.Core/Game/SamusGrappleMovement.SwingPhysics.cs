@@ -108,7 +108,7 @@ public static partial class SamusGrappleMovement
                 grapple,
                 grapple.Angle.TableIndex,
                 probeDistance);
-            if (IsSwingCollision(level, samus, point.BlockX, point.BlockY))
+            if (IsSwingCollision(level, samus, point.Block))
             {
                 // Native stores GrappleCollision_NewBeamLength, which is the last accepted
                 // length rather than the colliding candidate. It deliberately leaves the
@@ -327,7 +327,7 @@ public static partial class SamusGrappleMovement
                 grapple,
                 candidateAngleByte,
                 distance);
-            if (IsSwingCollision(level, samus, point.BlockX, point.BlockY))
+            if (IsSwingCollision(level, samus, point.Block))
             {
                 return new GrappleSwingCollisionResult(
                     Collided: true,
@@ -352,31 +352,28 @@ public static partial class SamusGrappleMovement
         // which the rope leaves the block: eight for a nonnegative component, seven for a
         // negative one. This one-pixel asymmetry is observable in both collision probes and
         // Samus positioning, and the adjusted endpoint remains stored after the helper.
-        grapple.AnchorX = unchecked((ushort)(
-            (grapple.AnchorX & 0xfff0) | (xSine >= 0 ? 8 : 7)));
-        grapple.AnchorY = unchecked((ushort)(
-            (grapple.AnchorY & 0xfff0) | (yNegativeCosine >= 0 ? 8 : 7)));
+        grapple.Anchor = new(
+            unchecked((ushort)((grapple.Anchor.X & 0xfff0) | (xSine >= 0 ? 8 : 7))),
+            unchecked((ushort)((grapple.Anchor.Y & 0xfff0) | (yNegativeCosine >= 0 ? 8 : 7))));
 
-        ushort x = unchecked((ushort)(grapple.AnchorX + ScaleCoordinate(xSine, distance)));
-        ushort y = unchecked((ushort)(grapple.AnchorY + ScaleCoordinate(yNegativeCosine, distance)));
+        Position16<RoomPixels> point = grapple.Anchor + new Offset16<RoomPixels>(
+            unchecked((short)ScaleCoordinate(xSine, distance)),
+            unchecked((short)ScaleCoordinate(yNegativeCosine, distance)));
 
         // The native helper masks each shifted coordinate to one byte. Rooms are authored
         // within that domain; preserving the mask matters at 16-bit world-coordinate wrap.
         return new GrappleCollisionPoint(
-            X: x,
-            Y: y,
-            BlockX: (x >> 4) & 0xff,
-            BlockY: (y >> 4) & 0xff);
+            Pixel: point,
+            Block: new((ushort)((point.X >> 4) & 0xff), (ushort)((point.Y >> 4) & 0xff)));
     }
 
     private static bool IsSwingCollision(
         RoomLevelData level,
         SamusState samus,
-        int blockX,
-        int blockY)
+        Position16<RoomBlocks> blockPosition)
     {
         RoomCollisionBlock initialBlock =
-            level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
+            level.GetCollisionBlockOrPrefilledSolid(blockPosition);
         if (initialBlock.Index < 0)
             return true;
 
@@ -454,8 +451,7 @@ public static partial class SamusGrappleMovement
         GrappleBlockReaction reaction = ReactAtEndpoint(
             level,
             samus,
-            grapple.AnchorX,
-            grapple.AnchorY);
+            grapple.Anchor);
         return reaction.Carry;
     }
 

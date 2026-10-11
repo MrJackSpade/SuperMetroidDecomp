@@ -133,8 +133,7 @@ static void VerifySamusDrainedController()
     var right = new SamusState
     {
         Pose = SamusPoseId.CrouchingRightPose,
-        XPosition = 48,
-        YPosition = 75,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
     right.RefreshCollisionRadii(bus);
     right.InitializeAnimation(bus);
@@ -146,7 +145,7 @@ static void VerifySamusDrainedController()
     right.Drained.LetFall(bus, right);
     AssertEqual(SamusPoseId.DrainedCrouchingRightPose, right.Pose,
         "drained controller zero selects right pose");
-    AssertEqual(70, right.YPosition,
+    AssertEqual(70, right.Position.Y.Whole,
         "drained controller preserves source bottom while radius grows 16 to 21");
     AssertEqual(2, right.AnimationFrame, "drained fall begins at byte index two");
     AssertEqual(0, right.Kinematics.YSpeed, "drained fall clears whole Y speed");
@@ -169,12 +168,12 @@ static void VerifySamusDrainedController()
 
     right.Kinematics.YAcceleration = 0;
     right.Kinematics.YSubacceleration = 0x4000;
-    ushort firstHandlerY = right.YPosition;
-    ushort firstHandlerYSubposition = right.Kinematics.YSubposition;
+    ushort firstHandlerY = right.Position.Y.Whole;
+    ushort firstHandlerYSubposition = right.Kinematics.Position.Y.Fraction;
     right.Drained.StepFalling(bus, level, right, 0);
-    AssertEqual(firstHandlerYSubposition, right.Kinematics.YSubposition,
+    AssertEqual(firstHandlerYSubposition, right.Kinematics.Position.Y.Fraction,
         "first drained handler call uses old zero speed");
-    AssertEqual(firstHandlerY, right.YPosition, "first drained handler frame is stationary");
+    AssertEqual(firstHandlerY, right.Position.Y.Whole, "first drained handler frame is stationary");
     AssertEqual(0x4000, right.Kinematics.YSubspeed,
         "first drained handler frame stores gravity for next call");
 
@@ -185,7 +184,7 @@ static void VerifySamusDrainedController()
             bus, level, right, unchecked((ushort)(frame + 1))),
         maximumFrames: 99,
         context: "drained handler block-floor landing");
-    AssertEqual(75, right.YPosition, "drained body rests at floor minus radius");
+    AssertEqual(75, right.Position.Y.Whole, "drained body rests at floor minus radius");
     AssertEqual(DrainedSamusPhase.OnFloor, right.Drained.Phase,
         "collision restores normal movement pointer");
     AssertEqual(7, right.AnimationFrame, "collision jumps to crouched floor art");
@@ -214,8 +213,7 @@ static void VerifySamusDrainedController()
     var left = new SamusState
     {
         Pose = SamusPoseId.CrouchingLeftPose,
-        XPosition = 48,
-        YPosition = 75,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
     left.RefreshCollisionRadii(bus);
     left.InitializeAnimation(bus);
@@ -284,8 +282,7 @@ static void VerifySamusDrainedController()
     var able = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        XPosition = 48,
-        YPosition = 75,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
     able.RefreshCollisionRadii(bus);
     able.InitializeAnimation(bus);
@@ -312,8 +309,7 @@ static void VerifySamusDrainedController()
     var unable = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        XPosition = 48,
-        YPosition = 75,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(48, 75)),
     };
     unable.RefreshCollisionRadii(bus);
     unable.InitializeAnimation(bus);
@@ -391,20 +387,16 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
     {
         for (int dx = -sweepRadius; dx <= sweepRadius; dx++)
         {
-            int enemyX = samus.XPosition + dx;
-            int enemyY = samus.YPosition + dy;
+            int enemyX = samus.Position.X.Whole + dx;
+            int enemyY = samus.Position.Y.Whole + dy;
             var probeState = new SamusKinematicsState
             {
-                XPosition = samus.XPosition,
-                XSubposition = samus.XSubposition,
-                YPosition = samus.YPosition,
-                YSubposition = samus.YSubposition,
-                XRadius = samus.XRadius,
-                YRadius = samus.YRadius,
+                Position = new(new(samus.Position.X.Whole, samus.Position.X.Fraction), new(samus.Position.Y.Whole, samus.Position.Y.Fraction)),
+                Radius = new(samus.Radius.X, samus.Radius.Y),
             };
             var enemy = new SolidEnemyCollisionBody(
-                Index: 0x0040, XPosition: unchecked((ushort)enemyX), YPosition: unchecked((ushort)enemyY),
-                XRadius: 1, YRadius: 1, FreezeTimer: 0, Properties: 0x8000);
+                Index: 0x0040, Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
+                Radius: new(1, 1), FreezeTimer: 0, Properties: 0x8000);
             if (!SamusSolidEnemyCollision.Probe(
                     probeState, [enemy], direction, distance, distanceSubposition).Collided)
                 continue;
@@ -422,14 +414,14 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
 
     int targetX = direction switch
     {
-        SamusCollisionDirection.Right => maxX - samus.XRadius,
-        SamusCollisionDirection.Left => minX + samus.XRadius,
+        SamusCollisionDirection.Right => maxX - samus.Radius.X,
+        SamusCollisionDirection.Left => minX + samus.Radius.X,
         _ => (minX + maxX) / 2,
     };
     int targetY = direction switch
     {
-        SamusCollisionDirection.Down => maxY - samus.YRadius,
-        SamusCollisionDirection.Up => minY + samus.YRadius,
+        SamusCollisionDirection.Down => maxY - samus.Radius.Y,
+        SamusCollisionDirection.Up => minY + samus.Radius.Y,
         _ => (minY + maxY) / 2,
     };
     return (unchecked((ushort)targetX), unchecked((ushort)targetY));
@@ -444,19 +436,15 @@ static void VerifySamusSolidEnemyCollision()
 {
     var samus = new SamusKinematicsState
     {
-        XPosition = 100,
-        XSubposition = 0,
-        YPosition = 100,
-        YSubposition = 0x7777,
-        XRadius = 5,
-        YRadius = 10,
+        Position = new(new(100, 0), new(100, 0x7777)),
+        Radius = new(5, 10),
     };
 
     // The no-enemy path returns A=0 and leaves Samus completely untouched.
     SolidEnemyCollisionResult empty = SamusSolidEnemyCollision.Probe(
         samus, [], SamusCollisionDirection.Right, distance: 3, distanceSubposition: 0x4000);
     AssertTrue(!empty.Collided, "empty interactive-enemy list does not collide");
-    AssertEqual(0x7777, samus.YSubposition, "no collision preserves Y subposition");
+    AssertEqual(0x7777, samus.Position.Y.Fraction, "no collision preserves Y subposition");
     AssertEqual(104, ObserveSolidEnemyProbeTarget(
             samus, SamusCollisionDirection.Right, distance: 3, distanceSubposition: 0x4000).X,
         "right fractional target rounds outward");
@@ -469,24 +457,24 @@ static void VerifySamusSolidEnemyCollision()
     AssertEqual(98, left.X, "left fractional borrow plus outward decrement");
     AssertEqual(100, left.Y, "left probe preserves target Y");
 
-    samus.XSubposition = 0xf000;
+    samus.Position = samus.Position.WithFractionX(0xf000);
     (ushort X, ushort Y) rightCarry = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0x2000);
     AssertEqual(102, rightCarry.X, "right fractional carry plus outward increment");
 
-    samus.YSubposition = 0;
+    samus.Position = samus.Position.WithFractionY(0);
     (ushort X, ushort Y) up = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Up, distance: 1, distanceSubposition: 0x8000);
     AssertEqual(97, up.Y, "up target shares negative-direction rounding");
 
-    samus.YSubposition = 0xf000;
+    samus.Position = samus.Position.WithFractionY(0xf000);
     (ushort X, ushort Y) down = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Down, distance: 1, distanceSubposition: 0x2000);
     AssertEqual(103, down.Y, "down target shares positive-direction rounding");
 
     // #1269: after a carry the INC sets Z from the target word, so `$A0:A9A7` rounds a
     // second pixel even when the carried fraction is exactly zero.
-    samus.YSubposition = 0x9800;
+    samus.Position = samus.Position.WithFractionY(0x9800);
     (ushort X, ushort Y) exactCarry = ObserveSolidEnemyProbeTarget(
         samus, SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
     AssertEqual(104, exactCarry.Y, "an exact fractional carry still rounds two pixels outward");
@@ -495,20 +483,19 @@ static void VerifySamusSolidEnemyCollision()
     // pixels below her; only the doubled rounding brings the future boxes into overlap.
     var falling = new SamusKinematicsState
     {
-        XPosition = 0x00c5, YPosition = 0x0085, YSubposition = 0x9800, XRadius = 5, YRadius = 0x13,
+        Position = new(new(0x00c5, 0), new(0x0085, 0x9800)), Radius = new(5, 0x13),
     };
     var frozenRinka = new SolidEnemyCollisionBody(
-        Index: 0x00c0, XPosition: 0x00c8, YPosition: 0x00a3, XRadius: 8, YRadius: 8,
+        Index: 0x00c0, Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
         FreezeTimer: 69, Properties: 0x2800);
     SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
         falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
     AssertTrue(landing.Collided, "a falling Samus lands on the frozen Rinka");
     AssertEqual(3, landing.Distance, "the landing stops at the Rinka's top edge");
 
-    samus.XSubposition = 0;
-    samus.YSubposition = 0x7777;
+    samus.Position = samus.Position.WithFractionX(0).WithFractionY(0x7777);
     var decorative = new SolidEnemyCollisionBody(
-        Index: 0x0040, XPosition: 110, YPosition: 100, XRadius: 5, YRadius: 5,
+        Index: 0x0040, Position: new(110, 100), Radius: new(5, 5),
         FreezeTimer: 0, Properties: 0);
     SolidEnemyCollisionResult ignored = SamusSolidEnemyCollision.Probe(
         samus, [decorative], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
@@ -519,7 +506,7 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionBody frozen = decorative with
     {
         Index = 0x0080,
-        XPosition = 111,
+        Position = decorative.Position.WithX(111),
         FreezeTimer = 1,
     };
     SolidEnemyCollisionResult frozenHit = SamusSolidEnemyCollision.Probe(
@@ -528,7 +515,7 @@ static void VerifySamusSolidEnemyCollision()
     AssertEqual(1, frozenHit.Distance, "right collision publishes current edge gap");
     AssertEqual(0x0080, frozenHit.EnemyIndex, "collision publishes native enemy index");
     AssertTrue(!frozenHit.WasTouching, "positive gap is not reported as touching");
-    AssertEqual(0x7777, samus.YSubposition, "positive-gap collision preserves Samus subposition");
+    AssertEqual(0x7777, samus.Position.Y.Fraction, "positive-gap collision preserves Samus subposition");
 
     // Property bit 15 takes the other eligibility route. Exact contact reaches `$A0:AAC8`,
     // whose STZ $0AFC bug clears Y subposition even though this is a horizontal probe.
@@ -541,32 +528,32 @@ static void VerifySamusSolidEnemyCollision()
         samus, [solidTouch], SamusCollisionDirection.Right, distance: 1, distanceSubposition: 0);
     AssertTrue(touching.Collided && touching.WasTouching, "zero-gap solid enemy takes touching path");
     AssertEqual(0, touching.Distance, "touching collision publishes zero distance");
-    AssertEqual(0, samus.YSubposition, "horizontal enemy touch preserves native Y-subposition bug");
+    AssertEqual(0, samus.Position.Y.Fraction, "horizontal enemy touch preserves native Y-subposition bug");
 
     // The future broad-phase test is strict. Boxes that merely touch at their radii sum do
     // not advance to the directional gap test.
-    SolidEnemyCollisionBody tangent = solidTouch with { XPosition = 110 };
+    SolidEnemyCollisionBody tangent = solidTouch with { Position = solidTouch.Position.WithX(110) };
     SolidEnemyCollisionResult tangentMiss = SamusSolidEnemyCollision.Probe(
         samus, [tangent], SamusCollisionDirection.Right, distance: 0, distanceSubposition: 0);
     AssertTrue(!tangentMiss.Collided, "future box tangency is not broad-phase overlap");
 
     // A negative directional gap is a signed/BPL rejection: Samus already overlaps this
     // enemy, so the routine must not trap her inside it or manufacture distance zero.
-    SolidEnemyCollisionBody embedded = solidTouch with { XPosition = 109 };
+    SolidEnemyCollisionBody embedded = solidTouch with { Position = solidTouch.Position.WithX(109) };
     SolidEnemyCollisionResult embeddedMiss = SamusSolidEnemyCollision.Probe(
         samus, [embedded], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(!embeddedMiss.Collided, "enemy already intersecting movement axis is skipped");
 
     // Broad overlap must succeed on the perpendicular axis as well.
-    SolidEnemyCollisionBody verticalMiss = frozen with { YPosition = 116 };
+    SolidEnemyCollisionBody verticalMiss = frozen with { Position = frozen.Position.WithY(116) };
     SolidEnemyCollisionResult perpendicularMiss = SamusSolidEnemyCollision.Probe(
         samus, [verticalMiss], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(!perpendicularMiss.Collided, "perpendicular separation rejects directional candidate");
 
     // Native list order wins. The first entry is farther away than the second but is still
     // returned as soon as both its broad and directional tests pass.
-    SolidEnemyCollisionBody fartherFirst = solidTouch with { Index = 0x0100, XPosition = 120 };
-    SolidEnemyCollisionBody nearerSecond = solidTouch with { Index = 0x0140, XPosition = 112 };
+    SolidEnemyCollisionBody fartherFirst = solidTouch with { Index = 0x0100, Position = solidTouch.Position.WithX(120) };
+    SolidEnemyCollisionBody nearerSecond = solidTouch with { Index = 0x0140, Position = solidTouch.Position.WithX(112) };
     SolidEnemyCollisionResult ordered = SamusSolidEnemyCollision.Probe(
         samus, [fartherFirst, nearerSecond], SamusCollisionDirection.Right,
         distance: 20, distanceSubposition: 0);
@@ -577,17 +564,15 @@ static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionBody above = solidTouch with
     {
         Index = 0x0180,
-        XPosition = 100,
-        YPosition = 84,
-        XRadius = 5,
-        YRadius = 5,
+        Position = new(100, 84),
+        Radius = new(5, 5),
     };
     SolidEnemyCollisionResult ceiling = SamusSolidEnemyCollision.Probe(
         samus, [above], SamusCollisionDirection.Up, distance: 2, distanceSubposition: 0);
     AssertTrue(ceiling.Collided, "upward solid-enemy collision detected");
     AssertEqual(1, ceiling.Distance, "upward collision publishes top-to-bottom gap");
 
-    SolidEnemyCollisionBody below = above with { Index = 0x01c0, YPosition = 116 };
+    SolidEnemyCollisionBody below = above with { Index = 0x01c0, Position = above.Position.WithY(116) };
     SolidEnemyCollisionResult floor = SamusSolidEnemyCollision.Probe(
         samus, [below], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0);
     AssertTrue(floor.Collided, "downward solid-enemy collision detected");
@@ -600,16 +585,14 @@ static void VerifySamusSolidEnemyCollision()
     RoomLevelData airRoom = CreateEmptyRoom(roomWidth, roomHeight);
     var integrated = new SamusKinematicsState
     {
-        XPosition = 100,
-        YPosition = 100,
-        XRadius = 5,
-        YRadius = 10,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+        Radius = new(5, 10),
         InteractiveEnemies = [frozen],
     };
     BlockMoveResult integratedHorizontal = SamusBlockCollision.MoveHorizontal(
         new TestAddressSpace(), airRoom, integrated, displacement: 2 << 16);
     AssertTrue(integratedHorizontal.Collided, "ordinary horizontal mover reports enemy collision");
-    AssertEqual(101, integrated.XPosition, "ordinary horizontal mover clips to enemy gap");
+    AssertEqual(101, integrated.Position.X.Whole, "ordinary horizontal mover clips to enemy gap");
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
         "enemy collision, not an invented terrain block, stops the ordinary mover");
     AssertEqual(
@@ -617,7 +600,7 @@ static void VerifySamusSolidEnemyCollision()
         integratedHorizontal.EnemyCollision?.EnemyIndex,
         "ordinary mover retains colliding enemy identity");
 
-    integrated.YPosition = 100;
+    integrated.Position = integrated.Position.WithWholeY(100);
     integrated.InteractiveEnemies = [below];
     BlockMoveResult integratedVertical = SamusBlockCollision.MoveVertical(
         new TestAddressSpace(),
@@ -626,22 +609,20 @@ static void VerifySamusSolidEnemyCollision()
         displacement: 2 << 16,
         scanLeftToRight: true);
     AssertTrue(integratedVertical.Collided, "ordinary vertical mover reports enemy collision");
-    AssertEqual(101, integrated.YPosition, "ordinary vertical mover clips to enemy gap");
+    AssertEqual(101, integrated.Position.Y.Whole, "ordinary vertical mover clips to enemy gap");
     AssertEqual(0x01c0, integratedVertical.EnemyCollision?.EnemyIndex,
         "vertical mover retains colliding enemy identity");
 
     // Wall-jump probing copies Samus so it cannot commit movement. The one exception is the
     // original `$A0:AAC8` touching bug, which still clears the real Y subposition.
-    integrated.XPosition = 100;
-    integrated.YPosition = 100;
-    integrated.YSubposition = 0x4321;
+    integrated.Position = integrated.Position.WithWholeX(100).WithWholeY(100).WithFractionY(0x4321);
     integrated.InteractiveEnemies = [solidTouch];
     BlockMoveResult wallProbe = SamusBlockCollision.ProbeWallHorizontal(
         new TestAddressSpace(), airRoom, integrated, signedDistance: 1 << 16);
     AssertTrue(wallProbe.EnemyCollision is { WasTouching: true },
         "wall probe detects touching enemy before blocks");
-    AssertEqual(100, integrated.XPosition, "wall probe does not commit X motion");
-    AssertEqual(0, integrated.YSubposition, "wall probe commits only native touching side effect");
+    AssertEqual(100, integrated.Position.X.Whole, "wall probe does not commit X motion");
+    AssertEqual(0, integrated.Position.Y.Fraction, "wall probe commits only native touching side effect");
 
     AssertThrows<ArgumentOutOfRangeException>(
         () => SamusSolidEnemyCollision.Probe(
@@ -779,25 +760,25 @@ static void VerifySamusGrabbedByDraygon()
         AssertTrue(!history.AllowsWallJumpProbe, "Draygon release cannot retain pre-grab spin eligibility");
     }
 
-    var samus = new SamusState { XPosition = 0x0080, YPosition = 0x0100 };
+    var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) };
     samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
     AssertEqual(SamusPoseId.DraygonGrabbedNeutralRightPose, samus.Pose,
         "right-facing Draygon entry selects $EC");
-    AssertEqual(21, samus.Kinematics.YRadius, "Draygon entry loads radius 21");
+    AssertEqual(21, samus.Kinematics.Radius.Y, "Draygon entry loads radius 21");
 
     samus.DraygonGrabbed.ApplyOwnerPosition(
-        samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: true);
-    AssertEqual(8, samus.XPosition - samus.DraygonGrabbed.OwnerXPosition,
+        samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: true);
+    AssertEqual(8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerPosition.X,
         "right-facing claw offset is +8");
-    AssertEqual(0x0108, samus.XPosition, "right-facing owner placement X");
-    AssertEqual(0x01a8, samus.YPosition, "owner placement Y is body plus $28");
+    AssertEqual(0x0108, samus.Position.X.Whole, "right-facing owner placement X");
+    AssertEqual(0x01a8, samus.Position.Y.Whole, "owner placement Y is body plus $28");
 
     samus.SolidVerticalCollisionResult = 5;
     SamusDraygonGrabbedState.StepMovement(samus);
     AssertEqual(0, samus.SolidVerticalCollisionResult,
         "type-$1A performs its sole STZ side effect on the stale vertical collision word");
-    AssertEqual(0x0108, samus.XPosition, "type-$1A does not move X");
-    AssertEqual(0x01a8, samus.YPosition, "type-$1A does not move Y");
+    AssertEqual(0x0108, samus.Position.X.Whole, "type-$1A does not move X");
+    AssertEqual(0x01a8, samus.Position.Y.Whole, "type-$1A does not move Y");
 
     // The larger right+up+shoot chord must select the first `$AE56` record (`$ED`), not
     // the later generic shoot record (`$EE`), proving ROM priority rather than host rules.
@@ -873,10 +854,10 @@ static void VerifySamusGrabbedByDraygon()
     // Mirror the entry/owner/release direction without repeating the 60-input route.
     samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
     samus.DraygonGrabbed.ApplyOwnerPosition(
-        samus, ownerXPosition: 0x0100, ownerYPosition: 0x0180, draygonFacingRight: false);
-    AssertEqual(-8, samus.XPosition - samus.DraygonGrabbed.OwnerXPosition,
+        samus, ownerPosition: new(0x0100, 0x0180), draygonFacingRight: false);
+    AssertEqual(-8, samus.Position.X.Whole - samus.DraygonGrabbed.OwnerPosition.X,
         "left-facing claw offset is -8");
-    AssertEqual(0x00f8, samus.XPosition, "left-facing owner placement X");
+    AssertEqual(0x00f8, samus.Position.X.Whole, "left-facing owner placement X");
     samus.DraygonGrabbed.Release(bus, samus);
     AssertEqual(SamusPoseId.FacingLeftNormalPose, samus.Pose,
         "left grabbed family releases to pose $02");

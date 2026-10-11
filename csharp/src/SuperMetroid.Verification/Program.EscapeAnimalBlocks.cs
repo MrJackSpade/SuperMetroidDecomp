@@ -26,7 +26,7 @@ internal static partial class Program
             AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "rescue extensions preserve visual tile");
         for (int y = 10; y <= 12; y++)
         {
-            var samus = new SamusState { XPosition = 248, YPosition = (ushort)(y * 16 + 8) };
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(248, (ushort)(y * 16 + 8))) };
             SeedStationaryGrappleCollisionProbe(bus, samus);
             int before = plms.ActiveCount;
             SamusGrappleMovement.StepFiring(bus, level, samus,

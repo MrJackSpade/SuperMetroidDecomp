@@ -25,8 +25,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             CollectedBeams = 0x100f,
@@ -58,8 +57,7 @@ internal static partial class Program
             samus,
             0,
             0,
-            0,
-            0,
+            new(0, 0),
             shared);
         AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             "charged-left Murder Beam allocates slot zero");
@@ -71,16 +69,16 @@ internal static partial class Program
         AssertEqual((ushort)200, shot.Damage, "Murder Beam uses the native 200-damage record");
         AssertEqual((ushort)SamusProjectileDirection.Left, shot.Direction,
             "safe Murder Beam faces left");
-        AssertEqual((ushort)116, shot.XPosition, "Murder Beam native muzzle X");
-        AssertEqual((ushort)123, shot.YPosition, "Murder Beam native muzzle Y");
+        AssertEqual((ushort)116, shot.Position.X.Whole, "Murder Beam native muzzle X");
+        AssertEqual((ushort)123, shot.Position.Y.Whole, "Murder Beam native muzzle Y");
         AssertEqual(SamusProjectilePreInstruction.MurderBeamMisalignedExecution,
             shot.PreInstruction, "Murder Beam retains its overread callback identity");
         AssertEqual((ushort)0, shot.InstructionPointer,
             "safe left-facing data record selects no animation list");
-        AssertEqual((ushort)0, shot.XRadius, "safe Murder Beam X radius");
-        AssertEqual((ushort)0, shot.YRadius, "safe Murder Beam Y radius");
-        AssertEqual((short)0, shot.XVelocity, "safe Murder Beam X speed");
-        AssertEqual((short)0, shot.YVelocity, "safe Murder Beam Y speed");
+        AssertEqual((ushort)0, shot.Radius.X, "safe Murder Beam X radius");
+        AssertEqual((ushort)0, shot.Radius.Y, "safe Murder Beam Y radius");
+        AssertEqual((short)0, shot.Velocity.X.SignedRawValue, "safe Murder Beam X speed");
+        AssertEqual((short)0, shot.Velocity.Y.SignedRawValue, "safe Murder Beam Y speed");
         AssertTrue(!shot.IsActive, "zero-list Murder Beam is not animated or drawn");
         AssertTrue(shot.HasEnemyCollisionPayload,
             "zero-list Murder Beam remains visible to bank-$A0 enemy collision");
@@ -90,12 +88,12 @@ internal static partial class Program
         for (int frame = 0; frame < 16; frame++)
         {
             shared.StepFrame(bus, level, samus, 0, 0);
-            projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, shared);
+            projectiles.StepFrame(bus, level, samus, 0, 0, new(0, 0), shared);
         }
         AssertEqual((ushort)0x901f, shot.Type, "Murder Beam persists without an instruction list");
         AssertEqual((ushort)200, shot.Damage, "persistent Murder Beam retains damage");
-        AssertEqual((ushort)116, shot.XPosition, "persistent Murder Beam remains fixed in world X");
-        AssertEqual((ushort)123, shot.YPosition, "persistent Murder Beam remains fixed in world Y");
+        AssertEqual((ushort)116, shot.Position.X.Whole, "persistent Murder Beam remains fixed in world X");
+        AssertEqual((ushort)123, shot.Position.Y.Whole, "persistent Murder Beam remains fixed in world Y");
 
         EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.Slots[0];
@@ -106,8 +104,8 @@ internal static partial class Program
             ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
-        target.XPosition = shot.XPosition;
-        target.YPosition = shot.YPosition;
+        target.XPosition = shot.Position.X.Whole;
+        target.YPosition = shot.Position.Y.Whole;
         target.XRadius = target.YRadius = 16;
         target.Health = 1000;
         target.SpritemapPointer = 0x8000;
@@ -154,7 +152,7 @@ internal static partial class Program
         for (int frame = 0; frame < 120; frame++)
         {
             shared.StepFrame(bus, level, samus, 0, 0);
-            projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, shared);
+            projectiles.StepFrame(bus, level, samus, 0, 0, new(0, 0), shared);
         }
         AssertEqual((ushort)0x901f, shot.Type,
             "Murder Beam survives the phase-two to phase-three cutscene boundary");
@@ -190,8 +188,7 @@ internal static partial class Program
                 samus,
                 (ushort)SnesButton.X,
                 newlyPressed,
-                0,
-                0,
+                new(0, 0),
                 shared);
         }
         AssertEqual(SamusProjectileRomData.Beams.FullyChargedCounter,
@@ -205,8 +202,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x1007,
             SelectedHudItem = 0,
         };
@@ -217,7 +213,7 @@ internal static partial class Program
         AssertThrows<NotSupportedException>(() =>
         {
             shared.StepFrame(bus, level, samus, 0, 0);
-            projectiles.StepFrame(bus, level, samus, 0, 0, 0, 0, shared);
+            projectiles.StepFrame(bus, level, samus, 0, 0, new(0, 0), shared);
         }, "unsafe right-facing Murder Beam does not silently become an ordinary projectile");
     }
 
@@ -228,8 +224,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x100f,
             Missiles = 5,
         };
@@ -251,8 +246,7 @@ internal static partial class Program
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             shared);
         AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
             "auto-cancel setup fires one Missile");
@@ -265,7 +259,7 @@ internal static partial class Program
         shared.StepFrame(bus, level, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeMurder = projectiles.ObserveSlots();
         projectiles.StepFrame(
-            bus, level, samus, 0, 0, 0, 0, shared);
+            bus, level, samus, 0, 0, new(0, 0), shared);
         int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
         AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
@@ -280,8 +274,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x100f,
         };
         AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(
@@ -290,8 +283,7 @@ internal static partial class Program
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
     }

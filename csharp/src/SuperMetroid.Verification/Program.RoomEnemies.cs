@@ -329,8 +329,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Type = 0x8200;
     owner.Damage = 0x012c;
     owner.Direction = (ushort)SamusProjectileDirection.Right;
-    owner.XPosition = 0x01b7;
-    owner.YPosition = 0x0196;
+    owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.InstructionPointer = 0x9f3b;
     owner.InstructionTimer = 15;
     owner.SpritemapPointer = 0xae0f;
@@ -340,8 +339,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
     link.Type = 0x8200;
     link.Damage = 0x012c;
     link.Direction = (ushort)SamusProjectileDirection.Right;
-    link.XPosition = 0x01af;
-    link.YPosition = 0x0196;
+    link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.InstructionPointer = 0x9f7b;
     link.InstructionTimer = 1;
     link.SpritemapPointer = 0;
@@ -539,8 +537,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
-            XPosition = ripper.XPosition,
-            YPosition = ripper.YPosition,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(ripper.XPosition, ripper.YPosition)),
         };
         enemies.StepFrame(0, 0, false, touchingSamus, level: level, resolveSamusContactBeforeAi: true);
         AssertEqual(0, ripper.InvincibilityTimer, "ordinary frame expires the last invincibility tick");
@@ -604,8 +601,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
-        XPosition = ripper.XPosition,
-        YPosition = ripper.YPosition,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(ripper.XPosition, ripper.YPosition)),
     };
     AssertTrue(enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0),
         "Ripper radius contact reaches common touch AI");
@@ -637,10 +633,8 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         projectile.Type = type;
         projectile.Damage = damage;
         projectile.Direction = 2;
-        projectile.XPosition = target.XPosition;
-        projectile.YPosition = target.YPosition;
-        projectile.XRadius = 4;
-        projectile.YRadius = 4;
+        projectile.Position = projectile.Position.WithWhole(new(target.XPosition, target.YPosition));
+        projectile.Radius = new(4, 4);
         projectile.InstructionPointer = 0x9000;
         projectile.InstructionTimer = 1;
     }
@@ -846,7 +840,7 @@ static void VerifyCeresDoorBossBranch()
 
     bool areaBossDefeated = false;
     int areaBossReads = 0;
-    var samus = new SamusState { XPosition = 0x0008, YPosition = 0x007f };
+    var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
     var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(
         bus,
@@ -1365,8 +1359,7 @@ static void VerifyCeresRidleyRoomEntry()
     state.TailWhipTargetClockwiseAngle = 0xffff;
     state.TailWhipTargetCounterClockwiseAngle = 0xffff;
     state.Function = RidleyAiFunction.CeresLungeSetup;
-    samus.XPosition = unchecked((ushort)(ridley.XPosition - 64));
-    samus.YPosition = unchecked((ushort)(ridley.YPosition + 68));
+    samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.XPosition - 64)), unchecked((ushort)(ridley.YPosition + 68))));
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
     AssertEqual((ushort)RidleyAiFunction.CeresLungeMain, (ushort)state.Function,
         "Ceres Ridley enters lunge main");
@@ -1401,8 +1394,7 @@ static void VerifyCeresRidleyRoomEntry()
         // Place Samus relative to the active component, then retain native muzzle offset
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
-        samus.XPosition = unchecked((ushort)(ridley.XPosition + 8));
-        samus.YPosition = ridley.YPosition;
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.XPosition + 8)), ridley.YPosition));
         sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
         projectiles.StepFrame(
@@ -1411,12 +1403,11 @@ static void VerifyCeresRidleyRoomEntry()
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             sharedProjectiles);
         AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
-        AssertTrue(projectiles.Slots[0].XPosition - projectiles.Slots[0].XRadius > ridley.XPosition + 8,
+        AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.XPosition + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
         AssertEqual(1, enemies.ResolveCeresRidleyProjectileHits(
             bus, projectiles, sharedProjectiles),
@@ -1435,7 +1426,7 @@ static void VerifyCeresRidleyRoomEntry()
         for (int explosionFrame = 0; explosionFrame < nativeExplosionFrames; explosionFrame++)
         {
             sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
-            projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);
+            projectiles.StepFrame(bus, air, samus, 0, 0, new(0, 0), sharedProjectiles);
         }
 
         // This focused hit-counter test used to patch the cartridge cooldown to one.
@@ -1444,7 +1435,7 @@ static void VerifyCeresRidleyRoomEntry()
         for (int cooldownFrame = 0; cooldownFrame < 15 && sharedProjectiles.CooldownTimer != 0; cooldownFrame++)
         {
             sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
-            projectiles.StepFrame(bus, air, samus, 0, 0, 0, 0, sharedProjectiles);
+            projectiles.StepFrame(bus, air, samus, 0, 0, new(0, 0), sharedProjectiles);
         }
         AssertEqual((ushort)0, sharedProjectiles.CooldownTimer, "Native cooldown expires before the next Ceres shot");
 

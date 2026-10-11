@@ -356,9 +356,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>Elevator_Func_4</c> at $A3:9612.</summary>
     private static void PinSamusToElevator(RoomEnemySlot slot, SamusState samus)
     {
-        samus.YPosition = unchecked((ushort)(slot.YPosition - ElevatorActorDefinitions.SamusYOffset));
-        samus.Kinematics.YSubposition = 0;
-        samus.XPosition = slot.XPosition;
+        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(slot.YPosition - ElevatorActorDefinitions.SamusYOffset)));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
+        samus.Position = samus.Position.WithWholeX(slot.XPosition);
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
     }

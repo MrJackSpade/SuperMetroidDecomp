@@ -107,12 +107,12 @@ public sealed partial class SamusProjectileSystem
         slot.Damage = SamusProjectileDamageDefinitions.Read(data);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             AddWithinBank(data, 2 + slot.PackedDirection.DirectionIndex * 2));
-        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
+        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
             SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(slot.InstructionPointer + 4)));
-        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(
+                unchecked((ushort)(slot.InstructionPointer + 4))));
+        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
             SamusProjectileRomData.Banks.Projectile |
-                unchecked((ushort)(slot.InstructionPointer + 5)));
+                unchecked((ushort)(slot.InstructionPointer + 5))));
         slot.InstructionTimer = 1;
 
         if (family == SamusProjectileFamily.Missile)
@@ -155,7 +155,7 @@ public sealed partial class SamusProjectileSystem
             if ((slot.Type & 0x0fff) != 0x0100)
                 continue;
 
-            if (unchecked((short)(slot.XPosition - 0x0054)) >= 0)
+            if (unchecked((short)(slot.Position.X.Whole - 0x0054)) >= 0)
                 return false;
 
             KillMissile(slot, sharedProjectiles);
@@ -299,10 +299,8 @@ public sealed partial class SamusProjectileSystem
         byte leftX = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 0, unchecked((ushort)(y - 1))) >> 8);
         byte rightY = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 2, y) >> 8);
         byte rightX = (byte)(ProjectileTrailCoordinateDefinitions.ReadCoordinateWord(bus, 1, y) >> 8);
-        trail.Left.XPosition = AddSignedOffset(projectile.XPosition, leftX, -4);
-        trail.Left.YPosition = AddSignedOffset(projectile.YPosition, leftY, -4);
-        trail.Right.XPosition = AddSignedOffset(projectile.XPosition, rightX, -4);
-        trail.Right.YPosition = AddSignedOffset(projectile.YPosition, rightY, -4);
+        trail.Left.Position = trail.Left.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, leftX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, leftY, -4));
+        trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
     }
 
     private static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
@@ -320,8 +318,7 @@ public sealed partial class SamusProjectileSystem
         ISnesAddressSpace bus,
         OamBuffer oam,
         SamusProjectileTrailSlot pair,
-        ushort layer1X,
-        ushort layer1Y,
+        Position16<RoomPixels> layer1,
         bool timeIsFrozen,
         bool isLeft,
         Assets.ProjectileTrailCatalog? artwork)
@@ -369,13 +366,13 @@ public sealed partial class SamusProjectileSystem
                         // The opcode names its destination array. Both streams dispatch
                         // the same handlers, including writes to their sibling's position.
                         case ProjectileTrailInstruction.MoveLeftDown:
-                            pair.Left.YPosition = unchecked((ushort)(pair.Left.YPosition + 1));
+                            pair.Left.Position = pair.Left.Position.WithY(unchecked((ushort)(pair.Left.Position.Y + 1)));
                             break;
                         case ProjectileTrailInstruction.MoveRightDown:
-                            pair.Right.YPosition = unchecked((ushort)(pair.Right.YPosition + 1));
+                            pair.Right.Position = pair.Right.Position.WithY(unchecked((ushort)(pair.Right.Position.Y + 1)));
                             break;
                         case ProjectileTrailInstruction.MoveLeftUp:
-                            pair.Left.YPosition = unchecked((ushort)(pair.Left.YPosition - 1));
+                            pair.Left.Position = pair.Left.Position.WithY(unchecked((ushort)(pair.Left.Position.Y - 1)));
                             break;
                         default:
                             throw new InvalidOperationException($"Undefined {nameof(ProjectileTrailInstruction)} {instructionOrTimer:X4}.");
@@ -387,8 +384,8 @@ public sealed partial class SamusProjectileSystem
         // `$90:B6F4/$B703` require both complete 16-bit camera-relative coordinates to have
         // a zero high byte. Unlike the generic spritemap path, negative or 256+ coordinates
         // are skipped rather than wrapped or parked.
-        ushort screenX = unchecked((ushort)(side.XPosition - layer1X));
-        ushort screenY = unchecked((ushort)(side.YPosition - layer1Y));
+        ushort screenX = unchecked((ushort)(side.Position.X - layer1.X));
+        ushort screenY = unchecked((ushort)(side.Position.Y - layer1.Y));
         if ((screenX & 0xff00) != 0 || (screenY & 0xff00) != 0)
             return;
 
@@ -403,10 +400,7 @@ public sealed partial class SamusProjectileSystem
         RoomPlmSystem? roomPlms,
         bool waveBeam = false)
     {
-        (slot.XPosition, slot.XSubposition) = AddVelocity(
-            slot.XPosition,
-            slot.XSubposition,
-            slot.XVelocity);
+        slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X.SignedRawValue));
 
         if (waveBeam)
         {
@@ -430,10 +424,10 @@ public sealed partial class SamusProjectileSystem
         // the sole exception: `$90:BDA4/$BDF2` writes -1 before the horizontal scan so the
         // amount-sign branch samples the left radius. Diagonal-left directions retain zero,
         // including the cartridge's counterintuitive right-edge initial horizontal probe.
-        slot.XVelocity = slot.PackedDirection.Direction == SamusProjectileDirection.Left
+        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(slot.PackedDirection.Direction == SamusProjectileDirection.Left
             ? (short)-1
-            : (short)0;
-        slot.YVelocity = 0;
+            : (short)0));
+        slot.Velocity = slot.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(0));
 
         SamusProjectileDirection direction = slot.PackedDirection.Direction;
         bool collided = false;
@@ -489,10 +483,7 @@ public sealed partial class SamusProjectileSystem
         RoomPlmSystem? roomPlms,
         bool waveBeam = false)
     {
-        (slot.YPosition, slot.YSubposition) = AddVelocity(
-            slot.YPosition,
-            slot.YSubposition,
-            slot.YVelocity);
+        slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
         if (waveBeam)
         {
@@ -507,11 +498,11 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
     {
-        int topBlock = unchecked((ushort)(slot.YPosition - slot.YRadius)) >> 4;
-        int bottomBlock = unchecked((ushort)(slot.YPosition + slot.YRadius - 1)) >> 4;
-        int targetX = slot.XVelocity < 0
-            ? unchecked((ushort)(slot.XPosition - slot.XRadius))
-            : unchecked((ushort)(slot.XPosition + slot.XRadius - 1));
+        int topBlock = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)) >> 4;
+        int bottomBlock = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1)) >> 4;
+        int targetX = slot.Velocity.X.SignedRawValue < 0
+            ? unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X))
+            : unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
         int blockX = targetX >> 4;
 
         if ((uint)blockX >= (uint)level.Size.X ||
@@ -542,11 +533,11 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         RoomPlmSystem? roomPlms)
     {
-        int leftBlock = unchecked((ushort)(slot.XPosition - slot.XRadius)) >> 4;
-        int rightBlock = unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) >> 4;
-        int targetY = slot.YVelocity < 0
-            ? unchecked((ushort)(slot.YPosition - slot.YRadius))
-            : unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
+        int leftBlock = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
+        int rightBlock = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
+        int targetY = slot.Velocity.Y.SignedRawValue < 0
+            ? unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))
+            : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int blockY = targetY >> 4;
 
         if ((uint)blockY >= (uint)level.Size.Y ||
@@ -600,8 +591,8 @@ public sealed partial class SamusProjectileSystem
         {
             // The leading edge picks the column half; the scan then tests top/bottom rows.
             int cell = flips ^ ((span.TargetBoundary & 8) >> 3);
-            bool topEdgeInBottomHalf = (unchecked((ushort)(slot.YPosition - slot.YRadius)) & 8) != 0;
-            bool bottomEdgeInBottomHalf = (unchecked((ushort)(slot.YPosition + slot.YRadius - 1)) & 8) != 0;
+            bool topEdgeInBottomHalf = (unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)) & 8) != 0;
+            bool bottomEdgeInBottomHalf = (unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1)) & 8) != 0;
             if (span.Span == 0)
                 return (!topEdgeInBottomHalf && Solid(cell)) || (bottomEdgeInBottomHalf && Solid(cell ^ 2));
             if (span.Remaining == 0)
@@ -613,8 +604,8 @@ public sealed partial class SamusProjectileSystem
 
         // The leading edge picks the row half; the scan then tests left/right columns.
         int rowCell = flips ^ ((span.TargetBoundary & 8) >> 2);
-        bool leftEdgeInRightHalf = (unchecked((ushort)(slot.XPosition - slot.XRadius)) & 8) != 0;
-        bool rightEdgeInRightHalf = (unchecked((ushort)(slot.XPosition + slot.XRadius - 1)) & 8) != 0;
+        bool leftEdgeInRightHalf = (unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) & 8) != 0;
+        bool rightEdgeInRightHalf = (unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) & 8) != 0;
         if (span.Span == 0)
             return (!leftEdgeInRightHalf && Solid(rowCell)) || (rightEdgeInRightHalf && Solid(rowCell ^ 1));
         if (span.Remaining == 0)
@@ -649,12 +640,12 @@ public sealed partial class SamusProjectileSystem
         {
             // $94:A147/A15E dispatch non-square slopes through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
-            int centerBlock = horizontalMovement ? slot.YPosition >> 4 : slot.XPosition >> 4;
+            int centerBlock = horizontalMovement ? slot.Position.Y.Whole >> 4 : slot.Position.X.Whole >> 4;
             int slopeBlock = horizontalMovement ? block.Index / level.Size.X : block.Index % level.Size.X;
             if (centerBlock != slopeBlock) return false;
 
-            int x = slot.XPosition & 15;
-            int y = slot.YPosition & 15;
+            int x = slot.Position.X.Whole & 15;
+            int y = slot.Position.Y.Whole & 15;
             if (block.Bts.SlopeFlipsHorizontally) x ^= 15;
             if (block.Bts.SlopeFlipsVertically) y ^= 15;
             bool hit = SlopeHeightDefinitions.Read(block.Bts.SlopeShape, x) <= y;
@@ -837,20 +828,13 @@ public sealed partial class SamusProjectileSystem
             $"Projectile hit resident-trigger block {block.Index} with no active PLM owner.");
     }
 
-    private static (ushort Position, ushort Subposition) AddVelocity(
-        ushort position,
-        ushort subposition,
-        short velocity)
-    {
-        // Bank $94 overlaps DP $12/$13 so an 8.8 velocity becomes a signed 16.16 delta by
-        // shifting it left eight. Performing the addition as one wrapped 32-bit quantity is
-        // exactly equivalent to its low-word ADC followed by sign-word ADC.
-        SnesFixedPosition result = SnesSignedEightEight
-            .FromSignedRaw(velocity)
-            .ToSixteenSixteenDelta()
-            .AddTo(position, subposition);
-        return (result.Whole, result.Fraction);
-    }
+    /// <summary>
+    /// Bank $94 overlaps DP $12/$13 so an 8.8 velocity word becomes a signed 16.16 delta by
+    /// shifting it left eight. Advancing by it as one wrapped 32-bit quantity is exactly
+    /// equivalent to its low-word ADC followed by sign-word ADC.
+    /// </summary>
+    private static SnesSignedSixteenSixteen EightEightDelta(short velocity) =>
+        SnesSignedEightEight.FromSignedRaw(velocity).ToSixteenSixteenDelta();
 
     /// <summary>
     /// $90:AE06 Kill_Projectile for a beam, as bank $94's block collision calls it: the
@@ -869,14 +853,14 @@ public sealed partial class SamusProjectileSystem
         // the instruction list. Diagonals adjust both axes in their respective signs.
         byte direction = unchecked((byte)(slot.Direction & 0x0f));
         if (direction is 1 or 2 or 3)
-            slot.XPosition = unchecked((ushort)(slot.XPosition + slot.XRadius));
+            slot.Position += new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
         else if (direction is 6 or 7 or 8)
-            slot.XPosition = unchecked((ushort)(slot.XPosition - slot.XRadius));
+            slot.Position -= new Offset16<RoomPixels>(unchecked((short)slot.Radius.X), 0);
 
         if (direction is 0 or 1 or 8 or 9)
-            slot.YPosition = unchecked((ushort)(slot.YPosition - slot.YRadius));
+            slot.Position -= new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
         else if (direction is 3 or 4 or 5 or 6)
-            slot.YPosition = unchecked((ushort)(slot.YPosition + slot.YRadius));
+            slot.Position += new Offset16<RoomPixels>(0, unchecked((short)slot.Radius.Y));
 
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.BeamExplosion);
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(

@@ -27,7 +27,7 @@ internal static partial class Program
             projectiles.Reset();
             var shot = projectiles.Slots[0];
             shot.Type = family; shot.InstructionPointer = 1; shot.SpritemapPointer = sprite;
-            shot.XPosition = 100; shot.YPosition = 100;
+            shot.Position = shot.Position.WithWhole(new(100, 100));
             game.BindProjectileCompositions(RepositoryInstallation.Projectiles.Catalog);
             byte[] native = Draw(intro);
             game.BindProjectileCompositions(stock);
@@ -45,7 +45,7 @@ internal static partial class Program
         var editedTrails = ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())));
         var side = projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = 100;
-        side.XPosition = 100; side.YPosition = 100; side.TileNumberAttributes = trails.Resolve(frame);
+        side.Position = side.Position.WithX(100).WithY(100); side.TileNumberAttributes = trails.Resolve(frame);
         byte[] nativeTrail = Draw(intro);
         game.BindTrailArtwork(trails);
         AssertTrue(nativeTrail.SequenceEqual(Draw(intro)), "Intro stock trail binding preserves native OAM");

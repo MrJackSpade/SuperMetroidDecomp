@@ -24,8 +24,8 @@ internal static partial class Program
             var level = runtime.LevelData!;
             bool left = setup.Room == RoomHeaderPointers.GreenBrinstarMainShaft;
             var samus = runtime.Samus!;
-            samus.XPosition = (ushort)setup.X; samus.YPosition = (ushort)setup.Y;
-            samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+            samus.Position = samus.Position.WithWhole(new((ushort)setup.X, (ushort)setup.Y));
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
             samus.PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose;
             samus.EquippedBeams = (ushort)beams;
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(setup.Target).CollisionType, "Retail remote cap begins closed");
@@ -37,7 +37,7 @@ internal static partial class Program
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 runtime.BombProjectiles.StepFrame(bus, level, samus, input, input);
-                runtime.Projectiles.StepFrame(bus, level, samus, input, input, cameraX, cameraY, runtime.BombProjectiles, roomPlms: runtime.Plms);
+                runtime.Projectiles.StepFrame(bus, level, samus, input, input, new(cameraX, cameraY), runtime.BombProjectiles, roomPlms: runtime.Plms);
                 if (firstHit < 0 && runtime.Plms.PopulationSlots.Any(slot => slot.BlockIndex == setup.Target && slot.HeaderPointer == PlmHeaderId.BlueDoorFacingRight))
                     firstHit = frame;
                 runtime.Plms.Step(bus, level, runtime.BackgroundStreamer!, new(cameraX, cameraY), 0);

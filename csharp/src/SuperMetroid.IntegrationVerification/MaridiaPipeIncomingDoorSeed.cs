@@ -24,8 +24,8 @@ internal static class MaridiaPipeIncomingDoorSeed
         ushort y = checked((ushort)((entry / level.Size.X) * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom,
             new Position16<RoomPixels>((ushort)(x & 0xff00), (ushort)(y & 0xff00)));
-        runtime.Samus!.Kinematics.SetXFixed((uint)x << 16);
-        runtime.Samus.Kinematics.SetYFixed((uint)y << 16);
+        runtime.Samus!.Kinematics.Position = runtime.Samus!.Kinematics.Position.WithX(new SnesFixedPosition(x, 0));
+        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithY(new SnesFixedPosition(y, 0));
         // Let gravity reach the authored door block. Publishing a pending door here
         // skipped the source camera's approach and retained an arbitrary scroll phase.
         Console.WriteLine($"incoming seed block={entry} Samus={x}/{y} door={door.Pointer:X4}");

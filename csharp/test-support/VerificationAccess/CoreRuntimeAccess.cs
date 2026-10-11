@@ -39,8 +39,8 @@ internal static class SuperMetroidRuntimeAccess
 
             // Radius is pose data, so construct/refresh pose $01 before deriving the surface
             // center. The temporary Y=0 is never rendered or stepped.
-            self.InitializeDebugSamus(xPosition, yPosition: 0);
-            ushort yRadius = self.Samus!.Kinematics.YRadius;
+            self.InitializeDebugSamus(new(xPosition, 0));
+            ushort yRadius = self.Samus!.Kinematics.Radius.Y;
 
             if ((uint)minimumFloorBlockY >= (uint)self.LevelData.Size.Y)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
@@ -85,7 +85,7 @@ internal static class SuperMetroidRuntimeAccess
                     // Entry placement clamps a requested origin left of or above the room to zero.
                     (ushort)Math.Max(0, xPosition - 0x60),
                     (ushort)Math.Max(0, restingY - desiredScreenY)));
-                self.Samus.YPosition = restingY;
+                self.Samus.Position = self.Samus.Position.WithWholeY(restingY);
                 PrivateState.SetProperty(self, "GroundedSamusMovementEnabled", true);
                 PrivateState.SetProperty(self, "LastGroundedSamusMovement", null);
                 PrivateState.SetProperty(self, "LastAerialSamusMovement", null);
@@ -95,11 +95,9 @@ internal static class SuperMetroidRuntimeAccess
                 self.BombProjectiles.Reset();
                 self.Projectiles.Reset(self.Samus);
                 return new DebugGroundedSamusPlacement(
-                    xPosition,
-                    restingY,
+                    new(xPosition, restingY),
                     desiredScreenY,
-                    blockX,
-                    blockY,
+                    new(checked((ushort)blockX), checked((ushort)blockY)),
                     floor,
                     height);
             }
@@ -112,14 +110,13 @@ internal static class SuperMetroidRuntimeAccess
         internal void LoadDebugGrapplePalette() => PrivateState.Invoke(self, "LoadGrapplePalette");
 
         /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
-        internal void InitializeDebugSamus(ushort xPosition, ushort yPosition)
+        internal void InitializeDebugSamus(Position16<RoomPixels> position)
         {
             PrivateState.SetProperty(self, "Samus", new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = 0,
-                XPosition = xPosition,
-                YPosition = yPosition,
+                Position = FixedPosition<RoomPixels>.FromWhole(position),
             });
             PrivateState.Invoke(self, "BindSamusPalettePresentation");
 

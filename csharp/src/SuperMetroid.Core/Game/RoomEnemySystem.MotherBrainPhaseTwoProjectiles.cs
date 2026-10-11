@@ -219,7 +219,7 @@ public sealed partial class RoomEnemySystem
                 : unchecked((ushort)(samus.Health - damage));
             samus.InvincibilityTimer = 0x0060;
             samus.KnockbackTimer = 5;
-            samus.KnockbackXDirection = unchecked((short)(samus.XPosition - ringX)) >= 0
+            samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringX)) >= 0
                 ? (ushort)1
                 : (ushort)0;
             ExplodeMotherBrainOnionRing(ring, state, ringX, ringY);
@@ -255,10 +255,10 @@ public sealed partial class RoomEnemySystem
     private static bool MotherBrainOnionRingOverlapsSamus(
         RoomEnemyProjectileSlot ring,
         SamusState samus) =>
-        WrappedMagnitude(unchecked((ushort)(ring.XPosition - samus.XPosition))) <
-            ring.XRadius + samus.Kinematics.XRadius &&
-        WrappedMagnitude(unchecked((ushort)(ring.YPosition - samus.YPosition))) <
-            ring.YRadius + samus.Kinematics.YRadius;
+        WrappedMagnitude(unchecked((ushort)(ring.XPosition - samus.Position.X.Whole))) <
+            ring.XRadius + samus.Kinematics.Radius.X &&
+        WrappedMagnitude(unchecked((ushort)(ring.YPosition - samus.Position.Y.Whole))) <
+            ring.YRadius + samus.Kinematics.Radius.Y;
 
     private static bool MotherBrainOnionRingOverlapsBaby(
         RoomEnemyProjectileSlot ring,

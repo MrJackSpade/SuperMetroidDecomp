@@ -37,8 +37,7 @@ internal static class RoomPerformanceStateFixture
             runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(camera, camera));
         }
         runtime.Samus!.InputLocked = true;
-        runtime.Samus.XPosition = (ushort)(camera + (surface ? 128 : 64));
-        runtime.Samus.YPosition = (ushort)(camera + 160);
+        runtime.Samus.Position = runtime.Samus.Position.WithWhole(new((ushort)(camera + (surface ? 128 : 64)), (ushort)(camera + 160)));
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
             .SetValue(data.Game, SuperMetroidGameState.MainGameplay);
         double stepMs = 0, renderMs = 0, audioMs = 0;

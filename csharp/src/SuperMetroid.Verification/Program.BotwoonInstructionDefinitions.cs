@@ -81,8 +81,7 @@ internal static partial class Program
             spitHead.YPosition = 1000;
             var samus = new SamusState
             {
-                XPosition = unchecked((ushort)(1000 + dx)),
-                YPosition = unchecked((ushort)(1000 + dy)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy)))),
             };
             aimHead(spitEnemies, spitHead, spitState, samus);
             AssertEqual(definition.SpitInstruction, spitHead.CurrentInstruction,

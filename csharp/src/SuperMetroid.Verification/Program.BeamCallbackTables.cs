@@ -41,8 +41,7 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
-                XPosition = 128,
-                YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = unchecked((ushort)(beamType | (charged ? 0x1000 : 0))),
             };
             var projectiles = CreateProjectileFixture();
@@ -65,7 +64,7 @@ internal static partial class Program
                 {
                     shared.StepFrame(bus, room, samus, 0, 0);
                     projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                        frame == 0 ? (ushort)SnesButton.X : (ushort)0, 0, 0, shared);
+                        frame == 0 ? (ushort)SnesButton.X : (ushort)0, new(0, 0), shared);
                 }
             }
             projectiles.StepFrame(
@@ -74,8 +73,7 @@ internal static partial class Program
                 samus,
                 charged ? (ushort)0 : (ushort)SnesButton.X,
                 charged ? (ushort)0 : (ushort)SnesButton.X,
-                0,
-                0,
+                new(0, 0),
                 shared);
             AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
                 $"charged={charged} beam {beamType:X1} fires");

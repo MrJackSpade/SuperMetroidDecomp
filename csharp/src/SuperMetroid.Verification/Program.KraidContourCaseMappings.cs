@@ -31,14 +31,14 @@ internal static partial class Program
         var shot = new SamusProjectileSystem().Slots[0];
         body.XPosition = 256;
         body.YPosition = 32768;
-        shot.XRadius = 0;
+        shot.Radius = shot.Radius.WithX(0);
         foreach (short y in new short[] { -32768, -31746, -31745 })
         {
-            shot.YPosition = unchecked((ushort)(body.YPosition + y));
+            shot.Position = shot.Position.WithWholeY(unchecked((ushort)(body.YPosition + y)));
             int edge = body.XPosition + NativeKraidBodyLeftEdge(rom, y);
             for (int delta = -1; delta <= 1; delta++)
             {
-                shot.XPosition = (ushort)(edge + delta);
+                shot.Position = shot.Position.WithWholeX((ushort)(edge + delta));
                 AssertEqual(delta > 0, overlaps(body, shot), "Wrapped contour production edge remains strict");
             }
         }

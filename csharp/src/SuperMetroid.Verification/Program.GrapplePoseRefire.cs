@@ -15,7 +15,7 @@ internal static partial class Program
         {
             var samus = new SamusState {
                 Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
-                XPosition = 512, YPosition = 512,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
             };
             PrepareRetailSamusFixture(samus);
             SamusGrappleMovement.BeginFiring(bus, samus);
@@ -36,13 +36,13 @@ internal static partial class Program
             AssertTrue(samus.LiquidPhysics.SoundRequests.SequenceEqual(new[] {
                 SamusGrappleRomData.Sounds.RestartStop, SamusGrappleRomData.Sounds.Fire }), "refire publishes native stop/start sound order and queue limits");
             AssertEqual(0, grapple.RopeLength, "restart does not extend in same call");
-            AssertEqual(0, grapple.EndpointXOffsetFixed, "restart clears old X endpoint displacement");
-            AssertEqual(0, grapple.EndpointYOffsetFixed, "restart clears old Y endpoint displacement");
-            AssertEqual(samus.XPosition + grapple.OriginXOffset, grapple.AnchorX, "restart hand origin X");
-            AssertEqual(samus.YPosition + grapple.OriginYOffset, grapple.AnchorY, "restart hand origin Y");
+            AssertEqual(0, grapple.EndpointOffset.X.RawValue, "restart clears old X endpoint displacement");
+            AssertEqual(0, grapple.EndpointOffset.Y.RawValue, "restart clears old Y endpoint displacement");
+            AssertEqual(samus.Position.X.Whole + grapple.OriginOffset.X, grapple.Anchor.X, "restart hand origin X");
+            AssertEqual(samus.Position.Y.Whole + grapple.OriginOffset.Y, grapple.Anchor.Y, "restart hand origin Y");
             SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X);
-            AssertTrue(grapple.AnchorY < samus.YPosition + grapple.OriginYOffset, "restarted beam actually travels up");
-            AssertTrue(left ? grapple.EndpointXOffsetFixed < 0 : grapple.EndpointXOffsetFixed > 0, "restarted beam travels toward aimed side");
+            AssertTrue(grapple.Anchor.Y < samus.Position.Y.Whole + grapple.OriginOffset.Y, "restarted beam actually travels up");
+            AssertTrue(left ? grapple.EndpointOffset.X.RawValue < 0 : grapple.EndpointOffset.X.RawValue > 0, "restarted beam travels toward aimed side");
         }
         var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };
         using var stream = new MemoryStream();
@@ -52,11 +52,10 @@ internal static partial class Program
             "debugger preserves remaining refire window");
         var fields = typeof(SamusGrappleState).GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
             .OrderBy(field => field.MetadataToken).ToArray();
-        string[] quarters = ["<XQuarterSubVelocity>k__BackingField", "<XQuarterVelocity>k__BackingField",
-            "<YQuarterSubVelocity>k__BackingField", "<YQuarterVelocity>k__BackingField"];
+        string[] quarters = ["<QuarterVelocity>k__BackingField"];
         var preQuarter = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields, quarters);
         AssertTrue(preQuarter.SequenceEqual(fields.Where(field => !quarters.Contains(field.Name))),
-            "pre-quarter-velocity grapple layout omits only the four quarter words");
+            "pre-quarter-velocity grapple layout omits only the quarter velocity");
         var preSlowScroll = DebuggerStateFieldMigrations.WithoutIntroductions(typeof(SamusGrappleState), fields,
             [.. quarters, "<SlowScrolling>k__BackingField"]);
         AssertTrue(preSlowScroll.SequenceEqual(fields.Where(field =>

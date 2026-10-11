@@ -15,12 +15,12 @@ internal static partial class Program
         var room = CreateRoom(64, 16, new ushort[64 * 16], new byte[64 * 16]);
         var samus = new SamusState
         {
-            Pose = SamusPoseId.FacingRightNormalPose, XPosition = 64, YPosition = 96,
+            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
             SelectedHudItem = 2, SuperMissiles = 3,
         };
         SamusProjectileSystem projectiles = CreateProjectileFixture();
         SamusBombProjectileSystem bombs = CreateBombFixture();
-        projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, bombs);
+        projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X, (ushort)SnesButton.X, new(0, 0), bombs);
         AssertEqual(SamusProjectileFamily.SuperMissile, projectiles.Slots[0].PackedType.Family, "X fires a Super Missile");
 
         projectiles.ApplyEnemyCollisionPrelude(0, markCollisionState: true);

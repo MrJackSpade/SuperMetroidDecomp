@@ -73,7 +73,7 @@ internal static partial class Program
         foreach (short centerX in new short[] { -16, 128, 272 })
         foreach (short centerY in new short[] { -16, 128, 240 })
         {
-            explosion.Spawn(unchecked((ushort)centerX), unchecked((ushort)centerY));
+            explosion.Spawn(new(unchecked((ushort)centerX), unchecked((ushort)centerY)));
             Set(nameof(explosion.RenderedPhase), PowerBombExplosionPhase.ExplosionYellow);
             Set(nameof(explosion.RenderedExplosionRadius), (ushort)(radius << 8));
             Set(nameof(explosion.FixedColorRed), (byte)31);

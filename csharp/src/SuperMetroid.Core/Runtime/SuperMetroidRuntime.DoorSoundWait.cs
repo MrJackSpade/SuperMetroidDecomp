@@ -49,7 +49,7 @@ public sealed partial class SuperMetroidRuntime
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (ElevatorStatus == 0 && Samus is not null && Camera is not null)
             LastSamusBodyDrawn = Samus.Draw(_addressSpace, Oam,
-                Camera.PixelPosition.X, Camera.PixelPosition.Y, mode7Transform: ActiveSamusMode7Transform);
+                Camera.PixelPosition, mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
     }
     /// <summary>

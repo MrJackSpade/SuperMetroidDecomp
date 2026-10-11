@@ -36,8 +36,7 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.MovingRightNormalPose;
-        samus.XPosition = 0x02f9;
-        samus.YPosition = 0x00bb;
+        samus.Position = samus.Position.WithWhole(new(0x02f9, 0x00bb));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.HorizontalSpeed.BaseSubspeed = 0x3000;
@@ -50,7 +49,7 @@ internal static partial class Program
         AssertEqual(RoomCollisionType.Air, level.GetCollisionBlock(new(WallColumn, WallRow)).CollisionType,
             "the wall is cleared");
         AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "Samus keeps running");
-        AssertTrue(samus.XPosition > 0x02fb, "Samus moves into the cleared column in the same frame");
+        AssertTrue(samus.Position.X.Whole > 0x02fb, "Samus moves into the cleared column in the same frame");
         Console.WriteLine("  Baby Metroid wall clear: the wall is gone before Samus moves that frame.");
     }
 }

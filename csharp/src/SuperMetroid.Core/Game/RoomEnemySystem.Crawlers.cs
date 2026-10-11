@@ -268,7 +268,7 @@ public sealed partial class RoomEnemySystem
                 return;
             }
 
-            bool samusBelow = unchecked((short)(samus.YPosition - slot.YPosition)) >= 0;
+            bool samusBelow = unchecked((short)(samus.Position.Y.Whole - slot.YPosition)) >= 0;
             bool movingDown = unchecked((short)state.YVelocity) >= 0;
             if (samusBelow != movingDown)
                 state.YVelocity = Negate16(state.YVelocity);
@@ -305,7 +305,7 @@ public sealed partial class RoomEnemySystem
             }
 
             AlignEnemyYWithNonSquareSlope(level, slot);
-            bool samusRight = unchecked((short)(samus.XPosition - slot.XPosition)) >= 0;
+            bool samusRight = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0;
             bool movingRight = unchecked((short)state.XVelocity) >= 0;
             if (samusRight != movingRight)
                 state.XVelocity = Negate16(state.XVelocity);

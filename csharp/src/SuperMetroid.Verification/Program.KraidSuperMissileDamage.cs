@@ -85,7 +85,7 @@ internal static partial class Program
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
         samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
-        samus.XPosition=120;samus.YPosition=(ushort)(512-samus.Kinematics.YRadius);samus.InputLocked=false;
+        samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.InputLocked=false;
         runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 384));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
@@ -97,8 +97,8 @@ internal static partial class Program
             renderer.RenderFrame(result.AudioCommands);game.SetAudioAcknowledgements(renderer.ReadAcknowledgements());
             if(body.Health!=oldHealth || frame%8==0)
             {
-                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.XPosition},{samus.YPosition} mouth={state.InvulnerableMouthHitbox:X4}");
-                foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type:X4} damage={shot.Damage} x={shot.XPosition} y={shot.YPosition} r={shot.XRadius},{shot.YRadius} pre={shot.PreInstruction}");
+                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} mouth={state.InvulnerableMouthHitbox:X4}");
+                foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type:X4} damage={shot.Damage} x={shot.Position.X.Whole} y={shot.Position.Y.Whole} r={shot.Radius.X},{shot.Radius.Y} pre={shot.PreInstruction}");
             }
             if (frame is 8 or 32)
             {
@@ -157,9 +157,8 @@ internal static partial class Program
             var shot = projectiles.Slots[index];
             shot.Type = 0x8200;
             shot.Damage = 300;
-            shot.XPosition = 176;
-            shot.YPosition = 486;
-            shot.XRadius = shot.YRadius = 8;
+            shot.Position = shot.Position.WithWhole(new(176, 486));
+            shot.Radius = new(8, 8);
             // Intentionally inactive: this native private pass has no sentinel check.
         }
 
@@ -198,9 +197,8 @@ internal static partial class Program
         var bomb = runtime.BombProjectiles.Slots[0];
         bomb.Type = SamusBombProjectileSystem.NormalBombType;
         bomb.Damage = 30;
-        bomb.XPosition = 176;
-        bomb.YPosition = 486;
-        bomb.XRadius = bomb.YRadius = 8;
+        bomb.Position = bomb.Position.WithWhole(new(176, 486));
+        bomb.Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
         AssertEqual((ushort)1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
         AssertEqual(true, new SamusProjectileDirectionWord(bomb.Direction).HasLowByteLifecycleState,

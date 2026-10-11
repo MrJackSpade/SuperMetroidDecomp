@@ -63,10 +63,10 @@ public sealed partial class RoomEnemySystem
 
             if (!TryFindExtendedHitboxCallback(
                     body,
-                    projectile.XPosition,
-                    projectile.YPosition,
-                    projectile.XRadius,
-                    projectile.YRadius,
+                    projectile.Position.X.Whole,
+                    projectile.Position.Y.Whole,
+                    projectile.Radius.X,
+                    projectile.Radius.Y,
                     selectShotCallback: true,
                     out ushort hitboxShotAiPointer))
             {

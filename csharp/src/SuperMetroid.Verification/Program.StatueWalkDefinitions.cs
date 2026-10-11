@@ -51,8 +51,8 @@ internal static partial class Program
             AssertEqual((ushort)x, slot.XSubposition, "Chozo real fractional X");
             AssertEqual((ushort)(y >> 16), slot.YPosition, "Chozo real absolute Y movement");
             AssertEqual((ushort)y, slot.YSubposition, "Chozo real fractional Y");
-            AssertEqual(unchecked((ushort)(slot.XPosition + xOffset)), samus.XPosition, "Chozo actual carried Samus X");
-            AssertEqual(unchecked((ushort)(slot.YPosition + yOffset)), samus.YPosition, "Chozo actual carried Samus Y");
+            AssertEqual(unchecked((ushort)(slot.XPosition + xOffset)), samus.Position.X.Whole, "Chozo actual carried Samus X");
+            AssertEqual(unchecked((ushort)(slot.YPosition + yOffset)), samus.Position.Y.Whole, "Chozo actual carried Samus Y");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoWalkDefinitions.Velocity(39), "Torizo incomplete byte window");
         AssertThrows<InvalidDataException>(() => ChozoCarryMotionDefinitions.Read(1), "Chozo odd selector remains invalid");

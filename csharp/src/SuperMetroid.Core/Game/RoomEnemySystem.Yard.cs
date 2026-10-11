@@ -295,9 +295,9 @@ public sealed partial class RoomEnemySystem
         if (state.Behavior is YardBehavior.AggressiveCrawling or YardBehavior.Dropped or YardBehavior.Kicked or YardBehavior.BeamLaunched)
             return;
 
-        bool withinVerticalBand = unchecked((short)(slot.YPosition - samus.YPosition)) >= -96;
+        bool withinVerticalBand = unchecked((short)(slot.YPosition - samus.Position.Y.Whole)) >= -96;
         byte samusFacing = samus.ReadPoseXDirection(_bus!);
-        bool samusLookingAtYard = slot.XPosition < samus.XPosition
+        bool samusLookingAtYard = slot.XPosition < samus.Position.X.Whole
             ? samusFacing == (byte)SamusFacingDirection.Left
             : samusFacing == (byte)SamusFacingDirection.Right;
         if (withinVerticalBand && samusLookingAtYard)
@@ -621,8 +621,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         bool shouldTurn = state.AirborneFacingDirection != 0
-            ? slot.XPosition >= samus.XPosition
-            : slot.XPosition < samus.XPosition;
+            ? slot.XPosition >= samus.Position.X.Whole
+            : slot.XPosition < samus.Position.X.Whole;
         return shouldTurn && TurnYardAround(slot, state);
     }
 

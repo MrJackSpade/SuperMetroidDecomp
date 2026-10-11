@@ -2981,7 +2981,7 @@ internal static partial class Program
             paletteFx.Step(
                 bus,
                 cgram, new ReferencePaletteFxColorSource(bus),
-                samusY: samus.YPosition,
+                samusY: samus.Position.Y.Whole,
                 equippedItems: samus.EquippedItems,
                 enemyZeroIsDead: false,
                 areaMiniBossDefeated: false,

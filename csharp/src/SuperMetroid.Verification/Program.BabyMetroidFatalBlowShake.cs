@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyBabyMetroidFatalBlowShake()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Health = 99, XPosition = 0x0080, YPosition = 0x0080 };
+        var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
         var motherBrain = new MotherBrainRainbowBeamAttackSequence();
         var baby = new BabyMetroidCutsceneState();
         baby.Initialize(inheritedXSubposition: 0, inheritedYSubposition: 0);

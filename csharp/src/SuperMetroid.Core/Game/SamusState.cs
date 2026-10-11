@@ -476,18 +476,11 @@ public sealed partial class SamusState
     /// </summary>
     public ushort SolidVerticalCollisionResult { get; set; }
 
-    /// <summary>Debugger/rendering view of the whole-pixel world X position.</summary>
-    public ushort XPosition
+    /// <summary>Samus's room-pixel 16.16 position, owned by <see cref="Kinematics"/>.</summary>
+    public FixedPosition<RoomPixels> Position
     {
-        get => Kinematics.XPosition;
-        set => Kinematics.XPosition = value;
-    }
-
-    /// <summary>Debugger/rendering view of the whole-pixel world Y position.</summary>
-    public ushort YPosition
-    {
-        get => Kinematics.YPosition;
-        set => Kinematics.YPosition = value;
+        get => Kinematics.Position;
+        set => Kinematics.Position = value;
     }
 
 
@@ -518,19 +511,19 @@ public sealed partial class SamusState
         out int centerAdjustment)
     {
         ushort targetRadius = ReadPoseYRadius(targetPose);
-        if (targetRadius <= Kinematics.YRadius)
+        if (targetRadius <= Kinematics.Radius.Y)
         {
             centerAdjustment = 0;
             return LargerPoseCollisionOutcome.Allowed;
         }
 
-        int radiusDifference = targetRadius - Kinematics.YRadius;
+        int radiusDifference = targetRadius - Kinematics.Radius.Y;
 
         // Native checks enemies first, then terrain in a separate pass. Mixing the two
         // probes changes both available space and the order of their live Y-fraction
         // writes (enemy tangency clears it; a later floor scan can set it to FFFF).
-        SolidEnemyCollisionResult enemyUp = ProbeEnemy(SamusCollisionDirection.Up, radiusDifference, Kinematics.YRadius);
-        SolidEnemyCollisionResult enemyDown = ProbeEnemy(SamusCollisionDirection.Down, radiusDifference, Kinematics.YRadius);
+        SolidEnemyCollisionResult enemyUp = ProbeEnemy(SamusCollisionDirection.Up, radiusDifference, Kinematics.Radius.Y);
+        SolidEnemyCollisionResult enemyDown = ProbeEnemy(SamusCollisionDirection.Down, radiusDifference, Kinematics.Radius.Y);
         int enemyAdjustment = 0;
         if (enemyUp.Collided != enemyDown.Collided)
         {
@@ -568,7 +561,7 @@ public sealed partial class SamusState
             // `$91:FFA7` compares the OLD live radius with eight. Radius seven means
             // Morph Ball, and that branch restores PreviousPose instead of trying to fit
             // stable crouch. Every non-morph compact/standing body still uses crouch.
-            return Kinematics.YRadius < 8
+            return Kinematics.Radius.Y < 8
                 ? LargerPoseCollisionOutcome.RetainSource
                 : LargerPoseCollisionOutcome.CrouchFallback;
         }
@@ -624,19 +617,19 @@ public sealed partial class SamusState
         // A zero correction in a collision branch still performs that write;
         // the no-collision branch does not replace the scrolling checkpoint.
         if (upward.Collided || downward.Collided || enemyUp.Collided || enemyDown.Collided)
-            WritePreviousYPosition(unchecked((ushort)(Kinematics.YPosition + centerAdjustment)));
+            WritePreviousYPosition(unchecked((ushort)(Kinematics.Position.Y.Whole + centerAdjustment)));
         return LargerPoseCollisionOutcome.Allowed;
 
-        LargerPoseCollisionOutcome BothSides() => Kinematics.YRadius < 8
+        LargerPoseCollisionOutcome BothSides() => Kinematics.Radius.Y < 8
             ? LargerPoseCollisionOutcome.RetainSource : LargerPoseCollisionOutcome.CrouchFallback;
 
         SolidEnemyCollisionResult ProbeEnemy(SamusCollisionDirection direction, int distance, ushort radius)
         {
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
-            probe.YRadius = radius;
+            probe.Radius = probe.Radius.WithY(radius);
             SolidEnemyCollisionResult result = SamusSolidEnemyCollision.Probe(
                 probe, probe.InteractiveEnemies, direction, unchecked((ushort)distance), 0);
-            Kinematics.YSubposition = probe.YSubposition;
+            Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
             return result;
         }
     }
@@ -696,7 +689,7 @@ public sealed partial class SamusState
             // changed-pose observation. Preserve that write, but never copy the
             // probe's whole-position movement into the live body.
             if (result.Collided)
-                Kinematics.YSubposition = probe.YSubposition;
+                Kinematics.Position = Kinematics.Position.WithFractionY(probe.Position.Y.Fraction);
             return result;
         }
     }
@@ -707,7 +700,7 @@ public sealed partial class SamusState
     /// </summary>
     private void ApplyPoseChangeCollisionCrouchFallback(ISnesAddressSpace bus, SamusPoseId sourcePose)
     {
-        ushort oldRadius = Kinematics.YRadius;
+        ushort oldRadius = Kinematics.Radius.Y;
         SamusPoseId fallbackPose = IsFacingLeft(bus)
             ? SamusPoseId.CrouchingLeftPose
             : SamusPoseId.CrouchingRightPose;
@@ -723,9 +716,9 @@ public sealed partial class SamusState
             // `$91:FFD4-$91:FFE9` subtracts the extra crouch radius from center Y. This is
             // normally invisible for radius-16 aimed crouches, but compact radius ten must
             // move up six pixels when simultaneous initial probes force `$27/$28`.
-            Kinematics.YPosition = unchecked((ushort)(
-                Kinematics.YPosition - (fallbackRadius - oldRadius)));
-            WritePreviousYPosition(Kinematics.YPosition);
+            Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
+                Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius))));
+            WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
         InitializeAnimation(bus, initialFrame: 0);
     }

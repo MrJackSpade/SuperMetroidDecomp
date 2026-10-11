@@ -35,8 +35,8 @@ internal static partial class Program
         AssertEqual((expected.Camera.PixelPosition.X, expected.Camera.PixelPosition.Y),
             (actual.Camera.PixelPosition.X, actual.Camera.PixelPosition.Y),
             "guarded post-Ceres room entry retains camera placement");
-        AssertEqual((expected.Samus!.Kinematics.XFixed, expected.Samus.Kinematics.YFixed),
-            (actual.Samus!.Kinematics.XFixed, actual.Samus.Kinematics.YFixed),
+        AssertEqual((expected.Samus!.Kinematics.Position.X.RawValue, expected.Samus.Kinematics.Position.Y.RawValue),
+            (actual.Samus!.Kinematics.Position.X.RawValue, actual.Samus.Kinematics.Position.Y.RawValue),
             "guarded post-Ceres room entry retains Samus placement");
 
         ushort initialCameraY = actual.Camera.PixelPosition.Y;
@@ -58,8 +58,8 @@ internal static partial class Program
                     actual.Camera.IdealPosition.X, actual.Camera.IdealPosition.Y),
                 $"guarded post-Ceres camera trajectory frame {frames}");
             AssertEqual(
-                (expected.Samus!.Kinematics.XFixed, expected.Samus.Kinematics.YFixed),
-                (actual.Samus!.Kinematics.XFixed, actual.Samus.Kinematics.YFixed),
+                (expected.Samus!.Kinematics.Position.X.RawValue, expected.Samus.Kinematics.Position.Y.RawValue),
+                (actual.Samus!.Kinematics.Position.X.RawValue, actual.Samus.Kinematics.Position.Y.RawValue),
                 $"guarded post-Ceres carried-Samus trajectory frame {frames}");
             AssertEqual(expected.Enemies.LastGunshipEvent,
                 actual.Enemies.LastGunshipEvent,

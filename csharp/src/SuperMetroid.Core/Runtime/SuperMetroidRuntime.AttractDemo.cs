@@ -50,7 +50,7 @@ public sealed partial class SuperMetroidRuntime
 
         Samus = new SamusState
         {
-            XPosition = scene.SamusPosition.X, YPosition = scene.SamusPosition.Y,
+            Position = FixedPosition<RoomPixels>.FromWhole(scene.SamusPosition),
             EquippedItems = scene.Items, CollectedItems = scene.Items,
             EquippedBeams = scene.EquippedBeams, CollectedBeams = scene.CollectedBeams,
             Health = scene.Health, MaxHealth = scene.Health,

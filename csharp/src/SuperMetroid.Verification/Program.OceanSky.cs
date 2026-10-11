@@ -73,8 +73,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 128);
-        samus.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 128);
+        samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 128), (ushort)(runtime.Camera.PixelPosition.Y + 128)));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         runtime.StepFrame(0);

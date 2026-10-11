@@ -65,8 +65,7 @@ internal sealed class SamusMechanicsSnapshot
                 (owner == typeof(SamusState) && field.Name is
                     "<TopSpritemapIndex>k__BackingField" or
                     "<BottomSpritemapIndex>k__BackingField" or
-                    "<SpritemapXPosition>k__BackingField" or
-                    "<SpritemapYPosition>k__BackingField")) continue;
+                    "<SpritemapPosition>k__BackingField")) continue;
             result.Add(field);
         }
         return result.ToArray();

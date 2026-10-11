@@ -1263,7 +1263,7 @@ static void VerifyPowerBombColorMathWindow()
     const ushort centerY = 100;
     var explosion = new SamusPowerBombExplosionState { PresentationColors = SuperMetroid.Core.Assets.PowerBombFixedColorCatalog.Load(new MemoryStream(SuperMetroid.AssetExtraction.PowerBombFixedColorExtractor.Extract(bus))) };
     explosion.Arm();
-    explosion.Spawn(centerX, centerY);
+    explosion.Spawn(new(centerX, centerY));
 
     // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
     // the host must not invent an explosion table on this frame.

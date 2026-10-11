@@ -51,9 +51,9 @@ internal static partial class Program
                     3 or 4 or 5 or 6 => baseSpeed + bus.Word(0x0db5),
                     _ => 0,
                 }));
-                if (slot.XVelocity == expectedX && slot.YVelocity == expectedY) continue;
+                if (slot.Velocity.X.SignedRawValue == expectedX && slot.Velocity.Y.SignedRawValue == expectedY) continue;
                 failures++;
-                Console.WriteLine($"Snapshot {sample}, direction {direction}: native ({expectedX:X4},{expectedY:X4}), port ({slot.XVelocity:X4},{slot.YVelocity:X4})");
+                Console.WriteLine($"Snapshot {sample}, direction {direction}: native ({expectedX:X4},{expectedY:X4}), port ({slot.Velocity.X.SignedRawValue:X4},{slot.Velocity.Y.SignedRawValue:X4})");
             }
         }
         AssertEqual(0, failures, "Projectile initialization must inherit native movement/camera overlapping words");
@@ -65,21 +65,20 @@ internal static partial class Program
     private static void VerifyProjectileInheritanceMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { XPosition = 64, YPosition = 64 };
-        samus.Kinematics.XRadius = 5;
-        samus.Kinematics.YRadius = 5;
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)) };
+        samus.Kinematics.Radius = new(5, 5);
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
         SamusProjectileInheritance.ClearMovement(bus);
         SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0x00031234);
-        AssertEqual((short)0x0300, SamusProjectileInheritance.ReadVelocity(bus, 2, 0).X,
+        AssertEqual((short)0x0300, SamusProjectileInheritance.ReadVelocity(bus, 2, 0).X.SignedRawValue,
             "Live movement publishes right integer displacement");
         SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, -0x00018000);
-        AssertEqual(unchecked((short)0xfe00), SamusProjectileInheritance.ReadVelocity(bus, 7, 0).X,
+        AssertEqual(unchecked((short)0xfe00), SamusProjectileInheritance.ReadVelocity(bus, 7, 0).X.SignedRawValue,
             "Negative movement preserves two's-complement integer half");
-        AssertEqual((short)0x0380, SamusProjectileInheritance.ReadVelocity(bus, 2, 0).X,
+        AssertEqual((short)0x0380, SamusProjectileInheritance.ReadVelocity(bus, 2, 0).X.SignedRawValue,
             "Opposite direction fraction leaks into rightward velocity, not net displacement");
         SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0x00020000);
-        AssertEqual((short)0x0280, SamusProjectileInheritance.ReadVelocity(bus, 2, 0).X,
+        AssertEqual((short)0x0280, SamusProjectileInheritance.ReadVelocity(bus, 2, 0).X.SignedRawValue,
             "Second move overwrites one directional record instead of accumulating");
         byte[] beforeProbe = bus.WorkRam.Slice(0x0da8, 18).ToArray();
         SamusBlockCollision.ProbeWallHorizontal(bus, level, samus.Kinematics, 1 << 16);
@@ -93,7 +92,7 @@ internal static partial class Program
             "Collision publishes clipped displacement, not the twenty-pixel request");
         SamusProjectileInheritance.PublishCameraYSubspeed(bus, 0xabcd);
         SamusProjectileInheritance.ClearMovement(bus);
-        AssertEqual(unchecked((short)0xfcab), SamusProjectileInheritance.ReadVelocity(bus, 7, 0x400).X,
+        AssertEqual(unchecked((short)0xfcab), SamusProjectileInheritance.ReadVelocity(bus, 7, 0x400).X.SignedRawValue,
             "Alpha reset preserves camera fractional high byte");
         AssertTrue(bus.WorkRam.Slice(0x0daa, 16).ToArray().All(value => value == 0),
             "Alpha reset clears exactly all eight directional words");
@@ -122,8 +121,7 @@ internal static partial class Program
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 512;
-        samus.YPosition = 490;
+        samus.Position = samus.Position.WithWhole(new(512, 490));
         runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -142,9 +140,9 @@ internal static partial class Program
         runtime.StepFrame((ushort)((ushort)SnesButton.Right | runtime.ControllerBindings.Shoot));
         restored.StepFrame((ushort)((ushort)SnesButton.Right | restored.ControllerBindings.Shoot));
         var shot = runtime.Projectiles!.Slots.First(slot => slot.IsActive);
-        AssertEqual(expected, shot.XVelocity,
+        AssertEqual(expected, shot.Velocity.X.SignedRawValue,
             "Next alpha fires using prior beta displacement before reset and this-frame movement");
-        AssertEqual(expected, restored.Projectiles!.Slots.First(slot => slot.IsActive).XVelocity,
+        AssertEqual(expected, restored.Projectiles!.Slots.First(slot => slot.IsActive).Velocity.X.SignedRawValue,
             "Debugger graph round trip retains native WRAM inheritance for resumed launch");
         AssertEqual(runtime.Camera!.Speed.Y.Fraction, Word(0x0da8),
             "Runtime publishes camera Y subspeed into the native shared record");

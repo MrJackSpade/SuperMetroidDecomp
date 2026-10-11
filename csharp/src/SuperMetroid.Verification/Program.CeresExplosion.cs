@@ -37,8 +37,7 @@ internal static partial class Program
                 {
                     AssertTrue(!spawned, "station explosion spawns only once");
                     reference.Spawn(
-                        unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - scene.Background.X.Whole)),
-                        unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - scene.Background.Y.Whole)));
+                        new(unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterX - scene.Background.X.Whole)), unchecked((ushort)(CeresDestructionRomData.Rendering.CeresCenterY - scene.Background.Y.Whole))));
                     spawned = true;
                 }
 

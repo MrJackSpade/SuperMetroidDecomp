@@ -23,8 +23,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
-            samus.XPosition = 116;
-            samus.YPosition = 587;
+            samus.Position = samus.Position.WithWhole(new(116, 587));
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
 
@@ -40,7 +39,7 @@ internal static partial class Program
             for (int frame = 0; frame < 120; frame++) runtime.StepFrame((ushort)SnesButton.Up);
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(new(7, 10)).CollisionType,
                 "Red Tower top target is still intact before firing");
-            AssertEqual(587, samus.YPosition, "Retail platform supports the launch position");
+            AssertEqual(587, samus.Position.Y.Whole, "Retail platform supports the launch position");
             int impact = -1, deleted = -1;
             for (int frame = 0; frame < 100; frame++)
             {
@@ -48,7 +47,7 @@ internal static partial class Program
                     ? (ushort)((ushort)SnesButton.Up | runtime.ControllerBindings.Shoot)
                     : (ushort)SnesButton.Up;
                 if (followShot && frame > 0 && runtime.Projectiles!.Slots[0].IsActive)
-                    runtime.Camera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].YPosition - 160)));
+                    runtime.Camera.SetPosition(new Position16<RoomPixels>(0, (ushort)Math.Max(0, runtime.Projectiles.Slots[0].Position.Y.Whole - 160)));
                 runtime.StepFrame(input);
                 var shot = runtime.Projectiles!.Slots[0];
                 if (frame == 0)
@@ -62,8 +61,8 @@ internal static partial class Program
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
-                    AssertEqual(118, shot.XPosition, "Shot impacts the target column, not a distant enemy");
-                    AssertEqual(174, shot.YPosition, "Shot impacts the underside of the retail top block");
+                    AssertEqual(118, shot.Position.X.Whole, "Shot impacts the target column, not a distant enemy");
+                    AssertEqual(174, shot.Position.Y.Whole, "Shot impacts the underside of the retail top block");
                     break;
                 }
                 if (!shot.IsActive) { deleted = frame; break; }

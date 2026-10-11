@@ -30,4 +30,7 @@
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationAccess.Desktop.projitems" />
   <Import Project="../../test-support/VerificationAccess.Rendering.projitems" />
+  <ItemGroup>
+    <Using Include="SuperMetroid.Core.Spatial" />
+  </ItemGroup>
 </Project>

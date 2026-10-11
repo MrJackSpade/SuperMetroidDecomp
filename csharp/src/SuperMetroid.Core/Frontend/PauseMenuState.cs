@@ -635,7 +635,7 @@ internal sealed partial class PauseMenuState
     }
 
     private Position16<MapTiles> SamusMapCell() =>
-        roomMapPosition + new Offset16<MapTiles>(checked((short)(samus.XPosition >> 8)), checked((short)((samus.YPosition >> 8) + 1)));
+        roomMapPosition + new Offset16<MapTiles>(checked((short)(samus.Position.X.Whole >> 8)), checked((short)((samus.Position.Y.Whole >> 8) + 1)));
 
     private void DrawMapPositionIndicator()
     {

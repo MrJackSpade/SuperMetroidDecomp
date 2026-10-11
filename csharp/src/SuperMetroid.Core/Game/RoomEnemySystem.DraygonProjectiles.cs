@@ -34,8 +34,8 @@ public sealed partial class RoomEnemySystem
         // low byte. ConvertAngleToXy stores unsigned magnitudes; the pre-instruction applies
         // signs from this retained angle on every frame.
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - turret.XPosition)),
-            unchecked((short)(samus.YPosition - turret.YPosition)));
+            unchecked((short)(samus.Position.X.Whole - turret.XPosition)),
+            unchecked((short)(samus.Position.Y.Whole - turret.YPosition)));
         byte flightAngle = unchecked((byte)(-cartridgeAngle + 0x40));
         SetDraygonProjectileVelocity(turret, flightAngle, DraygonProjectileSpeeds.WallTurret);
 
@@ -137,8 +137,8 @@ public sealed partial class RoomEnemySystem
         if (!releasedByPowerBomb && !goop.IsActive || samus is null)
             return;
 
-        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.XPosition - goop.XPosition)));
-        ushort yDistance = WrappedMagnitude(unchecked((ushort)(samus.YPosition - goop.YPosition)));
+        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - goop.XPosition)));
+        ushort yDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.Y.Whole - goop.YPosition)));
         if (xDistance < 0x0010 && yDistance < 0x0014)
         {
             goop.InstructionPointer = DraygonProjectileInstructionProgramDefinitions.GoopTouch;
@@ -184,8 +184,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        goop.XPosition = samus.XPosition;
-        goop.YPosition = unchecked((ushort)(samus.YPosition + goop.Variable1 * 4 - 12));
+        goop.XPosition = samus.Position.X.Whole;
+        goop.YPosition = unchecked((ushort)(samus.Position.Y.Whole + goop.Variable1 * 4 - 12));
         goop.Variable0 = unchecked((ushort)(goop.Variable0 - 1));
         if (goop.Variable0 == 0)
             RemoveAttachedDraygonGoop(goop, samus);
@@ -216,8 +216,8 @@ public sealed partial class RoomEnemySystem
             return;
         // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.
         int verticalRadius = ((horizontalRadius >> 1) + horizontalRadius + (horizontalRadius & 1)) >> 1;
-        int xDistance = Math.Abs(unchecked((short)(powerBomb.XPosition - projectile.XPosition)));
-        int yDistance = Math.Abs(unchecked((short)(powerBomb.YPosition - projectile.YPosition)));
+        int xDistance = Math.Abs(unchecked((short)(powerBomb.Position.X - projectile.XPosition)));
+        int yDistance = Math.Abs(unchecked((short)(powerBomb.Position.Y - projectile.YPosition)));
         if (xDistance >= horizontalRadius || yDistance >= verticalRadius)
             return;
         projectile.ReleaseIdentityOnly();

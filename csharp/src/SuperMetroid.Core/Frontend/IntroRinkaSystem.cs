@@ -171,7 +171,7 @@ internal sealed class IntroRinkaSystem
                 // $B90B compares (Rinka X + 8) against (Samus X - 5). Until that crossing,
                 // the actor survives unless Mother Brain has entered her exploding routine.
                 if (unchecked((short)(rinka.WholePosition.X + 8)) <
-                    unchecked((short)(samus.XPosition - 5)))
+                    unchecked((short)(samus.Position.X.Whole - 5)))
                 {
                     if (motherBrainExploding)
                         rinka.Delete();

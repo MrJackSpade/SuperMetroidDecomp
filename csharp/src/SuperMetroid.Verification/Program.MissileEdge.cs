@@ -16,7 +16,7 @@ internal static partial class Program
             var blocks = new ushort[64 * 16];
             for (int row = 0; row < 16; row++) blocks[row * 64 + 32] = 0x8000;
             var room = CreateRoom(64, 16, blocks, new byte[blocks.Length]);
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 497, YPosition = 128,
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(497, 128)),
                 SelectedHudItem = 1, Missiles = 5, MaxMissiles = 5 };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
@@ -25,12 +25,12 @@ internal static partial class Program
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 shared.StepFrame(bus, room, samus, input, input);
                 projectiles.StepFrame(bus, room, samus, input, input,
-                    (ushort)(edge == 1 ? 192 : 384), 0, shared);
+                    new((ushort)(edge == 1 ? 192 : 384), 0), shared);
                 if (frame == 0) AssertTrue(projectiles.LastFiredProjectileSnapshot is not null,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];
-                ushort[] actual = [shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition,
-                    unchecked((ushort)shot.XVelocity), unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
+                ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
+                    unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
                 AssertTrue(actual.SequenceEqual(native[(edge, frame)]),
                     $"Missile edge={edge} frame={frame} native comparison: {string.Join(',', actual.Select(v => v.ToString("X4")))}");
                 compared++;

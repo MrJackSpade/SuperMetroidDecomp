@@ -49,11 +49,8 @@ public sealed class SamusDraygonGrabbedState
     /// </summary>
     public bool ReleasePublishedToOwner { get; private set; }
 
-    /// <summary>Most recently supplied whole-pixel Draygon body X coordinate.</summary>
-    public ushort OwnerXPosition { get; private set; }
-
-    /// <summary>Most recently supplied whole-pixel Draygon body Y coordinate.</summary>
-    public ushort OwnerYPosition { get; private set; }
+    /// <summary>Most recently supplied whole-pixel Draygon body position.</summary>
+    public Position16<RoomPixels> OwnerPosition { get; private set; }
 
     /// <summary>Direction word used by bank `$A5`: false/zero left, true/nonzero right.</summary>
     public bool OwnerFacingRight { get; private set; }
@@ -94,8 +91,7 @@ public sealed class SamusDraygonGrabbedState
     /// </summary>
     public DraygonOwnerPlacement ApplyOwnerPosition(
         SamusState samus,
-        ushort ownerXPosition,
-        ushort ownerYPosition,
+        Position16<RoomPixels> ownerPosition,
         bool draygonFacingRight)
     {
         ArgumentNullException.ThrowIfNull(samus);
@@ -105,13 +101,11 @@ public sealed class SamusDraygonGrabbedState
                 "Draygon places only a held Samus or one whose escape it has not yet seen.");
         }
 
-        OwnerXPosition = ownerXPosition;
-        OwnerYPosition = ownerYPosition;
+        OwnerPosition = ownerPosition;
         OwnerFacingRight = draygonFacingRight;
 
         short xOffset = draygonFacingRight ? (short)8 : (short)-8;
-        samus.XPosition = unchecked((ushort)(ownerXPosition + xOffset));
-        samus.YPosition = unchecked((ushort)(ownerYPosition + 0x28));
+        samus.Position = samus.Position.WithWhole(ownerPosition + new Offset16<RoomPixels>(xOffset, 0x28));
 
         // The native routine writes whole positions only. It does not clear subpositions,
         // so preserving the split low words is intentional even though the actor overwrites

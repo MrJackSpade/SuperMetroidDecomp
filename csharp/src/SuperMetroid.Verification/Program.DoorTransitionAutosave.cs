@@ -91,7 +91,7 @@ internal static partial class Program
                 AssertEqual(game.FrameNumber, loaded.Game.FrameNumber, "restored frame cadence");
                 AssertSameBytes(bus.WorkRam, loaded.AddressSpace.WorkRam, "restored continuation WRAM");
                 AssertSameBytes(bus.SaveRam, loaded.AddressSpace.SaveRam, "restored continuation SRAM");
-                AssertEqual(runtime.Samus!.XPosition, loaded.Game.RuntimeForVerification!.Samus!.XPosition, "restored Samus movement");
+                AssertEqual(runtime.Samus!.Position.X.Whole, loaded.Game.RuntimeForVerification!.Samus!.Position.X.Whole, "restored Samus movement");
                 AssertEqual(runtime.System.RandomNumber, loaded.Game.RuntimeForVerification!.System.RandomNumber, "restored RNG");
                 AssertTrue(expectedPcm.AsSpan().SequenceEqual(actualPcm), "restored continuation PCM");
                 AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.MainGameplay,
@@ -158,7 +158,7 @@ internal static partial class Program
                     var samus = runtime.Samus!;
                     samus.InputLocked = false;
                     samus.PoseId = SamusPoseId.FacingRightNormalPose;
-                    samus.XPosition = (ushort)(x * 16 + 8); samus.YPosition = (ushort)(y * 16 + 8);
+                    samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
                     runtime.LevelData!.ResolveDoorCollision(bus, block.Behavior, samus.Pose, true);
                     typeof(SuperMetroidGame).GetField("lastAudioRoomStatePointer", flags)!.SetValue(game, runtime.ActiveRoom!.State.Pointer);

@@ -54,8 +54,7 @@ static void VerifyBabyMetroidCutsceneEntrance()
     var samus = new SamusState
     {
         Pose = SamusPoseId.DrainedCrouchingLeftPose,
-        XPosition = 0x00ca,
-        YPosition = 0x00c0,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(0x00ca, 0x00c0)),
         // These are the private-ROM runner's post-rainbow values. The Baby must add one
         // point on each `$CA7A` call and stop exactly at 899 rather than using a host fill.
         Health = 200,

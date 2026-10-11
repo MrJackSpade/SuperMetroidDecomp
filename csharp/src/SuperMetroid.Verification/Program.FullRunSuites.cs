@@ -107,6 +107,7 @@ internal static partial class Program
         new(nameof(VerifyCartridgeAudioQueues), () => VerifyCartridgeAudioQueues()),
         new(nameof(VerifyManagedSnesDsp), () => VerifyManagedSnesDsp()),
         new(nameof(VerifyTypedNativeWords), () => VerifyTypedNativeWords()),
+        new(nameof(VerifySamusSpatialValues), () => VerifySamusSpatialValues()),
         new(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit()),
         new(nameof(VerifyPhantoonWaveLifecycle), () => VerifyPhantoonWaveLifecycle()),
         new(nameof(VerifyBackgroundMosaicSampling), () => VerifyBackgroundMosaicSampling()),

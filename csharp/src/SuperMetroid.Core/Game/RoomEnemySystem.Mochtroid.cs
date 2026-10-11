@@ -157,7 +157,7 @@ public sealed partial class RoomEnemySystem
         // shifts that result left eight fractional bits, and subtracts it from velocity.
         // This is a proportional attraction toward Samus—not a fixed-speed seek—and the
         // accumulated fraction is observable before either whole component reaches ±3.
-        int yDifference = unchecked((short)(slot.YPosition - samus.YPosition));
+        int yDifference = unchecked((short)(slot.YPosition - samus.Position.Y.Whole));
         int yVelocity = unchecked(state.SignedYVelocity - ((yDifference >> 2) << 8));
         yVelocity = ClampMochtroidVelocity(yVelocity);
         StoreMochtroidYVelocity(state, yVelocity);
@@ -166,7 +166,7 @@ public sealed partial class RoomEnemySystem
 
         // Y is intentionally resolved first. Horizontal collision therefore sees the
         // vertically adjusted position, matching $A3:A80D followed by $A3:A87C.
-        int xDifference = unchecked((short)(slot.XPosition - samus.XPosition));
+        int xDifference = unchecked((short)(slot.XPosition - samus.Position.X.Whole));
         int xVelocity = unchecked(state.SignedXVelocity - ((xDifference >> 2) << 8));
         xVelocity = ClampMochtroidVelocity(xVelocity);
         StoreMochtroidXVelocity(state, xVelocity);
@@ -195,17 +195,17 @@ public sealed partial class RoomEnemySystem
     {
         // Attached mode discards proportional acceleration. It moves exactly one pixel per
         // axis toward Samus, with X collision resolved before Y and ignored return values.
-        int xVelocity = slot.XPosition == samus.XPosition
+        int xVelocity = slot.XPosition == samus.Position.X.Whole
             ? 0
-            : unchecked((short)(slot.XPosition - samus.XPosition)) > 0
+            : unchecked((short)(slot.XPosition - samus.Position.X.Whole)) > 0
                 ? -MochtroidAttachedVelocity
                 : MochtroidAttachedVelocity;
         StoreMochtroidXVelocity(state, xVelocity);
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity);
 
-        int yVelocity = slot.YPosition == samus.YPosition
+        int yVelocity = slot.YPosition == samus.Position.Y.Whole
             ? 0
-            : unchecked((short)(slot.YPosition - samus.YPosition)) > 0
+            : unchecked((short)(slot.YPosition - samus.Position.Y.Whole)) > 0
                 ? -MochtroidAttachedVelocity
                 : MochtroidAttachedVelocity;
         StoreMochtroidYVelocity(state, yVelocity);

@@ -21,7 +21,7 @@ internal static partial class Program
             SamusPoseId groundedPose = spring
                 ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
                 : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
-            var samus = new SamusState { Pose = pose, XPosition = 128, YPosition = 128 };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.RefreshCollisionRadii(guard);
             samus.InitializeAnimation(guard);
             for (int phase = 0; phase < 3; phase++)
@@ -60,7 +60,7 @@ internal static partial class Program
                     "Both ball families clear horizontal base momentum on final landing");
                 AssertEqual(rebound ? (ushort)2 : (ushort)0, samus.HorizontalSpeed.AccelerationMode,
                     "Both ball families clear horizontal acceleration on final landing");
-                AssertEqual((ushort)128, samus.YPosition, "Landing handler does not move the collision-resolved center");
+                AssertEqual((ushort)128, samus.Position.Y.Whole, "Landing handler does not move the collision-resolved center");
                 cases++;
             }
         }

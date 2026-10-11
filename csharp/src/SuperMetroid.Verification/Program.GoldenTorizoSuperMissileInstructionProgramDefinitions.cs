@@ -64,8 +64,7 @@ internal static partial class Program
 
             var samus = new SamusState
             {
-                XPosition = 1200,
-                YPosition = 448,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(1200, 448)),
             };
             for (int frame = 1; frame <= 49; frame++)
             {

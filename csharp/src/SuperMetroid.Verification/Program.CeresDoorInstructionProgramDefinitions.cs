@@ -190,14 +190,12 @@ internal static partial class Program
 
         static void SetNear(RoomEnemySlot slot, SamusState samus)
         {
-            samus.XPosition = slot.XPosition;
-            samus.YPosition = slot.YPosition;
+            samus.Position = samus.Position.WithWhole(new(slot.XPosition, slot.YPosition));
         }
 
         static void SetFar(RoomEnemySlot slot, SamusState samus)
         {
-            samus.XPosition = unchecked((ushort)(slot.XPosition + 0x0080));
-            samus.YPosition = slot.YPosition;
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(slot.XPosition + 0x0080)), slot.YPosition));
         }
 
         static void RunFrames(

@@ -30,11 +30,11 @@ internal static partial class Program
             top.VariableE = frame;
             enemies.Slots[1].YPosition = 0x2100;
             enemies.Slots[2].YPosition = 0x2200;
-            var samus = new SamusState { YPosition = 0x3000 };
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x3000)) };
 
             applyBrake(top, samus);
 
-            AssertEqual(unchecked((ushort)(0x3000 + expected)), samus.YPosition,
+            AssertEqual(unchecked((ushort)(0x3000 + expected)), samus.Position.Y.Whole,
                 $"gunship production brake Samus Y {frame}");
             AssertEqual(unchecked((ushort)(0x2000 + expected)), top.YPosition,
                 $"gunship production brake top Y {frame}");

@@ -12,7 +12,7 @@ internal sealed partial class InstalledSamusIsolationTests
         string context = $"drained left={left}";
         pair.Apply(context + " airborne setup", actor =>
         {
-            actor.Samus.YPosition -= 80;
+            actor.Samus.Position -= new Offset16<RoomPixels>(0, 80);
             SamusAerialMovement.ConfigureEnvironmentGravity(actor.Memory, actor.Samus);
             actor.Samus.Drained.LetFall(actor.Memory, actor.Samus);
         });

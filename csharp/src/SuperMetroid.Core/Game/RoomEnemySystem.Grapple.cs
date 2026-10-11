@@ -15,7 +15,7 @@ public sealed partial class RoomEnemySystem
     /// intentionally ignored: the original compares the endpoint with each ordinary radius
     /// plus an eight-pixel beam-point radius and selects the first interactive slot.
     /// </summary>
-    public GrappleEnemyCollision ResolveGrappleEndpoint(ushort endpointX, ushort endpointY)
+    public GrappleEnemyCollision ResolveGrappleEndpoint(Position16<RoomPixels> endpoint)
     {
         EnsureLoaded();
         foreach (ushort nativeIndex in _interactiveEnemyIndexes)
@@ -24,8 +24,8 @@ public sealed partial class RoomEnemySystem
             if (enemy.InvincibilityTimer != 0)
                 continue;
 
-            int xDistance = Math.Abs(unchecked((short)(enemy.XPosition - endpointX)));
-            int yDistance = Math.Abs(unchecked((short)(enemy.YPosition - endpointY)));
+            int xDistance = Math.Abs(unchecked((short)(enemy.XPosition - endpoint.X)));
+            int yDistance = Math.Abs(unchecked((short)(enemy.YPosition - endpoint.Y)));
             if (xDistance >= enemy.XRadius + 8 || yDistance >= enemy.YRadius + 8)
                 continue;
 
@@ -49,8 +49,7 @@ public sealed partial class RoomEnemySystem
             };
             return new GrappleEnemyCollision(
                 reaction,
-                enemy.XPosition,
-                enemy.YPosition,
+                new Position16<RoomPixels>(enemy.XPosition, enemy.YPosition),
                 enemy.Definition.Damage);
         }
 

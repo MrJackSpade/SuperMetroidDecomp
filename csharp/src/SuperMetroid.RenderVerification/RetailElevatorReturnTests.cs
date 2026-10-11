@@ -72,7 +72,7 @@ internal static class RetailElevatorReturnTests
         for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }
         // Preserve the existing cartridge-derived regression endpoint, not a forced
         // screen origin: front-facing Samus selects the room's up-scroller target.
-        ushort expectedCameraY = unchecked((ushort)(samus.YPosition - runtime.ActiveRoom!.UpScroller));
+        ushort expectedCameraY = unchecked((ushort)(samus.Position.Y.Whole - runtime.ActiveRoom!.UpScroller));
         if (runtime.Camera!.PixelPosition.Y != expectedCameraY || runtime.Camera.IdealPosition.Y != expectedCameraY ||
             runtime.BackgroundScroll.Layer1Position.Y != expectedCameraY ||
             runtime.BackgroundScroll.Bg1Scroll.Y != unchecked((ushort)(expectedCameraY + runtime.BackgroundScroll.Bg1Offset.Y)))

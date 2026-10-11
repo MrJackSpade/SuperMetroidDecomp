@@ -12,7 +12,7 @@ public sealed partial class SamusLiquidPhysicsState
         // through the wall-jump frame. Liquid suppression leaves all previous slot words
         // intact, even when Gravity Suit makes movement itself behave as though the room
         // were dry.
-        ushort bottom = unchecked((ushort)(samus.YPosition + SamusState.ReadPoseYRadius(samus.Pose) - 1));
+        ushort bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusState.ReadPoseYRadius(samus.Pose) - 1));
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
         int offset = samus.IsFacingRight(bus)
@@ -20,6 +20,6 @@ public sealed partial class SamusLiquidPhysicsState
             : SamusWallJumpDustDefinitions.HorizontalOffset;
         AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,
             SamusWallJumpDustDefinitions.Type, 0, SamusWallJumpDustDefinitions.InitialTimer,
-            unchecked((ushort)(samus.XPosition + offset)), bottom);
+            new(unchecked((ushort)(samus.Position.X.Whole + offset)), bottom));
     }
 }

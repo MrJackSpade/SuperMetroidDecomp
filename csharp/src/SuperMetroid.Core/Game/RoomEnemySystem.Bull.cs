@@ -266,8 +266,8 @@ public sealed partial class RoomEnemySystem
 
     private static ushort CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         unchecked((byte)(CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - slot.XPosition)),
-            unchecked((short)(samus.YPosition - slot.YPosition))) - 0x40));
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
+            unchecked((short)(samus.Position.Y.Whole - slot.YPosition))) - 0x40));
 
     private static void AccelerateBull(BullEnemyState state)
     {

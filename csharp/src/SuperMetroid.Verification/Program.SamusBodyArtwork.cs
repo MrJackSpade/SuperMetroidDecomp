@@ -109,7 +109,7 @@ internal static partial class Program
             var installedOam = new OamBuffer();
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
-            DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, 127, 131);
+            DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, new(127, 131));
             installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, new Position16<OamPixels>(127, 131), sprites);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                 nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
@@ -152,15 +152,15 @@ internal static partial class Program
         {
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, type, 0, 2, 128, 128);
-            installedEffects.SetSlot(0, type, 0, 2, 128, 128);
+            nativeEffects.SetSlot(0, type, 0, 2, new(128, 128));
+            installedEffects.SetSlot(0, type, 0, 2, new(128, 128));
             var nativeEffectOam = new OamBuffer();
             var installedEffectOam = new OamBuffer();
             nativeEffectOam.BeginFrame();
             installedEffectOam.BeginFrame();
-            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128,
+            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, new(0, 0), 128,
                 stock.Spritemaps);
-            installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, 0, 0, 128,
+            installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, new(0, 0), 128,
                 stock.Spritemaps);
             AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
                 nativeEffectOam.LowTable.SequenceEqual(installedEffectOam.LowTable) &&
@@ -181,15 +181,15 @@ internal static partial class Program
                 $"atmospheric type {type} frame {frame} imported exact native attributes");
             var nativeEffects = new SamusAtmosphericEffectsState();
             var installedEffects = new SamusAtmosphericEffectsState();
-            nativeEffects.SetSlot(0, type, frame, 2, 128, 128);
-            installedEffects.SetSlot(0, type, frame, 2, 128, 128);
+            nativeEffects.SetSlot(0, type, frame, 2, new(128, 128));
+            installedEffects.SetSlot(0, type, frame, 2, new(128, 128));
             var nativeEffectOam = new OamBuffer();
             var installedEffectOam = new OamBuffer();
             nativeEffectOam.BeginFrame();
             installedEffectOam.BeginFrame();
-            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, 0, 0, 128,
+            nativeEffects.UpdateAndDraw(bus, nativeEffectOam, new(0, 0), 128,
                 directArtwork: stock.Atmosphere);
-            installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, 0, 0, 128,
+            installedEffects.UpdateAndDraw(guardedBus, installedEffectOam, Position16<RoomPixels>.Zero, 128,
                 stock.Spritemaps, stock.Atmosphere);
             AssertTrue(nativeEffectOam.NextByteOffset > 0 &&
                 nativeEffectOam.LowTable.SequenceEqual(installedEffectOam.LowTable) &&
@@ -202,9 +202,9 @@ internal static partial class Program
             "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState
         {
-            Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        deathSamus.DeathSequence.Begin(bus, deathSamus, layer1X: 0, layer1Y: 0);
+        deathSamus.DeathSequence.Begin(bus, deathSamus, layer1: new(0, 0));
         var deathCgram = new SnesCgram();
         var deathWrites = new VramWriteQueue();
         for (int frame = 0; deathSamus.DeathSequence.Phase != SamusDeathSequencePhase.SuitExplosion;
@@ -289,16 +289,14 @@ internal static partial class Program
             };
             var nativeSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128,
-                YPosition = 128, EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
             };
             var installedSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128,
-                YPosition = 128, EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
             };
-            nativeSamus.DeathSequence.Begin(bus, nativeSamus, 0, 0);
-            installedSamus.DeathSequence.Begin(bus, installedSamus, 0, 0);
+            nativeSamus.DeathSequence.Begin(bus, nativeSamus, Position16<RoomPixels>.Zero);
+            installedSamus.DeathSequence.Begin(bus, installedSamus, Position16<RoomPixels>.Zero);
             var nativeColors = new SnesCgram();
             var installedColors = new SnesCgram();
             var nativeWrites = new VramWriteQueue();
@@ -459,12 +457,11 @@ internal static partial class Program
         var originalArmSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128, YPosition = 128, SelectedHudItem = 1,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
         };
         var editedArmSamus = new SamusState
         {
-            Pose = originalArmSamus.Pose, XPosition = originalArmSamus.XPosition,
-            YPosition = originalArmSamus.YPosition, SelectedHudItem = originalArmSamus.SelectedHudItem,
+            Pose = originalArmSamus.Pose, Position = FixedPosition<RoomPixels>.FromWhole(originalArmSamus.Position.Whole), SelectedHudItem = originalArmSamus.SelectedHudItem,
         };
         originalArmSamus.TileTransfers.BindArtwork(stock);
         editedArmSamus.TileTransfers.BindArtwork(replacement);
@@ -482,9 +479,9 @@ internal static partial class Program
         var originalArmWrites = new VramWriteQueue();
         var editedArmWrites = new VramWriteQueue();
         originalArmSamus.ArmCannon.Draw(
-            guardedBus, originalArmOam, originalArmWrites, originalArmSamus, 0, 0, 0);
+            guardedBus, originalArmOam, originalArmWrites, originalArmSamus, Position16<RoomPixels>.Zero, 0);
         editedArmSamus.ArmCannon.Draw(
-            guardedBus, editedArmOam, editedArmWrites, editedArmSamus, 0, 0, 0);
+            guardedBus, editedArmOam, editedArmWrites, editedArmSamus, Position16<RoomPixels>.Zero, 0);
         AssertTrue(originalArmOam.NextByteOffset == 4 && editedArmOam.NextByteOffset == 4,
             "stock and edited covers both emit a visible OBJ");
         int originalSignedX = unchecked((sbyte)stockArmX);
@@ -515,38 +512,38 @@ internal static partial class Program
             "edited Samus spritemap part changes production OAM X by one pixel");
         var stockSplash = new SamusAtmosphericEffectsState();
         var editedSplash = new SamusAtmosphericEffectsState();
-        stockSplash.SetSlot(0, 3, 0, 2, 128, 128);
-        editedSplash.SetSlot(0, 3, 0, 2, 128, 128);
+        stockSplash.SetSlot(0, 3, 0, 2, new(128, 128));
+        editedSplash.SetSlot(0, 3, 0, 2, new(128, 128));
         var stockSplashOam = new OamBuffer();
         var editedSplashOam = new OamBuffer();
         stockSplashOam.BeginFrame();
         editedSplashOam.BeginFrame();
-        stockSplash.UpdateAndDraw(guardedBus, stockSplashOam, 0, 0, 128, stock.Spritemaps);
-        editedSplash.UpdateAndDraw(guardedBus, editedSplashOam, 0, 0, 128,
+        stockSplash.UpdateAndDraw(guardedBus, stockSplashOam, new(0, 0), 128, stock.Spritemaps);
+        editedSplash.UpdateAndDraw(guardedBus, editedSplashOam, new(0, 0), 128,
             replacement.Spritemaps);
         AssertEqual(unchecked((byte)(stockSplashOam.LowTable[0] + 1)),
             editedSplashOam.LowTable[0],
             "edited water-entry spritemap reaches the production atmospheric owner");
         var stockDirect = new SamusAtmosphericEffectsState();
         var editedDirect = new SamusAtmosphericEffectsState();
-        stockDirect.SetSlot(0, 1, 0, 2, 128, 128);
-        editedDirect.SetSlot(0, 1, 0, 2, 128, 128);
+        stockDirect.SetSlot(0, 1, 0, 2, new(128, 128));
+        editedDirect.SetSlot(0, 1, 0, 2, new(128, 128));
         var stockDirectOam = new OamBuffer();
         var editedDirectOam = new OamBuffer();
         stockDirectOam.BeginFrame();
         editedDirectOam.BeginFrame();
-        stockDirect.UpdateAndDraw(guardedBus, stockDirectOam, 0, 0, 128,
+        stockDirect.UpdateAndDraw(guardedBus, stockDirectOam, Position16<RoomPixels>.Zero, 128,
             stock.Spritemaps, stock.Atmosphere);
-        editedDirect.UpdateAndDraw(guardedBus, editedDirectOam, 0, 0, 128,
+        editedDirect.UpdateAndDraw(guardedBus, editedDirectOam, Position16<RoomPixels>.Zero, 128,
             replacement.Spritemaps, replacement.Atmosphere);
         AssertEqual(unchecked((byte)(stockDirectOam.LowTable[2] + 1)),
             editedDirectOam.LowTable[2],
             "edited atmospheric small-OBJ attribute reaches the production OAM byte");
         var editedDeathSamus = new SamusState
         {
-            Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        editedDeathSamus.DeathSequence.Begin(bus, editedDeathSamus, 0, 0);
+        editedDeathSamus.DeathSequence.Begin(bus, editedDeathSamus, Position16<RoomPixels>.Zero);
         var editedDeathColors = new SnesCgram();
         var editedDeathWrites = new VramWriteQueue();
         for (int frame = 0; frame < 16; frame++)
@@ -585,36 +582,35 @@ internal static partial class Program
             "edited death explosion spritemap reaches the production sequence owner");
         var stockLandingSamus = new SamusState
         {
-            Pose = SamusPoseId.NormalLandingRightPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
         var editedLandingSamus = new SamusState
         {
-            Pose = SamusPoseId.NormalLandingRightPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
         stockLandingSamus.TileTransfers.BindArtwork(stock);
         editedLandingSamus.TileTransfers.BindArtwork(replacement);
-        stockLandingSamus.Draw(guardedBus, new OamBuffer(), layer1X: 0, layer1Y: 0);
-        editedLandingSamus.Draw(guardedBus, new OamBuffer(), layer1X: 0, layer1Y: 0);
-        AssertEqual(unchecked((ushort)(stockLandingSamus.SpritemapYPosition - 1)),
-            editedLandingSamus.SpritemapYPosition,
+        stockLandingSamus.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
+        editedLandingSamus.Draw(guardedBus, new OamBuffer(), layer1: new(0, 0));
+        AssertEqual(unchecked((ushort)(stockLandingSamus.SpritemapPosition.Y - 1)),
+            editedLandingSamus.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
         editedSamus.TileTransfers.BindArtwork(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
             editedSamus.ReadGraphicsYOffset(guardedBus),
             "edited Samus visual Y offset is used without a cartridge read");
-        var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128 };
+        var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         stockSamus.TileTransfers.BindArtwork(stock);
-        editedSamus.XPosition = stockSamus.XPosition;
-        editedSamus.YPosition = stockSamus.YPosition;
+        editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
         var stockOam = new OamBuffer();
         var editedOam = new OamBuffer();
         stockOam.BeginFrame();
         editedOam.BeginFrame();
-        stockSamus.Draw(guardedBus, stockOam, layer1X: 0, layer1Y: 0);
-        editedSamus.Draw(guardedBus, editedOam, layer1X: 0, layer1Y: 0);
-        AssertEqual(unchecked((ushort)(stockSamus.SpritemapYPosition - 1)),
-            editedSamus.SpritemapYPosition,
+        stockSamus.Draw(guardedBus, stockOam, layer1: new(0, 0));
+        editedSamus.Draw(guardedBus, editedOam, layer1: new(0, 0));
+        AssertEqual(unchecked((ushort)(stockSamus.SpritemapPosition.Y - 1)),
+            editedSamus.SpritemapPosition.Y,
             "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");
         AssertEqual(unchecked((byte)originalYOffset),
             SamusPoseProjectileOriginDefinitions.ReadYOffset(SamusPoseId.FacingRightNormalPose),
@@ -710,12 +706,12 @@ internal static partial class Program
         var nativeSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            AnimationFrame = 0, XPosition = 128, YPosition = 128, SelectedHudItem = 1,
+            AnimationFrame = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
         };
         var installedSamus = new SamusState
         {
             Pose = nativeSamus.Pose, AnimationFrame = nativeSamus.AnimationFrame,
-            XPosition = nativeSamus.XPosition, YPosition = nativeSamus.YPosition,
+            Position = FixedPosition<RoomPixels>.FromWhole(nativeSamus.Position.Whole),
             SelectedHudItem = nativeSamus.SelectedHudItem,
         };
         // The imported bytes above are the independent stock oracle. Both runtime
@@ -738,10 +734,10 @@ internal static partial class Program
         var nativeWrites = new VramWriteQueue();
         var installedWrites = new VramWriteQueue();
         nativeSamus.ArmCannon.Draw(bus,
-            nativeOam, nativeWrites, nativeSamus, 0, 0, 0);
+            nativeOam, nativeWrites, nativeSamus, Position16<RoomPixels>.Zero, 0);
         installedSamus.ArmCannon.Draw(
             new FrontendCartridgeReadGuard(bus), installedOam, installedWrites,
-            installedSamus, 0, 0, 0);
+            installedSamus, Position16<RoomPixels>.Zero, 0);
         AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable),
             "installed arm-cannon cover writes identical visible OAM");
         AssertTrue(nativeWrites.Entries.SequenceEqual(installedWrites.Entries),
@@ -751,7 +747,7 @@ internal static partial class Program
 
     /// <summary>Import-only oracle for Samus's bank-$92 OAM record format.</summary>
     private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        ushort index, ushort originX, ushort originY)
+        ushort index, Position16<OamPixels> origin)
     {
         ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
             (bus.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
@@ -763,7 +759,7 @@ internal static partial class Program
         {
             oam.AddSamusSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), new Position16<OamPixels>(originX, originY));
+                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), origin);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

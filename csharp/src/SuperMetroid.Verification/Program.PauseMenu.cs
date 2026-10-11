@@ -85,8 +85,7 @@ internal static partial class Program
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
             MaxReserveEnergy = 100,
             ReserveEnergy = 47,
-            XPosition = 0x0200,
-            YPosition = 0x0300,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0300)),
         };
         var system = new Bank80SystemState();
         system.SetAreaMapAcquired(0);

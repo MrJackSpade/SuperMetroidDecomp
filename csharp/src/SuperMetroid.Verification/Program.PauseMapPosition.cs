@@ -27,7 +27,7 @@ internal static partial class Program
             var samusCell = new Position16<MapTiles>(checked((ushort)(roomX + (samusX >> 8))), checked((ushort)(roomY + (samusY >> 8) + 1)));
             system.MarkExploredMapTile(area, samusCell);
             var pause = CreateRetailPauseFixture(bus,
-                new SamusState { XPosition = (ushort)samusX, YPosition = (ushort)samusY },
+                new SamusState { Position = new(new((ushort)samusX, 0), new((ushort)samusY, 0))},
                 system, area, new(checked((ushort)roomX), checked((ushort)roomY)));
             int nativeFrame = 0, nativeTimer = 0;
             for (int frame = 0; frame < 48; frame++)

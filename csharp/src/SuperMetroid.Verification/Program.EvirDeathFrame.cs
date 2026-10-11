@@ -6,7 +6,7 @@ internal static partial class Program
     private static void VerifyEvirDeathFrame()
     {
         var samus = CreateDropTestSamus();
-        samus.XPosition = samus.YPosition = 128;
+        samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemies = fixture.System;

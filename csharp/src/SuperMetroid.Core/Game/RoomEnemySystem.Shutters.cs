@@ -319,7 +319,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort maximumDistance)
     {
-        ushort distance = unchecked((ushort)(samus.XPosition - slot.XPosition));
+        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
         if (unchecked((short)distance) < 0)
             distance = unchecked((ushort)-distance);
         return distance < maximumDistance;

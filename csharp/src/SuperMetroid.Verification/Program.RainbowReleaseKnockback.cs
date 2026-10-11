@@ -18,9 +18,8 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.MotherBrain);
         SamusState samus = runtime.Samus!;
-        samus.XPosition = 0x00eb;
-        samus.YPosition = 0x007d;
-        samus.Kinematics.YSubposition = 0;
+        samus.Position = samus.Position.WithWhole(new(0x00eb, 0x007d));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
 
         var rainbow = new MotherBrainRainbowBeamAttackSequence();
@@ -29,11 +28,11 @@ internal static partial class Program
         AssertEqual(SamusPoseId.KnockbackLeftPose, samus.Pose, "the lock installs knockback pose $54");
 
         runtime.StepFrame(0);
-        AssertEqual((ushort)0x007d, samus.YPosition, "the locked beta moves nothing");
+        AssertEqual((ushort)0x007d, samus.Position.Y.Whole, "the locked beta moves nothing");
 
         samus.InputLocked = false; // Samus command one, as the rainbow sequence's finish runs it.
         runtime.StepFrame(0);
-        AssertTrue(samus.YPosition > 0x007d, "the restored beta runs the knockback mover and Samus falls");
+        AssertTrue(samus.Position.Y.Whole > 0x007d, "the restored beta runs the knockback mover and Samus falls");
         Console.WriteLine("Rainbow release knockback: command one restores the type-$0A mover on its own frame.");
     }
 }

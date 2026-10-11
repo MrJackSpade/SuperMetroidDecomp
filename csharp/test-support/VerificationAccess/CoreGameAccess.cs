@@ -1112,7 +1112,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
                     ref upperIndex,
                     self.NeckAngleDelta,
                     self.BrainYPosition,
-                    samus.YPosition);
+                    samus.Position.Y.Whole);
                 PrivateState.SetProperty(self, "LowerNeckAngle", lowerAngle);
                 PrivateState.SetProperty(self, "UpperNeckAngle", upperAngle);
                 PrivateState.SetProperty(self, "LowerNeckMovementIndex", lowerIndex);
@@ -1938,8 +1938,8 @@ internal static class SamusGrappleMovementAccess
 
             SamusGrappleState grapple = samus.Grapple;
             grapple.Phase = GrapplePhase.ConnectedSwinging;
-            grapple.AnchorX = anchorX;
-            grapple.AnchorY = anchorY;
+            grapple.Anchor = grapple.Anchor.WithX(anchorX);
+            grapple.Anchor = grapple.Anchor.WithY(anchorY);
             grapple.RopeLength = ropeLength;
             grapple.RopeLengthDelta = 0;
             grapple.Angle = angle;
@@ -2111,13 +2111,12 @@ internal static class SamusShinesparkStateAccess
         internal void StepReleasedCrashEchoProjectiles(
             ISnesAddressSpace bus,
             SamusState samus,
-            ushort layer1X,
-            ushort layer1Y)
+            Position16<RoomPixels> layer1)
         {
             ArgumentNullException.ThrowIfNull(bus);
             ArgumentNullException.ThrowIfNull(samus);
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
-            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), (ushort)(layer1X), (ushort)(layer1Y), PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
+            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_firstReleasedCrashEcho"));
+            PrivateState.Invoke(self, "StepReleasedCrashEcho", (SamusState)(samus), layer1, PrivateState.Field<object>(self, "_secondReleasedCrashEcho"));
         }
     }
 }

@@ -16,7 +16,7 @@ internal static class KraidContactDefinitions
     /// <summary>$A7:B133/B140: whole-pixel body ejection on both axes.</summary>
     internal const ushort BodyEjection = 8;
     /// <summary>$A7:94A4: PushSamusBack horizontal extra displacement.</summary>
-    internal const ushort ExtraX = 4;
-    /// <summary>$A7:94AA: PushSamusBack vertical extra displacement, signed -8.</summary>
-    internal const ushort ExtraY = 0xfff8;
+    internal const short ExtraX = 4;
+    /// <summary>$A7:94AA: PushSamusBack vertical extra displacement.</summary>
+    internal const short ExtraY = -8;
 }

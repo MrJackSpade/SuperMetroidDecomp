@@ -93,17 +93,11 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public ushort SpeedEchoIndex { get; private set; }
 
-    /// <summary>First captured Speed Booster echo X word at WRAM <c>$0AB0</c>.</summary>
-    public ushort FirstSpeedEchoXPosition { get; private set; }
+    /// <summary>First captured Speed Booster echo position: X at WRAM <c>$0AB0</c>, Y at <c>$0AB4</c>. X zero marks the slot empty.</summary>
+    public Position16<RoomPixels> FirstSpeedEchoPosition { get; private set; }
 
-    /// <summary>Second captured Speed Booster echo X word at WRAM <c>$0AB2</c>.</summary>
-    public ushort SecondSpeedEchoXPosition { get; private set; }
-
-    /// <summary>First captured Speed Booster echo Y word at WRAM <c>$0AB4</c>.</summary>
-    public ushort FirstSpeedEchoYPosition { get; private set; }
-
-    /// <summary>Second captured Speed Booster echo Y word at WRAM <c>$0AB6</c>.</summary>
-    public ushort SecondSpeedEchoYPosition { get; private set; }
+    /// <summary>Second captured Speed Booster echo position: X at WRAM <c>$0AB2</c>, Y at <c>$0AB6</c>. X zero marks the slot empty.</summary>
+    public Position16<RoomPixels> SecondSpeedEchoPosition { get; private set; }
 
     /// <summary>
     /// Signed whole-pixel X velocity for ordinary departing echo zero at WRAM
@@ -500,8 +494,7 @@ public sealed class SamusHorizontalSpeedState
     /// </summary>
     public bool CaptureSpeedEchoPosition(
         ushort gameTimeFrames,
-        ushort xPosition,
-        ushort yPosition)
+        Position16<RoomPixels> position)
     {
         if ((SpeedBoostCounter & 0xff00) != 0x0400 ||
             (SpeedEchoIndex & 0x8000) != 0 ||
@@ -511,15 +504,9 @@ public sealed class SamusHorizontalSpeedState
         }
 
         if (SpeedEchoIndex == 0)
-        {
-            FirstSpeedEchoXPosition = xPosition;
-            FirstSpeedEchoYPosition = yPosition;
-        }
+            FirstSpeedEchoPosition = position;
         else
-        {
-            SecondSpeedEchoXPosition = xPosition;
-            SecondSpeedEchoYPosition = yPosition;
-        }
+            SecondSpeedEchoPosition = position;
 
         SpeedEchoIndex = unchecked((ushort)(SpeedEchoIndex + 2));
         if (unchecked((short)(SpeedEchoIndex - 4)) >= 0)
@@ -542,8 +529,8 @@ public sealed class SamusHorizontalSpeedState
         SpeedEchoIndex = 0;
         FirstSpeedEchoXSpeed = 0;
         SecondSpeedEchoXSpeed = 0;
-        FirstSpeedEchoXPosition = 0;
-        SecondSpeedEchoXPosition = 0;
+        FirstSpeedEchoPosition = FirstSpeedEchoPosition.WithX(0);
+        SecondSpeedEchoPosition = SecondSpeedEchoPosition.WithX(0);
         // Launch marks slots empty through X alone. Native leaves the old Y words
         // intact until the next gameplay-clock sample overwrites them.
     }
@@ -552,8 +539,8 @@ public sealed class SamusHorizontalSpeedState
     public void ResetSpeedEchoPositionsForRoomTransition()
     {
         ResetSpeedEchoPositionsForShinespark();
-        FirstSpeedEchoYPosition = 0;
-        SecondSpeedEchoYPosition = 0;
+        FirstSpeedEchoPosition = FirstSpeedEchoPosition.WithY(0);
+        SecondSpeedEchoPosition = SecondSpeedEchoPosition.WithY(0);
     }
 
     /// <summary>
@@ -567,16 +554,12 @@ public sealed class SamusHorizontalSpeedState
     /// </remarks>
     public void SetShinesparkCrashEchoState(
         ushort encodedIndex,
-        ushort firstX,
-        ushort secondX,
-        ushort firstY,
-        ushort secondY)
+        Position16<RoomPixels> first,
+        Position16<RoomPixels> second)
     {
         SpeedEchoIndex = encodedIndex;
-        FirstSpeedEchoXPosition = firstX;
-        SecondSpeedEchoXPosition = secondX;
-        FirstSpeedEchoYPosition = firstY;
-        SecondSpeedEchoYPosition = secondY;
+        FirstSpeedEchoPosition = first;
+        SecondSpeedEchoPosition = second;
     }
 
     private void AddExtraRunAcceleration()
@@ -648,8 +631,7 @@ public sealed class SamusHorizontalSpeedState
         SpeedBoostCounter = SpecialPaletteFrame = SpecialPaletteTimer = 0;
         SpeedEchoIndex = 0;
         FirstSpeedEchoXSpeed = SecondSpeedEchoXSpeed = 0;
-        FirstSpeedEchoXPosition = SecondSpeedEchoXPosition = 0;
-        FirstSpeedEchoYPosition = SecondSpeedEchoYPosition = 0;
+        FirstSpeedEchoPosition = SecondSpeedEchoPosition = Position16<RoomPixels>.Zero;
     }
 
     /// <summary>
@@ -714,26 +696,24 @@ public sealed class SamusHorizontalSpeedState
     /// </remarks>
     public bool AdvanceDepartingSpeedEcho(
         int slot,
-        ushort samusXPosition,
-        ushort samusYPosition)
+        Position16<RoomPixels> samusPosition)
     {
         if ((SpeedEchoIndex & 0x8000) == 0)
             return false;
         if (slot is < 0 or > 1)
             throw new ArgumentOutOfRangeException(nameof(slot));
 
-        ushort xPosition = slot == 0
-            ? FirstSpeedEchoXPosition
-            : SecondSpeedEchoXPosition;
+        Position16<RoomPixels> echo = slot == 0
+            ? FirstSpeedEchoPosition
+            : SecondSpeedEchoPosition;
+        ushort xPosition = echo.X;
         if (xPosition == 0)
             return false;
 
-        ushort yPosition = slot == 0
-            ? FirstSpeedEchoYPosition
-            : SecondSpeedEchoYPosition;
-        if (yPosition != samusYPosition)
+        ushort yPosition = echo.Y;
+        if (yPosition != samusPosition.Y)
         {
-            yPosition = unchecked((short)(yPosition - samusYPosition)) < 0
+            yPosition = unchecked((short)(yPosition - samusPosition.Y)) < 0
                 ? unchecked((ushort)(yPosition + 2))
                 : unchecked((ushort)(yPosition - 2));
         }
@@ -743,21 +723,15 @@ public sealed class SamusHorizontalSpeedState
             : SecondSpeedEchoXSpeed;
         xPosition = unchecked((ushort)(xPosition + xSpeed));
         bool crossedSamus = unchecked((short)xSpeed) < 0
-            ? unchecked((short)(xPosition - samusXPosition)) < 0
-            : unchecked((short)(xPosition - samusXPosition)) >= 0;
+            ? unchecked((short)(xPosition - samusPosition.X)) < 0
+            : unchecked((short)(xPosition - samusPosition.X)) >= 0;
         if (crossedSamus)
             xPosition = 0;
 
         if (slot == 0)
-        {
-            FirstSpeedEchoXPosition = xPosition;
-            FirstSpeedEchoYPosition = yPosition;
-        }
+            FirstSpeedEchoPosition = new(xPosition, yPosition);
         else
-        {
-            SecondSpeedEchoXPosition = xPosition;
-            SecondSpeedEchoYPosition = yPosition;
-        }
+            SecondSpeedEchoPosition = new(xPosition, yPosition);
 
         return xPosition != 0;
     }
@@ -769,8 +743,8 @@ public sealed class SamusHorizontalSpeedState
     public void FinishDepartingSpeedEchoFrame()
     {
         if ((SpeedEchoIndex & 0x8000) != 0 &&
-            FirstSpeedEchoXPosition == 0 &&
-            SecondSpeedEchoXPosition == 0)
+            FirstSpeedEchoPosition.X == 0 &&
+            SecondSpeedEchoPosition.X == 0)
         {
             SpeedEchoIndex = 0;
         }

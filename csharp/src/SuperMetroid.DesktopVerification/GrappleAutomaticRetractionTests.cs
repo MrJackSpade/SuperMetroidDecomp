@@ -42,9 +42,9 @@ internal static partial class Program
                 loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
                 loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
                 Check(runtime.LastGrappleMovement is { WallJumpStarted: true }, "Automatic wall attachment did not permit the wall jump.");
-                ushort startX = samus.XPosition, startY = samus.YPosition;
+                ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
                 for (int i = 0; i < 13; i++) loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
-                Check(samus.XPosition < startX && samus.YPosition < startY - 50,
+                Check(samus.Position.X.Whole < startX && samus.Position.Y.Whole < startY - 50,
                     "Wall jump must actually carry Samus up and away from the wall.");
                 Console.WriteLine("PASS automatic attachment -> ready sprite -> wall jump, no manual rope input.");
                 return;

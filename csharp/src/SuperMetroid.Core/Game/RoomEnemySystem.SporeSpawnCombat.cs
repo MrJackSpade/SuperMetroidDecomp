@@ -91,8 +91,8 @@ public sealed partial class RoomEnemySystem
     private void CreateEnemyProjectileDudShot(SamusProjectileSlot projectile)
     {
         _ = SpawnRoomSpriteObject(
-            projectile.XPosition,
-            projectile.YPosition,
+            projectile.Position.X.Whole,
+            projectile.Position.Y.Whole,
             RoomSpriteObjectKind.EnemyProjectileDud,
             graphicsIndex: 0);
         LastEnemyProjectileDudSoundEffect = 0x003d;

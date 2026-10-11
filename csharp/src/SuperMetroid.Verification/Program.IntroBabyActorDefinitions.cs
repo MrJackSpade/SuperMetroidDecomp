@@ -98,8 +98,8 @@ internal static partial class Program
             AssertEqual(expected, discovery.Level.ForegroundEntries.Span[block],
                 $"SR388 discovery physical block {block} preserves native word");
         }
-        discovery.Samus.XPosition = 0x00a8;
-        reference.Samus.XPosition = 0x00a8;
+        discovery.Samus.Position = discovery.Samus.Position.WithWholeX(0x00a8);
+        reference.Samus.Position = reference.Samus.Position.WithWholeX(0x00a8);
         BindingFlags actorFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         var egg = (IntroDiscoverySprite)typeof(IntroBabyDiscoveryState)
             .GetField("egg", actorFlags)!.GetValue(discovery)!;
@@ -126,7 +126,7 @@ internal static partial class Program
                 $"SR388 held input at frame {frame} matches ROM-backed controller");
             AssertEqual(nativeDemo.NewlyPressed, demo.NewlyPressed,
                 $"SR388 input edge at frame {frame} matches ROM-backed controller");
-            AssertEqual(reference.Samus.XPosition, discovery.Samus.XPosition,
+            AssertEqual(reference.Samus.Position.X.Whole, discovery.Samus.Position.X.Whole,
                 $"SR388 Samus X at frame {frame} matches ROM-backed controller");
             AssertEqual(reference.EggHatchingStarted, discovery.EggHatchingStarted,
                 $"SR388 egg hatch transition at frame {frame} matches ROM-backed actor");

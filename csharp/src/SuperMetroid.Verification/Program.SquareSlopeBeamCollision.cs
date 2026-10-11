@@ -48,8 +48,7 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 512;
-        samus.YPosition = 490;
+        samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
@@ -65,7 +64,7 @@ internal static partial class Program
             {
                 // The explosion is anchored at the beam's leading edge: the slope column
                 // or, for a beam that passed it, the wall four blocks further on.
-                int column = shot.XPosition >> 4;
+                int column = shot.Position.X.Whole >> 4;
                 if (column is not (SlopeColumn or WallColumn))
                     throw new InvalidOperationException($"Beam exploded at column {column}, neither the slope nor the wall.");
                 return column == SlopeColumn;

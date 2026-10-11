@@ -913,10 +913,8 @@ public sealed partial class RoomEnemySystem
             RoomEnemySlot slot = SlotFromNativeIndex(nativeIndex);
             _interactiveCollisionBodies.Add(new SolidEnemyCollisionBody(
                 nativeIndex,
-                slot.XPosition,
-                slot.YPosition,
-                slot.XRadius,
-                slot.YRadius,
+                new(slot.XPosition, slot.YPosition),
+                new(slot.XRadius, slot.YRadius),
                 slot.FrozenTimer,
                 slot.Properties));
         }
@@ -1665,7 +1663,7 @@ public sealed partial class RoomEnemySystem
                     "Post-Ceres gunship initialization requires the loader's Samus actor.");
             // `$A2:A669-$A678` attaches the top hull seventeen pixels above Samus and
             // enters function three, the high-altitude descent used only after Ceres.
-            slot.YPosition = unchecked((ushort)(samus.YPosition - 17));
+            slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole - 17));
             slot.VariableF = (ushort)GunshipFunction.DescendAfterCeres;
         }
         else
@@ -1712,7 +1710,7 @@ public sealed partial class RoomEnemySystem
                 SamusState samus = _samusAtEnemyInitialization
                     ?? throw new InvalidOperationException(
                         "Post-Ceres gunship bottom initialization requires Samus.");
-                slot.YPosition = unchecked((ushort)(samus.YPosition + 23));
+                slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + 23));
             }
             else
             {
@@ -2336,7 +2334,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
         short yDelta = GunshipMotionDefinitions.LandingBrakeYDelta(top.VariableE);
-        samus.YPosition = unchecked((ushort)(samus.YPosition + yDelta));
+        samus.Position += new Offset16<RoomPixels>(0, unchecked((short)yDelta));
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slots[top.SlotIndex + component];
@@ -2352,8 +2350,8 @@ public sealed partial class RoomEnemySystem
         top.VariableE = top.YPosition;
         top.VariableD = 1;
         top.VariableC = 0;
-        samus.XPosition = unchecked((ushort)(top.XPosition + 1));
-        samus.WritePreviousXPosition(samus.XPosition);
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.XPosition + 1)));
+        samus.WritePreviousXPosition(samus.Position.X.Whole);
         pad.InstructionTimer = 1;
         pad.CurrentInstruction = GunshipInstructionProgramDefinitions.EntrancePadOpening;
         top.VariableA = 144;
@@ -2366,9 +2364,9 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Post-Ceres gunship exit lost Samus.");
 
-        samus.YPosition = unchecked((ushort)(samus.YPosition - 1));
+        samus.Position -= new Offset16<RoomPixels>(0, 1);
         ushort targetY = unchecked((ushort)(top.VariableE - 30));
-        if (!IsNegative16(samus.YPosition - targetY))
+        if (!IsNegative16(samus.Position.Y.Whole - targetY))
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
@@ -2381,10 +2379,10 @@ public sealed partial class RoomEnemySystem
 
     private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
     {
-        uint samusFixed = ((uint)samus.YPosition << 16) | samus.Kinematics.YSubposition;
+        uint samusFixed = ((uint)samus.Position.Y.Whole << 16) | samus.Kinematics.Position.Y.Fraction;
         samusFixed = unchecked(samusFixed + delta);
-        samus.YPosition = unchecked((ushort)(samusFixed >> 16));
-        samus.Kinematics.YSubposition = unchecked((ushort)samusFixed);
+        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(samusFixed >> 16)));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(unchecked((ushort)samusFixed));
 
         for (int component = 0; component < 3; component++)
         {
@@ -2427,20 +2425,20 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool insideEntrance =
-            (short)unchecked((ushort)(top.XPosition - 8 - samus.XPosition)) < 0 &&
-            (short)unchecked((ushort)(top.XPosition + 8 - samus.XPosition)) >= 0 &&
-            (short)unchecked((ushort)(top.YPosition - 64 - samus.YPosition)) < 0 &&
-            (short)unchecked((ushort)(top.YPosition - samus.YPosition)) >= 0;
+            (short)unchecked((ushort)(top.XPosition - 8 - samus.Position.X.Whole)) < 0 &&
+            (short)unchecked((ushort)(top.XPosition + 8 - samus.Position.X.Whole)) >= 0 &&
+            (short)unchecked((ushort)(top.YPosition - 64 - samus.Position.Y.Whole)) < 0 &&
+            (short)unchecked((ushort)(top.YPosition - samus.Position.Y.Whole)) >= 0;
         if (insideEntrance && samus.ReadMovementKind(_bus!) == SamusMovementType.Standing)
         {
             RoomEnemySlot pad = _slots[top.SlotIndex + 2];
             top.VariableF = (ushort)GunshipFunction.WaitForEntranceToOpen;
             // $A2:AA17-AA1D stores the ship's X in both Samus X words, so the camera sees
             // no horizontal motion from this alignment.
-            if (samus.XPosition != 0x0480)
+            if (samus.Position.X.Whole != 0x0480)
             {
-                samus.XPosition = top.XPosition;
-                samus.WritePreviousXPosition(samus.XPosition);
+                samus.Position = samus.Position.WithWholeX(top.XPosition);
+                samus.WritePreviousXPosition(samus.Position.X.Whole);
             }
             samus.ApplyForwardFacingPoseSetup(_bus!);
             samus.InputLocked = true;
@@ -2465,8 +2463,8 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             throw new InvalidOperationException("Gunship entry lost its Samus actor.");
-        samus.YPosition = unchecked((ushort)(samus.YPosition + 2));
-        if (IsNegative16(samus.YPosition - unchecked((ushort)(top.VariableE + 18))))
+        samus.Position += new Offset16<RoomPixels>(0, 2);
+        if (IsNegative16(samus.Position.Y.Whole - unchecked((ushort)(top.VariableE + 18))))
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
@@ -2515,8 +2513,8 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             throw new InvalidOperationException("Gunship exit lost its Samus actor.");
-        samus.YPosition = unchecked((ushort)(samus.YPosition - 2));
-        if (!IsNegative16(samus.YPosition - unchecked((ushort)(top.VariableE - 30))))
+        samus.Position -= new Offset16<RoomPixels>(0, 2);
+        if (!IsNegative16(samus.Position.Y.Whole - unchecked((ushort)(top.VariableE - 30))))
             return;
 
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
@@ -2567,10 +2565,10 @@ public sealed partial class RoomEnemySystem
         int shake = (rumbleFrame & 1) != 0
             ? (rumbleFrame < 64 ? 1 : 2)
             : (rumbleFrame < 64 ? -1 : -2);
-        samus.YPosition = unchecked((ushort)(samus.YPosition + shake));
-        top.YPosition = unchecked((ushort)(samus.YPosition - 17));
+        samus.Position += new Offset16<RoomPixels>(0, unchecked((short)shake));
+        top.YPosition = unchecked((ushort)(samus.Position.Y.Whole - 17));
         pad.YPosition = unchecked((ushort)(top.YPosition - 1));
-        bottom.YPosition = unchecked((ushort)(samus.YPosition + 23));
+        bottom.YPosition = unchecked((ushort)(samus.Position.Y.Whole + 23));
 
         bottom.VariableE++;
         if (bottom.VariableE == 64)
@@ -2593,7 +2591,7 @@ public sealed partial class RoomEnemySystem
     {
         if (samus is null)
             throw new InvalidOperationException("Gunship liftoff lost Samus.");
-        MoveGunshipAndSamusToY(top, samus, unchecked((ushort)(samus.YPosition - 2)));
+        MoveGunshipAndSamusToY(top, samus, unchecked((ushort)(samus.Position.Y.Whole - 2)));
         if (IsNegative16(top.YPosition - 896))
         {
             top.VariableF = (ushort)GunshipFunction.AcceleratingLiftoff;
@@ -2622,10 +2620,10 @@ public sealed partial class RoomEnemySystem
         if ((bottom.VariableF & 0xff00) >= 0x0a00)
             bottom.VariableF = 0x0900;
 
-        uint samusY = samus.Kinematics.YFixed;
+        uint samusY = samus.Kinematics.Position.Y.RawValue;
         samusY = unchecked(samusY - ((uint)bottom.VariableF << 8));
-        samus.Kinematics.SetYFixed(samusY);
-        MoveGunshipAndSamusToY(top, samus, samus.YPosition);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithY(SnesFixedPosition.FromRaw(samusY));
+        MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole);
     }
 
     private void MoveGunshipAndSamusToY(
@@ -2633,7 +2631,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort samusY)
     {
-        samus.YPosition = samusY;
+        samus.Position = samus.Position.WithWholeY(samusY);
         RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
         RoomEnemySlot pad = _slots[top.SlotIndex + 2];
         top.YPosition = unchecked((ushort)(samusY - 17));

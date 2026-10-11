@@ -21,8 +21,7 @@ internal static partial class Program
             var blocks = new ushort[64 * 16];
             for (int row = 0; row < 16; row++) blocks[vertical ? 16 * 16 + row : row * 64 + 32] = 0x8000;
             var room = CreateRoom(vertical ? 16 : 64, vertical ? 64 : 16, blocks, new byte[blocks.Length]);
-            var samus = new SamusState { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, XPosition = 128,
-                YPosition = (ushort)(vertical ? 640 : 128) };
+            var samus = new SamusState { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, (ushort)(vertical ? 640 : 128))) };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             int deletedFrame = -1, impactFrame = -1;
@@ -31,8 +30,8 @@ internal static partial class Program
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 var shot = projectiles.Slots[0];
                 ushort cameraX = !vertical && followShot && shot.IsActive
-                    ? (ushort)Math.Max(0, shot.XPosition - 128) : (ushort)0;
-                ushort cameraY = vertical ? (ushort)(followShot && shot.IsActive ? shot.YPosition - 128 : 512) : (ushort)0;
+                    ? (ushort)Math.Max(0, shot.Position.X.Whole - 128) : (ushort)0;
+                ushort cameraY = vertical ? (ushort)(followShot && shot.IsActive ? shot.Position.Y.Whole - 128 : 512) : (ushort)0;
                 if (cameraMode >= 2 && shot.IsActive)
                 {
                     // Camera-only fixture control: put the *next* position at
@@ -40,25 +39,25 @@ internal static partial class Program
                     // independently performs movement, collision and deletion.
                     if (vertical)
                     {
-                        uint next = unchecked(((uint)shot.YPosition << 16 | shot.YSubposition)
-                            + (uint)((short)(shot.YVelocity - 16) * 256));
+                        uint next = unchecked(((uint)shot.Position.Y.Whole << 16 | shot.Position.Y.Fraction)
+                            + (uint)((short)(shot.Velocity.Y.SignedRawValue - 16) * 256));
                         cameraY = unchecked((ushort)((next >> 16) + (cameraMode == 2 ? 64u : 65u)));
                     }
                     else
                     {
-                        uint next = unchecked(((uint)shot.XPosition << 16 | shot.XSubposition)
-                            + (uint)((short)(shot.XVelocity + 16) * 256));
+                        uint next = unchecked(((uint)shot.Position.X.Whole << 16 | shot.Position.X.Fraction)
+                            + (uint)((short)(shot.Velocity.X.SignedRawValue + 16) * 256));
                         cameraX = unchecked((ushort)((next >> 16) - (cameraMode == 2 ? 319u : 320u)));
                     }
                 }
                 shared.StepFrame(bus, room, samus, input, input);
                 SamusProjectileSlotObservation beforeStep = projectiles.ObserveSlots();
-                projectiles.StepFrame(bus, room, samus, input, input, cameraX, cameraY, shared);
+                projectiles.StepFrame(bus, room, samus, input, input, new(cameraX, cameraY), shared);
                 if (native is not null)
                 {
-                    ushort[] actual = [cameraX, cameraY, shot.XPosition, shot.XSubposition,
-                        shot.YPosition, shot.YSubposition, unchecked((ushort)shot.XVelocity),
-                        unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
+                    ushort[] actual = [cameraX, cameraY, shot.Position.X.Whole, shot.Position.X.Fraction,
+                        shot.Position.Y.Whole, shot.Position.Y.Fraction, unchecked((ushort)shot.Velocity.X.SignedRawValue),
+                        unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
                     AssertTrue(actual.SequenceEqual(native[(vertical ? 1 : 0, cameraMode, frame)]),
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;
@@ -67,15 +66,15 @@ internal static partial class Program
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impactFrame = frame;
-                    AssertTrue(vertical ? shot.YPosition is >= 248 and <= 288 : shot.XPosition is >= 496 and <= 520,
+                    AssertTrue(vertical ? shot.Position.Y.Whole is >= 248 and <= 288 : shot.Position.X.Whole is >= 496 and <= 520,
                         "Surviving shot explodes at the remote solid column in world space");
                     break;
                 }
                 if (!shot.IsActive) { deletedFrame = frame; break; }
                 if (cameraMode == 2 && frame > 0) AssertEqual((short)(vertical ? -64 : 319),
-                    unchecked((short)(vertical ? shot.YPosition - cameraY : shot.XPosition - cameraX)),
+                    unchecked((short)(vertical ? shot.Position.Y.Whole - cameraY : shot.Position.X.Whole - cameraX)),
                     "Shot stays active at the exact native camera-relative edge");
-                if (!followShot) AssertTrue(vertical ? shot.YPosition >= 448 : shot.XPosition < 320,
+                if (!followShot) AssertTrue(vertical ? shot.Position.Y.Whole >= 448 : shot.Position.X.Whole < 320,
                     "Stationary camera retains the beam only inside native right deletion bound");
             }
             if (cameraMode == 3) AssertEqual(1, deletedFrame,

@@ -19,7 +19,7 @@ internal static partial class Program
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
         internal RoomEnemySystem Enemies { get; }
         internal RoomEnemySlot Actor => Enemies.Slots[0];
-        internal SamusState Samus { get; } = new() { XPosition = 128, YPosition = 16 };
+        internal SamusState Samus { get; } = new() { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 16)) };
         internal RoomLevelData Level { get; }
         internal SnesVram Vram { get; } = new();
         internal SnesCgram Colors { get; } = new();

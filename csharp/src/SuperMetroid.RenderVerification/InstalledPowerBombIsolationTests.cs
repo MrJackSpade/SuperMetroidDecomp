@@ -129,8 +129,8 @@ internal static partial class InstalledPowerBombIsolationTests
     internal static SamusPowerBombExplosionState Create(PowerBombFixedColorCatalog colors, bool crystalFlash)
     {
         var state = new SamusPowerBombExplosionState { PresentationColors = colors };
-        if (crystalFlash) state.BeginCrystalFlash(128, 112);
-        else { state.Arm(); state.Spawn(128, 112); }
+        if (crystalFlash) state.BeginCrystalFlash(new(128, 112));
+        else { state.Arm(); state.Spawn(new(128, 112)); }
         return state;
     }
 

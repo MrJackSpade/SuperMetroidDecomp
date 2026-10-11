@@ -176,8 +176,7 @@ internal static partial class Program
             slot.YPosition = 0x0100;
             samus = new SamusState
             {
-                XPosition = movingRight ? (ushort)0x0140 : (ushort)0x00c0,
-                YPosition = slot.YPosition,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(movingRight ? (ushort)0x0140 : (ushort)0x00c0, slot.YPosition)),
             };
             initialize(slot, samus);
             state = enemies.FakeKraidStates[0]!;

@@ -425,6 +425,12 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
+        // #628: the four pending previous-fraction write words became one value. Such writes
+        // live within one frame, so a capture's words are always empty.
+        [(typeof(SamusState).FullName!, "_previousXSubpositionWriteMask")] = Discard,
+        [(typeof(SamusState).FullName!, "_previousXSubpositionWriteValue")] = Discard,
+        [(typeof(SamusState).FullName!, "_previousYSubpositionWriteMask")] = Discard,
+        [(typeof(SamusState).FullName!, "_previousYSubpositionWriteValue")] = Discard,
     };
 
     /// <summary>Returns the migration of a retired serialized field.</summary>

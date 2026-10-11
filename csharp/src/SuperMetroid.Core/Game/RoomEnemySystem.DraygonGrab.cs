@@ -49,11 +49,11 @@ public sealed partial class RoomEnemySystem
         short clawOffset = state.FacingRight ? (short)8 : (short)-8;
         ushort clawX = unchecked((ushort)(body.XPosition + clawOffset));
         bool insideGrabWindow =
-            IsWithinStrictModularDistance(clawX, samus.XPosition, 8) &&
-            IsWithinStrictModularDistance(body.YPosition, samus.YPosition, 8);
+            IsWithinStrictModularDistance(clawX, samus.Position.X.Whole, 8) &&
+            IsWithinStrictModularDistance(body.YPosition, samus.Position.Y.Whole, 8);
         if (!insideGrabWindow)
         {
-            MoveDraygonToward(body, samus.XPosition, samus.YPosition, DraygonChaseSpeed);
+            MoveDraygonToward(body, samus.Position.X.Whole, samus.Position.Y.Whole, DraygonChaseSpeed);
             return;
         }
 
@@ -292,8 +292,7 @@ public sealed partial class RoomEnemySystem
     {
         samus.DraygonGrabbed.ApplyOwnerPosition(
             samus,
-            state.Body.XPosition,
-            state.Body.YPosition,
+            new Position16<RoomPixels>(state.Body.XPosition, state.Body.YPosition),
             state.FacingRight);
         CapSamusScrollingSpeed(samus);
         if (samus.DraygonGrabbed.ConsumeOwnerReleaseSignal())
@@ -405,8 +404,8 @@ public sealed partial class RoomEnemySystem
         state.TailWhipHits++;
         state.LastTailWhipDamage = damage;
         SpawnRoomSpriteObject(
-            samus.XPosition,
-            unchecked((ushort)(samus.YPosition + 0x0010)),
+            samus.Position.X.Whole,
+            unchecked((ushort)(samus.Position.Y.Whole + 0x0010)),
             RoomSpriteObjectKind.DustCloud,
             graphicsIndex: 0);
     }

@@ -53,13 +53,13 @@ public static partial class SamusBlockCollision
         // retains that write. Keep the live integer X unchanged. Dropping this write
         // let away movement accumulate fractional speed during the wall-check pose.
         if (result.Collided && result.EnemyCollision is null)
-            state.XSubposition = probe.XSubposition;
+            state.Position = state.Position.WithFractionX(probe.Position.X.Fraction);
 
         // The bank-$A0 routine preceding the block scan has a separate
         // real side effect: its touching path executes STZ SamusYSubPosition. Copy that single
         // native write back without committing the probe's X movement or slope alignment.
         if (result.EnemyCollision is { WasTouching: true })
-            state.YSubposition = 0;
+            state.Position = state.Position.WithFractionY(0);
 
         return result;
     }
@@ -150,18 +150,19 @@ public static partial class SamusBlockCollision
             // handler is allowed to scale ci_r18_r20. This slightly surprising ordering is
             // exactly how $94:9543 initializes its collision-info scratch words.
             ushort targetCenter = unchecked((ushort)(
-                unchecked(state.XFixed + (uint)acceptedDisplacement) >> 16));
+                unchecked(state.Position.X.RawValue + (uint)acceptedDisplacement) >> 16));
             ushort leadingBoundary = acceptedDisplacement >= 0
-                ? unchecked((ushort)(state.XRadius + targetCenter - 1))
-                : unchecked((ushort)(targetCenter - state.XRadius));
+                ? unchecked((ushort)(state.Radius.X + targetCenter - 1))
+                : unchecked((ushort)(targetCenter - state.Radius.X));
 
-            int topBlockY = unchecked((ushort)(state.YPosition - state.YRadius)) >> 4;
+            int topBlockY = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y)) >> 4;
             int verticalSpan = GetVerticalBlockSpan(state);
             int blockX = leadingBoundary >> 4;
 
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
-                RoomCollisionBlock block = GetRequiredBlock(level, blockX, topBlockY + rowOffset);
+                RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(
+                    new(unchecked((ushort)blockX), unchecked((ushort)(topBlockY + rowOffset))));
                 if (!TryResolveExtension(level, ref block))
                     continue;
                 switch (block.CollisionType)
@@ -374,7 +375,7 @@ public static partial class SamusBlockCollision
             }
         }
 
-        state.SetXFixed(unchecked(state.XFixed + (uint)acceptedDisplacement));
+        state.Position = state.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(acceptedDisplacement));
 
         // Only the live bank-$90 movement wrapper publishes inheritance. Copies used
         // for prospective poses and wall probes must not replace the preceding move.
@@ -391,12 +392,11 @@ public static partial class SamusBlockCollision
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
             bus,
             level,
-            state.XPosition,
-            state.YPosition,
-            state.YRadius,
+            state.Position.Whole,
+            state.Radius.Y,
             horizontalSlopeCollisionEnabled: alignToSlopeAfterMovement &&
                 (state.HorizontalSlopeCollisionEnable & 2) != 0);
-        state.YPosition = alignment.YPosition;
+        state.Position = state.Position.WithWholeY(alignment.YPosition);
         // $94:87F4 only sets this latch; it does not clear a square-floor contact
         // published by the previous vertical pass. $90:923F consumes it before
         // $94:9763 clears it on entry to the next nonzero terrain Y move.
@@ -486,7 +486,7 @@ public static partial class SamusBlockCollision
             sandContact = scan.SandContact;
         }
 
-        state.SetYFixed(unchecked(state.YFixed + (uint)acceptedDisplacement));
+        state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(acceptedDisplacement));
         if (ReferenceEquals(state.SamusOwner?.Kinematics, state) &&
             blockReactionDirection != SamusCollisionDirection.NonDirectionalProbe)
             SamusProjectileInheritance.Record(bus,
@@ -524,20 +524,20 @@ public static partial class SamusBlockCollision
         bool collided = false;
         bool sandContact = false;
         ushort targetCenter = unchecked((ushort)(
-            unchecked(state.YFixed + (uint)acceptedDisplacement) >> 16));
+            unchecked(state.Position.Y.RawValue + (uint)acceptedDisplacement) >> 16));
         ushort leadingBoundary = acceptedDisplacement >= 0
-            ? unchecked((ushort)(state.YRadius + targetCenter - 1))
-            : unchecked((ushort)(targetCenter - state.YRadius));
+            ? unchecked((ushort)(state.Radius.Y + targetCenter - 1))
+            : unchecked((ushort)(targetCenter - state.Radius.Y));
         int blockY = leadingBoundary >> 4;
         int horizontalSpan = GetHorizontalBlockSpan(state);
         int firstBlockX = scanLeftToRight
-            ? unchecked((ushort)(state.XPosition - state.XRadius)) >> 4
-            : unchecked((ushort)(state.XPosition + state.XRadius - 1)) >> 4;
+            ? unchecked((ushort)(state.Position.X.Whole - state.Radius.X)) >> 4
+            : unchecked((ushort)(state.Position.X.Whole + state.Radius.X - 1)) >> 4;
 
         for (int offset = 0; offset <= horizontalSpan; offset++)
         {
             int blockX = scanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
-            RoomCollisionBlock block = GetRequiredBlock(level, blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             if (!TryResolveExtension(level, ref block))
                 continue;
             switch (block.CollisionType)
@@ -805,7 +805,7 @@ public static partial class SamusBlockCollision
         ArgumentNullException.ThrowIfNull(state);
         VerticalTerrainScan scan = ScanVerticalTerrain(bus, level, state, displacement, scanLeftToRight,
             canBreakBombBlocks: false, plms, publishDoorSideEffects: true, SamusCollisionDirection.NonDirectionalProbe);
-        state.SetYFixed(unchecked(state.YFixed + (uint)scan.AcceptedDisplacement));
+        state.Position = state.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(scan.AcceptedDisplacement));
         return new BlockMoveResult(scan.AcceptedDisplacement, scan.Collided);
     }
 
@@ -861,7 +861,7 @@ public static partial class SamusBlockCollision
 
         // Non-square slopes react vertically only under Samus's center column. The broader
         // X-radius scan still visits neighboring blocks, but $94:86FE rejects them here.
-        if ((state.XPosition >> 4) != blockX)
+        if ((state.Position.X.Whole >> 4) != blockX)
             return (displacement, false);
 
         if (movingDown)
@@ -869,8 +869,8 @@ public static partial class SamusBlockCollision
             if (block.Bts.SlopeFlipsVertically)
                 return (displacement, false);
 
-            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.XPosition);
-            int bottomNibble = unchecked((ushort)(state.YRadius + targetCenter - 1)) & 0x0f;
+            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.Position.X.Whole);
+            int bottomNibble = unchecked((ushort)(state.Radius.Y + targetCenter - 1)) & 0x0f;
             short correction = unchecked((short)(height - bottomNibble - 1));
             if (correction > 0)
                 return (displacement, false);
@@ -885,8 +885,8 @@ public static partial class SamusBlockCollision
             if (!block.Bts.SlopeFlipsVertically)
                 return (displacement, false);
 
-            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.XPosition);
-            int invertedTopNibble = ((targetCenter - state.YRadius) & 0x0f) ^ 0x0f;
+            int height = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.Position.X.Whole);
+            int invertedTopNibble = ((targetCenter - state.Radius.Y) & 0x0f) ^ 0x0f;
             short correction = unchecked((short)(height - invertedTopNibble - 1));
             if (correction > 0)
                 return (displacement, false);
@@ -925,7 +925,7 @@ public static partial class SamusBlockCollision
             // On the bottom scanned block, the body's bottom half can accept the selected
             // quadrant directly. Otherwise the routine falls through to the opposite
             // vertical quadrant test below.
-            if (((state.YRadius + state.YPosition - 1) & 8) == 0 && !selectedSolid)
+            if (((state.Radius.Y + state.Position.Y.Whole - 1) & 8) == 0 && !selectedSolid)
             {
                 clippedDisplacement = displacement;
                 return false;
@@ -938,7 +938,7 @@ public static partial class SamusBlockCollision
             // The first scanned row is remainingRows==totalRows; intermediate rows always
             // test the selected quadrant. The top-body bit supplies the native exception on
             // that first row before the opposite vertical quadrant is consulted.
-            if (remainingRows != totalRows || ((state.YPosition - state.YRadius) & 8) == 0)
+            if (remainingRows != totalRows || ((state.Position.Y.Whole - state.Radius.Y) & 8) == 0)
             {
                 if (selectedSolid)
                 {
@@ -991,7 +991,7 @@ public static partial class SamusBlockCollision
         // block. Interior blocks necessarily test both eight-pixel halves.
         if (blocksLeftToCheck == 0)
         {
-            if (((state.XRadius + state.XPosition - 1) & 8) == 0 && !selectedSolid)
+            if (((state.Radius.X + state.Position.X.Whole - 1) & 8) == 0 && !selectedSolid)
             {
                 clippedDisplacement = displacement;
                 return false;
@@ -1002,7 +1002,7 @@ public static partial class SamusBlockCollision
         else
         {
             if (blocksLeftToCheck != totalColumns ||
-                ((state.XPosition - state.XRadius) & 8) == 0)
+                ((state.Position.X.Whole - state.Radius.X) & 8) == 0)
             {
                 if (selectedSolid)
                 {
@@ -1039,18 +1039,18 @@ public static partial class SamusBlockCollision
     {
         if (displacement < 0)
         {
-            short whole = unchecked((short)(state.XRadius + (leadingBoundary | 0x000f) + 1 - state.XPosition));
+            short whole = unchecked((short)(state.Radius.X + (leadingBoundary | 0x000f) + 1 - state.Position.X.Whole));
             if (whole >= 0)
                 whole = 0;
-            state.XSubposition = 0;
+            state.Position = state.Position.WithFractionX(0);
             return whole << 16;
         }
         else
         {
-            short whole = unchecked((short)((leadingBoundary & 0xfff0) - state.XRadius - state.XPosition));
+            short whole = unchecked((short)((leadingBoundary & 0xfff0) - state.Radius.X - state.Position.X.Whole));
             if (whole < 0)
                 whole = 0;
-            state.XSubposition = 0xffff;
+            state.Position = state.Position.WithFractionX(0xffff);
             return whole << 16;
         }
     }
@@ -1063,18 +1063,18 @@ public static partial class SamusBlockCollision
         if (displacement < 0)
         {
             short whole = unchecked((short)(
-                state.XRadius + (leadingBoundary | 0x0007) + 1 - state.XPosition));
+                state.Radius.X + (leadingBoundary | 0x0007) + 1 - state.Position.X.Whole));
             if (whole >= 0)
                 whole = 0;
-            state.XSubposition = 0;
+            state.Position = state.Position.WithFractionX(0);
             return whole << 16;
         }
 
         short rightWhole = unchecked((short)(
-            (leadingBoundary & 0xfff8) - state.XRadius - state.XPosition));
+            (leadingBoundary & 0xfff8) - state.Radius.X - state.Position.X.Whole));
         if (rightWhole < 0)
             rightWhole = 0;
-        state.XSubposition = 0xffff;
+        state.Position = state.Position.WithFractionX(0xffff);
         return rightWhole << 16;
     }
 
@@ -1085,18 +1085,18 @@ public static partial class SamusBlockCollision
     {
         if (displacement < 0)
         {
-            short whole = unchecked((short)(state.YRadius + (leadingBoundary | 0x000f) + 1 - state.YPosition));
+            short whole = unchecked((short)(state.Radius.Y + (leadingBoundary | 0x000f) + 1 - state.Position.Y.Whole));
             if (whole >= 0)
                 whole = 0;
-            state.YSubposition = 0;
+            state.Position = state.Position.WithFractionY(0);
             return whole << 16;
         }
         else
         {
-            short whole = unchecked((short)((leadingBoundary & 0xfff0) - state.YRadius - state.YPosition));
+            short whole = unchecked((short)((leadingBoundary & 0xfff0) - state.Radius.Y - state.Position.Y.Whole));
             if (whole < 0)
                 whole = 0;
-            state.YSubposition = 0xffff;
+            state.Position = state.Position.WithFractionY(0xffff);
             return whole << 16;
         }
     }
@@ -1109,18 +1109,18 @@ public static partial class SamusBlockCollision
         if (displacement < 0)
         {
             short whole = unchecked((short)(
-                state.YRadius + (leadingBoundary | 0x0007) + 1 - state.YPosition));
+                state.Radius.Y + (leadingBoundary | 0x0007) + 1 - state.Position.Y.Whole));
             if (whole >= 0)
                 whole = 0;
-            state.YSubposition = 0;
+            state.Position = state.Position.WithFractionY(0);
             return whole << 16;
         }
 
         short downWhole = unchecked((short)(
-            (leadingBoundary & 0xfff8) - state.YRadius - state.YPosition));
+            (leadingBoundary & 0xfff8) - state.Radius.Y - state.Position.Y.Whole));
         if (downWhole < 0)
             downWhole = 0;
-        state.YSubposition = 0xffff;
+        state.Position = state.Position.WithFractionY(0xffff);
 
         // Only the downward square-slope clip writes this flag. $90:923F consumes it to use
         // a one-pixel grounding probe instead of total-horizontal-speed-plus-one.
@@ -1130,20 +1130,17 @@ public static partial class SamusBlockCollision
 
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
-        ushort alignedTop = unchecked((ushort)(state.YPosition - state.YRadius));
+        ushort alignedTop = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y));
         alignedTop &= 0xfff0;
-        return unchecked((ushort)(state.YRadius + state.YPosition - 1 - alignedTop)) >> 4;
+        return unchecked((ushort)(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop)) >> 4;
     }
 
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
-        ushort alignedLeft = unchecked((ushort)(state.XPosition - state.XRadius));
+        ushort alignedLeft = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
         alignedLeft &= 0xfff0;
-        return unchecked((ushort)(state.XRadius + state.XPosition - 1 - alignedLeft)) >> 4;
+        return unchecked((ushort)(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft)) >> 4;
     }
-
-    private static RoomCollisionBlock GetRequiredBlock(RoomLevelData level, int blockX, int blockY)
-        => level.GetCollisionBlockOrPrefilledSolid(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
 
     /// <summary>
     /// Follows collision-extension blocks exactly like the `$94:9515/$9535` redispatch

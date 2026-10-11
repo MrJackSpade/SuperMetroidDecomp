@@ -36,7 +36,7 @@ internal static partial class Program
         runtime.Enemies.PrepareEnemyProcessingList(0x0000, 0x0000);
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x9018; shot.Damage = 1000; shot.Direction = 7;
-        shot.XPosition = 0x008e; shot.YPosition = 0x0061; shot.XRadius = 0x1c; shot.YRadius = 8;
+        shot.Position = shot.Position.WithWhole(new(0x008e, 0x0061)); shot.Radius = shot.Radius.WithX(0x1c).WithY(8);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
         AssertTrue((shot.Direction & 0x0010) != 0, "the beam stops on the body's arm rectangle");
@@ -44,7 +44,7 @@ internal static partial class Program
 
         // Lowered clear of that rectangle (and above the torso's), the same beam passes.
         shot.Direction = 7;
-        shot.YPosition = 0x0080;
+        shot.Position = shot.Position.WithWholeY(0x0080);
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
         AssertTrue((shot.Direction & 0x0010) == 0, "a beam clear of every body rectangle passes");
         Console.WriteLine("Mother Brain body hitboxes: shots resolve against the body's extended frame rectangles.");

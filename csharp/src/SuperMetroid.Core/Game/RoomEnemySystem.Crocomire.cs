@@ -255,7 +255,7 @@ public sealed partial class RoomEnemySystem
             // The native word write runs even on the frame that starts bridge collapse.
             // Later death phases retain these zones until the skeleton enters the river.
             RequireSetRoomScrollState(CrocomireCameraDefinitions.BridgeLeftScreen,
-                samus is not null && unchecked((short)(samus.XPosition - CrocomireCameraDefinitions.BridgeVisibleSamusX)) >= 0
+                samus is not null && unchecked((short)(samus.Position.X.Whole - CrocomireCameraDefinitions.BridgeVisibleSamusX)) >= 0
                     ? RoomScrollState.RedBoundary : RoomScrollState.Blue);
             RequireSetRoomScrollState(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
             // Main state zero always finishes through $A4:8B5B, including the frame in
@@ -319,14 +319,13 @@ public sealed partial class RoomEnemySystem
         if (samus is null || state.DeathSequenceIndex != CrocomireDeathPhase.Fighting)
             return;
         ushort leftEdge = unchecked((ushort)(
-            body.XPosition - body.XRadius - samus.Kinematics.XRadius));
-        if (unchecked((short)(leftEdge - samus.XPosition)) >= 0)
+            body.XPosition - body.XRadius - samus.Kinematics.Radius.X));
+        if (unchecked((short)(leftEdge - samus.Position.X.Whole)) >= 0)
             return;
 
         ResolveNormalEnemyTouch(body, samus);
-        samus.XPosition = leftEdge;
-        samus.Kinematics.ExtraXDisplacement = unchecked((ushort)-4);
-        samus.Kinematics.ExtraYDisplacement = 0xffff;
+        samus.Position = samus.Position.WithWholeX(leftEdge);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(-4, -1));
     }
 
     /// <summary>Ports Crocomire's eight-color body hurt flash at $A4:8CCB.</summary>

@@ -82,7 +82,7 @@ internal static partial class Program
 
         RoomEnemySystem turretSystem = NewSystem();
         DraygonEnemyState turretState = NewState(turretSystem);
-        var targetSamus = new SamusState { XPosition = 128, YPosition = 128 };
+        var targetSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         spawnTurret.Invoke(turretSystem, [turretState, targetSamus, (ushort)0]);
         RoomEnemyProjectileSlot turret = turretSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.DraygonWallTurret);

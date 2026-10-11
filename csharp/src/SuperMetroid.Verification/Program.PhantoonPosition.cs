@@ -19,7 +19,7 @@ internal static partial class Program
         capTentacles.VariableD = 0xfa00;
         typeof(RoomEnemySystem).GetMethod("MovePhantoonInSwoop",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!
-            .Invoke(null, [capBody, capState, new SamusState { YPosition = 128 }, false]);
+            .Invoke(null, [capBody, capState, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 128)) }, false]);
         AssertEqual((ushort)0xf800, capTentacles.VariableC, "Native NTSC negative swoop X cap");
         AssertEqual((ushort)0xfa00, capTentacles.VariableD, "Native NTSC negative swoop Y cap");
         AssertEqual((ushort)120, capBody.XPosition, "Native capped swoop X displacement");
@@ -46,8 +46,7 @@ internal static partial class Program
         AssertEqual((ushort)120, runtime.Enemies.Phantoon!.Body.VariableE,
             "Original NTSC Phantoon initializer waits 120 frames, not PAL's 96");
         var samus = runtime.Samus!;
-        samus.XPosition = 40;
-        samus.YPosition = 184;
+        samus.Position = samus.Position.WithWhole(new(40, 184));
         samus.InputLocked = true;
         var positions = new HashSet<(ushort X, ushort Y)>();
         for (int frame = 0; frame < 1400; frame++)

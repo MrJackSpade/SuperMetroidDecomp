@@ -39,8 +39,8 @@ internal static partial class Program
 
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0100; shot.Damage = 100; shot.Direction = (ushort)(alreadyMarked ? 0x12 : 0x02);
-        shot.XPosition = metroid.XPosition; shot.YPosition = metroid.YPosition;
-        shot.XRadius = shot.YRadius = 4;
+        shot.Position = shot.Position.WithWhole(new(metroid.XPosition, metroid.YPosition));
+        shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, samus);
         AssertEqual((ushort)0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");

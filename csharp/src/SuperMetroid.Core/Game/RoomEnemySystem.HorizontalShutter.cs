@@ -55,8 +55,8 @@ public sealed partial class RoomEnemySystem
         state.Function = HorizontalShutterFunction.Initial;
         state.MovingSamus = false;
         state.ShotActivated = false;
-        state.PreviousSamusXPosition = samus?.XPosition ?? 0;
-        state.PreviousSamusXSubposition = samus?.Kinematics.XSubposition ?? 0;
+        state.PreviousSamusXPosition = samus?.Position.X.Whole ?? 0;
+        state.PreviousSamusXSubposition = samus?.Kinematics.Position.X.Fraction ?? 0;
         slot.ExtraProperties = 0;
         InstallHorizontalShutterInstruction(slot);
     }
@@ -136,8 +136,8 @@ public sealed partial class RoomEnemySystem
         // The native main routine snapshots these after the dispatcher, including on no-op
         // frames. They are retained even though the known routines do not subsequently read
         // the host copies; doing so keeps debugger state and future bank-$A2 work faithful.
-        state.PreviousSamusXPosition = samus.XPosition;
-        state.PreviousSamusXSubposition = samus.Kinematics.XSubposition;
+        state.PreviousSamusXPosition = samus.Position.X.Whole;
+        state.PreviousSamusXSubposition = samus.Kinematics.Position.X.Fraction;
     }
 
     private static void SelectInitialHorizontalShutterFunction(HorizontalShutterEnemyState state)
@@ -166,7 +166,7 @@ public sealed partial class RoomEnemySystem
     {
         state.PreviousXPosition = slot.XPosition;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
-            unchecked((short)(samus.XPosition - slot.XPosition)) < 0;
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
         (slot.XPosition, slot.XSubposition) = AddShutterVelocity(
             slot.XPosition,
             slot.XSubposition,
@@ -174,13 +174,12 @@ public sealed partial class RoomEnemySystem
             state.LeftSubvelocity);
         if (state.MovingSamus)
         {
-            samus.Kinematics.ExtraXSubdisplacement = state.LeftSubvelocity;
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)state.LeftVelocity);
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
+                SnesSignedSixteenSixteen.FromParts(unchecked((short)state.LeftVelocity), state.LeftSubvelocity));
             if ((controllerInput & (ushort)SnesButton.Right) != 0)
             {
-                samus.Kinematics.ExtraXDisplacement = unchecked((ushort)(
-                    samus.Kinematics.ExtraXDisplacement - HorizontalShutterManualPushPixels));
-                samus.Kinematics.ExtraYSubdisplacement = 0;
+                samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(unchecked((short)(HorizontalShutterManualPushPixels)), 0);
+                samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithFractionY(0);
             }
         }
 
@@ -203,7 +202,7 @@ public sealed partial class RoomEnemySystem
     {
         state.PreviousXPosition = slot.XPosition;
         state.MovingSamus = HorizontalShutterOverlapsSamus(slot, samus) &&
-            unchecked((short)(samus.XPosition - slot.XPosition)) >= 0;
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0;
         (slot.XPosition, slot.XSubposition) = AddShutterVelocity(
             slot.XPosition,
             slot.XSubposition,
@@ -211,13 +210,12 @@ public sealed partial class RoomEnemySystem
             state.RightSubvelocity);
         if (state.MovingSamus)
         {
-            samus.Kinematics.ExtraXSubdisplacement = state.RightSubvelocity;
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)state.RightVelocity);
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(
+                SnesSignedSixteenSixteen.FromParts(unchecked((short)state.RightVelocity), state.RightSubvelocity));
             if ((controllerInput & (ushort)SnesButton.Left) != 0)
             {
-                samus.Kinematics.ExtraXDisplacement = unchecked((ushort)(
-                    samus.Kinematics.ExtraXDisplacement + HorizontalShutterManualPushPixels));
-                samus.Kinematics.ExtraYSubdisplacement = 0;
+                samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(HorizontalShutterManualPushPixels)), 0);
+                samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithFractionY(0);
             }
         }
 
@@ -260,10 +258,10 @@ public sealed partial class RoomEnemySystem
             slot.YPosition,
             slot.XRadius,
             slot.YRadius,
-            samus.XPosition,
-            samus.YPosition,
-            samus.Kinematics.XRadius,
-            samus.Kinematics.YRadius);
+            samus.Position.X.Whole,
+            samus.Position.Y.Whole,
+            samus.Kinematics.Radius.X,
+            samus.Kinematics.Radius.Y);
 
     /// <summary>Ports the stationary/manual ejection portion of touch AI $A2:F3D8.</summary>
     private void TouchHorizontalShutter(
@@ -275,16 +273,14 @@ public sealed partial class RoomEnemySystem
         if (state.Function != HorizontalShutterFunction.PermanentNoOp)
             return;
 
-        bool samusIsLeft = unchecked((short)(samus.XPosition - slot.XPosition)) < 0;
+        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
         if (samusIsLeft && (controllerInput & (ushort)SnesButton.Right) != 0)
         {
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)-HorizontalShutterManualPushPixels);
-            samus.Kinematics.ExtraYSubdisplacement = 0;
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-HorizontalShutterManualPushPixels).WithFractionY(0);
         }
         else if (!samusIsLeft && (controllerInput & (ushort)SnesButton.Left) != 0)
         {
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)HorizontalShutterManualPushPixels);
-            samus.Kinematics.ExtraYSubdisplacement = 0;
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(HorizontalShutterManualPushPixels).WithFractionY(0);
         }
     }
 

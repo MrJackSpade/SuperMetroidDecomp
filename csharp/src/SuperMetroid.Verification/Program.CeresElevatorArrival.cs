@@ -36,7 +36,7 @@ internal static partial class Program
             EnemyProjectileSpritemapCatalog.Write(document)));
         var bus = new CeresArrivalDefinitionReadGuard(memory);
 
-        var samus = new SamusState { XPosition = 0x0080, YPosition = 0x0000 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
         var arrival = new CeresElevatorArrivalState(bus, samus, artwork);
         arrival.Step(samus);
 
@@ -62,7 +62,7 @@ internal static partial class Program
             "Ceres arrival's compiled instruction programs delete both projectiles");
         VerificationAssert.AssertEqual(
             CeresElevatorArrivalDefinitions.LandingSamusY,
-            samus.YPosition,
+            samus.Position.Y.Whole,
             "Ceres arrival retains the native landing coordinate");
 
         Console.WriteLine(

@@ -225,7 +225,7 @@ internal static partial class Program
         if (PrivateState.Field<IntroCinematicState?>(game, "intro") is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
         if (samus is null) return;
-        Console.WriteLine($"  port   pose={(int)samus.Pose:X2} X={samus.XPosition:X4}.{samus.Kinematics.XSubposition:X4} Y={samus.YPosition:X4}.{samus.Kinematics.YSubposition:X4} " +
+        Console.WriteLine($"  port   pose={(int)samus.Pose:X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
             $"vs={samus.Kinematics.YSpeed:X4}.{samus.Kinematics.YSubspeed:X4} total={samus.HorizontalSpeed.TotalSpeed:X4}.{samus.HorizontalSpeed.TotalSubspeed:X4} slope={(samus.Kinematics.PositionAdjustedBySlope ? 1 : 0)} base={samus.HorizontalSpeed.BaseSpeed:X4}.{samus.HorizontalSpeed.BaseSubspeed:X4} extra={samus.HorizontalSpeed.ExtraRunSpeed:X4}.{samus.HorizontalSpeed.ExtraRunSubspeed:X4} accel={samus.HorizontalSpeed.AccelerationMode:X4} anim={samus.AnimationFrame:X4}/{samus.AnimationFrameTimer:X4}");
         Console.WriteLine($"  native pose={Native(MovieDesyncMemory.SamusPose)} X={Native(MovieDesyncMemory.SamusX)}.{Native(MovieDesyncMemory.SamusXFraction)} Y={Native(MovieDesyncMemory.SamusY)}.{Native(MovieDesyncMemory.SamusYFraction)} " +
             $"vs={Native(0x0b2e)}.{Native(0x0b2c)} total={Native(0x0dbc)}.{Native(0x0dbe)} slope={Native(0x0dba)} base={Native(0x0b46)}.{Native(0x0b48)} extra={Native(0x0b42)}.{Native(0x0b44)} accel={Native(0x0b4a)} anim={Native(0x0a96)}/{Native(0x0a94)}");
@@ -240,7 +240,7 @@ internal static partial class Program
         {
             Console.WriteLine("  sproj port   " + string.Join(" ", projectileRuntime.Projectiles.Slots
                 .Where(slot => slot.Type != 0)
-                .Select(slot => $"{slot.SlotIndex}:{slot.Type:X4}@{slot.XPosition:X4}.{slot.XSubposition:X4}/{slot.YPosition:X4} r{slot.XRadius:X}/{slot.YRadius:X} v{slot.XVelocity:X4} d{slot.Direction:X}")));
+                .Select(slot => $"{slot.SlotIndex}:{slot.Type:X4}@{slot.Position.X.Whole:X4}.{slot.Position.X.Fraction:X4}/{slot.Position.Y.Whole:X4} r{slot.Radius.X:X}/{slot.Radius.Y:X} v{slot.Velocity.X.SignedRawValue:X4} d{slot.Direction:X}")));
             Console.WriteLine("  sproj native " + string.Join(" ", Enumerable.Range(0, 5)
                 .Where(slot => Native(0x0c18 + 2 * slot) != "0000")
                 .Select(slot => $"{slot}:{Native(0x0c18 + 2 * slot)}@{Native(0x0b64 + 2 * slot)}.{Native(0x0b8c + 2 * slot)}/{Native(0x0b78 + 2 * slot)} r{Native(0x0bb4 + 2 * slot)}/{Native(0x0bc8 + 2 * slot)} v{Native(0x0bf0 + 2 * slot)} d{Native(0x0c04 + 2 * slot)}")));
@@ -324,10 +324,10 @@ internal static partial class Program
             return mismatches;
         var runtime = game.RuntimeForVerification;
         if (runtime?.Samus is not { } samus) return mismatches;
-        Check("Samus X", samus.XPosition, MovieDesyncMemory.SamusX);
-        Check("Samus X fraction", samus.Kinematics.XSubposition, MovieDesyncMemory.SamusXFraction);
-        Check("Samus Y", samus.YPosition, MovieDesyncMemory.SamusY);
-        Check("Samus Y fraction", samus.Kinematics.YSubposition, MovieDesyncMemory.SamusYFraction);
+        Check("Samus X", samus.Position.X.Whole, MovieDesyncMemory.SamusX);
+        Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, MovieDesyncMemory.SamusXFraction);
+        Check("Samus Y", samus.Position.Y.Whole, MovieDesyncMemory.SamusY);
+        Check("Samus Y fraction", samus.Kinematics.Position.Y.Fraction, MovieDesyncMemory.SamusYFraction);
         Check("Samus health", samus.Health, MovieDesyncMemory.Health);
         Check("Samus max health", samus.MaxHealth, MovieDesyncMemory.MaxHealth);
         Check("Equipped items", samus.EquippedItems, MovieDesyncMemory.EquippedItems);

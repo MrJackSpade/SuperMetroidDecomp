@@ -17,16 +17,16 @@ public sealed partial class SamusProjectileSystem
         InitializeComboData(slot, ordinary: false, echo: true);
         slot.PreInstruction = SamusProjectilePreInstruction.ShinesparkEcho;
         slot.Variable = angle.TableIndex;
-        slot.XVelocity = 0;
+        slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0));
     }
 
     /// <summary>Runs only the live slot's installed $90:D4D2 handler.</summary>
     internal void StepShinesparkEcho(SamusState samus,
-        SamusProjectileSlot slot, ushort cameraX, ushort cameraY)
+        SamusProjectileSlot slot, Position16<RoomPixels> camera)
     {
         if (slot.PreInstruction != SamusProjectilePreInstruction.ShinesparkEcho)
             throw new InvalidOperationException("Departing echo no longer owns this projectile slot.");
-        if (!samus.Shinespark.StepOwnedReleasedCrashEcho(samus, cameraX, cameraY, slot))
+        if (!samus.Shinespark.StepOwnedReleasedCrashEcho(samus, camera, slot))
             ClearProjectile(slot);
     }
 }

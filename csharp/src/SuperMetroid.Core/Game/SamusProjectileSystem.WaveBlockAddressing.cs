@@ -8,18 +8,18 @@ public sealed partial class SamusProjectileSystem
     private static void ScanHorizontalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, RoomPlmSystem? roomPlms)
     {
-        ushort top = unchecked((ushort)(slot.YPosition - slot.YRadius));
-        ushort bottom = unchecked((ushort)(slot.YPosition + slot.YRadius - 1));
+        ushort top = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
+        ushort bottom = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int remaining = unchecked((ushort)(bottom - (top & 0xfff0))) >> 4;
         int span = remaining;
-        ushort targetX = unchecked((ushort)(slot.XVelocity < 0
-            ? slot.XPosition - slot.XRadius : slot.XPosition + slot.XRadius - 1));
+        ushort targetX = unchecked((ushort)(slot.Velocity.X.SignedRawValue < 0
+            ? slot.Position.X.Whole - slot.Radius.X : slot.Position.X.Whole + slot.Radius.X - 1));
         // XBA sets N/Z from its resulting LOW BYTE even with a 16-bit accumulator.
         // BMI therefore tests the original coordinate's high-byte sign, not bit 7
         // of its pixel offset. Testing the latter disables Wave reactions throughout
         // the lower half of every screen, including ordinary blue-door caps.
-        if (remaining >= 16 || unchecked((short)slot.YPosition) < 0 ||
-            (slot.YPosition >> 8) >= (level.Size.Y + 15) / 16 ||
+        if (remaining >= 16 || unchecked((short)slot.Position.Y.Whole) < 0 ||
+            (slot.Position.Y.Whole >> 8) >= (level.Size.Y + 15) / 16 ||
             (targetX >> 8) >= (level.Size.X + 15) / 16)
             return;
 
@@ -58,15 +58,15 @@ public sealed partial class SamusProjectileSystem
     private static void ScanVerticalWaveShotReactions(
         RoomLevelData level, SamusProjectileSlot slot, RoomPlmSystem? roomPlms)
     {
-        ushort left = unchecked((ushort)(slot.XPosition - slot.XRadius));
-        ushort right = unchecked((ushort)(slot.XPosition + slot.XRadius - 1));
+        ushort left = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
+        ushort right = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
         int remaining = unchecked((ushort)(right - (left & 0xfff0))) >> 4;
         if (remaining >= 16) return;
         int span = remaining;
-        ushort targetY = unchecked((ushort)(slot.YVelocity < 0
-            ? slot.YPosition - slot.YRadius
-            : slot.YPosition + slot.YRadius - 1));
-        int centerScreenX = slot.XPosition >> 8;
+        ushort targetY = unchecked((ushort)(slot.Velocity.Y.SignedRawValue < 0
+            ? slot.Position.Y.Whole - slot.Radius.Y
+            : slot.Position.Y.Whole + slot.Radius.Y - 1));
+        int centerScreenX = slot.Position.X.Whole >> 8;
         if (centerScreenX >= (level.Size.X + 15) / 16 ||
             (targetY >> 8) >= (level.Size.Y + 15) / 16)
             return;

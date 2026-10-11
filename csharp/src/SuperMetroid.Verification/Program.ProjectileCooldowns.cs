@@ -29,7 +29,7 @@ internal static partial class Program
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128, EquippedBeams = beam };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = beam };
             var result = ((int? Slot, ushort Sound))fire.Invoke(projectiles,
                 new object?[] { bus, room, samus, edge, shared, null, charged })!;
             AssertEqual((int?)0, result.Slot, "Cooldown check exercises the actual successful producer");
@@ -44,12 +44,12 @@ internal static partial class Program
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
             var samus = new SamusState { Pose = SamusPoseId.NormalJumpGunExtendedLeftPose,
-                XPosition = 211, YPosition = 288, EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(211, 288)), EquippedBeams = (ushort)(chargeEquipped ? 0x1009 : 9) };
             typeof(SamusState).GetProperty(nameof(SamusState.PoseTransitionShotDirection))!
                 .SetValue(samus, (ushort)0x8007);
             SamusProjectileSlotObservation slotsBefore = projectiles.ObserveSlots();
             projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                0, 0, 0, shared, controllerPreviousNewInput: chargeEquipped ? (ushort)0 : (ushort)SnesButton.X);
+                0, new(0, 0), shared, controllerPreviousNewInput: chargeEquipped ? (ushort)0 : (ushort)SnesButton.X);
             AssertEqual((int?)0, slotsBefore.FiredSlot(projectiles),
                 "native handoff/previous-edge shot is produced");
             AssertEqual((ushort)15, shared.CooldownTimer, "Charge equipment or previous Shoot edge selects ordinary cooldown");
@@ -58,7 +58,7 @@ internal static partial class Program
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128, EquippedBeams = beam };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedBeams = beam };
             var frames = new List<int>();
             for (int frame = 0; frame < 70; frame++)
             {
@@ -66,7 +66,7 @@ internal static partial class Program
                 shared.StepFrame(bus, room, samus, (ushort)SnesButton.X,
                     frame == 0 ? (ushort)SnesButton.X : (ushort)0);
                 projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
-                    frame == 0 ? (ushort)SnesButton.X : (ushort)0, 0, 0, shared);
+                    frame == 0 ? (ushort)SnesButton.X : (ushort)0, new(0, 0), shared);
                 if (projectiles.LastFiredProjectileSnapshot is not null) frames.Add(frame);
             }
             int firstDelay = beam == 10 ? 12 : 15;
@@ -77,7 +77,7 @@ internal static partial class Program
         {
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128,
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = beam, SelectedHudItem = 3, PowerBombs = 10 };
             AssertTrue(projectiles.TryActivateCombo(bus, samus, shared, out _),
                 "Each native special beam attack reaches its actual cooldown publisher");

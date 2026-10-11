@@ -60,10 +60,10 @@ internal static partial class Program
             "post-Ceres landing completes");
         // $A2:A987 runs in EnemyMain, after this frame's locked current-state handler.
         AssertEqual((byte)0, (byte)runtime.Samus!.Pose, "unlock frame keeps the locked alpha's forward pose");
-        ushort unlockedX = runtime.Samus.XPosition;
+        ushort unlockedX = runtime.Samus.Position.X.Whole;
         runtime.StepFrame(input);
         AssertEqual(SamusPoseId.TurningRightToLeftPose, runtime.Samus.Pose, "first unlocked alpha accepts the held turn");
-        AssertEqual(unlockedX, runtime.Samus.XPosition, "the turn carries no speed from the Ceres escape");
+        AssertEqual(unlockedX, runtime.Samus.Position.X.Whole, "the turn carries no speed from the Ceres escape");
 
         Console.WriteLine("  Post-Ceres hand-off: station-load fractions, hatch X words and unlock alpha agree.");
     }

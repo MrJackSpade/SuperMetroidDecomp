@@ -26,11 +26,8 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>The HDMA explosion status. $8000 is the normal active state.</summary>
     public ushort Status { get; private set; }
 
-    /// <summary>World X copied from the projectile when its fuse reaches zero.</summary>
-    public ushort XPosition { get; private set; }
-
-    /// <summary>World Y copied from the projectile when its fuse reaches zero.</summary>
-    public ushort YPosition { get; private set; }
+    /// <summary>Room-pixel centre copied from the projectile when its fuse reaches zero.</summary>
+    public Position16<RoomPixels> Position { get; private set; }
 
     /// <summary>WRAM $0CEC, the pre-explosion flash's unsigned 8.8 radius.</summary>
     public ushort PreExplosionRadius { get; private set; }
@@ -108,10 +105,9 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>
     /// Implements $88:8AA4 after $90:C157 has copied the projectile's world position.
     /// </summary>
-    public void Spawn(ushort xPosition, ushort yPosition)
+    public void Spawn(Position16<RoomPixels> position)
     {
-        XPosition = xPosition;
-        YPosition = yPosition;
+        Position = position;
         Status = 0x8000;
 
         // Allocation occurs after this frame's HDMA pass. The NEXT pass consumes the
@@ -139,14 +135,13 @@ public sealed class SamusPowerBombExplosionState
     /// Implements `$90:D6AE-$D6C5` and both setup calls at `$88:A2E4/$A309` after
     /// Crystal Flash completes its ten-step rise.
     /// </summary>
-    public void BeginCrystalFlash(ushort xPosition, ushort yPosition)
+    public void BeginCrystalFlash(Position16<RoomPixels> position)
     {
         // `$90:D6AE` releases the one-at-a-time Power Bomb lock before spawning the two
         // Crystal Flash HDMA objects. Their animation still reuses the same status,
         // position, radius, speed, fixed-color, and window-table WRAM words.
         Flag = 0;
-        XPosition = xPosition;
-        YPosition = yPosition;
+        Position = position;
         Status = 0x8000;
         PreExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
         ExplosionRadius = SamusSpecialSequenceRomData.PowerBomb.InitialRadius;
@@ -231,8 +226,7 @@ public sealed class SamusPowerBombExplosionState
     {
         Flag = 0;
         Status = 0;
-        XPosition = 0;
-        YPosition = 0;
+        Position = Position16<RoomPixels>.Zero;
         PreExplosionRadius = 0;
         ExplosionRadius = 0;
         RadiusSpeed = 0;

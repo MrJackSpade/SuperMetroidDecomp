@@ -134,7 +134,7 @@ public sealed partial class RoomEnemySystem
         {
             state.RetreatTimer = unchecked((ushort)(state.RetreatTimer - 1));
         }
-        else if (Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) <
+        else if (Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) <
             FlyAttackHorizontalRange)
         {
             SetFlyToAttackSamus(slot, state, samus);
@@ -157,11 +157,11 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         byte angle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - slot.XPosition)),
-            unchecked((short)(samus.YPosition - slot.YPosition)));
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
+            unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
         state.XVelocity = unchecked((ushort)(ReadSignedSineCosine(angle + 64) * 2));
         state.YVelocity = unchecked((ushort)(ReadSignedSineCosine(angle) * 4));
-        state.TargetYPosition = samus.YPosition;
+        state.TargetYPosition = samus.Position.Y.Whole;
         state.Function = FlyEnemyFunction.AttackSamus;
     }
 

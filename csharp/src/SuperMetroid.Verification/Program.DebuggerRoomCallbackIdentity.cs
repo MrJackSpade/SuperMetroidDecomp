@@ -14,7 +14,7 @@ internal static partial class Program
         Type closureType = DebuggerStateTypeIdentity.Resolve(DebuggerStateTypeIdentity.RoomLoadCallbacksIdentity)!;
         object target = RuntimeHelpers.GetUninitializedObject(closureType);
         var runtime = (SuperMetroidRuntime)RuntimeHelpers.GetUninitializedObject(typeof(SuperMetroidRuntime));
-        var samus = new SamusState { XPosition = 137, Health = 83 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(137, 0)), Health = 83 };
         typeof(SuperMetroidRuntime).GetField("<Samus>k__BackingField", fields)!.SetValue(runtime, samus);
         var room = new CartridgeRoomHeader(0, 0, AreaId.Maridia, new(0, 0), new(1, 1), 0, 0, 0, 0, null!);
         closureType.GetField("<>4__this", fields)!.SetValue(target, runtime);
@@ -35,7 +35,7 @@ internal static partial class Program
             byte[] graph = ReplaceEncodedIdentity(current, DebuggerStateTypeIdentity.RoomLoadCallbacksIdentity, identity);
             using var source = new MemoryStream(graph);
             var restored = DebuggerObjectGraphSerializer.Deserialize<Func<SamusState>>(source);
-            AssertEqual((ushort)137, restored().XPosition, "restored room callback invokes captured runtime");
+            AssertEqual((ushort)137, restored().Position.X.Whole, "restored room callback invokes captured runtime");
             AssertEqual((ushort)83, restored().Health, "restored room callback retains captured actor state");
             AssertEqual(AreaId.Maridia, ((CartridgeRoomHeader)closureType.GetField("room", fields)!
                 .GetValue(restored.Target)!).AreaIndex, "restored callback retains nondefault room capture");

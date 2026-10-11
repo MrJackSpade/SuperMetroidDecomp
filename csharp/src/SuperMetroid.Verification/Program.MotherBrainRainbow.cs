@@ -24,116 +24,112 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
     // The helpers add a signed 8.8 velocity to the whole Y word and only the high
     // subposition byte, so the applied vertical velocity is the delta of that 8.8 view.
     static ushort YEightEight(SamusState state) =>
-        unchecked((ushort)((state.YPosition << 8) | (state.Kinematics.YSubposition >> 8)));
+        unchecked((ushort)((state.Position.Y.Whole << 8) | (state.Kinematics.Position.Y.Fraction >> 8)));
 
     var movement = new MotherBrainRainbowBeamSamusMovement();
     var samus = new SamusState
     {
-        XPosition = 100,
-        YPosition = 100,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
     };
 
     // Begin-fall seeds -$01.00 X and zero Y. The first call changes those to -$00.FE and
     // +$00.18. Adding fractional FE to an existing FF must carry into the signed whole
     // delta: -1+1 is zero, while the untouched low subposition bytes remain AA/BB.
-    samus.Kinematics.XSubposition = 0xffaa;
-    samus.Kinematics.YSubposition = 0xf0bb;
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xffaa).WithFractionY(0xf0bb);
     movement.BeginFallingAfterRainbowBeam();
     MotherBrainForcedSamusMovementResult first =
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0xff02, movement.CustomXVelocity, "rainbow fall first eased X velocity");
-    AssertEqual(0x0018, movement.CustomYVelocity, "rainbow fall first accelerated Y velocity");
-    AssertEqual(100, samus.XPosition, "rainbow fall signed X plus fractional carry");
-    AssertEqual(0x01aa, samus.Kinematics.XSubposition, "rainbow fall preserves X low sub-byte");
-    AssertEqual(101, samus.YPosition, "rainbow fall Y fractional carry");
-    AssertEqual(0x08bb, samus.Kinematics.YSubposition, "rainbow fall preserves Y low sub-byte");
-    AssertTrue(!first.NativeCarry && samus.YPosition is > 0x0030 and < 0x00c0,
+    AssertEqual(new EightEightVector<RoomPixels>(unchecked((short)0xff02), 0x0018), movement.CustomVelocity,
+        "rainbow fall first eased X and accelerated Y velocity");
+    AssertEqual(100, samus.Position.X.Whole, "rainbow fall signed X plus fractional carry");
+    AssertEqual(0x01aa, samus.Kinematics.Position.X.Fraction, "rainbow fall preserves X low sub-byte");
+    AssertEqual(101, samus.Position.Y.Whole, "rainbow fall Y fractional carry");
+    AssertEqual(0x08bb, samus.Kinematics.Position.Y.Fraction, "rainbow fall preserves Y low sub-byte");
+    AssertTrue(!first.NativeCarry && samus.Position.Y.Whole is > 0x0030 and < 0x00c0,
         "unclamped first fall returns clear vertical carry");
 
     // Exactly 127 more +$0002 updates carry the negative X word to zero. Native clamps it
     // there instead of allowing a positive recoil; subsequent calls must remain zero.
     for (int call = 1; call < 128; call++)
         movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0, movement.CustomXVelocity, "rainbow fall X easing clamps at zero");
+    AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing clamps at zero");
     movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0, movement.CustomXVelocity, "rainbow fall X easing stays zero");
-    AssertEqual(0x00c0, samus.YPosition, "rainbow fall clamps at arena floor Y $C0");
-    AssertEqual(0, samus.Kinematics.YSubposition, "arena floor clamp clears Y subposition");
+    AssertEqual(0, movement.CustomVelocity.X.SignedRawValue, "rainbow fall X easing stays zero");
+    AssertEqual(0x00c0, samus.Position.Y.Whole, "rainbow fall clamps at arena floor Y $C0");
+    AssertEqual(0, samus.Kinematics.Position.Y.Fraction, "arena floor clamp clears Y subposition");
 
     // At/below $7C, `$A9:BBCF` chooses +$00.40. It is not a snap: this deliberately
     // crosses from $7C.D0 to $7D.10 through the eight-bit fractional carry.
-    samus.YPosition = 0x007c;
-    samus.Kinematics.YSubposition = 0xd055;
+    samus.Position = samus.Position.WithWholeY(0x007c);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xd055);
     ushort middleDownBefore = YEightEight(samus);
     MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
     AssertEqual(0x0040, unchecked((ushort)(YEightEight(samus) - middleDownBefore)),
         "middle-wall below target velocity");
-    AssertEqual(0x007d, samus.YPosition, "middle-wall downward whole carry");
-    AssertEqual(0x1055, samus.Kinematics.YSubposition, "middle-wall downward fraction");
+    AssertEqual(0x007d, samus.Position.Y.Whole, "middle-wall downward whole carry");
+    AssertEqual(0x1055, samus.Kinematics.Position.Y.Fraction, "middle-wall downward fraction");
 
     // Above $7C, two's-complement $FFC0 moves upward. $7D.10 + (-$00.40) becomes $7C.D0.
     ushort middleUpBefore = YEightEight(samus);
     MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
     AssertEqual(0xffc0, unchecked((ushort)(YEightEight(samus) - middleUpBefore)),
         "middle-wall above target velocity");
-    AssertEqual(0x007c, samus.YPosition, "middle-wall upward whole borrow");
-    AssertEqual(0xd055, samus.Kinematics.YSubposition, "middle-wall upward fraction");
+    AssertEqual(0x007c, samus.Position.Y.Whole, "middle-wall upward whole borrow");
+    AssertEqual(0xd055, samus.Kinematics.Position.Y.Fraction, "middle-wall upward fraction");
 
     // Angle zero reads +$0100 at index $40. Speed $1000 * sine $0100 >> 8 therefore
     // produces +$1000 on Y, while the independent horizontal helper also adds $10 pixels.
-    samus.XPosition = 100;
-    samus.Kinematics.XSubposition = 0x0022;
-    samus.YPosition = 100;
-    samus.Kinematics.YSubposition = 0x0033;
+    samus.Position = samus.Position.WithWholeX(100);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x0022);
+    samus.Position = samus.Position.WithWholeY(100);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x0033);
     movement.RainbowBeamAngle = SnesAngle.Zero;
     ushort beamBefore = YEightEight(samus);
     MotherBrainForcedSamusMovementResult beam = movement.MoveTowardWall(bus, samus);
     AssertEqual(0x1000, unchecked((ushort)(YEightEight(samus) - beamBefore)),
         "rainbow beam table-derived Y velocity");
-    AssertEqual(116, samus.XPosition, "rainbow beam horizontal $10.00 step");
-    AssertEqual(116, samus.YPosition, "rainbow beam vertical $10.00 step");
+    AssertEqual(116, samus.Position.X.Whole, "rainbow beam horizontal $10.00 step");
+    AssertEqual(116, samus.Position.Y.Whole, "rainbow beam vertical $10.00 step");
     AssertTrue(!beam.NativeCarry, "rainbow beam caller clears vertical-helper carry");
 
     // Reaching X $EB returns set carry and skips vertical calculation entirely.
-    samus.XPosition = 0x00e0;
-    samus.Kinematics.XSubposition = 0x7777;
-    samus.YPosition = 100;
+    samus.Position = samus.Position.WithWholeX(0x00e0);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x7777);
+    samus.Position = samus.Position.WithWholeY(100);
     MotherBrainForcedSamusMovementResult wall = movement.MoveTowardWall(bus, samus);
-    AssertTrue(samus.XPosition == 0x00eb && wall.NativeCarry, "rainbow beam wall clamp returns carry");
-    AssertEqual(0x00eb, samus.XPosition, "rainbow beam hardcoded wall X $EB");
-    AssertEqual(0, samus.Kinematics.XSubposition, "rainbow wall clamp clears X subposition");
-    AssertEqual(100, samus.YPosition, "rainbow wall clamp skips vertical movement");
+    AssertTrue(samus.Position.X.Whole == 0x00eb && wall.NativeCarry, "rainbow beam wall clamp returns carry");
+    AssertEqual(0x00eb, samus.Position.X.Whole, "rainbow beam hardcoded wall X $EB");
+    AssertEqual(0, samus.Kinematics.Position.X.Fraction, "rainbow wall clamp clears X subposition");
+    AssertEqual(100, samus.Position.Y.Whole, "rainbow wall clamp skips vertical movement");
 
     // A negative table component below Y $30 proves the separate ceiling clamp and its
     // subposition clear. MoveTowardWall then clears native carry because X did not clamp.
-    samus.XPosition = 100;
-    samus.Kinematics.XSubposition = 0;
-    samus.YPosition = 0x0030;
-    samus.Kinematics.YSubposition = 0x9999;
+    samus.Position = samus.Position.WithWholeX(100);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
+    samus.Position = samus.Position.WithWholeY(0x0030);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x9999);
     movement.RainbowBeamAngle = SnesAngle.HalfTurn;
     MotherBrainForcedSamusMovementResult ceiling = movement.MoveTowardWall(bus, samus);
-    AssertTrue(samus.YPosition == 0x0030 && samus.Kinematics.YSubposition == 0 && !ceiling.NativeCarry,
+    AssertTrue(samus.Position.Y.Whole == 0x0030 && samus.Kinematics.Position.Y.Fraction == 0 && !ceiling.NativeCarry,
         "rainbow ceiling clamp is hidden from caller carry");
-    AssertEqual(0x0030, samus.YPosition, "rainbow hardcoded ceiling Y $30");
-    AssertEqual(0, samus.Kinematics.YSubposition, "rainbow ceiling clears Y subposition");
+    AssertEqual(0x0030, samus.Position.Y.Whole, "rainbow hardcoded ceiling Y $30");
+    AssertEqual(0, samus.Kinematics.Position.Y.Fraction, "rainbow ceiling clears Y subposition");
 
     // #1269: $A9:BBFD/$BC3F mirror every Samus store into the previous-position words, so the
     // camera sees no movement. In the 100% movie Samus falls from Y $C3.FFFF into the $C0
     // floor clamp; native's previous Y fraction is zeroed with her own.
-    samus.XPosition = 100;
-    samus.Kinematics.XSubposition = 0x1234;
-    samus.YPosition = 0x00c3;
-    samus.Kinematics.YSubposition = 0xffff;
-    var frameStart = FixedPosition<RoomPixels>.FromWords(samus.XPosition, samus.Kinematics.XSubposition,
-        samus.YPosition, samus.Kinematics.YSubposition);
+    samus.Position = samus.Position.WithWholeX(100);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x1234);
+    samus.Position = samus.Position.WithWholeY(0x00c3);
+    samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
+    var frameStart = samus.Position;
     // The earlier clamps above queued their own writes; each frame's scroll applies them.
     samus.ApplyPreviousPositionWrites(frameStart);
     movement.BeginFallingAfterRainbowBeam();
     movement.StepFallingAfterRainbowBeam(samus);
-    AssertEqual(0x00c0, samus.YPosition, "the fall reaches the floor clamp");
+    AssertEqual(0x00c0, samus.Position.Y.Whole, "the fall reaches the floor clamp");
     FixedPosition<RoomPixels> checkpoint = samus.ApplyPreviousPositionWrites(frameStart);
-    AssertEqual(FixedPosition<RoomPixels>.FromWords(samus.XPosition, samus.Kinematics.XSubposition,
-            samus.YPosition, samus.Kinematics.YSubposition), checkpoint,
+    AssertEqual(samus.Position, checkpoint,
         "the forced move leaves the camera checkpoint at Samus's new position");
 
     Console.WriteLine("  Mother Brain: rainbow-beam forced 8.8 movement and arena clamps agree.");
@@ -243,8 +239,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         Missiles = 80,
         SuperMissiles = 80,
         PowerBombs = 400,
-        XPosition = 220,
-        YPosition = 124,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),
     };
     var attack = new MotherBrainRainbowBeamAttackSequence
     {
@@ -267,7 +262,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
 
     MotherBrainRainbowBeamAttackStepResult wall = attack.Step(
         bus, samus, enemyFrameCounter: 2, mainEnemyExecutionCounter: 1);
-    AssertEqual(0x00eb, samus.XPosition, "actor sequence moves Samus to hardcoded wall");
+    AssertEqual(0x00eb, samus.Position.X.Whole, "actor sequence moves Samus to hardcoded wall");
     AssertEqual(MotherBrainRainbowBeamAttackPhase.OneFrameDelay, attack.Phase,
         "wall carry installs one-frame-delay function");
     AssertTrue(wall.SoundQueued && wall.PaletteRequested,
@@ -339,7 +334,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     }
     AssertEqual(MotherBrainRainbowBeamAttackPhase.LowerHead, attack.Phase,
         "custom falling carry installs lower-head function");
-    AssertEqual(0x00c0, samus.YPosition, "custom falling reaches hardcoded floor $C0");
+    AssertEqual(0x00c0, samus.Position.Y.Whole, "custom falling reaches hardcoded floor $C0");
     AssertEqual(SamusPoseId.DrainedCrouchingLeftPose, samus.Pose,
         "let-fall controller selects left drained pose from forced $54 direction");
 
@@ -380,8 +375,7 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
         PowerBombs = 1,
         SelectedHudItem = 2,
         AutoCancelHudItemIndex = 9,
-        XPosition = 220,
-        YPosition = 124,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(220, 124)),
     };
     var lowAttack = new MotherBrainRainbowBeamAttackSequence();
     lowAttack.StartActiveBeam(bus, low);

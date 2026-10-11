@@ -64,13 +64,24 @@ the wrapped value (collision and PLM grid probes).
 - Natural operators only where the meaning is unambiguous and lossless:
   `Position16 ± Offset16 → Position16`, `Position16 - Position16 → Offset16`,
   `Offset16 + Offset16`, unary `-Offset16`, `FixedPosition.Advance(FixedVector)`,
-  `EightEightVector + EightEightVector` and `EightEightVector * int` (both wrapping the raw words).
+  `EightEightVector + EightEightVector` and `EightEightVector * int` (both wrapping the raw words),
+  `FixedVector ± FixedVector` (fraction carry/borrow, 32-bit wrap per axis), and
+  `FixedPosition ± Offset16` / `FixedVector ± Offset16` (whole words only, wrapping at sixteen
+  bits, fractions unchanged — the platform pushes into Samus's external displacement).
+- Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SnesSignedSixteenSixteen)`.
+- Exact native construction: `FixedPosition.FromWords/FromWhole`, `FixedVector.FromWords`,
+  `FixedVector.FromWholePixels(Offset16)`, `SnesFixedPosition.FromRaw/RawValue` for one unsigned
+  16.16 axis; `SnesSignedEightEight.SignedRawValue` reads one 8.8 word as signed.
 - Axis replacement: `WithX` / `WithY`. Half-word replacement where a cartridge routine stores only
-  one word: `SnesFixedPosition.WithWhole/WithFraction`, `FixedPosition.WithWhole/WithFractionsOf`.
+  one word: `SnesFixedPosition.WithWhole/WithFraction`, `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
+  `FixedPosition.WithWhole/WithFractionsOf/WithWholeX/WithWholeY/WithFractionX/WithFractionY` and
+  `FixedVector.WithWhole/WithWholeX/WithWholeY/WithFractionY`.
   Operations exist only where production code uses them; add one with its first consumer.
 - Conversions between spaces are named methods/extensions in `SuperMetroid.Core.Spatial` next to
   the spaces they join:
-  - `ScreenConversions.RelativeToCamera`: room position minus camera, as a screen offset;
+  - `ScreenConversions.RelativeToCamera`: room position minus camera, as a signed screen offset;
+    `ScreenConversions.ToScreen`: the same subtraction kept as the wrapped screen position words
+    native code stores (Samus's death-sequence screen position);
     `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin.
   - `RoomGridConversions.ToRoomBlock`: a room pixel to its block (`LSR ×4`);
     `ToRoomPixels`: a scroll-zone screen to its top-left room pixel; `ToRoomBlocks`: a room size in

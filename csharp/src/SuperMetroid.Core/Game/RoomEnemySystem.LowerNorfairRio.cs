@@ -132,7 +132,7 @@ public sealed partial class RoomEnemySystem
             case LowerNorfairRioEnemyFunction.WaitForAttackOpportunity:
                 bool canAttack = samus is not null && (random & 0x0101) != 0 &&
                     IsWithinStrictModularDistance(
-                        samus.XPosition,
+                        samus.Position.X.Whole,
                         slot.XPosition,
                         LowerNorfairRioHorizontalTriggerDistance);
                 if (!canAttack)
@@ -150,7 +150,7 @@ public sealed partial class RoomEnemySystem
 
                 state.YVelocity = RioLaunchDefinitions.LowerNorfairYVelocity;
                 state.XVelocity = RioLaunchDefinitions.LowerNorfairXVelocity;
-                if (unchecked((short)(samus!.XPosition - slot.XPosition)) < 0)
+                if (unchecked((short)(samus!.Position.X.Whole - slot.XPosition)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallLowerNorfairRioInstructionList(
                     slot,

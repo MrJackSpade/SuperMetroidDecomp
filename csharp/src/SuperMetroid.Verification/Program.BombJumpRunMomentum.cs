@@ -19,7 +19,7 @@ internal static partial class Program
         var floor = new RoomLevelData(new Extent16<RoomBlocks>(width, height), floorBlocks, new byte[floorBlocks.Length],
             new ushort[floorBlocks.Length], new byte[8]);
 
-        var samus = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose, XPosition = 48, YPosition = 43 };
+        var samus = new SamusState { Pose = SamusPoseId.MovingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(48, 43)) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.HorizontalSpeed.ExtraRunSpeed = 2;

@@ -58,8 +58,8 @@ public sealed partial class RoomPlmSystem
 
         SamusState samus = _collectibleSamus?.Invoke()
             ?? throw new InvalidOperationException("Old Tourian escape-shaft wall has no live Samus owner.");
-        if (OldTourianEscapeShaftWallPlmDefinitions.WakeTargetX >= samus.XPosition ||
-            OldTourianEscapeShaftWallPlmDefinitions.WakeTargetY >= samus.YPosition)
+        if (OldTourianEscapeShaftWallPlmDefinitions.WakeTargetX >= samus.Position.X.Whole ||
+            OldTourianEscapeShaftWallPlmDefinitions.WakeTargetY >= samus.Position.Y.Whole)
             return;
 
         // $84:B90B-$B914 advances past the sleep and arms timer one; unlike other wakes it

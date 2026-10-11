@@ -306,8 +306,8 @@ public sealed partial class RoomEnemySystem
     private static void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
-        int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition)));
-        int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition)));
+        int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
+        int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole)));
         if (xDistance >= threshold || yDistance >= threshold)
             return;
 
@@ -324,8 +324,8 @@ public sealed partial class RoomEnemySystem
         // $40 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding $80 selects the exact opposite direction for behavior six.
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - slot.XPosition)),
-            unchecked((short)(samus.YPosition - slot.YPosition)));
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
+            unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
         state.CustomAngle = unchecked((byte)(0x40 - cartridgeAngle + (away ? 0x80 : 0)));
         RecalculateSbugCustomDirection(slot, state);
         state.Function = away
@@ -407,8 +407,8 @@ public sealed partial class RoomEnemySystem
 
             // The native branch reverses only when both coordinate differences are at
             // least six blocks. This is a rectangular test, not Euclidean distance.
-            int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition)));
-            int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition)));
+            int xDistance = Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
+            int yDistance = Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole)));
             if (xDistance >= SbugReverseDistance && yDistance >= SbugReverseDistance)
                 ReverseSbugCustomDirection(slot, state);
         }

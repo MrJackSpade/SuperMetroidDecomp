@@ -122,7 +122,7 @@ public sealed partial class RoomEnemySystem
                 // Read the existing seed; this branch never advances the cartridge RNG.
                 if ((RequireRandomNumber() & 0xff) >= 0xf0)
                     AimCeresRidleyTailWhip(state, samus, unchecked((byte)(state.TailWhipRequest - 1)));
-                else if (samus is not null && Math.Abs((short)(samus.XPosition - slot.XPosition)) < 128)
+                else if (samus is not null && Math.Abs((short)(samus.Position.X.Whole - slot.XPosition)) < 128)
                     AimCeresRidleyTailWhip(state, samus, additionalAngle: 0);
             }
 
@@ -138,7 +138,7 @@ public sealed partial class RoomEnemySystem
         state.TailSegments[0].Active = true;
         state.TailWhipTargetClockwiseAngle = 0xffff;
         state.TailWhipTargetCounterClockwiseAngle = 0xffff;
-        state.TailAngleDelta = samus is not null && samus.XPosition < 0x0070
+        state.TailAngleDelta = samus is not null && samus.Position.X.Whole < 0x0070
             ? (ushort)1
             : (ushort)2;
     }
@@ -155,8 +155,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         RidleyTailSegment root = state.TailSegments[0];
-        ushort targetX = samus.XPosition;
-        ushort targetY = unchecked((ushort)(samus.YPosition + 24));
+        ushort targetX = samus.Position.X.Whole;
+        ushort targetY = unchecked((ushort)(samus.Position.Y.Whole + 24));
         // $D242 scans only the five ordinary projectile slots, first match wins.
         if (_samusProjectilesForEnemyFrame is { ProjectileCounter: > 0 } projectiles)
         {
@@ -164,10 +164,10 @@ public sealed partial class RoomEnemySystem
             foreach (var projectile in projectiles.Slots.Take(5))
             {
                 if (projectile.PackedType.Family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)) continue;
-                if (Math.Abs((short)(projectile.XPosition - tip.XPosition)) - projectile.XRadius >= 64 ||
-                    Math.Abs((short)(projectile.YPosition - tip.YPosition)) - projectile.YRadius >= 64) continue;
-                targetX = projectile.XPosition;
-                targetY = projectile.YPosition;
+                if (Math.Abs((short)(projectile.Position.X.Whole - tip.XPosition)) - projectile.Radius.X >= 64 ||
+                    Math.Abs((short)(projectile.Position.Y.Whole - tip.YPosition)) - projectile.Radius.Y >= 64) continue;
+                targetX = projectile.Position.X.Whole;
+                targetY = projectile.Position.Y.Whole;
                 break;
             }
         }
@@ -672,10 +672,10 @@ public sealed partial class RoomEnemySystem
 
         if (!TryFindExtendedHitboxCallback(
                 slot,
-                samus.XPosition,
-                samus.YPosition,
-                samus.Kinematics.XRadius,
-                samus.Kinematics.YRadius,
+                samus.Position.X.Whole,
+                samus.Position.Y.Whole,
+                samus.Kinematics.Radius.X,
+                samus.Kinematics.Radius.Y,
                 selectShotCallback: false,
                 out ushort touchAiPointer))
         {
@@ -711,9 +711,9 @@ public sealed partial class RoomEnemySystem
             state.MovementAnimationEnabled == 0 || state.TailSegments.Length != 7)
             return false;
         RidleyTailSegment tip = state.TailSegments[6];
-        int dx = Math.Abs(unchecked((short)(samus.XPosition - tip.XPosition)));
-        int dy = Math.Abs(unchecked((short)(samus.YPosition - tip.YPosition)));
-        if (dx >= samus.Kinematics.XRadius + 14 || dy >= samus.Kinematics.YRadius + 14)
+        int dx = Math.Abs(unchecked((short)(samus.Position.X.Whole - tip.XPosition)));
+        int dy = Math.Abs(unchecked((short)(samus.Position.Y.Whole - tip.YPosition)));
+        if (dx >= samus.Kinematics.Radius.X + 14 || dy >= samus.Kinematics.Radius.Y + 14)
             return false;
         ApplyNormalEnemyTouchDamage(samus, state.TailDamage, tip.XPosition);
         return true;
@@ -780,7 +780,7 @@ public sealed partial class RoomEnemySystem
             ? (ushort)0
             : unchecked((ushort)(samus.Health - damage));
         samus.InvincibilityTimer = 0x0060;
-        ushort direction = samus.XPosition >= damageSourceX ? (ushort)1 : (ushort)0;
+        ushort direction = samus.Position.X.Whole >= damageSourceX ? (ushort)1 : (ushort)0;
         // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).

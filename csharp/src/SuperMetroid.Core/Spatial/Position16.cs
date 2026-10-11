@@ -58,6 +58,12 @@ public readonly record struct Extent16<TSpace>(ushort X, ushort Y)
     /// <summary>No extent.</summary>
     public static Extent16<TSpace> Zero => default;
 
+    /// <summary>Replaces the X extent.</summary>
+    public Extent16<TSpace> WithX(ushort x) => this with { X = x };
+
+    /// <summary>Replaces the Y extent.</summary>
+    public Extent16<TSpace> WithY(ushort y) => this with { Y = y };
+
     /// <summary>The number of cells in a row-major grid of this size.</summary>
     [System.Text.Json.Serialization.JsonIgnore]
     public int Area => X * Y;

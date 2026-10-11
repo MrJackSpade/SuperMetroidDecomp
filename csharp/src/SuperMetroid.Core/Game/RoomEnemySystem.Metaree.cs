@@ -176,14 +176,14 @@ public sealed partial class RoomEnemySystem
         // absolute value, and performs an unsigned compare. It notably does *not* check that
         // Samus is below the actor; preserving that retail bug matters to the velocity math.
         int horizontalDistance = Math.Abs(
-            unchecked((short)(slot.XPosition - samus.XPosition)));
+            unchecked((short)(slot.XPosition - samus.Position.X.Whole)));
         if (horizontalDistance >= MetareeHorizontalActivationDistance)
             return;
 
         // The SNES unsigned-divider input is the wrapped 16-bit Y difference. If Samus is
         // above Metaree, this deliberately creates the cartridge's enormous dive velocity
         // instead of sanitizing the old bug into modern signed physics.
-        ushort verticalDifference = unchecked((ushort)(samus.YPosition - slot.YPosition));
+        ushort verticalDifference = unchecked((ushort)(samus.Position.Y.Whole - slot.YPosition));
         state.YVelocity = unchecked((ushort)(
             verticalDifference / MetareeDiveDivisorNtsc + MetareeMinimumYVelocity));
         state.RequestedInstructionListIndex = SkreeMetareeAnimationPhase.PreparingAttack;
@@ -237,7 +237,7 @@ public sealed partial class RoomEnemySystem
         // both subpositions untouched. Horizontal steering re-evaluates Samus every frame.
         slot.YPosition = unchecked((ushort)(slot.YPosition + state.YVelocity));
         bool metareeIsLeftOfSamus =
-            unchecked((short)(slot.XPosition - samus.XPosition)) < 0;
+            unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0;
         slot.XPosition = unchecked((ushort)(slot.XPosition +
             (metareeIsLeftOfSamus
                 ? MetareeHorizontalDiveSpeed

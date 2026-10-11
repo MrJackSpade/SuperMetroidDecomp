@@ -54,10 +54,10 @@ public sealed partial class RoomEnemySystem
             if (index < SamusProjectileSystem.SlotCount)
             {
                 SamusProjectileSlot shot = _projectiles.Slots[index];
-                return new(shot.XPosition, shot.YPosition, shot.XRadius, shot.YRadius, shot.Type, shot.Damage);
+                return new(shot.Position.X.Whole, shot.Position.Y.Whole, shot.Radius.X, shot.Radius.Y, shot.Type, shot.Damage);
             }
             SamusBombProjectileSlot bomb = _sharedProjectiles.Slots[0];
-            return new(bomb.XPosition, bomb.YPosition, bomb.XRadius, bomb.YRadius, bomb.Type, bomb.Damage);
+            return new(bomb.Position.X.Whole, bomb.Position.Y.Whole, bomb.Radius.X, bomb.Radius.Y, bomb.Type, bomb.Damage);
         }
 
         public void MarkCollision(int index)

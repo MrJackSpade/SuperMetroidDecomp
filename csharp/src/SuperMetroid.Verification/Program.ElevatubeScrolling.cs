@@ -23,23 +23,23 @@ internal static partial class Program
                 camera: new Position16<RoomPixels>(0, fromNorth ? (ushort)0 : (ushort)2304));
             var samus = runtime.Samus!;
             var camera = runtime.Camera!;
-            samus.XPosition = MaridiaElevatubeRomData.SamusCenterX;
-            samus.YPosition = fromNorth ? MaridiaElevatubeRomData.NorthStartingPosition
-                : MaridiaElevatubeRomData.SouthStartingPosition;
+            samus.Position = samus.Position.WithWholeX(MaridiaElevatubeRomData.SamusCenterX);
+            samus.Position = samus.Position.WithWholeY(fromNorth ? MaridiaElevatubeRomData.NorthStartingPosition
+                : MaridiaElevatubeRomData.SouthStartingPosition);
             uint? previousScrollY = null;
             for (int frame = 0; frame < 180; frame++)
             {
-                uint beforeY = samus.Kinematics.YFixed;
+                uint beforeY = samus.Kinematics.Position.Y.RawValue;
                 uint expectedY = unchecked(beforeY + (uint)((short)runtime.MaridiaElevatube.Velocity << 8));
                 AssertTrue(samus.StationaryScriptControlLocked,
                     "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);
-                AssertEqual(expectedY, samus.Kinematics.YFixed,
+                AssertEqual(expectedY, samus.Kinematics.Position.Y.RawValue,
                     "tube displacement contains only room-main velocity, not ordinary falling");
                 var checkpoint = camera.PreviousSamusPoint!.Value;
                 uint savedY = checkpoint.Y.RawValue;
                 AssertEqual(beforeY, savedY, "scroll checkpoint precedes elevatube room-main movement");
-                AssertTrue(samus.Kinematics.YFixed != savedY,
+                AssertTrue(samus.Kinematics.Position.Y.RawValue != savedY,
                     "room-main displacement remains pending for next scrolling pass");
                 if (previousScrollY is { } previous)
                 {
@@ -48,13 +48,13 @@ internal static partial class Program
                         "native $90:96FF counts previous room-main displacement plus one");
                 }
                 if (frame >= 30)
-                    AssertTrue(unchecked((short)(samus.YPosition - camera.PixelPosition.Y)) is >= 32 and < 224,
+                    AssertTrue(unchecked((short)(samus.Position.Y.Whole - camera.PixelPosition.Y)) is >= 32 and < 224,
                         "tube carriage stays inside gameplay viewport in both directions");
                 previousScrollY = savedY;
             }
             AssertTrue(fromNorth ? camera.PixelPosition.Y > 1600 : camera.PixelPosition.Y < 700,
                 "camera traverses tube with Samus instead of remaining at entry");
-            Console.WriteLine($"Elevatube {(fromNorth ? "down" : "up")}: camera={camera.PixelPosition.Y}, Samus={samus.YPosition}; 180 exact checkpoint/distance checks passed.");
+            Console.WriteLine($"Elevatube {(fromNorth ? "down" : "up")}: camera={camera.PixelPosition.Y}, Samus={samus.Position.Y.Whole}; 180 exact checkpoint/distance checks passed.");
         }
     }
 }

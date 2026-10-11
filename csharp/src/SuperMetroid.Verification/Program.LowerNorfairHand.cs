@@ -40,8 +40,7 @@ internal static partial class Program
             samus.CollectedItems = hasSpaceJump ? (ushort)SamusEquipmentFlags.SpaceJump : (ushort)0;
             samus.PoseId = hasSpaceJump ? SamusPoseId.FacingRightNormalPose : SamusPoseId.MorphBallGroundRightPose;
             samus.InitializeAnimation(bus);
-            samus.XPosition = 4 * 16 + 8;
-            samus.YPosition = (ushort)(8 * 16 - samus.Kinematics.YRadius - 1);
+            samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
             var rejected = SamusBlockCollision.MoveVertical(bus, level, samus.Kinematics,
                 2 << 16, true, false, false, runtime.Plms);
             AssertTrue(rejected.Collided, "hand remains solid for ineligible contact");
@@ -51,14 +50,13 @@ internal static partial class Program
         samus.CollectedItems |= (ushort)SamusEquipmentFlags.SpaceJump;
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.InitializeAnimation(bus);
-        samus.XPosition = 4 * 16 + 8;
-        samus.YPosition = (ushort)(8 * 16 - samus.Kinematics.YRadius - 1);
+        samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));
         var collision = SamusBlockCollision.MoveVertical(bus, level, samus.Kinematics,
             2 << 16, true, false, false, runtime.Plms);
         // Samus's whole width lies in the hand's block column, so the downward probe's
         // only candidate is the hand block at (4, 8).
-        int leftColumn = (samus.Kinematics.XPosition - samus.Kinematics.XRadius) >> 4;
-        int rightColumn = (samus.Kinematics.XPosition + samus.Kinematics.XRadius - 1) >> 4;
+        int leftColumn = (samus.Kinematics.Position.X.Whole - samus.Kinematics.Radius.X) >> 4;
+        int rightColumn = (samus.Kinematics.Position.X.Whole + samus.Kinematics.Radius.X - 1) >> 4;
         AssertTrue(collision.Collided && leftColumn == hand.Index % level.Size.X &&
             rightColumn == hand.Index % level.Size.X,
             "downward morph contact lands on the actual hand tile");

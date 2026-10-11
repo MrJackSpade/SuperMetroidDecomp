@@ -14,4 +14,7 @@
   <Import Project="../../test-support/RepositoryInstallation.projitems" />
   <Import Project="../../test-support/RepositoryInstallation.Verification.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
+  <ItemGroup>
+    <Using Include="SuperMetroid.Core.Spatial" />
+  </ItemGroup>
 </Project>

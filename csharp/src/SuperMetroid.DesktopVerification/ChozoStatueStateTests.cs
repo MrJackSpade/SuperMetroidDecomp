@@ -16,7 +16,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         var hand = level.GetCollisionBlock(new(0x4a, 0x17));
         Console.WriteLine($"Saved Chozo setup: room={runtime.ActiveRoom!.Pointer:X4} " +
-            $"Samus={samus.XPosition:X4},{samus.YPosition:X4} pose={(int)samus.Pose:X2}; " +
+            $"Samus={samus.Position.X.Whole:X4},{samus.Position.Y.Whole:X4} pose={(int)samus.Pose:X2}; " +
             $"hand={hand.LevelWord:X4}/BTS={hand.Behavior:X2}; " +
             $"pending=[{string.Join(",", runtime.Enemies.ChozoStatuePlmRequests)}]");
         // $AA:E725 spawns $D6EE at this exact room block. Its synchronous $84:D616
@@ -27,16 +27,15 @@ internal static partial class Program
         // state, collision dispatch and subsequent frame owners remain the player's.
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.InitializeAnimation(loaded.AddressSpace);
-        samus.XPosition = 0x4a * 16 + 8;
-        samus.YPosition = (ushort)(0x17 * 16 - samus.Kinematics.YRadius - 1);
+        samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y - 1)));
         var collision = SamusBlockCollision.MoveVertical(loaded.AddressSpace, level,
             samus.Kinematics, 2 << 16, scanLeftToRight: true, canBreakBombBlocks: false,
             includeSolidEnemies: false, plms: runtime.Plms);
         // Samus's whole horizontal extent lies in the hand's column, so the downward contact
         // that collided is the hand block; activating the statue is that block's trigger effect.
         bool spanWithinHandColumn =
-            (samus.XPosition - samus.Kinematics.XRadius) >> 4 == 0x4a &&
-            (samus.XPosition + samus.Kinematics.XRadius - 1) >> 4 == 0x4a;
+            (samus.Position.X.Whole - samus.Kinematics.Radius.X) >> 4 == 0x4a &&
+            (samus.Position.X.Whole + samus.Kinematics.Radius.X - 1) >> 4 == 0x4a;
         if (!collision.Collided || !spanWithinHandColumn ||
             runtime.Enemies.Slots[0].Parameter1 != 1 || runtime.GroundedSamusMovementEnabled)
             throw new InvalidDataException("Physical morph contact did not activate the Chozo and disable controls.");
@@ -55,14 +54,14 @@ internal static partial class Program
             ushort expectedY = unchecked((ushort)(statue.YPosition +
                 (short)ReadChozoWord(0xaae6b0 + offset)));
             if (!runtime.GroundedSamusMovementEnabled &&
-                (samus.XPosition != expectedX || samus.YPosition != expectedY))
+                (samus.Position.X.Whole != expectedX || samus.Position.Y.Whole != expectedY))
                 throw new InvalidDataException($"Chozo hand alignment failed on frame {frame}.");
             if (runtime.Enemies.SoundRequests.Count != 0) soundFrames++;
             sawSlopes |= level.GetCollisionBlockByIndex(0x1608 / 2).CollisionType == RoomCollisionType.Slope &&
                 level.GetCollisionBlockByIndex(0x160a / 2).CollisionType == RoomCollisionType.Slope;
         }
-        Console.WriteLine($"Chozo release f{frame}: Samus={samus.XPosition:X4},{samus.YPosition:X4} controls={runtime.GroundedSamusMovementEnabled}");
-        if (!runtime.GroundedSamusMovementEnabled || samus.XPosition >= 0x200)
+        Console.WriteLine($"Chozo release f{frame}: Samus={samus.Position.X.Whole:X4},{samus.Position.Y.Whole:X4} controls={runtime.GroundedSamusMovementEnabled}");
+        if (!runtime.GroundedSamusMovementEnabled || samus.Position.X.Whole >= 0x200)
             throw new InvalidDataException("Chozo did not carry Samus across the room and release controls.");
         loaded.Game.Step(0);
         loaded.Game.Step(0);
@@ -92,8 +91,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             samus.PoseId = bossAlive ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.FacingRightNormalPose;
             samus.InitializeAnimation(loaded.AddressSpace);
-            samus.XPosition = 0x4a * 16 + 8;
-            samus.YPosition = (ushort)(0x17 * 16 - samus.Kinematics.YRadius - 1);
+            samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y - 1)));
             var result = SamusBlockCollision.MoveVertical(loaded.AddressSpace, runtime.LevelData!,
                 samus.Kinematics, 2 << 16, scanLeftToRight: true, canBreakBombBlocks: false,
                 includeSolidEnemies: false, plms: runtime.Plms);

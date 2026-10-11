@@ -37,7 +37,7 @@ internal static partial class Program
             {
                 InstructionPointer = unchecked((ushort)(pointer + 8)),
                 InstructionTimer = Word(0), SpritemapPointer = Word(2),
-                XRadius = rom.ReadByte(record + 4), YRadius = rom.ReadByte(record + 5),
+                Radius = new(rom.ReadByte(record + 4), rom.ReadByte(record + 5)),
                 AnimationFrame = Word(6), Damage = 30,
             };
             var nativeBomb = new SamusBombProjectileSlot(0)
@@ -45,7 +45,7 @@ internal static partial class Program
                 InstructionPointer = nativeShot.InstructionPointer,
                 InstructionTimer = nativeShot.InstructionTimer,
                 SpritemapPointer = nativeShot.SpritemapPointer,
-                XRadius = nativeShot.XRadius, YRadius = nativeShot.YRadius,
+                Radius = new(nativeShot.Radius.X, nativeShot.Radius.Y),
                 Type = 0x0500, Damage = 30,
             };
             var installedShot = new SamusProjectileSlot(0)
@@ -68,15 +68,15 @@ internal static partial class Program
                 "projectile duration is independent of sprite binding");
             AssertEqual(nativeShot.InstructionPointer, installedShot.InstructionPointer,
                 "projectile flow is independent of sprite binding");
-            AssertEqual(nativeShot.XRadius, installedShot.XRadius,
+            AssertEqual(nativeShot.Radius.X, installedShot.Radius.X,
                 "projectile X radius is independent of sprite binding");
-            AssertEqual(nativeShot.YRadius, installedShot.YRadius,
+            AssertEqual(nativeShot.Radius.Y, installedShot.Radius.Y,
                 "projectile Y radius is independent of sprite binding");
             AssertEqual(nativeBomb.InstructionTimer, installedBomb.InstructionTimer,
                 "bomb duration is independent of sprite binding");
-            AssertEqual(nativeBomb.XRadius, installedBomb.XRadius,
+            AssertEqual(nativeBomb.Radius.X, installedBomb.Radius.X,
                 "bomb X radius is independent of sprite binding");
-            AssertEqual(nativeBomb.YRadius, installedBomb.YRadius,
+            AssertEqual(nativeBomb.Radius.Y, installedBomb.Radius.Y,
                 "bomb Y radius is independent of sprite binding");
         }
 

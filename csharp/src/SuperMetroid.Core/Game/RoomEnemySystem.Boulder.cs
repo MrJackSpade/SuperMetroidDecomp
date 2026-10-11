@@ -182,11 +182,11 @@ public sealed partial class RoomEnemySystem
 
     private static void RunBoulderWaiting(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus)
     {
-        short deltaY = unchecked((short)(samus.YPosition - slot.YPosition));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.YPosition));
         if (deltaY < 0 || unchecked((short)(deltaY - state.VerticalTriggerLimit)) >= 0)
             return;
 
-        short deltaX = unchecked((short)(samus.XPosition - slot.XPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.XPosition));
         bool enteredHorizontalWindow = state.DirectionSelector != 0
             ? deltaX < 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - state.HorizontalTriggerLimit)) < 0;

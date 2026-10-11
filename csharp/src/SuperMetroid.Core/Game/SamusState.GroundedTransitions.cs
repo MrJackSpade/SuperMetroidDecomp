@@ -37,17 +37,17 @@ public sealed partial class SamusState
 
         SamusPoseId sourcePose = Pose;
         SamusMovementType previousMovementType = ReadMovementType(bus);
-        ushort oldRadius = Kinematics.YRadius;
+        ushort oldRadius = Kinematics.Radius.Y;
         Pose = targetPose;
         RefreshCollisionRadii(bus);
-        if (Kinematics.YRadius != oldRadius)
+        if (Kinematics.Radius.Y != oldRadius)
         {
             // The admitted family deliberately excludes compact straight-down `$17/$18`
             // and `$2D/$2E`; reaching a different radius proves a caller crossed that seam.
             // Every retail member admitted above has the same collision radius. A mismatch
             // can only come from inconsistent/corrupt pose metadata, not an omitted route.
             throw new InvalidDataException(
-                $"Aerial pose ${(int)targetPose:X2} unexpectedly changes radius {oldRadius} -> {Kinematics.YRadius} inside an equal-radius transition family.");
+                $"Aerial pose ${(int)targetPose:X2} unexpectedly changes radius {oldRadius} -> {Kinematics.Radius.Y} inside an equal-radius transition family.");
         }
         // Both normal-jump and falling targets run their movement initializer.
         // Preserve base velocity, but derive acceleration mode from extra dash speed.
@@ -115,7 +115,7 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
         if (sourcePose != Pose)
         {
             // Pose collision uses prospective geometry; the live radius belongs to
@@ -207,13 +207,13 @@ public sealed partial class SamusState
         // at `$91:FB5C` exits before touching frame, timer, or delay-buffer state. Every live
         // running arm pose points to the same `$91:B20A` list, so the cached list address is
         // already exact and must not be rebound or reset here.
-        ushort oldRadius = Kinematics.YRadius;
+        ushort oldRadius = Kinematics.Radius.Y;
         Pose = targetPose;
         RefreshCollisionRadii(bus);
-        if (Kinematics.YRadius != oldRadius)
+        if (Kinematics.Radius.Y != oldRadius)
         {
             throw new InvalidDataException(
-                $"Running arm pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {Kinematics.YRadius}.");
+                $"Running arm pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {Kinematics.Radius.Y}.");
         }
     }
 

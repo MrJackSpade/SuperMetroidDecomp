@@ -69,35 +69,32 @@ public sealed partial class RoomEnemySystem
         foreach (MotherBrainContactHitbox hitbox in
             MotherBrainContactHitboxDefinitions.Get(contactPart))
         {
-            bool belowOrigin = unchecked((short)(samus.YPosition - originY)) >= 0;
-            int yDistance = Math.Abs(unchecked((short)(samus.YPosition - originY)));
+            bool belowOrigin = unchecked((short)(samus.Position.Y.Whole - originY)) >= 0;
+            int yDistance = Math.Abs(unchecked((short)(samus.Position.Y.Whole - originY)));
             short yExtent = belowOrigin ? hitbox.Bottom : hitbox.Top;
-            int yOverlap = samus.Kinematics.YRadius + Math.Abs((int)yExtent) - yDistance;
+            int yOverlap = samus.Kinematics.Radius.Y + Math.Abs((int)yExtent) - yDistance;
             if (yOverlap < 0)
                 continue;
 
-            bool rightOfOrigin = unchecked((short)(samus.XPosition - originX)) >= 0;
-            int xDistance = Math.Abs(unchecked((short)(samus.XPosition - originX)));
+            bool rightOfOrigin = unchecked((short)(samus.Position.X.Whole - originX)) >= 0;
+            int xDistance = Math.Abs(unchecked((short)(samus.Position.X.Whole - originX)));
             short xExtent = rightOfOrigin ? hitbox.Right : hitbox.Left;
-            int xOverlap = samus.Kinematics.XRadius + Math.Abs((int)xExtent) - xDistance;
+            int xOverlap = samus.Kinematics.Radius.X + Math.Abs((int)xExtent) - xDistance;
             if (xOverlap < 0)
                 continue;
 
             // Native clamps shallow contact UP to four pixels. The resulting words are
             // consumed by Samus movement later in the frame, so overwrite rather than add.
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)Math.Max(xOverlap, 4));
-            samus.Kinematics.ExtraYDisplacement = 4;
-            samus.Kinematics.ExtraXSubdisplacement = 0;
-            samus.Kinematics.ExtraYSubdisplacement = 0;
+            samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked((short)Math.Max(xOverlap, 4)), 4));
             samus.InvincibilityTimer = 96;
             samus.KnockbackTimer = 5;
             samus.KnockbackXDirection = 1;
-            if (unchecked((short)(samus.YPosition - 192)) < 0)
+            if (unchecked((short)(samus.Position.Y.Whole - 192)) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
 
             // Only contact to the right of body X+24 calls MotherBrain_HurtSamus. Contact
             // elsewhere still installs the displacement and timers above without damage.
-            if (unchecked((short)(state.Body.XPosition + 24 - samus.XPosition)) < 0)
+            if (unchecked((short)(state.Body.XPosition + 24 - samus.Position.X.Whole)) < 0)
                 DamageSamusFromMotherBrainBody(state.Body, samus);
             return true;
         }
@@ -116,7 +113,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Health - damage));
         samus.InvincibilityTimer = 96;
         samus.KnockbackTimer = 5;
-        samus.KnockbackXDirection = samus.XPosition >= body.XPosition ? (ushort)1 : (ushort)0;
+        samus.KnockbackXDirection = samus.Position.X.Whole >= body.XPosition ? (ushort)1 : (ushort)0;
     }
 
     /// <summary>

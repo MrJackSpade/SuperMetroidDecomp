@@ -19,7 +19,7 @@ internal static partial class Program
         renderer.RenderFrame([CartridgeAudioCommand.Upload(AudioUploadAddresses.GreenBrinstar)]);
         var libraries = (ManagedSpcSoundLibrary[])typeof(ManagedSpcPlayer)
             .GetField("soundLibraries", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(renderer.Player)!;
-        var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, XPosition = 128, YPosition = 128 };
+        var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var speed = samus.HorizontalSpeed;
@@ -108,8 +108,8 @@ internal static partial class Program
         RestoreLegacy(restored, "<EchoSoundFlag>k__BackingField");
         AssertEqual((ushort)0, restored.EchoSoundFlag, "legacy inactive boost does not invent a pending stop");
 
-        samus.XPosition = samus.YPosition = 24;
-        samus.Kinematics.YRadius = 8;
+        samus.Position = samus.Position.WithWhole(new(24, 24));
+        samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
         speed.SpeedBoostCounter = 0x0401;
         speed.EchoSoundFlag = 1;
         speed.EchoSoundRequested = true;

@@ -14,7 +14,7 @@ internal static partial class Program
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
-        var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, XPosition = 0x80, YPosition = 0x80 };
+        var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
         spinning.RefreshCollisionRadii(bus);
         spinning.InitializeAnimation(bus);
         spinning.Drained.PutStanding(bus, spinning);
@@ -39,7 +39,7 @@ internal static partial class Program
         // invincible Samus, and uses the Baby's position before this frame's main AI moves it.
         ushort LatchVelocity(int startDx, ushort invincibility)
         {
-            var samus = new SamusState { Health = 99, XPosition = 0x0080, YPosition = 0x00a0, InvincibilityTimer = invincibility };
+            var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = invincibility };
             samus.RefreshCollisionRadii(bus);
             var baby = new BabyMetroidCutsceneState();
             baby.Initialize(inheritedXSubposition: 0, inheritedYSubposition: 0);

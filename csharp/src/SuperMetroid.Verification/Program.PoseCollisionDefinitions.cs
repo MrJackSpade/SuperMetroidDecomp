@@ -15,10 +15,10 @@ internal static partial class Program
             AssertEqual(expected, SamusState.ReadPoseYRadius((SamusPoseId)pose),
                 "Prospective collision radius matches native pose, without authored ROM reads");
             samus.Pose = (SamusPoseId)pose;
-            samus.Kinematics.XRadius = samus.Kinematics.YRadius = ushort.MaxValue;
+            samus.Kinematics.Radius = new(ushort.MaxValue, ushort.MaxValue);
             samus.RefreshCollisionRadii(source);
-            AssertEqual((ushort)5, samus.Kinematics.XRadius, "Every pose keeps native horizontal radius");
-            AssertEqual(expected, samus.Kinematics.YRadius, "Live collision owner receives native vertical radius");
+            AssertEqual((ushort)5, samus.Kinematics.Radius.X, "Every pose keeps native horizontal radius");
+            AssertEqual(expected, samus.Kinematics.Radius.Y, "Live collision owner receives native vertical radius");
         }
     }
 }

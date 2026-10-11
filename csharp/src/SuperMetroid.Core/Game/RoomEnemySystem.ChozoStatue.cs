@@ -400,8 +400,7 @@ public sealed partial class RoomEnemySystem
 
         // The two 32-word tables are joint offsets indexed by the exact byte offset above.
         // Writing Samus after collision reproduces the native cutscene's absolute ownership.
-        samus.XPosition = unchecked((ushort)(statue.XPosition + motion.SamusX));
-        samus.YPosition = unchecked((ushort)(statue.YPosition + motion.SamusY));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.XPosition + motion.SamusX)), unchecked((ushort)(statue.YPosition + motion.SamusY))));
     }
 
     private void ProcessChozoStatueFootstep(

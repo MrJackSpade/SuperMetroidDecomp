@@ -408,8 +408,7 @@ internal static class DebuggerStateFieldMigrations
         // Restores as zero, matching the zero latch on the Mother Brain state.
         new(typeof(MotherBrainRainbowBeamAttackSequence).FullName!, ["<SmallPurpleBreathGenerationWriteCount>k__BackingField"], null),
         // Pending previous-fraction writes live within one frame; a capture has none.
-        new(typeof(SamusState).FullName!, ["_previousXSubpositionWriteMask", "_previousXSubpositionWriteValue",
-            "_previousYSubpositionWriteMask", "_previousYSubpositionWriteValue"], null),
+        new(typeof(SamusState).FullName!, ["_previousFractionWrites"], null),
         // Older builds never deleted the liquid HDMA objects; a capture keeps them live.
         new(typeof(RoomLayer3FxState).FullName!, ["liquidHdmaObjectsDeleted"], null),
         new(typeof(RoomEnemySystem).FullName!, ["<GradualColorChange>k__BackingField"], null,
@@ -453,10 +452,6 @@ internal static class DebuggerStateFieldMigrations
         new(typeof(RoomLayer3FxState).FullName!, ["lavaSoundTimer"],
             "Legacy room FX predates lava's ambient sound timer; it restarts a full period.",
             fx => Set(fx, "lavaSoundTimer", RoomFxRomData.LavaAcid.AmbientSoundPeriod)),
-        // The quarter words are rebuilt from zero by the next firing; a capture taken
-        // mid-extension resumes with the clean quarter of its velocity.
-        new(typeof(SamusGrappleState).FullName!, ["<XQuarterSubVelocity>k__BackingField", "<XQuarterVelocity>k__BackingField",
-            "<YQuarterSubVelocity>k__BackingField", "<YQuarterVelocity>k__BackingField"], null),
         // False is the slow-scroll state of every non-swinging grapple; a swing sets it again.
         new(typeof(SamusGrappleState).FullName!, ["<SlowScrolling>k__BackingField"], null),
         // Older builds applied the release pose immediately; nothing is pending.

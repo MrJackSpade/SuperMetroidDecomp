@@ -25,7 +25,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
-            samus.XPosition = 140; samus.YPosition = 379;
+            samus.Position = samus.Position.WithWhole(new(140, 379));
             samus.EquippedItems = samus.EquippedBeams = 0;
             samus.SelectedHudItem = 1;
             samus.Missiles = samus.MaxMissiles = 10;
@@ -43,10 +43,10 @@ internal static partial class Program
                 runtime.StepFrame(input);
                 var gate = runtime.Plms.PopulationSlots.Single(s => s.HeaderPointer == PlmHeaderId.DownwardGate);
                 activated |= gate.LoopTimer != 0;
-                string actual = $"{frame},{input:X4},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{(int)samus.Pose:X2},{gate.LoopTimer},{gate.InstructionPointer:X4}";
+                string actual = $"{frame},{input:X4},{samus.Position.X.Whole},{samus.Kinematics.Position.X.Fraction},{samus.Position.Y.Whole},{(int)samus.Pose:X2},{gate.LoopTimer},{gate.InstructionPointer:X4}";
                 AssertEqual(expected[frame + 60], actual, $"Native gate jump shot={shootFrame}, frame={frame}");
             }
-            AssertEqual(shootFrame == 8 && aimFrame == 0, samus.XPosition < 112, "Only native successful timing crosses opened gate");
+            AssertEqual(shootFrame == 8 && aimFrame == 0, samus.Position.X.Whole < 112, "Only native successful timing crosses opened gate");
             AssertEqual((aimFrame == 0 && shootFrame == 8) || (releaseLeft && shootFrame == 5),
                 activated, "Native successful ordinary/spin timings activate the switch independently of crossing");
         }

@@ -41,8 +41,7 @@ internal static partial class Program
                 int column = (raw & 64) != 0 ? 15 - x : x;
                 int row = (raw & 128) != 0 ? 15 - y : y;
                 bool expected = native[shape * 4 + row / 8 * 2 + column / 8] != 0;
-                projectile.XPosition = x;
-                projectile.YPosition = y;
+                projectile.Position = projectile.Position.WithWhole(new(x, y));
                 AssertEqual(expected, missile(block, projectile, true), "Actual horizontal missile square quadrant");
                 AssertEqual(expected, missile(block, projectile, false), "Actual vertical missile square quadrant");
                 cases++;

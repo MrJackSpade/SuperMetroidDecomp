@@ -23,8 +23,7 @@ internal static partial class Program
         samus.InputLocked = false;
         samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 512;
-        samus.YPosition = 490;
+        samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));

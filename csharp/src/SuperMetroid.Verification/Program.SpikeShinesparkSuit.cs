@@ -52,8 +52,8 @@ internal static partial class Program
         var shortRecovery = new SamusReserveAutoRecoveryState();
         shortRecovery.Begin(frozenSamus);
         frozenRuntime.GameplayTimeFrozen = true;
-        uint frozenX = frozenSamus.Kinematics.XFixed;
-        uint frozenY = frozenSamus.Kinematics.YFixed;
+        uint frozenX = frozenSamus.Kinematics.Position.X.RawValue;
+        uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
         ushort frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer;
         ushort frozenShineTimer = frozenSamus.SharedShineTimer;
@@ -62,7 +62,7 @@ internal static partial class Program
         frozenRuntime.StepFrame(0, afterAcceptedNmi: () =>
             shortRecovery.StepAfterNmi(frozenSamus, frozenRuntime.NmiFrameCounter));
         AssertEqual((frozenX, frozenY),
-            (frozenSamus.Kinematics.XFixed, frozenSamus.Kinematics.YFixed),
+            (frozenSamus.Kinematics.Position.X.RawValue, frozenSamus.Kinematics.Position.Y.RawValue),
             "Reserve command zero freezes spike-knockback position");
         AssertEqual((frozenAnimationFrame, frozenAnimationTimer),
             (frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer),
@@ -168,10 +168,7 @@ internal static partial class Program
         samus.ReserveEnergy = 0;
         if (underwater)
             samus.LiquidPhysics.ConfigureWater(8, 0x80);
-        samus.Kinematics.XPosition = 200;
-        samus.Kinematics.XSubposition = 0;
-        samus.Kinematics.YPosition = 166;
-        samus.Kinematics.YSubposition = 0;
+        samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
         samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -184,7 +181,7 @@ internal static partial class Program
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter),
             "spike-suit fixture accepts stored Shinespark");
 
-        int centerBlock = (samus.YPosition >> 4) * level.Size.X + (samus.XPosition >> 4);
+        int centerBlock = (samus.Position.Y.Whole >> 4) * level.Size.X + (samus.Position.X.Whole >> 4);
         level.SetForegroundEntry(centerBlock, (ushort)((ushort)RoomCollisionType.SpikeAir << 12));
         level.SetBehavior(centerBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
         if (underwater)

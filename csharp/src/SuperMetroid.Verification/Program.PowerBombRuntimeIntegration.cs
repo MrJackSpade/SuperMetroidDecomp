@@ -54,8 +54,7 @@ internal static partial class Program
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
         explosion.Arm();
         explosion.Spawn(
-            PowerBombRuntimeVerificationDefinitions.ScreenCenterX,
-            PowerBombRuntimeVerificationDefinitions.ScreenCenterY);
+            new(PowerBombRuntimeVerificationDefinitions.ScreenCenterX, PowerBombRuntimeVerificationDefinitions.ScreenCenterY));
         explosion.StepFrame(bus);
         AssertEqual(PowerBombExplosionPhase.Inactive, explosion.RenderedPhase,
             "HDMA allocation setup does not draw the first flash prematurely");

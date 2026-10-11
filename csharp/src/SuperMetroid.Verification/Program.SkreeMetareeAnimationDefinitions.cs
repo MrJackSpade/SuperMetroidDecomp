@@ -91,8 +91,7 @@ internal static partial class Program
         MetareeEnemyState state = enemies.MetareeStates[0]!;
         var samus = new SamusState
         {
-            XPosition = slot.XPosition,
-            YPosition = unchecked((ushort)(slot.YPosition + 0x60)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.XPosition, unchecked((ushort)(slot.YPosition + 0x60)))),
         };
 
         idle.Invoke(null, [slot, state, samus]);
@@ -130,8 +129,7 @@ internal static partial class Program
         SkreeEnemyState state = enemies.SkreeStates[0]!;
         var samus = new SamusState
         {
-            XPosition = slot.XPosition,
-            YPosition = unchecked((ushort)(slot.YPosition + 0x60)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(slot.XPosition, unchecked((ushort)(slot.YPosition + 0x60)))),
         };
 
         runMain.Invoke(enemies, [slot, samus, null]);

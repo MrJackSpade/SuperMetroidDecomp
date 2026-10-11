@@ -387,7 +387,7 @@ public sealed partial class RoomEnemySystem
         }
 
         mama.YRadius = 0;
-        short signedDifference = unchecked((short)(mama.XPosition - samus.XPosition));
+        short signedDifference = unchecked((short)(mama.XPosition - samus.Position.X.Whole));
         int distance = Math.Abs((int)signedDifference);
         if (distance >= 24)
             return;
@@ -406,8 +406,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)overlap) < 0)
             return;
 
-        samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-            samus.Kinematics.ExtraYDisplacement - overlap));
+        samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, unchecked((short)(overlap)));
     }
 
     /// <summary>Ports the deliberately jittery shell-opening routine at <c>$A2:8EE0</c>.</summary>
@@ -424,8 +423,7 @@ public sealed partial class RoomEnemySystem
 
         if (IsSamusRidingPlatform(mama, samus))
         {
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)(
-                samus.Kinematics.ExtraXDisplacement - 1));
+            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(1, 0);
         }
 
         mama.YPosition = unchecked((ushort)(mama.YPosition - 1));
@@ -455,7 +453,7 @@ public sealed partial class RoomEnemySystem
     {
         InstallTurtleInstruction(
             mama,
-            unchecked((short)(mama.XPosition - samus.XPosition)) >= 0
+            unchecked((short)(mama.XPosition - samus.Position.X.Whole)) >= 0
                 ? MamaTurtleInstructionProgramDefinitions.MamaEnterShellLeft
                 : MamaTurtleInstructionProgramDefinitions.MamaEnterShellRight);
         state.Function = MamaTurtleAiFunction.Idle;
@@ -474,8 +472,7 @@ public sealed partial class RoomEnemySystem
 
         if (IsSamusRidingPlatform(mama, samus))
         {
-            samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-                samus.Kinematics.ExtraYDisplacement - 1));
+            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, 1);
         }
 
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
@@ -483,7 +480,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         // The two adjacent {sub,whole} pairs at $8D56 accelerate toward Samus's side.
-        if (unchecked((short)(mama.XPosition - samus.XPosition)) < 0)
+        if (unchecked((short)(mama.XPosition - samus.Position.X.Whole)) < 0)
         {
             state.XSubAcceleration = 0x1000;
             state.XAcceleration = 0;
@@ -530,15 +527,9 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = MamaTurtleAiFunction.RisingToPeak;
-        uint samusExtra = ((uint)samus.Kinematics.ExtraXDisplacement << 16) |
-            samus.Kinematics.ExtraXSubdisplacement;
-        uint turtleVelocity = ((uint)state.XVelocity << 16) | state.XSubVelocity;
-        uint result = unchecked(samusExtra - turtleVelocity);
-        samus.Kinematics.ExtraXSubdisplacement = unchecked((ushort)result);
-        ushort whole = unchecked((ushort)(result >> 16));
-        samus.Kinematics.ExtraXDisplacement = unchecked((short)whole) < -16
-            ? (ushort)0xfff0
-            : whole;
+        SnesSignedSixteenSixteen result = samus.Kinematics.ExtraDisplacement.X -
+            SnesSignedSixteenSixteen.FromParts(unchecked((short)state.XVelocity), state.XSubVelocity);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(result.WholePixels < -16 ? result.WithWholePixels(-16) : result);
     }
 
     private static void AddAndClampMamaTurtleHorizontalAcceleration(
@@ -596,8 +587,7 @@ public sealed partial class RoomEnemySystem
         if (IsSamusRidingPlatform(mama, samus))
         {
             mama.YPosition = unchecked((ushort)(mama.YPosition - MamaTurtleRisingSpeed));
-            samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-                samus.Kinematics.ExtraYDisplacement - MamaTurtleRisingSpeed));
+            samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(0, unchecked((short)(MamaTurtleRisingSpeed)));
             return;
         }
 
@@ -772,8 +762,7 @@ public sealed partial class RoomEnemySystem
         bool carryingSamus = IsSamusRidingPlatform(baby, samus);
         if (carryingSamus)
         {
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)(
-                samus.Kinematics.ExtraXDisplacement + state.XVelocity));
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(state.XVelocity)), 0);
         }
 
         ushort previousY = baby.YPosition;
@@ -795,8 +784,7 @@ public sealed partial class RoomEnemySystem
 
         if (carryingSamus)
         {
-            samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-                samus.Kinematics.ExtraYDisplacement + baby.YPosition - previousY));
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(baby.YPosition - previousY)));
         }
     }
 
@@ -905,9 +893,9 @@ public sealed partial class RoomEnemySystem
             state.XVelocity = unchecked((ushort)-1);
         }
 
-        baby.XPosition = unchecked((short)(baby.XPosition - samus.XPosition)) >= 0
-            ? unchecked((ushort)(samus.XPosition + samus.Kinematics.XRadius + baby.XRadius))
-            : unchecked((ushort)(samus.XPosition - samus.Kinematics.XRadius - baby.XRadius));
+        baby.XPosition = unchecked((short)(baby.XPosition - samus.Position.X.Whole)) >= 0
+            ? unchecked((ushort)(samus.Position.X.Whole + samus.Kinematics.Radius.X + baby.XRadius))
+            : unchecked((ushort)(samus.Position.X.Whole - samus.Kinematics.Radius.X - baby.XRadius));
         state.Function = BabyTurtleAiFunction.CrawlingNotCarryingSamus;
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level!, baby, (int)(short)state.XVelocity << 16);
@@ -943,19 +931,19 @@ public sealed partial class RoomEnemySystem
             boundsSource.YPosition + boundsSource.YRadius - 4));
 
         ushort samusLeftMinusOne = unchecked((ushort)(
-            samus.XPosition - samus.Kinematics.XRadius - 1));
+            samus.Position.X.Whole - samus.Kinematics.Radius.X - 1));
         if (unchecked((short)(samusLeftMinusOne - right)) >= 0)
             return;
         ushort samusRight = unchecked((ushort)(
-            samus.XPosition + samus.Kinematics.XRadius));
+            samus.Position.X.Whole + samus.Kinematics.Radius.X));
         if (unchecked((short)(samusRight - left)) < 0)
             return;
         ushort samusTopPlusOne = unchecked((ushort)(
-            samus.YPosition - samus.Kinematics.YRadius + 1));
+            samus.Position.Y.Whole - samus.Kinematics.Radius.Y + 1));
         if (unchecked((short)(samusTopPlusOne - bottom)) >= 0)
             return;
         ushort samusBottom = unchecked((ushort)(
-            samus.YPosition + samus.Kinematics.YRadius));
+            samus.Position.Y.Whole + samus.Kinematics.Radius.Y));
         if (unchecked((short)(samusBottom - top)) < 0 || samus.InvincibilityTimer != 0)
             return;
 

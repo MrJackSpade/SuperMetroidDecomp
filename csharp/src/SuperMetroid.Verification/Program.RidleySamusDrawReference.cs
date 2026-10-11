@@ -15,8 +15,7 @@ internal static partial class Program
         byte DirectionSelector = 0,
         ushort Attributes = 0,
         ushort TileSource = 0,
-        short ScreenX = 0,
-        short ScreenY = 0);
+        Position16<ScreenPixels> Screen = default);
 
     /// <summary>Independent $90:C663 arm-cannon draw/transfer result from native state and ROM.</summary>
     private static RidleyNativeCannonDrawResult RidleyNativeCannonDraw(
@@ -41,7 +40,7 @@ internal static partial class Program
         ushort attributes = R(NativeSnapshotMemory.CannonAttributes + direction * 2);
         int tiles = NativeSnapshotMemory.CannonDefinitionBank | R(NativeSnapshotMemory.CannonTileLists + direction * 2);
         return new RidleyNativeCannonDrawResult(x >= 0 && x < 256 && y >= 0 && y < 256,
-            true, frame, direction, attributes, R(tiles + frame * 2), x, y);
+            true, frame, direction, attributes, R(tiles + frame * 2), new(unchecked((ushort)x), unchecked((ushort)y)));
     }
 
     private static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
@@ -50,7 +49,7 @@ internal static partial class Program
         for (int index = 0; index < 128; index++)
         {
             int offset = index * 4;
-            if (low[offset] == (byte)draw.ScreenX && low[offset + 1] == (byte)draw.ScreenY &&
+            if (low[offset] == (byte)draw.Screen.X && low[offset + 1] == (byte)draw.Screen.Y &&
                 BinaryPrimitives.ReadUInt16LittleEndian(low.Slice(offset + 2, 2)) == draw.Attributes &&
                 ((high[index / 4] >> ((index % 4) * 2)) & 3) == 0)
                 return true;

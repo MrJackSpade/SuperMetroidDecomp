@@ -49,7 +49,8 @@ internal static class PlmInterpreterSourceContract
         ["TryExecuteDraygonCannonInstruction/4"] = "260A37C2A8B309CE9DDDCF395BCE3A49B81DC158CBB6B1641ED9B06B757976D0",
         // #627 passes EyeDoorProjectileDefinition members of equal value; no program reads change.
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
-        ["TryExecuteEyeDoorInstruction/4"] = "50B4514AC60558A837E123190C6696C908A5DFC88904C9B11F66CB82C62A38B4",
+        // #628 re-pin: Samus's whole position is read through its typed Position; no program reads change.
+        ["TryExecuteEyeDoorInstruction/4"] = "DAE4F315CC1688BD8544E3DFA212A53DDFCA43EABF2D37E9C22DCDC4D9E0DE12",
         // #628 types PLM block coordinates and the layer-1 camera as spatial values; no program reads or operand widths change.
         ["TryExecuteMotherBrainGlassInstruction/3"] = "A308574D536256CAD930590385AB99D1555A83ABBD22E0DC09B6F8BA85C4B56F",
         // #627 re-pin: spawned projectile definitions became NoobTubeProjectileDefinition members of equal value; no program reads change.

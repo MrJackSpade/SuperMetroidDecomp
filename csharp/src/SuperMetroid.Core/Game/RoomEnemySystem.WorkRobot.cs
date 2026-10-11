@@ -346,8 +346,7 @@ public sealed partial class RoomEnemySystem
 
         if (samus is not null && IsEnemyTouchingSamusFromBelow(slot, samus))
         {
-            samus.Kinematics.ExtraXSubdisplacement = 0;
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)horizontalPixels);
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)horizontalPixels), 0));
         }
 
         if (!checkLedge)
@@ -414,10 +413,8 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void ResolveWorkRobotTouch(RoomEnemySlot robot, SamusState samus)
     {
-        samus.Kinematics.ExtraXSubdisplacement = 0;
-        samus.Kinematics.ExtraXDisplacement = robot.XPosition < samus.XPosition
-            ? (ushort)4
-            : unchecked((ushort)-4);
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(
+            robot.XPosition < samus.Position.X.Whole ? (short)4 : (short)-4, 0));
     }
 
     /// <summary>
@@ -438,13 +435,13 @@ public sealed partial class RoomEnemySystem
         bool facingLeft = unchecked((short)state.LaserXVelocity) < 0;
         if (facingLeft)
         {
-            robot.CurrentInstruction = samus.XPosition < robot.XPosition
+            robot.CurrentInstruction = samus.Position.X.Whole < robot.XPosition
                 ? WorkRobotInstructionProgramDefinitions.FacingLeftShotSamusAhead
                 : WorkRobotInstructionProgramDefinitions.FacingLeftShotSamusBehind;
         }
         else
         {
-            robot.CurrentInstruction = samus.XPosition >= robot.XPosition
+            robot.CurrentInstruction = samus.Position.X.Whole >= robot.XPosition
                 ? WorkRobotInstructionProgramDefinitions.FacingRightShotSamusAhead
                 : WorkRobotInstructionProgramDefinitions.FacingRightShotSamusBehind;
         }

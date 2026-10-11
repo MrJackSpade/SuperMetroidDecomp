@@ -24,7 +24,7 @@ internal static partial class Program
 
         // Native inputs at the movie's landing: (X >> 1) + carry + $05B6 has bit 3 clear,
         // while the same sum with $05B5 ($2D) has it set.
-        samus.XPosition = 0x01b8;
+        samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;
         torizo.CurrentInstruction = landedFacingLeft;
         torizo.InstructionTimer = 1;

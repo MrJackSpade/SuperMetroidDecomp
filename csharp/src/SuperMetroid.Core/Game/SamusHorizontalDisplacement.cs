@@ -16,12 +16,12 @@ public readonly record struct SamusHorizontalDisplacement(int Displacement, Samu
 {
     /// <summary><c>$90:E464</c>: leftward displacement from a base speed plus extra X displacement.</summary>
     public static SamusHorizontalDisplacement Left(SamusState samus, uint baseSpeed) =>
-        new(samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed),
+        new(samus.HorizontalSpeed.CalculateLeftDisplacement(baseSpeed, samus.Kinematics.ExtraDisplacement.X.RawValue),
             SamusCollisionDirection.Left);
 
     /// <summary><c>$90:E4AD</c>: rightward displacement from a base speed plus extra X displacement.</summary>
     public static SamusHorizontalDisplacement Right(SamusState samus, uint baseSpeed) =>
-        new(samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraXFixed),
+        new(samus.HorizontalSpeed.CalculateRightDisplacement(baseSpeed, samus.Kinematics.ExtraDisplacement.X.RawValue),
             SamusCollisionDirection.Right);
 
     /// <summary>Selects the left or right calculator by an already-decided direction.</summary>

@@ -29,20 +29,20 @@ internal static partial class Program
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.InstructionTimer = 1; side.XPosition = 100; side.YPosition = 100; }
+                { side.InstructionPointer = start; side.InstructionTimer = 1; side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
                 var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
                 DrawNativeTrailFrame(bus, nativeSystem.TrailSlots[0], nativeOam, frozenFrame);
-                authoredSystem.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authoredOam, 0, 0, frozenFrame, catalog);
+                authoredSystem.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authoredOam, Position16<RoomPixels>.Zero, frozenFrame, catalog);
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
                     AssertEqual(sides.Item1.InstructionPointer, sides.Item2.InstructionPointer, "Trail artwork cannot change instruction cursor");
                     AssertEqual(sides.Item1.InstructionTimer, sides.Item2.InstructionTimer, "Trail artwork cannot change live timing");
-                    AssertEqual(sides.Item1.YPosition, sides.Item2.YPosition, "Trail artwork cannot change sibling-targeted movement");
+                    AssertEqual(sides.Item1.Position.Y, sides.Item2.Position.Y, "Trail artwork cannot change sibling-targeted movement");
                 }
             }
         }
@@ -73,12 +73,12 @@ internal static partial class Program
             var system = new SamusProjectileSystem();
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
             side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = 3;
-            side.XPosition = coordinate; side.YPosition = coordinate; side.TileNumberAttributes = attributes;
+            side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.TileNumberAttributes = attributes;
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             { native.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); authored.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); }
-            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), native, 0, 0, true);
-            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authored, 0, 0, true, catalog);
+            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), native, Position16<RoomPixels>.Zero, true);
+            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authored, Position16<RoomPixels>.Zero, true, catalog);
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable) && native.HighTable.SequenceEqual(authored.HighTable), "Trail catalog preserves native culling and complete OAM bytes");
             AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Trail catalog retains OAM capacity behavior");
             AssertEqual(3, side.InstructionTimer, "Frozen draw cannot advance trail animation");
@@ -94,14 +94,14 @@ internal static partial class Program
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
         var animation = new SamusProjectileSystem();
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
-        trail.InstructionPointer = first; trail.InstructionTimer = 1; trail.XPosition = 100; trail.YPosition = 100;
+        trail.InstructionPointer = first; trail.InstructionTimer = 1; trail.Position = trail.Position.WithX(100).WithY(100);
         var frozen = new OamBuffer();
-        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), frozen, 0, 0, true, edited);
+        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), frozen, Position16<RoomPixels>.Zero, true, edited);
         AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
-        animation.HandleTrailsAndDraw(bus, new OamBuffer(), 0, 0, false, catalog);
+        animation.HandleTrailsAndDraw(bus, new OamBuffer(), Position16<RoomPixels>.Zero, false, catalog);
         var original = new OamBuffer(); var changed = new OamBuffer();
-        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), original, 0, 0, true, catalog);
-        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), changed, 0, 0, true, edited);
+        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), original, Position16<RoomPixels>.Zero, true, catalog);
+        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), changed, Position16<RoomPixels>.Zero, true, edited);
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
         AssertEqual(1, trail.InstructionTimer, "Rebound art retains current timer");
         document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["duration"] = 0;
@@ -144,16 +144,16 @@ internal static partial class Program
                     cursor += 2;
                     switch (command)
                     {
-                        case 0xb525: pair.Left.YPosition++; break;
-                        case 0xb587: pair.Right.YPosition++; break;
-                        case 0xb5b3: pair.Left.YPosition--; break;
+                        case 0xb525: pair.Left.Position += new Offset16<RoomPixels>(0, 1); break;
+                        case 0xb587: pair.Right.Position += new Offset16<RoomPixels>(0, 1); break;
+                        case 0xb5b3: pair.Left.Position -= new Offset16<RoomPixels>(0, 1); break;
                         default: throw new InvalidDataException($"Unknown native trail command ${command:X4}.");
                     }
                 }
                 if (side.InstructionTimer == 0) continue;
             }
-            if (side.XPosition < 256 && side.YPosition < 256)
-                oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.XPosition, (byte)side.YPosition),
+            if (side.Position.X < 256 && side.Position.Y < 256)
+                oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.Position.X, (byte)side.Position.Y),
                     side.TileNumberAttributes);
         }
     }
@@ -166,7 +166,7 @@ internal static partial class Program
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
-        side.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100); side.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
+        side.Position = side.Position.WithX((ushort)(runtime.Camera!.PixelPosition.X + 100)).WithY((ushort)(runtime.Camera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var runtimeField = game.GetType().GetField("runtime", flags)!;

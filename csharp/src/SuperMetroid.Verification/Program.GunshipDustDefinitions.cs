@@ -26,14 +26,13 @@ internal static partial class Program
                 slot.Clear();
                 // Every world X and Y, including independent positive/negative wrap,
                 // enters the actual allocator/header initializer with stale slot values.
-                samus.XPosition = (ushort)origin;
-                samus.YPosition = (ushort)(ushort.MaxValue - origin);
+                samus.Position = samus.Position.WithWhole(new((ushort)origin, (ushort)(ushort.MaxValue - origin)));
                 slot.XSubposition = slot.YSubposition = 0xffff;
                 slot.XVelocity = slot.YVelocity = 0x1234;
                 spawn(parameter, samus);
                 AssertEqual(RoomEnemyProjectileKind.GunshipLiftoffDustCloud, slot.Kind, "Native reverse allocation chooses last free slot");
-                AssertEqual(unchecked((ushort)(samus.XPosition + dx)), slot.XPosition, "Actual dust signed X placement and wrap");
-                AssertEqual(unchecked((ushort)(samus.YPosition + Word(0x86a2c5))), slot.YPosition, "Actual dust Y placement and wrap");
+                AssertEqual(unchecked((ushort)(samus.Position.X.Whole + dx)), slot.XPosition, "Actual dust signed X placement and wrap");
+                AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word(0x86a2c5))), slot.YPosition, "Actual dust Y placement and wrap");
                 AssertEqual(instruction, slot.InstructionPointer, "Actual dust program selection");
                 AssertEqual(parameter, slot.Variable0, "Dust retains native even parameter");
                 AssertEqual((ushort)1, slot.InstructionTimer, "Dust begins on first program tick");

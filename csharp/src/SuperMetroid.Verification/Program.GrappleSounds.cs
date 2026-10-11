@@ -14,7 +14,7 @@ internal static partial class Program
         var anchors = new RoomLevelData(new Extent16<RoomBlocks>(16, 16),
             Enumerable.Repeat((ushort)((int)RoomCollisionType.GrappleBlock << 12), 256).ToArray(),
             new byte[256], new ushort[256], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128 };
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         samus.RefreshCollisionRadii(bus);
         PrepareRetailSamusFixture(samus);
         SamusGrappleMovement.BeginFiring(bus, samus);

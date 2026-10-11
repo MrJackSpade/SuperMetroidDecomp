@@ -231,8 +231,67 @@ internal static class DebuggerSpatialFieldMigrations
         Size<TilemapCells>(Frontend + "CinematicTextGlowSystem+GlowSlot", "Size", "Width", "Height"),
         // Native signed 8.8 velocity words, kept bit for bit.
         new(Frontend + "IntroBabyDiscoveryState", BackingField("BabyVelocity"),
-            [BackingField("BabyXVelocity"), BackingField("BabyYVelocity")], Types<ushort>(2), (_, v) => EightEight(v)),
-        new(Frontend + "EndingShootingStar", "Velocity", ["XVelocity", "YVelocity"], Types<ushort>(2), (_, v) => EightEight(v)),
+            [BackingField("BabyXVelocity"), BackingField("BabyYVelocity")], Types<ushort>(2), (_, v) => EightEight<ScreenPixels>(v)),
+        new(Frontend + "EndingShootingStar", "Velocity", ["XVelocity", "YVelocity"], Types<ushort>(2), (_, v) => EightEight<ScreenPixels>(v)),
+
+        // Samus kinematics: the 16.16 position, the external 16.16 displacement words
+        // ($0B58/$0B56, $0B5C/$0B5A) and the collision radii.
+        FixedWords<RoomPixels>(typeof(SamusKinematicsState).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubposition"), BackingField("YPosition"), BackingField("YSubposition")),
+        VectorWords(typeof(SamusKinematicsState).FullName!, BackingField("ExtraDisplacement"),
+            BackingField("ExtraXDisplacement"), BackingField("ExtraXSubdisplacement"),
+            BackingField("ExtraYDisplacement"), BackingField("ExtraYSubdisplacement")),
+        Radius(typeof(SamusKinematicsState).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+        Whole<ScreenPixels>(typeof(SamusState).FullName!, BackingField("SpritemapPosition"),
+            BackingField("SpritemapXPosition"), BackingField("SpritemapYPosition")),
+        Whole<RoomPixels>(typeof(SolidEnemyCollisionBody).FullName!, BackingField("Position"), BackingField("XPosition"), BackingField("YPosition")),
+        Radius(typeof(SolidEnemyCollisionBody).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+
+        // Samus projectiles, bombs and trails. Projectile velocities are signed 8.8 words.
+        FixedWords<RoomPixels>(typeof(SamusProjectileSlot).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubposition"), BackingField("YPosition"), BackingField("YSubposition")),
+        new(typeof(SamusProjectileSlot).FullName!, BackingField("Velocity"),
+            [BackingField("XVelocity"), BackingField("YVelocity")], Types<short>(2),
+            (_, v) => new EightEightVector<RoomPixels>(Signed(v[0]), Signed(v[1]))),
+        Radius(typeof(SamusProjectileSlot).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+        FixedWords<RoomPixels>(typeof(SamusBombProjectileSlot).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubposition"), BackingField("YPosition"), BackingField("YSubposition")),
+        Radius(typeof(SamusBombProjectileSlot).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
+        Whole<RoomPixels>(typeof(SamusProjectileTrailSide).FullName!, BackingField("Position"), BackingField("XPosition"), BackingField("YPosition")),
+
+        // The grapple beam. Its quarter-velocity words were themselves added after published
+        // layouts: those captures restore the clean zero quarter the next firing rebuilds.
+        Whole<RoomPixels>(typeof(SamusGrappleState).FullName!, BackingField("Anchor"), BackingField("AnchorX"), BackingField("AnchorY")),
+        Whole<RoomPixels>(typeof(SamusGrappleState).FullName!, BackingField("RopeStart"), BackingField("RopeStartX"), BackingField("RopeStartY")),
+        Whole<RoomPixels>(typeof(SamusGrappleState).FullName!, BackingField("BeamStart"), BackingField("BeamStartX"), BackingField("BeamStartY")),
+        new(typeof(SamusGrappleState).FullName!, BackingField("ExtensionVelocity"),
+            [BackingField("ExtensionXVelocity"), BackingField("ExtensionYVelocity")], Types<short>(2),
+            (_, v) => new EightEightVector<RoomPixels>(Signed(v[0]), Signed(v[1]))),
+        VectorWords(typeof(SamusGrappleState).FullName!, BackingField("QuarterVelocity"),
+            BackingField("XQuarterVelocity"), BackingField("XQuarterSubVelocity"),
+            BackingField("YQuarterVelocity"), BackingField("YQuarterSubVelocity")) with { LegacyMayOmit = true },
+        Signed<RoomPixels>(typeof(SamusGrappleState).FullName!, BackingField("OriginOffset"), BackingField("OriginXOffset"), BackingField("OriginYOffset")),
+        Signed<RoomPixels>(typeof(SamusGrappleState).FullName!, BackingField("FlareOffset"), BackingField("FlareXOffset"), BackingField("FlareYOffset")),
+        new(typeof(SamusGrappleState).FullName!, BackingField("EndpointOffset"),
+            [BackingField("EndpointXOffsetFixed"), BackingField("EndpointYOffsetFixed")], Types<int>(2),
+            (_, v) => new FixedVector<RoomPixels>(SnesSignedSixteenSixteen.FromRaw(Int(v[0])), SnesSignedSixteenSixteen.FromRaw(Int(v[1])))),
+
+        // Speed-booster and released shinespark-crash echoes.
+        Whole<RoomPixels>(typeof(SamusHorizontalSpeedState).FullName!, BackingField("FirstSpeedEchoPosition"),
+            BackingField("FirstSpeedEchoXPosition"), BackingField("FirstSpeedEchoYPosition")),
+        Whole<RoomPixels>(typeof(SamusHorizontalSpeedState).FullName!, BackingField("SecondSpeedEchoPosition"),
+            BackingField("SecondSpeedEchoXPosition"), BackingField("SecondSpeedEchoYPosition")),
+        Whole<RoomPixels>("SuperMetroid.Core.Game.SamusShinesparkState+ReleasedEchoSlot", BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
+
+        // Samus special states and effects.
+        Whole<RoomPixels>(typeof(SamusAtmosphericEffectSlot).FullName!, BackingField("Position"), BackingField("XPosition"), BackingField("YPosition")),
+        Whole<RoomPixels>(typeof(SamusPowerBombExplosionState).FullName!, BackingField("Position"), BackingField("XPosition"), BackingField("YPosition")),
+        Whole<ScreenPixels>(typeof(SamusDeathSequenceState).FullName!, BackingField("ScreenPosition"), BackingField("ScreenX"), BackingField("ScreenY")),
+        Whole<RoomPixels>(typeof(SamusDraygonGrabbedState).FullName!, BackingField("OwnerPosition"),
+            BackingField("OwnerXPosition"), BackingField("OwnerYPosition")),
+        new(typeof(MotherBrainRainbowBeamSamusMovement).FullName!, BackingField("CustomVelocity"),
+            [BackingField("CustomXVelocity"), BackingField("CustomYVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
     ];
 
     private static readonly Dictionary<(string Type, string Field), DebuggerSpatialFieldMigration> ByLegacyField =
@@ -322,8 +381,18 @@ internal static class DebuggerSpatialFieldMigrations
         new(type, field, [xFraction, yFraction], Types<ushort>(2),
             (_, v) => FixedPosition<RoomPixels>.FromWords(0, Word(v[0]), 0, Word(v[1])), LegacyMayOmit: true);
 
-    private static EightEightVector<ScreenPixels> EightEight(object?[] v) =>
+    private static EightEightVector<TSpace> EightEight<TSpace>(object?[] v)
+        where TSpace : ISpatialSpace =>
         new(new SnesSignedEightEight(Word(v[0])), new SnesSignedEightEight(Word(v[1])));
+
+    // Legacy layouts stored X whole, X fraction, Y whole and Y fraction words, in that order.
+    private static DebuggerSpatialFieldMigration VectorWords(string type, string field,
+        string x, string xFraction, string y, string yFraction) =>
+        new(type, field, [x, xFraction, y, yFraction], Types<ushort>(4),
+            (_, v) => FixedVector<RoomPixels>.FromWords(Word(v[0]), Word(v[1]), Word(v[2]), Word(v[3])));
+
+    private static DebuggerSpatialFieldMigration Radius(string type, string field, string x, string y) =>
+        new(type, field, [x, y], Types<ushort>(2), (_, v) => new Extent16<RoomPixels>(Word(v[0]), Word(v[1])));
 
     private static int Int(object? value) => value as int? ??
         throw new InvalidDataException($"Legacy spatial component {value?.GetType().Name ?? "null"} is not an int.");

@@ -13,7 +13,7 @@ internal static partial class Program
         var game = loaded.Game;
         var runtime = game.RuntimeForVerification!;
         var samus = runtime.Samus!;
-        Console.WriteLine($"room={game.GameplayActiveRoomPointer:X4} pos={samus.XPosition},{samus.YPosition} pose={(int)samus.Pose:X2} grapple={samus.Grapple.Phase}");
+        Console.WriteLine($"room={game.GameplayActiveRoomPointer:X4} pos={samus.Position.X.Whole},{samus.Position.Y.Whole} pose={(int)samus.Pose:X2} grapple={samus.Grapple.Phase}");
         Directory.CreateDirectory("csharp/test-temp/issue-376-anchored-grapple");
         PngWriterTooling.WriteRgba("csharp/test-temp/issue-376-anchored-grapple/start.png", new Extent16<ScreenPixels>(256, 224),
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
@@ -61,7 +61,7 @@ internal static partial class Program
                     GrappleWallGrabGraphicsReference.BottomDma, SamusRenderingRomData.TileTransfers.BottomDestinations);
             }
             if (grabbedFrames is >= 1 and <= 5)
-                Check(samus.Grapple.Phase == GrapplePhase.WallGrab && samus.XPosition == 175 && samus.YPosition == 552,
+                Check(samus.Grapple.Phase == GrapplePhase.WallGrab && samus.Position.X.Whole == 175 && samus.Position.Y.Whole == 552,
                     "Holding Shoot+Jump must retain the native wall-grab pose and position.");
             if (grabbedFrames == 6)
                 Check(samus.Grapple.Phase == GrapplePhase.WallGrabRelease && samus.Grapple.WallJumpTimer == 30,
@@ -79,8 +79,8 @@ internal static partial class Program
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             if (grabbedFrames == 21)
             {
-                Check(samus.XPosition == 158 && samus.YPosition == 489,
-                    $"Wall jump did not propel Samus upward and away: ({samus.XPosition},{samus.YPosition}).");
+                Check(samus.Position.X.Whole == 158 && samus.Position.Y.Whole == 489,
+                    $"Wall jump did not propel Samus upward and away: ({samus.Position.X.Whole},{samus.Position.Y.Whole}).");
                 Console.WriteLine("PASS slot 0: retract into wall grab (175,552), retain while Shoot held, release then Jump, detach and rise to (158,489).");
                 return;
             }

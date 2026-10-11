@@ -29,29 +29,32 @@ internal static partial class Program
             Check(native, actual, changed);
             SamusState Seed()
             {
-                var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
+                var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
                 samus.Grapple.Phase = phase;
                 samus.Grapple.FireDirection = (byte)(pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose ? 7 : 2);
                 samus.Grapple.FlareCounter = counter;
                 samus.Grapple.FlareAnimationFrame = 29;
                 samus.Grapple.FlareAnimationTimer = 0;
-                samus.Grapple.BeamStartX = coordinate; samus.Grapple.BeamStartY = coordinate;
-                samus.Grapple.RopeStartX = 70; samus.Grapple.RopeStartY = 80;
-                samus.Grapple.AnchorX = 200; samus.Grapple.AnchorY = 100;
+                samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(coordinate); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(coordinate);
+                samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithX(70); samus.Grapple.RopeStart = samus.Grapple.RopeStart.WithY(80);
+                samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(200); samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(100);
                 samus.Grapple.RopeLength = 40; samus.Grapple.AngularVelocity = 123;
                 return samus;
             }
         }
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var native = new SamusState { Pose = pose, YPosition = 100 };
+            var native = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
             native.Grapple.FireDirection = (byte)(pose == SamusPoseId.MovingLeftNormalPose ? 7 : 2);
             native.Grapple.FlareCounter = 1;
             var actual = Clone(native); var changed = Clone(native);
             for (int tick = 0; tick < 512; tick++)
             {
-                native.XPosition = actual.XPosition = changed.XPosition = (ushort)(tick % 256);
+                ushort tickX = (ushort)(tick % 256);
+                changed.Position = changed.Position.WithWholeX(tickX);
+                actual.Position = actual.Position.WithWholeX(tickX);
+                native.Position = native.Position.WithWholeX(tickX);
                 Check(native, actual, changed);
                 // Native post-Samus tile upload owns this counter, not the flare.
                 native.Grapple.FlareCounter = actual.Grapple.FlareCounter = changed.Grapple.FlareCounter = (ushort)Math.Min(120, native.Grapple.FlareCounter + 1);
@@ -67,7 +70,7 @@ internal static partial class Program
             samus.Grapple.FlareCounter = 2;
             samus.Grapple.FlareAnimationFrame = frame;
             samus.Grapple.FlareAnimationTimer = timer;
-            samus.Grapple.BeamStartY = 256;
+            samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(256);
             Check(samus, Clone(samus), Clone(samus));
         }
         Suite(nameof(VerifyGrappleFlareActorBinding), () => VerifyGrappleFlareActorBinding(bus, stock, edited, body, roomAssets, maps,
@@ -100,9 +103,9 @@ internal static partial class Program
                 }
             }
             var a = new OamBuffer(); var b = new OamBuffer(); var c = new OamBuffer();
-            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, a, 0, 0, stock);
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, b, 0, 0, stock), "Grapple catalog retains native flare visibility");
-            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, c, 0, 0, edited), "Grapple art edit retains origin visibility gate");
+            bool visible = SamusGrappleMovement.DrawFlareBeforeSamus(bus, native, a, Position16<RoomPixels>.Zero, stock);
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, actual, b, Position16<RoomPixels>.Zero, stock), "Grapple catalog retains native flare visibility");
+            AssertEqual(visible, SamusGrappleMovement.DrawFlareBeforeSamus(guard, changed, c, Position16<RoomPixels>.Zero, edited), "Grapple art edit retains origin visibility gate");
             AssertEqual((expectedFrame, expectedTimer), (actual.Grapple.FlareAnimationFrame, actual.Grapple.FlareAnimationTimer), "Grapple shared compiled cadence matches independent native reads");
             AssertTrue(a.LowTable.SequenceEqual(b.LowTable) && a.HighTable.SequenceEqual(b.HighTable) && a.NextByteOffset == b.NextByteOffset, "Grapple stock parts preserve native complete OAM");
             AssertEqual(a.NextByteOffset, c.NextByteOffset, "Grapple art edit preserves sprite count");
@@ -134,10 +137,10 @@ internal static partial class Program
         runtime.ChargeFlareCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100); samus.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.PixelPosition.X + 100), (ushort)(runtime.Camera.PixelPosition.Y + 100)));
         samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
-        samus.Grapple.BeamStartX = samus.XPosition; samus.Grapple.BeamStartY = samus.YPosition;
+        samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = 100;
         var game = new SuperMetroidGame(bus);
         var field = typeof(SuperMetroidGame).GetField("runtime", flags)!;

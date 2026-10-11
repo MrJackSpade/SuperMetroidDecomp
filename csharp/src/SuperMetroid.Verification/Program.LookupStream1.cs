@@ -961,12 +961,12 @@ internal static partial class Program
             AssertTrue(stock.TryDrainedYOffset(frame, out sbyte offset), "Entire native drained byte window admitted");
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
-            var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
+            var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.TileTransfers.BindArtwork(stock);
-            samus.Draw(rom, new OamBuffer(), 0, 0);
-            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapYPosition,
+            samus.Draw(rom, new OamBuffer(), new(0, 0));
+            AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
-            AssertEqual((ushort)128, samus.YPosition, "Drawing preserves physical center");
+            AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
             draws++;
         }
         AssertEqual(22, draws, "Every nonempty source phase drawn");
@@ -1035,12 +1035,12 @@ internal static partial class Program
             int count = pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ? 1 : 2;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
+                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.TileTransfers.BindArtwork(stock);
-                samus.Draw(rom, new OamBuffer(), 0, 0);
-                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapYPosition,
+                samus.Draw(rom, new OamBuffer(), new(0, 0));
+                AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
-                AssertEqual((ushort)128, samus.YPosition, "Posture art never mutates physical center");
+                AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
             }
         }
         var emptyMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
@@ -1117,13 +1117,13 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
-                XPosition = 128, YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.TileTransfers.BindArtwork(stock);
-            samus.Draw(rom, new OamBuffer(), layer1X: 0, layer1Y: 0);
+            samus.Draw(rom, new OamBuffer(), layer1: new(0, 0));
             ushort nativeWord = (ushort)(landing[index] | landing[index + 1] << 8);
-            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapYPosition, "Actual rendering preserves every bounded native landing word");
-            AssertEqual((ushort)128, samus.YPosition, "Visual landing correction does not change physical position");
+            AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
+            AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
         string identity = stock.ContentIdentity;
         for (int edit = 0; edit < 41; edit++)
@@ -1849,7 +1849,7 @@ internal static partial class Program
         var body = CreateSamusIdentityFixture();
         var system = new SamusProjectileSystem();
         var draw = typeof(SamusProjectileSystem).GetMethod("DrawFlareComponent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, ushort, ushort, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
+            .CreateDelegate<Action<ISnesAddressSpace, OamBuffer, SamusState, Position16<RoomPixels>, int, SamusMode7Transform?, ChargeFlarePlacementCatalog?, ChargeFlareSpriteCatalog?>>(system);
         var shiftedDocument = System.Text.Json.JsonSerializer.Deserialize<ChargeFlarePlacementDocument>(json, options)!;
         foreach (string key in shiftedDocument.Offsets.Keys.ToArray())
             shiftedDocument.Offsets[key] = shiftedDocument.Offsets[key] with { X = (short)(shiftedDocument.Offsets[key].X + 7) };
@@ -1860,7 +1860,7 @@ internal static partial class Program
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
         {
-            var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100 };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             samus.TileTransfers.BindArtwork(body);
             int direction = rom.ReadByte(0x91b629 + (int)pose * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
@@ -1869,8 +1869,8 @@ internal static partial class Program
             var expected = new OamBuffer(); var actual = new OamBuffer(); var edited = new OamBuffer();
             DrawImportedFlareSpritemap((SuperMetroidAddressSpace)rom, expected, 0, (ushort)(100 + x),
                 unchecked((ushort)(100 + y - unchecked((byte)body.GraphicsYOffset(pose)))));
-            draw(new LookupFlareForbiddenBus(), actual, samus, 0, 0, 0, null, stock, compositions);
-            draw(new LookupFlareForbiddenBus(), edited, samus, 0, 0, 0, null, shifted, compositions);
+            draw(new LookupFlareForbiddenBus(), actual, samus, Position16<RoomPixels>.Zero, 0, null, stock, compositions);
+            draw(new LookupFlareForbiddenBus(), edited, samus, Position16<RoomPixels>.Zero, 0, null, shifted, compositions);
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable), "Actual flare OAM matches independently positioned native sprite");
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Native flare OAM admission");
             AssertTrue(actual.NextByteOffset > 0, "Focused flare placement fixture emits its native sprite");
@@ -2066,8 +2066,8 @@ internal static partial class Program
             var slot = new SamusProjectileSlot(0) { Type = combination, Direction = direction };
             initialize(guarded, slot);
             int speed = unchecked((short)Word(0x90c2d1 + combination * 4 + (direction is 1 or 3 or 6 or 8 ? 2 : 0)));
-            AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.XVelocity, "stream1 actual initializer X preserves adjacent missile-data overread");
-            AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.YVelocity, "stream1 actual initializer Y preserves adjacent missile-data overread");
+            AssertEqual(unchecked((short)(direction is 1 or 2 or 3 ? speed : direction is 6 or 7 or 8 ? -speed : 0)), slot.Velocity.X.SignedRawValue, "stream1 actual initializer X preserves adjacent missile-data overread");
+            AssertEqual(unchecked((short)(direction is 0 or 1 or 8 or 9 ? -speed : direction is 3 or 4 or 5 or 6 ? speed : 0)), slot.Velocity.Y.SignedRawValue, "stream1 actual initializer Y preserves adjacent missile-data overread");
         }
     }
     private static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
@@ -3170,8 +3170,8 @@ internal static partial class Program
                 AssertTrue(!shots.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
                 AssertEqual(duration, slot.InstructionTimer, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), slot.XRadius, "Actual X radius independent of art edit");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), slot.YRadius, "Actual Y radius independent of art edit");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius independent of art edit");
                 AssertEqual(Word(0x930000 | (pointer + 6)), slot.AnimationFrame, "Actual trail phase unchanged");
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
                 interpreted++;
@@ -3180,8 +3180,8 @@ internal static partial class Program
                 AssertTrue(!(bool)runBomb.Invoke(bombs, [bomb])!, "Actual bomb timed frame survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), bomb.XRadius, "Actual bomb X radius");
-                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), bomb.YRadius, "Actual bomb Y radius");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
+                AssertEqual((ushort)rom.ReadByte(0x930000 | (pointer + 5)), bomb.Radius.Y, "Actual bomb Y radius");
                 AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Actual bomb record progression");
                 bombInterpreted++;
             }
@@ -3295,10 +3295,10 @@ internal static partial class Program
                     deletions++; finished = true; break;
                 }
                 AssertEqual((timer, pointer, sprite, x, y, trail),
-                    (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.XRadius, slot.YRadius, slot.AnimationFrame),
+                    (slot.InstructionTimer, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame),
                     "Every scheduled projectile exposure/physical envelope/trail phase matches native");
                 AssertEqual((timer, pointer, sprite, x, y),
-                    (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.XRadius, bomb.YRadius),
+                    (bomb.InstructionTimer, bomb.InstructionPointer, bomb.SpritemapPointer, bomb.Radius.X, bomb.Radius.Y),
                     "Every scheduled bomb exposure/physical envelope matches native");
                 slot.AnimationFrame = 0xbeef;
                 AssertEqual(trail, (ushort)readTrail.Invoke(null, [slot])!, "Actual trail consumer reads prior record, not next phase or cached frame");
@@ -3393,7 +3393,7 @@ internal static partial class Program
             int count = pose == SamusPoseId.NormalLandingRightPose ? 2 : pose == SamusPoseId.SpinLandingRightPose ? 3 : pose is SamusPoseId.StandingAimUpRightPose or SamusPoseId.NormalJumpAimUpRightPose or SamusPoseId.NormalJumpAimUpLeftPose or SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimUpLeftPose or SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose ? 2 : 1;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128, SelectedHudItem = 1 };
+                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1 };
                 samus.TileTransfers.BindArtwork(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(rom, samus); cannon.Update(rom, samus);
@@ -3404,7 +3404,7 @@ internal static partial class Program
                 int graphics = unchecked((sbyte)rom.ReadByte(0x91b629 + (int)pose * 8 + 4));
                 var cannonOam = new OamBuffer();
                 var cannonWrites = new VramWriteQueue();
-                cannon.Draw(rom, cannonOam, cannonWrites, samus, 0, 0, 0);
+                cannon.Draw(rom, cannonOam, cannonWrites, samus, Position16<RoomPixels>.Zero, 0);
                 AssertTrue(cannonOam.NextByteOffset == 4 && cannonWrites.Entries.Count == 1, "Actual cover draw and DMA publication");
                 OamEntry cannonEntry = cannonOam.GetEntry(0);
                 AssertEqual(128 + x, cannonEntry.X, "Actual native cover X");

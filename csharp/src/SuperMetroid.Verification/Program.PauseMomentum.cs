@@ -21,8 +21,8 @@ internal static partial class Program
             };
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.
-            speed.CaptureSpeedEchoPosition(0, 80, 200);
-            speed.CaptureSpeedEchoPosition(4, 90, 200);
+            speed.CaptureSpeedEchoPosition(0, new(80, 200));
+            speed.CaptureSpeedEchoPosition(4, new(90, 200));
             speed.CancelRunningMomentum(SamusFacingDirection.Right);
             speed.HasRunningMomentum = momentum;
             speed.SpeedBoostCounter = counter;
@@ -39,8 +39,8 @@ internal static partial class Program
                 AssertEqual(0, speed.SpecialPaletteFrame, "unpause clears boost palette frame");
                 AssertEqual(0, speed.SpecialPaletteTimer, "unpause clears boost palette timer");
                 AssertEqual(0, speed.SpeedEchoIndex, "unpause resets echo index without departure mode");
-                AssertEqual(0, speed.FirstSpeedEchoXPosition | speed.SecondSpeedEchoXPosition |
-                    speed.FirstSpeedEchoYPosition | speed.SecondSpeedEchoYPosition |
+                AssertEqual(0, speed.FirstSpeedEchoPosition.X | speed.SecondSpeedEchoPosition.X |
+                    speed.FirstSpeedEchoPosition.Y | speed.SecondSpeedEchoPosition.Y |
                     speed.FirstSpeedEchoXSpeed | speed.SecondSpeedEchoXSpeed, "unpause clears both echo positions and velocities");
             }
             else if (momentum && counter == 0)

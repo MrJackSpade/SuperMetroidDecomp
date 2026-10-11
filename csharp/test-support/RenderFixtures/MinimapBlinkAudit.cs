@@ -25,15 +25,14 @@ internal static class MinimapBlinkAudit
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
-        runtime.Samus!.XPosition = 128;
-        runtime.Samus.YPosition = 128;
+        runtime.Samus!.Position = runtime.Samus!.Position.WithWholeX(128);
+        runtime.Samus.Position = runtime.Samus.Position.WithWholeY(128);
         runtime.RunNmi(0, true);
         var images = new Dictionary<bool, string>();
         for (int tick = 0; tick < 40; tick++)
         {
             // Keep this a HUD fixture, not a boss fight or a moving map-cell test.
-            runtime.Samus.XPosition = 128;
-            runtime.Samus.YPosition = 128;
+            runtime.Samus.Position = runtime.Samus.Position.WithWhole(new(128, 128));
             runtime.StepFrame(0, allowCeresElevatorDeparture: false);
             var pixels = render(runtime);
             string cell = string.Join(',', Enumerable.Range(0, 64).Select(i => pixels[(16 + i / 8) * 256 + 224 + i % 8].ToString()));

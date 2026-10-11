@@ -187,8 +187,7 @@ internal static partial class Program
                 .Invoke(enemies, [slot]);
             var samus = new SamusState
             {
-                XPosition = 0x0080,
-                YPosition = 0x0100,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
             return (enemies, slot, enemies.WallSpacePirateStates[0]!, samus);
         }

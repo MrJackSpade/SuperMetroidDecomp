@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class SamusProjectileInheritance
 {
-    internal static (short X, short Y) ReadVelocity(ISnesMutableMemory memory, ushort directionWord, short baseSpeed)
+    internal static EightEightVector<RoomPixels> ReadVelocity(ISnesMutableMemory memory, ushort directionWord, short baseSpeed)
     {
         var word = new SamusProjectileDirectionWord(directionWord);
         if (word.DirectionIndex > 9)
@@ -37,7 +37,7 @@ internal static class SamusProjectileInheritance
             SamusProjectileDirection.Right or SamusProjectileDirection.Left => 0,
             _ => throw new InvalidOperationException($"Undefined projectile direction {direction}."),
         }));
-        return (x, y);
+        return new(x, y);
     }
 
     /// <summary>Native alpha tail clears directional pairs, but not camera Y subspeed.</summary>

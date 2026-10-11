@@ -25,13 +25,11 @@ internal static partial class Program
         int Explosions() => runtime.Enemies.EnemyProjectiles.Count(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
         SamusState samus = runtime.Samus!;
-        samus.XPosition = 0x00e8;
-        samus.YPosition = 0x088b;
+        samus.Position = samus.Position.WithWhole(new(0x00e8, 0x088b));
         runtime.StepFrame(0);
         AssertEqual(0, Explosions(), "Samus left of X $F0 leaves the wall asleep");
 
-        samus.XPosition = 0x00f1;
-        samus.YPosition = 0x088b;
+        samus.Position = samus.Position.WithWhole(new(0x00f1, 0x088b));
         runtime.StepFrame(0);
         AssertEqual(1, Explosions(), "Samus below and right of ($F0,$820) blows the wall");
         RoomEnemyProjectileSlot explosion = runtime.Enemies.EnemyProjectiles.First(projectile =>

@@ -60,8 +60,7 @@ internal static partial class Program
         Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
 
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 128;
-        samus.YPosition = 128;
+        samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.SelectedHudItem = 0;
         samus.Missiles = 20;
         samus.MaxMissiles = 50;
@@ -110,8 +109,7 @@ internal static partial class Program
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             shared);
         AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
@@ -130,8 +128,7 @@ internal static partial class Program
             samus,
             0,
             0,
-            0,
-            0,
+            new(0, 0),
             shared);
         AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");

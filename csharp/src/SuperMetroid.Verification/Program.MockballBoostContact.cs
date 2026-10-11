@@ -13,7 +13,7 @@ internal static partial class Program
         {
             var samus = new SamusState
             {
-                Pose = pose, XPosition = 64, YPosition = 57,
+                Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 57)),
                 EquippedItems = (ushort)(SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
             };
             var fixture = CreateEnemyDropFixture(samus, [1]);
@@ -38,8 +38,8 @@ internal static partial class Program
             {
                 speed.ContactDamageIndex = SamusContactDamageIndex.None; // Runtime beta clears before movement.
                 SamusMorphBallMovement.StepGrounded(fixture.Bus, floor, samus, (ushort)frame);
-                enemy.XPosition = samus.XPosition;
-                enemy.YPosition = samus.YPosition;
+                enemy.XPosition = samus.Position.X.Whole;
+                enemy.YPosition = samus.Position.Y.Whole;
                 enemy.Health = 1000;
                 samus.InvincibilityTimer = 1; // Non-attacking control cannot hurt Samus.
                 typeof(RoomEnemySystem).GetMethod("DetermineWhichEnemiesToProcess",

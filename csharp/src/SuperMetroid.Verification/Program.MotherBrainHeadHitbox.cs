@@ -38,7 +38,7 @@ internal static partial class Program
         runtime.Enemies.PrepareEnemyProcessingList(0x0000, 0x0000);
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x901b; shot.Damage = 900; shot.Direction = 8;
-        shot.XPosition = 0x009e; shot.YPosition = 0x0081; shot.XRadius = shot.YRadius = 24;
+        shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
         shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
         AssertEqual((ushort)17100, head.Health, "the charged beam lands on the head's native hitbox");

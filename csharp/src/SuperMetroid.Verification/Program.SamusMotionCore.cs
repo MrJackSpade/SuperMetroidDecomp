@@ -365,13 +365,13 @@ static void VerifySamusHorizontalSpeed()
     // `$90:EEE7` samples post-movement positions only on game-time multiples of four and
     // alternates native word offsets zero/two. These become the two trailing bodies drawn
     // by `$90:87BD`; capture itself deliberately contains no interpolation.
-    AssertTrue(!booster.CaptureSpeedEchoPosition(3, 100, 80), "speed echo skips non-fourth frame");
-    AssertTrue(booster.CaptureSpeedEchoPosition(4, 101, 81), "speed echo captures slot zero");
+    AssertTrue(!booster.CaptureSpeedEchoPosition(3, new(100, 80)), "speed echo skips non-fourth frame");
+    AssertTrue(booster.CaptureSpeedEchoPosition(4, new(101, 81)), "speed echo captures slot zero");
     AssertEqual(2, booster.SpeedEchoIndex, "speed echo advances to slot one");
-    AssertTrue(booster.CaptureSpeedEchoPosition(8, 105, 82), "speed echo captures slot one");
+    AssertTrue(booster.CaptureSpeedEchoPosition(8, new(105, 82)), "speed echo captures slot one");
     AssertEqual(0, booster.SpeedEchoIndex, "speed echo alternation wraps after slot one");
-    AssertEqual(101, booster.FirstSpeedEchoXPosition, "first speed echo X snapshot");
-    AssertEqual(105, booster.SecondSpeedEchoXPosition, "second speed echo X snapshot");
+    AssertEqual(101, booster.FirstSpeedEchoPosition.X, "first speed echo X snapshot");
+    AssertEqual(105, booster.SecondSpeedEchoPosition.X, "second speed echo X snapshot");
 
     booster.CancelRunningMomentum(SamusFacingDirection.Right);
     AssertTrue(booster.NormalSuitPaletteRestoreRequested,
@@ -386,17 +386,17 @@ static void VerifySamusHorizontalSpeed()
     // `$90:87D3-$90:884B` advances slot one, then slot zero as an actual draw side effect.
     // Both stored bodies trail a rightward-running Samus, so +8 approaches X=120 while Y
     // independently approaches 90 by two. Crossing clears a slot before it can emit OAM.
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(1, 120, 90),
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(1, new(120, 90)),
         "right departure slot one remains before crossing");
-    AssertEqual(113, booster.SecondSpeedEchoXPosition,
+    AssertEqual(113, booster.SecondSpeedEchoPosition.X,
         "right departure slot one advances positive eight");
-    AssertEqual(84, booster.SecondSpeedEchoYPosition,
+    AssertEqual(84, booster.SecondSpeedEchoPosition.Y,
         "right departure slot one approaches Samus Y by two");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
         "right departure slot zero remains before crossing");
-    AssertEqual(109, booster.FirstSpeedEchoXPosition,
+    AssertEqual(109, booster.FirstSpeedEchoPosition.X,
         "right departure slot zero advances positive eight");
-    AssertEqual(83, booster.FirstSpeedEchoYPosition,
+    AssertEqual(83, booster.FirstSpeedEchoPosition.Y,
         "right departure slot zero approaches Samus Y by two");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(0xffff, booster.SpeedEchoIndex,
@@ -407,16 +407,16 @@ static void VerifySamusHorizontalSpeed()
     booster.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(8, booster.FirstSpeedEchoXSpeed,
         "repeated cancellation cannot reverse an active departure");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, 120, 90),
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(1, new(120, 90)),
         "right departure slot one clears on crossing");
-    AssertEqual(0, booster.SecondSpeedEchoXPosition,
+    AssertEqual(0, booster.SecondSpeedEchoPosition.X,
         "crossed slot one publishes empty sentinel");
-    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+    AssertTrue(booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
         "right departure slot zero remains one more frame");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(0xffff, booster.SpeedEchoIndex,
         "one surviving departure keeps high-bit index");
-    AssertTrue(!booster.AdvanceDepartingSpeedEcho(0, 120, 90),
+    AssertTrue(!booster.AdvanceDepartingSpeedEcho(0, new(120, 90)),
         "right departure slot zero eventually crosses");
     booster.FinishDepartingSpeedEchoFrame();
     AssertEqual(0, booster.SpeedEchoIndex,
@@ -428,28 +428,26 @@ static void VerifySamusHorizontalSpeed()
     var leftDeparture = new SamusHorizontalSpeedState();
     leftDeparture.SetShinesparkCrashEchoState(
         encodedIndex: 0,
-        firstX: 150,
-        secondX: 154,
-        firstY: 90,
-        secondY: 94);
+        first: new(150, 90),
+        second: new(154, 94));
     leftDeparture.CancelRunningMomentum(SamusFacingDirection.Left);
     AssertEqual(unchecked((ushort)-8), leftDeparture.FirstSpeedEchoXSpeed,
         "left-facing first departure speed is negative eight");
     AssertEqual(unchecked((ushort)-8), leftDeparture.SecondSpeedEchoXSpeed,
         "left-facing second departure speed is negative eight");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(1, new(140, 100)),
         "left departure slot one remains before crossing");
-    AssertEqual(146, leftDeparture.SecondSpeedEchoXPosition,
+    AssertEqual(146, leftDeparture.SecondSpeedEchoPosition.X,
         "left departure slot one advances negative eight");
-    AssertEqual(96, leftDeparture.SecondSpeedEchoYPosition,
+    AssertEqual(96, leftDeparture.SecondSpeedEchoPosition.Y,
         "left departure slot one approaches Samus Y by two");
-    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
+    AssertTrue(leftDeparture.AdvanceDepartingSpeedEcho(0, new(140, 100)),
         "left departure slot zero remains before crossing");
-    AssertEqual(142, leftDeparture.FirstSpeedEchoXPosition,
+    AssertEqual(142, leftDeparture.FirstSpeedEchoPosition.X,
         "left departure slot zero advances negative eight");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(1, 140, 100),
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(1, new(140, 100)),
         "left departure slot one clears after passing Samus");
-    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(0, 140, 100),
+    AssertTrue(!leftDeparture.AdvanceDepartingSpeedEcho(0, new(140, 100)),
         "left departure slot zero clears after passing Samus");
     leftDeparture.FinishDepartingSpeedEchoFrame();
     AssertEqual(0, leftDeparture.SpeedEchoIndex,
@@ -529,15 +527,10 @@ static void VerifySamusExtraDisplacement()
     var standing = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    standing.Kinematics.XRadius = 5;
-    standing.Kinematics.YRadius = 21;
-    standing.Kinematics.ExtraXDisplacement = 1;
-    standing.Kinematics.ExtraXSubdisplacement = 0x8000;
-    standing.Kinematics.ExtraYDisplacement = 2;
-    standing.Kinematics.ExtraYSubdisplacement = 0x4000;
+    standing.Kinematics.Radius = new(5, 21);
+    standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStandingRight(
         bus,
         level,
@@ -548,21 +541,18 @@ static void VerifySamusExtraDisplacement()
         "standing external +X bypasses zero base speed");
     AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement,
         "positive no-speed external Y gains one whole pixel");
-    AssertEqual(1, standing.Kinematics.ExtraXDisplacement,
+    AssertEqual(1, standing.Kinematics.ExtraDisplacement.X.WholePixels,
         "movement does not consume persistent external X producer word");
-    AssertEqual(2, standing.Kinematics.ExtraYDisplacement,
+    AssertEqual(2, standing.Kinematics.ExtraDisplacement.Y.WholePixels,
         "movement does not consume persistent external Y producer word");
 
     var negative = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    negative.Kinematics.XRadius = 5;
-    negative.Kinematics.YRadius = 21;
-    negative.Kinematics.ExtraYDisplacement = 0xfffe;
-    negative.Kinematics.ExtraYSubdisplacement = 0x8000;
+    negative.Kinematics.Radius = new(5, 21);
+    negative.Kinematics.ExtraDisplacement = negative.Kinematics.ExtraDisplacement.WithWholeY(-2).WithFractionY(0x8000);
     GroundedMovementResult upward = SamusGroundedMovement.StepStandingRight(
         bus,
         level,
@@ -575,49 +565,41 @@ static void VerifySamusExtraDisplacement()
     var transition = new SamusState
     {
         Pose = SamusPoseId.NeutralJumpTransitionRightPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    transition.Kinematics.XRadius = 5;
-    transition.Kinematics.YRadius = 19;
-    transition.Kinematics.ExtraXDisplacement = 0xffff;
-    transition.Kinematics.ExtraXSubdisplacement = 0x8000; // -0.8000
-    transition.Kinematics.ExtraYDisplacement = 0;
-    transition.Kinematics.ExtraYSubdisplacement = 0x4000; // +0.4000
-    uint transitionXBefore = transition.Kinematics.XFixed;
-    uint transitionYBefore = transition.Kinematics.YFixed;
+    transition.Kinematics.Radius = new(5, 19);
+    transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
+    uint transitionXBefore = transition.Kinematics.Position.X.RawValue;
+    uint transitionYBefore = transition.Kinematics.Position.Y.RawValue;
     AerialMovementResult transitionResult = SamusAerialMovement.StepNormalJump(
         bus,
         level,
         transition,
         (ushort)SnesButton.A,
         nmiFrameCounter: 0);
-    AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.XFixed - transitionXBefore)),
+    AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.Position.X.RawValue - transitionXBefore)),
         "jump transition applies signed external X with zero base speed");
-    AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.YFixed - transitionYBefore)),
+    AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.Position.Y.RawValue - transitionYBefore)),
         "jump transition applies extra-only Y with positive bias");
 
     var rising = new SamusState
     {
         Pose = SamusPoseId.NeutralJumpRightPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    rising.Kinematics.XRadius = 5;
-    rising.Kinematics.YRadius = 19;
+    rising.Kinematics.Radius = new(5, 19);
     rising.Kinematics.YDirection = SamusVerticalDirection.Up;
     rising.Kinematics.YSpeed = 1;
     rising.Kinematics.YSubspeed = 0;
-    rising.Kinematics.ExtraYDisplacement = 1;
-    rising.Kinematics.ExtraYSubdisplacement = 0x8000;
-    uint risingYBefore = rising.Kinematics.YFixed;
+    rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
+    uint risingYBefore = rising.Kinematics.Position.Y.RawValue;
     AerialMovementResult reversed = SamusAerialMovement.StepNormalJump(
         bus,
         level,
         rising,
         (ushort)SnesButton.A,
         nmiFrameCounter: 0);
-    AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.YFixed - risingYBefore)),
+    AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.Position.Y.RawValue - risingYBefore)),
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");
@@ -625,18 +607,15 @@ static void VerifySamusExtraDisplacement()
     var bouncingBall = new SamusState
     {
         Pose = SamusPoseId.MorphBallFallingRightPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
         MorphBallBounceState = SamusBallBounceState.FirstRebound,
         KnockbackDirection = 0,
     };
-    bouncingBall.Kinematics.XRadius = 5;
-    bouncingBall.Kinematics.YRadius = 7;
+    bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.YDirection = SamusVerticalDirection.Up;
     bouncingBall.Kinematics.YSpeed = 3;
     bouncingBall.Kinematics.YSubspeed = 0x4000;
-    bouncingBall.Kinematics.ExtraYDisplacement = 0xffff;
-    bouncingBall.Kinematics.ExtraYSubdisplacement = 0x8000; // -0.8000
+    bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
     MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
         bus,
         level,

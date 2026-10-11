@@ -173,8 +173,8 @@ public sealed partial class RoomPlmSystem
                 byte maxY = ReadProgramByte(bus, unchecked((ushort)(slot.InstructionPointer + 3)));
                 ushort destination = ReadProgramWord(
                     bus, unchecked((ushort)(slot.InstructionPointer + 4)));
-                int deltaX = Math.Abs((samus.XPosition >> 4) - plmX);
-                int deltaY = Math.Abs((samus.YPosition >> 4) - plmY);
+                int deltaX = Math.Abs((samus.Position.X.Whole >> 4) - plmX);
+                int deltaY = Math.Abs((samus.Position.Y.Whole >> 4) - plmY);
                 slot.InstructionPointer = deltaX <= maxX && deltaY <= maxY
                     ? destination
                     : unchecked((ushort)(slot.InstructionPointer + 6));

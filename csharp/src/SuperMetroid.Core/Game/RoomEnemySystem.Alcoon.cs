@@ -294,10 +294,10 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Alcoon proximity AI requires the active Samus actor.");
 
-        if (WrappedMagnitude(unchecked((ushort)(state.LandingYPosition - samus.YPosition))) >= 0x20)
+        if (WrappedMagnitude(unchecked((ushort)(state.LandingYPosition - samus.Position.Y.Whole))) >= 0x20)
             return;
 
-        ushort signedXDistance = unchecked((ushort)(samus.XPosition - slot.XPosition));
+        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
         if (WrappedMagnitude(signedXDistance) >= AlcoonEmergeXDistance)
             return;
 
@@ -349,7 +349,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        ushort signedXDistance = unchecked((ushort)(samus.XPosition - slot.XPosition));
+        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
         if (unchecked((short)signedXDistance) < 0)
         {
             state.XVelocity = unchecked((ushort)-2);
@@ -397,7 +397,7 @@ public sealed partial class RoomEnemySystem
         if (state.StepCounter != 0)
             return;
 
-        bool samusIsLeft = unchecked((short)(samus.XPosition - slot.XPosition)) < 0;
+        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
         bool movingLeft = unchecked((short)state.XVelocity) < 0;
         if (samusIsLeft != movingLeft)
             return;

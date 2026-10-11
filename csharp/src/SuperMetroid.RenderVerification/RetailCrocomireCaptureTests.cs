@@ -15,7 +15,7 @@ internal static class RetailCrocomireCaptureTests
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
         var samus = runtime.Samus!;
-        samus.XPosition = CrocomireCaptureFixture.InitialSamusX; samus.YPosition = 120;
+        samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         var boss = runtime.Enemies.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
@@ -42,7 +42,7 @@ internal static class RetailCrocomireCaptureTests
         for (int tick = 0; tick < 20000; tick++)
         {
             if (boss.DeathSequenceIndex == CrocomireDeathPhase.WaitForSamusAtWall)
-                samus.XPosition = CrocomireCaptureFixture.ReturnSamusX;
+                samus.Position = samus.Position.WithWholeX(CrocomireCaptureFixture.ReturnSamusX);
             runtime.StepFrame(0);
             bool shouldMelt = boss.DeathSequenceIndex is CrocomireDeathPhase.DissolveFirstImage or CrocomireDeathPhase.DissolveSecondImage;
             if (death.MeltingHdmaActive != shouldMelt)

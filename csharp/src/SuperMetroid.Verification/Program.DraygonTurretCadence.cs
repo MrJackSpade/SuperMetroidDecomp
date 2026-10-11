@@ -63,7 +63,7 @@ internal static partial class Program
         RoomEnemyProjectileSlot bombed = runtime.Enemies.EnemyProjectiles.Last(p =>
             p.Kind == RoomEnemyProjectileKind.DraygonGoop);
         SamusPowerBombExplosionState explosion = runtime.BombProjectiles.PowerBombExplosion;
-        explosion.Spawn(bombed.XPosition, bombed.YPosition);
+        explosion.Spawn(new(bombed.XPosition, bombed.YPosition));
         typeof(SamusPowerBombExplosionState).GetProperty(nameof(SamusPowerBombExplosionState.ExplosionRadius))!
             .SetValue(explosion, (ushort)0x2000);
         typeof(RoomEnemySystem).GetField("_audioPowerBomb", flags)!.SetValue(runtime.Enemies, explosion);

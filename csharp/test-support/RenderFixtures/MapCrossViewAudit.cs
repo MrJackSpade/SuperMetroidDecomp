@@ -70,8 +70,7 @@ internal static class MapCrossViewAudit
         // makes the expected map cell independent of door-entry pose or camera history.
         var samus = new SamusState
         {
-            XPosition = 0x0080,
-            YPosition = 0x0080,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)),
         };
         var system = new Bank80SystemState();
         if (hasAreaMap)
@@ -87,8 +86,8 @@ internal static class MapCrossViewAudit
             checked((byte)room.MapPosition.Y),
             room.Size.ToRoomBlocks().X,
             room.Size.ToRoomBlocks().Y,
-            samus.XPosition,
-            samus.YPosition,
+            samus.Position.X.Whole,
+            samus.Position.Y.Whole,
             nmiFrameCounter: 8);
 
         var pause = new PauseMenuState(

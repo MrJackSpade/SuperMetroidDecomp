@@ -16,17 +16,17 @@ public static partial class SamusBlockCollision
         int up = GrappleVerticalOverlap(bus, level, state, down: true);
         int down = GrappleVerticalOverlap(bus, level, state, down: false);
         if (up == 0 || down != 0) return;
-        state.YPosition = unchecked((ushort)(state.YPosition - up));
+        state.Position -= new Offset16<RoomPixels>(0, unchecked((short)up));
         // Tall bodies may overlap two rows. Retail repeats once, not until clear.
-        if (state.YRadius >= 16)
-            state.YPosition = unchecked((ushort)(state.YPosition - GrappleVerticalOverlap(bus, level, state, down: true)));
+        if (state.Radius.Y >= 16)
+            state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(bus, level, state, down: true))));
     }
 
     private static int GrappleVerticalOverlap(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state, bool down)
     {
-        int boundary = unchecked((ushort)(state.YPosition + (down ? state.YRadius - 1 : -state.YRadius)));
-        int left = unchecked((ushort)(state.XPosition - state.XRadius));
-        int right = unchecked((ushort)(state.XPosition + state.XRadius - 1));
+        int boundary = unchecked((ushort)(state.Position.Y.Whole + (down ? state.Radius.Y - 1 : -state.Radius.Y)));
+        int left = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
+        int right = unchecked((ushort)(state.Position.X.Whole + state.Radius.X - 1));
         int firstColumn = left >> 4;
         int lastColumn = right >> 4;
         int maximum = 0;
@@ -42,12 +42,12 @@ public static partial class SamusBlockCollision
                 continue;
             else if (block.Bts.IsNonSquareSlope)
             {
-                if (column != state.XPosition >> 4) continue;
+                if (column != state.Position.X.Whole >> 4) continue;
                 if (block.Bts.SlopeFlipsVertically == down)
                     depth = boundary & 15;
                 else
                 {
-                    int difference = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.XPosition) - (boundary & 15) - 1;
+                    int difference = SamusSlopePhysics.ReadAlignmentHeight(bus, block.Bts, state.Position.X.Whole) - (boundary & 15) - 1;
                     depth = down ? (difference <= 0 ? ~difference : -1) : (difference >= 0 ? difference : -1);
                 }
             }

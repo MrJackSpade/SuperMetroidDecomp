@@ -37,7 +37,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         typeof(RoomEnemySystem).GetField("_samusPreviousPositionCheckpoint", flags)!.SetValue(enemies, checkpoint);
-        var samus = new SamusState { XPosition = checkpoint.X.Whole, YPosition = checkpoint.Y.Whole };
+        var samus = new SamusState { Position = new(new(checkpoint.X.Whole, 0), new(checkpoint.Y.Whole, 0))};
         samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: true);
         var state = new DraygonEnemyState(enemies.Slots[0]);
         state.Body.XPosition = bodyX;

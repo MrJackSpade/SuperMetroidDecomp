@@ -377,7 +377,7 @@ public sealed partial class RoomEnemySystem
         // 16.16 by the number of path entries. Split the quotient into the same var_D/E
         // whole/subpixel words consumed by AddToHiLo during descent.
         ushort distance = WrappedMagnitude(unchecked((ushort)(
-            state.LeftSideResetXPosition - samus.XPosition)));
+            state.LeftSideResetXPosition - samus.Position.X.Whole)));
         uint velocity = ((uint)distance << 16) / (uint)frameCount;
         state.Body.VariableD = unchecked((ushort)(velocity >> 16));
         state.Body.VariableE = unchecked((ushort)velocity);
@@ -470,7 +470,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException("Draygon lost the generated swoop duration.");
 
         ushort distance = WrappedMagnitude(unchecked((ushort)(
-            state.RightSideResetXPosition - samus.XPosition)));
+            state.RightSideResetXPosition - samus.Position.X.Whole)));
         uint velocity = ((uint)distance << 16) / (uint)frameCount;
         state.Body.VariableD = unchecked((ushort)(velocity >> 16));
         state.Body.VariableE = unchecked((ushort)velocity);
@@ -628,7 +628,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Draygon cannot position a goop pass without Samus.");
 
-        if (WrappedMagnitude(unchecked((ushort)(state.Body.XPosition - samus.XPosition))) < 0x00d0)
+        if (WrappedMagnitude(unchecked((ushort)(state.Body.XPosition - samus.Position.X.Whole))) < 0x00d0)
         {
             state.Function = movingRight
                 ? DraygonAiFunction.GoopRightTail
@@ -790,9 +790,9 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             return;
 
-        short deltaX = unchecked((short)(samus.XPosition - unchecked((ushort)(
+        short deltaX = unchecked((short)(samus.Position.X.Whole - unchecked((ushort)(
             eye.XPosition + (facingRight ? 0x0018 : -0x0018)))));
-        short deltaY = unchecked((short)(samus.YPosition - unchecked((ushort)(eye.YPosition - 0x0020))));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.YPosition - 0x0020))));
         byte angle = CalculateCartridgeAngle(deltaX, deltaY);
         if (angle == (byte)eye.VariableF)
             return;

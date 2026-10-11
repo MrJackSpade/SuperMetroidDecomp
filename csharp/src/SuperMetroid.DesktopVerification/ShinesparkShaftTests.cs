@@ -48,8 +48,8 @@ internal static partial class Program
         int stageTicks = 0;
         for (int frame = 0; frame < 600; frame++)
         {
-            if (stage == 0 && samus.XPosition < 710) { stage = 1; stageTicks = 0; }
-            if (stage == 1 && samus.XPosition > 1478) { stage = 2; stageTicks = 0; }
+            if (stage == 0 && samus.Position.X.Whole < 710) { stage = 1; stageTicks = 0; }
+            if (stage == 1 && samus.Position.X.Whole > 1478) { stage = 2; stageTicks = 0; }
             if (stage == 2 && stageTicks == 1) { stage = 3; stageTicks = 0; }
             if (stage == 3 && stageTicks == 10) { stage = 4; stageTicks = 0; }
             ushort input = stage switch
@@ -90,17 +90,17 @@ internal static partial class Program
                     // The normal room ceiling is at pixel 48; the vertical-spark pose's
                     // center is 19 pixels below it. This checks the entire shaft height,
                     // not simply that Samus moved upward or that the frame did not crash.
-                    Check(!endedByLowEnergy && samus.YPosition == 67,
-                        $"Invincible/recharged spark failed to clear the shaft: Y={samus.YPosition}, {movement}.");
+                    Check(!endedByLowEnergy && samus.Position.Y.Whole == 67,
+                        $"Invincible/recharged spark failed to clear the shaft: Y={samus.Position.Y.Whole}, {movement}.");
                     if (!replenishHealth)
                         Check(samus.Health == 1, "Invincible spark must drain to one without restoring health or underflowing.");
-                    Console.WriteLine($"PASS shaft cleared: invincibility={invincibility}, recharged={replenishHealth}, launchHealth={launchHealth}; Y={samus.YPosition}; energy={samus.Health}.");
+                    Console.WriteLine($"PASS shaft cleared: invincibility={invincibility}, recharged={replenishHealth}, launchHealth={launchHealth}; Y={samus.Position.Y.Whole}; energy={samus.Health}.");
                 }
                 else
                 {
-                    Check(endedByLowEnergy && samus.YPosition == 619,
+                    Check(endedByLowEnergy && samus.Position.Y.Whole == 619,
                         $"Saved-energy spark did not reproduce the native low-energy stop: {movement}.");
-                    Console.WriteLine($"PASS exact saved-energy replay: stops at Y={samus.YPosition}, energy=1, without collision.");
+                    Console.WriteLine($"PASS exact saved-energy replay: stops at Y={samus.Position.Y.Whole}, energy=1, without collision.");
                 }
                 return;
             }

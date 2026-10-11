@@ -6,7 +6,7 @@ internal static partial class Program
     {
         foreach (SamusPoseId source in new[] { SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
-            var samus = new SamusState { Pose = source, YPosition = 100 };
+            var samus = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             samus.RefreshCollisionRadii(bus);
             var history = samus.PoseHistory;
             history.PreviousPose = source;

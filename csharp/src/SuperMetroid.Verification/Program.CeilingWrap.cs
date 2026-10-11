@@ -22,8 +22,7 @@ internal static partial class Program
             var words = Enumerable.Repeat((ushort)0x0040, 128 * 32).ToArray();
             var level = CreateRoom(128, 32, words, new byte[words.Length]);
             var plms = new RoomPlmSystem();
-            var shot = new SamusProjectileSlot(0) { XPosition = (ushort)(tileX * 16),
-                YPosition = 4, XRadius = 1, YRadius = 8, Type = 1,
+            var shot = new SamusProjectileSlot(0) { Position = new(new((ushort)(tileX * 16), 0), new(4, 0)), Radius = new(1, 8), Type = 1,
                 Direction = (ushort)SamusProjectileDirection.Right };
             for (int call = 0; call < 45; call++)
             {

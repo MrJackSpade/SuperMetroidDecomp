@@ -105,8 +105,7 @@ internal static partial class Program
         BoyonEnemyState bouncingState = bouncingSystem.BoyonStates[0]!;
         var samus = new SamusState
         {
-            XPosition = bouncing.XPosition,
-            YPosition = bouncing.YPosition,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(bouncing.XPosition, bouncing.YPosition)),
         };
         var runMain = typeof(RoomEnemySystem).GetMethod("RunBoyonMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot, BoyonEnemyState, SamusState?>>();

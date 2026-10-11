@@ -17,8 +17,7 @@ public sealed partial class SamusState
     public void RefreshCollisionRadii(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        Kinematics.XRadius = 5;
-        Kinematics.YRadius = ReadPoseYRadius(Pose);
+        Kinematics.Radius = new(5, ReadPoseYRadius(Pose));
     }
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
@@ -239,10 +238,10 @@ public sealed partial class SamusState
 
         // `$91:E438-$91:E44A` compares the live radius, still the previous pose's, and
         // lifts both Y words by three unless it is already the front view's 24.
-        if (Kinematics.YRadius != 0x18)
+        if (Kinematics.Radius.Y != 0x18)
         {
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 3));
-            WritePreviousYPosition(Kinematics.YPosition);
+            Kinematics.Position -= new Offset16<RoomPixels>(0, 3);
+            WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
 
         HorizontalSpeed.ExtraRunSpeed = 0;
@@ -341,13 +340,13 @@ public sealed partial class SamusState
                 $"Draygon-grabbed input transition ${(int)Pose:X2} -> ${(int)targetPose:X2} crosses owner-controlled facing families.");
         }
 
-        ushort oldRadius = Kinematics.YRadius;
+        ushort oldRadius = Kinematics.Radius.Y;
         Pose = targetPose;
         RefreshCollisionRadii(bus);
-        if (Kinematics.YRadius != oldRadius)
+        if (Kinematics.Radius.Y != oldRadius)
         {
             throw new InvalidDataException(
-                $"Draygon pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {Kinematics.YRadius}.");
+                $"Draygon pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {Kinematics.Radius.Y}.");
         }
 
         InitializeAnimation(bus, initialFrame: 0);
@@ -762,8 +761,8 @@ public sealed partial class SamusState
 
                 Pose = targetPose;
                 RefreshCollisionRadii(bus);
-                Kinematics.YPosition = unchecked((ushort)(
-                    Kinematics.YPosition + centerAdjustment));
+                Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
+                    Kinematics.Position.Y.Whole + centerAdjustment)));
 
                 // The special target installs through $91:F433, which dispatches the new
                 // normal-jumping type to $91:F543 ($51/$52 cannot start a spark there). $F433

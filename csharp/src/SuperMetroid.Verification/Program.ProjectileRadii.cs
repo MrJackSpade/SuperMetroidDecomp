@@ -134,8 +134,8 @@ internal static partial class Program
                 AssertEqual(false, projectiles.RunProjectileInstructionHandler(slot), "Timed projectile record survives");
                 AssertEqual(duration, slot.InstructionTimer, "Frame duration unchanged");
                 AssertEqual(expectedSprite, slot.SpritemapPointer, "Artwork reference changes independently");
-                AssertEqual((ushort)rom.ReadByte(address), slot.XRadius, "Published collision X independent of artwork");
-                AssertEqual((ushort)rom.ReadByte(address + 1), slot.YRadius, "Published collision Y independent of artwork");
+                AssertEqual((ushort)rom.ReadByte(address), slot.Radius.X, "Published collision X independent of artwork");
+                AssertEqual((ushort)rom.ReadByte(address + 1), slot.Radius.Y, "Published collision Y independent of artwork");
                 AssertEqual(Word(address + 2), slot.AnimationFrame, "Trail frame unchanged");
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Instruction progression unchanged");
 
@@ -146,8 +146,8 @@ internal static partial class Program
                 AssertEqual(false, (bool)runBomb.Invoke(bombs, new object[] { bomb })!, "Bomb timed record survives");
                 AssertEqual(duration, bomb.InstructionTimer, "Bomb duration unchanged");
                 AssertEqual(expectedSprite, bomb.SpritemapPointer, "Bomb artwork reference changes independently");
-                AssertEqual((ushort)rom.ReadByte(address), bomb.XRadius, "Bomb physical X independent of artwork");
-                AssertEqual((ushort)rom.ReadByte(address + 1), bomb.YRadius, "Bomb physical Y independent of artwork");
+                AssertEqual((ushort)rom.ReadByte(address), bomb.Radius.X, "Bomb physical X independent of artwork");
+                AssertEqual((ushort)rom.ReadByte(address + 1), bomb.Radius.Y, "Bomb physical Y independent of artwork");
                 AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Bomb stream progression unchanged");
                 bombFrames++;
             }

@@ -45,8 +45,7 @@ internal static partial class Program
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |
             SamusEquipmentFlags.SpaceJump);
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = (ushort)(doorX * 16 + 8);
-        samus.YPosition = (ushort)(doorY * 16 + 8);
+        samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         runtime.RunNmi(0, true);
@@ -72,7 +71,7 @@ internal static partial class Program
             runtime.StepFrame(input);
             var heads = runtime.Enemies.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
-            trace.WriteLine($"{frame},{samus.XPosition},{samus.YPosition},{runtime.Camera!.PixelPosition.X},{runtime.Camera.PixelPosition.Y},{heads[0].XPosition},{heads[0].YPosition},{states[0]!.CurrentAngle},{heads[1].XPosition},{heads[1].YPosition},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
+            trace.WriteLine($"{frame},{samus.Position.X.Whole},{samus.Position.Y.Whole},{runtime.Camera!.PixelPosition.X},{runtime.Camera.PixelPosition.Y},{heads[0].XPosition},{heads[0].YPosition},{states[0]!.CurrentAngle},{heads[1].XPosition},{heads[1].YPosition},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
             if (frame % 8 != 0) continue;
             var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
@@ -90,8 +89,8 @@ internal static partial class Program
                 int x = heads[actor].XPosition - runtime.Camera.PixelPosition.X;
                 int y = heads[actor].YPosition - runtime.Camera.PixelPosition.Y;
                 if (x < 8 || x >= 248 || y < 40 || y >= 216) continue;
-                if (Math.Abs((int)samus.XPosition - heads[actor].XPosition) < 32 &&
-                    Math.Abs((int)samus.YPosition - heads[actor].YPosition) < 40) continue;
+                if (Math.Abs((int)samus.Position.X.Whole - heads[actor].XPosition) < 32 &&
+                    Math.Abs((int)samus.Position.Y.Whole - heads[actor].YPosition) < 40) continue;
                 int changed = 0;
                 for (int dy = -8; dy < 8; dy++)
                 for (int dx = -8; dx < 8; dx++)

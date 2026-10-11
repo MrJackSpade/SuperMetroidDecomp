@@ -239,7 +239,7 @@ public sealed class SamusCrystalFlashState
     private void StepRaising(SamusState samus)
     {
         // `$90:D678-$D67D` changes only the whole-pixel word. The subposition survives.
-        samus.YPosition = unchecked((ushort)(samus.YPosition - 2));
+        samus.Position -= new Offset16<RoomPixels>(0, 2);
 
         // Native initializes nine, then uses DEC/BPL. Values 8..0 return; the tenth call
         // underflows to $FFFF and installs the main handler after completing its Y move.
@@ -251,7 +251,7 @@ public sealed class SamusCrystalFlashState
         // The delay program is already on its raise loop, but the movement handler forces
         // frame six and timer three so main art begins on this precise transition frame.
         samus.SetAnimationFrameFromSpecialHandler(frame: 6, timer: 3);
-        RaisedYPosition = samus.YPosition;
+        RaisedYPosition = samus.Position.Y.Whole;
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleHdmaRequested = true;
         ActivationSoundRequested = true;
@@ -310,8 +310,8 @@ public sealed class SamusCrystalFlashState
         // Retail usually enters with equality because RaisedYPosition was captured at the
         // end of the rise. Preserve the real defensive branch: an external producer that
         // displaced Samus upward/downward makes the whole Y word walk downward one per call.
-        if (samus.YPosition != RaisedYPosition)
-            samus.YPosition = unchecked((ushort)(samus.YPosition + 1));
+        if (samus.Position.Y.Whole != RaisedYPosition)
+            samus.Position += new Offset16<RoomPixels>(0, 1);
 
         // The ROM delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
         // Therefore cleanup naturally happens on the following beta pass, once type zero is

@@ -37,11 +37,10 @@ internal static partial class Program
             ushort ay = (ushort)((anchor.Y & 0xfff0) | (sy < 0 ? 7 : 8));
             ushort x = unchecked((ushort)(ax + Math.Sign(sx) * (Math.Abs(sx) * distance / 256)));
             ushort y = unchecked((ushort)(ay + Math.Sign(sy) * (Math.Abs(sy) * distance / 256)));
-            state.Grapple.AnchorX = anchor.X;
-            state.Grapple.AnchorY = anchor.Y;
+            state.Grapple.Anchor = new(anchor.X, anchor.Y);
             var actual = point(state.Grapple, (byte)angle, distance);
-            if (actual != new GrappleCollisionPoint(x, y, (x / 16) % 256, (y / 16) % 256) ||
-                state.Grapple.AnchorX != ax || state.Grapple.AnchorY != ay)
+            if (actual != new GrappleCollisionPoint(new(x, y), new((ushort)((x / 16) % 256), (ushort)((y / 16) % 256))) ||
+                state.Grapple.Anchor.X != ax || state.Grapple.Anchor.Y != ay)
                 throw new InvalidDataException($"Compiled grapple point differs: anchor={anchor}, angle={angle:X2}, length={distance}.");
             pointCount++;
         }

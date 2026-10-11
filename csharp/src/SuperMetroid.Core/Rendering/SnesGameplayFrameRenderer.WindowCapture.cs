@@ -38,7 +38,7 @@ public static partial class SnesGameplayFrameRenderer
         if (!explosion.IsActive) return null;
         var windows = new ColorAddWindow[Height];
         Array.Fill(windows, ColorAddWindow.Empty);
-        Offset16<ScreenPixels> center = new Position16<RoomPixels>(explosion.XPosition, explosion.YPosition)
+        Offset16<ScreenPixels> center = explosion.Position
             .RelativeToCamera(layer1);
         int centerX = center.X;
         int centerY = center.Y;

@@ -17,8 +17,8 @@ internal static partial class Program
         {
             var samus = new SamusState { EquippedItems = suit == 0 ? (ushort)0 : (ushort)SamusEquipmentFlags.GravitySuit };
             var body = samus.Kinematics;
-            body.XPosition = body.YPosition = 24;
-            body.YRadius = 8;
+            body.Position = body.Position.WithWhole(new(24, 24));
+            body.Radius = body.Radius.WithY(8);
             body.YDirection = direction;
             body.YSpeed = 5;
             samus.HorizontalSpeed.BaseSpeed = 4;
@@ -26,7 +26,7 @@ internal static partial class Program
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(level, samus, AreaId.Maridia);
             AssertEqual(direction == SamusVerticalDirection.None ? (suit == 0 ? 0x12000 : 0x10000) : 0x20000,
-                body.ExtraYFixed, "quicksand per-direction/suit displacement");
+                body.ExtraDisplacement.Y.RawValue, "quicksand per-direction/suit displacement");
             AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
                 body.VerticalSpeedFixed, "quicksand speed cancellation and jump cap");
             AssertEqual((ushort)0x7fff, samus.HorizontalSpeed.BaseSubspeed, "quicksand retains low fractional X");
@@ -35,21 +35,21 @@ internal static partial class Program
             var move = SamusBlockCollision.MoveVertical(bus, level, body, 0x28000, true);
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
-            body.YPosition = 24;
+            body.Position = body.Position.WithWholeY(24);
             var poseProbe = SamusBlockCollision.MoveVertical(bus, level, body, 0x28000, true, publishQuicksandGrounding: false);
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
         }
         for (int kind = 0; kind < 3; kind++)
         {
             var samus = new SamusState();
-            samus.Kinematics.XPosition = samus.Kinematics.YPosition = 24;
-            samus.Kinematics.YRadius = 8;
+            samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(24, 24));
+            samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
             samus.Kinematics.YSpeed = 4;
             samus.Kinematics.YSubacceleration = 0x1c00;
             var sand = Room((byte)(0x83 + kind));
             SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
-                samus.Kinematics.ExtraYFixed, "submerging and sandfall forces");
+                samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
             SamusBlockCollision.MoveHorizontal(bus, sand, samus.Kinematics, 1 << 16);
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.YSpeed, "submerging horizontal collision speed side effect");
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)0x1c00, samus.Kinematics.YSubacceleration, "submerging horizontal collision gravity side effect");
@@ -87,8 +87,8 @@ internal static partial class Program
                     : (ushort)SamusEquipmentFlags.GravitySuit,
             };
             SamusKinematicsState body = samus.Kinematics;
-            body.XPosition = body.YPosition = 24;
-            body.YRadius = 8;
+            body.Position = body.Position.WithWhole(new(24, 24));
+            body.Radius = body.Radius.WithY(8);
             body.YDirection = direction;
             body.YSpeed = 5;
             SamusInsideBlockReactions.PrepareFrame(
@@ -99,7 +99,7 @@ internal static partial class Program
                 direction == SamusVerticalDirection.None
                     ? physics.StationaryDisplacement << 8
                     : physics.MovingDisplacement << 8,
-                body.ExtraYFixed,
+                body.ExtraDisplacement.Y.RawValue,
                 $"production quicksand suit {suit} direction {(int)direction} displacement");
         }
 

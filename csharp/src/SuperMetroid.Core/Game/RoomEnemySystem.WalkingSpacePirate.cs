@@ -326,15 +326,15 @@ public sealed partial class RoomEnemySystem
             }
         }
         if (firstAllocated is null ||
-            Math.Abs(unchecked((short)(firstAllocated.XPosition - slot.XPosition))) >=
+            Math.Abs(unchecked((short)(firstAllocated.Position.X.Whole - slot.XPosition))) >=
                 WalkingPirateFlinchBoxPixels ||
-            Math.Abs(unchecked((short)(firstAllocated.YPosition - slot.YPosition))) >=
+            Math.Abs(unchecked((short)(firstAllocated.Position.Y.Whole - slot.YPosition))) >=
                 WalkingPirateFlinchBoxPixels)
         {
             return;
         }
 
-        ushort list = unchecked((short)(slot.XPosition - samus.XPosition)) < 0
+        ushort list = unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
             ? WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingRight
             : WalkingSpacePirateInstructionProgramDefinitions.FlinchFacingLeft;
         InstallWalkingSpacePirateInstruction(slot, list);
@@ -352,7 +352,7 @@ public sealed partial class RoomEnemySystem
         }
 
         bool samusIsRightOrAligned =
-            unchecked((short)(samus.XPosition - slot.XPosition)) >= 0;
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0;
         if (WalkingSpacePirateIsVerticallyClose(slot, samus))
         {
             return samusIsRightOrAligned
@@ -370,7 +370,7 @@ public sealed partial class RoomEnemySystem
     private static bool WalkingSpacePirateIsVerticallyClose(
         RoomEnemySlot slot,
         SamusState samus) =>
-        Math.Abs(unchecked((short)(samus.YPosition - slot.YPosition))) <
+        Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.YPosition))) <
             WalkingPirateFiringBandPixels;
 
     private static void InstallWalkingSpacePirateAttack(
@@ -378,7 +378,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus) =>
         InstallWalkingSpacePirateInstruction(
             slot,
-            unchecked((short)(samus.XPosition - slot.XPosition)) >= 0
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0
                 ? WalkingSpacePirateInstructionProgramDefinitions.FireLasersRight
                 : WalkingSpacePirateInstructionProgramDefinitions.FireLasersLeft);
 

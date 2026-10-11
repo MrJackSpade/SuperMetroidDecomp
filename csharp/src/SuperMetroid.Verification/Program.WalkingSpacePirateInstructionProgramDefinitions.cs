@@ -106,7 +106,7 @@ internal static partial class Program
             ushort expectedCursor = movingRight ? (ushort)0xfc16 : (ushort)0xfb94;
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
-            samus.XPosition = movingRight ? (ushort)0x0180 : (ushort)0x0080;
+            samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
             slot.CurrentInstruction = program;
             slot.InstructionTimer = 1;
             RunFrames(enemies, slot, samus, 113);
@@ -149,8 +149,7 @@ internal static partial class Program
                 .Invoke(enemies, [slot]);
             var samus = new SamusState
             {
-                XPosition = 0x0080,
-                YPosition = 0x0100,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)),
             };
             return (enemies, slot, enemies.WalkingSpacePirateStates[0]!, samus);
         }

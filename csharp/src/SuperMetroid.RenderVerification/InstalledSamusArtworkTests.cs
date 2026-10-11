@@ -29,9 +29,8 @@ internal static partial class InstalledSamusArtworkTests
     {
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
-            var stock = new SamusState { Pose = (SamusPoseId)pose, XPosition = 128, YPosition = 128, Health = 99 };
-            var edited = new SamusState { Pose = stock.Pose, XPosition = stock.XPosition,
-                YPosition = stock.YPosition, Health = stock.Health };
+            var stock = new SamusState { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
+            var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
             stock.RefreshCollisionRadii(memory); edited.RefreshCollisionRadii(memory);
             stock.TileTransfers.BindArtwork(fixture.Stock);
             edited.TileTransfers.BindArtwork(fixture.Edited);
@@ -39,8 +38,8 @@ internal static partial class InstalledSamusArtworkTests
             var a = new SnesVram(); var b = new SnesVram();
             var oa = new OamBuffer(); var ob = new OamBuffer();
             oa.BeginFrame(); ob.BeginFrame();
-            bool visible = stock.Draw(memory, oa, 0, 0);
-            Require(visible == edited.Draw(memory, ob, 0, 0), $"pose {pose:X2}: visibility changed");
+            bool visible = stock.Draw(memory, oa, new(0, 0));
+            Require(visible == edited.Draw(memory, ob, new(0, 0)), $"pose {pose:X2}: visibility changed");
             stock.TileTransfers.TransferToVram(memory, a);
             edited.TileTransfers.TransferToVram(memory, b);
             oa.FinalizeFrame(); ob.FinalizeFrame();
@@ -56,14 +55,14 @@ internal static partial class InstalledSamusArtworkTests
     // Deliberately excludes derived spritemap indices and DMA flags. Those are the
     // rendering outputs; pose timing, collision radii and fixed-point motion are not.
     private static string PhysicalState(SamusState samus) => string.Join("|",
-        samus.Pose, samus.XPosition, samus.YPosition, samus.Health,
+        samus.Pose, samus.Position.X.Whole, samus.Position.Y.Whole, samus.Health,
         samus.AnimationFrame, samus.AnimationFrameTimer, samus.AnimationFrameBuffer,
         samus.InvincibilityTimer, samus.KnockbackTimer, samus.EquippedItems,
-        samus.EquippedBeams, samus.Kinematics.XSubposition, samus.Kinematics.YSubposition,
+        samus.EquippedBeams, samus.Kinematics.Position.X.Fraction, samus.Kinematics.Position.Y.Fraction,
         samus.HorizontalSpeed.BaseSpeed, samus.HorizontalSpeed.BaseSubspeed,
         samus.HorizontalSpeed.ExtraRunSpeed, samus.HorizontalSpeed.ExtraRunSubspeed,
         samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed,
-        samus.Kinematics.XRadius, samus.Kinematics.YRadius);
+        samus.Kinematics.Radius.X, samus.Kinematics.Radius.Y);
 
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }

@@ -21,7 +21,7 @@ internal static partial class Program
                 if ((short)(expectedPointer - end) >= 0) expectedPointer = begin;
             }
             var queue = new VramWriteQueue();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, new OamBuffer(), queue, 0, 0);
+            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, new OamBuffer(), queue, new(0, 0));
             AssertEqual(expectedTimer, grapple.PointAnimationTimer, "Grapple endpoint timer matches native DEC/BPL");
             AssertEqual(0x9a0000 | expectedPointer, queue.Entries[0].SourceAddress, $"Grapple endpoint follows four-frame native stride at tick {tick}");
             AssertEqual(2, queue.Entries.Count, "Zero-length rope still queues native endpoint and segment tiles");
@@ -38,7 +38,7 @@ internal static partial class Program
                 if (unchecked((short)(expectedPointer - end)) >= 0) expectedPointer = begin;
             }
             var queue = new VramWriteQueue();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, new OamBuffer(), queue, 0, 0);
+            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, new OamBuffer(), queue, new(0, 0));
             AssertEqual(expectedTimer, grapple.PointAnimationTimer, "Endpoint boundary timer matches native signed decrement");
             AssertEqual(0x9a0000 | expectedPointer, queue.Entries[0].SourceAddress, "Endpoint ordinal retains native wrapped pointer arithmetic");
         }

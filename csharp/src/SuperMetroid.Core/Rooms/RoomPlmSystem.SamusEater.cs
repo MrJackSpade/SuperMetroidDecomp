@@ -12,8 +12,8 @@ public sealed partial class RoomPlmSystem
         SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(header);
         // Rejected native setups clear their just-allocated slot without changing
         // the trigger. Alignment is tested against Samus, not the sampled block row.
-        int edge = definition.Ceiling ? samus.YPosition - samus.Kinematics.YRadius
-            : samus.YPosition + samus.Kinematics.YRadius - 1;
+        int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Kinematics.Radius.Y
+            : samus.Position.Y.Whole + samus.Kinematics.Radius.Y - 1;
         if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
         for (int index = _slots.Length - 1; index >= 0; index--)
         {
@@ -25,7 +25,7 @@ public sealed partial class RoomPlmSystem
             slot.BlockIndex = block.Index;
             slot.InstructionPointer = definition.InstructionListPointer;
             slot.InstructionTimer = 1;
-            slot.PlantHeldPosition = new(samus.XPosition, unchecked((ushort)(samus.YPosition + (definition.Ceiling ? 1 : -1))));
+            slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
             level.SetForegroundEntry(block.Index, (ushort)(block.LevelWord & SamusEaterPlmRomData.DeactivatedTriggerMask));
             return;
         }
@@ -39,8 +39,7 @@ public sealed partial class RoomPlmSystem
     {
         if (slot.PreInstruction != SamusEaterPlmRomData.HoldPreInstruction) return;
         var samus = RequirePlantSamus();
-        samus.XPosition = slot.PlantHeldPosition.X;
-        samus.YPosition = slot.PlantHeldPosition.Y;
+        samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
         // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving cartridge interactions.
         samus.InvincibilityTimer |= 0x10;

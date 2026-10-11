@@ -23,11 +23,11 @@ internal static class VramDmaProducerContracts
             // #627 re-pinned: only the gunship function write became the typed GunshipFunction.FireUpEngines.
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "9A200AA74DB1FC9E406E752D8AD2D3EFBEFDE2038A64B9439CFC3048F147E621") => "gunship",
             ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "74D7F0380AB8B028C6809093235F87837DFD62D7794A242BEFA09C99182049CD") => "fx",
-            // #628 reviewed: only the OAM origin became one typed Position16<OamPixels>; transfer source and count unchanged.
-            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "3737C2A62363B96D963D988A98CE7AE2680D5D48A235C356DC218DD151D43DCE") => "arm",
+            // #628 reviewed: the OAM origin, layer-1 camera and Samus position became typed values; transfer source and count unchanged.
+            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "EC37A73DA413F9BD7373082C08B2959D7ED95D568D86E397609583E2F8F80649") => "arm",
             ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "2EA2B64CC751F333B40AED2D5CD4E4FB7B6261003A1882E42E0CF34234C2EB4D") => "death",
-            // #628 reviewed: only the two OAM origins became typed Position16<OamPixels>; transfer source and count unchanged.
-            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "D07A25AF807F3691BF0355A95B4D1FA9B68742F814DDD4EB2B53C3D5BFF761D2") => "grapple-native",
+            // #628 reviewed: the OAM origins, layer-1 camera and grapple anchor/flare became typed values; transfer source and count unchanged.
+            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "BBB8433532E18ED78343123D82F05922EE2C641B89B0F994B613ED7D47EA89A8") => "grapple-native",
             ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "9400C1F1F3EB941C04621BC070CE56B89828DFFFD4A90A89DD48495304C9700B") => "beam",
             // #627 re-pin: the chunk table parameter became ScrollingSkyChunkTable with the same two tables; sources and counts unchanged.
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "A2AD8385A17B2882557B10624010100C822C3E1F6065403D06698A5C6B73C32B") => "sky",

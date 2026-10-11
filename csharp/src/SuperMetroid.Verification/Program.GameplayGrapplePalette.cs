@@ -93,8 +93,7 @@ internal static partial class Program
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.CommitPoseHistory(bus);
-            samus.XPosition = 128;
-            samus.YPosition = (ushort)(192 - samus.Kinematics.YRadius);
+            samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.YSpeed = samus.Kinematics.YSubspeed = 0;
             runtime.StepFrame(0);
             palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));

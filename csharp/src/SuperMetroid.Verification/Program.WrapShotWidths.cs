@@ -25,7 +25,7 @@ internal static partial class Program
             words[target] = 0xc40c; bts[target] = 0x41;
             for (int row = 1; row < 4; row++) { words[target + row * width] = 0xd40c; bts[target + row * width] = 0xff; }
             var level = CreateRoom(width, height, words, bts);
-            var samus = new SamusState { XPosition = (ushort)(originsX[room] + offset), YPosition = (ushort)originsY[room],
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9) };
             var shots = CreateProjectileFixture();
@@ -36,12 +36,11 @@ internal static partial class Program
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 bombs.StepFrame(bus, level, samus, input, input);
-                shots.StepFrame(bus, level, samus, input, input, (ushort)(left ? 0 : width * 16 - 256),
-                    (ushort)Math.Max(0, originsY[room] - 128), bombs, roomPlms: plms);
+                shots.StepFrame(bus, level, samus, input, input, new((ushort)(left ? 0 : width * 16 - 256), (ushort)Math.Max(0, originsY[room] - 128)), bombs, roomPlms: plms);
                 var shot = shots.Slots[0];
                 ushort targetWord = level.GetCollisionBlockByIndex(target).LevelWord;
                 if (hit < 0 && targetWord == 0x840c) hit = frame;
-                string actual = $"{room},{beam},{offset},{frame},{shot.XPosition:X4},{shot.XSubposition:X4},{shot.YPosition:X4},{shot.YSubposition:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.XRadius:X4},{shot.YRadius:X4},{targetWord:X4}";
+                string actual = $"{room},{beam},{offset},{frame},{shot.Position.X.Whole:X4},{shot.Position.X.Fraction:X4},{shot.Position.Y.Whole:X4},{shot.Position.Y.Fraction:X4},{shot.Type:X4},{shot.InstructionPointer:X4},{shot.Radius.X:X4},{shot.Radius.Y:X4},{targetWord:X4}";
                 string expected = native[cursor++];
                 if (actual != expected && mismatches++ < 8) Console.WriteLine($"Width mismatch:\n{actual}\n{expected}");
             }

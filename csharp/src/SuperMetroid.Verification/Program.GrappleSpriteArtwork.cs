@@ -30,9 +30,9 @@ internal static partial class Program
             {
                 var originalOam = new OamBuffer(); var stockOam = new OamBuffer(); var editedOam = new OamBuffer();
                 var originalQueue = new VramWriteQueue(); var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
-                SamusGrappleMovement.DrawConnectedBeam(bus, originalState, originalOam, originalQueue, 0, 0);
-                SamusGrappleMovement.DrawConnectedBeam(guard, stockState, stockOam, stockQueue, 0, 0, stock);
-                SamusGrappleMovement.DrawConnectedBeam(guard, editedState, editedOam, editedQueue, 0, 0, changed);
+                SamusGrappleMovement.DrawConnectedBeam(bus, originalState, originalOam, originalQueue, new(0, 0));
+                SamusGrappleMovement.DrawConnectedBeam(guard, stockState, stockOam, stockQueue, new(0, 0), stock);
+                SamusGrappleMovement.DrawConnectedBeam(guard, editedState, editedOam, editedQueue, new(0, 0), changed);
                 AssertTrue(originalOam.LowTable.SequenceEqual(stockOam.LowTable) && originalOam.HighTable.SequenceEqual(stockOam.HighTable), "Stock JSON preserves entire native OAM");
                 AssertEqual(stockOam.NextByteOffset, editedOam.NextByteOffset, "Visual edit preserves segment count");
                 AssertTrue(stockOam.HighTable.SequenceEqual(editedOam.HighTable), "Visual edit preserves object size and high-X");
@@ -53,7 +53,7 @@ internal static partial class Program
                 var state = new SamusGrappleState
                 {
                     Phase = GrapplePhase.ConnectedSwinging, RopeLength = 120,
-                    BeamStartX = 100, BeamStartY = 100, AnchorX = 200, AnchorY = 60,
+                    BeamStart = new(100, 100), Anchor = new(200, 60),
                     Angle = SnesAngle.FromRaw((ushort)(angle << 8)), PointAnimationTimer = 5,
                 };
                 for (int i = 0; i < 16; i++) { state.SegmentAnimationTimers[i] = 1; state.SegmentAnimationFrames[i] = (byte)(i & 3); }

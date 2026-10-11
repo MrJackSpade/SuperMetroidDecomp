@@ -79,10 +79,10 @@ internal static partial class Program
                     SamusAtmosphericAnimationDefinitions.FrameTimer(type, frame);
 
                 var effects = new SamusAtmosphericEffectsState();
-                effects.SetSlot(0, type, frame, animationTimer: 1, worldX: 100, worldY: drawY);
+                effects.SetSlot(0, type, frame, animationTimer: 1, anchor: new(100, drawY));
                 var oam = new OamBuffer();
                 oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: drawY,
+                effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt);
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
                     $"production atmospheric type {type} frame {frame} expiry timer");
@@ -92,9 +92,9 @@ internal static partial class Program
 
                 effects.Clear();
                 effects.SetSlot(0, type, frame, animationTimer: 0x8001,
-                    worldX: 100, worldY: drawY);
+                    anchor: new(100, drawY));
                 oam.BeginFrame();
-                effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: drawY,
+                effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: drawY,
                     directArtwork: atmosphericArt);
                 AssertEqual(expectedTimer, effects.Slots[0].AnimationTimer,
                     $"production atmospheric type {type} frame {frame} delayed timer");
@@ -116,10 +116,10 @@ internal static partial class Program
             rom.WriteByte(0x900001, 0x34);
             var effects = new SamusAtmosphericEffectsState();
             effects.SetSlot(0, 2, 0, animationTimer: 2,
-                worldX: 100, worldY: 100);
+                anchor: new(100, 100));
             var oam = new OamBuffer();
             oam.BeginFrame();
-            effects.UpdateAndDraw(guarded, oam, 0, 0, fxYPosition: 100);
+            effects.UpdateAndDraw(guarded, oam, Position16<RoomPixels>.Zero, fxYPosition: 100);
             AssertEqual((byte)0x5a, oam.LowTable[2],
                 "null atmospheric pointer reads low OBJ attribute from mirrored WRAM");
             AssertEqual((byte)0x34, oam.LowTable[3],
@@ -141,9 +141,8 @@ internal static partial class Program
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
-            XPosition = 100,
-            YPosition = 100,
-            Kinematics = { XRadius = 5, YRadius = 12 },
+            Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+            Kinematics = { Radius = new(5, 12) },
         };
         samus.LiquidPhysics.ConfigureLavaAcid(
             surfaceY: 100,

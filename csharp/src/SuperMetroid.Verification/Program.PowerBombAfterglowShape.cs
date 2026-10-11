@@ -12,7 +12,7 @@ internal static partial class Program
         // Near the bottom-left, the last oval still leaves visible corners outside it.
         var explosion = new SamusPowerBombExplosionState { PresentationColors = colors };
         explosion.Arm();
-        explosion.Spawn(32, 208);
+        explosion.Spawn(new(32, 208));
         for (int frame = 0; frame < 200 && explosion.Phase != PowerBombExplosionPhase.Afterglow; frame++)
             explosion.StepFrame(rom);
         AssertEqual(PowerBombExplosionPhase.Afterglow, explosion.Phase, "reported blast reaches the fade transition");

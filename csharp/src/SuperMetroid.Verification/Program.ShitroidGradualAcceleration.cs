@@ -57,8 +57,7 @@ internal static partial class Program
             shitroid.VariableB = shitroid.VariableC = 0;
             shitroid.FrameCounter = 0;
             samus.Health = 500;
-            samus.XPosition = 0x01c3;
-            samus.YPosition = 0x00b9;
+            samus.Position = samus.Position.WithWhole(new(0x01c3, 0x00b9));
             samus.Kinematics.YSpeed = ySpeed;
             runMain.Invoke(runtime.Enemies, [shitroid, samus, (ushort)0x0158, (ushort)0x0000, null]);
             AssertEqual(expectedX, shitroid.XPosition, $"Y speed {ySpeed}: the drain's X add takes CMP #4's carry");

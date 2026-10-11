@@ -27,11 +27,11 @@ internal static class RuntimeOverlayTests
         // Deliberately combine owners rather than claim this is a natural pickup
         // sequence. This isolates the production composition order in one room.
         runtime.BombProjectiles.PowerBombExplosion.Arm();
-        runtime.BombProjectiles.PowerBombExplosion.Spawn(128, 120);
+        runtime.BombProjectiles.PowerBombExplosion.Spawn(new(128, 120));
         for (int tick = 0; tick < 50; tick++) runtime.BombProjectiles.PowerBombExplosion.StepFrame(bus);
         runtime.MessageBox.Begin(bus, GameplayMessageIds.MapDataAccessCompleted, 0);
         for (int tick = 0; tick < 13; tick++) runtime.MessageBox.Step(0);
-        runtime.SuitPickup.Begin(bus, runtime.Samus!, 0, 0, SamusSuitPickupKind.Varia);
+        runtime.SuitPickup.Begin(bus, runtime.Samus!, new(0, 0), SamusSuitPickupKind.Varia);
         runtime.SuitPickup.Step(bus, runtime.Samus!, runtime.Cgram);
         var initial = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         if (initial.Layers.Length != 4 || initial.Layers[0] is not OrdinaryGameplayRenderLayer

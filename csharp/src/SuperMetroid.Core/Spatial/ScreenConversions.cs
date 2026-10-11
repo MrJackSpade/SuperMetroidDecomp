@@ -15,6 +15,13 @@ public static class ScreenConversions
     }
 
     /// <summary>
+    /// The screen position word pair of <paramref name="room"/> under the camera: the native
+    /// <c>position - layer-1 scroll</c> subtraction kept as wrapped unsigned words, as WRAM stores it.
+    /// </summary>
+    public static Position16<ScreenPixels> ToScreen(this Position16<RoomPixels> room, Position16<RoomPixels> camera) =>
+        new(unchecked((ushort)(room.X - camera.X)), unchecked((ushort)(room.Y - camera.Y)));
+
+    /// <summary>
     /// The OAM coordinate of a screen position: sprite coordinates are screen pixels, so the words are
     /// unchanged and the OAM writer applies its nine-bit X and eight-bit Y range rules.
     /// </summary>

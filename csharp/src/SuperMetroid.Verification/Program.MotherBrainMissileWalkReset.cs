@@ -35,8 +35,8 @@ internal static partial class Program
 
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x8100; shot.Damage = 100; shot.Direction = 8;
-        shot.XPosition = head.XPosition; shot.YPosition = head.YPosition;
-        shot.XRadius = shot.YRadius = 8;
+        shot.Position = shot.Position.WithWhole(new(head.XPosition, head.YPosition));
+        shot.Radius = new(8, 8);
         typeof(RoomEnemySystem).GetMethod("ResolveMotherBrainLaterFormHeadShot", flags)!.Invoke(
             runtime.Enemies,
             [state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), (ushort)100]);

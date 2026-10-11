@@ -211,7 +211,7 @@ public sealed partial class RoomEnemySystem
                 // IsSamusWithinAPixelRowsOfEnemy takes the modular absolute difference and
                 // uses a strict comparison. Equality at the configured distance stays idle.
                 if (!IsWithinStrictModularDistance(
-                        samus.YPosition,
+                        samus.Position.Y.Whole,
                         slot.YPosition,
                         state.YProximity))
                 {

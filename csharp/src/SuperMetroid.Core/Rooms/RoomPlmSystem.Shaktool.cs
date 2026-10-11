@@ -37,7 +37,7 @@ public sealed partial class RoomPlmSystem
         if (powerBombExplosionStatus != 0)
             for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
                 scrolls.SetStorage(cell, RoomScrollState.Blue);
-        if (samus.XPosition <= ShaktoolRoomPlmRomData.ClearedPathXBoundary) return;
+        if (samus.Position.X.Whole <= ShaktoolRoomPlmRomData.ClearedPathXBoundary) return;
         _setEvent(EventNumber.ShaktoolClearedPath);
         // B8D2 clears only the ID; inactive instruction/timer words remain in RAM.
         slot.HeaderPointer = 0;

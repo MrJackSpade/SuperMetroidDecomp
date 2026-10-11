@@ -30,8 +30,7 @@ internal static partial class Program
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            samus.XPosition = (ushort)(platform.XPosition + offset);
-            samus.YPosition = (ushort)(platform.YPosition - platform.YRadius - samus.Kinematics.YRadius);
+            samus.Position = samus.Position.WithWhole(new((ushort)(platform.XPosition + offset), (ushort)(platform.YPosition - platform.YRadius - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             bool activated = false;
             bool carried = false;
@@ -41,13 +40,13 @@ internal static partial class Program
                 if (frame == bombAt || frame == bombAt + 20) input |= runtime.ControllerBindings.Shoot;
                 runtime.StepFrame(input);
                 activated |= runtime.Enemies.VerticalShutterStates[slot]!.Function == VerticalShutterFunction.MovingUp;
-                carried |= samus.Kinematics.ExtraYFixed < 0;
-                int gap = platform.YPosition - platform.YRadius - samus.YPosition - samus.Kinematics.YRadius;
-                if (Math.Abs(samus.XPosition-platform.XPosition) < platform.XRadius+samus.Kinematics.XRadius &&
-                    samus.YPosition < platform.YPosition && gap < minimumGap)
+                carried |= samus.Kinematics.ExtraDisplacement.Y.RawValue < 0;
+                int gap = platform.YPosition - platform.YRadius - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
+                if (Math.Abs(samus.Position.X.Whole-platform.XPosition) < platform.XRadius+samus.Kinematics.Radius.X &&
+                    samus.Position.Y.Whole < platform.YPosition && gap < minimumGap)
                 {
                     minimumGap = gap;
-                    Console.WriteLine($"Overlap candidate: slot={slot} offset={offset} bomb={bombAt} stop={stopAt}/{direction} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{(int)samus.Pose:X2} platformY={platform.YPosition}");
+                    Console.WriteLine($"Overlap candidate: slot={slot} offset={offset} bomb={bombAt} stop={stopAt}/{direction} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.YPosition}");
                 }
             }
             if (activated) activatedCases++;

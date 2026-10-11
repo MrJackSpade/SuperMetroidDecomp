@@ -29,7 +29,7 @@ internal static partial class Program
             new ushort[16 * 16],
             new byte[16 * 16],
             blockDefinitions: new byte[0x400 * 8]);
-        var samus = new SamusState { XPosition = 220, YPosition = 80 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 80)) };
         int randomAdvances = 0;
         var enemies = new RoomEnemySystem();
         enemies.Load(
@@ -131,8 +131,7 @@ internal static partial class Program
         var system = new Bank80SystemState();
         var samus = new SamusState
         {
-            XPosition = eyeX * 16 + 8,
-            YPosition = eyeY * 16 + 8,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),
         };
         var effects = new List<EyeDoorProjectileRequest>();
         var plms = new RoomPlmSystem();

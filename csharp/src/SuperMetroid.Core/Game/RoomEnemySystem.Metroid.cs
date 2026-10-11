@@ -200,7 +200,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Metroid movement requires room level data.");
 
         MetroidEnemyState state = RequireMetroidState(slot);
-        ushort targetY = unchecked((ushort)(samus.YPosition - 8));
+        ushort targetY = unchecked((ushort)(samus.Position.Y.Whole - 8));
         switch (state.Function)
         {
             case MetroidAiFunction.Homing:
@@ -242,7 +242,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(level, slot, yVelocity))
             StoreMetroidYVelocity(state, 0);
 
-        int xDifference = unchecked((short)(slot.XPosition - samus.XPosition));
+        int xDifference = unchecked((short)(slot.XPosition - samus.Position.X.Whole));
         int xVelocity = unchecked(state.SignedXVelocity - ((xDifference >> 2) << 8));
         xVelocity = ClampMetroidVelocity(xVelocity);
         StoreMetroidXVelocity(state, xVelocity);
@@ -267,7 +267,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(level, slot, yVelocity << 16))
             StoreMetroidYVelocity(state, 0);
 
-        int xVelocity = CalculateMetroidClosingVelocity(samus.XPosition, slot.XPosition);
+        int xVelocity = CalculateMetroidClosingVelocity(samus.Position.X.Whole, slot.XPosition);
         StoreMetroidXVelocity(state, xVelocity << 16);
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, xVelocity << 16))
             StoreMetroidXVelocity(state, 0);
@@ -292,7 +292,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort targetY)
     {
-        slot.XPosition = samus.XPosition;
+        slot.XPosition = samus.Position.X.Whole;
         slot.YPosition = targetY;
         StoreMetroidXVelocity(state, 0);
         StoreMetroidYVelocity(state, 0);
@@ -356,7 +356,7 @@ public sealed partial class RoomEnemySystem
     private void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
     {
         MetroidEnemyState state = RequireMetroidState(slot);
-        ushort targetY = unchecked((ushort)(samus.YPosition - 8));
+        ushort targetY = unchecked((ushort)(samus.Position.Y.Whole - 8));
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
             if (state.Function != MetroidAiFunction.AttachedToSamus)
@@ -364,7 +364,7 @@ public sealed partial class RoomEnemySystem
                 // Native overlapping byte writes produce delta/4 in signed 16.16 form.
                 StoreMetroidXVelocity(
                     state,
-                    unchecked((short)(slot.XPosition - samus.XPosition)) << 14);
+                    unchecked((short)(slot.XPosition - samus.Position.X.Whole)) << 14);
                 StoreMetroidYVelocity(
                     state,
                     unchecked((short)(slot.YPosition - targetY)) << 14);
@@ -387,7 +387,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         state.Function = MetroidAiFunction.ClosingOnSamus;
-        if (Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) >= 8 ||
+        if (Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) >= 8 ||
             Math.Abs(unchecked((short)(slot.YPosition - targetY))) >= 8)
         {
             return;

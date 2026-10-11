@@ -117,8 +117,8 @@ public sealed partial class SuperMetroidRuntime
         // depend on those same words. In particular, loading a post-Morph-Ball save must not
         // accidentally construct the untouched new-game version of Blue Brinstar.
         RestoreSavedPlayerState(slot, resetBossesOnLoad);
-        Samus!.XPosition = station.SamusPosition.X;
-        Samus.YPosition = station.SamusPosition.Y;
+        Samus!.Position = Samus!.Position.WithWholeX(station.SamusPosition.X);
+        Samus.Position = Samus.Position.WithWholeY(station.SamusPosition.Y);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
         if (room.AreaIndex != requestedArea)
         {
@@ -238,8 +238,7 @@ public sealed partial class SuperMetroidRuntime
         // hurt check from it. The $22 branch locks Samus's state handlers.
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
-        samus.Kinematics.SetXFixed((uint)station.SamusPosition.X << 16);
-        samus.Kinematics.SetYFixed((uint)station.SamusPosition.Y << 16);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithX(new SnesFixedPosition(station.SamusPosition.X, 0)).WithY(new SnesFixedPosition(station.SamusPosition.Y, 0));
         samus.InputLocked = true;
         ActiveLoadStation = station;
 
@@ -382,7 +381,7 @@ public sealed partial class SuperMetroidRuntime
             ?? throw new InvalidOperationException("No pending door destination exists.");
         if (Samus is null)
             throw new InvalidOperationException("Door scrolling requires Samus.");
-        PlaceSamusFixedPosition(DoorOpeningScrollState.ApplySetupMovement(door, SamusFixedPosition(Samus)));
+        Samus!.Position = DoorOpeningScrollState.ApplySetupMovement(door, Samus.Position);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door));
     }
 
@@ -393,15 +392,15 @@ public sealed partial class SuperMetroidRuntime
             ?? throw new InvalidOperationException("No pending door destination exists.");
         if (Samus is null || Camera is null)
             throw new InvalidOperationException("Door tile loading requires Samus and camera.");
-        FixedPosition<RoomPixels> position = DoorOpeningScrollState.RebaseSamus(door, SamusFixedPosition(Samus));
+        FixedPosition<RoomPixels> position = DoorOpeningScrollState.RebaseSamus(door, Samus.Position);
         Camera.PublishDoorSamusPosition(position.Whole);
-        PlaceSamusFixedPosition(DoorOpeningScrollState.AdvanceSamus(door, position));
+        Samus!.Position = DoorOpeningScrollState.AdvanceSamus(door, position);
         DoorDirection direction = door.Orientation.Direction;
         short delta = direction is DoorDirection.Right or DoorDirection.Down ? (short)4 : (short)-4;
         bool vertical = direction.IsVertical();
         Offset16<RoomPixels> firstStep = vertical ? new(0, delta) : new(delta, 0);
         PublishDoorCameraPosition(DoorOpeningScrollState.GetSetupCamera(door) + firstStep);
-        Camera.PublishDoorSamusTravelAxis(vertical, SamusPixelPosition(Samus));
+        Camera.PublishDoorSamusTravelAxis(vertical, Samus.Position.Whole);
         _doorScrollingIrqRequestsNmi = true;
         PublishDoorScrollingIrqNmiRequest();
     }
@@ -428,14 +427,14 @@ public sealed partial class SuperMetroidRuntime
         if (_doorOpeningScroll is not null)
             throw new InvalidOperationException("A door-opening scroll is already active.");
         if (Enemies.ConsumeElevatorArrivalPlacementSlot() is int placementSlot)
-            _pendingLoaderSamusPlacement = new LoaderSamusPlacement(placementSlot, SamusPixelPosition(Samus));
+            _pendingLoaderSamusPlacement = new LoaderSamusPlacement(placementSlot, Samus.Position.Whole);
 
         _doorOpeningScroll = DoorOpeningScrollState.Create(
             door,
             sourceSamus,
             Camera.PixelPosition,
             BackgroundScroll.Layer2Position,
-            SamusFixedPosition(Samus));
+            Samus.Position);
         DoorDirection direction = door.Orientation.Direction;
         DoorOpeningPpuScroll sourceScroll = _pendingDoorOpeningPpuScroll
             ?? throw new InvalidOperationException(
@@ -485,8 +484,8 @@ public sealed partial class SuperMetroidRuntime
                     stagedLayer2Y);
             ExecuteBackgroundStreamRequests(initialRequests, "vertical door-opening setup");
         }
-        PlaceSamusFixedPosition(_doorOpeningScroll.SamusPosition);
-        Camera.PublishDoorSamusPosition(SamusPixelPosition(Samus));
+        Samus!.Position = _doorOpeningScroll.SamusPosition;
+        Camera.PublishDoorSamusPosition(Samus.Position.Whole);
         // Recreate the VRAM producer requests for IRQ progress already published
         // before the atomic destination load. Those steps do not consume more input.
         for (int step = 0; step < completedLoadingIrqSteps; step++)
@@ -543,8 +542,8 @@ public sealed partial class SuperMetroidRuntime
         Enemies.CompleteLoaderTimeCameraReads(loaderProgress.HasInitializedEnemySlot, Camera.PixelPosition.X, Camera.PixelPosition.Y);
         if (completed && Enemies.HasDeferredLoaderTimeCameraReads)
             throw new InvalidDataException("The door scroll finished before the loader initialized every special Rinka.");
-        PlaceSamusFixedPosition(state.SamusPosition);
-        Camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), SamusPixelPosition(Samus));
+        Samus!.Position = state.SamusPosition;
+        Camera.PublishDoorSamusTravelAxis(state.Direction.IsVertical(), Samus.Position.Whole);
         return completed;
     }
 
@@ -565,22 +564,6 @@ public sealed partial class SuperMetroidRuntime
         BackgroundScroll.Layer1Position = camera;
     }
 
-    /// <summary>Samus's 16.16 position, read from the kinematics' native 32-bit words.</summary>
-    internal static FixedPosition<RoomPixels> SamusFixedPosition(SamusState samus) => new(
-        SnesFixedPosition.FromRaw(samus.Kinematics.XFixed),
-        SnesFixedPosition.FromRaw(samus.Kinematics.YFixed));
-
-    /// <summary>Samus's whole-pixel position.</summary>
-    private static Position16<RoomPixels> SamusPixelPosition(SamusState samus) => new(samus.XPosition, samus.YPosition);
-
-    /// <summary>Writes a door-owned 16.16 position to Samus's native position words.</summary>
-    private void PlaceSamusFixedPosition(FixedPosition<RoomPixels> position)
-    {
-        SamusState samus = Samus ?? throw new InvalidOperationException("Door placement requires Samus.");
-        samus.Kinematics.SetXFixed(position.X.RawValue);
-        samus.Kinematics.SetYFixed(position.Y.RawValue);
-    }
-
     /// <summary>
     /// Applies <c>$82:E544</c>'s horizontal eight-pixel alignment after the
     /// post-scroll NMI, before the music wait and the later narrow-door nudges.
@@ -594,10 +577,10 @@ public sealed partial class SuperMetroidRuntime
         switch (state.Direction)
         {
             case DoorDirection.Right:
-                Samus.XPosition |= 7;
+                Samus.Position = Samus.Position.WithWholeX(unchecked((ushort)(Samus.Position.X.Whole | (7))));
                 break;
             case DoorDirection.Left:
-                Samus.XPosition &= 0xfff8;
+                Samus.Position = Samus.Position.WithWholeX(unchecked((ushort)(Samus.Position.X.Whole & (0xfff8))));
                 break;
             case DoorDirection.Down:
             case DoorDirection.Up:
@@ -621,16 +604,15 @@ public sealed partial class SuperMetroidRuntime
         if (_pendingLoaderSamusPlacement is not null)
             throw new InvalidOperationException("The door loader's Samus placement is still pending.");
 
-        ushort x = Samus.XPosition;
+        ushort x = Samus.Position.X.Whole;
         if ((x & 0x00f0) == 0x0010)
             x = unchecked((ushort)((x | 0x000f) + 8));
         else if ((x & 0x00f0) == 0x00e0)
             x = unchecked((ushort)((x & 0xfff0) - 8));
-        ushort y = Samus.YPosition;
+        ushort y = Samus.Position.Y.Whole;
         if ((y & 0x00f0) == 0x0010)
             y = unchecked((ushort)((y | 0x000f) + 8));
-        Samus.XPosition = x;
-        Samus.YPosition = y;
+        Samus.Position = Samus.Position.WithWhole(new(x, y));
 
         if (Enemies.ElevatorFlags != 0)
         {
@@ -668,7 +650,7 @@ public sealed partial class SuperMetroidRuntime
                 $"Elevator pseudo-door $83:{door.Pointer:X4} cannot enter the normal room loader.");
         }
 
-        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? SamusFixedPosition(Samus));
+        DoorTransitionPlacement placement = CalculateDoorTransitionPlacement(door, sourcePosition ?? Samus.Position);
         CartridgeRoomHeader room = LoadCartridgeRoomHeader(door.DestinationRoomPointer);
 
         // Native transition teardown deletes direct G-Mode's stranded X-Ray HDMA object,
@@ -711,14 +693,11 @@ public sealed partial class SuperMetroidRuntime
         // Elevator_Init sees status two, moves the platform to parameter 2, and then pins
         // Samus to it. Applying the generic placement after Enemies.Load used to overwrite
         // that native attachment and exposed the upward arrival one row too low.
-        PlaceSamusFixedPosition(placement.SamusPosition);
+        Samus!.Position = placement.SamusPosition;
         // Door IRQ travel has its own speed words. Ordinary jump velocity survives
         // native room loading and the final nudge; clearing it here restarts a fall
         // at its apex and lets horizontal momentum carry Samus too far after exit.
-        Samus.Kinematics.ExtraXDisplacement = 0;
-        Samus.Kinematics.ExtraXSubdisplacement = 0;
-        Samus.Kinematics.ExtraYDisplacement = 0;
-        Samus.Kinematics.ExtraYSubdisplacement = 0;
+        Samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
 
         InitialViewportResult viewport = LoadCartridgeRoom(
             door,
@@ -1407,8 +1386,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Pose = SamusPoseId.ForwardFacingPowerSuitPose,
             AnimationFrame = 0,
-            XPosition = ActiveLoadStation.SamusPosition.X,
-            YPosition = 0,
+            Position = FixedPosition<RoomPixels>.FromWhole(ActiveLoadStation.SamusPosition.WithY(0)),
         };
         BindSamusPalettePresentation();
         SamusState.LoadPowerSuitPalette(_addressSpace, Cgram, MapPresentation?.SamusSuitColors);
@@ -1453,8 +1431,8 @@ public sealed partial class SuperMetroidRuntime
             checked((byte)roomGeometry.MapPosition.Y),
             LevelData?.Size.X ?? ActiveRoom.Size.ToRoomBlocks().X,
             LevelData?.Size.Y ?? ActiveRoom.Size.ToRoomBlocks().Y,
-            Samus.XPosition,
-            Samus.YPosition,
+            Samus.Position.X.Whole,
+            Samus.Position.Y.Whole,
             NmiFrameCounter8,
             MapRevealMode,
             MapPresentation?.Get(roomGeometry.AreaIndex));

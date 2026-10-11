@@ -37,13 +37,13 @@ public sealed class CeresElevatorArrivalState
         // what previously made the level-data concealer teal until touchdown.
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
-            samus.XPosition,
-            unchecked((ushort)(samus.YPosition + CeresElevatorArrivalDefinitions.MovingPadYOffset)));
+            samus.Position.X.Whole,
+            unchecked((ushort)(samus.Position.Y.Whole + CeresElevatorArrivalDefinitions.MovingPadYOffset)));
         pad.WaitTimer = CeresElevatorArrivalDefinitions.MovingPadWaitFrames;
 
         platform = LoadProjectile(
             CeresElevatorArrivalDefinitions.StationaryPlatform,
-            samus.XPosition,
+            samus.Position.X.Whole,
             CeresElevatorArrivalDefinitions.StationaryPlatformY);
     }
 
@@ -79,12 +79,12 @@ public sealed class CeresElevatorArrivalState
                 // `$86:A342` samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
                 pad.YPosition = unchecked((ushort)(
-                    samus.YPosition + CeresElevatorArrivalDefinitions.MovingPadYOffset));
-                samus.YPosition = unchecked((ushort)(samus.YPosition + 1));
+                    samus.Position.Y.Whole + CeresElevatorArrivalDefinitions.MovingPadYOffset));
+                samus.Position += new Offset16<RoomPixels>(0, 1);
                 if ((short)unchecked((ushort)(
-                    samus.YPosition - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
+                    samus.Position.Y.Whole - CeresElevatorArrivalDefinitions.LandingThresholdY)) >= 0)
                 {
-                    samus.YPosition = CeresElevatorArrivalDefinitions.LandingSamusY;
+                    samus.Position = samus.Position.WithWholeY(CeresElevatorArrivalDefinitions.LandingSamusY);
                     pad.InstructionTimer = 1;
                     pad.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;
                 }
@@ -94,7 +94,7 @@ public sealed class CeresElevatorArrivalState
 
         if (platform.Active)
         {
-            if (samus.YPosition == CeresElevatorArrivalDefinitions.LandingSamusY)
+            if (samus.Position.Y.Whole == CeresElevatorArrivalDefinitions.LandingSamusY)
             {
                 platform.InstructionTimer = 1;
                 platform.InstructionPointer = CeresElevatorArrivalDefinitions.DeleteInstructionPointer;

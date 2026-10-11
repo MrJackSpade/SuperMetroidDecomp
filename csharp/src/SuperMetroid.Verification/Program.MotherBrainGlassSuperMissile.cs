@@ -43,7 +43,7 @@ internal static partial class Program
         {
             var shot = shots.Slots[slot];
             shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 7;
-            shot.XPosition = shot.YPosition = 128; shot.XRadius = shot.YRadius = pair[slot].Radius;
+            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
             shot.InstructionPointer = pair[slot].List; shot.InstructionTimer = 1;
             shot.PreInstruction = pair[slot].Pre;
         }
@@ -57,7 +57,7 @@ internal static partial class Program
         AssertTrue(!shots.Slots[1].PackedDirection.HasLowByteLifecycleState, "the pair's second slot is not marked");
 
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
-        shots.StepFrame(bus, level, samus, 0, 0, 0, 0, bombs, projectileProducerEnabled: false);
+        shots.StepFrame(bus, level, samus, 0, 0, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         head.InvincibilityTimer = head.FlashTimer = head.AiHandlerBits = 0;
         AssertEqual(0, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "nothing of the pair is left to hit the glass");
         AssertEqual((ushort)2700, head.Health, "the glass takes no second hit");

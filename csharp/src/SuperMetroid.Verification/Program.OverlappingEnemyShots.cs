@@ -15,7 +15,7 @@ internal static partial class Program
         var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!;
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
-        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 64, YPosition = 128 };
+        var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
         for (int index = 0; index < 3; index++)
         {
             var enemy = enemies.Slots[index];
@@ -37,8 +37,8 @@ internal static partial class Program
         shot.Type = 0x8100;
         shot.Damage = 100;
         shot.Direction = 2;
-        shot.XPosition = shot.YPosition = 128;
-        shot.XRadius = shot.YRadius = 4;
+        shot.Position = shot.Position.WithWhole(new(128, 128));
+        shot.Radius = new(4, 4);
         shot.InstructionPointer = 0x9000;
         shot.InstructionTimer = 1;
         shot.PreInstruction = SamusProjectilePreInstruction.Missile;
@@ -50,7 +50,7 @@ internal static partial class Program
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "non-piercing shot is marked for deferred removal");
         AssertEqual((ushort)0x8100, shot.Type, "collision preserves payload until projectile processing");
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
-        shots.StepFrame(bus, level, samus, 0, 0, 0, 0, bombs, projectileProducerEnabled: false);
+        shots.StepFrame(bus, level, samus, 0, 0, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         AssertEqual((ushort)0, shot.Type, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.Slots.Take(3))
             enemy.InvincibilityTimer = enemy.FlashTimer = enemy.AiHandlerBits = 0;

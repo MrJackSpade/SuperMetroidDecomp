@@ -26,8 +26,7 @@ internal static class ReportedEyeStateFixture
         var samus = runtime.Samus!;
         samus.CollectedItems = (ushort)SamusEquipmentFlags.MorphBall;
         samus.InputLocked = true;
-        samus.XPosition = (ushort)(body.XPosition - 64);
-        samus.YPosition = (ushort)(body.YPosition - 32);
+        samus.Position = samus.Position.WithWhole(new((ushort)(body.XPosition - 64), (ushort)(body.YPosition - 32)));
         typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!
             .SetValue(data.Game, SuperMetroidGameState.MainGameplay);
         for (long frame = 1; frame <= 80; frame++)

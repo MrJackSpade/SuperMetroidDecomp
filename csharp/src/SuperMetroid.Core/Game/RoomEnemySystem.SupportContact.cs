@@ -9,18 +9,18 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool IsEnemyTouchingSamusFromBelow(RoomEnemySlot enemy, SamusState samus)
     {
-        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.XPosition - enemy.XPosition)));
-        ushort horizontalGap = unchecked((ushort)(xDistance - samus.Kinematics.XRadius));
-        bool horizontalOverlap = xDistance < samus.Kinematics.XRadius ||
+        ushort xDistance = WrappedMagnitude(unchecked((ushort)(samus.Position.X.Whole - enemy.XPosition)));
+        ushort horizontalGap = unchecked((ushort)(xDistance - samus.Kinematics.Radius.X));
+        bool horizontalOverlap = xDistance < samus.Kinematics.Radius.X ||
             horizontalGap < enemy.XRadius;
         if (!horizontalOverlap)
             return false;
 
-        ushort biasedYDifference = unchecked((ushort)(samus.YPosition + 3 - enemy.YPosition));
+        ushort biasedYDifference = unchecked((ushort)(samus.Position.Y.Whole + 3 - enemy.YPosition));
         if (unchecked((short)biasedYDifference) >= 0)
             return false;
         ushort yDistance = unchecked((ushort)-biasedYDifference);
-        ushort verticalGap = unchecked((ushort)(yDistance - samus.Kinematics.YRadius));
-        return yDistance < samus.Kinematics.YRadius || verticalGap <= enemy.YRadius;
+        ushort verticalGap = unchecked((ushort)(yDistance - samus.Kinematics.Radius.Y));
+        return yDistance < samus.Kinematics.Radius.Y || verticalGap <= enemy.YRadius;
     }
 }

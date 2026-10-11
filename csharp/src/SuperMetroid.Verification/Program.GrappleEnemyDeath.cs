@@ -8,8 +8,7 @@ internal static partial class Program
         Suite(nameof(VerifyGrappleDeathCleanupOrdinaryPoses), () => VerifyGrappleDeathCleanupOrdinaryPoses());
         var samus = CreateDropTestSamus();
         samus.Health = 50;
-        samus.XPosition = 220;
-        samus.YPosition = 180;
+        samus.Position = samus.Position.WithWhole(new(220, 180));
         var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = RepositoryInstallation.EnemyTiles;
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -33,7 +32,7 @@ internal static partial class Program
         enemy.XRadius = enemy.YRadius = 8;
         enemy.Health = 500;
         fixture.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: fixture.Level);
-        var contact = fixture.System.ResolveGrappleEndpoint(100, 100);
+        var contact = fixture.System.ResolveGrappleEndpoint(new(100, 100));
         AssertEqual(GrappleEnemyReaction.Kill, contact.Reaction, "header selects grapple kill independently of enemy health");
         samus.Grapple.Phase = GrapplePhase.Firing;
         fixture.System.StepFrame(0, 0, timeIsFrozen: false, samus, level: fixture.Level);
@@ -82,9 +81,8 @@ internal static partial class Program
             samus.RefreshCollisionRadii(retail);
             // The logged 51->01 request used the standing-size live radius, retained
             // across a pose handoff; C8C5 branches on that word, not pose metadata.
-            samus.Kinematics.YRadius = 17;
-            samus.XPosition = 220;
-            samus.YPosition = 100;
+            samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(17);
+            samus.Position = samus.Position.WithWhole(new(220, 100));
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = RepositoryInstallation.EnemyTiles;
             var enemy = fixture.System.Slots[0];
@@ -97,7 +95,7 @@ internal static partial class Program
             enemy.XRadius = enemy.YRadius = 8;
             enemy.Health = 500;
             fixture.System.StepFrame(0, 0, timeIsFrozen: true, samus, level: fixture.Level);
-            fixture.System.ResolveGrappleEndpoint(100, 100);
+            fixture.System.ResolveGrappleEndpoint(new(100, 100));
             samus.Grapple.Phase = GrapplePhase.Firing;
             fixture.System.StepFrame(0, 0, timeIsFrozen: false, samus, level: fixture.Level);
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");

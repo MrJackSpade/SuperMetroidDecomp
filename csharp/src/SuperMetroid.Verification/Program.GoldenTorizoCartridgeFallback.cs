@@ -24,8 +24,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.GoldenTorizo);
         var samus = runtime.Samus!;
-        samus.XPosition = 0x0180;
-        samus.YPosition = 0x0150;
+        samus.Position = samus.Position.WithWhole(new(0x0180, 0x0150));
         samus.MaxHealth = 1499;
         samus.Health = 1499;
         RoomEnemySlot boss = runtime.Enemies.Slots.Single(slot =>

@@ -147,10 +147,10 @@ public sealed class CeresElevatorShaftRoomMainState
     private static bool IsInsideDepartureTrigger(SamusState samus) =>
         // `$89:ACD0` uses strict X > 112, inclusive X <= 144, inclusive Y >= 75,
         // and strict Y < 128. Both whole and fractional vertical speed must be zero.
-        samus.XPosition > 112 &&
-        samus.XPosition <= 144 &&
-        samus.YPosition >= 75 &&
-        samus.YPosition < 128 &&
+        samus.Position.X.Whole > 112 &&
+        samus.Position.X.Whole <= 144 &&
+        samus.Position.Y.Whole >= 75 &&
+        samus.Position.Y.Whole < 128 &&
         samus.Kinematics.YSpeed == 0 &&
         samus.Kinematics.YSubspeed == 0;
 

@@ -45,8 +45,7 @@ internal static partial class Program
             Health = 999,
             MaxHealth = 999,
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 0x0440,
-            YPosition = 0x0078,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0440, 0x0078)),
         };
         PrepareRetailSamusFixture(samus);
         samus.RefreshCollisionRadii(rom);

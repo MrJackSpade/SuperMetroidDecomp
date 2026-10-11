@@ -308,8 +308,7 @@ static void VerifySamusPowerBeamProjectiles()
         var samus = new SamusState
         {
             Pose = pose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = 0,
             SelectedHudItem = 0,
         };
@@ -323,8 +322,7 @@ static void VerifySamusPowerBeamProjectiles()
             samus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             bombs);
 
         AssertEqual((int?)0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
@@ -342,9 +340,9 @@ static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} loads damage");
         AssertEqual(0xa24d, projectiles.Slots[0].SpritemapPointer,
             $"power beam direction {direction} selects first art record");
-        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 4)), projectiles.Slots[0].XRadius,
+        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 4)), projectiles.Slots[0].Radius.X,
             $"power beam direction {direction} loads X radius");
-        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 5)), projectiles.Slots[0].YRadius,
+        AssertEqual((ushort)nativeProjectileRom.ReadByte(0x930000 | (NativeWord(0x938433 + direction * 2) + 5)), projectiles.Slots[0].Radius.Y,
             $"power beam direction {direction} loads Y radius");
     }
 
@@ -366,8 +364,7 @@ static void VerifySamusPowerBeamProjectiles()
         var combinedSamus = new SamusState
         {
             Pose = rightPose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = beamType,
         };
         var combinedBombs = CreateSyntheticBombs();
@@ -380,8 +377,7 @@ static void VerifySamusPowerBeamProjectiles()
             combinedSamus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             combinedBombs);
 
         SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
@@ -415,8 +411,7 @@ static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 4,
     };
     var spazerFlickerBombs = CreateSyntheticBombs();
@@ -428,18 +423,17 @@ static void VerifySamusPowerBeamProjectiles()
         spazerFlickerSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
-        0,
-        0,
+        new(0, 0),
         spazerFlickerBombs);
     var spazerFlickerOam = new OamBuffer();
     spazerFlickerOam.BeginFrame();
     spazerFlickerProjectiles.DrawLiveProjectiles(
-        bus, spazerFlickerOam, 0, 0, nmiFrameCounter: 0, compositions: fixtureSprites);
+        bus, spazerFlickerOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
     AssertTrue(spazerFlickerOam.NextByteOffset != 0,
         "even-slot Spazer draws while NMI bit one is clear");
     spazerFlickerOam.BeginFrame();
     spazerFlickerProjectiles.DrawLiveProjectiles(
-        bus, spazerFlickerOam, 0, 0, nmiFrameCounter: 2, compositions: fixtureSprites);
+        bus, spazerFlickerOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 2, compositions: fixtureSprites);
     AssertEqual(0, spazerFlickerOam.NextByteOffset,
         "even-slot Spazer suppresses while NMI bit one is set");
 
@@ -456,19 +450,18 @@ static void VerifySamusPowerBeamProjectiles()
         var cadenceSamus = new SamusState
         {
             Pose = rightPose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = beamType,
         };
         var cadenceBombs = CreateSyntheticBombs();
         var cadenceProjectiles = CreateSyntheticProjectiles();
         cadenceBombs.StepFrame(bus, air, cadenceSamus, 0, 0);
         cadenceProjectiles.StepFrame(
-            bus, air, cadenceSamus, (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, cadenceBombs);
+            bus, air, cadenceSamus, (ushort)SnesButton.X, (ushort)SnesButton.X, new(0, 0), cadenceBombs);
         for (int frame = 0; frame < 3; frame++)
         {
             cadenceBombs.StepFrame(bus, air, cadenceSamus, 0, 0);
-            cadenceProjectiles.StepFrame(bus, air, cadenceSamus, 0, 0, 0, 0, cadenceBombs);
+            cadenceProjectiles.StepFrame(bus, air, cadenceSamus, 0, 0, new(0, 0), cadenceBombs);
         }
         AssertEqual(expectedReload, cadenceProjectiles.Slots[0].TrailTimer,
             $"wave combination {beamType} reloads native trail cadence");
@@ -477,8 +470,7 @@ static void VerifySamusPowerBeamProjectiles()
     var chargeSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     BindSyntheticSamusRendering(bus, chargeSamus);
@@ -498,8 +490,7 @@ static void VerifySamusPowerBeamProjectiles()
             chargeSamus,
             (ushort)SnesButton.X,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             chargeBombs);
         if (frame == 0)
             AssertEqual((int?)0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
@@ -519,11 +510,11 @@ static void VerifySamusPowerBeamProjectiles()
         }
 
         flareOam.BeginFrame();
-        chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, 0, 0, placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+        chargeProjectiles.HandleChargeFlareAndDraw(bus, flareOam, chargeSamus, new(0, 0), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
         // Runtime's later `$93:82F7` draw phase must run on every simulated gameplay frame.
         // The ordinary power beam periodically allocates two empty streams; `$90:B6A9`
         // consumes their zero terminators immediately instead of leaving timer-one slots.
-        chargeProjectiles.HandleTrailsAndDraw(bus, flareOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
+        chargeProjectiles.HandleTrailsAndDraw(bus, flareOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
         flareBecameVisible |= flareOam.NextByteOffset != 0;
     }
     AssertEqual(60, chargeProjectiles.FlareCounter,
@@ -537,8 +528,7 @@ static void VerifySamusPowerBeamProjectiles()
     var rejectedReleaseSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = (ushort)SamusBeamFlags.Charge,
     };
     var rejectedReleaseBombs = CreateSyntheticBombs();
@@ -554,14 +544,13 @@ static void VerifySamusPowerBeamProjectiles()
             rejectedReleaseSamus,
             (ushort)SnesButton.X,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             rejectedReleaseBombs);
     }
     rejectedReleaseBombs.SetSharedCooldown(1);
     SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
     SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(
-        bus, air, rejectedReleaseSamus, 0, 0, 0, 0, rejectedReleaseBombs);
+        bus, air, rejectedReleaseSamus, 0, 0, new(0, 0), rejectedReleaseBombs);
     AssertEqual((int?)null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
@@ -577,16 +566,14 @@ static void VerifySamusPowerBeamProjectiles()
     var baselineMode7Samus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     BindSyntheticSamusRendering(bus, baselineMode7Samus);
     var rotatedMode7Samus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     BindSyntheticSamusRendering(bus, rotatedMode7Samus);
@@ -601,23 +588,22 @@ static void VerifySamusPowerBeamProjectiles()
         ushort newInput = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
         baselineMode7Projectiles.StepFrame(
             bus, air, baselineMode7Samus, (ushort)SnesButton.X, newInput,
-            0, 0, baselineMode7Bombs);
+            new(0, 0), baselineMode7Bombs);
         rotatedMode7Projectiles.StepFrame(
             bus, air, rotatedMode7Samus, (ushort)SnesButton.X, newInput,
-            0, 0, rotatedMode7Bombs);
+            new(0, 0), rotatedMode7Bombs);
     }
     var baselineMode7FlareOam = new OamBuffer();
     var rotatedMode7FlareOam = new OamBuffer();
     baselineMode7FlareOam.BeginFrame();
     rotatedMode7FlareOam.BeginFrame();
     baselineMode7Projectiles.HandleChargeFlareAndDraw(
-        bus, baselineMode7FlareOam, baselineMode7Samus, 0, 0, placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+        bus, baselineMode7FlareOam, baselineMode7Samus, new(0, 0), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
     rotatedMode7Projectiles.HandleChargeFlareAndDraw(
         bus,
         rotatedMode7FlareOam,
         rotatedMode7Samus,
-        0,
-        0,
+        Position16<RoomPixels>.Zero,
         new SamusMode7Transform(0, 0x0100, 0xff00, new Position16<RoomPixels>(120, 96)), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
     AssertTrue(baselineMode7FlareOam.NextByteOffset != 0,
         "Mode 7 flare fixture reaches visible central component");
@@ -634,8 +620,7 @@ static void VerifySamusPowerBeamProjectiles()
             $"Mode 7 charge-flare OBJ {entry} receives transformed center Y");
     }
     AssertSamusPosition(
-        128,
-        96,
+        new(128, 96),
         rotatedMode7Samus,
         "Mode 7 flare calculation preserves physical Samus position");
 
@@ -702,7 +687,7 @@ static void VerifySamusPowerBeamProjectiles()
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
     SamusProjectileSlotObservation beforeChargedRelease = chargeProjectiles.ObserveSlots();
     SamusProjectileFrameResult chargedRelease = chargeProjectiles.StepFrame(
-        bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
+        bus, air, chargeSamus, 0, 0, new(0, 0), chargeBombs);
     int? chargedReleaseSlot = beforeChargedRelease.FiredSlot(chargeProjectiles);
     AssertTrue(chargedReleaseSlot is not null, "charged release allocates projectile");
     SamusProjectileSlot chargedSlot = chargeProjectiles.Slots[chargedReleaseSlot!.Value];
@@ -771,8 +756,7 @@ static void VerifySamusPowerBeamProjectiles()
     var bridgeSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     var bridgeBombs = CreateSyntheticBombs();
@@ -786,8 +770,7 @@ static void VerifySamusPowerBeamProjectiles()
             bridgeSamus,
             (ushort)SnesButton.X,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             bridgeBombs);
     }
     bridgeSamus.ApplyOrdinaryJumpTransition(
@@ -804,8 +787,7 @@ static void VerifySamusPowerBeamProjectiles()
         bridgeSamus,
         (ushort)SnesButton.X,
         controllerNewInput: 0,
-        layer1X: 0,
-        layer1Y: 0,
+        layer1: new(0, 0),
         sharedProjectiles: bridgeBombs);
     int? bridgeReleaseSlot = beforeBridgeRelease.FiredSlot(bridgeProjectiles);
     AssertTrue(bridgeReleaseSlot is not null,
@@ -827,8 +809,7 @@ static void VerifySamusPowerBeamProjectiles()
         var combinedChargeSamus = new SamusState
         {
             Pose = rightPose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = unchecked((ushort)(0x1000 | beamType)),
         };
         var combinedChargeBombs = CreateSyntheticBombs();
@@ -842,8 +823,7 @@ static void VerifySamusPowerBeamProjectiles()
                 combinedChargeSamus,
                 (ushort)SnesButton.X,
                 frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-                0,
-                0,
+                new(0, 0),
                 combinedChargeBombs);
         }
 
@@ -851,7 +831,7 @@ static void VerifySamusPowerBeamProjectiles()
         SamusProjectileSlotObservation beforeCombinedChargedRelease =
             combinedChargeProjectiles.ObserveSlots();
         SamusProjectileFrameResult combinedChargedRelease = combinedChargeProjectiles.StepFrame(
-            bus, air, combinedChargeSamus, 0, 0, 0, 0, combinedChargeBombs);
+            bus, air, combinedChargeSamus, 0, 0, new(0, 0), combinedChargeBombs);
         int? combinedChargedReleaseSlot =
             beforeCombinedChargedRelease.FiredSlot(combinedChargeProjectiles);
         AssertTrue(combinedChargedReleaseSlot is not null,
@@ -882,8 +862,7 @@ static void VerifySamusPowerBeamProjectiles()
     var hyperSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1009,
         HyperBeam = 0x8000,
     };
@@ -900,8 +879,7 @@ static void VerifySamusPowerBeamProjectiles()
         hyperSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
-        0,
-        0,
+        new(0, 0),
         hyperBombs);
     SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
     AssertEqual((int?)0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
@@ -975,7 +953,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int call = 0; call < 15; call++)
     {
         hyperFlareOam.BeginFrame();
-        hyperProjectiles.HandleChargeFlareAndDraw(bus, hyperFlareOam, hyperSamus, 0, 0, placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
+        hyperProjectiles.HandleChargeFlareAndDraw(bus, hyperFlareOam, hyperSamus, new(0, 0), placement: fixtureFlarePlacement, compositions: fixtureFlareSprites);
         AssertTrue(hyperFlareOam.NextByteOffset != 0,
             $"Hyper Beam descending flare call {call + 1} draws ROM spritemaps");
     }
@@ -987,7 +965,7 @@ static void VerifySamusPowerBeamProjectiles()
     // against accidentally applying that branch to the charged projectile.
     var chargedOam = new OamBuffer();
     chargedOam.BeginFrame();
-    chargeProjectiles.DrawLiveProjectiles(bus, chargedOam, 0, 0, nmiFrameCounter: 0, compositions: fixtureSprites);
+    chargeProjectiles.DrawLiveProjectiles(bus, chargedOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
     AssertTrue(chargedOam.NextByteOffset != 0,
         "charged power beam bypasses ordinary alternating-frame flicker");
 
@@ -995,27 +973,27 @@ static void VerifySamusPowerBeamProjectiles()
     // reach zero and allocate native trail byte index `$22` before the third pass moves the
     // projectile. Handling the draw immediately must consume only the populated left stream.
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
+    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, new(0, 0), chargeBombs);
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
-    ushort trailSourceX = chargedSlot.XPosition;
-    ushort trailSourceY = chargedSlot.YPosition;
+    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, new(0, 0), chargeBombs);
+    ushort trailSourceX = chargedSlot.Position.X.Whole;
+    ushort trailSourceY = chargedSlot.Position.Y.Whole;
     chargeBombs.StepFrame(bus, air, chargeSamus, 0, 0);
-    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, 0, 0, chargeBombs);
+    chargeProjectiles.StepFrame(bus, air, chargeSamus, 0, 0, new(0, 0), chargeBombs);
 
     AssertEqual(1, chargeProjectiles.ActiveTrailCount,
         "charged power allocates one of eighteen trail slots every fourth alpha pass");
     SamusProjectileTrailSlot chargedTrail =
         chargeProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
     AssertTrue(chargedTrail.IsActive, "trail allocation scans downward from native index $22");
-    AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.XPosition,
+    AssertEqual(unchecked((ushort)(trailSourceX - 4)), chargedTrail.Left.Position.X,
         "trail samples projectile X before movement and subtracts four");
-    AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.YPosition,
+    AssertEqual(unchecked((ushort)(trailSourceY - 4)), chargedTrail.Left.Position.Y,
         "trail samples projectile Y before movement and subtracts four");
 
     var trailOam = new OamBuffer();
     trailOam.BeginFrame();
-    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
     AssertEqual(4, trailOam.NextByteOffset, "charged power's left stream emits one raw OBJ");
     AssertEqual(0, chargedTrail.Right.InstructionTimer,
         "charged power's empty right stream terminates without drawing");
@@ -1029,7 +1007,7 @@ static void VerifySamusPowerBeamProjectiles()
     ushort frozenTrailPointer = chargedTrail.Left.InstructionPointer;
     ushort frozenTrailTimer = chargedTrail.Left.InstructionTimer;
     trailOam.BeginFrame();
-    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: true, artwork: fixtureTrails);
+    chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: true, artwork: fixtureTrails);
     AssertEqual(frozenTrailPointer, chargedTrail.Left.InstructionPointer,
         "frozen trail retains instruction pointer");
     AssertEqual(frozenTrailTimer, chargedTrail.Left.InstructionTimer,
@@ -1038,13 +1016,13 @@ static void VerifySamusPowerBeamProjectiles()
 
     // Five more records reach the inline `$B525` opcode on the sixth call after the first
     // draw. It mutates world Y, then falls through to the following timed tile in one pass.
-    ushort beforeTrailCommandY = chargedTrail.Left.YPosition;
+    ushort beforeTrailCommandY = chargedTrail.Left.Position.Y;
     for (int call = 0; call < 6; call++)
     {
         trailOam.BeginFrame();
-        chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
+        chargeProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
     }
-    AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.YPosition,
+    AssertEqual(unchecked((ushort)(beforeTrailCommandY + 1)), chargedTrail.Left.Position.Y,
         "inline `$B525` command moves the left trail down one pixel");
     AssertEqual(0x039, trailOam.GetEntry(0).TileNumber,
         "position command falls through to the following `$2C39` timed record");
@@ -1060,8 +1038,8 @@ static void VerifySamusPowerBeamProjectiles()
     {
         var commandProjectiles = CreateSyntheticProjectiles();
         var pair = commandProjectiles.TrailSlots[0];
-        pair.Left.YPosition = 100;
-        pair.Right.YPosition = 120;
+        pair.Left.Position = pair.Left.Position.WithY(100);
+        pair.Right.Position = pair.Right.Position.WithY(120);
         var executingSide = executeOnLeft ? pair.Left : pair.Right;
         executingSide.InstructionTimer = 1;
         executingSide.InstructionPointer = 0x0000;
@@ -1069,12 +1047,12 @@ static void VerifySamusPowerBeamProjectiles()
         WriteTestWord(bus, 0x900002, 1);
         WriteTestWord(bus, 0x900004, 0x2c38);
         trailOam.BeginFrame();
-        commandProjectiles.HandleTrailsAndDraw(bus, trailOam, 0, 0, timeIsFrozen: false);
+        commandProjectiles.HandleTrailsAndDraw(bus, trailOam, Position16<RoomPixels>.Zero, timeIsFrozen: false);
         AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveLeftDown ? 101 :
             command == (ushort)ProjectileTrailInstruction.MoveLeftUp ? 99 : 100,
-            pair.Left.YPosition, "trail command targets named left side regardless of executing stream");
+            pair.Left.Position.Y, "trail command targets named left side regardless of executing stream");
         AssertEqual(command == (ushort)ProjectileTrailInstruction.MoveRightDown ? 121 : 120,
-            pair.Right.YPosition, "trail command targets named right side regardless of executing stream");
+            pair.Right.Position.Y, "trail command targets named right side regardless of executing stream");
         AssertEqual(0x0006, executingSide.InstructionPointer,
             "cross-side command continues the executing stream through its timed record");
     }
@@ -1100,8 +1078,7 @@ static void VerifySamusPowerBeamProjectiles()
     var waveWallSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         EquippedBeams = 1,
     };
     var waveWallBombs = CreateSyntheticBombs();
@@ -1117,13 +1094,12 @@ static void VerifySamusPowerBeamProjectiles()
             waveWallSamus,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             waveWallBombs);
         waveReportedExplosion |= beforeWaveFrame.CollisionStartedExplosion(waveWallProjectiles);
     }
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
-    AssertTrue(waveWallProjectiles.Slots[0].XPosition > 112,
+    AssertTrue(waveWallProjectiles.Slots[0].Position.X.Whole > 112,
         "wave beam advances completely through the solid column");
     AssertEqual(SamusProjectilePreInstruction.WaveBeamThreeFrameTrail,
         waveWallProjectiles.Slots[0].PreInstruction,
@@ -1136,8 +1112,7 @@ static void VerifySamusPowerBeamProjectiles()
     var wallSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
     };
     var wallBombs = CreateSyntheticBombs();
     var wallProjectiles = CreateSyntheticProjectiles();
@@ -1148,12 +1123,11 @@ static void VerifySamusPowerBeamProjectiles()
         wallSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
-        0,
-        0,
+        new(0, 0),
         wallBombs);
-    AssertEqual(79, wallProjectiles.Slots[0].XPosition,
+    AssertEqual(79, wallProjectiles.Slots[0].Position.X.Whole,
         "right beam starts eleven pixels beyond Samus then moves four whole pixels");
-    AssertEqual(0x1000, wallProjectiles.Slots[0].XSubposition,
+    AssertEqual(0x1000, wallProjectiles.Slots[0].Position.X.Fraction,
         "right beam first frame retains one-sixteenth pixel");
 
     bool wallExploded = false;
@@ -1162,7 +1136,7 @@ static void VerifySamusPowerBeamProjectiles()
         wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
         SamusProjectileSlotObservation beforeWallFrame = wallProjectiles.ObserveSlots();
         wallProjectiles.StepFrame(
-            bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
+            bus, wall, wallSamus, 0, 0, new(0, 0), wallBombs);
         wallExploded = beforeWallFrame.CollisionStartedExplosion(wallProjectiles);
     }
     AssertTrue(wallExploded, "power beam reaches type-eight wall");
@@ -1177,7 +1151,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867b); frame++)
     {
         wallBombs.StepFrame(bus, wall, wallSamus, 0, 0);
-        wallProjectiles.StepFrame(bus, wall, wallSamus, 0, 0, 0, 0, wallBombs);
+        wallProjectiles.StepFrame(bus, wall, wallSamus, 0, 0, new(0, 0), wallBombs);
     }
     AssertEqual(0, wallProjectiles.ProjectileCounter,
         "explosion delete decrements ordinary counter");
@@ -1203,8 +1177,7 @@ static void VerifySamusPowerBeamProjectiles()
     var solidShotSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
     };
     var solidShotBombs = CreateSyntheticBombs();
     var solidShotProjectiles = CreateSyntheticProjectiles();
@@ -1220,8 +1193,7 @@ static void VerifySamusPowerBeamProjectiles()
             solidShotSamus,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             solidShotBombs,
             roomPlms: solidShotPlms);
         solidShotExploded = beforeSolidShotFrame.CollisionStartedExplosion(solidShotProjectiles);
@@ -1256,8 +1228,7 @@ static void VerifySamusPowerBeamProjectiles()
     var waveShotSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         EquippedBeams = 1,
     };
     var waveShotBombs = CreateSyntheticBombs();
@@ -1274,15 +1245,14 @@ static void VerifySamusPowerBeamProjectiles()
             waveShotSamus,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             waveShotBombs,
             roomPlms: waveShotPlms);
         waveShotReportedExplosion |= beforeWaveShotFrame.CollisionStartedExplosion(waveShotProjectiles);
     }
     AssertTrue(!waveShotReportedExplosion,
         "Wave remains alive after publishing type-four shot-block reaction");
-    AssertTrue(waveShotProjectiles.Slots[0].XPosition > 112,
+    AssertTrue(waveShotProjectiles.Slots[0].Position.X.Whole > 112,
         "Wave crosses the complete shootable-air column");
     AssertTrue(waveShotPlms.ActiveCount > 0,
         "Wave scan allocates bank-$84 shot-block PLM");
@@ -1302,8 +1272,7 @@ static void VerifySamusPowerBeamProjectiles()
     var missileSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 1,
         Missiles = 3,
     };
@@ -1317,8 +1286,7 @@ static void VerifySamusPowerBeamProjectiles()
         missileSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
-        0,
-        0,
+        new(0, 0),
         missileBombs);
     SamusProjectileSlot missile = missileProjectiles.Slots[0];
     AssertEqual((int?)0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
@@ -1341,16 +1309,16 @@ static void VerifySamusPowerBeamProjectiles()
         "missile selects `$90:AF68` pre-instruction family");
     AssertEqual(0x0100, missile.Variable,
         "first alpha pass crosses `$0100` ignition threshold");
-    AssertEqual(0x0100, missile.XVelocity,
+    AssertEqual(0x0100, missile.Velocity.X.SignedRawValue,
         "right missile begins at one pixel per frame after ignition");
-    AssertEqual(76, missile.XPosition,
+    AssertEqual(76, missile.Position.X.Whole,
         "right missile moves one whole pixel on its ignition frame");
     AssertEqual(0xa25b, missile.SpritemapPointer,
         "missile instruction handler selects first bank-$93 art record");
 
     var missileOam = new OamBuffer();
     missileOam.BeginFrame();
-    missileProjectiles.DrawLiveProjectiles(bus, missileOam, 0, 0, nmiFrameCounter: 0, compositions: fixtureSprites);
+    missileProjectiles.DrawLiveProjectiles(bus, missileOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
     AssertEqual(4, missileOam.NextByteOffset,
         "missile family bypasses ordinary beam alternating-frame flicker");
     AssertEqual(0x044, missileOam.GetEntry(0).TileNumber,
@@ -1362,14 +1330,14 @@ static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < 3; frame++)
     {
         missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
-        missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
+        missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, new(0, 0), missileBombs);
     }
     AssertEqual(1, missileProjectiles.ActiveTrailCount,
         "missile allocates one persistent trail every fourth alpha pass");
     SamusProjectileTrailSlot missileTrail =
         missileProjectiles.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
     missileOam.BeginFrame();
-    missileProjectiles.HandleTrailsAndDraw(bus, missileOam, 0, 0, timeIsFrozen: false, artwork: fixtureTrails);
+    missileProjectiles.HandleTrailsAndDraw(bus, missileOam, Position16<RoomPixels>.Zero, timeIsFrozen: false, artwork: fixtureTrails);
     AssertEqual(4, missileOam.NextByteOffset, "missile left trail emits one small OBJ");
     AssertEqual(0x048, missileOam.GetEntry(0).TileNumber,
         "missile trail starts at retail tile `$2A48`");
@@ -1384,7 +1352,7 @@ static void VerifySamusPowerBeamProjectiles()
         missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
         SamusProjectileSlotObservation beforeMissileFrame = missileProjectiles.ObserveSlots();
         missileProjectiles.StepFrame(
-            bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
+            bus, wall, missileSamus, 0, 0, new(0, 0), missileBombs);
         missileExploded = beforeMissileFrame.CollisionStartedExplosion(missileProjectiles);
     }
     AssertTrue(missileExploded,
@@ -1396,14 +1364,14 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0xa254, missile.SpritemapPointer,
         "missile collision frame selects first explosion art");
     missileOam.BeginFrame();
-    missileProjectiles.DrawExplosions(bus, missileOam, 0, 0, compositions: fixtureSprites);
+    missileProjectiles.DrawExplosions(bus, missileOam, Position16<RoomPixels>.Zero, compositions: fixtureSprites);
     AssertEqual(4, missileOam.NextByteOffset,
         "missile explosion participates in the early explosion draw pass");
 
     for (int frame = 0; frame < NativeProjectileLifetime(nativeProjectileRom, 0x93867f); frame++)
     {
         missileBombs.StepFrame(bus, wall, missileSamus, 0, 0);
-        missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, 0, 0, missileBombs);
+        missileProjectiles.StepFrame(bus, wall, missileSamus, 0, 0, new(0, 0), missileBombs);
     }
     AssertEqual(0, missileProjectiles.ProjectileCounter,
         "missile explosion delete decrements ordinary counter");
@@ -1428,8 +1396,7 @@ static void VerifySamusPowerBeamProjectiles()
         missileSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
-        0,
-        0,
+        new(0, 0),
         missileBombs);
     int? postMissileBeamSlot = beforePostMissileBeam.FiredSlot(missileProjectiles);
     AssertTrue(postMissileBeamSlot.HasValue,
@@ -1464,8 +1431,7 @@ static void VerifySamusPowerBeamProjectiles()
             Pose = rightPose,
             // Request muzzle (64,yPosition): default Right adds (11,1), then
             // standing-pose mechanics subtract six from Y, regardless of artwork.
-            XPosition = 53,
-            YPosition = unchecked((ushort)(yPosition + 5)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(53, unchecked((ushort)(yPosition + 5)))),
             SelectedHudItem = 1,
             Missiles = 1,
         };
@@ -1479,8 +1445,7 @@ static void VerifySamusPowerBeamProjectiles()
             pointSamus,
             (ushort)SnesButton.X,
             (ushort)SnesButton.X,
-            0,
-            0,
+            new(0, 0),
             pointBombs);
         return beforePointMissile.CollisionStartedExplosion(pointProjectiles);
     }
@@ -1931,8 +1896,7 @@ static void VerifySamusPowerBeamProjectiles()
     var contactDoorSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 0x005a,
-        YPosition = 0x0060,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(0x005a, 0x0060)),
     };
     var contactDoorBombs = CreateSyntheticBombs();
     var contactDoorProjectiles = CreateSyntheticProjectiles();
@@ -1945,8 +1909,7 @@ static void VerifySamusPowerBeamProjectiles()
         contactDoorSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
-        0,
-        0,
+        new(0, 0),
         contactDoorBombs,
         roomPlms: contactDoorPlms);
     AssertTrue(beforeContactDoor.CollisionStartedExplosion(contactDoorProjectiles),
@@ -1956,14 +1919,13 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(RoomCollisionType.SolidBlock,
         contactDoor.GetCollisionBlockByIndex(blueDoorOrigin).CollisionType,
         "contact-distance shot synchronously opens the cap origin");
-    AssertEqual(0x006d, contactDoorProjectiles.Slots[0].XPosition,
+    AssertEqual(0x006d, contactDoorProjectiles.Slots[0].Position.X.Whole,
         "fire-time impact anchors its explosion at the native leading edge");
 
     var blueDoorSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
     };
     var blueDoorBombs = CreateSyntheticBombs();
     var blueDoorProjectiles = CreateSyntheticProjectiles();
@@ -1979,8 +1941,7 @@ static void VerifySamusPowerBeamProjectiles()
             blueDoorSamus,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             blueDoorBombs,
             roomPlms: blueDoorPlms);
         blueDoorExploded = beforeBlueDoorFrame.CollisionStartedExplosion(blueDoorProjectiles);
@@ -2016,8 +1977,7 @@ static void VerifySamusPowerBeamProjectiles()
     var superSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 2,
         SuperMissiles = 3,
     };
@@ -2031,8 +1991,7 @@ static void VerifySamusPowerBeamProjectiles()
         superSamus,
         (ushort)SnesButton.X,
         (ushort)SnesButton.X,
-        0,
-        0,
+        new(0, 0),
         superBombs);
     SamusProjectileSlot super = superProjectiles.Slots[0];
     SamusProjectileSlot superLink = superProjectiles.Slots[1];
@@ -2049,7 +2008,7 @@ static void VerifySamusPowerBeamProjectiles()
         "super ignition counts visible owner plus invisible link");
     AssertEqual(0x8200, super.Type, "super owner uses active type `$8200`");
     AssertEqual(0x012c, super.Damage, "super owner reads retail 300 damage");
-    AssertEqual(0x0100, super.XVelocity,
+    AssertEqual(0x0100, super.Velocity.X.SignedRawValue,
         "super ignition begins at one pixel per frame");
     AssertEqual(0x0102, super.Variable,
         "super variable combines initialized high byte and link byte index two");
@@ -2059,14 +2018,14 @@ static void VerifySamusPowerBeamProjectiles()
     AssertEqual(0x012c, superLink.Damage, "super link carries native damage sentinel");
     AssertEqual(SamusProjectilePreInstruction.SuperMissileLink, superLink.PreInstruction,
         "super link selects stationary `$90:B075`");
-    AssertEqual(super.XPosition, superLink.XPosition,
+    AssertEqual(super.Position.X.Whole, superLink.Position.X.Whole,
         "slow horizontal link follows owner center after ignition movement");
 
     // The link instruction list is intentionally invisible; only the owner contributes an
     // OBJ after its own bank-$93 program selects `$A030`.
     var superOam = new OamBuffer();
     superOam.BeginFrame();
-    superProjectiles.DrawLiveProjectiles(bus, superOam, 0, 0, nmiFrameCounter: 0, compositions: fixtureSprites);
+    superProjectiles.DrawLiveProjectiles(bus, superOam, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, compositions: fixtureSprites);
     AssertEqual(4, superOam.NextByteOffset, "super owner draws while link spritemap is empty");
     AssertEqual(0x045, superOam.GetEntry(0).TileNumber,
         "super owner consumes its distinct `$2A45` OBJ");
@@ -2074,7 +2033,7 @@ static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < 3; frame++)
     {
         superBombs.StepFrame(bus, wall, superSamus, 0, 0);
-        superProjectiles.StepFrame(bus, wall, superSamus, 0, 0, 0, 0, superBombs);
+        superProjectiles.StepFrame(bus, wall, superSamus, 0, 0, new(0, 0), superBombs);
     }
     AssertEqual(1, superProjectiles.ActiveTrailCount,
         "super's initial four-count allocates first exhaust trail");
@@ -2087,7 +2046,7 @@ static void VerifySamusPowerBeamProjectiles()
         superBombs.StepFrame(bus, wall, superSamus, 0, 0);
         SamusProjectileSlotObservation beforeSuperFrame = superProjectiles.ObserveSlots();
         superProjectiles.StepFrame(
-            bus, wall, superSamus, 0, 0, 0, 0, superBombs);
+            bus, wall, superSamus, 0, 0, new(0, 0), superBombs);
         superExploded = beforeSuperFrame.CollisionStartedExplosion(superProjectiles);
     }
     AssertTrue(superExploded,
@@ -2113,33 +2072,33 @@ static void VerifySamusPowerBeamProjectiles()
     var pillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
     var pillarSamus = new SamusState
     {
-        Pose = rightPose, XPosition = 64, YPosition = 96,
+        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 2, SuperMissiles = 3,
     };
     var pillarBombs = CreateSyntheticBombs();
     var pillarProjectiles = CreateSyntheticProjectiles();
     pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus,
-        (ushort)SnesButton.X, (ushort)SnesButton.X, 0, 0, pillarBombs);
+        (ushort)SnesButton.X, (ushort)SnesButton.X, new(0, 0), pillarBombs);
     var pillarOwner = pillarProjectiles.Slots[0];
     var pillarLink = pillarProjectiles.Slots[1];
-    pillarOwner.XPosition = 0x12f;
-    pillarOwner.YPosition = pillarLink.YPosition = 0xd1;
-    pillarOwner.XVelocity = 0x1100;
-    pillarOwner.XSubposition = 0;
-    pillarLink.XPosition = 0x128;
-    pillarLink.XRadius = 8;
+    pillarLink.Position = pillarLink.Position.WithWholeY(0xd1);
+    pillarOwner.Position = pillarOwner.Position.WithWhole(new(0x12f, 0xd1));
+    pillarOwner.Velocity = pillarOwner.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0x1100));
+    pillarOwner.Position = pillarOwner.Position.WithFractionX(0);
+    pillarLink.Position = pillarLink.Position.WithWholeX(0x128);
+    pillarLink.Radius = pillarLink.Radius.WithX(8);
     // Native explosion timing remains live long enough for this three-frame sequence.
-    pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, 0x100, 0, pillarBombs);
-    AssertEqual(0x139, pillarLink.XPosition,
+    pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, new(0x100, 0), pillarBombs);
+    AssertEqual(0x139, pillarLink.Position.X.Whole,
         "native missile helper impact does not apply the beam leading-edge radius");
     AssertEqual(SamusProjectileFamily.MissileExplosion, pillarLink.PackedType.Family,
         "supplemental pillar collision explodes the helper, not its owner");
-    pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, 0x100, 0, pillarBombs);
-    AssertEqual(0x14b, pillarLink.XPosition,
+    pillarProjectiles.StepFrame(bus, pillarRoom, pillarSamus, 0, 0, new(0x100, 0), pillarBombs);
+    AssertEqual(0x14b, pillarLink.Position.X.Whole,
         "original ROM repositions an exploded helper over air");
     pillarWords[853] = 0x8119;
     var secondPillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
-    pillarProjectiles.StepFrame(bus, secondPillarRoom, pillarSamus, 0, 0, 0x100, 0, pillarBombs);
+    pillarProjectiles.StepFrame(bus, secondPillarRoom, pillarSamus, 0, 0, new(0x100, 0), pillarBombs);
     AssertTrue(!pillarLink.IsActive,
         "native second collision deletes the explosion instead of restarting it");
     AssertEqual(1, pillarProjectiles.ProjectileCounter,
@@ -2166,8 +2125,7 @@ static void VerifySamusPowerBeamProjectiles()
     var integratedSuperSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 2,
         SuperMissiles = 1,
     };
@@ -2187,8 +2145,7 @@ static void VerifySamusPowerBeamProjectiles()
             integratedSuperSamus,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0,
-            0,
+            new(0, 0),
             integratedSuperBombs,
             roomPlms: integratedSuperPlms);
         integratedSuperExploded =
@@ -2221,7 +2178,7 @@ static void VerifySamusPowerBeamProjectiles()
         new ushort[skippedWords.Length], new byte[8]);
     var skippedSamus = new SamusState
     {
-        Pose = rightPose, XPosition = 32, YPosition = 96, SelectedHudItem = 2, SuperMissiles = 1,
+        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 96)), SelectedHudItem = 2, SuperMissiles = 1,
     };
     var skippedBombs = CreateSyntheticBombs();
     var skippedProjectiles = CreateSyntheticProjectiles();
@@ -2231,17 +2188,17 @@ static void VerifySamusPowerBeamProjectiles()
         skippedBombs.StepFrame(bus, skippedWall, skippedSamus, 0, 0);
         skippedProjectiles.StepFrame(bus, skippedWall, skippedSamus,
             frame == 0 ? (ushort)SnesButton.X : (ushort)0, frame == 0 ? (ushort)SnesButton.X : (ushort)0,
-            0, 0, skippedBombs, roomPlms: skippedPlms);
+            new(0, 0), skippedBombs, roomPlms: skippedPlms);
     }
     SamusProjectileSlot skippedOwner = skippedProjectiles.Slots[0];
     SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];
     AssertTrue(skippedOwner.PackedType.IsFamily(SamusProjectileFamily.SuperMissile) && skippedLink.IsActive,
         "the Super Missile and its link are in flight");
-    skippedOwner.XPosition = skippedLink.XPosition = 0x5c;
-    skippedOwner.XSubposition = 0;
-    skippedOwner.XVelocity = 0x1400;
+    skippedLink.Position = skippedLink.Position.WithWholeX(0x5c);
+    skippedOwner.Position = skippedOwner.Position.WithWholeX(0x5c).WithFractionX(0);
+    skippedOwner.Velocity = skippedOwner.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0x1400));
     skippedBombs.StepFrame(bus, skippedWall, skippedSamus, 0, 0);
-    skippedProjectiles.StepFrame(bus, skippedWall, skippedSamus, 0, 0, 0, 0, skippedBombs, roomPlms: skippedPlms);
+    skippedProjectiles.StepFrame(bus, skippedWall, skippedSamus, 0, 0, new(0, 0), skippedBombs, roomPlms: skippedPlms);
     AssertEqual(SamusProjectileFamily.MissileExplosion, skippedOwner.PackedType.Family,
         "the owner explodes on the column-seven wall");
     AssertTrue(skippedPlms.ActiveCount > 0,

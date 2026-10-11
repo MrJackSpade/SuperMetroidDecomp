@@ -27,18 +27,17 @@ internal static partial class Program
             body.XPosition = body.YPosition = 128;
             state.Function = MotherBrainBodyFunction.FakeDeathAscentContinuePausing;
             state.FunctionTimer = contact == "post-dispatch position" ? (ushort)0 : (ushort)100;
-            var samus = new SamusState { XPosition = 158, YPosition = 128, Health = 500 };
-            samus.Kinematics.XRadius = 8;
-            samus.Kinematics.YRadius = 16;
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(158, 128)), Health = 500 };
+            samus.Kinematics.Radius = new(8, 16);
             ushort expectedX = 20;
-            if (contact == "neck") { samus.XPosition = 250; samus.YPosition = 80; expectedX = 16; }
-            if (contact == "no-damage side") { samus.XPosition = 152; expectedX = 26; }
-            if (contact == "post-dispatch position") { samus.XPosition = 89; samus.YPosition = 279; }
+            if (contact == "neck") { samus.Position = samus.Position.WithWhole(new(250, 80)); expectedX = 16; }
+            if (contact == "no-damage side") { samus.Position = samus.Position.WithWholeX(152); expectedX = 26; }
+            if (contact == "post-dispatch position") { samus.Position = samus.Position.WithWhole(new(89, 279)); }
             main(body, samus, 0, null);
             AssertEqual((ushort)(contact == "no-damage side" ? 500 : 500 - body.Definition.Damage),
                 samus.Health, $"Later-phase {contact} applies native contact damage");
-            AssertEqual(expectedX, samus.Kinematics.ExtraXDisplacement, $"{contact} horizontal displacement");
-            AssertEqual((ushort)4, samus.Kinematics.ExtraYDisplacement, $"{contact} vertical displacement");
+            AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
+            AssertEqual((ushort)4, samus.Kinematics.ExtraDisplacement.Y.WholePixels, $"{contact} vertical displacement");
             AssertEqual((ushort)96, samus.InvincibilityTimer, "Native contact invincibility timer");
             AssertEqual((ushort)5, samus.KnockbackTimer, "Native contact knockback timer");
         }
@@ -55,7 +54,7 @@ internal static partial class Program
             var shots = new SamusProjectileSystem();
             var shot = shots.Slots[0];
             shot.Type = type; shot.Damage = 100; shot.Direction = 2;
-            shot.XPosition = shot.YPosition = 128; shot.XRadius = shot.YRadius = 4;
+            shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
             shot.InstructionPointer = 0x9000; shot.InstructionTimer = 1;
             shot.PreInstruction = type == 0x8100 ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
             AssertEqual(1, enemies.ResolveOrdinaryProjectileHits(bus, shots, new SamusBombProjectileSystem(), new SamusState()),

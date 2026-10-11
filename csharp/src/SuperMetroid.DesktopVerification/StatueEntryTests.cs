@@ -36,7 +36,7 @@ internal static partial class Program
                     SuperMetroidRuntimeFrameRenderer.Render(runtime));
             }
             if (frame % 120 == 0)
-                Console.WriteLine($"f={frame} room={runtime.ActiveRoom?.Pointer:X4} phase={next.Phase} samus={runtime.Samus!.XPosition},{runtime.Samus.YPosition} statues={runtime.Enemies.TourianEntranceStatueAnimationState:X4} finished={runtime.Enemies.TourianEntranceStatueFinished}");
+                Console.WriteLine($"f={frame} room={runtime.ActiveRoom?.Pointer:X4} phase={next.Phase} samus={runtime.Samus!.Position.X.Whole},{runtime.Samus.Position.Y.Whole} statues={runtime.Enemies.TourianEntranceStatueAnimationState:X4} finished={runtime.Enemies.TourianEntranceStatueFinished}");
         }
         if (!runtime.System.HasEvent(EventNumber.TourianUnlocked))
             throw new InvalidOperationException("The four defeated bosses never opened Tourian after the statue sequence.");
@@ -44,8 +44,8 @@ internal static partial class Program
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
         for (int frame = 0; frame < 240; frame++)
             loaded.Game.Step(frame < 18 ? (ushort)SnesButton.Left : (ushort)0);
-        Console.WriteLine($"After shaft approach Samus={runtime.Samus!.XPosition},{runtime.Samus.YPosition}, camera={runtime.Camera!.PixelPosition.Y}");
-        if (runtime.Samus.YPosition <= 256 || runtime.Camera.PixelPosition.Y == 0)
+        Console.WriteLine($"After shaft approach Samus={runtime.Samus!.Position.X.Whole},{runtime.Samus.Position.Y.Whole}, camera={runtime.Camera!.PixelPosition.Y}");
+        if (runtime.Samus.Position.Y.Whole <= 256 || runtime.Camera.PixelPosition.Y == 0)
             throw new InvalidOperationException("Tourian unlock did not make the shaft physically traversable with camera tracking.");
     }
 }

@@ -10,7 +10,7 @@ public static partial class SnesGameplayFrameRenderer
         Position16<RoomPixels> layer1)
     {
         bool leftFacing = samus.IsFacingLeft(bus);
-        Offset16<ScreenPixels> samusOnScreen = new Position16<RoomPixels>(samus.XPosition, samus.YPosition).RelativeToCamera(layer1);
+        Offset16<ScreenPixels> samusOnScreen = samus.Position.Whole.RelativeToCamera(layer1);
         int originX = samusOnScreen.X +
             (leftFacing ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
         int originY = samusOnScreen.Y -

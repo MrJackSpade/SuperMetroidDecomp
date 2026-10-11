@@ -265,8 +265,8 @@ public sealed partial class BabyMetroidCutsceneState
         if (Phase == BabyMetroidCutscenePhase.LatchOntoSamus && TouchesSamus(samus))
         {
             bool reachedLatchPoint = AccelerateTowardsPoint(
-                samus.XPosition,
-                unchecked((ushort)(samus.YPosition - 0x0014)),
+                samus.Position.X.Whole,
+                unchecked((ushort)(samus.Position.Y.Whole - 0x0014)),
                 acceleration: 0x0010);
             if (reachedLatchPoint)
             {
@@ -527,8 +527,8 @@ public sealed partial class BabyMetroidCutsceneState
                 // never performs the state change. That transition belongs to enemy-touch
                 // handler `$CF03`, executed after main AI and the common mover below.
                 GraduallyAccelerateTowardsPoint(
-                    samus.XPosition,
-                    unchecked((ushort)(samus.YPosition - 0x0014)),
+                    samus.Position.X.Whole,
+                    unchecked((ushort)(samus.Position.Y.Whole - 0x0014)),
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
                     layer1X,
@@ -542,9 +542,9 @@ public sealed partial class BabyMetroidCutsceneState
                 // both velocities when it installed this function.
                 CrySoundEnabled = false;
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
-                XPosition = unchecked((ushort)(samus.XPosition + ShakingXOffsets[shakingIndex]));
+                XPosition = unchecked((ushort)(samus.Position.X.Whole + ShakingXOffsets[shakingIndex]));
                 YPosition = unchecked((ushort)(
-                    samus.YPosition + ShakingYOffsets[shakingIndex] - 0x0014));
+                    samus.Position.Y.Whole + ShakingYOffsets[shakingIndex] - 0x0014));
 
                 // `$C59F` adds exactly one energy per enemy-processing call. CMP/BMI is a
                 // signed 16-bit comparison; normal game maxima stay in its positive range.
@@ -570,9 +570,9 @@ public sealed partial class BabyMetroidCutsceneState
                 {
                     int shakingIndex = (OnionRingHitFlashTimer & 6) >> 1;
                     XPosition = unchecked((ushort)(
-                        samus.XPosition + 2 * ShakingXOffsets[shakingIndex]));
+                        samus.Position.X.Whole + 2 * ShakingXOffsets[shakingIndex]));
                     YPosition = unchecked((ushort)(
-                        samus.YPosition + 2 * ShakingYOffsets[shakingIndex] - 0x0014));
+                        samus.Position.Y.Whole + 2 * ShakingYOffsets[shakingIndex] - 0x0014));
                 }
 
                 if (Health == 0)
@@ -607,14 +607,14 @@ public sealed partial class BabyMetroidCutsceneState
                 // enter at `$A9:F466`, which stores a `$10` wrong-way off-screen X extra,
                 // not the `$400` of the entrance helpers.
                 GraduallyAccelerateTowardsPoint(
-                    unchecked((ushort)(samus.XPosition - 4)),
+                    unchecked((ushort)(samus.Position.X.Whole - 4)),
                     0x0060,
                     accelerationDivisor: 0x0010,
                     wrongWayOffScreenXSpeed: 0x0010,
                     layer1X,
                     layer1Y);
                 if (CollidesWithRectangle(
-                    unchecked((ushort)(samus.XPosition - 4)), 0x0060, 4, 4))
+                    unchecked((ushort)(samus.Position.X.Whole - 4)), 0x0060, 4, 4))
                 {
                     Phase = BabyMetroidCutscenePhase.FlyOffScreen;
                 }

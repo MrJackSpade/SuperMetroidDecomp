@@ -239,9 +239,9 @@ public sealed class SamusDrainedState
         // Native computes 21-oldRadius and subtracts it from center Y before changing the
         // pose. This preserves the previous bottom boundary even when the source body did
         // not already have the drained pose's radius of 21 pixels.
-        ushort sourceRadius = samus.Kinematics.YRadius;
-        samus.YPosition = unchecked((ushort)(
-            samus.YPosition - unchecked((ushort)(21 - sourceRadius))));
+        ushort sourceRadius = samus.Kinematics.Radius.Y;
+        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
+            samus.Position.Y.Whole - unchecked((ushort)(21 - sourceRadius)))));
 
         // Direction byte four is left; every other byte chooses the right-facing record.
         // Read it before replacing the pose, exactly as `$91:E50D` does.
@@ -251,7 +251,7 @@ public sealed class SamusDrainedState
             : SamusPoseId.DrainedCrouchingRightPose;
         samus.RefreshCollisionRadii(bus);
         if (samus.ReadMovementKind(bus) != SamusMovementType.Special ||
-            samus.Kinematics.YRadius != 21)
+            samus.Kinematics.Radius.Y != 21)
             throw new InvalidDataException("ROM drained pose $E8/$E9 metadata changed unexpectedly.");
 
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,

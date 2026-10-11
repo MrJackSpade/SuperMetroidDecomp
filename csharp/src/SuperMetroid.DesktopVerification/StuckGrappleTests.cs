@@ -40,7 +40,7 @@ internal static partial class Program
         }
         Check(sawKick, "Jump must produce the collision-assisted swing kick.");
         Check(grapple.Phase == GrapplePhase.WallGrab, "Reported dangling state never enters wall grab while retracting toward wall.");
-        Check(grapple.RopeLength == 8 && samus.XPosition == 175 && samus.YPosition == 504 &&
+        Check(grapple.RopeLength == 8 && samus.Position.X.Whole == 175 && samus.Position.Y.Whole == 504 &&
             samus.TopSpritemapIndex == GrappleWallGrabGraphicsReference.TopSpritemap &&
             samus.BottomSpritemapIndex == GrappleWallGrabGraphicsReference.BottomSpritemap,
             "Freed rope must fully retract and visibly enter the ROM wall-grab sprite at the captured anchor.");
@@ -56,9 +56,9 @@ internal static partial class Program
         Check(samus.Pose == SamusPoseId.WallJumpLeftPose && grapple.Phase == GrapplePhase.Inactive,
             "Wall jump must detach and select the opposite-facing jump pose.");
         for (int f = 0; f < 13; f++) loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
-        Check(samus.XPosition < 175 && samus.YPosition < 454,
+        Check(samus.Position.X.Whole < 175 && samus.Position.Y.Whole < 454,
             "Wall jump from the player's stuck setup must move away and rise by more than 50 pixels.");
         PngWriterTooling.WriteRgba("csharp/test-temp/issue-376-stuck-grapple/jumped.png",new Extent16<ScreenPixels>(256, 224),SuperMetroidRuntimeFrameRenderer.Render(runtime));
-        Console.WriteLine($"PASS Jump frees rope: length 12 -> 8, wall-grab sprite at (175,504), wall jump to ({samus.XPosition},{samus.YPosition}).");
+        Console.WriteLine($"PASS Jump frees rope: length 12 -> 8, wall-grab sprite at (175,504), wall jump to ({samus.Position.X.Whole},{samus.Position.Y.Whole}).");
     }
 }

@@ -34,20 +34,19 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = SpikeColumn * 16 + 8;
+        samus.Position = samus.Position.WithWholeX(SpikeColumn * 16 + 8);
         // Radius 21 puts the top at Y 474, inside the spike row (464-479). The live radius
         // still holds the previous pose's 12, whose top (483) is in the air row below.
-        samus.YPosition = 495;
+        samus.Position = samus.Position.WithWholeY(495);
         samus.InitializeAnimation(bus);
-        samus.Kinematics.XRadius = 5;
-        samus.Kinematics.YRadius = 12;
+        samus.Kinematics.Radius = new(5, 12);
         samus.InvincibilityTimer = 0;
         runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         ushort health = samus.Health;
 
         runtime.StepFrame(0);
 
-        AssertEqual((ushort)21, samus.Kinematics.YRadius, "alpha publishes the standing radius");
+        AssertEqual((ushort)21, samus.Kinematics.Radius.Y, "alpha publishes the standing radius");
         AssertTrue(samus.InvincibilityTimer != 0, "the spike sample uses the radius alpha just published");
         AssertTrue(samus.KnockbackTimer != 0, "the air spike starts its knockback window");
         AssertTrue(samus.Health < health, "the air spike deals its damage");

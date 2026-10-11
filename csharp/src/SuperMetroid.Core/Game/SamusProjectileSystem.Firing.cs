@@ -284,14 +284,14 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + direction * 2)));
-        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
+        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 4))));
-        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(
+                unchecked((ushort)(slot.InstructionPointer + 4)))));
+        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 5))));
+                unchecked((ushort)(slot.InstructionPointer + 5)))));
         slot.InstructionTimer = 1;
 
         // $90:B8ED checks Charge equipment and both input-edge latches before
@@ -382,14 +382,14 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
+        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 4))));
-        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(
+                unchecked((ushort)(slot.InstructionPointer + 4)))));
+        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 5))));
+                unchecked((ushort)(slot.InstructionPointer + 5)))));
         slot.InstructionTimer = 1;
         slot.Damage = 1000;
 
@@ -485,14 +485,14 @@ public sealed partial class SamusProjectileSystem
         slot.InstructionPointer = SamusProjectileSelectionDefinitions.ReadWord(
             SamusProjectileRomData.Banks.Projectile |
                 unchecked((ushort)(dataPointer + 2 + slot.PackedDirection.DirectionIndex * 2)));
-        slot.XRadius = SamusProjectileRadiusDefinitions.ReadByte(
+        slot.Radius = slot.Radius.WithX(SamusProjectileRadiusDefinitions.ReadByte(
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 4))));
-        slot.YRadius = SamusProjectileRadiusDefinitions.ReadByte(
+                unchecked((ushort)(slot.InstructionPointer + 4)))));
+        slot.Radius = slot.Radius.WithY(SamusProjectileRadiusDefinitions.ReadByte(
             (int)new SnesAddress(
                 SamusProjectileRomData.Banks.ProjectileNumber,
-                unchecked((ushort)(slot.InstructionPointer + 5))));
+                unchecked((ushort)(slot.InstructionPointer + 5)))));
         slot.InstructionTimer = 1;
         slot.PreInstruction = isSuperMissile
             ? SamusProjectilePreInstruction.SuperMissile
@@ -528,8 +528,7 @@ public sealed partial class SamusProjectileSystem
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
         var origin = SamusProjectileOriginDefinitions.Read(runningOrigin, slot.Direction);
-        slot.XPosition = unchecked((ushort)(samus.XPosition + origin.X));
-        slot.YPosition = unchecked((ushort)(samus.YPosition + origin.Y - poseYOffset));
+        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + origin.X)), unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset))));
     }
 
     private static void InitializePowerBeamVelocity(
@@ -552,11 +551,10 @@ public sealed partial class SamusProjectileSystem
         SamusProjectileSlot slot,
         short baseSpeed)
     {
-        slot.XSubposition = 0;
-        slot.YSubposition = 0;
+        slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
         ISnesMutableMemory memory = bus as ISnesMutableMemory ??
             throw new InvalidOperationException("Projectile inheritance requires live WRAM.");
-        (slot.XVelocity, slot.YVelocity) = SamusProjectileInheritance.ReadVelocity(memory, slot.Direction, baseSpeed);
+        slot.Velocity = SamusProjectileInheritance.ReadVelocity(memory, slot.Direction, baseSpeed);
     }
 
 }

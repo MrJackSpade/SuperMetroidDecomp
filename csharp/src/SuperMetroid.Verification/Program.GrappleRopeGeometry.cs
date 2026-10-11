@@ -17,8 +17,8 @@ internal static partial class Program
             var grapple = new SamusGrappleState
             {
                 Phase = GrapplePhase.Firing, RopeLength = length,
-                BeamStartX = (ushort)origin, BeamStartY = 128,
-                AnchorX = (ushort)(origin + direction * 100), AnchorY = 28,
+                BeamStart = new((ushort)origin, 128),
+                Anchor = new((ushort)(origin + direction * 100), 28),
                 PointAnimationTimer = 5,
             };
             for (int slot = 0; slot < 16; slot++)
@@ -46,7 +46,7 @@ internal static partial class Program
                 }
             }
             var oam = new OamBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), 0, 0);
+            SamusGrappleMovement.DrawConnectedBeam(bus, grapple, oam, new VramWriteQueue(), new(0, 0));
             string context = $"direction {direction}, origin {origin}, length {length}";
             int endpointCount = (short)length < 0 ? 0 : 1;
             AssertEqual((expected.Count + endpointCount) * 4, oam.NextByteOffset, "Native rope culling/count: " + context);

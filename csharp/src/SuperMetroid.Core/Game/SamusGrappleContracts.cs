@@ -49,13 +49,11 @@ public enum GrappleEnemyReaction : ushort
 
 /// <summary>One endpoint sample from the live interactive-enemy list.</summary>
 /// <param name="Reaction">The grapple reaction declared by the sampled enemy.</param>
-/// <param name="AnchorX">Horizontal anchor position in world pixels.</param>
-/// <param name="AnchorY">Vertical anchor position in world pixels.</param>
+/// <param name="Anchor">Anchor position (the sampled enemy's centre) in room pixels.</param>
 /// <param name="EnemyDamage">Contact damage supplied when the reaction hurts Samus.</param>
 public readonly record struct GrappleEnemyCollision(
     GrappleEnemyReaction Reaction,
-    ushort AnchorX,
-    ushort AnchorY,
+    Position16<RoomPixels> Anchor,
     ushort EnemyDamage)
 {
     /// <summary>Gets whether the reaction establishes a persistent grapple connection.</summary>
@@ -78,27 +76,21 @@ public sealed class SamusGrappleState
     public Assets.GrappleSwingFrameCatalog? SwingFrames { get; set; }
     /// <summary>Gets or sets the current grapple function-pointer phase.</summary>
     public GrapplePhase Phase { get; set; }
-    /// <summary>Gets or sets the grapple anchor's horizontal world position in pixels.</summary>
-    public ushort AnchorX { get; set; }
-    /// <summary>Gets or sets the grapple anchor's vertical world position in pixels.</summary>
-    public ushort AnchorY { get; set; }
+    /// <summary>Gets or sets the grapple anchor (beam endpoint) in room pixels.</summary>
+    public Position16<RoomPixels> Anchor { get; set; }
 
     /// <summary>
     /// Native <c>GrappleBeam_StartX/YPosition</c>: the physical rope origin at Samus's hand.
     /// It differs from the flare/draw origin while firing and in stuck-in-place poses.
     /// </summary>
-    public ushort RopeStartX { get; set; }
-    /// <inheritdoc cref="RopeStartX"/>
-    public ushort RopeStartY { get; set; }
+    public Position16<RoomPixels> RopeStart { get; set; }
 
     /// <summary>
     /// Native <c>GrappleBeam_FlareX/YPosition</c>, retained under the original host-facing
     /// BeamStart name for debugger/API compatibility. <c>DrawConnectedBeam</c> starts OAM
-    /// here; do not use this pair to reconstruct command-10 body positioning.
+    /// here; do not use this position to reconstruct command-10 body positioning.
     /// </summary>
-    public ushort BeamStartX { get; set; }
-    /// <inheritdoc cref="BeamStartX"/>
-    public ushort BeamStartY { get; set; }
+    public Position16<RoomPixels> BeamStart { get; set; }
     /// <summary>
     /// Unsigned native length word at `$0D08`. Connected motion clamps it below 64, while
     /// firing must represent 120 before the following frame reaches the 128-pixel cutoff.
@@ -110,35 +102,22 @@ public sealed class SamusGrappleState
     public byte FireDirection { get; set; }
     /// <summary>Native $0CF6, GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
     public ushort PoseChangeAutoFireTimer { get; set; }
-    /// <summary>Gets or sets the signed horizontal endpoint extension velocity.</summary>
-    public short ExtensionXVelocity { get; set; }
-    /// <summary>Gets or sets the signed vertical endpoint extension velocity.</summary>
-    public short ExtensionYVelocity { get; set; }
+    /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
+    public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
     /// <summary>
-    /// <c>GrappleCollision_XQuarterSubVelocity/XQuarterVelocity</c> ($0D82/$0D84). Each firing
-    /// frame rebuilds them from the extension velocity, but the outer bytes keep last frame's
-    /// values, so they are state rather than a pure function of the velocity.
+    /// <c>GrappleCollision_X/YQuarterSubVelocity</c> and <c>X/YQuarterVelocity</c>
+    /// ($0D82/$0D84, $0D86/$0D88). Each firing frame rebuilds them from the extension
+    /// velocity, but the outer bytes keep last frame's values, so they are state rather than
+    /// a pure function of the velocity.
     /// </summary>
-    public ushort XQuarterSubVelocity { get; set; }
-    /// <inheritdoc cref="XQuarterSubVelocity"/>
-    public ushort XQuarterVelocity { get; set; }
-    /// <summary><c>GrappleCollision_YQuarterSubVelocity/YQuarterVelocity</c> ($0D86/$0D88).</summary>
-    public ushort YQuarterSubVelocity { get; set; }
-    /// <inheritdoc cref="YQuarterSubVelocity"/>
-    public ushort YQuarterVelocity { get; set; }
-    /// <summary>Gets or sets the physical hand-origin horizontal offset from Samus.</summary>
-    public short OriginXOffset { get; set; }
-    /// <summary>Gets or sets the physical hand-origin vertical offset from Samus.</summary>
-    public short OriginYOffset { get; set; }
-    /// <summary>Gets or sets the drawn flare's horizontal offset from Samus.</summary>
-    public short FlareXOffset { get; set; }
-    /// <summary>Gets or sets the drawn flare's vertical offset from Samus.</summary>
-    public short FlareYOffset { get; set; }
-    /// <summary>Gets or sets the endpoint's signed horizontal 16.16 offset from the rope origin.</summary>
-    public int EndpointXOffsetFixed { get; set; }
-    /// <summary>Gets or sets the endpoint's signed vertical 16.16 offset from the rope origin.</summary>
-    public int EndpointYOffsetFixed { get; set; }
+    public FixedVector<RoomPixels> QuarterVelocity { get; set; }
+    /// <summary>Gets or sets the physical hand-origin offset from Samus.</summary>
+    public Offset16<RoomPixels> OriginOffset { get; set; }
+    /// <summary>Gets or sets the drawn flare's offset from Samus.</summary>
+    public Offset16<RoomPixels> FlareOffset { get; set; }
+    /// <summary>Gets or sets the endpoint's signed 16.16 offset from the rope origin.</summary>
+    public FixedVector<RoomPixels> EndpointOffset { get; set; }
     /// <summary>Gets or sets the native grapple angle.</summary>
     public SnesAngle Angle { get; set; }
     /// <summary>Gets or sets the angle mirrored for the connected-swing calculations.</summary>
@@ -249,8 +228,7 @@ public sealed class SamusGrappleState
 /// <param name="CollisionDistanceFromFeet">Native body-sweep countdown at the collision point.</param>
 /// <param name="RopeLengthBlocked">Whether collision prevented the requested rope-length change.</param>
 /// <param name="WallJumpStarted">Whether release began the independent wall-jump handler.</param>
-/// <param name="CameraPreviousX">Optional previous camera X coordinate published by the update.</param>
-/// <param name="CameraPreviousY">Optional previous camera Y coordinate published by the update.</param>
+/// <param name="CameraPrevious">Optional clamped previous Samus position published to camera tracking by the update.</param>
 /// <param name="PendingDropPose">Optional pose requested after a dropped connection.</param>
 /// <param name="PendingConnection">Optional deferred pose and geometry for a new connection.</param>
 /// <param name="PendingReleasePose">Optional pose requested after releasing a swing.</param>
@@ -262,8 +240,7 @@ public readonly record struct GrappleMovementResult(
     int CollisionDistanceFromFeet = 0,
     bool RopeLengthBlocked = false,
     bool WallJumpStarted = false,
-    ushort? CameraPreviousX = null,
-    ushort? CameraPreviousY = null,
+    Position16<RoomPixels>? CameraPrevious = null,
     SamusPoseId? PendingDropPose = null,
     GrapplePendingConnection? PendingConnection = null,
     SamusPoseId? PendingReleasePose = null);
@@ -275,20 +252,16 @@ public readonly record struct GrappleMovementResult(
 /// </summary>
 /// <param name="Pose">The prospective connected pose.</param>
 /// <param name="Swinging">Whether the connection starts in swinging rather than locked mode.</param>
-/// <param name="PreviousX">The previous horizontal position retained for movement resolution.</param>
-/// <param name="PreviousY">The previous vertical position retained for movement resolution.</param>
+/// <param name="Previous">The previous whole-pixel Samus position retained for movement resolution.</param>
 public readonly record struct GrapplePendingConnection(
     SamusPoseId Pose,
     bool Swinging,
-    ushort PreviousX,
-    ushort PreviousY);
+    Position16<RoomPixels> Previous);
 
-/// <summary>World pixel and room-block coordinates produced by bank-$94's radial helper.</summary>
+/// <summary>Room-pixel point and its byte-masked room block produced by bank-$94's radial helper.</summary>
 internal readonly record struct GrappleCollisionPoint(
-    ushort X,
-    ushort Y,
-    int BlockX,
-    int BlockY);
+    Position16<RoomPixels> Pixel,
+    Position16<RoomBlocks> Block);
 
 /// <summary>
 /// Result of the six-point angular body sweep. DistanceFromFeet retains the native countdown:

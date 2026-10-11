@@ -42,7 +42,7 @@ internal static partial class Program
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Beetom;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa8 };
         slot.XPosition = 0x0200;
-        var samus = new SamusState { XPosition = 0x0100 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
         initialize(slot, samus, 0);
         BeetomEnemyState state = enemies.BeetomStates[0]!;
         object?[] processArguments =

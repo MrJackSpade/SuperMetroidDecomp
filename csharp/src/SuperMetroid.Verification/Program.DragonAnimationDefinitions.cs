@@ -90,7 +90,7 @@ internal static partial class Program
         DragonEnemyState wingState = enemies.DragonStates[1]!;
         var samus = new SamusState
         {
-            XPosition = unchecked((ushort)(body.XPosition + (facingLeft ? -0x10 : 0x10))),
+            Position = new(new(unchecked((ushort)(body.XPosition + (facingLeft ? -0x10 : 0x10))), 0), new(0, 0)),
         };
 
         wait.Invoke(enemies, [body, bodyState, samus]);

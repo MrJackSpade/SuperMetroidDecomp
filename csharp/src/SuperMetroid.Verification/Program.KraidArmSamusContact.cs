@@ -28,13 +28,10 @@ internal static partial class Program
         arm.SpritemapPointer = 0x90fd;
         arm.Properties = 0x2800;
         SamusState samus = runtime.Samus!;
-        samus.XPosition = 0x007f;
-        samus.YPosition = 0x019a;
-        samus.Kinematics.XRadius = 5;
-        samus.Kinematics.YRadius = 19;
+        samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
+        samus.Kinematics.Radius = new(5, 19);
         samus.InvincibilityTimer = 0;
-        samus.Kinematics.ExtraXDisplacement = 0;
-        samus.Kinematics.ExtraYDisplacement = 0;
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
         // The header radius box (top $1AF) misses Samus's feet at $1AD; the arm frame does not.
         AssertTrue(!RadiusBoxesOverlapForArm(arm, samus), "the header radius alone does not reach Samus");
 
@@ -44,8 +41,8 @@ internal static partial class Program
             .Invoke(runtime.Enemies, [(ushort)0, (ushort)0x100]);
         runtime.Enemies.ResolveOrdinarySamusContact(samus, 0, runtime.LevelData, onlyNativeEnemyIndex: 0x40);
 
-        AssertEqual((ushort)4, samus.Kinematics.ExtraXDisplacement, "$A7:94A4 pushes Samus four pixels right");
-        AssertEqual(unchecked((ushort)-8), samus.Kinematics.ExtraYDisplacement, "$A7:94AA pushes Samus eight pixels up");
+        AssertEqual((ushort)4, samus.Kinematics.ExtraDisplacement.X.WholePixels, "$A7:94A4 pushes Samus four pixels right");
+        AssertEqual((short)-8, samus.Kinematics.ExtraDisplacement.Y.WholePixels, "$A7:94AA pushes Samus eight pixels up");
         AssertEqual((ushort)KraidAiFunction.LintFire, runtime.Enemies.Slots[4].VariableA,
             "the arm touch makes the bottom lint fire");
         AssertTrue(samus.InvincibilityTimer != 0, "the arm's contact damage starts invincibility");
@@ -53,6 +50,6 @@ internal static partial class Program
     }
 
     private static bool RadiusBoxesOverlapForArm(RoomEnemySlot arm, SamusState samus) =>
-        Math.Abs(arm.XPosition - samus.XPosition) < arm.XRadius + samus.Kinematics.XRadius &&
-        Math.Abs(arm.YPosition - samus.YPosition) < arm.YRadius + samus.Kinematics.YRadius;
+        Math.Abs(arm.XPosition - samus.Position.X.Whole) < arm.XRadius + samus.Kinematics.Radius.X &&
+        Math.Abs(arm.YPosition - samus.Position.Y.Whole) < arm.YRadius + samus.Kinematics.Radius.Y;
 }

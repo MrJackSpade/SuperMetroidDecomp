@@ -213,8 +213,8 @@ public sealed partial class RoomEnemySystem
     {
         if (!state.MovingSamus)
             return;
-        samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-            slot.YPosition - state.PreviousYPosition));
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(unchecked((short)(
+            slot.YPosition - state.PreviousYPosition)));
     }
 
     private static void StopVerticalShutterAfterUp(VerticalShutterEnemyState state)

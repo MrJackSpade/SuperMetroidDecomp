@@ -43,7 +43,7 @@ internal static partial class Program
             }
             if (samus.Grapple.Phase == GrapplePhase.ConnectedSwinging &&
                 previousPhase != GrapplePhase.ConnectedSwinging)
-                connectedColumns.Add(samus.Grapple.AnchorX >> 4);
+                connectedColumns.Add(samus.Grapple.Anchor.X >> 4);
             previousPhase = samus.Grapple.Phase;
         }
         AssertEqual(6, scriptedShots, "unmodified basic demo authors six grapple shots");
@@ -52,7 +52,7 @@ internal static partial class Program
         AssertTrue(connectedColumns.All(expectedColumns.Contains) &&
             connectedColumns.Zip(connectedColumns.Skip(1), (a, b) => b > a).All(increases => increases),
             "demo attachments advance across the real grapple ceiling in order");
-        AssertTrue(samus.XPosition > (expectedColumns.Max + 1) * 16,
+        AssertTrue(samus.Position.X.Whole > (expectedColumns.Max + 1) * 16,
             "demo clears the last ceiling anchor and reaches the far landing");
         AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase,
             "demo releases its final grapple before finishing");

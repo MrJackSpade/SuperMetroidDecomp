@@ -104,9 +104,9 @@ internal static partial class Program
         {
             (nameof(SamusState.TopSpritemapIndex), NativeSnapshotMemory.SamusTopSpritemap),
             (nameof(SamusState.BottomSpritemapIndex), NativeSnapshotMemory.SamusBottomSpritemap),
-            (nameof(SamusState.SpritemapXPosition), NativeSnapshotMemory.SamusSpriteX),
-            (nameof(SamusState.SpritemapYPosition), NativeSnapshotMemory.SamusSpriteY),
         }) typeof(SamusState).GetProperty(property)!.SetValue(samus, W(address));
+        typeof(SamusState).GetProperty(nameof(SamusState.SpritemapPosition))!.SetValue(samus,
+            new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY)));
         foreach (var (property, address) in new[]
         {
             (nameof(SamusArmCannonState.Frame), NativeSnapshotMemory.CannonFrame),
@@ -169,10 +169,8 @@ internal static partial class Program
         samus.MaxReserveEnergy = W(NativeSnapshotMemory.MaxReserve);
         samus.ReserveEnergy = W(NativeSnapshotMemory.Reserve);
         samus.Pose = (SamusPoseId)W(NativeSnapshotMemory.Pose);
-        samus.XPosition = W(NativeSnapshotMemory.X);
-        samus.YPosition = W(NativeSnapshotMemory.Y);
-        samus.Kinematics.XSubposition = W(NativeSnapshotMemory.XFraction);
-        samus.Kinematics.YSubposition = W(NativeSnapshotMemory.YFraction);
+        samus.Position = samus.Position.WithWhole(new(W(NativeSnapshotMemory.X), W(NativeSnapshotMemory.Y)));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
@@ -191,14 +189,10 @@ internal static partial class Program
         samus.Kinematics.YSubspeed = W(NativeSnapshotMemory.VerticalFraction);
         samus.Kinematics.YDirection = ClosedNativeWords.Decode<SamusVerticalDirection>(
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
-        samus.Kinematics.XRadius = W(NativeSnapshotMemory.SamusXRadius);
-        samus.Kinematics.YRadius = W(NativeSnapshotMemory.SamusYRadius);
+        samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
         samus.Kinematics.YAcceleration = W(NativeSnapshotMemory.Gravity);
         samus.Kinematics.YSubacceleration = W(NativeSnapshotMemory.GravityFraction);
-        samus.Kinematics.ExtraXDisplacement = W(NativeSnapshotMemory.ExtraXDisplacement);
-        samus.Kinematics.ExtraXSubdisplacement = W(NativeSnapshotMemory.ExtraXDisplacementFraction);
-        samus.Kinematics.ExtraYDisplacement = W(NativeSnapshotMemory.ExtraYDisplacement);
-        samus.Kinematics.ExtraYSubdisplacement = W(NativeSnapshotMemory.ExtraYDisplacementFraction);
+        samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
         samus.Kinematics.HorizontalSlopeCollisionEnable = W(NativeSnapshotMemory.SlopeCollisionEnable);
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
         samus.HorizontalSpeed.ContactDamageIndex = ClosedNativeWords.Decode<SamusContactDamageIndex>(
@@ -216,10 +210,10 @@ internal static partial class Program
             typeof(SamusProjectileTrailSide).GetProperty("InstructionPointer")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightInstructionPointer + trail.NativeByteIndex));
             typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftTileNumberAttributes + trail.NativeByteIndex));
             typeof(SamusProjectileTrailSide).GetProperty("TileNumberAttributes")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightTileNumberAttributes + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("XPosition")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("XPosition")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("YPosition")!.SetValue(trail.Left, W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex));
-            typeof(SamusProjectileTrailSide).GetProperty("YPosition")!.SetValue(trail.Right, W(NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex));
+            typeof(SamusProjectileTrailSide).GetProperty(nameof(SamusProjectileTrailSide.Position))!.SetValue(trail.Left, new Position16<RoomPixels>(
+                W(NativeSnapshotMemory.TrailLeftXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailLeftYPosition + trail.NativeByteIndex)));
+            typeof(SamusProjectileTrailSide).GetProperty(nameof(SamusProjectileTrailSide.Position))!.SetValue(trail.Right, new Position16<RoomPixels>(
+                W(NativeSnapshotMemory.TrailRightXPosition + trail.NativeByteIndex), W(NativeSnapshotMemory.TrailRightYPosition + trail.NativeByteIndex)));
         }
 
         for (int index = 0; index < SamusAtmosphericEffectsState.SlotCount; index++)
@@ -227,7 +221,7 @@ internal static partial class Program
             ushort packed = W(NativeSnapshotMemory.AtmosphericFrameAndType + index * 2);
             samus.LiquidPhysics.AtmosphericEffects.SetSlot(index, (byte)(packed >> 8), (byte)packed,
                 W(NativeSnapshotMemory.AtmosphericTimer + index * 2),
-                W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2));
+                new(W(NativeSnapshotMemory.AtmosphericX + index * 2), W(NativeSnapshotMemory.AtmosphericY + index * 2)));
         }
         typeof(SamusState).GetProperty(nameof(samus.AnimationFrameBuffer))!.SetValue(samus, W(NativeSnapshotMemory.AnimationFrameBuffer));
         typeof(SamusLiquidPhysicsState).GetProperty("LiquidPhysicsType")!.SetValue(samus.LiquidPhysics,

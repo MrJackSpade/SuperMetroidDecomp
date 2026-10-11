@@ -83,7 +83,7 @@ internal static partial class Program
         }
         roomSlot.Clear();
 
-        var samus = new SamusState { XPosition = 128, YPosition = 100 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 100)) };
         var elevator = new CeresElevatorArrivalState(memory, samus, projectileArtwork);
         elevator.Step(samus);
         var elevatorActual = new OamBuffer(); var elevatorExpected = new OamBuffer();

@@ -38,7 +38,7 @@ internal sealed partial class InstalledSamusIsolationTests
         pair.Apply(context + " setup", actor => { PrepareFlash(actor.Samus); });
         Require(!pair.Apply(context + " rejected chord", actor => actor.Samus.CrystalFlash.TryBegin(
             actor.Memory, actor.Samus, (ushort)(FlashChord | (ushort)SnesButton.A))), "Extra Flash input must be rejected");
-        ushort initialY = pair.Stock.Samus.YPosition;
+        ushort initialY = pair.Stock.Samus.Position.Y.Whole;
         Require(pair.Apply(context + " admission", actor => actor.Samus.CrystalFlash.TryBegin(
             actor.Memory, actor.Samus, FlashChord)), "Flash was not admitted");
         int frames = 0;
@@ -52,7 +52,7 @@ internal sealed partial class InstalledSamusIsolationTests
                 actor.Samus.CrystalFlash.UpdatePalette(actor.Memory, actor.Colors, actor.Samus, beams, actor.Crystal);
                 return result;
             });
-            if (frames == 10) Require(pair.Stock.Samus.YPosition == initialY - 20,
+            if (frames == 10) Require(pair.Stock.Samus.Position.Y.Whole == initialY - 20,
                 "Flash must complete its ten-call, twenty-pixel raise");
             if (frames == 1)
             {
@@ -130,8 +130,8 @@ internal sealed partial class InstalledSamusIsolationTests
     {
         Pair pair = Create();
         var stock = new SamusSuitPickupState(); var edited = new SamusSuitPickupState();
-        stock.Begin(pair.Stock.Memory, pair.Stock.Samus, 0, 240, kind);
-        edited.Begin(pair.Edited.Memory, pair.Edited.Samus, 0, 240, kind);
+        stock.Begin(pair.Stock.Memory, pair.Stock.Samus, new(0, 240), kind);
+        edited.Begin(pair.Edited.Memory, pair.Edited.Samus, new(0, 240), kind);
         int frames = 0;
         while (stock.IsActive && frames < 300)
         {
@@ -153,7 +153,7 @@ internal sealed partial class InstalledSamusIsolationTests
     {
         Pair pair = Create(source, suit);
         string context = $"death source {(int)source:X2}, suit {suit:X4}";
-        pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Memory, actor.Samus, 0, 240), draw: false);
+        pair.Apply(context + " admission", actor => actor.Samus.DeathSequence.Begin(actor.Memory, actor.Samus, new(0, 240)), draw: false);
         var stockQueue = new VramWriteQueue(); var editedQueue = new VramWriteQueue();
         int frames = 0;
         while (pair.Stock.Samus.DeathSequence.Phase != SamusDeathSequencePhase.Complete && frames < 240)

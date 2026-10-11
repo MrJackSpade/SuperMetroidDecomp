@@ -59,7 +59,7 @@ public sealed partial class RoomPlmSystem
                 return;
 
             case SpeedBoosterEscapePreInstruction.WaitForSamusLeft:
-                if (samus.XPosition > SpeedBoosterEscapePlmRomData.StartFxMotionSamusX)
+                if (samus.Position.X.Whole > SpeedBoosterEscapePlmRomData.StartFxMotionSamusX)
                     return;
                 fx.ApplyCartridgeMotionWrites(timer: 1);
                 WakeAtNextInstruction(slot);
@@ -120,7 +120,7 @@ public sealed partial class RoomPlmSystem
         }
 
         // BCC at $84:B852 returns while Samus remains left-to-right beyond this stage.
-        if (stage.Value.TargetSamusX < samus.XPosition)
+        if (stage.Value.TargetSamusX < samus.Position.X.Whole)
             return;
 
         fx.ApplyCartridgeMotionWrites(

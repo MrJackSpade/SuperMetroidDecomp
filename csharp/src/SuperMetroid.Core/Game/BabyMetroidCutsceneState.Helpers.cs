@@ -35,7 +35,7 @@ public sealed partial class BabyMetroidCutsceneState
 
             case BabyMetroidSamusRainbowPhase.ActivateWhenEnemyIsLow:
                 // `$CD30` uses a signed CMP/BMI after adding sixteen to the Baby's Y.
-                if (unchecked((short)(YPosition + 0x0010 - samus.YPosition)) < 0)
+                if (unchecked((short)(YPosition + 0x0010 - samus.Position.Y.Whole)) < 0)
                     return;
                 samus.Drained.EnableRainbow(samus);
                 samusRainbowActivated = true;
@@ -196,8 +196,8 @@ public sealed partial class BabyMetroidCutsceneState
             samus.InvincibilityTimer = 0;
         else if (samus.InvincibilityTimer != 0)
             return false;
-        return AxisTouches(samus.XPosition, XPosition, samus.Kinematics.XRadius, XHitboxRadius) &&
-            AxisTouches(samus.YPosition, YPosition, samus.Kinematics.YRadius, YHitboxRadius);
+        return AxisTouches(samus.Position.X.Whole, XPosition, samus.Kinematics.Radius.X, XHitboxRadius) &&
+            AxisTouches(samus.Position.Y.Whole, YPosition, samus.Kinematics.Radius.Y, YHitboxRadius);
 
         static bool AxisTouches(ushort samusPosition, ushort enemyPosition, ushort samusRadius, ushort enemyRadius)
         {

@@ -442,8 +442,8 @@ public sealed partial class RoomEnemySystem
         // endpoint for the first sixteen decrements, then uses strict 16-pixel axis tests.
         if (samus.Grapple.Phase != GrapplePhase.Inactive &&
             projectile.Variable1 < EnemyPickupLifetime - EnemyPickupGrappleDelay &&
-            AbsoluteWrappedDelta(projectile.XPosition, samus.Grapple.AnchorX) < 16 &&
-            AbsoluteWrappedDelta(projectile.YPosition, samus.Grapple.AnchorY) < 16)
+            AbsoluteWrappedDelta(projectile.XPosition, samus.Grapple.Anchor.X) < 16 &&
+            AbsoluteWrappedDelta(projectile.YPosition, samus.Grapple.Anchor.Y) < 16)
         {
             CollectEnemyPickup(projectile, samus);
             return;
@@ -451,10 +451,10 @@ public sealed partial class RoomEnemySystem
 
         // $86:F057's subtract/borrow formulation is exactly strict radius-sum overlap for
         // valid actor radii. Equality is not contact, matching the BCS exits in both axes.
-        if (AbsoluteWrappedDelta(samus.XPosition, projectile.XPosition) >=
-                samus.Kinematics.XRadius + projectile.XRadius ||
-            AbsoluteWrappedDelta(samus.YPosition, projectile.YPosition) >=
-                samus.Kinematics.YRadius + projectile.YRadius)
+        if (AbsoluteWrappedDelta(samus.Position.X.Whole, projectile.XPosition) >=
+                samus.Kinematics.Radius.X + projectile.XRadius ||
+            AbsoluteWrappedDelta(samus.Position.Y.Whole, projectile.YPosition) >=
+                samus.Kinematics.Radius.Y + projectile.YRadius)
         {
             return;
         }

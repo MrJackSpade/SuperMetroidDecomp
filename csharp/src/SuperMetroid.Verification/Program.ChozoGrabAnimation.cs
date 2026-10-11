@@ -82,8 +82,7 @@ internal static partial class Program
         samus.CommitPoseHistory(bus);
         samus.AnimationFrame = 2;
         typeof(SamusState).GetProperty(nameof(SamusState.AnimationFrameTimer))!.SetValue(samus, (ushort)3);
-        samus.XPosition = 0x4a * 16 + 8;
-        samus.YPosition = (ushort)(0x17 * 16 - samus.Kinematics.YRadius);
+        samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.LevelData!;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
         AssertEqual(ChozoStatuePlmRomData.WreckedShipHandBts.Value, block.Bts.Value,
@@ -96,18 +95,18 @@ internal static partial class Program
         {
             // Detonation immediately before hand capture; origin differs from Samus so
             // cleanup cannot accidentally enter Crystal Flash in this carry fixture.
-            ushort bombX = (ushort)(samus.XPosition - 24);
+            ushort bombX = (ushort)(samus.Position.X.Whole - 24);
             runtime.BombProjectiles.PowerBombExplosion.Arm();
-            runtime.BombProjectiles.PowerBombExplosion.Spawn(bombX, samus.YPosition);
+            runtime.BombProjectiles.PowerBombExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
             expectedExplosion.Arm();
-            expectedExplosion.Spawn(bombX, samus.YPosition);
+            expectedExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
         }
         runtime.Plms.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
         AssertTrue(samus.StationaryScriptControlLocked && samus.InputLocked,
             "hand trigger installs native stationary handlers");
         AssertEqual((ushort)2, samus.AnimationFrame, "grab preserves captured ball frame");
         AssertEqual((ushort)3, samus.AnimationFrameTimer, "grab preserves captured ball timer");
-        ushort startX = samus.XPosition, startY = samus.YPosition;
+        ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
         bool carried = false;
         int frames = 0;
         while (samus.StationaryScriptControlLocked && frames < 2000)
@@ -133,7 +132,7 @@ internal static partial class Program
                 AssertEqual((ushort)2, samus.AnimationFrame, "ball frame remains frozen while carried");
                 AssertEqual((ushort)3, samus.AnimationFrameTimer, "ball animation timer remains frozen while carried");
             }
-            carried |= samus.XPosition != startX || samus.YPosition != startY;
+            carried |= samus.Position.X.Whole != startX || samus.Position.Y.Whole != startY;
             frames++;
         }
         if (powerBomb)

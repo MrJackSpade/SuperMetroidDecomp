@@ -39,8 +39,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.XPosition = 512;
-            samus.YPosition = 490;
+            samus.Position = samus.Position.WithWhole(new(512, 490));
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
@@ -56,11 +55,11 @@ internal static partial class Program
                 var shot = runtime.Projectiles!.Slots[0];
                 if (native is not null)
                 {
-                    ushort[] actual = [samus.XPosition, samus.Kinematics.XSubposition,
-                        samus.YPosition, samus.Kinematics.YSubposition, (ushort)samus.Pose,
+                    ushort[] actual = [samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction,
+                        samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, (ushort)samus.Pose,
                         runtime.Camera.PixelPosition.X, runtime.Camera.PixelPosition.Y,
-                        shot.XPosition, shot.XSubposition, shot.YPosition, shot.YSubposition,
-                        unchecked((ushort)shot.XVelocity), unchecked((ushort)shot.YVelocity), shot.Type, shot.InstructionPointer];
+                        shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,
+                        unchecked((ushort)shot.Velocity.X.SignedRawValue), unchecked((ushort)shot.Velocity.Y.SignedRawValue), shot.Type, shot.InstructionPointer];
                     var expected = native[(walkAfterShot ? 1 : 0, frame)];
                     if (!actual.SequenceEqual(expected))
                     {
@@ -92,18 +91,18 @@ internal static partial class Program
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impact = frame;
-                    AssertTrue(shot.XPosition is >= 856 and <= 880,
+                    AssertTrue(shot.Position.X.Whole is >= 856 and <= 880,
                         "Controller-followed shot impacts the constructed world-space target");
                     break;
                 }
                 if (!shot.IsActive) { deleted = frame; break; }
             }
-            Console.WriteLine($"Runtime Hero walking={walkAfterShot}: impact={impact}, deletion={deleted}, SamusX={samus.XPosition}, cameraX={runtime.Camera.PixelPosition.X}.");
+            Console.WriteLine($"Runtime Hero walking={walkAfterShot}: impact={impact}, deletion={deleted}, SamusX={samus.Position.X.Whole}, cameraX={runtime.Camera.PixelPosition.X}.");
             if (walkAfterShot)
             {
                 AssertTrue(impact >= 0 && deleted < 0,
                     "Ordinary Samus movement and camera tracking preserve the shot to the target");
-                AssertTrue(samus.XPosition > 512 && runtime.Camera.PixelPosition.X > settledCameraX,
+                AssertTrue(samus.Position.X.Whole > 512 && runtime.Camera.PixelPosition.X > settledCameraX,
                     "The actual runtime movement and camera owners advance without test camera writes");
             }
             else
@@ -125,21 +124,21 @@ internal static partial class Program
         var blocks = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) blocks[31 * 16 + x] = 0x8000;
         var level = CreateRoom(16, 32, blocks, new byte[blocks.Length]);
-        var samus = new SamusState { Pose = SamusPoseId.FallingRightPose, XPosition = 128, YPosition = 477 };
+        var samus = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 477)) };
         samus.RefreshCollisionRadii(bus);
         AssertTrue(samus.TryApplyAerialLanding(bus, level, false, 0, 0),
             "Constructed landing reaches actual larger-pose collision correction");
-        AssertEqual((ushort)475, samus.YPosition, "Landing correction preserves the old bottom boundary");
-        AssertEqual(19, samus.Kinematics.YRadius, "landing commit retains falling radius");
+        AssertEqual((ushort)475, samus.Position.Y.Whole, "Landing correction preserves the old bottom boundary");
+        AssertEqual(19, samus.Kinematics.Radius.Y, "landing commit retains falling radius");
         samus.RefreshCollisionRadii(bus);
-        AssertEqual(21, samus.Kinematics.YRadius, "next alpha publishes landing radius");
-        AssertEqual(475, samus.YPosition, "alpha does not repeat landing correction");
+        AssertEqual(21, samus.Kinematics.Radius.Y, "next alpha publishes landing radius");
+        AssertEqual(475, samus.Position.Y.Whole, "alpha does not repeat landing correction");
         var previous = FixedPosition<RoomPixels>.FromWords(120, 0x1234, 477, 0xabcd);
         AssertEqual(previous.WithY(previous.Y.WithWhole(475)), samus.ApplyPreviousPositionWrites(previous),
             "Native pose correction changes only previous Y, preserving both X words and previous Y fraction");
         AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous),
             "Checkpoint event is consumed once before normal scrolling replaces it");
-        var unobstructed = new SamusState { Pose = SamusPoseId.FallingRightPose, XPosition = 128, YPosition = 400 };
+        var unobstructed = new SamusState { Pose = SamusPoseId.FallingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 400)) };
         unobstructed.RefreshCollisionRadii(bus);
         AssertTrue(unobstructed.TryApplyAerialLanding(bus, level, false, 0, 0),
             "Unobstructed pose expansion takes the no-correction branch");

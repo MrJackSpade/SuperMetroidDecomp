@@ -13,7 +13,7 @@ internal static partial class Program
         foreach (bool able in new[] { false, true })
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             if (able) samus.Drained.SetupForRainbowBeamAbleToStand(bus, samus);

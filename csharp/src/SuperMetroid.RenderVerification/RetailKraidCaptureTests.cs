@@ -19,7 +19,7 @@ internal static class RetailKraidCaptureTests
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
         var samus = runtime.Samus!;
         // Match the existing Kraid rise audit's stationary approach position.
-        samus.XPosition = 128; samus.YPosition = 456;
+        samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         var boss = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
@@ -135,9 +135,8 @@ internal static class RetailKraidCaptureTests
         var shot = shots.Slots[0];
         shot.Type = KraidCaptureDefinitions.AuditMissileType;
         shot.Damage = 100; shot.Direction = (ushort)SamusProjectileDirection.Right;
-        shot.XPosition = unchecked((ushort)(body.XPosition + left + 2));
-        shot.YPosition = unchecked((ushort)(body.YPosition + (top + bottom) / 2));
-        shot.XRadius = 2; shot.YRadius = 2;
+        shot.Position = shot.Position.WithWhole(new(unchecked((ushort)(body.XPosition + left + 2)), unchecked((ushort)(body.YPosition + (top + bottom) / 2))));
+        shot.Radius = new(2, 2);
         shot.InstructionPointer = KraidCaptureDefinitions.AuditLiveInstruction;
         shot.InstructionTimer = 1;
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.

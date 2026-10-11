@@ -41,15 +41,15 @@ internal static partial class Program
             bus.Pose = samus.Pose = (SamusPoseId)pose;
             int art = SignedByteClasses[artIndex];
             samus.TileTransfers.BindArtwork(artwork[artIndex]);
-            samus.XPosition = unchecked((ushort)(pose * 251 + art));
-            samus.YPosition = unchecked((ushort)~samus.XPosition);
+            samus.Position = samus.Position.WithWholeX(unchecked((ushort)(pose * 251 + art)));
+            samus.Position = samus.Position.WithWholeY(unchecked((ushort)~samus.Position.X.Whole));
             byte physicalY = rom.ReadByte(0x91b629 + pose * 8 + 4);
             bool running = rom.ReadByte(0x91b629 + pose * 8 + 1) == 1;
             bool beamRunning = running || pose is 0x75 or 0x76;
             slot.Direction = direction;
             initialize(bus, samus, slot);
-            AssertEqual(unchecked((ushort)(samus.XPosition + Word((beamRunning ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX) + direction * 2))), slot.XPosition, "Pose art leaves projectile X unchanged");
-            AssertEqual(unchecked((ushort)(samus.YPosition + Word((beamRunning ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY) + direction * 2) - physicalY)), slot.YPosition, "Pose art leaves projectile collision Y unchanged");
+            AssertEqual(unchecked((ushort)(samus.Position.X.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningX : SamusProjectileRomData.Origins.DefaultX) + direction * 2))), slot.Position.X.Whole, "Pose art leaves projectile X unchanged");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + Word((beamRunning ? SamusProjectileRomData.Origins.RunningY : SamusProjectileRomData.Origins.DefaultY) + direction * 2) - physicalY)), slot.Position.Y.Whole, "Pose art leaves projectile collision Y unchanged");
             AssertEqual(unchecked((sbyte)art), samus.ReadGraphicsYOffset(bus), "Visual body offset remains replaceable");
 
             var g = samus.Grapple;
@@ -67,14 +67,14 @@ internal static partial class Program
             int visualCorrection = held ? 6 : unchecked((sbyte)art);
             short originY = Word((running ? 0x9bc186 : 0x9bc136) + firingDirection * 2);
             short flareY = Word((running ? 0x9bc1ae : 0x9bc15e) + firingDirection * 2);
-            AssertEqual(unchecked((ushort)(samus.YPosition + originY - physicalCorrection)), g.AnchorY, "Grapple physical endpoint ignores art correction");
-            AssertEqual(unchecked((ushort)(samus.YPosition + flareY - visualCorrection)), g.BeamStartY, "Grapple flare retains visual correction");
-            ushort endpoint = g.AnchorY;
-            samus.YPosition = unchecked((ushort)(samus.YPosition + 5));
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalCorrection)), g.Anchor.Y, "Grapple physical endpoint ignores art correction");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - visualCorrection)), g.BeamStart.Y, "Grapple flare retains visual correction");
+            ushort endpoint = g.Anchor.Y;
+            samus.Position += new Offset16<RoomPixels>(0, 5);
             refresh(bus, samus, g);
-            AssertEqual(unchecked((ushort)(samus.YPosition + originY - physicalY)), g.RopeStartY, "Late Grapple physical start ignores art correction");
-            AssertEqual(unchecked((ushort)(samus.YPosition + flareY - unchecked((sbyte)art))), g.BeamStartY, "Late Grapple flare uses current artwork");
-            AssertEqual(endpoint, g.AnchorY, "Late draw does not move collision endpoint");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + originY - physicalY)), g.RopeStart.Y, "Late Grapple physical start ignores art correction");
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + flareY - unchecked((sbyte)art))), g.BeamStart.Y, "Late Grapple flare uses current artwork");
+            AssertEqual(endpoint, g.Anchor.Y, "Late draw does not move collision endpoint");
         }
         Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
     }

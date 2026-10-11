@@ -52,7 +52,7 @@ internal static partial class Program
         for (int frame = 376; frame <= 744; frame++)
         {
             var expected = Read(frame);
-            samus.XPosition = W(expected, 0xaf6); samus.YPosition = W(expected, 0xafa);
+            samus.Position = samus.Position.WithWhole(new(W(expected, 0xaf6), W(expected, 0xafa)));
             samus.Pose = (SamusPoseId)W(expected, 0xa1c); samus.RefreshCollisionRadii(bus);
             random = W(expected, 0x5e5);
             enemies.StepFrame(W(expected, 0x911), W(expected, 0x915), false, samus,

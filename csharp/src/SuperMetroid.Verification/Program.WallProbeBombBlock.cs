@@ -23,17 +23,14 @@ internal static partial class Program
             RoomLevelData level = CreateRoom(width, height, foreground, new byte[foreground.Length]);
             var samus = new SamusState { Pose = pose };
             SamusKinematicsState state = samus.Kinematics;
-            state.XPosition = 58;
-            state.XSubposition = fraction;
-            state.YPosition = 48;
-            state.XRadius = 5;
-            state.YRadius = 5;
+            state.Position = state.Position.WithWholeX(58).WithFractionX(fraction).WithWholeY(48);
+            state.Radius = new(5, 5);
 
             BlockMoveResult result = SamusBlockCollision.ProbeWallHorizontal(bus, level, state, 8 << 16);
             string context = $"wall probe in pose ${(int)pose:X2}";
             AssertEqual(!breaks, result.Collided, $"{context} collision");
-            AssertEqual(breaks ? fraction : (ushort)0xffff, state.XSubposition, $"{context} X fraction");
-            AssertEqual((ushort)58, state.XPosition, $"{context} keeps whole-pixel X");
+            AssertEqual(breaks ? fraction : (ushort)0xffff, state.Position.X.Fraction, $"{context} X fraction");
+            AssertEqual((ushort)58, state.Position.X.Whole, $"{context} keeps whole-pixel X");
             AssertEqual(breaks, level.GetCollisionBlock(new(4, 3)).CollisionType != RoomCollisionType.BombableBlock,
                 $"{context} bomb-block break");
         }

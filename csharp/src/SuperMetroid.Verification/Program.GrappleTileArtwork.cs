@@ -28,7 +28,7 @@ internal static partial class Program
             var queue = new VramWriteQueue();
             SamusGrappleMovement.DrawConnectedBeam(guard,
                 new SamusGrappleState { Phase = GrapplePhase.Firing, Angle = SnesAngle.FromRaw((ushort)angle), PointAnimationTimer = 5 },
-                new OamBuffer(), queue, 0, 0);
+                new OamBuffer(), queue, new(0, 0));
             AssertEqual(0x9a0000 | expected, queue.Entries[1].SourceAddress, "No-artwork producer uses native sector mapping without pointer ROM");
             AssertEqual((ushort)128, queue.Entries[1].SizeInBytes, "No-artwork producer preserves segment transfer size");
             AssertEqual((ushort)0x6210, queue.Entries[1].EncodedVramDestination, "No-artwork producer preserves segment transfer destination");
@@ -42,9 +42,9 @@ internal static partial class Program
             SamusGrappleState native = Seed(), selected = Seed(), changed = Seed();
             var a = new VramWriteQueue(); var b = new VramWriteQueue(); var c = new VramWriteQueue();
             var oa = new OamBuffer(); var ob = new OamBuffer(); var oc = new OamBuffer();
-            SamusGrappleMovement.DrawConnectedBeam(bus, native, oa, a, 0, 0);
-            SamusGrappleMovement.DrawConnectedBeam(guard, selected, ob, b, 0, 0, stock);
-            SamusGrappleMovement.DrawConnectedBeam(guard, changed, oc, c, 0, 0, edited);
+            SamusGrappleMovement.DrawConnectedBeam(bus, native, oa, a, new(0, 0));
+            SamusGrappleMovement.DrawConnectedBeam(guard, selected, ob, b, new(0, 0), stock);
+            SamusGrappleMovement.DrawConnectedBeam(guard, changed, oc, c, new(0, 0), edited);
             AssertEqual(a.TailInBytes, b.TailInBytes, "Grapple atlas preserves native queue size");
             for (int i = 0; i < 2; i++)
             {
@@ -66,7 +66,7 @@ internal static partial class Program
             {
                 Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = timer,
                 Angle = SnesAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
-                BeamStartX = 100, BeamStartY = 100, AnchorX = 200, AnchorY = 60, FlareCounter = 1,
+                BeamStart = new(100, 100), Anchor = new(200, 60), FlareCounter = 1,
             };
         }
         Suite(nameof(VerifyGrappleTileBinding), () => VerifyGrappleTileBinding(bus, stock, edited));

@@ -91,8 +91,8 @@ internal static partial class Program
         var target = runtime.Enemies.Slots[0];
         target.EnemyDefinitionPointer = EnemyDefinitionId.Ripper;
         target.Definition = RoomEnemyDefinitionCatalog.Get(target.EnemyDefinitionPointer);
-        target.XPosition = samus.XPosition;
-        target.YPosition = samus.YPosition;
+        target.XPosition = samus.Position.X.Whole;
+        target.YPosition = samus.Position.Y.Whole;
         target.XRadius = target.YRadius = 8;
         target.SpritemapPointer = 1;
         var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(runtime.Enemies)!;

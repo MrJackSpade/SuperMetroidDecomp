@@ -128,8 +128,8 @@ internal static partial class Program
                 // $90:EB02 cleared the run's movement records, so the missile inherits nothing.
                 var slots = PrivateState.Field<object>(intro, "flashbackProjectiles");
                 SamusProjectileSlot missile = PrivateState.Field<SamusProjectileSlot[]>(slots, "_slots")[0];
-                AssertEqual(unchecked((short)0xff00), missile.XVelocity, "update 2050 third missile launch velocity");
-                AssertEqual((ushort)0x0088, missile.XPosition, "update 2050 third missile X");
+                AssertEqual(unchecked((short)0xff00), missile.Velocity.X.SignedRawValue, "update 2050 third missile launch velocity");
+                AssertEqual((ushort)0x0088, missile.Position.X.Whole, "update 2050 third missile X");
                 break;
             case 2111:
                 // $91:874B: the demo-end lock keeps the running animation of an unchanged pose.
@@ -147,8 +147,8 @@ internal static partial class Program
                 break;
             case 3990:
                 // $91:8682 pointed both state handlers at an RTL during update 3943.
-                AssertEqual((ushort)0x0028, discovery!.XPosition, "update 3990 stopped Samus X");
-                AssertEqual((ushort)0x5000, discovery.Kinematics.XSubposition, "update 3990 stopped Samus X fraction");
+                AssertEqual((ushort)0x0028, discovery!.Position.X.Whole, "update 3990 stopped Samus X");
+                AssertEqual((ushort)0x5000, discovery.Kinematics.Position.X.Fraction, "update 3990 stopped Samus X fraction");
                 break;
         }
     }

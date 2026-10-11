@@ -16,11 +16,11 @@ internal static partial class Program
         runtime.StepFrame(0);
         AssertEqual(0x00010000u, runtime.Samus!.AbsoluteMovedLastFrameXFixed,
             "stationary native distance includes one pixel for the next Yard kick");
-        runtime.Samus.Kinematics.XSubposition = 0xE000;
+        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithFractionX(0xE000);
         runtime.StepFrame(0);
         AssertEqual(0x0001E000u, runtime.Samus.AbsoluteMovedLastFrameXFixed,
             "Yard receives full fractional camera checkpoint displacement");
-        runtime.Samus.Kinematics.XSubposition = 0xC000;
+        runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithFractionX(0xC000);
         runtime.StepFrame(0);
         AssertEqual(0x0000E000u, runtime.Samus.AbsoluteMovedLastFrameXFixed,
             "native integer-only direction test allows biased distance below one pixel");
@@ -54,7 +54,7 @@ internal static partial class Program
             state.AirborneXSubvelocity = (ushort)initialX;
             state.AirborneYVelocity = (ushort)(initialY >> 16);
             state.AirborneYSubvelocity = (ushort)initialY;
-            var samus = new SamusState { XPosition = 32, YPosition = 32,
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)),
                 Pose = SamusPoseId.FacingRightNormalPose, Health = 999, MaxHealth = 999 };
             samus.RefreshCollisionRadii(bus);
             uint x = 0x0200F000, y = 0x0200F000, vx = initialX, vy = initialY;

@@ -229,7 +229,7 @@ public sealed partial class RoomEnemySystem
         // The initializer's marker convention is briefly opposite main function $B11A's
         // convention. Preserve that one-frame oddity; the first main tick normalizes it.
         bool samusIsLeft = samus is not null &&
-            IsNegative16(unchecked((ushort)(samus.XPosition - slot.XPosition)));
+            IsNegative16(unchecked((ushort)(samus.Position.X.Whole - slot.XPosition)));
         if (samusIsLeft)
             state.FacingMarker = 1;
         state.DesiredInstructionList = state.FacingMarker != 0
@@ -327,7 +327,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             return;
 
-        bool samusIsRight = !IsNegative16(unchecked((ushort)(samus.XPosition - head.XPosition)));
+        bool samusIsRight = !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.XPosition)));
         state.FacingMarker = samusIsRight ? (ushort)1 : (ushort)0;
         state.DesiredInstructionList = samusIsRight
             ? MagdolliteInstructionProgramDefinitions.RightIdle
@@ -341,7 +341,7 @@ public sealed partial class RoomEnemySystem
 
         overlayState.AttackTimer = 0;
         ushort range = unchecked((byte)head.Parameter2);
-        if (!IsWithinStrictModularDistance(head.XPosition, samus.XPosition, range))
+        if (!IsWithinStrictModularDistance(head.XPosition, samus.Position.X.Whole, range))
             return;
 
         state.DesiredInstructionList = samusIsRight
@@ -373,7 +373,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool samusIsRight = samus is not null &&
-            !IsNegative16(unchecked((ushort)(samus.XPosition - head.XPosition)));
+            !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.XPosition)));
         state.DesiredInstructionList = samusIsRight
             ? MagdolliteInstructionProgramDefinitions.RightEmerge
             : MagdolliteInstructionProgramDefinitions.LeftEmerge;
@@ -390,7 +390,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool samusIsRight = samus is not null &&
-            !IsNegative16(unchecked((ushort)(samus.XPosition - head.XPosition)));
+            !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - head.XPosition)));
         state.DesiredInstructionList = samusIsRight
             ? MagdolliteInstructionProgramDefinitions.RightIdle
             : MagdolliteInstructionProgramDefinitions.LeftIdle;
@@ -434,7 +434,7 @@ public sealed partial class RoomEnemySystem
         bool roseMaximum = !IsNegative16(
             upwardDistance - MagdollitePhaseDefinitions.MaximumRise);
         bool rosePastSamus = samus is not null && IsNegative16(unchecked((ushort)(
-            body.YPosition - phase.OverlayYOffset - samus.YPosition)));
+            body.YPosition - phase.OverlayYOffset - samus.Position.Y.Whole)));
         // The maximum-rise branch skips the growth-index load, so its threshold is the
         // overread at the main loop's enemy index; the Samus test loads the phase's own.
         ushort threshold = roseMaximum
@@ -537,7 +537,7 @@ public sealed partial class RoomEnemySystem
         if (bodyState.BodyReachedApex)
         {
             bool samusIsRight = samus is not null &&
-                !IsNegative16(unchecked((ushort)(samus.XPosition - overlay.XPosition)));
+                !IsNegative16(unchecked((ushort)(samus.Position.X.Whole - overlay.XPosition)));
             state.DesiredInstructionList = samusIsRight
                 ? MagdolliteInstructionProgramDefinitions.RightThrow
                 : MagdolliteInstructionProgramDefinitions.LeftThrow;

@@ -4,6 +4,9 @@ namespace SuperMetroid.Core.Hardware;
 /// <param name="RawValue">The unchanged two's-complement word containing eight whole and eight fractional bits.</param>
 public readonly record struct SnesSignedEightEight(ushort RawValue)
 {
+    /// <summary>The raw word read as its signed two's-complement value.</summary>
+    public short SignedRawValue => unchecked((short)RawValue);
+
     /// <summary>Creates a value from a signed raw 8.8 word without changing its bits.</summary>
     public static SnesSignedEightEight FromSignedRaw(short rawValue) =>
         new(unchecked((ushort)rawValue));
@@ -34,8 +37,21 @@ public readonly record struct SnesSignedSixteenSixteen
     /// <summary>The whole-pixel word as its unsigned native bit pattern.</summary>
     public ushort WholeWord => unchecked((ushort)(RawValue >> 16));
 
+    /// <summary>The signed whole-pixel word.</summary>
+    public short WholePixels => unchecked((short)(RawValue >> 16));
+
     /// <summary>The unsigned fractional word.</summary>
     public ushort Fraction => unchecked((ushort)RawValue);
+
+    /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
+    public SnesSignedSixteenSixteen WithWholePixels(short wholePixels) => FromParts(wholePixels, Fraction);
+
+    /// <summary>Replaces only the fractional word, as cartridge routines that store one half do.</summary>
+    public SnesSignedSixteenSixteen WithFraction(ushort fraction) => FromParts(WholePixels, fraction);
+
+    /// <summary>Adds two displacements, carrying the fraction and wrapping at 32 bits.</summary>
+    public static SnesSignedSixteenSixteen operator +(SnesSignedSixteenSixteen left, SnesSignedSixteenSixteen right) =>
+        new(unchecked(left.RawValue + right.RawValue));
 
     /// <summary>Subtracts two displacements, borrowing from the whole word and wrapping at 32 bits.</summary>
     public static SnesSignedSixteenSixteen operator -(SnesSignedSixteenSixteen left, SnesSignedSixteenSixteen right) =>

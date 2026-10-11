@@ -139,8 +139,7 @@ internal static partial class Program
             precollected: false);
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new(0, 0), 0);
         var grappleSamus = new SamusState();
-        grappleSamus.XPosition = (ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8);
-        grappleSamus.YPosition = (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8);
+        grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
         SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var orbHit = SamusGrappleMovement.StepFiring(bus, orb.Level, grappleSamus,
             (ushort)SnesButton.X, orb.Plms);
@@ -236,7 +235,7 @@ internal static partial class Program
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         var movement = new SamusKinematicsState
         {
-            XPosition = 1124, YPosition = 651, XRadius = 5, YRadius = 14,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(1124, 651)), Radius = new(5, 14),
         };
         SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
             plms: fixture.Plms, alignToSlopeAfterMovement: false);
@@ -253,7 +252,7 @@ internal static partial class Program
             "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
             plms: fixture.Plms, alignToSlopeAfterMovement: false);
-        AssertEqual((ushort)1122, movement.XPosition, "message-return horizontal movement advances");
+        AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.Plms.CollectiblePhases[0],
             "repeat contact preserves the pending delete");
@@ -263,7 +262,7 @@ internal static partial class Program
         var cleared = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
             plms: fixture.Plms, alignToSlopeAfterMovement: false);
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
-        AssertEqual((ushort)1121, movement.XPosition, "movement also advances after owner deletion");
+        AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
     }
 
@@ -693,8 +692,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 500,
-            YPosition = 600,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(500, 600)),
             ProjectileFlareCounter = 60,
             EquippedItems = (ushort)SamusEquipmentFlags.VariaSuit,
             CollectedItems = (ushort)SamusEquipmentFlags.VariaSuit,
@@ -704,15 +702,15 @@ internal static partial class Program
 
         var pickup = new SamusSuitPickupState();
         var curveGuard = new SuitPickupBeamCurveReadGuard(bus);
-        pickup.Begin(bus, samus, layer1X: 0x0100, layer1Y: 0x0200,
+        pickup.Begin(bus, samus, layer1: new(0x0100, 0x0200),
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");
         AssertTrue(samus.InputLocked, "suit transformation locks Samus input");
         AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose,
             "first suit begins in front-facing power-suit pose");
-        AssertEqual((ushort)(0x0100 + 120), samus.XPosition,
+        AssertEqual((ushort)(0x0100 + 120), samus.Position.X.Whole,
             "suit transformation centers Samus horizontally");
-        AssertEqual((ushort)(0x0200 + 136), samus.YPosition,
+        AssertEqual((ushort)(0x0200 + 136), samus.Position.Y.Whole,
             "suit transformation centers Samus vertically");
         AssertEqual((ushort)0x001f, cgram.Colors[192],
             "suit palette is not revealed at transformation setup");
@@ -791,7 +789,7 @@ internal static partial class Program
             history.LastDifferentPose = SamusPoseId.WallJumpLeftPose;
             history.LastDifferentDirectionAndMovement = 0x1404;
             var pickup = new SamusSuitPickupState();
-            pickup.Begin(bus, samus, 0, 0, kind);
+            pickup.Begin(bus, samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
             ushort initialMetadata = (ushort)(samus.ReadPoseXDirection(bus) | ((byte)samus.ReadMovementType(bus) << 8));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");

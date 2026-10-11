@@ -18,8 +18,7 @@ internal static partial class Program
             runtime.LoadCartridgeRoomForDebug(0x93fe);
             var samus = runtime.Samus!;
             samus.InputLocked = false;
-            samus.XPosition = 512;
-            samus.YPosition = 256;
+            samus.Position = samus.Position.WithWhole(new(512, 256));
             samus.Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);

@@ -38,8 +38,7 @@ internal static partial class Program
         // EnemyMain reads the contact-damage index the previous frame's spin movement set.
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         // Inside the upper body's touch boxes, in thin water with no floor below.
-        samus.XPosition = unchecked((ushort)(draygon.Body.XPosition - 8));
-        samus.YPosition = unchecked((ushort)(draygon.Body.YPosition - 64));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(draygon.Body.XPosition - 8)), unchecked((ushort)(draygon.Body.YPosition - 64))));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // EnemyMain processes only on-screen enemies; frame the swooping body.

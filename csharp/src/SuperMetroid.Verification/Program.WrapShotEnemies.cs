@@ -43,7 +43,7 @@ internal static partial class Program
                 words[row * 64 + (left ? 0 : 63)] = 0x8000;
             }
             var level = CreateRoom(64, 128, words, new byte[words.Length]);
-            var samus = new SamusState { XPosition = (ushort)(left ? 32 : 992), YPosition = 128,
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = (ushort)SamusBeamFlags.Wave };
             var shots = CreateProjectileFixture();
@@ -54,7 +54,7 @@ internal static partial class Program
             {
                 ushort input = frame == 0 ? (ushort)SnesButton.X : (ushort)0;
                 bombs.StepFrame(bus, level, samus, input, input);
-                shots.StepFrame(bus, level, samus, input, input, (ushort)(left ? 0 : 768), 0, bombs, roomPlms: plms);
+                shots.StepFrame(bus, level, samus, input, input, new((ushort)(left ? 0 : 768), 0), bombs, roomPlms: plms);
                 AssertEqual(0, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "Tile alias does not redirect the projectile enemy hitbox");
             }
             AssertEqual(0x0052, level.GetCollisionBlockByIndex(target).LevelWord, "Same shot actually triggers the remote tile");
@@ -64,8 +64,8 @@ internal static partial class Program
             // Positive control: move only the eligible enemy onto the unchanged
             // live projectile. A real collision proves the negative was spatial,
             // not a dead projectile, inactive enemy or disabled collision path.
-            enemy.XPosition = shots.Slots[0].XPosition;
-            enemy.YPosition = shots.Slots[0].YPosition;
+            enemy.XPosition = shots.Slots[0].Position.X.Whole;
+            enemy.YPosition = shots.Slots[0].Position.Y.Whole;
             AssertEqual(1, runtime.Enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs), "World-space overlap reaches the same enemy collision dispatcher");
         }
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");

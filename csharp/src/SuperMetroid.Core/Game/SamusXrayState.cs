@@ -668,7 +668,7 @@ public sealed class SamusXrayState
         SamusMovementType movementType = samus.ReadMovementType(bus);
         bool crouching = movementType == SamusMovementType.Crouching;
         bool facingLeft = samus.IsFacingLeft(bus);
-        ushort oldRadius = samus.Kinematics.YRadius;
+        ushort oldRadius = samus.Kinematics.Radius.Y;
         SamusPoseId targetPose = crouching
             ? facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose
             : facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
@@ -676,12 +676,12 @@ public sealed class SamusXrayState
         samus.Pose = targetPose;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 0);
-        int radiusDifference = samus.Kinematics.YRadius - oldRadius;
+        int radiusDifference = samus.Kinematics.Radius.Y - oldRadius;
         // Teardown owns a direct native history shift, including the crouched-
         // turn stand-up glitch. It does not consume an ordinary input slot.
         samus.CommitPoseHistory(bus);
         if (radiusDifference >= 0)
-            samus.YPosition = unchecked((ushort)(samus.YPosition - radiusDifference));
+            samus.Position -= new Offset16<RoomPixels>(0, unchecked((short)radiusDifference));
 
         // `$91:E2AD` restores both normal Samus handler pointers. X-Mode can arrange for
         // an active spark to own the movement word while the old visor HDMA reaches this

@@ -85,7 +85,7 @@ internal static partial class Program
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Station layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Station layout native DTO count");
-                        AssertEqual(offset, (ushort)((byte)part.NextX | (byte)part.NextY << 8), "Station layout native DTO offset");
+                        AssertEqual(offset, (ushort)((byte)part.Next.X | (byte)part.Next.Y << 8), "Station layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),

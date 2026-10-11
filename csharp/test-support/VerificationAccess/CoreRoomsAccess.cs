@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using System.Buffers.Binary;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Verification access to <see cref="BotwoonWallPlmProgramDefinitions"/> members production does not use.</summary>
 internal static class BotwoonWallPlmProgramDefinitionsAccess
@@ -1146,7 +1147,7 @@ internal static class RoomPlmSystemAccess
             PrivateState.Invoke(self, "DrawPlmInstruction", bus, level, streamer,
                 PrivateState.Property<PlmHeaderId>(active[0], "HeaderPointer"),
                 PrivateState.Property<int>(active[0], "BlockIndex"),
-                drawPointer, (ushort)0, (ushort)0, (ushort)0);
+                drawPointer, default(Position16<RoomPixels>), (ushort)0);
         }
 
         internal void SetSoleInstructionPointerForVerification(ushort instructionPointer)
@@ -1496,13 +1497,12 @@ internal static class RoomPlmSystemAccess
             ISnesAddressSpace bus,
             RoomLevelData level,
             BackgroundTilemapStreamer streamer,
-            ushort layer1XPosition,
-            ushort layer1YPosition,
+            Position16<RoomPixels> layer1Position,
             ushort bg1XOffset,
             RoomScrollGrid? scrolls = null,
             ushort enemyDeaths = 0,
             byte enemyDeathQuota = 0)
-            => self.Step(bus, level, streamer, layer1XPosition, layer1YPosition, bg1XOffset,
+            => self.Step(bus, level, streamer, layer1Position, bg1XOffset,
                 scrolls, enemyDeaths, enemyDeathQuota, controllerNewInput: 0);
     }
 

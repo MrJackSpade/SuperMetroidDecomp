@@ -96,7 +96,7 @@ internal static partial class Program
                 () => samus,
                 () => false);
             for (int warm = 0; warm < 2; warm++)
-                plms.Step(bus, level, streamer, (ushort)cameraX, (ushort)cameraY, 0);
+                plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
             plms.TakeDownwardGateProjectileRequests();
 
             var shots = CreateProjectileFixture();
@@ -122,7 +122,7 @@ internal static partial class Program
                     actual.Add($"{x},{y},{frame},{shot.XPosition},{shot.YPosition}");
                     break;
                 }
-                plms.Step(bus, level, streamer, (ushort)cameraX, (ushort)cameraY, 0);
+                plms.Step(bus, level, streamer, new((ushort)cameraX, (ushort)cameraY), 0);
             }
         }
 

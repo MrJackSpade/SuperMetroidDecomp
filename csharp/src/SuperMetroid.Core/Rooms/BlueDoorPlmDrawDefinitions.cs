@@ -83,7 +83,7 @@ internal static class BlueDoorPlmDrawDefinitions
         if (!TryDescribe(pointer, out var draw)) return false;
         var words = new ushort[4];
         for (int cell = 0; cell < 4; cell++) words[cell] = draw.WordAt(cell);
-        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(draw.DirectionAndCount, words, 0, 0) });
+        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(draw.DirectionAndCount, words, new(0, 0)) });
         return true;
     }
 

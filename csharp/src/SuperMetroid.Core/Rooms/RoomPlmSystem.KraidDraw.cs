@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Rooms;
 
 public sealed partial class RoomPlmSystem
@@ -6,8 +8,8 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         KraidRoomPlmDrawDefinitions.Draw draw,
-        int originX, int originY,
-        ushort layer1XPosition, ushort layer1YPosition, ushort bg1XOffset,
+        Point32<RoomBlocks> origin,
+        Position16<RoomPixels> layer1Position, ushort bg1XOffset,
         RoomPlmKraidVisualCatalog? visuals)
     {
         for (int block = 0; block < draw.BlockCount; block++)
@@ -15,8 +17,8 @@ public sealed partial class RoomPlmSystem
             ushort physicalWord = draw.WordAt(block);
             ushort visualWord = visuals?.GetWord(draw.Pointer, 0, block)
                 ?? new RoomLevelWord(physicalWord).VisualWord;
-            DrawPlmWordAt(level, streamer, draw.Pointer, originX + block, originY,
-                physicalWord, layer1XPosition, layer1YPosition, bg1XOffset, visualWord);
+            DrawPlmWordAt(level, streamer, draw.Pointer, origin + new Point32<RoomBlocks>(block, 0),
+                physicalWord, layer1Position, bg1XOffset, visualWord);
         }
     }
 }

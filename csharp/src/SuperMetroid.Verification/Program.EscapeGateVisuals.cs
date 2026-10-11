@@ -92,7 +92,7 @@ internal static partial class Program
                 closedStreamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population), system, AreaId.Tourian,
                 () => new SamusState(), () => false),
             "edited escape gate loads its real resident header");
-        closed.Step(guarded, closedLevel, closedStreamer, 0, 0, 0);
+        closed.Step(guarded, closedLevel, closedStreamer, new(0, 0), 0);
         AssertEqual((ushort)0x830f,
             closedLevel.GetCollisionBlockByIndex(origin).LevelWord,
             "edited closed gate preserves native physical collision");
@@ -122,7 +122,7 @@ internal static partial class Program
                 enteringDoor, system),
             "edited escape closure selects the real secondary instruction list");
         for (int frame = 0; frame < 3; frame++)
-            closing.Step(guarded, closingLevel, closingStreamer, 0, 0, 0);
+            closing.Step(guarded, closingLevel, closingStreamer, new(0, 0), 0);
         AssertEqual((ushort)0x830f,
             closingLevel.GetCollisionBlockByIndex(origin).LevelWord,
             "edited half-closed gate preserves native physical collision");

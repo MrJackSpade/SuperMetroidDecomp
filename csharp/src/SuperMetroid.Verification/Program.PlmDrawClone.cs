@@ -23,11 +23,11 @@ internal static partial class Program
             AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, block, 1), "spawn restore-word PLM");
             plms.SetSoleWorkRamProgramForVerification(bus, probePointer,
                 instruction, (ushort)RoomPlmInstruction.Delete);
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertEqual(0xc321, level.GetCollisionBlockByIndex(block).LevelWord, "draw opcode restores slot level word");
             AssertEqual(1, plms.TilemapUpdates.Count, "draw opcode publishes visible tilemap update");
             AssertEqual(1, plms.ActiveCount, "draw opcode yields for one frame before following Delete");
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertEqual(0, plms.ActiveCount, "draw opcode resumes immediately after its operand-free word");
         }
         Console.WriteLine("  Both native PLM draw entry points restore terrain, redraw, yield, and resume identically.");

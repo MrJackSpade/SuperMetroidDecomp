@@ -1242,8 +1242,7 @@ public sealed partial class SuperMetroidRuntime
             // occupied. TrySpawnCrocomireArenaMutation deliberately mirrors that result.
             Plms.TrySpawnCrocomireArenaMutation(
                 LevelData,
-                request.BlockX,
-                request.BlockY,
+                new(request.BlockX, request.BlockY),
                 request.Header);
         }
     }
@@ -1263,8 +1262,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Plms.TrySpawnKraidRoomMutation(
                 LevelData,
-                request.BlockX,
-                request.BlockY,
+                new(request.BlockX, request.BlockY),
                 request.Header);
         }
     }
@@ -1312,8 +1310,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Plms.TrySpawnMotherBrainMutation(
                 LevelData,
-                request.BlockX,
-                request.BlockY,
+                new(request.BlockX, request.BlockY),
                 request.Header);
         }
     }
@@ -1357,8 +1354,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Plms.TrySpawnShitroidWallMutation(
                 LevelData,
-                request.BlockX,
-                request.BlockY,
+                new(request.BlockX, request.BlockY),
                 request.Header);
         }
     }

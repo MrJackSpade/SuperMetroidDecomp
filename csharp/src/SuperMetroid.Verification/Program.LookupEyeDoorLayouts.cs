@@ -59,8 +59,8 @@ internal static partial class Program
                 {
                     AssertEqual(header,run.DirectionAndCount,"Eye door DTO direction/count");
                     AssertEqual(count,run.LevelWords.Length,"Eye door DTO length");
-                    AssertEqual(0,(int)run.NextX,"Eye door terminal X");
-                    AssertEqual(0,(int)run.NextY,"Eye door terminal Y");
+                    AssertEqual(0,(int)run.Next.X,"Eye door terminal X");
+                    AssertEqual(0,(int)run.Next.Y,"Eye door terminal Y");
                 }
                 else
                     for (int cell = 0; cell < count; cell++)

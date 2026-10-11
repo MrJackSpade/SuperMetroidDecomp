@@ -19,7 +19,7 @@ internal static partial class Program
         }
         var level = new RoomLevelData(new Size32<RoomBlocks>(32, 32), Enumerable.Repeat((ushort)0x8000, 1024).ToArray(),
             new byte[1024], new ushort[1024], definitions);
-        ushort[] Build(byte area = (byte)AreaId.Brinstar) => XrayRevealTilemap.Build(level, vram, 248, 248, 16, 16, area);
+        ushort[] Build(byte area = (byte)AreaId.Brinstar) => XrayRevealTilemap.Build(level, vram, new(248, 248), new(16, 16), area);
         void Set(int index, RoomCollisionType type, byte bts)
         {
             level.SetPlmForegroundEntry(index, (ushort)((int)type << 12));

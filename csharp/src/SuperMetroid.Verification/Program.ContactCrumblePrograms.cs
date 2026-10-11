@@ -103,8 +103,8 @@ internal static partial class Program
                 cursor += 2 + 2 * count;
                 byte x = rom.ReadByte(0x840000 | cursor);
                 byte y = rom.ReadByte(0x840000 | (cursor + 1));
-                AssertEqual(unchecked((sbyte)x), exportedRun.NextX, "contact restoration next X");
-                AssertEqual(unchecked((sbyte)y), exportedRun.NextY, "contact restoration next Y");
+                AssertEqual(unchecked((sbyte)x), exportedRun.Next.X, "contact restoration next X");
+                AssertEqual(unchecked((sbyte)y), exportedRun.Next.Y, "contact restoration next Y");
                 AssertEqual((byte)0, x, "contact restoration calculated next row X");
                 AssertEqual(run + 1 < draw.RunCount ? (byte)1 : (byte)0, y, "contact restoration calculated next row Y");
                 run++;
@@ -163,8 +163,8 @@ internal static partial class Program
             var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
             {
-                native.Plms.Step(rom, native.Level, native.Streamer, 0, 0, 0);
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, 0, 0, 0);
+                native.Plms.Step(rom, native.Level, native.Streamer, new(0, 0), 0);
+                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new(0, 0), 0);
                 AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
                     $"contact-crumble BTS {bts} active count, frame {frame}");
                 AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
@@ -229,7 +229,7 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer();
             var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 4; frame++)
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "contact-break draw avoids compiled source bytes");
             AssertEqual(1, plms.TilemapUpdates.Count,
@@ -271,7 +271,7 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer();
             var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 100; frame++)
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked contact restoration uses no compiled source bytes");
             return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,

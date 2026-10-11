@@ -64,7 +64,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         if (!TryDescribe(pointer, out var draw)) return false;
         var words = new ushort[4];
         for (int row = 0; row < words.Length; row++) words[row] = draw.WordAt(row);
-        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(0x8004, words, 0, 0) });
+        list = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(0x8004, words, new(0, 0)) });
         return true;
     }
 

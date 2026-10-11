@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -48,8 +49,7 @@ public sealed partial class RoomPlmSystem
         ISnesAddressSpace bus,
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         _tilemapUpdates.Clear();
@@ -58,7 +58,7 @@ public sealed partial class RoomPlmSystem
             if (!slot.Active || slot.Item?.Phase != CollectiblePhase.AwaitingMessage)
                 continue;
             slot.Item.Phase = CollectiblePhase.ResumeAfterMessage;
-            FinishCollectiblePickup(bus, level, streamer, slot, layer1XPosition, layer1YPosition, bg1XOffset);
+            FinishCollectiblePickup(bus, level, streamer, slot, layer1Position, bg1XOffset);
         }
         CompleteSpeedBoosterPickupContinuation();
         return _tilemapUpdates;
@@ -317,8 +317,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         PlmSlot slot,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         CollectiblePlmState? item = slot.Item;
@@ -349,7 +348,7 @@ public sealed partial class RoomPlmSystem
 
             case CollectiblePhase.ResumeAfterMessage:
                 FinishCollectiblePickup(bus, level, streamer, slot,
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 return true;
 
             case CollectiblePhase.EmptyAwaitingDelete:
@@ -361,7 +360,7 @@ public sealed partial class RoomPlmSystem
             case CollectiblePhase.CollectedEmpty:
                 DrawCollectible(
                     bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 slot.Active = false;
                 slot.HeaderPointer = 0;
                 return true;
@@ -375,7 +374,7 @@ public sealed partial class RoomPlmSystem
                 DrawCollectible(
                     bus, level, streamer, slot,
                     GetVisibleCollectibleDraw(item),
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 item.AnimationIndex ^= 1;
                 item.Timer = 4;
                 return true;
@@ -389,7 +388,7 @@ public sealed partial class RoomPlmSystem
                 DrawCollectible(
                     bus, level, streamer, slot,
                     GetVisibleCollectibleDraw(item),
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 if (item.AnimationIndex == 1 && --item.VisibleFramePairsRemaining == 0)
                 {
                     item.Phase = CollectiblePhase.ShotBlockReconceal;
@@ -411,14 +410,14 @@ public sealed partial class RoomPlmSystem
                     item.AnimationIndex = 0;
                     DrawCollectible(
                         bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                        layer1Position, bg1XOffset);
                     item.Timer = 3;
                     return true;
                 }
                 DrawCollectible(
                     bus, level, streamer, slot,
                     RoomPlmCollectibleDrawDefinitions.OrbFrame(item.AnimationIndex),
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 item.Timer = item.AnimationIndex is 0 or 2 ? 20 : 10;
                 item.AnimationIndex = (item.AnimationIndex + 1) & 3;
                 return true;
@@ -429,7 +428,7 @@ public sealed partial class RoomPlmSystem
                 {
                     DrawCollectible(
                         bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.OrbBurst,
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                        layer1Position, bg1XOffset);
                     item.Timer = 3;
                     return true;
                 }
@@ -437,7 +436,7 @@ public sealed partial class RoomPlmSystem
                 {
                     DrawCollectible(
                         bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                        layer1Position, bg1XOffset);
                     item.Timer = 3;
                     return true;
                 }
@@ -456,7 +455,7 @@ public sealed partial class RoomPlmSystem
                 DrawCollectible(
                     bus, level, streamer, slot,
                     RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(0),
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 _soundRequests.Add(CreateSoundRequest(SoundEffectLibrary2Sounds.PermanentItemAcquisition, 6));
                 item.Timer = 4;
                 return true;
@@ -468,7 +467,7 @@ public sealed partial class RoomPlmSystem
                     DrawCollectible(
                         bus, level, streamer, slot,
                         RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex),
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                        layer1Position, bg1XOffset);
                     item.Timer = 4;
                     return true;
                 }
@@ -478,7 +477,7 @@ public sealed partial class RoomPlmSystem
                     item.AnimationIndex = 0;
                     DrawCollectible(
                         bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                        layer1Position, bg1XOffset);
                     item.Timer = 8 * 22;
                     return true;
                 }
@@ -491,7 +490,7 @@ public sealed partial class RoomPlmSystem
                 DrawCollectible(
                     bus, level, streamer, slot,
                     RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(item.AnimationIndex),
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
@@ -500,7 +499,7 @@ public sealed partial class RoomPlmSystem
                 }
                 DrawLevelWord(
                     level, streamer, slot.BlockIndex, slot.RestoreLevelWord,
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 item.Phase = CollectiblePhase.ShotBlock;
                 return true;
 
@@ -510,7 +509,7 @@ public sealed partial class RoomPlmSystem
                 DrawCollectible(
                     bus, level, streamer, slot,
                     unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)),
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 item.Timer = 4;
                 return true;
 
@@ -521,13 +520,13 @@ public sealed partial class RoomPlmSystem
                     DrawCollectible(
                         bus, level, streamer, slot,
                         unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)),
-                        layer1XPosition, layer1YPosition, bg1XOffset);
+                        layer1Position, bg1XOffset);
                     item.Timer = 4;
                     return true;
                 }
                 DrawLevelWord(
                     level, streamer, slot.BlockIndex, slot.RestoreLevelWord,
-                    layer1XPosition, layer1YPosition, bg1XOffset);
+                    layer1Position, bg1XOffset);
                 item.Phase = CollectiblePhase.CollectedShotBlock;
                 return true;
 
@@ -547,8 +546,7 @@ public sealed partial class RoomPlmSystem
         BackgroundTilemapStreamer streamer,
         PlmSlot slot,
         ushort drawPointer,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset) =>
         DrawPlmInstruction(
             bus,
@@ -556,8 +554,7 @@ public sealed partial class RoomPlmSystem
             streamer,
             slot.BlockIndex,
             drawPointer,
-            layer1XPosition,
-            layer1YPosition,
+            layer1Position,
             bg1XOffset);
 
     private void AcquireCollectible(PlmSlot slot)
@@ -597,8 +594,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         PlmSlot slot,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         CollectiblePlmState item = slot.Item
@@ -613,7 +609,7 @@ public sealed partial class RoomPlmSystem
             item.AnimationIndex = 0;
             DrawCollectible(
                 bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
-                layer1XPosition, layer1YPosition, bg1XOffset);
+                layer1Position, bg1XOffset);
             item.Timer = 8 * 22;
             return;
         }
@@ -622,7 +618,7 @@ public sealed partial class RoomPlmSystem
         // following PLM_Handler pass.
         DrawCollectible(
             bus, level, streamer, slot, RoomPlmCollectibleDrawDefinitions.Empty,
-            layer1XPosition, layer1YPosition, bg1XOffset);
+            layer1Position, bg1XOffset);
         item.Phase = CollectiblePhase.EmptyAwaitingDelete;
         item.Timer = 1;
     }

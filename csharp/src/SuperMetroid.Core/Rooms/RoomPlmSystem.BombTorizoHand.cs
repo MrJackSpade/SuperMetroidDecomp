@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -140,8 +141,9 @@ public sealed partial class RoomPlmSystem
                     new BombTorizoStatueProjectileRequest(
                         BombTorizoStatueBreakingDefinition,
                         parameter,
-                        checked((byte)(slot.BlockIndex % _bombTorizoHandRoomWidth)),
-                        checked((byte)(slot.BlockIndex / _bombTorizoHandRoomWidth))));
+                        // The native fragment spawn carries both block coordinates as bytes.
+                        new(checked((byte)(slot.BlockIndex % _bombTorizoHandRoomWidth)),
+                            checked((byte)(slot.BlockIndex / _bombTorizoHandRoomWidth)))));
                 slot.InstructionPointer = unchecked((ushort)(cursor + 4));
                 return true;
             }
@@ -181,8 +183,7 @@ public readonly record struct PlmVramWriteRequest(
 public readonly record struct BombTorizoStatueProjectileRequest(
     ushort DefinitionPointer,
     ushort Parameter,
-    byte PlmBlockX,
-    byte PlmBlockY);
+    Point32<RoomBlocks> PlmBlock);
 
 /// <summary>One delayed music request made by a room PLM instruction.</summary>
 public readonly record struct PlmMusicRequest(

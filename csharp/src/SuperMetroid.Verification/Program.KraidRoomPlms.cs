@@ -47,7 +47,7 @@ internal static partial class Program
         RoomLevelData level = CreateRoom(width, height, words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnKraidRoomMutation(level, 5, 5, header),
+        AssertTrue(plms.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid mutation ${(int)header:X4} allocates");
         AssertEqual((ushort)0x8123,
             level.GetCollisionBlockByIndex(5 * width + 5).LevelWord,
@@ -58,7 +58,7 @@ internal static partial class Program
         for (int frame = 0; frame <= expectedDeletionFrame + 1 &&
              plms.ActiveCount != 0; frame++)
         {
-            plms.Step(guard, level, streamer, 0, 0, 0);
+            plms.Step(guard, level, streamer, new(0, 0), 0);
             if (frame == 0 && header is
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
                 PlmHeaderId.CrumbleKraidCeilingIntoBackground2 or

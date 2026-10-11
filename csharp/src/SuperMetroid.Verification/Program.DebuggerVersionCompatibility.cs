@@ -226,8 +226,7 @@ internal static partial class Program
         var plmSlotType = typeof(SuperMetroid.Core.Rooms.RoomPlmSystem).GetNestedType("PlmSlot", BindingFlags.NonPublic)!;
         var plmFields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",
             BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [plmSlotType])!;
-        FieldInfo[] oldPlmFields = plmFields.Where(field => field.Name is not "<PlantHeldX>k__BackingField" and not
-            "<PlantHeldY>k__BackingField").ToArray();
+        FieldInfo[] oldPlmFields = plmFields.Where(field => field.Name != "<PlantHeldPosition>k__BackingField").ToArray();
         AssertEqual(20, oldPlmFields.Length, "preserved pre-plant-capture PLM slot count");
         AssertTrue(LegacyLayout(plmSlotType, plmFields, oldPlmFields).SequenceEqual(oldPlmFields),
             "legacy PLM slot preserves active header, instructions, timers, and block owner fields");

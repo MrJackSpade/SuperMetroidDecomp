@@ -92,7 +92,7 @@ internal static partial class Program
                 () => new SamusState(), () => false,
                 spawnEyeDoorProjectile: _ => { }),
             $"{orientation} eye-door three-component population loads");
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         int[] origins = [4 * width + 7, 6 * width + 7, 8 * width + 7];
         for (int component = 0; component < pointers.Length; component++)
         {
@@ -172,7 +172,7 @@ internal static partial class Program
         for (int frame = 0; frame < 1024 &&
              plms.EyeDoors.Single(door => door.Component == EyeDoorComponent.Eye)
                  .PreInstruction != (ushort)EyeDoorPreInstruction.MissileHit; frame++)
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertEqual((ushort)EyeDoorPreInstruction.MissileHit,
             plms.EyeDoors.Single(door => door.Component == EyeDoorComponent.Eye)
                 .PreInstruction,
@@ -180,9 +180,9 @@ internal static partial class Program
         AssertTrue(plms.TryNotifyColoredDoorHit(eyeBlock,
                 new SamusProjectileTypeWord(0x0200)),
             $"{orientation} retail eye door accepts a Super Missile collision");
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         for (int frame = 0; frame < 1024 && plms.ActiveCount != 0; frame++)
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertTrue(system.HasOpenedDoorBit(doorBit),
             $"{orientation} retail eye-door opening persists the door bit");
         AssertEqual(0, plms.ActiveCount,
@@ -209,7 +209,7 @@ internal static partial class Program
                 () => samus, () => false, spawnEyeDoorProjectile: requests.Add),
             $"{orientation} opened eye-door room reloads three components");
         for (int frame = 0; frame < 16 && reopened.ActiveCount != 0; frame++)
-            reopened.Step(guarded, reopenedLevel, reopenedStreamer, 0, 0, 0);
+            reopened.Step(guarded, reopenedLevel, reopenedStreamer, new(0, 0), 0);
         AssertEqual(0, reopened.ActiveCount,
             $"{orientation} opened eye-door reload converts to blue and removes passive parts");
         AssertEqual(0, guarded.ForbiddenReadAttempts,

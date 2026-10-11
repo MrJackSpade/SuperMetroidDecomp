@@ -43,8 +43,8 @@ internal static partial class Program
                 cursor += 2 + 2 * count;
                 byte x = rom.ReadByte(0x840000 | cursor);
                 byte y = rom.ReadByte(0x840000 | (cursor + 1));
-                AssertEqual(unchecked((sbyte)x), exportedRun.NextX, "bomb restoration next X");
-                AssertEqual(unchecked((sbyte)y), exportedRun.NextY, "bomb restoration next Y");
+                AssertEqual(unchecked((sbyte)x), exportedRun.Next.X, "bomb restoration next X");
+                AssertEqual(unchecked((sbyte)y), exportedRun.Next.Y, "bomb restoration next Y");
                 AssertEqual((byte)0, x, "bomb restoration calculated next row X");
                 AssertEqual(run + 1 < draw.RunCount ? (byte)1 : (byte)0, y, "bomb restoration calculated next row Y");
                 run++;
@@ -167,8 +167,8 @@ internal static partial class Program
             var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
-                native.Plms.Step(rom, native.Level, native.Streamer, 0, 0, 0);
-                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, 0, 0, 0);
+                native.Plms.Step(rom, native.Level, native.Streamer, new(0, 0), 0);
+                compiled.Plms.Step(guarded, compiled.Level, compiled.Streamer, new(0, 0), 0);
                 AssertEqual(native.Plms.ActiveCount, compiled.Plms.ActiveCount,
                     $"bomb BTS {behavior}/{producer} active count, frame {frame}");
                 AssertEqual(native.Plms.SoundRequests.Count, compiled.Plms.SoundRequests.Count,
@@ -231,7 +231,7 @@ internal static partial class Program
             AssertTrue(plms.TrySpawnCollisionBombBlock(level, blockIndex, 0),
                 "bomb visual test installs the real collision-triggered PLM");
             plms.Step(new ShotBlockProgramReadGuard(rom, forbidden), level,
-                level.CreateBackgroundStreamer(), 0, 0, 0);
+                level.CreateBackgroundStreamer(), new(0, 0), 0);
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "first bomb-break frame publishes one immediate tile upload");
             return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,
@@ -270,7 +270,7 @@ internal static partial class Program
             var streamer = level.CreateBackgroundStreamer();
             var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "linked restoration uses no compiled source draw bytes");
             return (level.GetCollisionBlockByIndex(blockIndex).LevelWord,

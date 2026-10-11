@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -145,7 +146,7 @@ public sealed class BackgroundTilemapStreamer
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
         var leftTiles = new ushort[32];
         var rightTiles = new ushort[32];
-        int sourceIndex = SourceIndex(request.SourceXBlock, request.SourceYBlock);
+        int sourceIndex = SourceIndex(new(request.SourceXBlock, request.SourceYBlock));
 
         // The viewport streamer always expands sixteen 16x16 blocks. Each contributes two
         // vertically adjacent tile words to each of the left/right column buffers.
@@ -196,7 +197,7 @@ public sealed class BackgroundTilemapStreamer
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
         var topTiles = new ushort[34];
         var bottomTiles = new ushort[34];
-        int sourceIndex = SourceIndex(request.SourceXBlock, request.SourceYBlock);
+        int sourceIndex = SourceIndex(new(request.SourceXBlock, request.SourceYBlock));
 
         // Seventeen blocks, rather than sixteen, cover both partial blocks at the screen's
         // horizontal edges. This is the literal loop count $0011 at $80:AC51.
@@ -252,11 +253,11 @@ public sealed class BackgroundTilemapStreamer
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
-    private int SourceIndex(ushort x, ushort y)
+    private int SourceIndex(Position16<RoomBlocks> source)
     {
         // $80:A9E5/$80:AB7F use the SNES 8x8 multiplier for Y*roomWidth, then add the
         // complete 16-bit X word. Valid gameplay requests stay inside the loaded room.
-        return unchecked((byte)y * RoomWidthInBlocks + x);
+        return unchecked((byte)source.Y * RoomWidthInBlocks + source.X);
     }
 
     private static ushort ReadSource(

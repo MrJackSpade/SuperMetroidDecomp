@@ -46,7 +46,7 @@ internal static partial class Program
             bool heardOpening = false;
             for (int frame = 0; frame < 19; frame++)
             {
-                plms.Step(bus, level, streamer, 0x1000, 0x1000, 0);
+                plms.Step(bus, level, streamer, new(0x1000, 0x1000), 0);
                 heardOpening |= plms.SoundRequests.Any(r => r == new PlmSoundRequest(
                     SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 7), 6));
             }

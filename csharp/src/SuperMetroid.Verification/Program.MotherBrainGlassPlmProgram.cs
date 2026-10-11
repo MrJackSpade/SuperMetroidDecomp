@@ -56,10 +56,10 @@ internal static partial class Program
         // With no head hits, the first one-frame draw must loop at the $0002
         // threshold instead of shattering early. Both passes use the guarded
         // production interpreter, not an independent table reader.
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertEqual(0xd215, plms.MotherBrainGlassInstructionPointer,
             "intact glass first draw advances to the hit threshold");
-        plms.Step(guarded, level, streamer, 0, 0, 0);
+        plms.Step(guarded, level, streamer, new(0, 0), 0);
         AssertEqual(0xd215, plms.MotherBrainGlassInstructionPointer,
             "zero head hits loop at the first glass stage");
         AssertTrue(!eventSet && plms.MotherBrainGlassProjectileRequests.Count == 0,
@@ -73,7 +73,7 @@ internal static partial class Program
         int emitted = 0;
         for (int frame = 0; frame < 128 && plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass); frame++)
         {
-            plms.Step(guarded, level, streamer, 0, 0, 0);
+            plms.Step(guarded, level, streamer, new(0, 0), 0);
             emitted += plms.MotherBrainGlassProjectileRequests.Count;
         }
         AssertTrue(eventSet && !plms.HasActiveHeader(PlmHeaderId.MotherBrainGlass),

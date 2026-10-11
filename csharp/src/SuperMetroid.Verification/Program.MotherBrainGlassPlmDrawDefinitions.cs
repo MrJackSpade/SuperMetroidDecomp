@@ -100,8 +100,8 @@ internal static partial class Program
                 int y = entryY + (vertical ? block : 0);
                 expected.Add(y * width + x, run.LevelWords.Span[block]);
             }
-            entryX = originX + run.NextX;
-            entryY = originY + run.NextY;
+            entryX = originX + run.Next.X;
+            entryY = originY + run.Next.Y;
         }
         foreach ((int index, ushort word) in expected)
             AssertEqual(word, level.GetCollisionBlockByIndex(index).LevelWord,

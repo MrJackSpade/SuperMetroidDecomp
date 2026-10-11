@@ -53,7 +53,7 @@ internal static partial class Program
         RoomPlmSlotSnapshot gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         for (int warm = 0; warm < 2; warm++)
-            plms.Step(bus, level, runtime.BackgroundStreamer!, 0, 224, 0);
+            plms.Step(bus, level, runtime.BackgroundStreamer!, new(0, 224), 0);
         gate = plms.PopulationSlots.Single(slot =>
             slot.HeaderPointer == PlmHeaderId.DownwardGate);
         ushort sleepingGateInstruction = gate.InstructionPointer;
@@ -115,8 +115,7 @@ internal static partial class Program
                     bus,
                     level,
                     runtime.BackgroundStreamer!,
-                    layer1XPosition: 0,
-                    layer1YPosition: 224,
+                    layer1Position: new(0, 224),
                     bg1XOffset: 0);
             }
 
@@ -220,7 +219,7 @@ internal static partial class Program
             "using X-Ray again cancels direct G-Mode after sand overload");
         AssertTrue(!samus.Xray.ArePlmsSuspended,
             "G-Mode cancellation restores the cartridge PLM-enable word");
-        plms.Step(bus, level, level.CreateBackgroundStreamer(), 0, 0, 0);
+        plms.Step(bus, level, level.CreateBackgroundStreamer(), new(0, 0), 0);
         AssertEqual(0, plms.ActiveCount,
             "first restored PLM pass executes all forty transient sand delete lists");
     }
@@ -407,7 +406,7 @@ internal static partial class Program
         // A normal frame in G-Mode omits this call entirely. Executing it once represents
         // cancellation by a second X-Ray use: the pending access list finally begins, but
         // Samus remains locked through its authored insertion/refill/retraction sequence.
-        plms.Step(bus, level, streamer, 0, 0, 0);
+        plms.Step(bus, level, streamer, new(0, 0), 0);
         AssertTrue(!plms.Stations.Single().Triggered,
             "first post-G-Mode PLM pass consumes the pending station setup");
         AssertTrue(samus.InputLocked,
@@ -423,7 +422,7 @@ internal static partial class Program
             header: 0xeed7,
             roomArgument: 17,
             precollected: false);
-        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
         AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
             "direct G-Mode contact records the visible item's native trigger");
 
@@ -436,7 +435,7 @@ internal static partial class Program
 
         // The omitted handler pass above represents G-Mode. Once a second X-Ray use
         // restores PLMs, the resident trigger is consumed without rechecking distance.
-        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
         AssertTrue(fixture.System.HasCollectedItemBit(17),
             "first post-G-Mode handler remotely acquires the previously touched item");
         AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count,

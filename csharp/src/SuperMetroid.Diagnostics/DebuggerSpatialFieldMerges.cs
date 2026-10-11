@@ -16,8 +16,16 @@ namespace SuperMetroid.Desktop;
 /// <param name="LegacyFields">Serialized names of the retired component fields, in composition order.</param>
 /// <param name="LegacyType">Exact payload type the older layout wrote for every component.</param>
 /// <param name="Compose">Builds the current value from the remembered legacy component values.</param>
+/// <param name="PredatesComponents">
+/// For a field whose components were themselves introduced by a later build: the value restored, with
+/// its warning, for an older layout that omits every component. Null when every legacy layout stores them.
+/// </param>
 internal sealed record DebuggerSpatialFieldMerge(
-    string TypeName, string Field, string[] LegacyFields, Type[] LegacyType, Func<object?[], object> Compose);
+    string TypeName, string Field, string[] LegacyFields, Type[] LegacyType, Func<object?[], object> Compose,
+    DebuggerSpatialFieldOrigin? PredatesComponents = null);
+
+/// <summary>The restored value and warning for a layout older than a merged field's components.</summary>
+internal sealed record DebuggerSpatialFieldOrigin(object Value, string Warning);
 
 /// <summary>Explicit inventory of debugger fields merged into spatial values (#628).</summary>
 internal static class DebuggerSpatialFieldMerges
@@ -25,6 +33,7 @@ internal static class DebuggerSpatialFieldMerges
     private const string PauseMenuState = "SuperMetroid.Core.Frontend.PauseMenuState";
     private const string PauseMapScroll = "SuperMetroid.Core.Frontend.PauseMapScroll";
     private const string MapArrow = "SuperMetroid.Core.Frontend.FileSelectMapAnimations+Arrow";
+    private const string PlmSlot = "SuperMetroid.Core.Rooms.RoomPlmSystem+PlmSlot";
 
     /// <summary>Every merged field, by declaring type.</summary>
     internal static readonly DebuggerSpatialFieldMerge[] Merges =
@@ -61,6 +70,16 @@ internal static class DebuggerSpatialFieldMerges
         Fields(PauseMapScroll, "<maximum>P", "<maximumX>P", "<maximumY>P", typeof(ushort),
             v => new Position16<MapPixels>((ushort)v[0]!, (ushort)v[1]!)),
         Fields(MapArrow, "Position", "X", "Y", typeof(ushort), v => new Position16<ScreenPixels>((ushort)v[0]!, (ushort)v[1]!)),
+        // 571b9a42 implemented Samus Eater capture. Earlier builds did not execute that capture;
+        // fresh plant setup supplies the coordinates if the player is subsequently caught.
+        Fields(PlmSlot, "<PlantHeldPosition>k__BackingField", "<PlantHeldX>k__BackingField", "<PlantHeldY>k__BackingField",
+            typeof(ushort), v => new Position16<RoomPixels>((ushort)v[0]!, (ushort)v[1]!)) with
+        {
+            PredatesComponents = new(new Position16<RoomPixels>(0, 0),
+                "Legacy PLM slot lacks plant-held coordinates; restoring zero until a new capture setup."),
+        },
+        Bytes(typeof(BombTorizoStatueProjectileRequest), "PlmBlock", "PlmBlockX", "PlmBlockY", (x, y) => new Point32<RoomBlocks>(x, y)),
+        Bytes(typeof(MotherBrainGlassProjectileRequest), "PlmBlock", "PlmBlockX", "PlmBlockY", (x, y) => new Point32<RoomBlocks>(x, y)),
     ];
 
     /// <summary>The current spatial fields, introduced for layouts that stored their components.</summary>
@@ -91,12 +110,25 @@ internal static class DebuggerSpatialFieldMerges
 
     private static string BackingField(string property) => $"<{property}>k__BackingField";
 
+    // Warnings for layouts that predate a field's components, each reported once per process.
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, bool> ReportedWarnings = new();
+
     private static void Restore(object instance, DebuggerSpatialFieldMerge merge)
     {
         var values = new object?[merge.LegacyFields.Length];
+        var supplied = new bool[values.Length];
+        for (int index = 0; index < values.Length; index++)
+            supplied[index] = DebuggerRetiredFieldDefinitions.TryGetLegacyValue(instance, merge.LegacyFields[index], out values[index]);
+        if (merge.PredatesComponents is { } origin && !supplied.Contains(true))
+        {
+            if (ReportedWarnings.TryAdd(origin.Warning, true))
+                Console.Error.WriteLine($"WARNING: {origin.Warning}");
+            FindField(instance.GetType(), merge.Field).SetValue(instance, origin.Value);
+            return;
+        }
         for (int index = 0; index < values.Length; index++)
         {
-            if (!DebuggerRetiredFieldDefinitions.TryGetLegacyValue(instance, merge.LegacyFields[index], out values[index]))
+            if (!supplied[index])
                 throw new InvalidDataException(
                     $"Legacy {merge.TypeName} omits {merge.Field} but does not supply its component {merge.LegacyFields[index]}.");
             if (values[index]?.GetType() != merge.LegacyType[index])

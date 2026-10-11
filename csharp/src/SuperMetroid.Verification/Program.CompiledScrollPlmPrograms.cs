@@ -36,7 +36,7 @@ internal static partial class Program
         AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(new(8, 13))),
             "retail scroll trigger wakes at its authored coordinate");
         plms.Step(guarded, level, level.CreateBackgroundStreamer(),
-            0, 0, 0, scrolls);
+            new(0, 0), 0, scrolls);
         AssertEqual((byte)RoomScrollState.Green, scrolls.ReadStorage(0),
             "compiled retail scroll program mutates the intended cell");
         AssertTrue(!plms.ScrollPlmTriggered(level.GetBlockIndex(new(8, 13))),

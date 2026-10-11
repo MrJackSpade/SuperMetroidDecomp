@@ -256,8 +256,7 @@ internal static partial class Program
             interferenceBus,
             interferenceLevel,
             interferenceStreamer,
-            0,
-            0,
+            new(0, 0),
             0);
 
         var interferenceReactions = new List<BombBlockReaction>();
@@ -283,8 +282,7 @@ internal static partial class Program
             interferenceBus,
             interferenceLevel,
             interferenceStreamer,
-            0,
-            0,
+            new(0, 0),
             0);
         ColoredDoorPlmSnapshot suppressedDoor = interferencePlms.ColoredDoors.Single();
         AssertEqual(ColoredDoorPhase.Waiting, suppressedDoor.Phase,
@@ -330,8 +328,7 @@ internal static partial class Program
             bus,
             breakingLevel,
             breakingLevel.CreateBackgroundStreamer(),
-            0,
-            0,
+            new(0, 0),
             0);
         AssertEqual(RoomCollisionType.Air,
             breakingLevel.GetCollisionBlockByIndex(bombableBlock).CollisionType,

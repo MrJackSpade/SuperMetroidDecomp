@@ -41,8 +41,7 @@ internal static partial class Program
             shardSystem.SpawnMotherBrainGlassProjectile(new(
                 (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
                 Parameter: 0,
-                PlmBlockX: 9,
-                PlmBlockY: 5));
+                PlmBlock: new(9, 5)));
             RoomEnemyProjectileSlot shard = shardSystem.EnemyProjectiles.Single(
                 projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainGlassShard);
             ushort program = MotherBrainGlassInstructionProgramDefinitions
@@ -72,8 +71,7 @@ internal static partial class Program
         sparkleSystem.SpawnMotherBrainGlassProjectile(new(
             (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
             Parameter: 0,
-            PlmBlockX: 9,
-            PlmBlockY: 5));
+            PlmBlock: new(9, 5)));
         RoomEnemyProjectileSlot sparkleSource = sparkleSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainGlassShard);
         spawnSparkle.Invoke(sparkleSystem, [sparkleSource]);
@@ -102,8 +100,7 @@ internal static partial class Program
         shotSystem.SpawnMotherBrainGlassProjectile(new(
             (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
             Parameter: 0,
-            PlmBlockX: 9,
-            PlmBlockY: 5));
+            PlmBlock: new(9, 5)));
         RoomEnemyProjectileSlot shot = shotSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainGlassShard);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;

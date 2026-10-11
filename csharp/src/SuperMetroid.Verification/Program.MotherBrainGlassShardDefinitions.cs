@@ -30,8 +30,7 @@ internal static partial class Program
                 enemies.SpawnMotherBrainGlassProjectile(new(
                     (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
                     parameter,
-                    PlmBlockX: 0x20,
-                    PlmBlockY: 0x08));
+                    PlmBlock: new(0x20, 0x08)));
 
                 RoomEnemyProjectileSlot shard =
                     enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -60,8 +61,7 @@ public sealed partial class RoomPlmSystem
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
         PlmSlot slot,
-        ushort layer1XPosition,
-        ushort layer1YPosition,
+        Position16<RoomPixels> layer1Position,
         ushort bg1XOffset)
     {
         ColoredDoorPlmState? door = slot.ColoredDoor;
@@ -106,8 +106,7 @@ public sealed partial class RoomPlmSystem
                 streamer,
                 slot.BlockIndex,
                 drawPointer,
-                layer1XPosition,
-                layer1YPosition,
+                layer1Position,
                 bg1XOffset);
             slot.Active = false;
             slot.ColoredDoor = null;
@@ -122,8 +121,7 @@ public sealed partial class RoomPlmSystem
                 streamer,
                 slot.BlockIndex,
                 door.ColoredClosedDraw,
-                layer1XPosition,
-                layer1YPosition,
+                layer1Position,
                 bg1XOffset);
             door.InitialDrawCompleted = true;
         }

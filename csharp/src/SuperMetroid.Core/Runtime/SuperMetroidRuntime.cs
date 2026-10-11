@@ -4205,8 +4205,7 @@ Landed: true, HitCeiling: false);
                 accepted.Value,
                 level,
                 BackgroundStreamer,
-                Camera.XPosition,
-                Camera.YPosition,
+                new(Camera.XPosition, Camera.YPosition),
                 BackgroundScroll.Bg1XOffset);
             foreach (PlmTilemapUpdate update in confirmation.TilemapUpdates)
                 update.ExecuteTo(Vram);
@@ -4234,7 +4233,7 @@ Landed: true, HitCeiling: false);
         if (LevelData is null || BackgroundStreamer is null || Camera is null)
             throw new InvalidOperationException("A message box returned without an active room.");
         foreach (PlmTilemapUpdate update in Plms.CompleteCollectibleMessage(
-                     _addressSpace, LevelData, BackgroundStreamer, Camera.XPosition, Camera.YPosition,
+                     _addressSpace, LevelData, BackgroundStreamer, new(Camera.XPosition, Camera.YPosition),
                      BackgroundScroll.Bg1XOffset))
             update.ExecuteTo(Vram);
         // The resumed dispatch reaches the HUD handler, which shows the new inventory. A

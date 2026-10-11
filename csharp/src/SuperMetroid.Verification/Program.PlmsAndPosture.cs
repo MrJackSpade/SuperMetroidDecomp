@@ -75,7 +75,7 @@ static void VerifyBreakableGrapplePlms()
         int count)
     {
         for (int frame = 0; frame < count; frame++)
-            plms.Step(addressSpace, level, streamer, 0, 0, 0);
+            plms.Step(addressSpace, level, streamer, new(0, 0), 0);
     }
 
     // BTS one waits 240 handler calls, breaks through four exact visual words, reverses
@@ -92,7 +92,7 @@ static void VerifyBreakableGrapplePlms()
         "CFB5 retains original level word until handler");
 
     IReadOnlyList<PlmTilemapUpdate> firstDraw = respawningPlms.Step(
-        bus, respawning, respawningStreamer, 0, 0, 0);
+        bus, respawning, respawningStreamer, new(0, 0), 0);
     AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "connection-frame PLM pass draws grapple frame zero");
     AssertEqual(1, firstDraw.Count, "visible grapple mutation emits one VRAM redraw");
@@ -104,7 +104,7 @@ static void VerifyBreakableGrapplePlms()
     StepMany(respawningPlms, bus, respawning, respawningStreamer, 239);
     AssertEqual(0xe0b7, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "respawning block remains grapple terrain through timer 240 minus one");
-    respawningPlms.Step(bus, respawning, respawningStreamer, 0, 0, 0);
+    respawningPlms.Step(bus, respawning, respawningStreamer, new(0, 0), 0);
     AssertEqual(0x0053, respawning.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "timer 240 expiry draws first air frame");
     AssertEqual(1, respawningPlms.SoundRequests.Count,
@@ -128,7 +128,7 @@ static void VerifyBreakableGrapplePlms()
         "respawning instruction restores BTS one before terrain");
     AssertEqual(1, respawningPlms.ActiveCount,
         "restoration pass retains PLM for timer-one delete delay");
-    respawningPlms.Step(bus, respawning, respawningStreamer, 0, 0, 0);
+    respawningPlms.Step(bus, respawning, respawningStreamer, new(0, 0), 0);
     AssertEqual(0, respawningPlms.ActiveCount,
         "restored grapple PLM deletes on following handler pass");
 
@@ -138,17 +138,17 @@ static void VerifyBreakableGrapplePlms()
     var permanentPlms = new RoomPlmSystem();
     AssertTrue(permanentPlms.TrySpawnBreakableGrappleBlock(permanent, blockIndex, 2),
         "nonrespawning grapple PLM occupies a native slot");
-    permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
+    permanentPlms.Step(bus, permanent, permanentStreamer, new(0, 0), 0);
     StepMany(permanentPlms, bus, permanent, permanentStreamer, 119);
     AssertEqual(0xe0b7, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "nonrespawning block retains grapple terrain through timer 120 minus one");
-    permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
+    permanentPlms.Step(bus, permanent, permanentStreamer, new(0, 0), 0);
     AssertEqual(0x0053, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "nonrespawning timer 120 begins break sequence");
     StepMany(permanentPlms, bus, permanent, permanentStreamer, 4 + 4 + 4);
     AssertEqual(0x00ff, permanent.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "nonrespawning sequence ends on blank-air visual word");
-    permanentPlms.Step(bus, permanent, permanentStreamer, 0, 0, 0);
+    permanentPlms.Step(bus, permanent, permanentStreamer, new(0, 0), 0);
     AssertEqual(0, permanentPlms.ActiveCount,
         "nonrespawning sequence deletes one frame after timer-one blank draw");
     AssertEqual(0, permanent.GetCollisionBlockByIndex(blockIndex).Behavior,
@@ -240,7 +240,7 @@ static void VerifyBreakableGrapplePlms()
     AssertEqual(0x0058, respawning2x2.GetCollisionBlockByIndex(blockIndex).LevelWord,
         "CE83 synchronously installs the native air-type bomb-parent visual");
     IReadOnlyList<PlmTilemapUpdate> first2x2Draw = respawning2x2Plms.Step(
-        bus, respawning2x2, respawning2x2Streamer, 0, 0, 0);
+        bus, respawning2x2, respawning2x2Streamer, new(0, 0), 0);
     AssertEqual(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x06), 3), respawning2x2Plms.SoundRequests[0],
         "collision break queues library-two sound six with native maximum three");
     AssertEqual(4, first2x2Draw.Count,
@@ -264,7 +264,7 @@ static void VerifyBreakableGrapplePlms()
         "BTS-3 restores the type-D vertical extension row");
     AssertEqual(1, respawning2x2Plms.ActiveCount,
         "timer-one restored frame keeps BTS-3 PLM alive through this handler pass");
-    respawning2x2Plms.Step(bus, respawning2x2, respawning2x2Streamer, 0, 0, 0);
+    respawning2x2Plms.Step(bus, respawning2x2, respawning2x2Streamer, new(0, 0), 0);
     AssertEqual(0, respawning2x2Plms.ActiveCount,
         "BTS-3 deletes on the handler pass after linked-block restoration");
 
@@ -275,7 +275,7 @@ static void VerifyBreakableGrapplePlms()
     AssertTrue(permanent1x2Plms.TrySpawnCollisionBombBlock(
         permanent1x2, blockIndex, behavior: 6),
         "BTS-6 collision setup occupies a native PLM slot");
-    permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
+    permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, new(0, 0), 0);
     AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 3)).LevelWord,
         "vertical draw writes BTS-6 origin");
     AssertEqual(0x0053, permanent1x2.GetCollisionBlock(new(3, 4)).LevelWord,
@@ -285,7 +285,7 @@ static void VerifyBreakableGrapplePlms()
     StepMany(permanent1x2Plms, bus, permanent1x2, permanent1x2Streamer, 12);
     AssertEqual(0x00ff, permanent1x2.GetCollisionBlock(new(3, 4)).LevelWord,
         "permanent BTS-6 finishes on two vertical blank-air words");
-    permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, 0, 0, 0);
+    permanent1x2Plms.Step(bus, permanent1x2, permanent1x2Streamer, new(0, 0), 0);
     AssertEqual(0, permanent1x2Plms.ActiveCount,
         "permanent BTS-6 deletes one frame after its timer-one blank draw");
 
@@ -307,8 +307,7 @@ static void VerifyBreakableGrapplePlms()
         bus,
         noBombsBranchLevel,
         noBombsBranchLevel.CreateBackgroundStreamer(),
-        0,
-        0,
+        new(0, 0),
         0,
         scrolls: null,
         enemyDeaths: 0,
@@ -328,8 +327,7 @@ static void VerifyBreakableGrapplePlms()
         bus,
         bombsBranchLevel,
         bombsBranchLevel.CreateBackgroundStreamer(),
-        0,
-        0,
+        new(0, 0),
         0,
         scrolls: null,
         enemyDeaths: 0,
@@ -352,8 +350,7 @@ static void VerifyBreakableGrapplePlms()
             bus,
             unknownOpcodeLevel,
             unknownOpcodeLevel.CreateBackgroundStreamer(),
-            0,
-            0,
+            new(0, 0),
             0),
         "uncatalogued bank-$84 PLM opcode fails loudly");
 

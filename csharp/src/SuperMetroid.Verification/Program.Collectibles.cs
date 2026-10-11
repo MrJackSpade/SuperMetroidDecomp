@@ -51,7 +51,7 @@ internal static partial class Program
                 fixture.Samus.ProjectileFlareCounter = 60;
 
             fixture.Plms.Step(
-                bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+                bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
             if (kind >= InWorldCollectibleKind.Bombs)
             {
                 // LoadItemPLMGfx mutates the live block-definition table before the first
@@ -70,7 +70,7 @@ internal static partial class Program
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 $"{kind} visible block accepts Samus contact");
             fixture.Plms.Step(
-                bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+                bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
 
             AssertTrue(fixture.System.HasCollectedItemBit(kindIndex),
                 $"{kind} marks its physical item bit");
@@ -88,8 +88,8 @@ internal static partial class Program
 
             AssertEqual(visibleItemWord, fixture.Level.ForegroundEntries.Span[fixture.BlockIndex],
                 $"{kind} retains pickup artwork during its message");
-            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
-            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+            fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
+            fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
 
             // Returning from the message frees the native physical ID. Reuse that same highest slot for
             // a destructible special block, exactly as the block beside Morph Ball does.
@@ -105,7 +105,7 @@ internal static partial class Program
             AssertEqual(0, fixture.Plms.Collectibles.Count,
                 $"{kind} semantic owner does not survive physical slot reuse");
             fixture.Plms.Step(
-                bus, fixture.Level, fixture.Streamer, 0, 0, 0);
+                bus, fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count,
                 $"{kind} reused slot cannot republish its pickup message");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
@@ -123,7 +123,7 @@ internal static partial class Program
             header: 0xeed7,
             roomArgument: 37,
             precollected: true);
-        collected.Plms.Step(bus, collected.Level, collected.Streamer, 0, 0, 0);
+        collected.Plms.Step(bus, collected.Level, collected.Streamer, new(0, 0), 0);
         AssertEqual(0, collected.Plms.ActiveCount,
             "previously collected exposed item removes itself");
         AssertEqual(99, collected.Samus.MaxHealth,
@@ -137,7 +137,7 @@ internal static partial class Program
             header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)),
             roomArgument: 91,
             precollected: false);
-        orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
+        orb.Plms.Step(bus, orb.Level, orb.Streamer, new(0, 0), 0);
         var grappleSamus = new SamusState();
         grappleSamus.XPosition = (ushort)((orb.BlockIndex % orb.Level.Size.Width) * 16 + 8);
         grappleSamus.YPosition = (ushort)((orb.BlockIndex / orb.Level.Size.Width) * 16 + 8);
@@ -146,18 +146,18 @@ internal static partial class Program
             (ushort)SnesButton.X, orb.Plms);
         AssertEqual(GrapplePhase.CancelPending, grappleSamus.Grapple.Phase,
             "grapple collides with the solid Chozo orb");
-        orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
+        orb.Plms.Step(bus, orb.Level, orb.Streamer, new(0, 0), 0);
         AssertTrue(!orb.System.HasRoomChozoBit(91),
             "breaking a Chozo orb persists nothing; only unused PLMs $D700/$D708 use $84:8865");
         AssertTrue(!orb.System.HasCollectedItemBit(91),
             "breaking a Chozo orb does not prematurely collect its item");
-        StepFrames(9, _ => orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0));
+        StepFrames(9, _ => orb.Plms.Step(bus, orb.Level, orb.Streamer, new(0, 0), 0));
         AssertEqual(CollectiblePhase.Visible, orb.Plms.CollectiblePhases[0],
             "Chozo burst exposes the item");
         ushort orbItemWord = orb.Level.ForegroundEntries.Span[orb.BlockIndex];
         AssertTrue(orb.Plms.TryNotifyCollectibleTouch(orb.BlockIndex),
             "exposed Chozo item accepts touch");
-        orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
+        orb.Plms.Step(bus, orb.Level, orb.Streamer, new(0, 0), 0);
         AssertTrue(orb.System.HasCollectedItemBit(91),
             "Chozo item persists its room argument bit");
         AssertTrue((orb.Samus.CollectedItems & (ushort)SamusEquipmentFlags.MorphBall) != 0,
@@ -165,8 +165,8 @@ internal static partial class Program
 
         AssertEqual(orbItemWord, orb.Level.ForegroundEntries.Span[orb.BlockIndex],
             "Chozo pickup remains visible throughout message");
-        orb.Plms.CompleteCollectibleMessage(bus, orb.Level, orb.Streamer, 0, 0, 0);
-        orb.Plms.Step(bus, orb.Level, orb.Streamer, 0, 0, 0);
+        orb.Plms.CompleteCollectibleMessage(bus, orb.Level, orb.Streamer, new(0, 0), 0);
+        orb.Plms.Step(bus, orb.Level, orb.Streamer, new(0, 0), 0);
         AssertEqual(0, orb.Plms.Collectibles.Count, "Chozo pickup deletes after message");
 
         CollectibleFixture reopenedOrb = LoadCollectible(
@@ -194,25 +194,25 @@ internal static partial class Program
             "concealed shot item accepts projectile reaction");
         StepUntil(
             () => shot.Plms.CollectiblePhases[0] == CollectiblePhase.ShotBlockVisible,
-            _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0),
+            _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, new(0, 0), 0),
             maximumFrames: 20,
             context: "shot item reveal");
         ushort shotItemWord = shot.Level.ForegroundEntries.Span[shot.BlockIndex];
         AssertTrue(shot.Plms.TryNotifyCollectibleTouch(shot.BlockIndex),
             "revealed shot item accepts Samus contact");
-        shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
+        shot.Plms.Step(bus, shot.Level, shot.Streamer, new(0, 0), 0);
         AssertEqual(5, shot.Samus.MaxMissiles, "shot item grants missile capacity");
-        StepFrames(180, _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0));
+        StepFrames(180, _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, new(0, 0), 0));
         AssertEqual(shotItemWord, shot.Level.ForegroundEntries.Span[shot.BlockIndex],
             "shot pickup cannot clear or begin respawn countdown during message");
-        shot.Plms.CompleteCollectibleMessage(bus, shot.Level, shot.Streamer, 0, 0, 0);
-        shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0);
+        shot.Plms.CompleteCollectibleMessage(bus, shot.Level, shot.Streamer, new(0, 0), 0);
+        shot.Plms.Step(bus, shot.Level, shot.Streamer, new(0, 0), 0);
         AssertEqual(CollectiblePhase.CollectedShotBlockEmpty,
             shot.Plms.CollectiblePhases[0],
             "collected shot item retains empty respawn owner");
         StepUntil(
             () => shot.Plms.CollectiblePhases[0] == CollectiblePhase.CollectedShotBlock,
-            _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, 0, 0, 0),
+            _ => shot.Plms.Step(bus, shot.Level, shot.Streamer, new(0, 0), 0),
             maximumFrames: 220,
             context: "collected shot block restoration");
         AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).LevelWord,
@@ -233,14 +233,14 @@ internal static partial class Program
         var fixture = LoadCollectible(bus,
             (ushort)(PlmHeaderId.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4),
             26, precollected: false, width: 128, blockX: 69, blockY: 41, height: 48);
-        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         var movement = new SamusKinematicsState
         {
             XPosition = 1124, YPosition = 651, XRadius = 5, YRadius = 14,
         };
         SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
             plms: fixture.Plms, alignToSlopeAfterMovement: false);
-        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
         AssertEqual(CollectiblePhase.AwaitingMessage, fixture.Plms.CollectiblePhases[0],
@@ -248,7 +248,7 @@ internal static partial class Program
         AssertEqual(1, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball publishes one pickup");
         // The message returns into the item's list, which draws empty for one frame
         // within that same PLM_Handler call and deletes the PLM on the next pass.
-        fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        fixture.Plms.CompleteCollectibleMessage(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).LevelWord,
             "Morph Ball pickup draws native empty level word on message return");
         var next = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,
@@ -257,7 +257,7 @@ internal static partial class Program
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.Plms.CollectiblePhases[0],
             "repeat contact preserves the pending delete");
-        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, 1024, 512, 0);
+        fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         AssertEqual(0, fixture.Plms.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
         AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
         var cleared = SamusBlockCollision.MoveHorizontal(bus, fixture.Level, movement, -1 << 16,

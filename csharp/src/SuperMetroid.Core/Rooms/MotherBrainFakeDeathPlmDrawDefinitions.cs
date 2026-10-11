@@ -112,13 +112,12 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// 12FC/1339. The middle pair duplicates a seven-cell column; side tubes
     /// clear one extra cell toward the center using signed origin-relative X.
     /// </summary>
-    internal readonly record struct RegularDraw(MotherBrainFakeDeathDraw Pointer, int Height, int Width, bool Ceiling, bool Fill, int Side)
+    internal readonly record struct RegularDraw(MotherBrainFakeDeathDraw Pointer, int RunLength, int RunCount, bool Ceiling, bool Fill, int Side)
     {
-        internal int RunCount => Width;
         internal int Count(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
-            return Side != 0 && run == 1 ? 1 : Height;
+            return Side != 0 && run == 1 ? 1 : RunLength;
         }
         internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
         internal sbyte NextX(int run)
@@ -176,7 +175,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         {
             var words = new ushort[shape.Count(run)];
             for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new((ushort)(words.Length | (shape.Vertical(run) ? 0x8000 : 0)), words, shape.NextX(run), 0);
+            runs[run] = new((ushort)(words.Length | (shape.Vertical(run) ? 0x8000 : 0)), words, new(shape.NextX(run), 0));
         }
         draw = new(pointer, runs);
         return true;
@@ -246,7 +245,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         if (!TryDescribeBackground(pointer, out var row)) return false;
         var words = new ushort[13];
         for (int column = 0; column < words.Length; column++) words[column] = row.WordAt(column);
-        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(13, words, 0, 0) });
+        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(13, words, new(0, 0)) });
         return true;
     }
 
@@ -335,7 +334,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         {
             var words = new ushort[shape.Count(run)];
             for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
-            runs[run] = new((ushort)(0x8000 | words.Length), words, shape.NextX(run), shape.NextY(run));
+            runs[run] = new((ushort)(0x8000 | words.Length), words, new(shape.NextX(run), shape.NextY(run)));
         }
         draw = new(pointer, runs);
         return true;

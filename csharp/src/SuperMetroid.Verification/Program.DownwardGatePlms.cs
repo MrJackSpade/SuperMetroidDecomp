@@ -252,9 +252,9 @@ internal static partial class Program
         var population = new RoomPlmPopulationDefinition(populationPointer,
         [
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGate),
-                gateX, gateY, 0),
+                new(gateX, gateY), 0),
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGateShotBlock),
-                gateX, gateY, argument),
+                new(gateX, gateY), argument),
         ]);
         WriteWord(bus, 0x84aae3, (ushort)RoomPlmInstruction.Delete);
         SeedDownwardGateProjectileRom(bus);
@@ -312,8 +312,7 @@ internal static partial class Program
             bus,
             level,
             streamer,
-            layer1XPosition: 0,
-            layer1YPosition: 0,
+            layer1Position: new(0, 0),
             bg1XOffset: 0,
             scrolls: null,
             enemyDeaths: 0,

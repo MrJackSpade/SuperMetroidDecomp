@@ -77,7 +77,7 @@ internal static partial class Program
         RoomLevelData level = CreateRoom(width, height, words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
-        AssertTrue(plms.TrySpawnMotherBrainMutation(level, 5, 3, header),
+        AssertTrue(plms.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain mutation ${(int)header:X4} allocates");
         ushort[] expected = Enumerable.Range(0, words.Length)
             .Select(index => level.GetCollisionBlockByIndex(index).LevelWord)
@@ -92,9 +92,9 @@ internal static partial class Program
         {
             RoomPlmShotBlockDrawDefinitions.Run run = draw.Runs.Span[runIndex];
             int x = 5 + (runIndex == 0 ? 0 :
-                draw.Runs.Span[runIndex - 1].NextX);
+                draw.Runs.Span[runIndex - 1].Next.X);
             int y = 3 + (runIndex == 0 ? 0 :
-                draw.Runs.Span[runIndex - 1].NextY);
+                draw.Runs.Span[runIndex - 1].Next.Y);
             bool vertical = (run.DirectionAndCount & 0x8000) != 0;
             for (int block = 0; block < run.LevelWords.Length; block++)
                 expected[(y + (vertical ? block : 0)) * width +
@@ -102,14 +102,14 @@ internal static partial class Program
         }
         var guard = new MotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        plms.Step(guard, level, streamer, 0, 0, 0);
+        plms.Step(guard, level, streamer, new(0, 0), 0);
         AssertEqual(1, plms.ActiveCount,
             $"Mother Brain mutation ${(int)header:X4} persists through its draw frame");
         for (int index = 0; index < expected.Length; index++)
             AssertEqual(expected[index],
                 level.GetCollisionBlockByIndex(index).LevelWord,
                 $"Mother Brain mutation ${(int)header:X4} level block {index}");
-        plms.Step(guard, level, streamer, 0, 0, 0);
+        plms.Step(guard, level, streamer, new(0, 0), 0);
         AssertEqual(0, plms.ActiveCount,
             $"Mother Brain mutation ${(int)header:X4} deletes on the following frame");
         AssertEqual(0, guard.ForbiddenReadAttempts,

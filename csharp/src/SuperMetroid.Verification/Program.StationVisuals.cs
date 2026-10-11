@@ -52,7 +52,7 @@ internal static partial class Program
             plms.LoadRoomPopulation(bus, level, streamer, new SnesVram(), RoomPlmPopulationImporter.Read(bus, population),
                 new Bank80SystemState(), AreaId.Crateria,
                 () => new SamusState(), () => false);
-            plms.Step(bus, level, streamer, 0, 0, 0);
+            plms.Step(bus, level, streamer, new(0, 0), 0);
             AssertTrue(plms.TilemapUpdates.Count > 0,
                 "station frame publishes an immediate PLM redraw");
             return (level.GetCollisionBlockByIndex(block).LevelWord,

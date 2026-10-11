@@ -89,8 +89,8 @@ internal static partial class Program
                     AssertEqual(1, frame.Runs.Length, "Escape gate one run");
                     AssertEqual((ushort)0x8004, frame.Runs.Span[0].DirectionAndCount, "Escape gate DTO geometry");
                     AssertEqual(4, frame.Runs.Span[0].LevelWords.Length, "Escape gate DTO width");
-                    AssertEqual((sbyte)0, frame.Runs.Span[0].NextX, "Escape gate DTO final X");
-                    AssertEqual((sbyte)0, frame.Runs.Span[0].NextY, "Escape gate DTO final Y");
+                    AssertEqual((sbyte)0, frame.Runs.Span[0].Next.X, "Escape gate DTO final X");
+                    AssertEqual((sbyte)0, frame.Runs.Span[0].Next.Y, "Escape gate DTO final Y");
                 }
                 foreach (int invalid in new[] {int.MinValue,-1,4,int.MaxValue})
                     AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid), "Escape gate calculated row bounds");

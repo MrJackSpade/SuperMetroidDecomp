@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -83,7 +84,7 @@ public sealed partial class RoomPlmSystem
             var record = new RoomPlmPopulationRecord(
 recordIndex,
                 unchecked((ushort)(populationPointer + recordIndex * RoomPlmPopulationFormat.RecordByteCount)),
-                header, placement.BlockX, placement.BlockY, placement.RoomArgument);
+                header, placement.Block, placement.RoomArgument);
 
             int blockIndex;
             try
@@ -93,14 +94,14 @@ recordIndex,
                 // dimensions. The bounded native allocation preserves that ordering for
                 // the two shipped off-room door records; setup routines that genuinely
                 // require authored terrain still validate when they consume the index.
-                blockIndex = level.GetPlmBlockIndex(new(record.BlockX, record.BlockY));
+                blockIndex = level.GetPlmBlockIndex(record.Block);
             }
             catch (ArgumentOutOfRangeException error)
             {
                 throw new InvalidDataException(
                     $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
                     $"header $84:{(int)header:X4} has block outside safe native allocation " +
-                    $"({record.BlockX},{record.BlockY}) and argument ${record.RoomArgument:X4}.",
+                    $"({record.Block.X},{record.Block.Y}) and argument ${record.RoomArgument:X4}.",
                     error);
             }
 
@@ -131,7 +132,7 @@ recordIndex,
                     $"Room PLM population $8F:{populationPointer:X4} record {recordIndex} " +
                     $"at $8F:{record.RecordPointer:X4} uses untranslated header " +
                     $"$84:{(int)header:X4} (setup $84:{setupPointer:X4}, list " +
-                    $"$84:{instructionList:X4}) at block ({record.BlockX},{record.BlockY}) " +
+                    $"$84:{instructionList:X4}) at block ({record.Block.X},{record.Block.Y}) " +
                     $"with argument ${record.RoomArgument:X4}.");
             }
 
@@ -173,7 +174,7 @@ recordIndex,
         // must pass through this reset or a recycled bomb/door block can execute the old
         // item's handler before its own instruction stream.
         slot.Active = false;
-        slot.PlantHeldX = slot.PlantHeldY = 0;
+        slot.PlantHeldPosition = Position16<RoomPixels>.Zero;
         slot.HeaderPointer = 0;
         slot.BlockIndex = 0;
         slot.RestoreLevelWord = 0;
@@ -323,6 +324,5 @@ public readonly record struct RoomPlmPopulationRecord(
     int RecordIndex,
     ushort RecordPointer,
     PlmHeaderId HeaderPointer,
-    byte BlockX,
-    byte BlockY,
+    Point32<RoomBlocks> Block,
     ushort RoomArgument);

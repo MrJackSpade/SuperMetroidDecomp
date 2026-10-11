@@ -100,8 +100,8 @@ internal static partial class Program
             AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");
             AssertEqual(1,run.LevelWords.Length,"speed reveal single word");
             AssertEqual(nativeWord,run.LevelWords.Span[0],"speed reveal exported native word");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.NextX,"speed reveal native terminal X");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.NextY,"speed reveal native terminal Y");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");
+            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),run.Next.Y,"speed reveal native terminal Y");
         }
     }
 
@@ -173,7 +173,7 @@ internal static partial class Program
                 $"boosted contact with BTS ${bts.Value:X2} admits the real PLM");
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             for (int frame = 0; frame < 100 && plms.ActiveCount != 0; frame++)
-                plms.Step(guarded, level, streamer, 0, 0, 0);
+                plms.Step(guarded, level, streamer, new(0, 0), 0);
             AssertEqual(0, plms.ActiveCount,
                 $"BTS ${bts.Value:X2} compiled list reaches native deletion");
             AssertEqual(respawns ? RoomCollisionType.SpecialBlock :
@@ -193,12 +193,12 @@ internal static partial class Program
                 new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
             "normal bomb allocates the Speed Booster reveal PLM");
         bombPlms.Step(bombGuard, bombLevel,
-            bombLevel.CreateBackgroundStreamer(), 0, 0, 0);
+            bombLevel.CreateBackgroundStreamer(), new(0, 0), 0);
         AssertEqual((ushort)0xb0b6,
             bombLevel.GetCollisionBlockByIndex(bombBlock).LevelWord,
             "bombed speed block draws the native physical reveal word");
         bombPlms.Step(bombGuard, bombLevel,
-            bombLevel.CreateBackgroundStreamer(), 0, 0, 0);
+            bombLevel.CreateBackgroundStreamer(), new(0, 0), 0);
         AssertEqual(0, bombPlms.ActiveCount,
             "bombed speed-block reveal deletes after its single frame");
         AssertEqual(0, bombGuard.ForbiddenReadAttempts,

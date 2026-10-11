@@ -29,7 +29,7 @@ internal static partial class Program
 
         var nativeCorpse = new OamBuffer();
         // $A9:D39A draws the fixed corpse map at world (296, 187).
-        DrawImportedEnemySpritemap(nativeBus, nativeCorpse, 0xa9, 0xd761, 296, 187, 0, 0);
+        DrawImportedEnemySpritemap(nativeBus, nativeCorpse, 0xa9, 0xd761, new(296, 187), 0, 0);
         OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, Position16<RoomPixels>.Zero);
         AssertTrue(nativeCorpse.LowTable.SequenceEqual(installedCorpse.LowTable) &&
                    nativeCorpse.HighTable.SequenceEqual(installedCorpse.HighTable) &&
@@ -103,7 +103,7 @@ internal static partial class Program
         var nativeOam = new OamBuffer();
         var installedOam = new OamBuffer();
         DrawImportedEnemySpritemap(rom, nativeOam, DeadTorizoArtworkDefinitions.SpritemapBank,
-            nativePointer, 128, 128, 0, 0);
+            nativePointer, new(128, 128), 0, 0);
         installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
         AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                    nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&

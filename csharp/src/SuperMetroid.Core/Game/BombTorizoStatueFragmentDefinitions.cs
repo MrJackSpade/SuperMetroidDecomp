@@ -3,8 +3,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>One physical fragment emitted when Bomb Torizo's statue hand breaks.</summary>
 internal readonly record struct BombTorizoStatueFragmentDefinition(
     ushort InstructionList,
-    short XOffset,
-    short YOffset,
+    Offset16<RoomPixels> Offset,
     ushort YVelocity,
     ushort Acceleration);
 
@@ -38,8 +37,7 @@ internal static class BombTorizoStatueFragmentDefinitions
         if (index >= 8) x = 16 - x;
         return new(
             BombTorizoStatueInstructionProgramDefinitions.Program(index),
-            (short)x,
-            (short)(16 * (cell / 3) - 8),
+            new Offset16<RoomPixels>((short)x, (short)(16 * (cell / 3) - 8)),
             YVelocity: 0x0100,
             Acceleration: 0x0010);
     }

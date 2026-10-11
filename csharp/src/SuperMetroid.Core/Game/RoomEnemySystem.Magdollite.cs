@@ -128,10 +128,8 @@ public sealed class MagdolliteEnemyState
     public bool BodyWakeRequested { get; internal set; }
     /// <summary>The hand's initial whole-pixel room X, captured by $A8:B02D at native extension offset $22, separately from its later throw origin.</summary>
     public ushort InitializationOriginX { get; internal set; }
-    /// <summary>Native throwXPosition at extension offset $24: whole-pixel room X captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
-    public ushort ThrowOriginX { get; internal set; }
-    /// <summary>Native throwYPosition at extension offset $26: whole-pixel room Y captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
-    public ushort ThrowOriginY { get; internal set; }
+    /// <summary>Native throwXPosition/throwYPosition at extension offsets $24/$26: whole-pixel room position captured at the apex and used as the base for hand-animation shifts and restoration.</summary>
+    public Position16<RoomPixels> ThrowOrigin { get; internal set; }
 }
 
 public sealed partial class RoomEnemySystem
@@ -520,7 +518,7 @@ public sealed partial class RoomEnemySystem
             bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
             state.Function = MagdolliteEnemyFunction.OverlayTrackingFallingBody;
             bodyState.BodyReachedApex = false;
-            overlay.Position = overlay.Position.WithWhole(new(state.ThrowOriginX, state.ThrowOriginY));
+            overlay.Position = overlay.Position.WithWhole(state.ThrowOrigin);
         }
 
         UpdateMagdolliteHeadRadius(overlay);
@@ -543,8 +541,7 @@ public sealed partial class RoomEnemySystem
             state.BodyPhaseOffset = samusIsRight ? (ushort)1 : (ushort)0;
             InstallMagdolliteInstructionList(overlay, state);
             state.Function = MagdolliteEnemyFunction.OverlayWaitingForThrowAnimation;
-            state.ThrowOriginX = overlay.Position.X.Whole;
-            state.ThrowOriginY = overlay.Position.Y.Whole;
+            state.ThrowOrigin = overlay.Position.Whole;
         }
         else
         {
@@ -752,16 +749,16 @@ public sealed partial class RoomEnemySystem
                 SpawnMagdolliteLava(slot, state.BodyPhaseOffset);
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftRight8Pixels_Up4Pixels_FaceRight:
-                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX + 8)), unchecked((ushort)(state.ThrowOriginY - 4))));
+                slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(8, -4));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftLeft8Pixels_Up4Pixels_FacingLeft:
-                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX - 8)), unchecked((ushort)(state.ThrowOriginY - 4))));
+                slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftRight8Pixels_Up4Pixels_Right_dup:
-                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX + 8)), unchecked((ushort)(state.ThrowOriginY - 8))));
+                slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(8, -8));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_ShiftLeft8Pixels_Up4Pixels_Left_dup:
-                slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(state.ThrowOriginX - 8)), unchecked((ushort)(state.ThrowOriginY - 4))));
+                slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
                 break;
             case MagdolliteInstruction.Instruction_Magdollite_SetCooldownTimerTo100:
                 state.AttackTimer = 256;

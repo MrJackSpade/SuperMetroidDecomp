@@ -40,7 +40,7 @@ public readonly record struct Offset16<TSpace>(short X, short Y)
     /// <summary>Replaces the Y axis.</summary>
     public Offset16<TSpace> WithY(short y) => this with { Y = y };
 
-    /// <summary>Mirrors the displacement horizontally (negates X, wrapping at sixteen bits).</summary>
+    /// <summary>Mirrors about the vertical axis: X negates (wrapping at sixteen bits), Y is unchanged.</summary>
     public Offset16<TSpace> MirroredX() => new(unchecked((short)-X), Y);
 
     /// <summary>Adds two displacements, wrapping each axis at sixteen bits.</summary>

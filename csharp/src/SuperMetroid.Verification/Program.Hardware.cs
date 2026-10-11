@@ -695,8 +695,7 @@ static void VerifyOamSpritemapPacking()
     DrawImportedEnemyProjectileSpritemap(
         bus, oam,
         bank8dSpritemapPointer: 0x9800,
-        originX: 0x00fe,
-        originY: 0x0001,
+        origin: new(0x00fe, 0x0001),
         graphicsIndex: 0x0a04,
         originYIsOnScreen: true);
     OamEntry enemyFirst = oam.GetEntry(0);
@@ -718,8 +717,7 @@ static void VerifyOamSpritemapPacking()
     DrawImportedEnemyProjectileSpritemap(
         bus, oam,
         bank8dSpritemapPointer: 0x9800,
-        originX: 0,
-        originY: 0xffff,
+        origin: new(0, 0xffff),
         graphicsIndex: 0,
         originYIsOnScreen: false);
     AssertEqual(0xf0, oam.GetEntry(0).Y,
@@ -742,8 +740,7 @@ static void VerifyOamSpritemapPacking()
         bus, oam,
         bank: 0xa2,
         spritemapPointer: 0x9000,
-        originX: 0x00fe,
-        originY: 0x0001,
+        origin: new(0x00fe, 0x0001),
         paletteBits: 0x0e00,
         baseTileIndex: 4);
     OamEntry roomEnemyFirst = oam.GetEntry(0);
@@ -769,8 +766,7 @@ static void VerifyOamSpritemapPacking()
         bus, oam,
         bank: 0xa2,
         spritemapPointer: 0x9000,
-        originX: 0,
-        originY: 0x0001,
+        origin: new(0, 0x0001),
         paletteBits: 0,
         baseTileIndex: 0,
         clipVerticalWrap: true,
@@ -785,8 +781,7 @@ static void VerifyOamSpritemapPacking()
         bus, oam,
         bank: 0xa2,
         spritemapPointer: 0x9000,
-        originX: 0,
-        originY: 0xffff,
+        origin: new(0, 0xffff),
         paletteBits: 0,
         baseTileIndex: 0,
         clipVerticalWrap: true,

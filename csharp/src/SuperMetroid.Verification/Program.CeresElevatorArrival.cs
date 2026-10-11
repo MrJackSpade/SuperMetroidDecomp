@@ -42,7 +42,7 @@ internal static partial class Program
 
         var oam = new OamBuffer();
         oam.BeginFrame();
-        arrival.Draw(oam, cameraX: 0, cameraY: 0);
+        arrival.Draw(oam, camera: Position16<RoomPixels>.Zero);
 
         VerificationAssert.AssertEqual(8, oam.NextByteOffset,
             "Ceres pad and level-data concealer each emitted one OBJ");

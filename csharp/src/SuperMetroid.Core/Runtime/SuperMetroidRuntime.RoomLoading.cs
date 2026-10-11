@@ -1261,7 +1261,7 @@ public sealed partial class SuperMetroidRuntime
         {
             Plms.TrySpawnMotherBrainMutation(
                 LevelData,
-                new(request.BlockX, request.BlockY),
+                request.Block,
                 request.Header);
         }
     }

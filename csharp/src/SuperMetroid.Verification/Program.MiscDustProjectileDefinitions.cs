@@ -48,9 +48,9 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!
                 .SetValue(enemies, (Func<ushort>)(() => { advances++; return 0xbeef; }));
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeEyeDoorSmoke", flags)!
-                .CreateDelegate<Action<RoomEnemyProjectileSlot, ushort, int, int>>(enemies);
+                .CreateDelegate<Action<RoomEnemyProjectileSlot, ushort, Position16<RoomBlocks>>>(enemies);
             RoomEnemyProjectileSlot smoke = enemies.EnemyProjectiles[0];
-            initialize(smoke, (ushort)((index << 8) | 10), 7, 9);
+            initialize(smoke, (ushort)((index << 8) | 10), new(7, 9));
             AssertEqual(MiscDustProjectileDefinitions.InstructionList(10), smoke.InstructionPointer,
                 $"eye-door smoke production instruction {index}");
             AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.XBase +
@@ -64,8 +64,8 @@ internal static partial class Program
 
         var ridley = CreateMiscDustEnemySystem(rom);
         var spawnRidley = typeof(RoomEnemySystem).GetMethod("SpawnRidleyDust", flags)!
-            .CreateDelegate<Action<ushort, ushort, ushort>>(ridley);
-        spawnRidley(0x1234, 0x5678, ushort.MaxValue);
+            .CreateDelegate<Action<Position16<RoomPixels>, ushort>>(ridley);
+        spawnRidley(new(0x1234, 0x5678), ushort.MaxValue);
         AssertEqual(MiscDustProjectileDefinitions.InstructionList(29),
             ridley.EnemyProjectiles.Single(slot => slot.IsActive).InstructionPointer,
             "Ridley production dust clamps oversized variants to native selector 29");

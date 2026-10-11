@@ -394,16 +394,13 @@ public sealed partial class BabyMetroidCutsceneState
                     // enemy's current room coordinate and passes animation parameter nine
                     // to the ordinary highest-free-slot allocator.
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        unchecked((ushort)(head.X - 0x0010)),
-                        unchecked((ushort)(head.Y - 0x0008)),
+                        head + new Offset16<RoomPixels>(-0x0010, -0x0008),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        head.X,
-                        unchecked((ushort)(head.Y - 0x0010)),
+                        head + new Offset16<RoomPixels>(0, -0x0010),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        unchecked((ushort)(head.X + 0x0010)),
-                        unchecked((ushort)(head.Y - 0x0008)),
+                        head + new Offset16<RoomPixels>(0x0010, -0x0008),
                         ProjectileParameter: 0x0009));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }

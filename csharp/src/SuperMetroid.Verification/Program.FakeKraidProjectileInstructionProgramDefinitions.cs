@@ -41,7 +41,7 @@ internal static partial class Program
 
         AssertTrue((bool)spawnSpit.Invoke(
                 enemies,
-                [source, (short)12, (ushort)0x0180, unchecked((ushort)-0x0200)])!,
+                [source, (short)12, new EightEightVector<RoomPixels>(0x0180, -0x0200)])!,
             "real Fake Kraid spit producer allocates its projectile");
         source.VariableC = unchecked((ushort)-4);
         AssertTrue((bool)spawnSpike.Invoke(enemies, [source, state, 0])!,

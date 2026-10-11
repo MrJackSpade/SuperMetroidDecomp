@@ -12,10 +12,10 @@ public static class DraygonCannonData
     /// <summary>$A5:87AA HandleFiringWallTurret selects four roles; $A5:87E4..87F3 holds their wall muzzle coordinates.</summary>
     internal static DraygonCannonTarget FiringTarget(DraygonFiringCannon cannon) => cannon switch
     {
-        DraygonFiringCannon.LowerLeft => new(DraygonCannonControlWord.LowerLeft, 52, 303),
-        DraygonFiringCannon.UpperRight => new(DraygonCannonControlWord.UpperRight, 460, 257),
-        DraygonFiringCannon.LowerRight => new(DraygonCannonControlWord.LowerRight, 460, 350),
-        DraygonFiringCannon.UnusedBottom => new(DraygonCannonControlWord.UnusedBottom, 444, 392),
+        DraygonFiringCannon.LowerLeft => new(DraygonCannonControlWord.LowerLeft, new(52, 303)),
+        DraygonFiringCannon.UpperRight => new(DraygonCannonControlWord.UpperRight, new(460, 257)),
+        DraygonFiringCannon.LowerRight => new(DraygonCannonControlWord.LowerRight, new(460, 350)),
+        DraygonFiringCannon.UnusedBottom => new(DraygonCannonControlWord.UnusedBottom, new(444, 392)),
         _ => throw new InvalidOperationException($"Undefined {nameof(DraygonFiringCannon)} {(int)cannon}."),
     };
     /// <summary>Checks whether a bank-$7E word pointer names one of the five modeled cannon-disable words, without reading its current value.</summary>
@@ -27,8 +27,7 @@ public static class DraygonCannonData
 /// <summary>One bank-$A5 cannon-control word paired with its wall projectile origin.</summary>
 internal readonly record struct DraygonCannonTarget(
     DraygonCannonControlWord DisabledWord,
-    ushort X,
-    ushort Y);
+    Position16<RoomPixels> Origin);
 
 /// <summary>
 /// The five bank-$7E cannon-control words, valued by their WRAM address. Bank $84 writes one

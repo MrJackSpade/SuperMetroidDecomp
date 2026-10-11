@@ -279,16 +279,13 @@ public sealed partial class RoomEnemySystem
         TorizoRandomizedProjectileDefinition definition)
     {
         projectile.InstructionPointer = definition.InstructionList;
-        projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole +
-            definition.XOffset)));
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(
-            definition.BaseXVelocity +
-            unchecked((byte)_nextRandom!()) - 128))));
-        projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(torizo.Position.Y.Whole +
-            definition.YOffset)));
-        projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
-            definition.BaseYVelocity +
-            unchecked((byte)_nextRandom!()) - 128))));
+        projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
+        // The native initializer draws the X jitter before the Y jitter.
+        short xVelocity = unchecked((short)(
+            definition.BaseVelocity.X.SignedRawValue + unchecked((byte)_nextRandom!()) - 128));
+        short yVelocity = unchecked((short)(
+            definition.BaseVelocity.Y.SignedRawValue + unchecked((byte)_nextRandom!()) - 128));
+        projectile.Velocity = new EightEightVector<RoomPixels>(xVelocity, yVelocity);
     }
 
     private void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, bool rightFoot)

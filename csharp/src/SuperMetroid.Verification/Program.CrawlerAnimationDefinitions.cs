@@ -93,22 +93,22 @@ internal static partial class Program
             slot.Parameter2 = speciesOffset;
             var state = new CrawlerEnemyState(slot);
 
-            state.XVelocity = 0xffff;
+            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffff));
             setHorizontal(slot, state);
             AssertEqual(CrawlerAnimationDefinitions.SurfaceInstruction(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideRight),
                 slot.CurrentInstruction, $"crawler production right surface {speciesOffset}");
-            state.XVelocity = 1;
+            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(1));
             setHorizontal(slot, state);
             AssertEqual(CrawlerAnimationDefinitions.SurfaceInstruction(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideLeft),
                 slot.CurrentInstruction, $"crawler production left surface {speciesOffset}");
-            state.YVelocity = 0xffff;
+            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xffff));
             setVertical(slot, state);
             AssertEqual(CrawlerAnimationDefinitions.SurfaceInstruction(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideDown),
                 slot.CurrentInstruction, $"crawler production down surface {speciesOffset}");
-            state.YVelocity = 1;
+            state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(1));
             setVertical(slot, state);
             AssertEqual(CrawlerAnimationDefinitions.SurfaceInstruction(
                     speciesOffset, CrawlerSurfaceOrientation.UpsideUp),

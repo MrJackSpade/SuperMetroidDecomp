@@ -34,9 +34,7 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0);
 
         projectile.InstructionPointer = definition.InstructionList;
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
-            request.PlmBlock.X * 16 + definition.XOffset)), unchecked((ushort)(
-            request.PlmBlock.Y * 16 + definition.YOffset))));
+        projectile.Position = projectile.Position.WithWhole(request.PlmBlock.ToRoomPixels() + definition.Offset);
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(definition.YVelocity));
         projectile.Variable1 = definition.Acceleration;
         return projectile;

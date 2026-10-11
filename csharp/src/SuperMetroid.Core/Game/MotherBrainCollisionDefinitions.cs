@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>A fixed bank-$A9 Mother Brain component offset and hitbox-list identity.</summary>
-internal readonly record struct MotherBrainCollisionComponent(short X, short Y, ushort HitboxPointer);
+internal readonly record struct MotherBrainCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 
 /// <summary>One native Mother Brain rectangle with its touch and shot callbacks.</summary>
 internal readonly record struct MotherBrainCollisionHitbox(
@@ -21,232 +21,232 @@ internal static class MotherBrainCollisionDefinitions
     /// <summary>$A9:9FA0, <c>ExtendedSpritemap_MotherBrainBody_Standing</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] Frame9FA0 =
     [
-        new(18, 58, 0xa4ca),
-        new(30, 29, 0xa4c8),
-        new(25, 30, 0xa4c8),
-        new(0, -4, 0xa4c8),
-        new(0, 0, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-10, 56, 0xa4da),
-        new(7, 28, 0xa4d8),
-        new(2, 29, 0xa4d8),
+        new(new(18, 58), 0xa4ca),
+        new(new(30, 29), 0xa4c8),
+        new(new(25, 30), 0xa4c8),
+        new(new(0, -4), 0xa4c8),
+        new(new(0, 0), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-10, 56), 0xa4da),
+        new(new(7, 28), 0xa4d8),
+        new(new(2, 29), 0xa4d8),
     ];
 
     /// <summary>$A9:9FEA, <c>ExtendedSpritemap_MotherBrainBody_Walking_0</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] Frame9FEA =
     [
-        new(28, 47, 0xa4ca),
-        new(38, 19, 0xa4c8),
-        new(33, 19, 0xa4c8),
-        new(0, -3, 0xa4c8),
-        new(0, 2, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-11, 58, 0xa4da),
-        new(6, 31, 0xa4d8),
-        new(1, 33, 0xa4d8),
-        new(-25, -3, 0xa4d8),
+        new(new(28, 47), 0xa4ca),
+        new(new(38, 19), 0xa4c8),
+        new(new(33, 19), 0xa4c8),
+        new(new(0, -3), 0xa4c8),
+        new(new(0, 2), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-11, 58), 0xa4da),
+        new(new(6, 31), 0xa4d8),
+        new(new(1, 33), 0xa4d8),
+        new(new(-25, -3), 0xa4d8),
     ];
 
     /// <summary>$A9:A03C, <c>ExtendedSpritemap_MotherBrainBody_Walking_1</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA03C =
     [
-        new(40, 48, 0xa4ca),
-        new(38, 19, 0xa4c8),
-        new(35, 19, 0xa4c8),
-        new(0, -3, 0xa4c8),
-        new(0, 2, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-13, 58, 0xa4da),
-        new(5, 31, 0xa4d8),
-        new(-1, 33, 0xa4d8),
-        new(-26, -3, 0xa4d8),
+        new(new(40, 48), 0xa4ca),
+        new(new(38, 19), 0xa4c8),
+        new(new(35, 19), 0xa4c8),
+        new(new(0, -3), 0xa4c8),
+        new(new(0, 2), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-13, 58), 0xa4da),
+        new(new(5, 31), 0xa4d8),
+        new(new(-1, 33), 0xa4d8),
+        new(new(-26, -3), 0xa4d8),
     ];
 
     /// <summary>$A9:A08E, <c>ExtendedSpritemap_MotherBrainBody_Walking_2</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA08E =
     [
-        new(40, 51, 0xa4ca),
-        new(38, 21, 0xa4c8),
-        new(35, 22, 0xa4c8),
-        new(-1, -2, 0xa4c8),
-        new(0, 1, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-13, 57, 0xa4da),
-        new(5, 30, 0xa4d8),
-        new(-1, 32, 0xa4d8),
-        new(-26, -4, 0xa4d8),
+        new(new(40, 51), 0xa4ca),
+        new(new(38, 21), 0xa4c8),
+        new(new(35, 22), 0xa4c8),
+        new(new(-1, -2), 0xa4c8),
+        new(new(0, 1), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-13, 57), 0xa4da),
+        new(new(5, 30), 0xa4d8),
+        new(new(-1, 32), 0xa4d8),
+        new(new(-26, -4), 0xa4d8),
     ];
 
     /// <summary>$A9:A0E0, <c>ExtendedSpritemap_MotherBrainBody_Walking_3</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA0E0 =
     [
-        new(36, 58, 0xa4ca),
-        new(33, 29, 0xa4c8),
-        new(31, 30, 0xa4c8),
-        new(1, -4, 0xa4c8),
-        new(0, 0, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-16, 56, 0xa4da),
-        new(3, 28, 0xa4d8),
-        new(-4, 30, 0xa4d8),
+        new(new(36, 58), 0xa4ca),
+        new(new(33, 29), 0xa4c8),
+        new(new(31, 30), 0xa4c8),
+        new(new(1, -4), 0xa4c8),
+        new(new(0, 0), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-16, 56), 0xa4da),
+        new(new(3, 28), 0xa4d8),
+        new(new(-4, 30), 0xa4d8),
     ];
 
     /// <summary>$A9:A12A, <c>ExtendedSpritemap_MotherBrainBody_Walking_4</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA12A =
     [
-        new(21, 60, 0xa4ca),
-        new(29, 31, 0xa4c8),
-        new(27, 32, 0xa4c8),
-        new(-2, -2, 0xa4c8),
-        new(0, 2, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-16, 52, 0xa4da),
-        new(0, 26, 0xa4d8),
-        new(-5, 28, 0xa4d8),
+        new(new(21, 60), 0xa4ca),
+        new(new(29, 31), 0xa4c8),
+        new(new(27, 32), 0xa4c8),
+        new(new(-2, -2), 0xa4c8),
+        new(new(0, 2), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-16, 52), 0xa4da),
+        new(new(0, 26), 0xa4d8),
+        new(new(-5, 28), 0xa4d8),
     ];
 
     /// <summary>$A9:A174, <c>ExtendedSpritemap_MotherBrainBody_Walking_5</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA174 =
     [
-        new(15, 64, 0xa4ca),
-        new(30, 35, 0xa4c8),
-        new(26, 37, 0xa4c8),
-        new(-2, -1, 0xa4c8),
-        new(0, 6, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-10, 47, 0xa4da),
-        new(4, 22, 0xa4d8),
-        new(-1, 24, 0xa4d8),
+        new(new(15, 64), 0xa4ca),
+        new(new(30, 35), 0xa4c8),
+        new(new(26, 37), 0xa4c8),
+        new(new(-2, -1), 0xa4c8),
+        new(new(0, 6), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-10, 47), 0xa4da),
+        new(new(4, 22), 0xa4d8),
+        new(new(-1, 24), 0xa4d8),
     ];
 
     /// <summary>$A9:A1BE, <c>ExtendedSpritemap_MotherBrainBody_Walking_6</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA1BE =
     [
-        new(17, 60, 0xa4ca),
-        new(30, 32, 0xa4c8),
-        new(24, 32, 0xa4c8),
-        new(-1, -2, 0xa4c8),
-        new(0, 2, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-8, 47, 0xa4da),
-        new(7, 21, 0xa4d8),
-        new(3, 23, 0xa4d8),
+        new(new(17, 60), 0xa4ca),
+        new(new(30, 32), 0xa4c8),
+        new(new(24, 32), 0xa4c8),
+        new(new(-1, -2), 0xa4c8),
+        new(new(0, 2), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-8, 47), 0xa4da),
+        new(new(7, 21), 0xa4d8),
+        new(new(3, 23), 0xa4d8),
     ];
 
     /// <summary>$A9:A208, <c>ExtendedSpritemap_MotherBrainBody_Walking_7</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA208 =
     [
-        new(18, 58, 0xa4ca),
-        new(31, 30, 0xa4c8),
-        new(25, 30, 0xa4c8),
-        new(-1, -3, 0xa4c8),
-        new(0, 0, 0xa4e8),
-        new(0, 0, 0xa504),
-        new(-10, 56, 0xa4da),
-        new(7, 28, 0xa4d8),
-        new(2, 31, 0xa4d8),
+        new(new(18, 58), 0xa4ca),
+        new(new(31, 30), 0xa4c8),
+        new(new(25, 30), 0xa4c8),
+        new(new(-1, -3), 0xa4c8),
+        new(new(0, 0), 0xa4e8),
+        new(new(0, 0), 0xa504),
+        new(new(-10, 56), 0xa4da),
+        new(new(7, 28), 0xa4d8),
+        new(new(2, 31), 0xa4d8),
     ];
 
     /// <summary>$A9:A252, <c>ExtendedSpritemap_MotherBrainBody_Crouched</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA252 =
     [
-        new(18, 20, 0xa4ca),
-        new(34, -9, 0xa4c8),
-        new(31, -6, 0xa4c8),
-        new(-5, 3, 0xa4c8),
-        new(0, -38, 0xa4e8),
-        new(4, 0, 0xa504),
-        new(-10, 18, 0xa4da),
+        new(new(18, 20), 0xa4ca),
+        new(new(34, -9), 0xa4c8),
+        new(new(31, -6), 0xa4c8),
+        new(new(-5, 3), 0xa4c8),
+        new(new(0, -38), 0xa4e8),
+        new(new(4, 0), 0xa504),
+        new(new(-10, 18), 0xa4da),
     ];
 
     /// <summary>$A9:A28C, <c>ExtendedSpritemap_MotherBrainBody_Uncrouching</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA28C =
     [
-        new(18, 30, 0xa4ca),
-        new(36, 2, 0xa4c8),
-        new(31, 4, 0xa4c8),
-        new(-5, -2, 0xa4c8),
-        new(0, -28, 0xa4e8),
-        new(-2, 0, 0xa504),
-        new(-10, 28, 0xa4da),
-        new(7, 0, 0xa4d8),
-        new(2, 1, 0xa4d8),
+        new(new(18, 30), 0xa4ca),
+        new(new(36, 2), 0xa4c8),
+        new(new(31, 4), 0xa4c8),
+        new(new(-5, -2), 0xa4c8),
+        new(new(0, -28), 0xa4e8),
+        new(new(-2, 0), 0xa504),
+        new(new(-10, 28), 0xa4da),
+        new(new(7, 0), 0xa4d8),
+        new(new(2, 1), 0xa4d8),
     ];
 
     /// <summary>$A9:A2D6, <c>ExtendedSpritemap_MotherBrainBody_LeaningDown</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA2D6 =
     [
-        new(18, 46, 0xa4ca),
-        new(31, 17, 0xa4c8),
-        new(26, 18, 0xa4c8),
-        new(-5, -4, 0xa4c8),
-        new(0, -12, 0xa4e8),
-        new(-2, 0, 0xa504),
-        new(-10, 44, 0xa4da),
-        new(7, 16, 0xa4d8),
-        new(2, 17, 0xa4d8),
+        new(new(18, 46), 0xa4ca),
+        new(new(31, 17), 0xa4c8),
+        new(new(26, 18), 0xa4c8),
+        new(new(-5, -4), 0xa4c8),
+        new(new(0, -12), 0xa4e8),
+        new(new(-2, 0), 0xa504),
+        new(new(-10, 44), 0xa4da),
+        new(new(7, 16), 0xa4d8),
+        new(new(2, 17), 0xa4d8),
     ];
 
     /// <summary>$A9:A320, <c>UNUSED_ExtendedSpritemap_MotherBrainBrain_A9A320</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA320 =
     [
-        new(0, 0, 0xa4ac),
+        new(new(0, 0), 0xa4ac),
     ];
 
     /// <summary>$A9:A384, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_0</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA384 =
     [
-        new(18, 58, 0xa4ca),
-        new(30, 29, 0xa4c8),
-        new(25, 30, 0xa4c8),
-        new(0, -4, 0xa4c8),
-        new(0, 0, 0xa4e8),
-        new(0, 0, 0xa51e),
-        new(-10, 56, 0xa4da),
-        new(7, 28, 0xa4d8),
-        new(2, 29, 0xa4d8),
+        new(new(18, 58), 0xa4ca),
+        new(new(30, 29), 0xa4c8),
+        new(new(25, 30), 0xa4c8),
+        new(new(0, -4), 0xa4c8),
+        new(new(0, 0), 0xa4e8),
+        new(new(0, 0), 0xa51e),
+        new(new(-10, 56), 0xa4da),
+        new(new(7, 28), 0xa4d8),
+        new(new(2, 29), 0xa4d8),
     ];
 
     /// <summary>$A9:A3CE, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_1</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA3CE =
     [
-        new(18, 58, 0xa4ca),
-        new(30, 29, 0xa4c8),
-        new(25, 30, 0xa4c8),
-        new(0, -4, 0xa4c8),
-        new(0, 0, 0xa4e8),
-        new(0, 0, 0xa538),
-        new(-10, 56, 0xa4da),
-        new(7, 28, 0xa4d8),
-        new(2, 29, 0xa4d8),
+        new(new(18, 58), 0xa4ca),
+        new(new(30, 29), 0xa4c8),
+        new(new(25, 30), 0xa4c8),
+        new(new(0, -4), 0xa4c8),
+        new(new(0, 0), 0xa4e8),
+        new(new(0, 0), 0xa538),
+        new(new(-10, 56), 0xa4da),
+        new(new(7, 28), 0xa4d8),
+        new(new(2, 29), 0xa4d8),
     ];
 
     /// <summary>$A9:A418, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_2</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA418 =
     [
-        new(18, 58, 0xa4ca),
-        new(30, 29, 0xa4c8),
-        new(25, 30, 0xa4c8),
-        new(0, -4, 0xa4c8),
-        new(0, 0, 0xa4e8),
-        new(0, 0, 0xa552),
-        new(-10, 56, 0xa4da),
-        new(7, 28, 0xa4d8),
-        new(2, 29, 0xa4d8),
+        new(new(18, 58), 0xa4ca),
+        new(new(30, 29), 0xa4c8),
+        new(new(25, 30), 0xa4c8),
+        new(new(0, -4), 0xa4c8),
+        new(new(0, 0), 0xa4e8),
+        new(new(0, 0), 0xa552),
+        new(new(-10, 56), 0xa4da),
+        new(new(7, 28), 0xa4d8),
+        new(new(2, 29), 0xa4d8),
     ];
 
     /// <summary>$A9:A462, <c>ExtendedSpritemap_MotherBrainBrain_DeathBeamMode_3</c>.</summary>
     private static readonly MotherBrainCollisionComponent[] FrameA462 =
     [
-        new(18, 58, 0xa4ca),
-        new(30, 29, 0xa4c8),
-        new(25, 30, 0xa4c8),
-        new(0, -4, 0xa4c8),
-        new(0, 0, 0xa4e8),
-        new(0, 0, 0xa56c),
-        new(-10, 56, 0xa4da),
-        new(7, 28, 0xa4d8),
-        new(2, 29, 0xa4d8),
+        new(new(18, 58), 0xa4ca),
+        new(new(30, 29), 0xa4c8),
+        new(new(25, 30), 0xa4c8),
+        new(new(0, -4), 0xa4c8),
+        new(new(0, 0), 0xa4e8),
+        new(new(0, 0), 0xa56c),
+        new(new(-10, 56), 0xa4da),
+        new(new(7, 28), 0xa4d8),
+        new(new(2, 29), 0xa4d8),
     ];
 
     /// <summary>$A9:A4AC, <c>Hitbox_MotherBrainBody_0</c>.</summary>

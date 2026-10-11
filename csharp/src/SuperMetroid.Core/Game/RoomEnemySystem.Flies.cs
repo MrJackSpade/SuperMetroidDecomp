@@ -177,8 +177,7 @@ public sealed partial class RoomEnemySystem
         if (!crossedTarget)
             return;
 
-        state.Velocity = state.Velocity.WithY(
-            SnesSignedEightEight.FromSignedRaw(unchecked((short)-state.Velocity.Y.SignedRawValue)));
+        state.Velocity = state.Velocity.ReversedY();
         state.Function = FlyEnemyFunction.Retreat;
     }
 

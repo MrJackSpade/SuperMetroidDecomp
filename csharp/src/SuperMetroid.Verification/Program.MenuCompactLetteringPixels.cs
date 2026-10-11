@@ -13,9 +13,9 @@ internal static partial class Program
         var font = new MenuCompactLetteringArtwork(image);
         AssertEqual(80, font.StoredInkByteCount, "twenty shared six-row glyph silhouettes only");
         AssertEqual(1, font.StoredEditCount, "only the authored Tourian T-cap outline differs; EXIT/SELECT/START need no deviations");
-        AssertTrue(font.HasPixelOverride(8, 2, 2), "the retained drawing pixel is Tourian's left T-cap corner");
-        AssertTrue(!font.HasPixelOverride(0xb7, 6, 2), "EXIT's mirrored T-cap corner is calculated by the ordinary bevel");
-        AssertTrue(!font.HasPixelOverride(0xaa, 0, 4), "START R's enclosed shadow gap is calculated without an override");
+        AssertTrue(font.HasPixelOverride(8, new(2, 2)), "the retained drawing pixel is Tourian's left T-cap corner");
+        AssertTrue(!font.HasPixelOverride(0xb7, new(6, 2)), "EXIT's mirrored T-cap corner is calculated by the ordinary bevel");
+        AssertTrue(!font.HasPixelOverride(0xaa, new(0, 4)), "START R's enclosed shadow gap is calculated without an override");
         var stock = MapSpriteCatalog.Load(new MemoryStream(json), new MemoryStream(files[MapSpriteFormat.PngFile]));
         AssertEqual(3360, stock.StoredArtworkByteCount, "lettering planar tiles absent from retained atlas");
         var native = new byte[8192];

@@ -54,9 +54,9 @@ internal static partial class Program
         {
             GoldenTorizoCollisionComponent component = components[index];
             ushort address = unchecked((ushort)(selectedFrame + 2 + index * 8));
-            AssertEqual(unchecked((ushort)component.X), ReadWord(address),
+            AssertEqual(unchecked((ushort)component.Offset.X), ReadWord(address),
                 $"Torizo falling-left component {index} X");
-            AssertEqual(unchecked((ushort)component.Y),
+            AssertEqual(unchecked((ushort)component.Offset.Y),
                 ReadWord(unchecked((ushort)(address + 2))),
                 $"Torizo falling-left component {index} Y");
             AssertEqual(component.HitboxList,

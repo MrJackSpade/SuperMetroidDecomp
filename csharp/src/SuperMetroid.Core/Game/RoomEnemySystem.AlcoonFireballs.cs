@@ -30,7 +30,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         AlcoonEnemyState state = RequireAlcoonState(alcoon);
-        bool movingLeft = unchecked((short)state.XVelocity) < 0;
+        bool movingLeft = state.Velocity.X.WholePixels < 0;
 
         // SpawnEnemyProjectileY_ParameterA_XGraphics copies the complete seven-word $9E90
         // definition before initializer $9EB2 touches position, subposition, and velocity.

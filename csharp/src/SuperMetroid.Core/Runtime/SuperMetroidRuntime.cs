@@ -3943,8 +3943,7 @@ Landed: true, HitCeiling: false);
         GameplayWindowRegisters.LatchNmi(mainLoopRequestedNmi: true);
         DisplayedSamusMode7Transform = ActiveSamusMode7Transform;
         var bg2Window = Enemies.Draygon is { } boss
-            ? DraygonMainScreenWindow.Select(boss.Body.Position.X.Whole, boss.Body.Position.Y.Whole,
-                BackgroundScroll.Layer1Position.X, BackgroundScroll.Layer1Position.Y,
+            ? DraygonMainScreenWindow.Select(boss.Body.Position.Whole, BackgroundScroll.Layer1Position,
                 boss.Body.Properties.HasAny(EnemyProperties.Deleted))
             : (First: 32, End: 224);
         DisplayedGameplayPpu = new GameplayPpuRenderSnapshot(

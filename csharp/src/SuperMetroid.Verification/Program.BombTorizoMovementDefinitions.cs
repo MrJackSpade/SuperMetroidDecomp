@@ -111,7 +111,7 @@ internal static partial class Program
                 [slot, state, null, level, cursor, tableOffset, (ushort)0xb962, (ushort)0xbdd8])!;
 
             AssertEqual(BombTorizoMovementDefinitions.WalkVelocity(tableOffset),
-                state.HorizontalVelocity,
+                state.Velocity.X.RawValue,
                 $"Bomb Torizo walk consumer velocity ${tableOffset:X2}");
             AssertEqual(unchecked((ushort)(cursor + 4)), next,
                 $"Bomb Torizo walk consumer continuation ${tableOffset:X2}");

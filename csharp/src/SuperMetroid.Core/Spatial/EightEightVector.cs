@@ -24,6 +24,12 @@ public readonly record struct EightEightVector<TSpace>(SnesSignedEightEight X, S
     /// <summary>Replaces the Y axis.</summary>
     public EightEightVector<TSpace> WithY(SnesSignedEightEight y) => this with { Y = y };
 
+    /// <summary>Negates the raw X word (wrapping at sixteen bits); Y is unchanged.</summary>
+    public EightEightVector<TSpace> ReversedX() => WithX(new SnesSignedEightEight(unchecked((ushort)-X.RawValue)));
+
+    /// <summary>Negates the raw Y word (wrapping at sixteen bits); X is unchanged.</summary>
+    public EightEightVector<TSpace> ReversedY() => WithY(new SnesSignedEightEight(unchecked((ushort)-Y.RawValue)));
+
     /// <summary>Adds the raw 8.8 words of each axis, wrapping at sixteen bits.</summary>
     public static EightEightVector<TSpace> operator +(EightEightVector<TSpace> left, EightEightVector<TSpace> right) =>
         new(new SnesSignedEightEight(unchecked((ushort)(left.X.RawValue + right.X.RawValue))),

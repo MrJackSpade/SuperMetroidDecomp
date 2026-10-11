@@ -41,10 +41,10 @@ internal static partial class Program
                 $"Bomb Torizo statue fragment {index} projectile kind");
             AssertEqual(expected.InstructionList, projectile.InstructionPointer,
                 $"Bomb Torizo statue fragment {index} production instruction");
-            AssertEqual(unchecked((ushort)(10 * 16 + expected.XOffset)),
+            AssertEqual(unchecked((ushort)(10 * 16 + expected.Offset.X)),
                 projectile.Position.X.Whole,
                 $"Bomb Torizo statue fragment {index} production X");
-            AssertEqual(unchecked((ushort)(20 * 16 + expected.YOffset)),
+            AssertEqual(unchecked((ushort)(20 * 16 + expected.Offset.Y)),
                 projectile.Position.Y.Whole,
                 $"Bomb Torizo statue fragment {index} production Y");
             AssertEqual(expected.YVelocity, projectile.Velocity.Y.RawValue,
@@ -70,13 +70,13 @@ internal static partial class Program
     {
         for (ushort parameter = 0; parameter < 32; parameter += 2)
             AssertEqual(unchecked((short)ReadStatueFragmentOracleWord(rom, 0x86a7cb + parameter)),
-                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).XOffset, "statue native signed X field including mirrored set");
+                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).Offset.X, "statue native signed X field including mirrored set");
     }
     private static void VerifyStatueFragmentYField(ISnesAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 32; parameter += 2)
             AssertEqual(unchecked((short)ReadStatueFragmentOracleWord(rom, 0x86a7eb + (parameter & 15))),
-                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).YOffset, "statue native signed Y field with eight-row wrap");
+                BombTorizoStatueFragmentDefinitions.ForParameter(parameter).Offset.Y, "statue native signed Y field with eight-row wrap");
     }
     private static void VerifyStatueFragmentVelocityField(ISnesAddressSpace rom)
     {

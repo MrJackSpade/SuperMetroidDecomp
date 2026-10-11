@@ -723,10 +723,9 @@ public sealed partial class RoomEnemySystem
             RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
         foreach (RidleyCollisionComponent component in components)
         {
-            ushort componentX = unchecked((ushort)(
-                slot.Position.X.Whole + component.X));
-            ushort componentY = unchecked((ushort)(
-                slot.Position.Y.Whole + component.Y));
+            Position16<RoomPixels> componentOrigin = slot.Position.Whole + component.Offset;
+            ushort componentX = componentOrigin.X;
+            ushort componentY = componentOrigin.Y;
             ReadOnlySpan<RidleyCollisionHitbox> hitboxes =
                 RidleyCollisionDefinitions.HitboxesAt(component.HitboxPointer);
             foreach (RidleyCollisionHitbox hitbox in hitboxes)

@@ -445,8 +445,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 : (ushort)1;
             (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
             requests.Add(new MotherBrainDeathExplosionRequest(
-                XOffset: xOffset,
-                YOffset: yOffset,
+                Offset: new Offset16<RoomPixels>(xOffset, yOffset),
                 ProjectileParameter: parameter,
                 SoundEffect: 0x0013));
         }
@@ -469,12 +468,12 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
         // Spell out the semantic pairs so neither host endianness nor array stride can alter
         // the native 3,2,1,0 repeating order.
-        (ushort x, ushort y) = DeathAndEscapeExplosionIndex switch
+        Position16<RoomPixels> position = DeathAndEscapeExplosionIndex switch
         {
-            0 => ((ushort)0x0008, (ushort)0x006c),
-            1 => ((ushort)0x0018, (ushort)0x0080),
-            2 => ((ushort)0x0009, (ushort)0x0090),
-            3 => ((ushort)0x0018, (ushort)0x0074),
+            0 => new(0x0008, 0x006c),
+            1 => new(0x0018, 0x0080),
+            2 => new(0x0009, 0x0090),
+            3 => new(0x0018, 0x0074),
             _ => throw new InvalidOperationException(
                 $"Escape-door explosion index ${DeathAndEscapeExplosionIndex:X4} escaped its native 0..3 range."),
         };
@@ -491,8 +490,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ushort random = nextRandomNumber();
         ushort projectileParameter = random < 0x4000 ? (ushort)0x000c : (ushort)0x0003;
         return new MotherBrainEscapeDoorExplosionRequest(
-            XPosition: x,
-            YPosition: y,
+            Position: position,
             ProjectileParameter: projectileParameter,
             SoundEffect: 0x0024);
     }
@@ -553,8 +551,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ExplosionIndex++;
         int offsetIndex = ExplosionIndex & 7;
         return new MotherBrainRainbowExplosionRequest(
-            ExplosionXOffsets[offsetIndex],
-            ExplosionYOffsets[offsetIndex]);
+            new Offset16<RoomPixels>(ExplosionXOffsets[offsetIndex], ExplosionYOffsets[offsetIndex]));
     }
 
     private static void DamageSamusDueToRainbowBeam(SamusState samus)

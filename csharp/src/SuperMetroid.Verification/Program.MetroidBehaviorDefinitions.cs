@@ -8,7 +8,7 @@ internal static partial class Program
     {
         for (ushort frame = 0; frame < 4; frame++)
         {
-            MetroidEscapeDisplacement actual =
+            Offset16<RoomPixels> actual =
                 MetroidBehaviorDefinitions.EscapeDisplacement(frame);
             AssertEqual(unchecked((short)ReadMetroidBehaviorWord(rom, 0xa3ea3f + frame * 2)), actual.X,
                 $"Metroid escape X displacement {frame}");
@@ -57,7 +57,7 @@ internal static partial class Program
                 Function = MetroidAiFunction.PowerBombEscape,
             };
 
-            MetroidEscapeDisplacement expected =
+            Offset16<RoomPixels> expected =
                 MetroidBehaviorDefinitions.EscapeDisplacement((ushort)timer);
             runEscape.Invoke(enemies, [slot, state]);
             AssertEqual(unchecked((ushort)(1 + expected.X)), slot.Position.X.Whole,

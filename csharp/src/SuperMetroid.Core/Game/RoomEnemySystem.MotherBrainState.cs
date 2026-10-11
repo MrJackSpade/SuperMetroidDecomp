@@ -306,10 +306,12 @@ public sealed class MotherBrainEnemyState
     /// <summary>Last verified room layer-blending configuration written by the body AI.</summary>
     public LayerBlendingConfiguration LayerBlendingDefaultConfig { get; internal set; } = LayerBlendingConfiguration.Unconfigured;
 
-    /// <summary>Direct BG2 scroll-register mirrors owned by the phase-two body art.</summary>
-    public ushort Bg2XScroll { get; internal set; }
-    /// <summary>Native BG2 vertical scroll mirror updated oppositely to physical body Y movement, keeping the large background-rendered body attached.</summary>
-    public ushort Bg2YScroll { get; internal set; }
+    /// <summary>
+    /// Direct BG2 scroll-register mirrors owned by the phase-two body art. The vertical word is
+    /// updated oppositely to physical body Y movement, keeping the large background-rendered
+    /// body attached.
+    /// </summary>
+    public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
     /// <summary>Whether body AI has published encounter-owned BG2 scroll values for the runtime to apply instead of ordinary room scrolling.</summary>
     public bool HasBg2ScrollOverride { get; internal set; }
     /// <summary>ADF41C's main-screen BG2 flicker, separate from the OAM invisibility bit.</summary>
@@ -388,17 +390,10 @@ public sealed class MotherBrainEnemyState
     /// starts from this exact 16.16 position, advances the cursor by the aimed velocity,
     /// then receives its own randomized secondary velocity.
     /// </summary>
-    public ushort HandBeamNextXPosition { get; internal set; }
-    /// <summary>Fractional low word of the shared 16.16 next-hand-beam X cursor, carried into whole-pixel X when each child advances it.</summary>
-    public ushort HandBeamNextXSubposition { get; internal set; }
-    /// <summary>Whole-pixel high word of the shared next-hand-beam Y cursor; charging starts it at body Y minus $30, and children advance it before scatter.</summary>
-    public ushort HandBeamNextYPosition { get; internal set; }
-    /// <summary>Fractional low word of the shared 16.16 next-hand-beam Y cursor, initially zero and preserved across child emissions.</summary>
-    public ushort HandBeamNextYSubposition { get; internal set; }
-    /// <summary>Signed native 8.8 aimed X velocity encoded in a word; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
-    public ushort HandBeamNextXVelocity { get; internal set; }
-    /// <summary>Signed native 8.8 aimed Y velocity encoded in a word, paired with the X component to advance the shared emission cursor.</summary>
-    public ushort HandBeamNextYVelocity { get; internal set; }
+    /// <remarks>Charging starts it at the beam position with zero subpixels (body Y minus $30).</remarks>
+    public FixedPosition<RoomPixels> HandBeamNextPosition { get; internal set; }
+    /// <summary>Signed native 8.8 aimed velocity; advances the shared cursor before each child receives its independent randomized scatter velocity.</summary>
+    public EightEightVector<RoomPixels> HandBeamNextVelocity { get; internal set; }
     /// <summary>Byte-angle aim retained in a native word, calculated from hand to Samus at charging setup and used as the children's randomized scatter-angle base.</summary>
     public ushort HandBeamNextAngle { get; internal set; }
 
@@ -510,8 +505,8 @@ public sealed class MotherBrainEnemyState
     internal void RequestMusic(MusicCommand command, MusicCommandDelay delay) =>
         _musicRequests.Add(new MotherBrainMusicRequest(command, delay));
 
-    internal void RequestPlm(byte blockX, byte blockY, PlmHeaderId header) =>
-        _plmRequests.Add(new MotherBrainPlmRequest(blockX, blockY, header));
+    internal void RequestPlm(Position16<RoomBlocks> block, PlmHeaderId header) =>
+        _plmRequests.Add(new MotherBrainPlmRequest(block, header));
 }
 
 /// <summary>
@@ -523,10 +518,9 @@ public sealed class MotherBrainEnemyState
 public readonly record struct MotherBrainMusicRequest(MusicCommand Command, MusicCommandDelay Delay);
 
 /// <summary>One literal <c>SpawnHardcodedPLM</c> call issued by Mother Brain's bank-$A9 AI.</summary>
-/// <param name="BlockX">Foreground block-column coordinate, measured in sixteen-pixel room blocks.</param>
-/// <param name="BlockY">Foreground block-row coordinate, measured in sixteen-pixel room blocks.</param>
+/// <param name="Block">Foreground block coordinate, measured in sixteen-pixel room blocks.</param>
 /// <param name="Header">Low-word PLM definition-header pointer in fixed bank $84, consumed by the room PLM allocator.</param>
-public readonly record struct MotherBrainPlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
+public readonly record struct MotherBrainPlmRequest(Position16<RoomBlocks> Block, PlmHeaderId Header);
 
 /// <summary>One <c>$86:C5BB</c> enemy-drop request produced by a destroyed Mother Brain bomb.</summary>
 public readonly record struct MotherBrainBombDropRequest();

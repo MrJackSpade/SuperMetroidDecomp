@@ -8,12 +8,14 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort DraygonChaseSpeed = 2;
-    private const ushort DraygonSpiralTargetX = 0x0100;
-    private const ushort DraygonSpiralTargetY = 0x0180;
+    /// <summary>The carry spiral's target and initial center, ($100, $180).</summary>
+    private static readonly Position16<RoomPixels> DraygonSpiralTarget = new(0x0100, 0x0180);
     private const ushort DraygonInitialSpiralAngle = 0x00c0;
     private const ushort DraygonInitialSpiralAngleDelta = 0x0800;
     private const ushort DraygonMaximumSpiralRadius = 0x00a0;
     private const ushort DraygonMinimumSpiralCenterY = 0x0040;
+    /// <summary>The spiral center's per-frame 16.16 lift, -$0000.4000.</summary>
+    private static readonly SnesSignedSixteenSixteen DraygonSpiralCenterLift = SnesSignedSixteenSixteen.FromRaw(-0x4000);
     private const ushort DraygonTailWhipDuration = 0x0040;
     private const ushort DraygonTailWhipStartFrame = 0x003f;
 
@@ -53,7 +55,7 @@ public sealed partial class RoomEnemySystem
             IsWithinStrictModularDistance(body.Position.Y.Whole, samus.Position.Y.Whole, 8);
         if (!insideGrabWindow)
         {
-            MoveDraygonToward(body, samus.Position.X.Whole, samus.Position.Y.Whole, DraygonChaseSpeed);
+            MoveDraygonToward(body, samus.Position.Whole, DraygonChaseSpeed);
             return;
         }
 
@@ -73,9 +75,7 @@ public sealed partial class RoomEnemySystem
         }
 
         samus.DraygonGrabbed.Begin(_bus!, samus, state.FacingRight);
-        state.SpiralCenterX = DraygonSpiralTargetX;
-        state.SpiralCenterY = DraygonSpiralTargetY;
-        state.SpiralCenterYSubposition = 0;
+        state.SpiralCenter = FixedPosition<RoomPixels>.FromWhole(DraygonSpiralTarget);
         state.SpiralXRadius = 0;
         state.SpiralXSubradius = 0;
         state.SpiralAngle = DraygonInitialSpiralAngle;
@@ -109,8 +109,8 @@ public sealed partial class RoomEnemySystem
 
         RoomEnemySlot body = state.Body;
         bool reachedTarget =
-            IsWithinStrictModularDistance(body.Position.X.Whole, DraygonSpiralTargetX, 2) &&
-            IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonSpiralTargetY, 2);
+            IsWithinStrictModularDistance(body.Position.X.Whole, DraygonSpiralTarget.X, 2) &&
+            IsWithinStrictModularDistance(body.Position.Y.Whole, DraygonSpiralTarget.Y, 2);
         if (reachedTarget)
         {
             state.Function = DraygonAiFunction.FlailWithSamus;
@@ -123,7 +123,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        MoveDraygonToward(body, DraygonSpiralTargetX, DraygonSpiralTargetY, DraygonChaseSpeed);
+        MoveDraygonToward(body, DraygonSpiralTarget, DraygonChaseSpeed);
         MoveSamusWithDraygon(state, activeSamus);
     }
 
@@ -150,12 +150,9 @@ public sealed partial class RoomEnemySystem
         }
 
         RoomEnemySlot body = state.Body;
-        body.Position = body.Position.WithWholeX(unchecked((ushort)(
-            state.SpiralCenterX +
-            ReadEightBitCosineProduct(state.SpiralAngle, state.SpiralXRadius))));
-        body.Position = body.Position.WithWholeY(unchecked((ushort)(
-            state.SpiralCenterY +
-            ReadEightBitNegativeSineProduct(
+        body.Position = body.Position.WithWhole(state.SpiralCenter.Whole + new Offset16<RoomPixels>(
+            unchecked((short)ReadEightBitCosineProduct(state.SpiralAngle, state.SpiralXRadius)),
+            unchecked((short)ReadEightBitNegativeSineProduct(
                 state.SpiralAngle,
                 unchecked((ushort)(state.SpiralXRadius >> 2))))));
 
@@ -183,11 +180,8 @@ public sealed partial class RoomEnemySystem
         state.SpiralAngle = unchecked((byte)(
             state.SpiralAngle + (state.SpiralAngleDelta >> 8)));
 
-        uint centerY = ((uint)state.SpiralCenterY << 16) | state.SpiralCenterYSubposition;
-        centerY = unchecked(centerY - 0x00004000u);
-        state.SpiralCenterY = unchecked((ushort)(centerY >> 16));
-        state.SpiralCenterYSubposition = unchecked((ushort)centerY);
-        if (unchecked((short)(state.SpiralCenterY - DraygonMinimumSpiralCenterY)) < 0)
+        state.SpiralCenter = state.SpiralCenter.AdvanceY(DraygonSpiralCenterLift);
+        if (unchecked((short)(state.SpiralCenter.Y.Whole - DraygonMinimumSpiralCenterY)) < 0)
         {
             state.Function = DraygonAiFunction.FinalTailWhips;
             return;
@@ -303,13 +297,10 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void MoveDraygonToward(
         RoomEnemySlot body,
-        ushort targetX,
-        ushort targetY,
+        Position16<RoomPixels> target,
         ushort speed)
     {
-        short deltaX = unchecked((short)(targetX - body.Position.X.Whole));
-        short deltaY = unchecked((short)(targetY - body.Position.Y.Whole));
-        byte cartridgeAngle = CalculateCartridgeAngle(new(deltaX, deltaY));
+        byte cartridgeAngle = CalculateCartridgeAngle(target - body.Position.Whole);
         byte movementAngle = unchecked((byte)(0x40 - cartridgeAngle));
 
         uint xMagnitude = unchecked((uint)ReadUnsignedSineMagnitudeProduct(

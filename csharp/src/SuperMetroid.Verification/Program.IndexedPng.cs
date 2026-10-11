@@ -27,7 +27,7 @@ internal static partial class Program
         // Independent hand-calculated scanlines, not a decoder/encoder inverse pair.
         // Decoded rows are 1,2,3 through 13,14,15 using None/Sub/Up/Average/Paeth.
         byte[] filters = [0,1,2,3, 1,4,1,1, 2,3,3,3, 3,7,2,2, 4,3,1,1];
-        byte[] filtered = PngFixture(3, 5, 8, filters);
+        byte[] filtered = PngFixture(new(3, 5), 8, filters);
         AssertTrue(IndexedPng.Read(new MemoryStream(filtered), new(3, 5)).Pixels.AsSpan()
             .SequenceEqual(Enumerable.Range(1, 15).Select(i => (byte)i).ToArray()), "all PNG filters recover independently specified rows");
         foreach (int depth in new[] { 1, 2, 4, 8 })
@@ -40,19 +40,19 @@ internal static partial class Program
                 expected[x] = (byte)(x % Math.Min(16, 1 << depth));
                 row[1 + x * depth / 8] |= (byte)(expected[x] << (8 - depth - x * depth % 8));
             }
-            byte[] fixture = PngFixture(width, 1, depth, row);
+            byte[] fixture = PngFixture(new(width, 1), depth, row);
             AssertTrue(expected.AsSpan().SequenceEqual(IndexedPng.Read(new MemoryStream(fixture), new(width, 1)).Pixels),
                 $"indexed PNG depth {depth} preserves odd-width packed pixels");
         }
-        AssertInvalid(PngFixture(1, 1, 8, [5, 0]), "unsupported row filter");
-        AssertInvalid(PngFixture(1, 1, 8, [0, 16]), "index beyond PLTE");
-        AssertInvalid(PngFixture(1, 1, 8, [0]), "short inflated row");
-        AssertInvalid(PngFixture(1, 1, 8, [0, 0, 0]), "excess inflated data");
-        AssertInvalid(PngFixture(1, 1, 8, [0, 0], colorType: 6), "RGBA is not an indexed atlas");
-        AssertInvalid(PngFixture(1, 1, 8, [0, 0], interlace: 1), "unsupported interlace");
-        AssertInvalid(PngFixture(1, 1, 8, [0, 0], extraChunk: "acTL"), "animation not silently ignored");
-        AssertInvalid(PngFixture(1, 1, 8, [0, 0], extraChunk: "ABCD"), "unknown critical chunk");
-        AssertEqual((byte)0, IndexedPng.Read(new MemoryStream(PngFixture(1, 1, 8, [0, 0], extraChunk: "tEXt")), new(1, 1)).Pixels[0],
+        AssertInvalid(PngFixture(new(1, 1), 8, [5, 0]), "unsupported row filter");
+        AssertInvalid(PngFixture(new(1, 1), 8, [0, 16]), "index beyond PLTE");
+        AssertInvalid(PngFixture(new(1, 1), 8, [0]), "short inflated row");
+        AssertInvalid(PngFixture(new(1, 1), 8, [0, 0, 0]), "excess inflated data");
+        AssertInvalid(PngFixture(new(1, 1), 8, [0, 0], colorType: 6), "RGBA is not an indexed atlas");
+        AssertInvalid(PngFixture(new(1, 1), 8, [0, 0], interlace: 1), "unsupported interlace");
+        AssertInvalid(PngFixture(new(1, 1), 8, [0, 0], extraChunk: "acTL"), "animation not silently ignored");
+        AssertInvalid(PngFixture(new(1, 1), 8, [0, 0], extraChunk: "ABCD"), "unknown critical chunk");
+        AssertEqual((byte)0, IndexedPng.Read(new MemoryStream(PngFixture(new(1, 1), 8, [0, 0], extraChunk: "tEXt")), new(1, 1)).Pixels[0],
             "ancillary metadata leaves indexes unchanged");
         Console.WriteLine("Indexed PNG: index/palette parity, packed depths, five independent filter rows and malformed-resource failures pass.");
 
@@ -60,14 +60,14 @@ internal static partial class Program
             () => IndexedPng.Read(new MemoryStream(bytes), new(1, 1)), context);
     }
 
-    private static byte[] PngFixture(int width, int height, int depth, byte[] filteredRows,
+    private static byte[] PngFixture(Extent16<ImagePixels> size, int depth, byte[] filteredRows,
         byte colorType = 3, byte interlace = 0, string? extraChunk = null)
     {
         using var output = new MemoryStream();
         output.Write(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 });
         byte[] header = new byte[13];
-        BinaryPrimitives.WriteUInt32BigEndian(header, (uint)width);
-        BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), (uint)height);
+        BinaryPrimitives.WriteUInt32BigEndian(header, size.X);
+        BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), size.Y);
         header[8] = (byte)depth; header[9] = colorType; header[12] = interlace;
         PngWriter.WriteChunk(output, "IHDR", header);
         PngWriter.WriteChunk(output, "PLTE", new byte[Math.Min(16, 1 << depth) * 3]);

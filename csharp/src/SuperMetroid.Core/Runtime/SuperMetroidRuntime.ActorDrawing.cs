@@ -30,7 +30,7 @@ public sealed partial class SuperMetroidRuntime
             // $1000 selected by Draw_HighPriority_EnemyProjectile at `$86:8390`.
             // That named pass occurs here, before enemy layers zero through two and
             // Samus; lower OAM indices retain their native same-priority overlap win.
-            CeresElevatorArrival?.Draw(Oam, Camera.PixelPosition.X, Camera.PixelPosition.Y);
+            CeresElevatorArrival?.Draw(Oam, Camera.PixelPosition);
             if (Enemies.IsLoaded)
             {
                 Enemies.DrawHighPriorityEnemyProjectiles(
@@ -398,16 +398,16 @@ public sealed partial class SuperMetroidRuntime
             // Publishing during enemy AI instead detaches the torso whenever scrolling
             // changes the camera between AI and drawing (especially during a grab).
             BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(
-                unchecked((ushort)(draygon.BodyGraphicsXDisplacement + Camera.PixelPosition.X -
+                unchecked((ushort)(draygon.BodyGraphicsDisplacement.X + Camera.PixelPosition.X -
                     draygon.Body.Position.X.Whole - DraygonBackgroundData.HorizontalOrigin)),
-                unchecked((ushort)(draygon.BodyGraphicsYDisplacement + Camera.PixelPosition.Y -
+                unchecked((ushort)(draygon.BodyGraphicsDisplacement.Y + Camera.PixelPosition.Y -
                     draygon.Body.Position.Y.Whole - DraygonBackgroundData.VerticalOrigin))));
         }
 
         // Room scrolling must not replace the persistent body-owned register shadows.
         // Mother Brain moves BG2 inversely to her physical posture in bank $A9.
         if (!deathOwnsSamus && Enemies.MotherBrain is { HasBg2ScrollOverride: true } motherBrain)
-            BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(motherBrain.Bg2XScroll, motherBrain.Bg2YScroll));
+            BackgroundScroll.SetBg2ScrollRegisters(motherBrain.Bg2Scroll);
 
         if (!deathOwnsSamus && Enemies.IsLoaded)
         {

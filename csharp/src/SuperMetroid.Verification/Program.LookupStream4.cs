@@ -2357,8 +2357,8 @@ internal static partial class Program
             var target = DraygonCannonData.FiringTarget(
                 ClosedNativeWords.Decode<DraygonFiringCannon>((byte)index, "Draygon firing cannon"));
             AssertEqual((ushort)(0x8804 + 2 * index), (ushort)target.DisabledWord, "Draygon original control-word selection");
-            AssertEqual(Word(0xa587e4 + 4 * index), target.X, "Draygon original cannon X");
-            AssertEqual(Word(0xa587e6 + 4 * index), target.Y, "Draygon original cannon Y");
+            AssertEqual(Word(0xa587e4 + 4 * index), target.Origin.X, "Draygon original cannon X");
+            AssertEqual(Word(0xa587e6 + 4 * index), target.Origin.Y, "Draygon original cannon Y");
         }
         for (ushort index = 0; index < 8; index++)
             AssertEqual(Word(0xa2cb77 + index * 2), MaridiaLargeSnailInstructionDefinitions.InstructionPointer(index), "Oum native action/facing dispatch");

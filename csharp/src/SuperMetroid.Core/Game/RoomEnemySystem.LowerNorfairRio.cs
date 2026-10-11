@@ -313,8 +313,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static void NegateLowerNorfairRioXVelocity(LowerNorfairRioEnemyState state) =>
-        state.Velocity = state.Velocity.WithX(
-            SnesSignedEightEight.FromSignedRaw(unchecked((short)-state.Velocity.X.SignedRawValue)));
+        state.Velocity = state.Velocity.ReversedX();
 
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(

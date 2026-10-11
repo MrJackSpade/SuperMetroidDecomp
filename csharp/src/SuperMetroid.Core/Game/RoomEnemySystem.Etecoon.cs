@@ -62,32 +62,20 @@ public sealed class EtecoonEnemyState
 
     internal EtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
-    /// <summary>Signed whole pixels of vertical velocity in variable A.</summary>
-    public ushort VerticalVelocity
+    /// <summary>
+    /// Signed 16.16 velocity: the vertical whole and fraction words in variables A and B, the
+    /// horizontal whole and fraction words in variables C and D.
+    /// </summary>
+    public FixedVector<RoomPixels> Velocity
     {
-        get => _slot.VariableA;
-        internal set => _slot.VariableA = value;
-    }
-
-    /// <summary>Fractional vertical velocity in variable B.</summary>
-    public ushort VerticalSubvelocity
-    {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>Signed whole pixels of horizontal velocity in variable C.</summary>
-    public ushort HorizontalVelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Fractional horizontal velocity in variable D.</summary>
-    public ushort HorizontalSubvelocity
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => FixedVector<RoomPixels>.FromWords(_slot.VariableC, _slot.VariableD, _slot.VariableA, _slot.VariableB);
+        internal set
+        {
+            _slot.VariableA = value.Y.WholeWord;
+            _slot.VariableB = value.Y.Fraction;
+            _slot.VariableC = value.X.WholeWord;
+            _slot.VariableD = value.X.Fraction;
+        }
     }
 
     /// <summary>Wrapped countdown in variable E.</summary>
@@ -305,7 +293,7 @@ public sealed partial class RoomEnemySystem
         if (!MoveEtecoonVertically(slot, state, samus, level))
             return;
 
-        if ((state.VerticalVelocity & 0x8000) == 0)
+        if (state.Velocity.Y.WholePixels >= 0)
         {
             if (EtecoonIsWithinY(slot, samus, EtecoonNearbyDistance) &&
                 EtecoonIsWithinX(slot, samus, EtecoonNearbyDistance))
@@ -579,7 +567,7 @@ public sealed partial class RoomEnemySystem
         if (!MoveEtecoonVertically(slot, state, samus, level))
             return;
 
-        if ((state.VerticalVelocity & 0x8000) == 0)
+        if (state.Velocity.Y.WholePixels >= 0)
         {
             state.FunctionTimer = 11;
             InstallEtecoonInstruction(slot, EtecoonInstructionProgramDefinitions.HoppingFacingLeft);
@@ -705,7 +693,7 @@ public sealed partial class RoomEnemySystem
         MoveEnemyHorizontallyIgnoringNonSquareSlopes(
             level,
             slot,
-            ComposeEtecoonFixed(state.HorizontalVelocity, state.HorizontalSubvelocity));
+            state.Velocity.X.RawValue);
 
     /// <summary>Ports <c>Etecoon_Func_3</c>, including its five-pixel gravity cap.</summary>
     private bool MoveEtecoonVertically(
@@ -714,10 +702,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         RoomLevelData level)
     {
-        int displacement = ComposeEtecoonFixed(
-            state.VerticalVelocity,
-            state.VerticalSubvelocity);
-        if (unchecked((short)(state.VerticalVelocity - 5)) < 0)
+        int displacement = state.Velocity.Y.RawValue;
+        if (unchecked((short)(state.Velocity.Y.WholeWord - 5)) < 0)
         {
             AddEtecoonFixed(
                 state,
@@ -727,19 +713,14 @@ public sealed partial class RoomEnemySystem
         return MoveEnemyVertically(level, slot, displacement);
     }
 
-    private static int ComposeEtecoonFixed(ushort whole, ushort fraction) =>
-        unchecked(((int)(short)whole << 16) | fraction);
-
     private static void AddEtecoonFixed(
         EtecoonEnemyState state,
         ushort wholeIncrement,
         ushort fractionIncrement)
     {
-        uint value = ((uint)state.VerticalVelocity << 16) | state.VerticalSubvelocity;
-        uint increment = ((uint)wholeIncrement << 16) | fractionIncrement;
-        value = unchecked(value + increment);
-        state.VerticalVelocity = unchecked((ushort)(value >> 16));
-        state.VerticalSubvelocity = unchecked((ushort)value);
+        SnesSignedSixteenSixteen increment =
+            SnesSignedSixteenSixteen.FromParts(unchecked((short)wholeIncrement), fractionIncrement);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + increment);
     }
 
     private static void SetEtecoonVerticalVelocity(
@@ -747,8 +728,7 @@ public sealed partial class RoomEnemySystem
         ushort whole,
         ushort fraction)
     {
-        state.VerticalVelocity = whole;
-        state.VerticalSubvelocity = fraction;
+        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
     }
 
     private static void SetEtecoonHorizontalVelocity(
@@ -756,8 +736,7 @@ public sealed partial class RoomEnemySystem
         ushort whole,
         ushort fraction)
     {
-        state.HorizontalVelocity = whole;
-        state.HorizontalSubvelocity = fraction;
+        state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)whole), fraction));
     }
 
     private static bool DecrementEtecoonTimerAndTestExpired(EtecoonEnemyState state)

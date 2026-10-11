@@ -16,7 +16,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var placement = ChargeFlarePlacementCatalog.Load(new MemoryStream(ChargeFlarePlacementExtractor.Extract(bus)));
-        var guarded = new ChargeFlareCompositionGuard(bus);
+        var guarded = NewChargeFlareCompositionGuard(bus);
         int ticks = 0;
         foreach (SamusPoseId pose in new[]
         {
@@ -119,26 +119,19 @@ internal static partial class Program
         }
     }
 
-    private sealed class ChargeFlareCompositionGuard : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native charge-flare spritemap extents the guard forbids")]
+    private static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> forbidden = new();
-        public ChargeFlareCompositionGuard(ISnesAddressSpace source)
+        var forbidden = new HashSet<int>();
+        for (int i = 0; i < ChargeFlareSpriteDefinitions.Selectors.Length * 2; i++)
+            forbidden.Add(ChargeFlareSpriteDefinitions.SelectorTable + i);
+        foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
         {
-            this.source = source;
-            for (int i = 0; i < ChargeFlareSpriteDefinitions.Selectors.Length * 2; i++)
-                forbidden.Add(ChargeFlareSpriteDefinitions.SelectorTable + i);
-            foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
-            {
-                int address = 0x930000 | pointer;
-                int size = 2 + 5 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
-                for (int i = 0; i < size; i++) forbidden.Add(address + i);
-            }
+            int address = 0x930000 | pointer;
+            int size = 2 + 5 * RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
+            for (int i = 0; i < size; i++) forbidden.Add(address + i);
         }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => forbidden.Contains(address)
-            ? throw new InvalidOperationException($"Flare composition read from ROM at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        return new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Flare composition read from ROM at {address:X6}.");
     }
 }

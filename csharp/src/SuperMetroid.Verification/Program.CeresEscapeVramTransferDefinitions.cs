@@ -59,7 +59,7 @@ internal static partial class Program
         };
         typeof(RoomEnemySystem).GetField("_bus",
             BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(system,
-            new CeresEscapeTransferReadGuard(rom));
+            NewCeresEscapeTransferReadGuard(rom));
         MethodInfo next = typeof(RoomEnemySystem).GetMethod("QueueNextCeresEscapeTransfer",
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (ushort start in new[]
@@ -144,17 +144,8 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
-    private sealed class CeresEscapeTransferReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address)
-                ? throw new InvalidOperationException(
-                    $"Installed Ceres transfer read native descriptor ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresEscapeTransferReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address),
+                address => $"Installed Ceres transfer read native descriptor ${address:X6}.");
 }

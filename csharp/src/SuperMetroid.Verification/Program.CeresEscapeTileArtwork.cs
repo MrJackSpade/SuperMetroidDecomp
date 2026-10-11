@@ -26,7 +26,7 @@ internal static partial class Program
         using var timerPng = new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom),
             writable: false);
         EscapeTimerTileAtlas timer = EscapeTimerTileAtlas.Load(timerPng);
-        var guarded = new CeresEscapeArtworkReadGuard(rom);
+        var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem
         {
             TileArtwork = stock,
@@ -187,22 +187,12 @@ internal static partial class Program
             tiles.TryResolve(sourceAddress, byteCount, out data);
     }
 
-    private sealed class CeresEscapeArtworkReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
-            CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||
-            CeresEscapeTileArtworkDefinitions.Contains(address, 1) ||
-            address >= EscapeTimerTileRomData.FirstSourceAddress &&
-            address < EscapeTimerTileRomData.FirstSourceAddress +
-                EscapeTimerTileAtlasFormat.TotalByteCount
-                ? throw new InvalidOperationException(
-                    $"Installed Ceres escape reread source ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresEscapeArtworkReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
+                CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||
+                CeresEscapeTileArtworkDefinitions.Contains(address, 1) ||
+                address >= EscapeTimerTileRomData.FirstSourceAddress &&
+                address < EscapeTimerTileRomData.FirstSourceAddress + EscapeTimerTileAtlasFormat.TotalByteCount,
+                address => $"Installed Ceres escape reread source ${address:X6}.");
 }

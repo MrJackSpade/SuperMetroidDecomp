@@ -83,7 +83,7 @@ internal static partial class Program
                     ? edited : stock,
             };
             var system = new Bank80SystemState();
-            var guarded = new ColoredDoorDrawReadGuard(bus, lists);
+            var guarded = NewColoredDoorDrawReadGuard(bus, lists);
             BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
             AssertEqual(1, plms.LoadRoomPopulation(guarded, level,
                     streamer, new SnesVram(), RoomPlmPopulationImporter.Read(guarded, population),
@@ -247,36 +247,14 @@ internal static partial class Program
         }
     }
 
-    private sealed class ColoredDoorDrawReadGuard(
+    private static CartridgeReadGuard NewColoredDoorDrawReadGuard(
         ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84bffd and <= 0x84c488)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Resident colored door reread compiled instruction ${address:X6}.");
-            }
-            foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
-            {
-                int first = 0x840000 | list.Pointer;
-                if (address >= first &&
-                    address < first + ColoredDoorPlmDrawDefinitions.DrawListBytes)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Resident colored door reread draw payload ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x84bffd and <= 0x84c488,
+                address => $"Resident colored door reread compiled instruction ${address:X6}.")
+            .Forbid(address => lists.Any(list =>
+                    address >= (0x840000 | list.Pointer) &&
+                    address < (0x840000 | list.Pointer) + ColoredDoorPlmDrawDefinitions.DrawListBytes),
+                address => $"Resident colored door reread draw payload ${address:X6}.");
 }

@@ -34,7 +34,7 @@ internal static partial class Program
         };
         var artwork = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
             EnemyProjectileSpritemapCatalog.Write(document)));
-        var bus = new CeresArrivalDefinitionReadGuard(memory);
+        var bus = NewCeresArrivalDefinitionReadGuard(memory);
 
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0000)) };
         var arrival = new CeresElevatorArrivalState(bus, samus, artwork);
@@ -115,21 +115,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class CeresArrivalDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x86a28b and < 0x86a2a1 or
-                >= 0x86a387 and < 0x86a3a3)
-            {
-                throw new InvalidOperationException(
-                    $"Ceres arrival read compiled bank-$86 byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresArrivalDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86a28b and < 0x86a2a1 or >= 0x86a387 and < 0x86a3a3,
+                address => $"Ceres arrival read compiled bank-$86 byte ${address:X6}.");
 }

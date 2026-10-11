@@ -17,8 +17,7 @@ internal static partial class Program
             ushort operand = BotwoonInstructionProgramDefinitions
                 .PresentationWordAddress(index);
             int nativeAddress = (BotwoonVisualDefinitions.Bank << 16) | operand;
-            ushort native = unchecked((ushort)(rom.ReadCartridgeByte(nativeAddress) |
-                rom.ReadCartridgeByte(nativeAddress + 1) << 8));
+            ushort native = ReadNativeBotwoonSelector(rom, nativeAddress);
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
                     EnemyDefinitionId.Botwoon, operand,
                     out ushort installedPointer),
@@ -81,4 +80,8 @@ internal static partial class Program
         Console.WriteLine(
             "  Botwoon visuals: 25 cartridge-matched selectors, 16 OAM frames, and legacy override migration pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon's native head visual selectors")]
+    private static ushort ReadNativeBotwoonSelector(ISnesAddressSpace rom, int address) =>
+        unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 }

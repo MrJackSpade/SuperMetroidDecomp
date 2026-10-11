@@ -12,7 +12,7 @@ internal static partial class Program
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeCeresSteam", flags)!;
 
-        var guarded = new CeresSteamDefinitionReadGuard(rom);
+        var guarded = NewCeresSteamDefinitionReadGuard(rom);
         for (int index = 0; index < 6; index++)
         {
             var variant = (CeresSteamVariant)index;
@@ -53,17 +53,8 @@ internal static partial class Program
     private static ushort ReadCeresSteamWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class CeresSteamDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa6eff5 and < 0xa6f00d
-                ? throw new InvalidOperationException(
-                    $"Ceres steam attempted migrated selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresSteamDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa6eff5 and < 0xa6f00d,
+                address => $"Ceres steam attempted migrated selector read ${address:X6}.");
 }

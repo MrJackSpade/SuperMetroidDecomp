@@ -12,7 +12,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new CacatacProjectileReadGuard(rom));
+            NewCacatacProjectileReadGuard(rom));
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnCacatacSpike", flags)!
             .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
         RoomEnemySlot source = enemies.Slots[0];
@@ -64,15 +64,8 @@ internal static partial class Program
             "Cacatac spike definitions: ten native selectors, speed pairs and production spawns pass with selector reads forbidden.");
     }
 
-    private sealed class CacatacProjectileReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0x86d96a and < 0x86d97e
-            ? throw new InvalidOperationException(
-                $"Cacatac spike spawn attempted migrated selector read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCacatacProjectileReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86d96a and < 0x86d97e,
+                address => $"Cacatac spike spawn attempted migrated selector read ${address:X6}.");
 }

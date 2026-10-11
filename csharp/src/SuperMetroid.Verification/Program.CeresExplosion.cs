@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var guarded = new ForbiddenPowerBombColorBus(bus);
+        var guarded = NewForbiddenPowerBombColorBus(bus);
         string artDirectory = Path.Combine(Path.GetTempPath(),
             "supermetroid-ceres-explosion-" + Guid.NewGuid().ToString("N"));
         try
@@ -58,7 +58,7 @@ internal static partial class Program
             }
             AssertTrue(finished, "station blast completes native cleanup");
             if (colors is not null)
-                AssertEqual(0, guarded.ForbiddenReads,
+                AssertEqual(0, guarded.ForbiddenReadAttempts,
                     "installed Ceres explosion does not read native Power Bomb colors");
             foreach (var phase in new[] { PowerBombExplosionPhase.PreExplosionWhite,
             PowerBombExplosionPhase.PreExplosionYellow, PowerBombExplosionPhase.ExplosionYellow,

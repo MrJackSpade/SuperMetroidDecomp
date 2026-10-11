@@ -47,8 +47,7 @@ static void VerifyCeresDestructionCinematic()
     // boundary. Scene programs and all other art retain their retail definitions.
     WriteRepeatedCompressedChunks(rom, CeresDestructionRomData.Assets.CeresTilemaps,
         [0x11, 0x22, 0x33, 0x44]);
-    byte[] maps = RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
-        CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
+    byte[] maps = DecompressSyntheticCeresTilemaps(rom);
     using var overrideRootScratch = new TestTempDirectory("ceres-timeline");
     string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
@@ -186,4 +185,9 @@ static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
         ? ((((snesAddress >> 16) + 1) & 0xff) << 16) | 0x8000
         : snesAddress + 1;
 }
+
+[CpuBusBoundary("exact bus test: decompresses the synthetic cartridge's Ceres tilemap stream as the oracle for installed map slices")]
+static byte[] DecompressSyntheticCeresTilemaps(byte[] rom) =>
+    RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
+        CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
 }

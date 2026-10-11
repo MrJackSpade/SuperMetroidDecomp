@@ -28,7 +28,19 @@ internal static partial class Program
                 $"Brinstar Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
         }
 
-        var guard = new BrinstarPipeBugInstructionProgramReadGuard(rom);
+        int forbiddenPresentationReads = 0;
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom)
+            .Forbid(BrinstarPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Pipe Bug mechanics byte ${address:X6}.")
+            .Observe(address => (address & 0xff0000) == 0xb30000 &&
+                    Enumerable.Range(0, BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount)
+                        .Select(BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress)
+                        .Any(word => unchecked((ushort)address) == word ||
+                            unchecked((ushort)address) == unchecked((ushort)(word + 1))),
+                _ => forbiddenPresentationReads++)
+            .ForbidWords(0xb30000, BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount,
+                BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read installed Brinstar Pipe Bug selector ${address:X6}.");
         (PipeBugAnimationSelector Selector, ushort NormalCursor, int NormalFrames,
             ushort StrongCursor, int StrongFrames)[] programs =
         [
@@ -47,7 +59,7 @@ internal static partial class Program
                 program.StrongFrames);
         }
 
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, forbiddenPresentationReads,
             "Brinstar Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
              index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -163,44 +175,4 @@ internal static partial class Program
     private static ushort ReadBrinstarPipeBugInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
-    private sealed class BrinstarPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BrinstarPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Pipe Bug mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xb30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenPresentationReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read installed Brinstar Pipe Bug selector ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

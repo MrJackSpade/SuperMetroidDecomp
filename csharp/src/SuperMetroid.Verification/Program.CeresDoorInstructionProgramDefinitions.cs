@@ -41,7 +41,7 @@ internal static partial class Program
                 $"compiled Ceres door visual selector $A6:{address:X4}");
         }
 
-        var guard = new CeresDoorInstructionProgramReadGuard(rom);
+        var guard = NewCeresDoorInstructionProgramReadGuard(rom);
         bool bossDefeated = false;
 
         RoomEnemySystem ridleyRoom = CreateSystem(
@@ -228,44 +228,11 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class CeresDoorInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (CeresDoorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Ceres door mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < CeresDoorInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read compiled Ceres door visual selector byte ${address:X6}.");
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresDoorInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(CeresDoorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Ceres door mechanics byte ${address:X6}.")
+            .ForbidWords(0xa60000, CeresDoorInstructionProgramDefinitions.PresentationWordCount,
+                CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read compiled Ceres door visual selector byte ${address:X6}.");
 }

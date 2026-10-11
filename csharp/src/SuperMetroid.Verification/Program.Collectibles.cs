@@ -699,7 +699,7 @@ internal static partial class Program
         SamusState.LoadPowerSuitPalette(bus, cgram, suitColors);
 
         var pickup = new SamusSuitPickupState();
-        var curveGuard = new SuitPickupBeamCurveReadGuard(bus);
+        var curveGuard = NewSuitPickupBeamCurveReadGuard(bus);
         pickup.Begin(bus, samus, layer1: new(0x0100, 0x0200),
             SamusSuitPickupKind.Varia);
         AssertTrue(pickup.IsActive, "Varia transformation starts after message return");

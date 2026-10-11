@@ -26,7 +26,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guarded = new CeresEscapeArtworkReadGuard(rom);
+        var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed, guarded);
         MethodInfo emergency = typeof(RoomEnemySystem).GetMethod(

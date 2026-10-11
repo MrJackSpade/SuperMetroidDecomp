@@ -56,7 +56,7 @@ internal static partial class Program
         // gameplay request for those native color bytes.
         var native = new SamusPowerBombExplosionState { PresentationColors = catalog };
         var installed = new SamusPowerBombExplosionState { PresentationColors = catalog };
-        var guarded = new ForbiddenPowerBombColorBus(rom);
+        var guarded = NewForbiddenPowerBombColorBus(rom);
         if (crystalFlash)
         {
             native.BeginCrystalFlash(new(128, 112));
@@ -88,7 +88,7 @@ internal static partial class Program
             AssertTrue(frames < 1000, $"{label} completes in bounded time");
         } while (native.IsActive);
         AssertTrue(!installed.IsActive, "installed explosion completes with native state");
-        AssertEqual(0, guarded.ForbiddenReads, "installed explosion never rereads fixed-color ROM tables");
+        AssertEqual(0, guarded.ForbiddenReadAttempts, "installed explosion never rereads fixed-color ROM tables");
     }
 
     private static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
@@ -111,12 +111,12 @@ internal static partial class Program
         var state = new SamusPowerBombExplosionState { PresentationColors = edited.PowerBombFixedColors };
         state.Arm();
         state.Spawn(new(128, 112));
-        var forbidden = new ForbiddenPowerBombColorBus(new TestAddressSpace());
+        var forbidden = NewForbiddenPowerBombColorBus(new TestAddressSpace());
         _ = state.StepFrame(forbidden); // Native setup precedes the first colored frame.
         _ = state.StepFrame(forbidden);
         AssertEqual((byte)document.PreExplosion[0].Red, state.FixedColorRed,
             "Power Bomb color override reaches the live explosion frame");
-        AssertEqual(0, forbidden.ForbiddenReads,
+        AssertEqual(0, forbidden.ForbiddenReadAttempts,
             "edited Power Bomb color does not read the native table");
         AssertThrows<InvalidDataException>(() => PowerBombFixedColorCatalog.Write(document with
         {
@@ -129,38 +129,11 @@ internal static partial class Program
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");
     }
 
-    private sealed class ForbiddenPowerBombColorBus(ISnesAddressSpace inner) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReads { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            RejectNativeColorRead(address);
-            return inner.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectNativeColorRead(address);
-            return (inner as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "The wrapped source has no cartridge import contract.")).ReadCartridgeByte(address);
-        }
-
-        private void RejectNativeColorRead(int address)
-        {
-            foreach (PowerBombFixedColorSequence sequence in Enum.GetValues<PowerBombFixedColorSequence>())
-            {
-                int start = PowerBombFixedColorFormat.SourceAddress(sequence);
-                int length = PowerBombFixedColorFormat.Count(sequence) *
-                    SamusPaletteRomData.PowerBomb.BytesPerColor;
-                if (address >= start && address < start + length)
-                {
-                    ForbiddenReads++;
-                    throw new InvalidOperationException($"Installed explosion read color ROM ${address:X6}.");
-                }
-            }
-        }
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewForbiddenPowerBombColorBus(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => Enum.GetValues<PowerBombFixedColorSequence>().Any(sequence =>
+                    address >= PowerBombFixedColorFormat.SourceAddress(sequence) &&
+                    address < PowerBombFixedColorFormat.SourceAddress(sequence) +
+                        PowerBombFixedColorFormat.Count(sequence) * SamusPaletteRomData.PowerBomb.BytesPerColor),
+                address => $"Installed explosion read color ROM ${address:X6}.");
 }

@@ -25,7 +25,7 @@ internal static partial class Program
                 $"Cacatac spike instruction mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new CacatacProjectileInstructionProgramReadGuard(rom);
+        var guard = NewCacatacProjectileInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnCacatacSpike", flags)!
@@ -62,7 +62,7 @@ internal static partial class Program
                 $"Cacatac spike {direction} terminal sleep is stable");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Cacatac spike frames use installed presentation without cartridge reads");
         for (int index = 0;
              index < CacatacProjectileInstructionProgramDefinitions.PresentationWordCount;
@@ -70,7 +70,7 @@ internal static partial class Program
         {
             ushort address =
                 CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
-            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+            AssertTrue(!guard.ObservedWords.Contains(address),
                 $"production execution avoids Cacatac spike presentation $86:{address:X4}");
         }
 
@@ -111,44 +111,9 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class CacatacProjectileInstructionProgramReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Cacatac spike mechanics ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0x860000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < CacatacProjectileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCacatacProjectileInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Cacatac spike mechanics ${address:X6}.")
+            .ObserveWords(0x860000, CacatacProjectileInstructionProgramDefinitions.PresentationWordCount, CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

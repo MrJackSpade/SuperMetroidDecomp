@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: absolute-indexed and indirect-long operand reads, open-bus MDR retention and region routing")]
     private static void VerifyCpuOperandOpenBus()
     {
         var bus = new OperandReadWitness();
@@ -40,6 +41,7 @@ internal static partial class Program
             "indirect long operand cannot read cartridge bytes through the gameplay bus");
     }
 
+    [CpuBusBoundary("exact bus test: witness answering every WRAM, SRAM, cartridge and peripheral operand read with a marker byte")]
     private sealed class OperandReadWitness : ISnesAddressSpace,
         ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
     {

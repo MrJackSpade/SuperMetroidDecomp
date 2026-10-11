@@ -129,9 +129,10 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for horizontal shutter instruction words")]
     private static ushort ReadHorizontalShutterInstructionWord(
         SuperMetroidAddressSpace bus,
-        int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        int address) => (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewHorizontalShutterInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -44,7 +44,7 @@ internal static partial class Program
                 AssertEqual((ushort)0, missing, "Kraid-family missing shared selector clears output");
                 continue;
             }
-            ushort expected = (ushort)(rom.ReadByte(bank | address) | rom.ReadByte(bank | (address + 1)) << 8);
+            ushort expected = (ushort)(KraidVisualSelectorDomainRomByte(rom, bank | address) | KraidVisualSelectorDomainRomByte(rom, bank | (address + 1)) << 8);
             AssertEqual(expected, KraidVisualDefinitions.FrameAt(enemy, selected), "Original native visual selector word");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet((byte)(bank >> 16), selected, out ushort shared),
                 "Kraid-family shared calculated selector");
@@ -54,4 +54,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => KraidVisualDefinitions.FrameAt(enemy, invalid), "Outside visual program bounds");
         AssertThrows<InvalidDataException>(() => KraidVisualDefinitions.FrameAt(0, operands[0]), "Unknown visual family");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid visual selector domain")]
+    private static byte KraidVisualSelectorDomainRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

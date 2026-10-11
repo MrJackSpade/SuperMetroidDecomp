@@ -74,10 +74,11 @@ internal static partial class Program
             "restored-pointer domain match the cartridge.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for hyper beam control words")]
     private static ushort ReadHyperBeamControlWord(
         SuperMetroidAddressSpace rom,
         int address) =>
-        unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
     private static CartridgeReadGuard NewHyperBeamPaletteFxControlGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(IsHyperBeamPaletteFxControlByte,

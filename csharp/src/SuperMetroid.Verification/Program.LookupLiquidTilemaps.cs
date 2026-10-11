@@ -55,7 +55,7 @@ internal static partial class Program
         {
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
             var original = new byte[0x840];
-            for (int offset = 0; offset < original.Length; offset++) original[offset] = rom.ReadByte(source + offset);
+            for (int offset = 0; offset < original.Length; offset++) original[offset] = LiquidTilemapDomainAndStorageRomByte(rom, source + offset);
             AssertTrue(RoomFxLiquidTilemapDefinitions.Matches(type, original), "Full original page is recognized");
             for (int index = 0; index < 1056; index++)
             {
@@ -75,6 +75,9 @@ internal static partial class Program
             AssertTrue(field.GetValue(stock) is null, "Transfer does not create a cached page");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for liquid tilemap domain and storage")]
+    private static byte LiquidTilemapDomainAndStorageRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyLiquidTilemaps(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {

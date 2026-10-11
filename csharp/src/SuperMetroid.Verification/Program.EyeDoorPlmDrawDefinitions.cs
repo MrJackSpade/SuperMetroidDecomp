@@ -136,7 +136,7 @@ internal static partial class Program
                 (ushort)PlmHeaderId.EyeDoorBottomFacingRight];
         var bank84 = new byte[0x8000];
         for (int offset = 0; offset < bank84.Length; offset++)
-            bank84[offset] = rom.ReadByte(0x848000 + offset);
+            bank84[offset] = EyeDoorRetailProgramPathRomByte(rom, 0x848000 + offset);
         var bus = new TestAddressSpace();
         bus.WriteBytes(0x848000, bank84);
         const ushort population = 0x9000;
@@ -214,6 +214,9 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             $"{orientation} opened eye-door reload avoids instruction and draw ROM reads");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for eye door retail program path")]
+    private static byte EyeDoorRetailProgramPathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyEyeDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {

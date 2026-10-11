@@ -10,8 +10,8 @@ internal static partial class Program
         IntroCinematicArtworkCatalog stock)
     {
         Suite(nameof(VerifyIntroMotherBrainInputSource), () => VerifyIntroMotherBrainInputSource(bus));
-        ushort ReferenceWord(ushort pointer) => (ushort)(bus.ReadByte(0x910000 | pointer) |
-            bus.ReadByte(0x910000 | unchecked((ushort)(pointer + 1))) << 8);
+        ushort ReferenceWord(ushort pointer) => (ushort)(IntroMotherBrainDemoInputRomByte(bus, 0x910000 | pointer) |
+            IntroMotherBrainDemoInputRomByte(bus, 0x910000 | unchecked((ushort)(pointer + 1))) << 8);
         AssertThrows<InvalidDataException>(() =>
             IntroMotherBrainInputDefinitions.ReadWord(
                 IntroMotherBrainInputDefinitions.ListEnd),
@@ -89,4 +89,7 @@ internal static partial class Program
             return DemoInputInstructionResult.ContinueAt(argumentPointer);
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain demo input")]
+    private static byte IntroMotherBrainDemoInputRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

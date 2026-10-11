@@ -11,7 +11,7 @@ internal static partial class Program
         Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(rom));
         Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
         Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(rom));
-        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)(GrappleFiringDefinitionsRomByte(rom, address) | GrappleFiringDefinitionsRomByte(rom, address + 1) << 8));
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
@@ -32,7 +32,7 @@ internal static partial class Program
         // Exercise each compiled movement family with a real pose instead of rewriting
         // the immutable movement byte of standing pose $01.
         SamusPoseId[] movementPoses = Enumerable.Range(0, 253).GroupBy(pose =>
-            rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1))
+            GrappleFiringDefinitionsRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 1))
             .OrderBy(group => group.Key).Select(group => (SamusPoseId)group.First()).ToArray();
         // The graphics-Y byte only enters the flare as a signed offset, so the signed byte
         // classes cover it; each needs one full artwork fixture.
@@ -40,7 +40,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             SamusPoseId[] aimingPoses = Enumerable.Range(0, 253).Where(pose =>
-                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
+                GrappleFiringDefinitionsRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
                 pose is not ((int)SamusPoseId.DraygonGrabbedMovingLeftPose or (int)SamusPoseId.DraygonGrabbedMovingRightPose))
                 .Select(pose => (SamusPoseId)pose).ToArray();
             int offset = direction * 2;
@@ -55,11 +55,11 @@ internal static partial class Program
                 // Every authored aim/movement pose for the direction, each signed graphics-Y
                 // class and the X/Y position wrap boundaries.
                 samus.Pose = sourcePose = pose;
-                byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)samus.Pose * 8 + 1);
+                byte movement = GrappleFiringDefinitionsRomByte(rom, SamusMovementRomData.Poses.Definitions + (int)samus.Pose * 8 + 1);
                 bool running = movement == 1;
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
-                int correctedY = y - rom.ReadByte(0x91b629 + (int)samus.Pose * 8 + 4);
+                int correctedY = y - GrappleFiringDefinitionsRomByte(rom, 0x91b629 + (int)samus.Pose * 8 + 4);
                 samus.Position = samus.Position.WithWhole(new((ushort)raw, unchecked((ushort)~raw)));
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
@@ -97,8 +97,8 @@ internal static partial class Program
         {
             grapple.FlarePlacement = replaceFlare ? editedFlare : stockFlare;
             samus.Pose = sourcePose = (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
-                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
-                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != 1);
+                GrappleFiringDefinitionsRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
+                GrappleFiringDefinitionsRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != 1);
             samus.TileTransfers.BindArtwork(SamusGraphicsOffsetFixture(0));
             samus.Position = samus.Position.WithWhole(new(512, 512));
             grapple.Phase = GrapplePhase.Inactive;
@@ -114,7 +114,7 @@ internal static partial class Program
                 AssertEqual(dx, grapple.EndpointOffset.X.RawValue, "Native extension X trajectory");
                 AssertEqual(dy, grapple.EndpointOffset.Y.RawValue, "Native extension Y trajectory");
                 AssertEqual(unchecked((ushort)(512 + Word(0x9bc122 + direction * 2) + (dx >> 16))), grapple.Anchor.X, "Native endpoint X");
-                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)samus.Pose * 8 + 4) + (dy >> 16))), grapple.Anchor.Y, "Native endpoint Y with authored physical correction");
+                AssertEqual(unchecked((ushort)(512 + Word(0x9bc136 + direction * 2) - GrappleFiringDefinitionsRomByte(rom, SamusMovementRomData.Poses.Definitions + (int)samus.Pose * 8 + 4) + (dy >> 16))), grapple.Anchor.Y, "Native endpoint Y with authored physical correction");
             }
         }
         grapple.FlarePlacement = stockFlare;
@@ -180,6 +180,9 @@ internal static partial class Program
         Console.WriteLine("Grapple firing definitions: 70 native words, loud non-catalog origin rejection, every direction and aiming pose with every signed graphics-Y class and position wrap boundary, every held direction combination, 200 trajectory frames with flare overrides and 54 locked snaps pass; authored mechanics reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple firing definitions")]
+    private static byte GrappleFiringDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
@@ -202,7 +205,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             int source = address + 2 * direction;
-            short expected = unchecked((short)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8));
+            short expected = unchecked((short)(GrappleOriginFieldRomByte(rom, source) | GrappleOriginFieldRomByte(rom, source + 1) << 8));
             AssertEqual(expected, select(GrappleFiringDefinitions.Origin(direction, running)),
                 $"Grapple origin {label} direction {direction}");
         }
@@ -210,6 +213,9 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => GrappleFiringDefinitions.Origin(direction, running),
                 $"Grapple origin {label} bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple origin field")]
+    private static byte GrappleOriginFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity"));
@@ -228,12 +234,15 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             int address = source + 2 * direction;
-            ushort original = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort original = (ushort)(GrappleLaunchFieldRomByte(rom, address) | GrappleLaunchFieldRomByte(rom, address + 1) << 8);
             AssertEqual(original, select(direction), $"Original grapple {label}, direction {direction}");
         }
         AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
         AssertThrows<IndexOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple launch field")]
+    private static byte GrappleLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Forbids the selected source pose's compiled movement and graphics-offset bytes and every migrated Grapple firing table.</summary>
     private static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,
         Func<SamusPoseId> sourcePose)

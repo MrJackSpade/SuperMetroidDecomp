@@ -100,7 +100,7 @@ internal static partial class Program
             bool terminator = ReadVerificationWord(rom, address) == ushort.MaxValue;
             // The pre-conversion terminator DTO has a zero-filled tail; adjacent native
             // bytes belong to another record and are not part of that caller-visible view.
-            byte OriginalByte(int index) => terminator && index >= 2 ? (byte)0 : rom.ReadByte(address + index);
+            byte OriginalByte(int index) => terminator && index >= 2 ? (byte)0 : RoomFxFieldRomByte(rom, address + index);
             int expected = OriginalByte(offset);
             if (width == 2) expected |= OriginalByte(offset + 1) << 8;
             RoomFxRecordDefinition actual = RoomFxRecordDefinitions.Get(pointer);
@@ -115,6 +115,9 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room FX field")]
+    private static byte RoomFxFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyRoomFxListSelection(SuperMetroidAddressSpace rom)
     {

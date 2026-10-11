@@ -92,12 +92,12 @@ internal static partial class Program
                 if ((short)expectedTimer < 0)
                 {
                     expectedFrame = unchecked((ushort)(expectedFrame + 1));
-                    byte delay = bus.ReadByte(SamusGrappleRomData.Firing.MainFlareAnimationDelays + expectedFrame);
+                    byte delay = GrappleFlarePresentationRomByte(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays + expectedFrame);
                     if (delay == 254)
                     {
-                        byte rewind = bus.ReadByte(SamusGrappleRomData.Firing.MainFlareAnimationDelays + unchecked((ushort)(expectedFrame + 1)));
+                        byte rewind = GrappleFlarePresentationRomByte(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays + unchecked((ushort)(expectedFrame + 1)));
                         expectedFrame = unchecked((ushort)(expectedFrame - rewind));
-                        delay = bus.ReadByte(SamusGrappleRomData.Firing.MainFlareAnimationDelays + expectedFrame);
+                        delay = GrappleFlarePresentationRomByte(bus, SamusGrappleRomData.Firing.MainFlareAnimationDelays + expectedFrame);
                     }
                     expectedTimer = delay;
                 }
@@ -123,6 +123,9 @@ internal static partial class Program
             return SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Deserialize<SamusState>(stream);
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple flare presentation")]
+    private static byte GrappleFlarePresentationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyGrappleFlareActorBinding(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,

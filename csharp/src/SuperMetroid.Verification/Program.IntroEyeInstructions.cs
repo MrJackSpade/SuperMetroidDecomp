@@ -7,10 +7,10 @@ internal static partial class Program
     {
         for (int pointer = 0xd5df; pointer < 0xd629; pointer++)
         {
-            AssertEqual(rom.ReadByte(0x8c0000 + pointer), IntroEyeAnimationDefinitions.ReadByte((ushort)pointer), "original eye program byte");
+            AssertEqual(IntroEyeInstructionsRomByte(rom, 0x8c0000 + pointer), IntroEyeAnimationDefinitions.ReadByte((ushort)pointer), "original eye program byte");
             if (pointer == 0xd628) continue;
             AssertTrue(IntroEyeAnimationDefinitions.TryReadWord((ushort)pointer, out ushort word), "eye word admitted");
-            AssertEqual((ushort)(rom.ReadByte(0x8c0000 + pointer) | rom.ReadByte(0x8c0001 + pointer) << 8), word,
+            AssertEqual((ushort)(IntroEyeInstructionsRomByte(rom, 0x8c0000 + pointer) | IntroEyeInstructionsRomByte(rom, 0x8c0001 + pointer) << 8), word,
                 "original eye aligned or overlapping word");
         }
         foreach (ushort pointer in new ushort[] { 0, 0xd5de, 0xd629, ushort.MaxValue })
@@ -21,4 +21,7 @@ internal static partial class Program
         }
         AssertThrows<InvalidDataException>(() => IntroEyeAnimationDefinitions.TryReadWord(0xd628, out _), "eye word crosses program boundary");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro eye instructions")]
+    private static byte IntroEyeInstructionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -51,13 +51,13 @@ internal static partial class Program
 
     private static void VerifyGameOptionsHeadingAnchors(ISnesAddressSpace rom, GameOptionsPresentationDocument document)
     {
-        AssertEqual((byte)0xa9, rom.ReadByte(0x82f369), "native heading common Y LDA");
+        AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, 0x82f369), "native heading common Y LDA");
         ushort y = ReadVerificationWord(rom, 0x82f36a);
         AssertEqual(y, GameOptionsRomData.Spritemaps.HeadingY, "native common heading Y");
         for (int page = 0; page < 3; page++)
         {
             int setup = 0x82f34b + 8 * page;
-            AssertEqual((byte)0xa9, rom.ReadByte(setup), "native heading X LDA");
+            AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
             AssertEqual(x, GameOptionsRomData.Spritemaps.HeadingX((GameOptionsPage)page), "native heading X case");
             Position16<OamPixels> actual = document.HeadingAnchors[OriginalHeadingName(page)];
@@ -68,4 +68,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.Spritemaps.HeadingX((GameOptionsPage)invalid),
                 "heading anchor selector bounds");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for game options heading anchors")]
+    private static byte GameOptionsHeadingAnchorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

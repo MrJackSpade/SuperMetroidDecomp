@@ -81,8 +81,8 @@ internal static partial class Program
                     }
                     cells++;
                 }
-                sbyte x = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
-                sbyte y = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
+                sbyte x = unchecked((sbyte)DownwardGateDrawFieldRomByte(rom, 0x840000 | cursor++));
+                sbyte y = unchecked((sbyte)DownwardGateDrawFieldRomByte(rom, 0x840000 | cursor++));
                 if (field == 0)
                 {
                     AssertEqual(x, shape.NextX(run), "Gate original continuation X");
@@ -112,4 +112,7 @@ internal static partial class Program
         }
         AssertEqual(46, cells, "Gate complete original cell domain");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate draw field")]
+    private static byte DownwardGateDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

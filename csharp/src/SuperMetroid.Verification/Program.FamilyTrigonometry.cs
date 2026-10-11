@@ -12,15 +12,18 @@ internal static partial class Program
         for (int angle = 0; angle < 256; angle++)
         {
             int address = EnemyMathReferenceData.SignedSixteenBitSine + angle * 2;
-            short original = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            short original = unchecked((short)(SignedSixteenBitSineDefinitionsRomByte(rom, address) | SignedSixteenBitSineDefinitionsRomByte(rom, address + 1) << 8));
             AssertEqual(original, EnemyTrigonometryTables.SignedSixteenBitSine((byte)angle), "signed 16-bit sample");
             AssertEqual(original, bullSample((byte)angle), "Bull production sample");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for signed sixteen bit sine definitions")]
+    private static byte SignedSixteenBitSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
     {
-        short Read(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        short Read(int address) => unchecked((short)(CompiledFamilyTrigonometryRomByte(rom, address) | CompiledFamilyTrigonometryRomByte(rom, address + 1) << 8));
         short[] native = Enumerable.Range(0, 256)
             .Select(i => Read(EnemyMathReferenceData.SignedSixteenBitSine + i * 2)).ToArray();
         short[] orbit = Enumerable.Range(0, 320)
@@ -105,4 +108,7 @@ internal static partial class Program
         }
         Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed-word boundary class for Bull moves, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled family trigonometry")]
+    private static byte CompiledFamilyTrigonometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

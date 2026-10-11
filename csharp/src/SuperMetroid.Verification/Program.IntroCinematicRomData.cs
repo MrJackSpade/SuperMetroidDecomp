@@ -115,10 +115,13 @@ internal static partial class Program
 
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         foreach (ushort pointer in bank8BCodePointers.Concat(bank8BLists))
-            _ = bus.ReadByte(IntroCinematicRomData.Banks.CinematicCode | pointer);
+            _ = CinematicCodePointerCatalogRomByte(bus, IntroCinematicRomData.Banks.CinematicCode | pointer);
         foreach (ushort pointer in bank8CLists)
-            _ = bus.ReadByte((int)new SnesAddress(0x8c, pointer));
+            _ = CinematicCodePointerCatalogRomByte(bus, (int)new SnesAddress(0x8c, pointer));
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for cinematic code pointer catalog")]
+    private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void AssertIntroPaletteSpans(
         IntroCinematicRomData.Palette.Regions spans,

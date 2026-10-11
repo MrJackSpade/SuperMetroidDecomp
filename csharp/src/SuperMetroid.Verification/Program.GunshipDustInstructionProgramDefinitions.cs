@@ -20,8 +20,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 GunshipDustInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
+                GunshipDustInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address) |
+                GunshipDustInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
                     unchecked((ushort)(definition.Address + 1))) << 8));
             AssertEqual(definition.Value, native,
                 $"Gunship dust mechanics word $86:{definition.Address:X4}");
@@ -118,6 +118,9 @@ internal static partial class Program
             process.Invoke(enemies, [projectile, new SamusState(), Position16<RoomPixels>.Zero]);
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship dust instruction program definitions")]
+    private static byte GunshipDustInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static int ProbeGunshipDustInstructionMechanicsAllocation()
     {

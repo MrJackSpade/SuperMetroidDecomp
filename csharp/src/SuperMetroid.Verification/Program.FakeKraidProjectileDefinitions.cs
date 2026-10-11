@@ -106,7 +106,7 @@ internal static partial class Program
         for (int row = 0; row < 3; row++)
         {
             int address = 0x869e7d + row * 2;
-            short expected = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            short expected = unchecked((short)(FakeKraidSpikeRowSelectionRomByte(rom, address) | FakeKraidSpikeRowSelectionRomByte(rom, address + 1) << 8));
             AssertEqual(expected, FakeKraidProjectileDefinitions.SpikeYOffset(row),
                 $"Fake Kraid original signed launch port {row}");
         }
@@ -114,6 +114,9 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => FakeKraidProjectileDefinitions.SpikeYOffset(invalid),
                 "Fake Kraid unsupported launch port is rejected without masking");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid spike row selection")]
+    private static byte FakeKraidSpikeRowSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static RoomEnemySystem NewFakeKraidProjectileSystem(
         ISnesAddressSpace bus,

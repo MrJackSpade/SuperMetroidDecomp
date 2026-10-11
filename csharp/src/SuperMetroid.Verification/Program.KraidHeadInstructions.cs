@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            KraidHeadInstructionDefinitionsRomByte(rom, address) | KraidHeadInstructionDefinitionsRomByte(rom, address + 1) << 8));
 
         Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(rom));
         Suite(nameof(VerifyKraidGrowthResumeCases), () => VerifyKraidGrowthResumeCases(rom));
@@ -35,6 +35,9 @@ internal static partial class Program
         Console.WriteLine(
             "Kraid head programs: 28 commands, 91 stream words, both sound callbacks, all entry timers, mutable low-half growth selection, and production interpretation pass with the private streams forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid head instruction definitions")]
+    private static byte KraidHeadInstructionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyProductionInterpreter(SuperMetroidAddressSpace rom)
     {
@@ -176,15 +179,13 @@ internal static partial class Program
         public int ForbiddenReadAttempts { get; private set; }
         public int UntypedLowHalfReadAttempts { get; private set; }
 
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        public byte ReadCartridgeByte(int address)
         {
             if (address is 0xa71002 or 0xa71003)
             {
                 UntypedLowHalfReadAttempts++;
                 throw new InvalidOperationException(
-                    $"Kraid read live WRAM alias ${address:X6} through the generic bus.");
+                    $"Kraid read live WRAM alias ${address:X6} through the cartridge reader.");
             }
             if (address is >= 0xa796d2 and < 0xa79788)
             {
@@ -192,7 +193,7 @@ internal static partial class Program
                 throw new InvalidOperationException(
                     $"Kraid reread compiled head-program byte ${address:X6}.");
             }
-            return source.ReadByte(address);
+            return source.ReadCartridgeByte(address);
         }
 
         public byte ReadWorkRamByte(int address) => address switch

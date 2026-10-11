@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid body contour left-edge records")]
     private static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (int record = 0; record < 7; record++)
         {
             int address = 0xa7b161 + 4 * record;
@@ -42,9 +43,11 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
     private static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.
         ushort offset = Word(0xa7c042);
         for (int selector = 0; selector < 3; selector++)

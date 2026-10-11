@@ -7,7 +7,7 @@ internal static partial class Program
     {
         for (int index = 0; index < 128; index++)
         {
-            byte original = rom.ReadByte(EnemyMathReferenceData.ByteSine + index);
+            byte original = EightBitHalfWaveAlgorithmRomByte(rom, EnemyMathReferenceData.ByteSine + index);
             AssertEqual(original, EnemyTrigonometryTables.EightBitHalfWave(index), $"Original byte sine {index}");
             if (index is 0 or 64) continue;
             decimal value = 256 * EnemyTrigonometryTables.UnitHalfWave(index);
@@ -20,12 +20,15 @@ internal static partial class Program
                 $"Byte sine invalid index {invalid}");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for eight bit half wave algorithm")]
+    private static byte EightBitHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyUnsignedHalfWaveAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 128; index++)
         {
             int address = EnemyMathReferenceData.UnsignedSine + index * 2;
-            ushort original = (ushort)(rom.ReadByte(address) | (rom.ReadByte(address + 1) << 8));
+            ushort original = (ushort)(UnsignedHalfWaveAlgorithmRomByte(rom, address) | (UnsignedHalfWaveAlgorithmRomByte(rom, address + 1) << 8));
             AssertEqual(original, EnemyTrigonometryTables.UnsignedHalfWave(index), $"Original unsigned sine {index}");
             if (index is 0 or 64) continue;
             decimal value = 65535 * EnemyTrigonometryTables.UnitHalfWave(index);
@@ -37,4 +40,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => EnemyTrigonometryTables.UnsignedHalfWave(invalid),
                 $"Unsigned sine invalid index {invalid}");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for unsigned half wave algorithm")]
+    private static byte UnsignedHalfWaveAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

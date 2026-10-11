@@ -187,6 +187,7 @@ static void VerifyMultiplicationExhaustively()
 /// Verifies both VMAIN modes used by the queue, packed-tail accounting, source-bank wrap,
 /// ordered overwrite behavior, and the NMI consumer's unconditional queue reset.
 /// </summary>
+[CpuBusBoundary("exact bus test: VRAM queue and channel DMA A-bus source reads that wrap within WRAM bank $7E")]
 static void VerifyVramWriteQueue()
 {
     var bus = new TestAddressSpace();
@@ -564,10 +565,10 @@ static void VerifySuperMetroidAddressSpace()
     var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
 
     // Banks $00 and $80 are timing mirrors of the first physical 32 KiB ROM bank.
-    AssertEqual(0x80, bus.ReadByte(0x008000), "slow-bank first LoROM byte");
-    AssertEqual(0x80, bus.ReadByte(0x808000), "FastROM mirror first LoROM byte");
-    AssertEqual(0x81, bus.ReadByte(0x818000), "next FastROM bank advances $8000 bytes");
-    AssertEqual(0xc0, bus.ReadByte(0xc08000), "bank C0 maps to physical ROM $200000");
+    AssertEqual(0x80, bus.ReadCartridgeByte(0x008000), "slow-bank first LoROM byte");
+    AssertEqual(0x80, bus.ReadCartridgeByte(0x808000), "FastROM mirror first LoROM byte");
+    AssertEqual(0x81, bus.ReadCartridgeByte(0x818000), "next FastROM bank advances $8000 bytes");
+    AssertEqual(0xc0, bus.ReadCartridgeByte(0xc08000), "bank C0 maps to physical ROM $200000");
     var cartridge = bus;
     AssertEqual(0x80, cartridge.ReadCartridgeByte(0x808000),
         "import-only ROM reader returns the pinned upper-window byte");
@@ -580,11 +581,11 @@ static void VerifySuperMetroidAddressSpace()
     AssertEqual(0x200000, SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0xc08000), "native RomPtr mask mapping");
 
     bus.WriteByte(0x7e1234, 0x55);
-    AssertEqual(0x55, bus.ReadByte(0x001234), "bank 00 low WRAM mirror");
-    AssertEqual(0x55, bus.ReadByte(0x801234), "bank 80 low WRAM mirror");
+    AssertEqual(0x55, bus.ReadWorkRamByte(0x001234), "bank 00 low WRAM mirror");
+    AssertEqual(0x55, bus.ReadWorkRamByte(0x801234), "bank 80 low WRAM mirror");
     bus.WriteByte(0x7f1234, 0x66);
-    AssertEqual(0x66, bus.ReadByte(0x7f1234), "second physical WRAM bank");
-    AssertEqual(0x55, bus.ReadByte(0x7e1234), "WRAM banks remain independent");
+    AssertEqual(0x66, bus.ReadWorkRamByte(0x7f1234), "second physical WRAM bank");
+    AssertEqual(0x55, bus.ReadWorkRamByte(0x7e1234), "WRAM banks remain independent");
     var mutable = bus;
     AssertEqual(0x55, mutable.ReadWorkRamByte(0x7e1234),
         "typed WRAM read returns the physical first bank");
@@ -602,8 +603,8 @@ static void VerifySuperMetroidAddressSpace()
         "typed WRAM read rejects hardware registers outside the mirror");
 
     bus.WriteByte(0x700123, 0x77);
-    AssertEqual(0x77, bus.ReadByte(0x702123), "8 KiB SRAM offset mirror");
-    AssertEqual(0x77, bus.ReadByte(0xf00123), "8 KiB SRAM bank mirror");
+    AssertEqual(0x77, bus.ReadSaveRamByte(0x702123), "8 KiB SRAM offset mirror");
+    AssertEqual(0x77, bus.ReadSaveRamByte(0xf00123), "8 KiB SRAM bank mirror");
     AssertEqual(0x77, mutable.ReadSaveRamByte(0x702123),
         "typed SRAM read retains the physical 8 KiB mirror");
     AssertThrows<ArgumentOutOfRangeException>(
@@ -624,7 +625,11 @@ static void VerifySuperMetroidAddressSpace()
         "missing cartridge cannot be masked by the import-only reader");
 
     AssertThrows<InvalidOperationException>(() => bus.WriteByte(0x808000, 0), "ROM writes rejected");
-    AssertThrows<InvalidOperationException>(() => bus.ReadByte(0x004000), "unimplemented register/expansion read rejected");
+    AssertEqual(SnesDmaSourceKind.Unmapped, SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(0x004000)),
+        "unimplemented register/expansion window is outside the runtime address map");
+    AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadWorkRamByte(0x004000), "unimplemented register/expansion read rejected as WRAM");
+    AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadSaveRamByte(0x004000), "unimplemented register/expansion read rejected as SRAM");
+    AssertThrows<ArgumentOutOfRangeException>(() => bus.ReadCartridgeByte(0x004000), "unimplemented register/expansion read rejected as ROM");
     AssertThrows<ArgumentOutOfRangeException>(() => SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x800000), "lower LoROM offset rejected");
 
     Console.WriteLine("  Bus: LoROM, WRAM, SRAM mirrors and protection agree.");

@@ -17,7 +17,7 @@ internal static partial class Program
             for (int projectile = 0; projectile < 2; projectile++)
             {
                 int address = 0xa69a48 + (right ? 8 : 0) + projectile * 4 + fieldOffset;
-                ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                ushort expected = (ushort)(FakeKraidSpitVelocityFieldRomByte(rom, address) | FakeKraidSpitVelocityFieldRomByte(rom, address + 1) << 8);
                 AssertEqual(expected, select(FakeKraidProjectileDefinitions.SpitLaunch(right, projectile)),
                     $"Fake Kraid spit field {fieldOffset}, facing {right}, projectile {projectile}");
             }
@@ -27,4 +27,7 @@ internal static partial class Program
                     "Fake Kraid spit rejects invalid projectile ordinal before calculating velocity");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid spit velocity field")]
+    private static byte FakeKraidSpitVelocityFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

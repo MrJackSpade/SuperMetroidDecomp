@@ -51,12 +51,12 @@ internal static partial class Program
             {
                 AssertEqual(expected.Sound, GameOverBabyAnimationDefinitions.NativeSoundOpcode(actual.SoundAfter), "Baby sound handoff");
                 SoundEffectId sound = GameOverRomData.BabyAnimation.ResolveCry(expected.Sound);
-                AssertEqual((byte)0xa9, rom.ReadByte(0x820000 | expected.Sound), "native Baby cry LDA immediate");
+                AssertEqual((byte)0xa9, GameOverBabyAnimationRomByte(rom, 0x820000 | expected.Sound), "native Baby cry LDA immediate");
                 AssertEqual((ushort)sound.Value, ReadVerificationWord(rom, 0x820001 + expected.Sound), "native Baby cry effect");
                 AssertEqual(SoundEffectLibrary.Library3, sound.Library, "Baby cry library");
-                AssertEqual((byte)0x22, rom.ReadByte(0x820003 + expected.Sound), "native Baby cry JSL");
+                AssertEqual((byte)0x22, GameOverBabyAnimationRomByte(rom, 0x820003 + expected.Sound), "native Baby cry JSL");
                 AssertEqual((ushort)0x914d, ReadVerificationWord(rom, 0x820004 + expected.Sound), "native library3 queue address");
-                AssertEqual((byte)0x80, rom.ReadByte(0x820006 + expected.Sound), "native library3 queue bank");
+                AssertEqual((byte)0x80, GameOverBabyAnimationRomByte(rom, 0x820006 + expected.Sound), "native library3 queue bank");
             }
             AssertEqual(actual, enumerated[index], "Baby lazy enumeration order");
         }
@@ -68,4 +68,7 @@ internal static partial class Program
                 AssertThrows<InvalidDataException>(() => GameOverBabyAnimationDefinitions.Get(candidate), "unsupported Baby pointer");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for game over Baby animation")]
+    private static byte GameOverBabyAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

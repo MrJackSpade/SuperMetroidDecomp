@@ -13,8 +13,8 @@ internal static partial class Program
             ushort program = ReadCollectibleGraphicsWord(rom, 0xeed7 + raw * 4 + 2);
             ushort pointer = ReadCollectibleGraphicsWord(rom, program + 2);
             byte[] tiles = new byte[256], palettes = new byte[8];
-            for (int i = 0; i < tiles.Length; i++) tiles[i] = rom.ReadByte(0x890000 | (pointer + i));
-            for (int i = 0; i < palettes.Length; i++) palettes[i] = rom.ReadByte(0x840000 | (program + 4 + i));
+            for (int i = 0; i < tiles.Length; i++) tiles[i] = DynamicCollectibleStockMappingRomByte(rom, 0x890000 | (pointer + i));
+            for (int i = 0; i < palettes.Length; i++) palettes[i] = DynamicCollectibleStockMappingRomByte(rom, 0x840000 | (program + 4 + i));
             original.Add(new((InWorldCollectibleKind)raw, pointer, palettes, tiles));
         }
         string Hash(IEnumerable<RoomPlmDynamicCollectibleGraphic> graphics) =>
@@ -75,4 +75,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => new RoomPlmDynamicCollectibleArtCatalog(invalid), "Dynamic invalid item artwork");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible stock mapping")]
+    private static byte DynamicCollectibleStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

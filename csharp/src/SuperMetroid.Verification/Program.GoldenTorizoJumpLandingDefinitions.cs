@@ -18,8 +18,8 @@ internal static partial class Program
             AssertTrue(word.Address >= GoldenTorizoJumpLandingInstructionProgramDefinitions.Start &&
                        word.Address < GoldenTorizoJumpLandingInstructionProgramDefinitions.End,
                 $"Golden Torizo landing control $AA:{word.Address:X4} is bounded");
-            ushort native = (ushort)(rom.ReadByte(bank | word.Address) |
-                rom.ReadByte(bank | unchecked((ushort)(word.Address + 1))) << 8);
+            ushort native = (ushort)(GoldenTorizoJumpLandingDefinitionsRomByte(rom, bank | word.Address) |
+                GoldenTorizoJumpLandingDefinitionsRomByte(rom, bank | unchecked((ushort)(word.Address + 1))) << 8);
             AssertEqual(native, word.Value,
                 $"Golden Torizo landing control $AA:{word.Address:X4}");
             AssertTrue(GoldenTorizoJumpLandingInstructionProgramDefinitions
@@ -39,4 +39,7 @@ internal static partial class Program
                 .IsCompiledMechanicsByte(0xaa0000 | 0xcdd7),
             "Golden Torizo landing catalog does not claim the next opcode");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo jump landing definitions")]
+    private static byte GoldenTorizoJumpLandingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

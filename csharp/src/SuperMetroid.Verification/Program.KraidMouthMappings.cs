@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
     {
-        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)(KraidMouthShapeCasesRomByte(rom, address) | KraidMouthShapeCasesRomByte(rom, address + 1) << 8));
         for (int entry = 0; entry < 8; entry++)
         {
             ushort pointer = (ushort)(0x9788 + 8 * entry);
@@ -26,17 +26,20 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid mouth shape cases")]
+    private static byte KraidMouthShapeCasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyKraidLowHalfBoundaryMapping(SuperMetroidAddressSpace rom)
     {
         AssertEqual(7, KraidMouthHitboxes.LowHalfBoundaryLength, "Native compatibility window length");
         for (int index = 0; index < 7; index++)
-            AssertEqual(rom.ReadByte(0xa78000 + index), KraidMouthHitboxes.LowHalfBoundaryByte(index),
+            AssertEqual(KraidLowHalfBoundaryMappingRomByte(rom, 0xa78000 + index), KraidMouthHitboxes.LowHalfBoundaryByte(index),
                 "Native instruction byte in low-half compatibility window");
         AssertThrows<IndexOutOfRangeException>(() => KraidMouthHitboxes.LowHalfBoundaryByte(-1), "Negative boundary byte");
         AssertThrows<IndexOutOfRangeException>(() => KraidMouthHitboxes.LowHalfBoundaryByte(7), "Past boundary byte");
         var bus = new KraidMouthBoundaryReadBus();
         byte ExpectedByte(ushort pointer) => pointer < 0x8000
-            ? KraidMouthBoundaryReadBus.Value(pointer) : rom.ReadByte(0xa70000 | pointer);
+            ? KraidMouthBoundaryReadBus.Value(pointer) : KraidLowHalfBoundaryMappingRomByte(rom, 0xa70000 | pointer);
         short ExpectedWord(ushort pointer) => unchecked((short)(ExpectedByte(pointer) | ExpectedByte((ushort)(pointer + 1)) << 8));
         for (ushort pointer = 0x7ff9; pointer <= 0x7fff; pointer++)
             AssertEqual((ExpectedWord(pointer), ExpectedWord((ushort)(pointer + 2)), ExpectedWord((ushort)(pointer + 6))),
@@ -45,4 +48,7 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)ExpectedWord((ushort)(pointer + 2))),
                 KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(bus, pointer), "Head boundary crossing uses original bytes");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid low half boundary mapping")]
+    private static byte KraidLowHalfBoundaryMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

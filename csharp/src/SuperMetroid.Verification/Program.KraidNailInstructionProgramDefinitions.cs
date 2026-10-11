@@ -28,10 +28,10 @@ internal static partial class Program
                  })
         {
             int record = EnemyRomTablePointers.Kraid.PopulationRecords + slotIndex * 16;
-            EnemyDefinitionId definition = EnemyDefinitionIds.FromHeaderPointer((ushort)(rom.ReadByte(record) |
-                rom.ReadByte(record + 1) << 8));
-            ushort extraProperties = (ushort)(rom.ReadByte(record + 10) |
-                rom.ReadByte(record + 11) << 8);
+            EnemyDefinitionId definition = EnemyDefinitionIds.FromHeaderPointer((ushort)(KraidNailInstructionProgramDefinitionsRomByte(rom, record) |
+                KraidNailInstructionProgramDefinitionsRomByte(rom, record + 1) << 8));
+            ushort extraProperties = (ushort)(KraidNailInstructionProgramDefinitionsRomByte(rom, record + 10) |
+                KraidNailInstructionProgramDefinitionsRomByte(rom, record + 11) << 8);
             AssertEqual(expectedDefinition, definition,
                 $"retail Kraid nail slot {slotIndex} matches the visual family");
             AssertTrue((extraProperties &
@@ -137,6 +137,9 @@ internal static partial class Program
             "with selector and mechanics ROM reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail instruction program definitions")]
+    private static byte KraidNailInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static int ProbeKraidNailInstructionAllocation()
     {
         int checksum = 0;
@@ -150,12 +153,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail instruction words")]
     private static ushort ReadKraidNailInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa70000 | address) |
-            source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa70000 | address) |
+            source.ReadCartridgeByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewKraidNailInstructionGuard(ISnesAddressSpace source, Action presentationRead) =>
         new CartridgeReadGuard(source)

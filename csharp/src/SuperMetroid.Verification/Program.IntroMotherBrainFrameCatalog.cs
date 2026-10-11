@@ -10,9 +10,9 @@ internal static partial class Program
         for (int frame = 0; frame < 3; frame++)
         {
             int operand = 0x8bcb07 + 4 * frame;
-            ushort pointer = (ushort)(rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8);
+            ushort pointer = (ushort)(IntroMotherBrainFrameCatalogRomByte(rom, operand) | IntroMotherBrainFrameCatalogRomByte(rom, operand + 1) << 8);
             AssertEqual(pointer, frames[frame].Pointer, "original Mother Brain frame operand");
-            int count = rom.ReadByte(0x8c0000 + pointer) | rom.ReadByte(0x8c0001 + pointer) << 8;
+            int count = IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8;
             AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
             AssertEqual($"mother-brain-frame-{frame}", frames[frame].Name, "published frame key");
         }
@@ -25,4 +25,7 @@ internal static partial class Program
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "frame enumeration matches indexing");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain frame catalog")]
+    private static byte IntroMotherBrainFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

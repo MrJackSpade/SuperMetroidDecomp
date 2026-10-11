@@ -17,7 +17,7 @@ internal static partial class Program
                 .PresentationWordAddress(index);
             int selectorAddress = (EvirVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(
-                rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
+                InstalledEvirVisualsRomByte(rom, selectorAddress) | InstalledEvirVisualsRomByte(rom, selectorAddress + 1) << 8));
             AssertEqual(nativePointer, EvirVisualDefinitions.FrameAt(operand),
                 $"Evir visual selector {index} matches pinned cartridge");
             EnemyDefinitionId definition = operand >=
@@ -81,4 +81,7 @@ internal static partial class Program
         Console.WriteLine(
             "  Evir visuals: 49 guarded native selectors and 24 editable OAM frames pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Evir visuals")]
+    private static byte InstalledEvirVisualsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

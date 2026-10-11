@@ -54,7 +54,7 @@ internal static partial class Program
                 "Transfer never caches stock fields");
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
             var original = new byte[0x840];
-            for (int offset = 0; offset < original.Length; offset++) original[offset] = rom.ReadByte(source + offset);
+            for (int offset = 0; offset < original.Length; offset++) original[offset] = AtmosphereTilemapDomainAndEditsRomByte(rom, source + offset);
             for (int index = 0; index < 1056; index++)
             {
                 byte[] changed = original.ToArray();
@@ -73,6 +73,9 @@ internal static partial class Program
                     "Incomplete atmosphere pages reject");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for atmosphere tilemap domain and edits")]
+    private static byte AtmosphereTilemapDomainAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {

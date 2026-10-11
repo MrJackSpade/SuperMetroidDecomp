@@ -23,9 +23,9 @@ internal static partial class Program
             if (index == 19)
             {
                 AssertEqual(0x8fe0, pointer, "small baby record chain end");
-                pointer = rom.ReadByte(0x8bcc41) | rom.ReadByte(0x8bcc42) << 8;
+                pointer = IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc41) | IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc42) << 8;
             }
-            int count = rom.ReadByte(0x8c0000 + pointer) | rom.ReadByte(0x8c0001 + pointer) << 8;
+            int count = IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8;
             AssertEqual((ushort)pointer, frames[index].Pointer, "discovery original record pointer");
             AssertEqual(count, frames[index].StockPartCount, "discovery original part count");
             AssertEqual(names[index], frames[index].Name, "discovery published asset key");
@@ -40,4 +40,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => IntroDiscoveryActorSpriteDefinitions.BabyFramePointer(invalid), "baby pointer bounds");
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "discovery enumeration agrees with indexing");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro discovery frame catalog")]
+    private static byte IntroDiscoveryFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

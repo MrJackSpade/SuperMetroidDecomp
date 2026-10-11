@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyKraidNailLeftOffsets(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(KraidNailLeftOffsetsRomByte(rom, address) | KraidNailLeftOffsetsRomByte(rom, address + 1) << 8);
         AssertEqual(6, KraidNailContour.RecordCount, "Bounded nail contour record count");
         for (int record = 0; record < 6; record++)
             AssertEqual(Word(0xa7bf1d + 4 * record), KraidNailContour.LeftAt(record), "Original nail left word");
@@ -26,15 +26,21 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail left offsets")]
+    private static byte KraidNailLeftOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyKraidNailTopBoundaries(SuperMetroidAddressSpace rom)
     {
         for (int record = 0; record < 6; record++)
         {
             int address = 0xa7bf1f + 4 * record;
-            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort expected = (ushort)(KraidNailTopBoundariesRomByte(rom, address) | KraidNailTopBoundariesRomByte(rom, address + 1) << 8);
             AssertEqual(expected, KraidNailContour.TopAt(record), "Original nail top boundary");
         }
         AssertThrows<IndexOutOfRangeException>(() => KraidNailContour.TopAt(-1), "Negative nail top record");
         AssertThrows<IndexOutOfRangeException>(() => KraidNailContour.TopAt(6), "Past nail top record");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail top boundaries")]
+    private static byte KraidNailTopBoundariesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

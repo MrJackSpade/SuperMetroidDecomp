@@ -22,7 +22,7 @@ internal static partial class Program
             if (!byteOwned) AssertEqual((byte)0, b, "Escape gate missing byte output");
             else if (OwnsByte(raw))
             {
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = EscapeGateProgramFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "Escape gate original field byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Escape gate composed byte reader");
                 AssertEqual(expected, shared, "Escape gate composed original byte");
@@ -39,6 +39,9 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for escape gate program field")]
+    private static byte EscapeGateProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 0);
     private static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 1);

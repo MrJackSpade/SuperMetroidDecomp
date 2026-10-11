@@ -44,9 +44,9 @@ internal static partial class Program
             AssertEqual(descriptor.ByteCount,
                 ReadWord(unchecked((ushort)(transfer + 2))),
                 $"Golden Torizo eye-beam transfer $AA:{transfer:X4} length");
-            int source = rom.ReadByte((bank << 16) | (transfer + 4)) |
-                rom.ReadByte((bank << 16) | (transfer + 5)) << 8 |
-                rom.ReadByte((bank << 16) | (transfer + 6)) << 16;
+            int source = GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 4)) |
+                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 5)) << 8 |
+                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | (transfer + 6)) << 16;
             AssertEqual(descriptor.SourceAddress, source,
                 $"Golden Torizo eye-beam transfer $AA:{transfer:X4} source");
             AssertEqual(descriptor.DestinationWord,
@@ -62,8 +62,11 @@ internal static partial class Program
             "VRAM descriptors match the pinned cartridge; no spritemap selectors.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) | address) |
+                GoldenTorizoEyeBeamAttackDefinitionsRomByte(rom, (bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo eye beam attack definitions")]
+    private static byte GoldenTorizoEyeBeamAttackDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

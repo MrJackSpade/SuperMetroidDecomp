@@ -14,7 +14,7 @@ internal static partial class Program
         AssertEqual(0, stock.StoredHighlightPixelCount, "stock highlight pixel table eliminated");
         AssertEqual(8192 - 151 * 32, stock.StoredArtworkByteCount, "highlight planar bytes absent from stored atlas");
         var native = new byte[8192];
-        for (int i = 0; i < native.Length; i++) native[i] = rom.ReadByte(0xb6c000 + i);
+        for (int i = 0; i < native.Length; i++) native[i] = HighlightTilePixelsRomByte(rom, 0xb6c000 + i);
         foreach (int destination in new[] { 0x4000, 0xc000 })
         {
             var vram = new SnesVram(); stock.LoadArtworkTo(vram, destination);
@@ -85,4 +85,7 @@ internal static partial class Program
             AssertTrue(vram.Bytes.Slice(0x4000, expected.Length).SequenceEqual(expected), "every authored and unchanged atlas pixel reaches VRAM");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for highlight tile pixels")]
+    private static byte HighlightTilePixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

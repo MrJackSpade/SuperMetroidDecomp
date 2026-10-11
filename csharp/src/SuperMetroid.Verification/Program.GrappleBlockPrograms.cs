@@ -42,9 +42,12 @@ internal static partial class Program
         {
             bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsByte((ushort)address,out byte value);
             AssertEqual(addresses.Contains((ushort)address),found,"Grapple complete packed sound domain");
-            AssertEqual(found ? rom.ReadByte(0x840000 | address) : (byte)0,value,"Grapple native packed sound bytes");
+            AssertEqual(found ? GrappleBlockSoundMappingRomByte(rom, 0x840000 | address) : (byte)0,value,"Grapple native packed sound bytes");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block sound mapping")]
+    private static byte GrappleBlockSoundMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyGrappleBlockPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
@@ -63,11 +66,14 @@ internal static partial class Program
             AssertEqual((ushort)pointer,draw.Pointer,"Grapple draw identity");
             AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount,"Grapple native single-block geometry");
             AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)),draw.LevelWord,"Grapple native collision and tile word");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
+            AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");
             AssertEqual(draw,exported.Single(entry => entry.Pointer == pointer),"Grapple exported draw matches calculation");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple block physical draw mapping")]
+    private static byte GrappleBlockPhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyGrappleBlockStockVisualMapping(SuperMetroidAddressSpace rom)
     {

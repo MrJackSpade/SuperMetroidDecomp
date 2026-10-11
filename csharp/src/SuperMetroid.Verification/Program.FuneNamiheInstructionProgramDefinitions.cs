@@ -242,12 +242,13 @@ internal static partial class Program
         return (enemies, slot);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe program words")]
     private static ushort ReadFuneNamiheProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa80000 | address) |
-            source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa80000 | address) |
+            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private readonly record struct FuneNamiheProgramCase(
         ushort Entry,

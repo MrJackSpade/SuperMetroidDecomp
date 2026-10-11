@@ -46,8 +46,8 @@ internal static partial class Program
         for (ushort phase = 0; phase < 4; phase++)
         {
             int address = 0xa2a7cf + phase * 2;
-            byte expectedTimer = rom.ReadByte(address);
-            sbyte expectedDelta = unchecked((sbyte)rom.ReadByte(address + 1));
+            byte expectedTimer = GunshipMotionDefinitionsRomByte(rom, address);
+            sbyte expectedDelta = unchecked((sbyte)GunshipMotionDefinitionsRomByte(rom, address + 1));
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
@@ -79,6 +79,9 @@ internal static partial class Program
             "Gunship motion definitions: all seventeen brake deltas, four idle-bob records, and both production consumers pass with source reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship motion definitions")]
+    private static byte GunshipMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyGunshipBrakeAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort frame = 0; frame < 17; frame++)
@@ -92,22 +95,30 @@ internal static partial class Program
     private static void VerifyGunshipHoverTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
-            AssertEqual(rom.ReadByte(GunshipMotionDefinitions.HoverTimerReferenceAddress + 2 * phase),
+            AssertEqual(GunshipHoverTimerAlgorithmRomByte(rom, GunshipMotionDefinitions.HoverTimerReferenceAddress + 2 * phase),
                 GunshipMotionDefinitions.IdleBob(phase).Timer, $"Original gunship hover timer {phase}");
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(4), "Hover timer upper bound");
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover timer invalid maximum");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship hover timer algorithm")]
+    private static byte GunshipHoverTimerAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyGunshipHoverDeltaSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
-            AssertEqual(unchecked((sbyte)rom.ReadByte(GunshipMotionDefinitions.HoverDeltaReferenceAddress + 2 * phase)),
+            AssertEqual(unchecked((sbyte)GunshipHoverDeltaSelectionRomByte(rom, GunshipMotionDefinitions.HoverDeltaReferenceAddress + 2 * phase)),
                 GunshipMotionDefinitions.IdleBob(phase).YDelta, $"Original gunship hover delta {phase}");
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(4), "Hover delta upper bound");
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover delta invalid maximum");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship hover delta selection")]
+    private static byte GunshipHoverDeltaSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship motion words")]
     private static ushort ReadGunshipMotionWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     /// <summary>
     /// The shared cartridge-read guard that also forwards enemy fixture lookups, so a sparse

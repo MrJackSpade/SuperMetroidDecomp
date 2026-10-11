@@ -8,9 +8,9 @@ internal static partial class Program
     {
         for (int pointer = 0xcdeb; pointer < 0xce1b; pointer++)
         {
-            AssertEqual(rom.ReadByte(0x8b0000 + pointer), IntroRinkaInstructionDefinitions.ReadByte((ushort)pointer), "original Rinka program byte");
+            AssertEqual(IntroRinkaProgramsRomByte(rom, 0x8b0000 + pointer), IntroRinkaInstructionDefinitions.ReadByte((ushort)pointer), "original Rinka program byte");
             if (pointer < 0xce1a)
-                AssertEqual((ushort)(rom.ReadByte(0x8b0000 + pointer) | rom.ReadByte(0x8b0001 + pointer) << 8),
+                AssertEqual((ushort)(IntroRinkaProgramsRomByte(rom, 0x8b0000 + pointer) | IntroRinkaProgramsRomByte(rom, 0x8b0001 + pointer) << 8),
                     IntroRinkaInstructionDefinitions.ReadWord((ushort)pointer), "original Rinka overlapping word");
         }
         foreach (ushort pointer in new ushort[] { 0, 0xcdea, 0xce1b, ushort.MaxValue })
@@ -21,6 +21,9 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => IntroRinkaInstructionDefinitions.ReadWord(0xce1a), "Rinka terminal word crossing");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka programs")]
+    private static byte IntroRinkaProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["rinka-0", "rinka-1", "rinka-2"];
@@ -29,11 +32,11 @@ internal static partial class Program
         for (int index = 0; index < 3; index++)
         {
             int operand = 0x8bcded + 4 * index;
-            ushort pointer = (ushort)(rom.ReadByte(operand) | rom.ReadByte(operand + 1) << 8);
+            ushort pointer = (ushort)(IntroRinkaFrameCatalogRomByte(rom, operand) | IntroRinkaFrameCatalogRomByte(rom, operand + 1) << 8);
             AssertEqual(pointer, frames[index].Pointer, "native Rinka frame operand");
             AssertEqual(names[index], frames[index].Name, "published Rinka asset key");
             AssertEqual(IntroRinkaSpriteDefinitions.StockPartCount,
-                rom.ReadByte(0x8c0000 + pointer) | rom.ReadByte(0x8c0001 + pointer) << 8, "native four-part Rinka record");
+                IntroRinkaFrameCatalogRomByte(rom, 0x8c0000 + pointer) | IntroRinkaFrameCatalogRomByte(rom, 0x8c0001 + pointer) << 8, "native four-part Rinka record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
@@ -42,4 +45,7 @@ internal static partial class Program
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "Rinka enumeration order");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka frame catalog")]
+    private static byte IntroRinkaFrameCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -17,8 +17,8 @@ internal static partial class Program
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x849367), run.DirectionAndCount, "Elevatube native run header");
             AssertEqual(1, run.LevelWords.Length, "Elevatube one word");
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), run.LevelWords.Span[0], "Elevatube DTO original word");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x84936b)), run.Next.X, "Elevatube original X");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x84936c)), run.Next.Y, "Elevatube original Y");
+            AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936b)), run.Next.X, "Elevatube original X");
+            AssertEqual(unchecked((sbyte)ElevatubePhysicalDrawRomByte(rom, 0x84936c)), run.Next.Y, "Elevatube original Y");
         }
         foreach (string id in new[] {"", "ELEVATUBE-BLOCK", "elevatube-block "})
         {
@@ -26,6 +26,9 @@ internal static partial class Program
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), missing, "Elevatube missing DTO");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Elevatube physical draw")]
+    private static byte ElevatubePhysicalDrawRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyElevatubeProgramControls(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, false);
     private static void VerifyElevatubeProgramDraw(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, true);
@@ -52,7 +55,10 @@ internal static partial class Program
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             AssertEqual(raw == 0xb8f6, MaridiaElevatubePlmDefinitions.TryReadMechanicsByte((ushort)raw, out byte value), "Elevatube sole sound byte domain");
-            AssertEqual(raw == 0xb8f6 ? rom.ReadByte(0x84b8f6) : (byte)0, value, "Elevatube native sound or missing zero");
+            AssertEqual(raw == 0xb8f6 ? ElevatubeProgramSoundRomByte(rom, 0x84b8f6) : (byte)0, value, "Elevatube native sound or missing zero");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Elevatube program sound")]
+    private static byte ElevatubeProgramSoundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

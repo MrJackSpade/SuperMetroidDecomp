@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyGoldenTorizoCode()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(GoldenTorizoCodeRomByte(rom, address) | GoldenTorizoCodeRomByte(rom, address + 1) << 8);
         ushort input = Word(0xaac91a);
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
@@ -57,4 +57,7 @@ internal static partial class Program
              samus.PowerBombs, samus.MaxPowerBombs, samus.EquippedItems, samus.CollectedItems,
              samus.EquippedBeams, samus.CollectedBeams];
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo code")]
+    private static byte GoldenTorizoCodeRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

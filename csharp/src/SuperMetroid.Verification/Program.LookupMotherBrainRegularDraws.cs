@@ -52,8 +52,8 @@ internal static partial class Program
                     AssertEqual(expected, exported[index].Runs.Span[run].LevelWords.Span[block], "Mother Brain regular native export cell");
                     cells++;
                 }
-                sbyte nextX = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
-                sbyte nextY = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
+                sbyte nextX = unchecked((sbyte)MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | cursor++));
+                sbyte nextY = unchecked((sbyte)MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | cursor++));
                 AssertEqual(nextX, shape.NextX(run), "Mother Brain regular native origin-relative X");
                 AssertEqual(nextX, dto.Runs.Span[run].Next.X, "Mother Brain regular DTO X");
                 AssertEqual(nextY, dto.Runs.Span[run].Next.Y, "Mother Brain regular DTO Y");
@@ -78,7 +78,10 @@ internal static partial class Program
         }
         AssertEqual(63, cells, "Mother Brain regular sixty-three original physical cells");
 
-        ushort ReadWord(int address) => (ushort)(rom.ReadByte(0x840000 | address) |
-            rom.ReadByte(0x840000 | (address + 1)) << 8);
+        ushort ReadWord(int address) => (ushort)(MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | address) |
+            MotherBrainRegularDrawMappingRomByte(rom, 0x840000 | (address + 1)) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain regular draw mapping")]
+    private static byte MotherBrainRegularDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

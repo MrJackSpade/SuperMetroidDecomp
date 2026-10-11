@@ -21,8 +21,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 GoldenTorizoEyeBeamInstructionProgramDefinitions.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
+                GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address) |
+                GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
                     unchecked((ushort)(definition.Address + 1))) << 8));
             AssertEqual(definition.Value, native,
                 $"Golden Torizo eye-beam mechanics word $86:{definition.Address:X4}");
@@ -266,6 +266,9 @@ internal static partial class Program
             return enemies;
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo eye beam instruction program definitions")]
+    private static byte GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static int ProbeGoldenTorizoEyeBeamInstructionMechanicsAllocation()
     {

@@ -15,7 +15,7 @@ internal static partial class Program
         foreach (int bank in new[] { 0x860000, 0x8d0000 })
         {
             var data = new byte[0x8000];
-            for (int i = 0; i < data.Length; i++) data[i] = retail.ReadByte(bank + 0x8000 + i);
+            for (int i = 0; i < data.Length; i++) data[i] = GrappleEnemyDeathRomByte(retail, bank + 0x8000 + i);
             fixture.Bus.WriteBytes(bank + 0x8000, data);
         }
         const ushort header = 0x9000;
@@ -68,6 +68,9 @@ internal static partial class Program
             "grapple death emits the retail enemy-killed sound from its instruction list");
         Console.WriteLine("  Grapple enemy death: visible animated explosion, drop conversion, position and kill counter agree.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple enemy death")]
+    private static byte GrappleEnemyDeathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyGrappleDeathCleanupOrdinaryPoses()
     {

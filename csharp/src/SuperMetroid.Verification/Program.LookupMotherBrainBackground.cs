@@ -27,13 +27,16 @@ internal static partial class Program
                 var run = draw.Runs.Span[0];
                 AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | value), run.DirectionAndCount, "Mother Brain native background count/direction");
                 AssertEqual(13, run.LevelWords.Length, "Mother Brain background width");
-                AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (value + 28))), run.Next.X, "Mother Brain background native X");
-                AssertEqual(unchecked((sbyte)rom.ReadByte(0x840000 | (value + 29))), run.Next.Y, "Mother Brain background native Y");
+                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 28))), run.Next.X, "Mother Brain background native X");
+                AssertEqual(unchecked((sbyte)MotherBrainBackgroundGeometryRomByte(rom, 0x840000 | (value + 29))), run.Next.Y, "Mother Brain background native Y");
             }
             foreach (int bad in new[] {int.MinValue,-1,13,int.MaxValue})
                 AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(bad), "Mother Brain background column bounds");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain background geometry")]
+    private static byte MotherBrainBackgroundGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom)
     {

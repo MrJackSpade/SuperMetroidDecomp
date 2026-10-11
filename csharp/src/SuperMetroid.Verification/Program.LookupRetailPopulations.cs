@@ -95,8 +95,8 @@ internal static partial class Program
                 int expected = field switch
                 {
                     0 => ReadSamusEaterPlmWord(rom, address),
-                    1 => rom.ReadByte(address + 2),
-                    2 => rom.ReadByte(address + 3),
+                    1 => RetailPopulationFieldRomByte(rom, address + 2),
+                    2 => RetailPopulationFieldRomByte(rom, address + 3),
                     3 => ReadSamusEaterPlmWord(rom, address + 4),
                     _ => 0,
                 };
@@ -119,4 +119,7 @@ internal static partial class Program
         }
         AssertEqual(941, total, $"complete original placement domain for field {field}");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for retail population field")]
+    private static byte RetailPopulationFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -29,7 +29,7 @@ internal static partial class Program
                 cursor += 2;
                 for (int index = 0; index < count; index++, cursor += 2)
                     words.Add((ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0xfff));
-                byte x = rom.ReadByte(0x840000 | cursor++), y = rom.ReadByte(0x840000 | cursor++);
+                byte x = MotherBrainStockMappingRomByte(rom, 0x840000 | cursor++), y = MotherBrainStockMappingRomByte(rom, 0x840000 | cursor++);
                 if (x == 0 && y == 0) break;
             }
             native.Add(frame.Pointer, words.ToArray());
@@ -85,5 +85,8 @@ internal static partial class Program
         entries[0].Blocks[0] = 0xf058;
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainFakeDeathVisualCatalog(entries), "MotherBrainFakeDeath visual bits only");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain stock mapping")]
+    private static byte MotherBrainStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
 }

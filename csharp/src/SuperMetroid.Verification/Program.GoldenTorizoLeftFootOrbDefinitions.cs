@@ -120,8 +120,11 @@ internal static partial class Program
             "selectors, five new physical frames and six hitbox lists match the cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(GoldenTorizoLeftFootOrbDefinitionsRomByte(rom, (bank << 16) | address) |
+                GoldenTorizoLeftFootOrbDefinitionsRomByte(rom, (bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo left foot orb definitions")]
+    private static byte GoldenTorizoLeftFootOrbDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

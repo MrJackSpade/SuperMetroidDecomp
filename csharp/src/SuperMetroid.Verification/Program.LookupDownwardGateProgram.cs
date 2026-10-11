@@ -56,7 +56,7 @@ internal static partial class Program
         for (int index = 0; index < addresses.Length; index++)
         {
             AssertEqual(addresses[index], exported[index].Address, "Gate sound enumeration order");
-            AssertEqual(rom.ReadByte(0x840000 | addresses[index]), exported[index].Value, "Gate original enumerated sound");
+            AssertEqual(DownwardGateProgramSoundsRomByte(rom, 0x840000 | addresses[index]), exported[index].Value, "Gate original enumerated sound");
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -67,11 +67,14 @@ internal static partial class Program
             if (!owned) AssertEqual((byte)0, value, "Gate unowned byte output");
             else
             {
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = DownwardGateProgramSoundsRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, value, "Gate original sound operand");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Gate composed byte reader");
                 AssertEqual(expected, shared, "Gate composed original sound");
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate program sounds")]
+    private static byte DownwardGateProgramSoundsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

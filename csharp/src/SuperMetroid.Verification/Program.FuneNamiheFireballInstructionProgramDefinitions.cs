@@ -109,8 +109,8 @@ internal static partial class Program
             ushort native = ReadFuneNamiheFireballInstructionWord(rom, operand);
             AssertEqual(native, EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operand),
                 "Fune/Namihe fireball native visual pointer");
-            AssertEqual((byte)1, rom.ReadByte(0x8d0000 | native), "fireball native single-sprite map count");
-            AssertEqual((byte)0, rom.ReadByte(0x8d0000 | (native + 1)), "fireball map count high byte");
+            AssertEqual((byte)1, FuneNamiheFireballVisualSelectorsRomByte(rom, 0x8d0000 | native), "fireball native single-sprite map count");
+            AssertEqual((byte)0, FuneNamiheFireballVisualSelectorsRomByte(rom, 0x8d0000 | (native + 1)), "fireball map count high byte");
             AssertTrue(CompiledEnemyVisualSelectors.TryGet(0x86, operand, out ushort shared),
                 "shared fireball selector exists");
             AssertEqual(native, shared, "shared fireball selector matches native pointer");
@@ -134,6 +134,9 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(address),
                 "fireball resolver rejects distant invalid inputs");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe fireball visual selectors")]
+    private static byte FuneNamiheFireballVisualSelectorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyFuneNamiheFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xde96, 0xde9a, 0xde9e, 0xdea2, 0xdea4, 0xdea6, 0xdeaa, 0xdeae, 0xdeb2, 0xdeb4];
@@ -202,12 +205,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe fireball instruction words")]
     private static ushort ReadFuneNamiheFireballInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(EnemyProjectileCodePointers.BankBase | address) |
-            source.ReadByte(
+            source.ReadCartridgeByte(EnemyProjectileCodePointers.BankBase | address) |
+            source.ReadCartridgeByte(
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 }

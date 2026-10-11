@@ -6,7 +6,7 @@ internal static partial class Program
 {
     private static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(CompiledIntroEggMotionRomByte(rom, address) | CompiledIntroEggMotionRomByte(rom, address + 1) << 8);
         void Compare(int address, int count, Func<int, (ushort Whole, ushort Fraction)> sample)
         {
             for (int index = 0; index < count; index++)
@@ -74,6 +74,9 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => IntroEggMotionDefinitions.SlimeY(69, false), "Even slime curve boundary");
         Console.WriteLine($"Egg motion definitions: twelve position words, 366 velocity words, and {checkedFrames} real actor frames match with all physical-table reads forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled intro egg motion")]
+    private static byte CompiledIntroEggMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewEggMotionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(

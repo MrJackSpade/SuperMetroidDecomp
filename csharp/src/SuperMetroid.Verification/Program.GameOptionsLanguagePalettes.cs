@@ -35,8 +35,8 @@ internal static partial class Program
                     int offset = ReadVerificationWord(bus, address);
                     AssertEqual(offset, actual[box], "native toggle box offset");
                     int operand = countOperands[box];
-                    AssertEqual((byte)0xa0, bus.ReadByte(operand - 1), "toggle LDY count opcode");
-                    AssertEqual((byte)0xa9, bus.ReadByte(operand + 2), "toggle LDA palette opcode");
+                    AssertEqual((byte)0xa0, GameOptionsToggleGeometryRomByte(bus, operand - 1), "toggle LDY count opcode");
+                    AssertEqual((byte)0xa9, GameOptionsToggleGeometryRomByte(bus, operand + 2), "toggle LDA palette opcode");
                     int count = ReadVerificationWord(bus, operand);
                     AssertEqual(count, GameOptionsRomData.SpecialToggles.PaletteRegionByteCount,
                         "native toggle box width");
@@ -53,6 +53,9 @@ internal static partial class Program
                 $"invalid toggle layout {setting}");
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for game options toggle geometry")]
+    private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyGameOptionsLanguagePalettes()
     {
@@ -83,9 +86,9 @@ internal static partial class Program
             {
                 // Read each native LDX-offset / LDY-count / LDA-palette call directly.
                 int instruction = (japanese ? 0x82ee24 : 0x82edf2) + regionIndex * 12;
-                AssertEqual((byte)0xa2, bus.ReadByte(instruction), "language region LDX immediate");
-                AssertEqual((byte)0xa0, bus.ReadByte(instruction + 3), "language region LDY immediate");
-                AssertEqual((byte)0xa9, bus.ReadByte(instruction + 6), "language region LDA immediate");
+                AssertEqual((byte)0xa2, GameOptionsLanguagePalettesRomByte(bus, instruction), "language region LDX immediate");
+                AssertEqual((byte)0xa0, GameOptionsLanguagePalettesRomByte(bus, instruction + 3), "language region LDY immediate");
+                AssertEqual((byte)0xa9, GameOptionsLanguagePalettesRomByte(bus, instruction + 6), "language region LDA immediate");
                 int originalOffset = ReadVerificationWord(bus, instruction + 1);
                 int originalCount = ReadVerificationWord(bus, instruction + 4);
                 int expected = ReadVerificationWord(bus, instruction + 7) >> 10;
@@ -109,4 +112,7 @@ internal static partial class Program
         static int PaletteAt(ReadOnlySpan<byte> tilemap, int offset) =>
             (BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(offset, 2)) >> 10) & 7;
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for game options language palettes")]
+    private static byte GameOptionsLanguagePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -69,7 +69,7 @@ internal static partial class Program
             {
                 int address = spritemap + 2 + part * 5;
                 expected.AddOnScreenSpritePart((SnesSpritemapXWord)ReadVerificationWord(rom, address),
-                    rom.ReadByte(address + 2), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
+                    FileCopyArrowRomByte(rom, address + 2), (SnesObjAttributeWord)ReadVerificationWord(rom, address + 3), new Position16<OamPixels>(originX, originY));
                 AssertEqual(expected.GetEntry(part), actual.GetEntry(noArrowCount + part),
                     $"copy {pair.slots}: exact arrow position, tile, flip, palette and priority, part {part}");
             }
@@ -110,4 +110,7 @@ internal static partial class Program
         }
         Console.WriteLine("Copy arrow: all six native slot pairs match OAM; confirmation-only visibility and palette timing pass.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file copy arrow")]
+    private static byte FileCopyArrowRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

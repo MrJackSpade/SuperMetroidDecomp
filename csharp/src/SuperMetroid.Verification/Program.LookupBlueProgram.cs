@@ -29,7 +29,7 @@ internal static partial class Program
             else if (FieldAt(raw) == field)
             {
                 checkedBytes++;
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = BlueProgramFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "Blue program original field byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Blue program shared byte reader");
                 AssertEqual(expected, shared, "Blue program composed original field");
@@ -48,4 +48,7 @@ internal static partial class Program
         AssertEqual(field switch { 0 => 112, 1 => 72, 2 => 8, _ => 4 }, checkedBytes,
             "Blue program independent field byte count");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for blue program field")]
+    private static byte BlueProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

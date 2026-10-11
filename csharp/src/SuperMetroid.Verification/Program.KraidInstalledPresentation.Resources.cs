@@ -2,6 +2,7 @@ using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -11,8 +12,7 @@ internal static partial class Program
         ushort[] bodyMap = fixture.State.BackgroundTilemapWords.ToArray();
         byte[] source = TilemapContractWords(KraidBackgroundRomData.HeadTilemapWords);
         const ushort livePointer = 0x1000;
-        for (int index = 0; index < source.Length; index++)
-            fixture.Memory.WriteByte(KraidBackgroundRomData.NativeBank | (livePointer + index), source[index]);
+        WriteKraidLowBankHeadTilemap(fixture.Memory, livePointer, source);
         byte[] ramBefore = fixture.Memory.WorkRam.ToArray(), expectedVram = fixture.Vram.Bytes.ToArray();
         var words = new ushort[source.Length / sizeof(ushort)];
         for (int word = 0; word < words.Length; word++)
@@ -24,6 +24,14 @@ internal static partial class Program
         AssertTrue(ramBefore.AsSpan().SequenceEqual(fixture.Memory.WorkRam), "head DMA is read-only to source WRAM");
         AssertEqual(1, fixture.State.HeadTilemapUploadCount, "live alias retains one head upload");
         Console.WriteLine("PASS Kraid live head alias: exact WRAM-to-VRAM words, no body-map or source-RAM mutation.");
+    }
+
+    [CpuBusBoundary("exact bus test: seeds Kraid's live head tilemap through the bank-$A7 low-half WRAM mirror")]
+    private static void WriteKraidLowBankHeadTilemap(
+        SuperMetroidAddressSpace memory, ushort pointer, ReadOnlySpan<byte> source)
+    {
+        for (int index = 0; index < source.Length; index++)
+            memory.WriteByte(KraidBackgroundRomData.NativeBank | (pointer + index), source[index]);
     }
 
     private static void VerifyKraidRequiredFiles(string directory)

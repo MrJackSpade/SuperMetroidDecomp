@@ -43,7 +43,7 @@ internal static partial class Program
             if (!byteOwned) AssertEqual((byte)0, b, "Hand missing byte output");
             else if (selected.Contains(raw))
             {
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = HandProgramFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "Hand original program field byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Hand composed byte reader");
                 AssertEqual(expected, shared, "Hand composed original byte");
@@ -60,4 +60,7 @@ internal static partial class Program
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for hand program field")]
+    private static byte HandProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

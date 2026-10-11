@@ -35,7 +35,7 @@ internal static partial class Program
         {
             ushort address = addresses[index];
             int full = bank << 16 | address;
-            ushort expected = (ushort)(rom.ReadByte(full) | rom.ReadByte(full + 1) << 8);
+            ushort expected = (ushort)(KraidSmallMechanicsRomByte(rom, full) | KraidSmallMechanicsRomByte(rom, full + 1) << 8);
             AssertEqual((address, expected), indexed(index), "native small Kraid mechanics address/value");
             AssertEqual(expected, read(address), "native small Kraid mechanics read");
             bytes.Add(address);
@@ -49,6 +49,9 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => indexed(-1), "negative mechanics index");
         AssertThrows<IndexOutOfRangeException>(() => indexed(addresses.Length), "mechanics index past end");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid small mechanics")]
+    private static byte KraidSmallMechanicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyKraidSmallPresentation(ushort[] expected, int count,
         Func<int, ushort> actual, Func<ushort, ushort> readMechanics)

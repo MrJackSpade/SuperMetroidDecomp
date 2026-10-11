@@ -33,7 +33,7 @@ internal static partial class Program
             else if (FieldAt(raw) == field)
             {
                 count++;
-                byte expected = rom.ReadByte(0x840000 | raw);
+                byte expected = CannonFieldRomByte(rom, 0x840000 | raw);
                 AssertEqual(expected, b, "Cannon native field byte");
                 AssertTrue(RoomPlmProgramDefinitions.TryReadByte(address, out byte shared), "Cannon composed byte ownership");
                 AssertEqual(expected, shared, "Cannon composed native byte");
@@ -51,4 +51,7 @@ internal static partial class Program
         }
         AssertEqual(field switch {0 => 76,1 => 44,2 => 20,3 => 4,_ => 2}, count, "Cannon independent field count");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for cannon field")]
+    private static byte CannonFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

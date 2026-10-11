@@ -20,7 +20,7 @@ internal static partial class Program
                 for (int word = 0; word < count; word++, cursor += 2)
                     words[word] = (ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | cursor) & 0xfff);
                 runs.Add(words);
-                byte x = rom.ReadByte(0x840000 | cursor++), y = rom.ReadByte(0x840000 | cursor++);
+                byte x = ElevatorPlatformStockMappingRomByte(rom, 0x840000 | cursor++), y = ElevatorPlatformStockMappingRomByte(rom, 0x840000 | cursor++);
                 if (x == 0 && y == 0) break;
             }
             native.Add(frame.Pointer, runs.ToArray());
@@ -74,4 +74,7 @@ internal static partial class Program
         entries[0].Runs[0][0] = 0xf058;
         AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(entries), "Elevator platform visual bits only");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for elevator platform stock mapping")]
+    private static byte ElevatorPlatformStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

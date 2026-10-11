@@ -92,8 +92,8 @@ internal static partial class Program
             "installed path forbids ROM reads.");
 
         ushort ReadWord(ushort address) => unchecked((ushort)(
-            rom.ReadByte(0xa70000 | address) |
-            rom.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
+            KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | address) |
+            KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
         bool NativeHit(ushort frame, ushort originX, ushort originY,
             ushort x, ushort y, bool shot, out ushort callback)
@@ -136,6 +136,9 @@ internal static partial class Program
             unchecked((ushort)(origin + high + 1)),
         ];
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot collision definitions")]
+    private static byte KraidFootCollisionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewKraidFootCollisionNoReadBus() =>
         CartridgeReadGuard.Unbacked()

@@ -24,10 +24,13 @@ internal static partial class Program
                 AssertEqual(expected, graphic.GraphicsPointer, "Native graphics DTO source");
                 AssertEqual(expected, exported[raw - 4].GraphicsPointer, "Native graphics enumerated source");
                 for (int offset = 0; offset < 256; offset++)
-                    AssertEqual(rom.ReadByte(0x890000 | (expected + offset)), graphic.Tiles.Span[offset], "Reordered artwork remains associated with its original native source");
+                    AssertEqual(DynamicCollectibleSourcePointersRomByte(rom, 0x890000 | (expected + offset)), graphic.Tiles.Span[offset], "Reordered artwork remains associated with its original native source");
             }
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible source pointers")]
+    private static byte DynamicCollectibleSourcePointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyDynamicCollectibleKindIdentity()
     {

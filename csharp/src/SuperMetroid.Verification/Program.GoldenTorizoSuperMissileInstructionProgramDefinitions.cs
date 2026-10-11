@@ -21,8 +21,8 @@ internal static partial class Program
             InstructionMechanicsWord definition =
                 GoldenTorizoSuperMissileInstructionProgramDefinitionsTooling.MechanicsWord(index);
             ushort native = unchecked((ushort)(
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase | definition.Address) |
-                rom.ReadByte(EnemyProjectileCodePointers.BankBase |
+                GoldenTorizoSuperMissileInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase | definition.Address) |
+                GoldenTorizoSuperMissileInstructionProgramDefinitionsRomByte(rom, EnemyProjectileCodePointers.BankBase |
                     unchecked((ushort)(definition.Address + 1))) << 8));
             AssertEqual(definition.Value, native,
                 $"Golden Torizo Super Missile mechanics word $86:{definition.Address:X4}");
@@ -201,6 +201,9 @@ internal static partial class Program
             return enemies;
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo super missile instruction program definitions")]
+    private static byte GoldenTorizoSuperMissileInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static int ProbeGoldenTorizoSuperMissileInstructionMechanicsAllocation()
     {

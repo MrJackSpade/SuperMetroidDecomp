@@ -63,12 +63,15 @@ internal static partial class Program
         if (slot.InstructionTimer == 0) return;
         ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
         int bank = slot.Definition.Bank << 16;
-        ushort native = (ushort)(rom.ReadByte(bank | operand) |
-            rom.ReadByte(bank | unchecked((ushort)(operand + 1))) << 8);
+        ushort native = (ushort)(ExecutedEnemySelectorRomByte(rom, bank | operand) |
+            ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1))) << 8);
         AssertEqual(native, slot.SpritemapPointer,
             $"executed enemy visual ${bank | operand:X6} matches cartridge selector");
         executedOperands.Add(operand);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for executed enemy selector")]
+    private static byte ExecutedEnemySelectorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     // Confirm the visual actually selected by a timed instruction, whether its owner
     // carries an installed operand or a legacy compiled sprite identity.
     private static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
@@ -77,8 +80,8 @@ internal static partial class Program
     {
         if (!projectile.IsActive || projectile.InstructionTimer == 0) return;
         ushort operand = expectedOperand ?? unchecked((ushort)(projectile.InstructionPointer - 2));
-        ushort nativePointer = (ushort)(rom.ReadByte(0x860000 | operand) |
-            rom.ReadByte(0x860000 | unchecked((ushort)(operand + 1))) << 8);
+        ushort nativePointer = (ushort)(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand) |
+            ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))) << 8);
         executedOperands.Add(operand);
         ReadOnlyMemory<EnemySpritemapPart> parts;
         if (projectile.PresentationOperandAddress != 0)
@@ -106,4 +109,7 @@ internal static partial class Program
             expected.HighTable.SequenceEqual(actual.HighTable),
             $"projectile frame $86:{operand:X4} installed composition matches native OAM");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for executed projectile frame")]
+    private static byte ExecutedProjectileFrameRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

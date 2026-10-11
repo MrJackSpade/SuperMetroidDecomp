@@ -50,8 +50,8 @@ internal static partial class Program
         ushort[] cursors = [0x96d3, 0x96d5, 0x96d7, 0x96d9, 0x96db, 0x96dd, 0x96df, 0x96e1];
         foreach (ushort cursor in cursors)
         {
-            ushort native = (ushort)(rom.ReadByte(0xa80000 | cursor) |
-                rom.ReadByte(0xa80000 | (cursor + 1)) << 8);
+            ushort native = (ushort)(FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | cursor) |
+                FuneNamiheProgramSelectionRomByte(rom, 0xa80000 | (cursor + 1)) << 8);
             AssertEqual(native, FuneNamiheDefinitions.InstructionList(cursor),
                 "Fune/Namihe named species/activity/facing case matches native pointer");
         }
@@ -64,4 +64,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => FuneNamiheDefinitions.InstructionList(cursor),
                 "Fune/Namihe selection rejects distant and wrapped cursors");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe program selection")]
+    private static byte FuneNamiheProgramSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

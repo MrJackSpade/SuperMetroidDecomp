@@ -36,10 +36,10 @@ internal static partial class Program
             // The physical rope uses Angle; the body mapping uses the remembered mirror.
             g.Angle = SnesAngle.FromRaw(unchecked((ushort)(raw ^ 0x4080)));
             g.MirroredAngle = SnesAngle.FromRaw((ushort)raw);
-            byte nativeFrame = rom.ReadByte(0x9bc1c2 + (raw >> 8));
+            byte nativeFrame = GrappleBodyPlacementRomByte(rom, 0x9bc1c2 + (raw >> 8));
             int table = left ? 0x9bc2c2 : 0x9bc302;
-            sbyte x = unchecked((sbyte)rom.ReadByte(table + nativeFrame * 2));
-            sbyte y = unchecked((sbyte)rom.ReadByte(table + nativeFrame * 2 + 1));
+            sbyte x = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2));
+            sbyte y = unchecked((sbyte)GrappleBodyPlacementRomByte(rom, table + nativeFrame * 2 + 1));
             position(bus, samus, g);
             AssertEqual(unchecked((ushort)(g.RopeStart.X + x)), samus.Position.X.Whole, "Art override cannot move Grapple collision-body X");
             AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Art override cannot move Grapple collision-body Y");
@@ -75,4 +75,7 @@ internal static partial class Program
         }
         Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple body placement")]
+    private static byte GrappleBodyPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

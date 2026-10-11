@@ -10,7 +10,7 @@ internal static partial class Program
 
     private static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(GrappleConnectionDefinitionsRomByte(rom, address) | GrappleConnectionDefinitionsRomByte(rom, address + 1) << 8);
         var guard = NewGrappleConnectionReadGuard(rom);
         // All three table bases and every serialized direction byte, including native
         // reads into the next authored table. Other addresses fail explicitly.
@@ -42,9 +42,12 @@ internal static partial class Program
         Console.WriteLine("Grapple connection definitions: 100 native words and 48 policy bytes, 3072 address classifications with loud non-catalog rejection, and real connection/angle/cancel/drop dispatch pass with migrated reads forbidden.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple connection definitions")]
+    private static byte GrappleConnectionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(GrappleConnectionDispatchRomByte(rom, address) | GrappleConnectionDispatchRomByte(rom, address + 1) << 8);
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
             SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
@@ -61,7 +64,7 @@ internal static partial class Program
         foreach (bool enemy in new[] { false, true })
         {
             int sourcePose = Enumerable.Range(0, 253).FirstOrDefault(pose =>
-                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement, -1);
+                GrappleConnectionDispatchRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement, -1);
             if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
             metadataPose = samus.Pose = (SamusPoseId)sourcePose;
             samus.Position = samus.Position.WithWhole(new(512, 512));
@@ -83,7 +86,7 @@ internal static partial class Program
             }
             int table = vertical != 0 ? 0x9bc3ee : movement == 5 ? 0x9bc416 : 0x9bc3c6;
             ushort function = Word(table + direction * 4), handler = Word(table + direction * 4 + 2);
-            AssertEqual(0xa9, rom.ReadByte(0x9b0000 | handler), "Pinned handler begins LDA immediate pose");
+            AssertEqual(0xa9, GrappleConnectionDispatchRomByte(rom, 0x9b0000 | handler), "Pinned handler begins LDA immediate pose");
             SamusPoseId pose = (SamusPoseId)Word((0x9b0000 | handler) + 1);
             AssertEqual(pose, samus.Pose, "Actual native connection pose");
             bool locked = function == 0xc77e;
@@ -94,9 +97,12 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple connection dispatch")]
+    private static byte GrappleConnectionDispatchRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom, ISnesAddressSpace guard)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(GrappleSpecialConnectionsRomByte(rom, address) | GrappleSpecialConnectionsRomByte(rom, address + 1) << 8);
         var special = typeof(SamusGrappleMovement).GetMethod("TryHandleSpecialAngle", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<SpecialGrappleHandler>();
         var native = Enumerable.Range(0, 8).Select(i =>
@@ -152,6 +158,9 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple special connections")]
+    private static byte GrappleSpecialConnectionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyGrappleCancellationAndDrop(SuperMetroidAddressSpace rom)
     {
         var cancel = typeof(SamusGrappleMovement).GetMethod("HandleFiringPoseChange", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -172,17 +181,17 @@ internal static partial class Program
             new MemoryStream(SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));
         for (byte movement = 0; movement < 28; movement++)
         {
-            bool banned = rom.ReadByte(0x9bb8b8 + movement) != 0;
+            bool banned = GrappleCancellationAndDropRomByte(rom, 0x9bb8b8 + movement) != 0;
             AssertEqual(banned, GrappleConnectionDefinitions.CancelsFiring((SamusMovementType)movement), "Every native cancellation byte");
         }
 
         for (byte movement = 0; movement < 28; movement++)
         foreach (int sourcePose in Enumerable.Range(0, 253).Where(pose =>
-            rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement))
+            GrappleCancellationAndDropRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement))
         foreach (ushort timer in new ushort[] { 0, 1, 2, 9, 10, ushort.MaxValue })
         {
-            bool banned = rom.ReadByte(0x9bb8b8 + movement) != 0;
-            byte direction = rom.ReadByte(
+            bool banned = GrappleCancellationAndDropRomByte(rom, 0x9bb8b8 + movement) != 0;
+            byte direction = GrappleCancellationAndDropRomByte(rom,
                 SamusMovementRomData.Poses.Definitions + sourcePose * 8 + 3);
             samus.Pose = (SamusPoseId)sourcePose;
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = 2;
@@ -199,14 +208,14 @@ internal static partial class Program
         for (int radius = 0; radius <= ushort.MaxValue; radius++)
         {
             int sourcePose = Enumerable.Range(0, 253).First(pose =>
-                rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
+                GrappleCancellationAndDropRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 3) == direction &&
                 pose is not ((int)SamusPoseId.GrappleSwingRightPose or (int)SamusPoseId.GrappleSwingLeftPose));
             samus.Pose = (SamusPoseId)sourcePose;
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY((ushort)radius);
-            AssertEqual(rom.ReadByte((radius < 17 ? 0x9bc9c4 : 0x9bc9ba) + direction), drop(guard, samus), "Actual directional drop at every radius");
+            AssertEqual(GrappleCancellationAndDropRomByte(rom, (radius < 17 ? 0x9bc9c4 : 0x9bc9ba) + direction), drop(guard, samus), "Actual directional drop at every radius");
         }
         foreach (int sourcePose in Enumerable.Range(0, 253).Where(pose =>
-            rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 3) >= 10 &&
+            GrappleCancellationAndDropRomByte(rom, SamusMovementRomData.Poses.Definitions + pose * 8 + 3) >= 10 &&
             pose is not ((int)SamusPoseId.GrappleSwingRightPose or (int)SamusPoseId.GrappleSwingLeftPose)))
         foreach (ushort radius in new ushort[] { 0, 16, 17, ushort.MaxValue })
         {
@@ -224,6 +233,9 @@ internal static partial class Program
             AssertEqual(left ? 2 : 1, drop(NewSlopeHeightNoReadBus(), samus), "Swing-pose drop bypasses all metadata");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple cancellation and drop")]
+    private static byte GrappleCancellationAndDropRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewGrappleConnectionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

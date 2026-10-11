@@ -34,7 +34,7 @@ internal static partial class Program
 
     private static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(KraidMovementChoicesRomByte(rom, a) | KraidMovementChoicesRomByte(rom, a + 1) << 8);
         var positions = new ushort[6];
         var targets = new ushort[6, 5];
         var timers = new ushort[6, 5];
@@ -114,4 +114,7 @@ internal static partial class Program
         }
         Console.WriteLine("Kraid choices: all indirect native pairs, every RNG word per row, 524288 actual coordinate/choice transitions and all timer words pass bus-free.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid movement choices")]
+    private static byte KraidMovementChoicesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

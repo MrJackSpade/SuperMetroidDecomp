@@ -50,8 +50,8 @@ internal static partial class Program
                     AssertEqual(expected, exported[index].Runs.Span[run].LevelWords.Span[block], "Crocomire native export cell");
                     cells++;
                 }
-                sbyte nextX = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
-                sbyte nextY = unchecked((sbyte)rom.ReadByte(0x840000 | cursor++));
+                sbyte nextX = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
+                sbyte nextY = unchecked((sbyte)CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | cursor++));
                 AssertEqual(nextX, shape.NextX(run), "Crocomire native origin-relative X");
                 AssertEqual(nextX, dto.Runs.Span[run].Next.X, "Crocomire DTO X");
                 AssertEqual(nextY, dto.Runs.Span[run].Next.Y, "Crocomire DTO Y");
@@ -76,7 +76,10 @@ internal static partial class Program
         }
         AssertEqual(60, cells, "Crocomire sixty original physical cells");
 
-        ushort ReadWord(int address) => (ushort)(rom.ReadByte(0x840000 | address) |
-            rom.ReadByte(0x840000 | (address + 1)) << 8);
+        ushort ReadWord(int address) => (ushort)(CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | address) |
+            CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | (address + 1)) << 8);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire physical draw mapping")]
+    private static byte CrocomirePhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

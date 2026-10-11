@@ -56,14 +56,17 @@ internal static partial class Program
         for (int slot = 0; slot < 3; slot++)
         {
             int instruction = 0x81a027 + slot * 6;
-            AssertEqual((byte)0xa9, rom.ReadByte(instruction), "helmet LDA immediate opcode");
-            AssertEqual((byte)0x8d, rom.ReadByte(instruction + 3), "helmet STA absolute opcode");
+            AssertEqual((byte)0xa9, FileSelectHelmetYRomByte(rom, instruction), "helmet LDA immediate opcode");
+            AssertEqual((byte)0x8d, FileSelectHelmetYRomByte(rom, instruction + 3), "helmet STA absolute opcode");
             ushort expected = ReadVerificationWord(rom, instruction + 1);
             AssertEqual(expected, FileSelectLayout.HelmetY(slot), $"helmet Y {slot}");
             AssertEqual((int)expected, document.HelmetAnchors[slot].Y, $"extracted helmet Y {slot}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.HelmetY, 3));
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for file select helmet Y")]
+    private static byte FileSelectHelmetYRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyFileSelectGeometryBounds(Func<int, ushort> lookup, int count)
     {

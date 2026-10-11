@@ -56,8 +56,8 @@ internal static partial class Program
             {
                 int offset = 0x6000 + 0x4c8 + word * 2;
                 // $82:C092 selects Spazer artwork; disabling rewrites glyphs, not just palette bits.
-                int source = 0x820000 | (bus.ReadByte(0x82c092) | bus.ReadByte(0x82c093) << 8);
-                ushort oldWord = (ushort)(bus.ReadByte(source + word * 2) | bus.ReadByte(source + word * 2 + 1) << 8);
+                int source = 0x820000 | (InvalidBeamSelectionRomByte(bus, 0x82c092) | InvalidBeamSelectionRomByte(bus, 0x82c093) << 8);
+                ushort oldWord = (ushort)(InvalidBeamSelectionRomByte(bus, source + word * 2) | InvalidBeamSelectionRomByte(bus, source + word * 2 + 1) << 8);
                 BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(offset), (ushort)((oldWord & 0xe3ff) | 0x0c00));
             }
         // The native shared tail refreshes the wireframe independently of label edits.
@@ -79,4 +79,7 @@ internal static partial class Program
         }
         Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, tile footprint and rendered labels.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for invalid beam selection")]
+    private static byte InvalidBeamSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

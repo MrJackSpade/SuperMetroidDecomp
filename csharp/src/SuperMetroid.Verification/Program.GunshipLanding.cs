@@ -77,8 +77,7 @@ internal static partial class Program
         WriteGunshipPopulationRecord(bus, population, topDefinition, gunship, parameter2: 0);
         WriteGunshipPopulationRecord(bus, population + 16, bottomDefinition, gunship, parameter2: 0);
         WriteGunshipPopulationRecord(bus, population + 32, bottomDefinition, gunship, parameter2: 1);
-        WriteWord(bus, population + 48, 0xffff);
-        bus.WriteByte(population + 50, 0);
+        WriteGunshipPopulationTerminator(bus, population + 48);
 
         var samus = new SamusState
         {
@@ -277,6 +276,13 @@ internal static partial class Program
         Console.WriteLine(
             "  Gunship landing: station-18 descent, rigid camera carrier, bounce, pad, " +
             "Samus lift, event-$0E takeoff, and state-$26 handoff agree.");
+    }
+
+    [CpuBusBoundary("exact bus test: seeds the constructed cartridge population's $FFFF terminator and its kill-quota byte")]
+    private static void WriteGunshipPopulationTerminator(TestAddressSpace bus, int address)
+    {
+        WriteWord(bus, address, 0xffff);
+        bus.WriteByte(address + 2, 0);
     }
 
     private static void WriteGunshipPopulationRecord(

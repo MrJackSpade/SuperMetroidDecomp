@@ -9,9 +9,9 @@ internal static partial class Program
         {
             for (int pointer = start; pointer < end; pointer++)
             {
-                AssertEqual(rom.ReadByte(0x910000 + pointer), IntroBabyDiscoveryInputDefinitions.ReadByte((ushort)pointer), "original discovery input byte");
+                AssertEqual(IntroBabyDiscoveryInputRomByte(rom, 0x910000 + pointer), IntroBabyDiscoveryInputDefinitions.ReadByte((ushort)pointer), "original discovery input byte");
                 if (pointer == end - 1) continue;
-                AssertEqual((ushort)(rom.ReadByte(0x910000 + pointer) | rom.ReadByte(0x910001 + pointer) << 8),
+                AssertEqual((ushort)(IntroBabyDiscoveryInputRomByte(rom, 0x910000 + pointer) | IntroBabyDiscoveryInputRomByte(rom, 0x910001 + pointer) << 8),
                     IntroBabyDiscoveryInputDefinitions.ReadWord((ushort)pointer), "original discovery aligned or overlapping word");
             }
             AssertThrows<InvalidDataException>(() => IntroBabyDiscoveryInputDefinitions.ReadWord((ushort)(end - 1)), "discovery word cannot cross source-region boundary");
@@ -22,4 +22,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => IntroBabyDiscoveryInputDefinitions.ReadWord(pointer), "discovery word boundary");
         }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for intro Baby discovery input")]
+    private static byte IntroBabyDiscoveryInputRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

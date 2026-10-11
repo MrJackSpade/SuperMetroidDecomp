@@ -30,14 +30,14 @@ internal static partial class Program
         {
             int code = 0xa70000 | callback;
             var request = KraidPlmDefinitions.ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(callback, "Kraid sinking callback"));
-            if (rom.ReadByte(code) == 0x60)
+            if (KraidSinkPlmFieldRomByte(rom, code) == 0x60)
             {
                 AssertEqual<KraidPlmRequest?>(null, request, "Native empty RTS emits no request");
                 continue;
             }
             ushort expected = offset == 19
-                ? (ushort)(rom.ReadByte(code + offset) | rom.ReadByte(code + offset + 1) << 8)
-                : rom.ReadByte(code + offset);
+                ? (ushort)(KraidSinkPlmFieldRomByte(rom, code + offset) | KraidSinkPlmFieldRomByte(rom, code + offset + 1) << 8)
+                : KraidSinkPlmFieldRomByte(rom, code + offset);
             AssertEqual(expected, field(request!.Value), "Native sink callback inline field");
             count++;
         }
@@ -45,6 +45,9 @@ internal static partial class Program
         foreach (ushort invalid in new ushort[] { 0, 0xc690, 0xc692, 0xc6a5, 0xc715, ushort.MaxValue })
             AssertThrows<InvalidDataException>(() => KraidPlmDefinitions.ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(invalid, "Kraid sinking callback")), "Unknown sink callback rejected");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink PLM field")]
+    private static byte KraidSinkPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,
         Dictionary<ushort, ushort> callbacks)
@@ -65,20 +68,23 @@ internal static partial class Program
             enemies.Slots[0].Position = enemies.Slots[0].Position.WithWholeY(entry.Key);
             step(enemies.Slots[0], state);
             int code = 0xa70000 | entry.Value;
-            bool empty = rom.ReadByte(code) == 0x60;
+            bool empty = KraidSinkRockPlacementRomByte(rom, code) == 0x60;
             AssertEqual(1, state.SinkTableEventCount, "Every callback including RTS counts once");
             AssertEqual(empty ? 0 : 1, requests.Count, "Sinking callback mutation count");
             AssertEqual(empty ? 0 : 1, enemies.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None),
                 "Sinking callback rock count");
             if (empty) continue;
-            ushort expectedX = (ushort)(rom.ReadByte(code + 1) | rom.ReadByte(code + 2) << 8);
+            ushort expectedX = (ushort)(KraidSinkRockPlacementRomByte(rom, code + 1) | KraidSinkRockPlacementRomByte(rom, code + 2) << 8);
             AssertEqual(expectedX, enemies.EnemyProjectiles[^1].Position.X.Whole, "Production sinking rock matches native immediate");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink rock placement")]
+    private static byte KraidSinkRockPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
     private static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
+        ushort Word(int a) => (ushort)(KraidSinkScheduleRomByte(rom, a) | KraidSinkScheduleRomByte(rom, a + 1) << 8);
         var callbacks = new Dictionary<ushort, ushort>();
         for (int address = 0xa7c5e7; ; address += 6)
         {
@@ -119,10 +125,13 @@ internal static partial class Program
             AssertEqual(crumble ? 1 : 0, enemies.EnemyProjectiles.Count(p => p.Kind != RoomEnemyProjectileKind.None), "Exact native rock count");
             if (!crumble) continue;
             int code = 0xa70000 | callback;
-            AssertEqual(new KraidPlmRequest(new(rom.ReadByte(code + 17), rom.ReadByte(code + 18)), (PlmHeaderId)Word(code + 19)), requests[0], "Native callback inline PLM arguments");
+            AssertEqual(new KraidPlmRequest(new(KraidSinkScheduleRomByte(rom, code + 17), KraidSinkScheduleRomByte(rom, code + 18)), (PlmHeaderId)Word(code + 19)), requests[0], "Native callback inline PLM arguments");
         }
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink schedule")]
+    private static byte KraidSinkScheduleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     private static CartridgeReadGuard NewKraidSinkGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

@@ -42,7 +42,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new DeadTorizoCorpseDefinitionReadGuard(rom));
+            NewDeadTorizoCorpseDefinitionReadGuard(rom));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadTorizo", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -80,18 +80,8 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class DeadTorizoCorpseDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa9dd58 and < 0xa9dd68 or
-                >= 0xa9e228 and < 0xa9e22a
-                ? throw new InvalidOperationException(
-                    $"Dead Torizo attempted migrated corpse metadata read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDeadTorizoCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa9dd58 and < 0xa9dd68 or >= 0xa9e228 and < 0xa9e22a,
+                address => $"Dead Torizo attempted migrated corpse metadata read ${address:X6}.");
 }

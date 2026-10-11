@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon Mode-7 characters")]
     private static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
@@ -23,7 +24,7 @@ internal static partial class Program
             CreditsPresentationExtractor.Extract(source)));
 
         var nativeBus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-        var installedBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+        var installedBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var nativeScene = CreateRetailEndingFixture(nativeBus, nativeAudio, 3, 0);
@@ -99,7 +100,7 @@ internal static partial class Program
                         image.Pixels, image.Palette);
                 }
                 EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
-                var uploadBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var upload = new EndingRewardGraphicsUpload(uploadBus, stock.RewardIcon);
                 var partialVram = new SnesVram();
                 partialVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5,
@@ -115,7 +116,7 @@ internal static partial class Program
                     $"{name} rebinds eight completed chunks without touching pending VRAM");
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
                     $"{name} partial upload never reads compressed ROM icon art");
-                var sceneBus = new EndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
+                var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom));
                 var sceneAudio = new CartridgeAudioState();
                 var scene = CreateRetailEndingFixture(sceneBus, sceneAudio, 3, 0);
                 scene.BindStaffCredits(credits);

@@ -11,7 +11,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         var cgram = new SnesCgram();
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
         var actor = enemies.Slots[0];
         actor.EnemyDefinitionPointer = EnemyDefinitionId.BombTorizo;

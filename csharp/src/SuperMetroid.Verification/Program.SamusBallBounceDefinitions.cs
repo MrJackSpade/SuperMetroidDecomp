@@ -10,7 +10,7 @@ internal static partial class Program
         ushort fraction = Word(SamusMovementRomDataVerticalMotionConstants.BallBounceSubspeed);
         AssertEqual(whole, SamusVerticalMotionDefinitions.BallBounceSpeed, "Native ball rebound whole definition");
         AssertEqual(fraction, SamusVerticalMotionDefinitions.BallBounceSubspeed, "Native ball rebound fraction definition");
-        var guard = new ImpulsePoseReadGuard(rom);
+        var guard = NewImpulsePoseReadGuard(rom);
         int cases = 0;
         foreach (bool spring in new[] { false, true })
         foreach (bool left in new[] { false, true })

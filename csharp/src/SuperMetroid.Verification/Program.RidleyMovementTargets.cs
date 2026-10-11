@@ -31,7 +31,7 @@ internal static partial class Program
         var grab = Table(EnemyRomTablePointers.Ridley.HealthMovementDivisorIndexWords, RidleyMovementTargets.GrabDivisorIndexes, 4);
         var enemies = new RoomEnemySystem();
         const BindingFlags instance = BindingFlags.NonPublic | BindingFlags.Instance;
-        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new SlopeHeightNoReadBus());
+        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, NewSlopeHeightNoReadBus());
         var beginCarry = typeof(RoomEnemySystem).GetMethod("BeginNorfairRidleyCarry", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>();
         var readDivisor = typeof(RoomEnemySystem).GetMethod("ReadRidleyHealthMovementDivisorIndex", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -106,7 +106,7 @@ internal static partial class Program
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
-        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, new RidleyGrabDivisorReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", instance)!.SetValue(enemies, NewRidleyGrabDivisorReadGuard(rom));
         var approach = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", instance)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(256, 256)) };
@@ -128,12 +128,9 @@ internal static partial class Program
         Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }
 
-    private sealed class RidleyGrabDivisorReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa6bb4e and < 0xa6bb56
-            ? throw new InvalidOperationException("Unexpected migrated Ridley grab divisor read.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected Ridley target bus write.");
-    }
+    private static CartridgeReadGuard NewRidleyGrabDivisorReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa6bb4e and < 0xa6bb56,
+                _ => "Unexpected migrated Ridley grab divisor read.")
+            .RejectWrites(_ => "Unexpected Ridley target bus write.");
 }

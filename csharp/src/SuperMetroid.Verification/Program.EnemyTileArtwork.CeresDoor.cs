@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door tiles, palettes and Mode-7 transfer records")]
     private static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
         string directory, EnemyTileArtworkCatalog stock)
     {

@@ -8,7 +8,7 @@ internal static partial class Program
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
-        var forbiddenBus = new EnemyProjectileMechanicsFallbackForbiddenBus();
+        var forbiddenBus = NewEnemyProjectileMechanicsFallbackForbiddenBus();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, forbiddenBus);
         MethodInfo read = typeof(RoomEnemySystem).GetMethod(
@@ -59,7 +59,7 @@ internal static partial class Program
             "projectile owner audit covers optional touch and shot entries");
         AssertTrue(checksum != 0,
             "projectile owner audit consumes every nonzero definition entry");
-        AssertEqual(0, forbiddenBus.ReadAttempts,
+        AssertEqual(0, forbiddenBus.ForbiddenReadAttempts,
             "projectile definition entries never use the removed mechanics fallback");
 
         var unknown = new RoomEnemyProjectileSlot(0)
@@ -73,7 +73,7 @@ internal static partial class Program
             "uncatalogued projectile mechanics surface an InvalidDataException");
         AssertTrue(unknownException.InnerException!.Message.Contains("uncompiled", StringComparison.Ordinal),
             "uncatalogued projectile mechanics identify the missing compiled owner");
-        AssertEqual(0, forbiddenBus.ReadAttempts,
+        AssertEqual(0, forbiddenBus.ForbiddenReadAttempts,
             "uncatalogued projectile mechanics fail without probing cartridge data");
 
         Console.WriteLine(
@@ -82,21 +82,8 @@ internal static partial class Program
             "fallback; unknown entries fail explicitly.");
     }
 
-    private sealed class EnemyProjectileMechanicsFallbackForbiddenBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Projectile mechanics attempted forbidden cartridge read ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException(
-                $"Projectile mechanics attempted unexpected write ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewEnemyProjectileMechanicsFallbackForbiddenBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Projectile mechanics attempted forbidden cartridge read ${address:X6}.")
+            .RejectWrites(address => $"Projectile mechanics attempted unexpected write ${address:X6}.");
 }

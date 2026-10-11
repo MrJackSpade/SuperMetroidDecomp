@@ -23,7 +23,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies,
-                new ElevatorInputReadGuard(rom));
+                NewElevatorInputReadGuard(rom));
             typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(
                 enemies,
                 (Func<bool>)(() => true));
@@ -74,15 +74,8 @@ internal static partial class Program
         foreach (ushort offset in new ushort[] { 1, 3, 4, 5, 0x100, 0x102, 0xfffe, 0xffff })
             AssertThrows<InvalidDataException>(() => ElevatorActorDefinitions.RequiredDirectionInput(offset), "elevator invalid full-word direction offset");
     }
-    private sealed class ElevatorInputReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa394e2 and < 0xa394e6
-            ? throw new InvalidOperationException(
-                $"Elevator actor attempted migrated input-mask read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewElevatorInputReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa394e2 and < 0xa394e6,
+                address => $"Elevator actor attempted migrated input-mask read ${address:X6}.");
 }

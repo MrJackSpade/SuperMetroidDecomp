@@ -24,7 +24,7 @@ internal static partial class Program
         var level = new RoomLevelData(
             new Extent16<RoomBlocks>(1, 1), [0], [0], [0], [], doorListPointer: landingDoors.Pointer);
         CartridgeDoorHeader resolved = level.ResolveDoorCollision(
-            new DoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door!;
+            NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door!;
         AssertEqual(DoorDefinitions.Get(landingDoors.DoorPointers.Span[0]), resolved,
             "production collision resolves compiled BTS index without a bus read");
         AssertEqual(resolved, level.PendingDoorTransition!,
@@ -52,15 +52,9 @@ internal static partial class Program
     private static ushort ReadVerificationWord(ISnesAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
 
-    private sealed class DoorNoReadAddressSpace : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException(
-            $"Compiled door collision read address ${address:X6}.");
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Compiled door collision wrote address ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewDoorNoReadAddressSpace() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Compiled door collision read address ${address:X6}.")
+            .RejectWrites(address => $"Compiled door collision wrote address ${address:X6}.");
 
 }

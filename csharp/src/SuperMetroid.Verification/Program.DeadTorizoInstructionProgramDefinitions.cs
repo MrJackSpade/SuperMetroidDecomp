@@ -25,7 +25,8 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new DeadTorizoInstructionReadGuard(rom);
+        bool sawPresentationWord = false;
+        var guard = NewDeadTorizoInstructionReadGuard(rom, () => sawPresentationWord = true);
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -54,7 +55,7 @@ internal static partial class Program
                 rom, DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord),
             corpse.SpritemapPointer,
             "compiled Dead Torizo spritemap selector matches the cartridge");
-        AssertTrue(!guard.SawPresentationWord,
+        AssertTrue(!sawPresentationWord,
             "Dead Torizo execution uses the compiled spritemap selector");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids both compiled Dead Torizo mechanics words");
@@ -99,30 +100,16 @@ internal static partial class Program
             source.ReadByte(0xa90000 | address) |
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class DeadTorizoInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal bool SawPresentationWord { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (DeadTorizoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Dead Torizo mechanics byte ${address:X6}.");
-            }
-
-            int presentation =
-                0xa90000 | DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord;
-            if (address == presentation || address == presentation + 1)
-                SawPresentationWord = true;
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDeadTorizoInstructionReadGuard(ISnesAddressSpace source,
+        Action sawPresentationWord) =>
+        new CartridgeReadGuard(source)
+            .Forbid(DeadTorizoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Dead Torizo mechanics byte ${address:X6}.")
+            .Observe(address =>
+                {
+                    int presentation =
+                        0xa90000 | DeadTorizoInstructionProgramDefinitionsTooling.PresentationWord;
+                    return address == presentation || address == presentation + 1;
+                },
+                _ => sawPresentationWord());
 }

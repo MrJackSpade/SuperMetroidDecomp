@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile presentation spritemap pointers")]
     private static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
         using var temporary = new TestTempDirectory("map-catalog");

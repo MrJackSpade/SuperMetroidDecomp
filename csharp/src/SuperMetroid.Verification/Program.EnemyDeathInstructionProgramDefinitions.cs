@@ -43,7 +43,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new EnemyDeathInstructionReadGuard(rom);
+        var guard = NewEnemyDeathInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         (ushort Variant, ushort Initial, int CallsUntilTail, ushort Sound)[] programs =
@@ -110,7 +110,7 @@ internal static partial class Program
                 $"death variant {program.Variant} executes the compiled respawn/delete tail");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "EnemyDeath execution performs no live spritemap operand reads");
         AssertEqual(EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "EnemyDeath executes every native visual operand");
@@ -124,7 +124,7 @@ internal static partial class Program
             AssertEqual(ReadVerificationWord(rom, 0x860000 | address), selector,
                 "EnemyDeath compiled selector matches the cartridge");
         }
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "generic enemy-death presentation needs no live cartridge reads");
+        AssertEqual(0, guard.ObservedWords.Count, "generic enemy-death presentation needs no live cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids all compiled generic enemy-death mechanics bytes");
         AssertThrows<InvalidDataException>(
@@ -166,44 +166,10 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class EnemyDeathInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (EnemyDeathInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled generic enemy-death mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < EnemyDeathInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        EnemyDeathInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyDeathInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(EnemyDeathInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled generic enemy-death mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
+                EnemyDeathInstructionProgramDefinitions.PresentationWordAddress);
 }

@@ -43,7 +43,7 @@ internal static partial class Program
 
     private static void VerifyPhantoonDeathWaveInitialization()
     {
-        var enemies = CreatePhantoonInstructionSystem(new SlopeHeightNoReadBus());
+        var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
         var boss = enemies.Phantoon!;
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(9);
         boss.Mouth!.VariableD = 3072;

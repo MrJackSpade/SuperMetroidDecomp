@@ -227,7 +227,7 @@ internal static partial class Program
     }
 
     private static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
-        EndingObjectArtworkCatalog stock, EndingObjectSourceReadGuard guard)
+        EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingExplosionSpriteFormat.FileName;
         string stockPath = Path.Combine(installation.EndingObjectDirectory, name);

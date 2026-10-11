@@ -10,7 +10,7 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
         var dispatch = typeof(RoomEnemySystem).GetMethod("DispatchDeadSidehopperState", flags)!
             .CreateDelegate<Action<RoomEnemySlot, DeadSidehopperEnemyState, SamusState?, RoomLevelData?, ushort>>(enemies);
         var slot = enemies.Slots[0];

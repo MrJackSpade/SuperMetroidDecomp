@@ -40,7 +40,7 @@ internal static partial class Program
             () => DraygonBurialEvirDefinitions.ForEntry(6),
             "Draygon burial Evir entry past table");
 
-        var guarded = new DraygonBurialEvirReadGuard(rom);
+        var guarded = NewDraygonBurialEvirReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
@@ -111,17 +111,8 @@ internal static partial class Program
         return (unchecked((ushort)(fixedPosition >> 16)), unchecked((ushort)fixedPosition));
     }
 
-    private sealed class DraygonBurialEvirReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa5a1af and < 0xa5a1f7
-                ? throw new InvalidOperationException(
-                    $"Draygon burial Evir attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDraygonBurialEvirReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa5a1af and < 0xa5a1f7,
+                address => $"Draygon burial Evir attempted migrated definition read ${address:X6}.");
 }

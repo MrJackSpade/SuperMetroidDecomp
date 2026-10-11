@@ -137,8 +137,8 @@ internal static partial class Program
         // Layer-one fractions $090F/$0913 are written only by camera movement, so they
         // survive game over into the reloaded room.
         var deathCamera = gameOverProbe.RuntimeForVerification.Camera!;
-        PrivateState.SetProperty(deathCamera, nameof(deathCamera.XSubposition), (ushort)0xbfff);
-        PrivateState.SetProperty(deathCamera, nameof(deathCamera.YSubposition), (ushort)0x9c00);
+        PrivateState.SetProperty(deathCamera, nameof(deathCamera.Position.X.Fraction), (ushort)0xbfff);
+        PrivateState.SetProperty(deathCamera, nameof(deathCamera.Position.Y.Fraction), (ushort)0x9c00);
         SetField(gameOverProbe, "deathFadeBrightness", (byte)1);
         SetField(gameOverProbe, "deathFadeCounter", 0);
         SetState(gameOverProbe, SuperMetroidGameState.DeathFinalBlackOut);
@@ -159,8 +159,8 @@ internal static partial class Program
             "#1275 Yes on a $1F save dispatches the Ceres loader directly");
         gameOverProbe.Step(0);
         var reloadedCamera = gameOverProbe.RuntimeForVerification!.Camera!;
-        AssertEqual((ushort)0xbfff, reloadedCamera.XSubposition, "#1275 layer-one X fraction survives the game-over reload");
-        AssertEqual((ushort)0x9c00, reloadedCamera.YSubposition, "#1275 layer-one Y fraction survives the game-over reload");
+        AssertEqual((ushort)0xbfff, reloadedCamera.Position.X.Fraction, "#1275 layer-one X fraction survives the game-over reload");
+        AssertEqual((ushort)0x9c00, reloadedCamera.Position.Y.Fraction, "#1275 layer-one Y fraction survives the game-over reload");
 
         // Exercise the same atomic saver used at the escape blackout. A boss flag
         // must be captured alongside $22, not erased to manufacture a fresh station.

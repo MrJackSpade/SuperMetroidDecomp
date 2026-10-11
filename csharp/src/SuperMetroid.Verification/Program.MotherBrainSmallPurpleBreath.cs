@@ -49,7 +49,7 @@ internal static partial class Program
         // 8+8+10+10+11+11+12+12 frames, then $86:CAEE clears the flag and Delete removes it.
         for (int frame = 0; frame < 120 && Breaths() != 0; frame++)
             runtime.Enemies.StepEnemyProjectileInstructions(runtime.LevelData!, runtime.Samus,
-                runtime.Camera!.XPosition, runtime.Camera.YPosition);
+                runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y);
         AssertEqual(0, Breaths(), "the small breath deletes itself after its eight poses");
         AssertTrue(!state.SmallPurpleBreathActive, "its last instruction clears the active flag");
 

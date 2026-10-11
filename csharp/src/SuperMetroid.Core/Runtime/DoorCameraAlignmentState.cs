@@ -13,27 +13,22 @@ namespace SuperMetroid.Core.Runtime;
 /// following call that observes an already aligned coordinate.
 /// </remarks>
 internal readonly record struct DoorCameraAlignmentState(
-    ushort CameraX,
-    ushort CameraY,
+    Position16<RoomPixels> CameraPosition,
     bool Completed)
 {
     /// <summary>Executes one exact coordinate step for the supplied bank-$83 door direction.</summary>
     public static DoorCameraAlignmentState Step(
         DoorDirection direction,
-        ushort cameraX,
-        ushort cameraY)
+        Position16<RoomPixels> camera)
     {
         bool alignsX = SuperMetroidRuntime.DoorTransitionAlignsX(direction);
-        ushort coordinate = alignsX ? cameraX : cameraY;
+        ushort coordinate = alignsX ? camera.X : camera.Y;
         byte lowByte = unchecked((byte)coordinate);
         if (lowByte == 0)
-            return new DoorCameraAlignmentState(cameraX, cameraY, Completed: true);
+            return new DoorCameraAlignmentState(camera, Completed: true);
 
-        coordinate = (lowByte & 0x80) != 0
-            ? unchecked((ushort)(coordinate + 1))
-            : unchecked((ushort)(coordinate - 1));
-        return alignsX
-            ? new DoorCameraAlignmentState(coordinate, cameraY, Completed: false)
-            : new DoorCameraAlignmentState(cameraX, coordinate, Completed: false);
+        short step = (lowByte & 0x80) != 0 ? (short)1 : (short)-1;
+        Offset16<RoomPixels> movement = alignsX ? new(step, 0) : new(0, step);
+        return new DoorCameraAlignmentState(camera + movement, Completed: false);
     }
 }

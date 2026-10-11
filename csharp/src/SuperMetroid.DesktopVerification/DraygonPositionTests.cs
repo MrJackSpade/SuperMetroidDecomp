@@ -21,19 +21,19 @@ internal static partial class Program
         {
             var before = runtime.Enemies.Draygon!;
             var window = DraygonMainScreenWindow.Select(before.Body.XPosition, before.Body.YPosition,
-                runtime.Camera!.XPosition, runtime.Camera.YPosition, ((ushort)before.Body.Properties & 0x200) != 0);
+                runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y, ((ushort)before.Body.Properties & 0x200) != 0);
             loaded.Game.Step(0);
             // The graphics-drawn hook uses the final camera, exactly like appendage OAM,
             // not the camera sampled before Samus movement/scrolling earlier in the frame.
-            ushort cameraX = runtime.Camera!.XPosition;
-            ushort cameraY = runtime.Camera.YPosition;
+            ushort cameraX = runtime.Camera!.PixelPosition.X;
+            ushort cameraY = runtime.Camera.PixelPosition.Y;
             var boss = runtime.Enemies.Draygon ?? throw new InvalidOperationException("Fixture must remain in Draygon's encounter.");
             verifiedTilemapWords += VerifyDraygonBodyTilemap(runtime);
             // Independent transcription of $A5:9342, including unsigned PPU-word wrapping.
             ushort expectedX = unchecked((ushort)(boss.BodyGraphicsXDisplacement + cameraX - boss.Body.XPosition - 450));
             ushort expectedY = unchecked((ushort)(boss.BodyGraphicsYDisplacement + cameraY - boss.Body.YPosition - 192));
-            if (runtime.BackgroundScroll.Bg2HorizontalScroll != expectedX || runtime.BackgroundScroll.Bg2VerticalScroll != expectedY)
-                throw new InvalidOperationException($"Draygon frame {frame}: body ({boss.Body.XPosition},{boss.Body.YPosition}), BG2 actual ({runtime.BackgroundScroll.Bg2HorizontalScroll},{runtime.BackgroundScroll.Bg2VerticalScroll}), native ({expectedX},{expectedY}).");
+            if (runtime.BackgroundScroll.Bg2Scroll.X != expectedX || runtime.BackgroundScroll.Bg2Scroll.Y != expectedY)
+                throw new InvalidOperationException($"Draygon frame {frame}: body ({boss.Body.XPosition},{boss.Body.YPosition}), BG2 actual ({runtime.BackgroundScroll.Bg2Scroll.X},{runtime.BackgroundScroll.Bg2Scroll.Y}), native ({expectedX},{expectedY}).");
             if (frame > 0)
             {
                 var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];

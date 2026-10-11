@@ -42,7 +42,7 @@ internal static partial class Program
             }
             AssertTrue(doorX >= 0, "retail neighbor has a reciprocal Moat door");
             runtime.LoadCartridgeRoomForDebug(source,
-                cameraX: (ushort)(doorX / 16 * 256), cameraY: (ushort)(doorY / 16 * 256));
+                camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.FacingRightNormalPose;
@@ -104,7 +104,7 @@ internal static partial class Program
                 PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", 256, 224,
                     pixels);
             }
-            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
+            Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
         }
     }
 }

@@ -34,7 +34,7 @@ public static partial class GameplayDisplayCapture
             }
             registers = registers with
             {
-                Bg2X = (ushort)(ppu.Bg1HorizontalScroll & 15), Bg2Y = (ushort)(ppu.Bg1VerticalScroll & 15),
+                Bg2X = (ushort)(ppu.Bg1Scroll.X & 15), Bg2Y = (ushort)(ppu.Bg1Scroll.Y & 15),
                 Bg2WidthTiles = 64, Bg2HeightTiles = 32, Bg2TilemapWord = SnesPpuLayout.GameplayBg2TilemapWord,
             };
         }
@@ -84,7 +84,7 @@ public static partial class GameplayDisplayCapture
         // restoration keeps ownership until phase five finally unfreezes gameplay.
         bool closed = settingUp || restoring || samus.Xray.BeamPhase == XrayBeamPhase.NoBeam;
         var lines = closed ? Enumerable.Repeat(new XrayWindowLine(255, 0), SnesPpuLayout.ScreenHeightPixels).ToArray()
-            : SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1XPosition, ppu.Layer1YPosition);
+            : SnesGameplayFrameRenderer.CaptureXrayWindowLines(runtime.AddressSpace, samus, ppu.Layer1Position.X, ppu.Layer1Position.Y);
         var layer = new GameplayColorMathRenderLayer(gameplay,
             lines,
             reveal, control, mode != XrayRoomBlendMode.Fireflea, red, green, blue, sub);

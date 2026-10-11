@@ -201,7 +201,7 @@ internal static partial class Program
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(128, 0);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon);

@@ -12,6 +12,7 @@ internal static partial class Program
         Suite(nameof(VerifyFieldIdentityRestorationIgnoresMetadataOrder), () => VerifyFieldIdentityRestorationIgnoresMetadataOrder());
         Suite(nameof(VerifyLegacyRoomVisualLayoutState), () => VerifyLegacyRoomVisualLayoutState());
         Suite(nameof(VerifyLegacyMutableMemoryGraph), () => VerifyLegacyMutableMemoryGraph());
+        Suite(nameof(VerifySpatialDebuggerMigrations), () => VerifySpatialDebuggerMigrations());
         MethodInfo expected = typeof(Program).GetMethod(nameof(DebuggerSignatureProbe), BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (bool wrongParameter in new[] { false, true })
         {
@@ -260,7 +261,7 @@ internal static partial class Program
         string[] postPublicationFields = ["waitingForDownwardsElevator", "downwardsElevatorDelayTimer",
             "<DoorLoaderProgress>k__BackingField", "pauseFadeDelay", "bootMainLoopCarry",
             // #1275: time-up whiteout and the layer-one fractions that outlive a runtime.
-            "timeUpPaletteFade", "retainedLayer1XSubposition", "retainedLayer1YSubposition"];
+            "timeUpPaletteFade", "retainedLayer1Position"];
         FieldInfo[] allGameFields = gameFields;
         gameFields = gameFields.Where(field => !postPublicationFields.Contains(field.Name)).ToArray();
         AssertEqual(allGameFields.Length - postPublicationFields.Length, gameFields.Length,

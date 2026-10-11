@@ -96,23 +96,23 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
         var samus = new SamusState { XPosition = 1312, YPosition = 128 };
         run(body, samus, 1280);
-        camera.SetPosition(1280, 0);
+        camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
-        AssertEqual((ushort)1280, camera.XPosition, "melting cutscene camera cannot show left of screen five");
+        AssertEqual((ushort)1280, camera.PixelPosition.X, "melting cutscene camera cannot show left of screen five");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(4), "bridge threshold locks screen four");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(5), "screen five remains visible");
         samus.XPosition = 1311;
         run(body, samus, 1280);
-        camera.SetPosition(1280, 0);
+        camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
-        AssertEqual((ushort)1279, camera.XPosition, "before threshold camera remains free to move left");
+        AssertEqual((ushort)1279, camera.PixelPosition.X, "before threshold camera remains free to move left");
         samus.XPosition = 1312;
         body.XPosition = 1600;
         run(body, samus, 1280);
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex, "real bridge collapse begins");
-        camera.SetPosition(1280, 0);
+        camera.SetPosition(new Position16<RoomPixels>(1280, 0));
         camera.MoveLeft(1);
-        AssertEqual((ushort)1280, camera.XPosition, "collapse frame retains the native camera lock");
+        AssertEqual((ushort)1280, camera.PixelPosition.X, "collapse frame retains the native camera lock");
         Console.WriteLine("Crocomire bridge threshold preserves native left camera boundary at X=1280.");
 
         // Revised interpretation: the later skeleton scene on the left. Begin at its
@@ -128,27 +128,27 @@ internal static partial class Program
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(1), "left cutscene retains red screen one");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(2), "left cutscene retains visible screen two");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(3), "left cutscene closes screen three");
-        var point = new SamusCameraPoint(639, 0, 128, 0);
+        var point = FixedPosition<RoomPixels>.FromWords(639, 0, 128, 0);
         // Runtime currently selects zero here; the cartridge writes six. Check
         // whether that known difference can explain the reported wall overrun.
         foreach (CameraDistanceMode distance in new[] { CameraDistanceMode.NormalTracking, CameraDistanceMode.RightEdge })
         {
             var context = new HorizontalCameraContext(0, SamusMovementType.Standing, 0, 4, distance);
-            camera.SetPosition(544, 0);
+            camera.SetPosition(new Position16<RoomPixels>(544, 0));
             for (int frame = 0; frame < 16; frame++)
                 camera.TrackMovedSamusHorizontally(point, point, context);
-            AssertEqual((ushort)512, camera.XPosition, "left cutscene autoscroll settles to native screen two");
-            camera.TrackMovedSamusHorizontally(point, point with { XPosition = 638 }, context);
-            AssertEqual((ushort)512, camera.XPosition, "moving left cannot expose the far side of the spike wall");
-            camera.TrackMovedSamusHorizontally(point, point with { XPosition = 640 }, context);
-            AssertEqual((ushort)512, camera.XPosition, "moving right cannot expose the far side of the holding wall");
-            camera.TrackMovedSamusHorizontally(point with { XPosition = 750 }, point with { XPosition = 751 }, context);
-            AssertEqual((ushort)512, camera.XPosition, "rightward target near holding wall stays within screen two");
+            AssertEqual((ushort)512, camera.PixelPosition.X, "left cutscene autoscroll settles to native screen two");
+            camera.TrackMovedSamusHorizontally(point, point.WithX(point.X.WithWhole(638)), context);
+            AssertEqual((ushort)512, camera.PixelPosition.X, "moving left cannot expose the far side of the spike wall");
+            camera.TrackMovedSamusHorizontally(point, point.WithX(point.X.WithWhole(640)), context);
+            AssertEqual((ushort)512, camera.PixelPosition.X, "moving right cannot expose the far side of the holding wall");
+            camera.TrackMovedSamusHorizontally(point.WithX(point.X.WithWhole(750)), point.WithX(point.X.WithWhole(751)), context);
+            AssertEqual((ushort)512, camera.PixelPosition.X, "rightward target near holding wall stays within screen two");
         }
         state.DeathSequenceIndex = CrocomireDeathPhase.ClearWallAndOpenScrolls;
         run(body, samus, 512);
         camera.MoveLeft(1);
-        AssertEqual((ushort)511, camera.XPosition, "left camera unlocks at the native completion phase");
+        AssertEqual((ushort)511, camera.PixelPosition.X, "left camera unlocks at the native completion phase");
         Console.WriteLine("Left skeleton cutscene: existing code locks X=512 for both directions and unlocks at completion; reported overrun not reproduced.");
     }
 }

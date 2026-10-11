@@ -30,16 +30,16 @@ public static class SuperMetroidRuntimeFrameRenderer
         GameplayPpuRenderSnapshot displayedPpu = runtime.DisplayedGameplayPpu;
         RoomShakeFrameResult shake = displayedPpu.RoomShake;
         ushort bg1HorizontalScroll = AddShake(
-            displayedPpu.Bg1HorizontalScroll,
+            displayedPpu.Bg1Scroll.X,
             shake.Bg1X);
         ushort bg1VerticalScroll = AddShake(
-            displayedPpu.Bg1VerticalScroll,
+            displayedPpu.Bg1Scroll.Y,
             shake.Bg1Y);
         ushort bg2HorizontalScroll = AddShake(
-            displayedPpu.Bg2HorizontalScroll,
+            displayedPpu.Bg2Scroll.X,
             shake.Bg2X);
         ushort bg2VerticalScroll = AddShake(
-            displayedPpu.Bg2VerticalScroll,
+            displayedPpu.Bg2Scroll.Y,
             shake.Bg2Y);
         RoomLayer3FxRenderSnapshot? displayedRoomFx = runtime.DisplayedRoomLayer3Fx;
 
@@ -117,7 +117,7 @@ public static class SuperMetroidRuntimeFrameRenderer
             bool kraidOwnsBg2 = kraid is { OwnsBg2Tilemap: true };
             ScrollingSkyState? scrollingSky = runtime.ScrollingSky;
             ushort[]? skyHorizontalScrolls = scrollingSky is { HorizontalHdmaConfigured: true } ? scrollingSky.BuildGameplayHorizontalScrolls(
-                runtime.Camera?.YPosition
+                runtime.Camera?.PixelPosition.Y
                     ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")) : null;
             if (skyHorizontalScrolls is not null && shake.Bg2X != 0)
             {
@@ -162,7 +162,7 @@ public static class SuperMetroidRuntimeFrameRenderer
                     : scrollingSky is not null
                         ? AddShake(scrollingSky.VerticalScroll, shake.Bg2Y)
                         : runtime.TourianStatues.Enabled
-                            ? unchecked((ushort)(displayedPpu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset + shake.Bg2Y))
+                            ? unchecked((ushort)(displayedPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset + shake.Bg2Y))
                             : bg2VerticalScroll,
                 bg2HorizontalScrollByLine:
                     runtime.Enemies.Phantoon?.Wave.DisplayedScrolls ?? lavaAcidBg2HorizontalScrolls ?? waterBg2HorizontalScrolls ?? skyHorizontalScrolls,
@@ -215,8 +215,8 @@ public static class SuperMetroidRuntimeFrameRenderer
                 frame,
                 runtime.AddressSpace,
                 eyeBeam,
-                displayedPpu.Layer1XPosition,
-                displayedPpu.Layer1YPosition);
+                displayedPpu.Layer1Position.X,
+                displayedPpu.Layer1Position.Y);
         }
 
         // The bank-$88 Power Bomb objects own a final PPU color-math window, not OAM or
@@ -228,8 +228,8 @@ public static class SuperMetroidRuntimeFrameRenderer
             frame,
             runtime.AddressSpace,
             runtime.BombProjectiles.PowerBombExplosion,
-            displayedPpu.Layer1XPosition,
-            displayedPpu.Layer1YPosition);
+            displayedPpu.Layer1Position.X,
+            displayedPpu.Layer1Position.Y);
 
         // Bank $85 temporarily owns BG3 and disables gameplay color math while an item
         // message is active. Its scanline-window result belongs above every room-specific

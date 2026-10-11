@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Production capture and legacy composition agree through combined effect updates.</summary>
 internal static class RuntimeOverlayTests
@@ -19,7 +20,7 @@ internal static class RuntimeOverlayTests
         runtime.RunNmi(0, true);
         long sequence = 0;
         Check("Ceres mixed-mode initial publication");
-        runtime.LoadCartridgeRoomForDebug(OverlayFixtureRooms.AlphaPowerBomb, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(OverlayFixtureRooms.AlphaPowerBomb, new Position16<RoomPixels>(0, 0));
         runtime.RunNmi(0, true);
         Check("ordinary room without overlays");
 

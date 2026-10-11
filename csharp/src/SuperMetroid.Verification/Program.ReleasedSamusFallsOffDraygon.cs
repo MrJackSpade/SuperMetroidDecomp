@@ -17,7 +17,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(0xda60, cameraX: 256, cameraY: 288);
+        runtime.LoadCartridgeRoomForDebug(0xda60, camera: new Position16<RoomPixels>(256, 288));
         DraygonEnemyState draygon = runtime.Enemies.Draygon!;
         // Stage the end of the intro rather than replaying the dance; the fight's hitboxes
         // carry Draygon's own touch routine.
@@ -43,7 +43,7 @@ internal static partial class Program
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         // EnemyMain processes only on-screen enemies; frame the swooping body.
-        runtime.Camera!.SetPosition(0, 0x0100);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 0x0100));
         runtime.StepFrame(0);
 
         AssertEqual(DraygonAiFunction.Dying, draygon.Function, "touching the dead Draygon runs its death reaction");

@@ -18,7 +18,7 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         AssertTrue(SuperMetroidRuntimeFrameRenderer.Render(runtime).AsSpan().SequenceEqual(
             SoftwareLayeredSnapshotRenderer.Render(GameplayDisplayCapture.TryCaptureFrame(runtime)!)), "Ceres Mode-7 capture parity");
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.RunNmi(0, true);
 
         // Chainsaw slot four stores a word at $68: WOBJLOG receives the low byte and TM
@@ -92,7 +92,7 @@ internal static partial class Program
         // following slice only exercises one room and its pause/fade dispatch states.
         foreach (SuperMetroidGame game in new[] { legacy, packets })
         {
-            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, 0, 0);
+            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
             game.RuntimeForVerification!.RunNmi(0, true);
         }
         bool sawPause = false;

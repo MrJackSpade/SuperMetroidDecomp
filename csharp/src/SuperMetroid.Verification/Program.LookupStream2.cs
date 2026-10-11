@@ -1149,14 +1149,16 @@ internal static partial class Program
             ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + (int)mode);
             AssertEqual(nativeOffset, HorizontalCameraTargetDefinitions.Offset(mode, right), "Native mode/facing target offset");
             var camera = new ScrollBoundaryCamera(grid);
-            camera.SetPosition(100, 0);
-            camera.TrackMovedSamusHorizontally(new(200, 0, 100, 0), new(204, 0, 100, 0), context);
-            AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealXPosition, "Actual camera target preserves mode and reversal");
-            AssertEqual((ushort)5, camera.CameraXSpeed, "Target dispatch preserves movement speed calculation");
+            camera.SetPosition(new Position16<RoomPixels>(100, 0));
+            camera.TrackMovedSamusHorizontally(
+                FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0), context);
+            AssertEqual(unchecked((ushort)(204 - nativeOffset)), camera.IdealPosition.X, "Actual camera target preserves mode and reversal");
+            AssertEqual((ushort)5, camera.Speed.X.WholeWord, "Target dispatch preserves movement speed calculation");
         }
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
-            new(200, 0, 100, 0), new(204, 0, 100, 0), new(0, 0, 0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
+            FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0),
+            new(0, 0, 0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
     private static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)

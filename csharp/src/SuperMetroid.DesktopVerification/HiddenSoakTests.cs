@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
@@ -35,7 +36,7 @@ internal static partial class Program
             Check(game.GameState == SuperMetroidGameState.MainGameplay, "soak startup failed");
             var runtime = game.RuntimeForVerification ?? throw new InvalidOperationException("Soak has no active runtime.");
             ushort room = paused ? HiddenSoakRooms.MaridiaTube : HiddenSoakRooms.AlphaPowerBomb;
-            runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.RunNmi(0, true);
             Step(0);
             if (paused) Step((ushort)SnesButton.Start);

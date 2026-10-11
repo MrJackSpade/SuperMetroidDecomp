@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailRidleyCaptureTests
 {
@@ -15,7 +16,7 @@ internal static class RetailRidleyCaptureTests
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
         runtime.RunNmi(0, true);
         var ridley = runtime.Enemies.CeresRidley!;
         var retained = new List<(RenderFrameSnapshot Packet, Rgba32[] Expected)>();

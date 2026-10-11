@@ -85,7 +85,7 @@ internal static partial class Program
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
         samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
         samus.XPosition=120;samus.YPosition=(ushort)(512-samus.Kinematics.YRadius);samus.InputLocked=false;
-        runtime.Camera!.SetPosition(0,384);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 384));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
         var renderer=new CartridgeAudioRenderer(installation.LoadAudio());

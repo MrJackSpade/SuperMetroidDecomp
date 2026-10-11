@@ -48,14 +48,14 @@ public static partial class GameplayDisplayCapture
                 AddLayer(SnesGameplayFrameRenderer.CaptureCeresHaze(runtime.CeresHaze.IsRed,
                     runtime.CeresHaze.Intensity, runtime.MapPresentation?.RoomFxPaletteBlends));
             if (runtime.DisplayedMorphBallEyeBeam is { } eye)
-                AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1XPosition, ppu.Layer1YPosition));
+                AddLayer(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(runtime.AddressSpace, eye, ppu.Layer1Position.X, ppu.Layer1Position.Y));
             if (runtime.Enemies.MotherBrain is { } motherBrain)
                 AddLayer(SnesGameplayFrameRenderer.CaptureMotherBrainRainbowBeam(motherBrain.RainbowBeamHdma));
         }
         // Preserve the reference ordering, including the effects which remain enabled
         // during the door IRQ. Message glyphs precede the suit's final color window.
         AddLayer(SnesGameplayFrameRenderer.CapturePowerBombColorMath(runtime.AddressSpace,
-            runtime.BombProjectiles.PowerBombExplosion, ppu.Layer1XPosition, ppu.Layer1YPosition));
+            runtime.BombProjectiles.PowerBombExplosion, ppu.Layer1Position.X, ppu.Layer1Position.Y));
         AddLayer(GameplayMessageBoxRenderer.Capture(runtime.MessageBox));
         AddLayer(SamusSuitPickupRenderer.Capture(runtime.SuitPickup));
         return new(basis.Memory, layers.ToArray(), basis.ObjectSelection, basis.Brightness);
@@ -78,18 +78,18 @@ public static partial class GameplayDisplayCapture
 
         GameplayPpuRenderSnapshot ppu = runtime.DisplayedGameplayPpu;
         RoomShakeFrameResult shake = ppu.RoomShake;
-        ushort bg1X = Add(ppu.Bg1HorizontalScroll, shake.Bg1X);
-        ushort bg1Y = Add(ppu.Bg1VerticalScroll, shake.Bg1Y);
-        ushort bg2X = Add(ppu.Bg2HorizontalScroll, shake.Bg2X);
-        ushort bg2Y = Add(ppu.Bg2VerticalScroll, shake.Bg2Y);
+        ushort bg1X = Add(ppu.Bg1Scroll.X, shake.Bg1X);
+        ushort bg1Y = Add(ppu.Bg1Scroll.Y, shake.Bg1Y);
+        ushort bg2X = Add(ppu.Bg2Scroll.X, shake.Bg2X);
+        ushort bg2Y = Add(ppu.Bg2Scroll.Y, shake.Bg2Y);
         if (runtime.TourianStatues.Enabled)
             // $88:DBCB supplies BG2VOFS through HDMA after the ordinary scroll
             // register upload. It replaces, rather than adds to, the quake-adjusted
             // register. Type 13 also gives the statue OBJ zero quake displacement.
-            bg2Y = unchecked((ushort)(ppu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset));
+            bg2Y = unchecked((ushort)(ppu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset));
         RoomLayer3FxRenderSnapshot? fx = runtime.DisplayedRoomLayer3Fx;
         ScrollingSkyState? sky = runtime.ScrollingSky;
-        ushort[]? skyX = sky is { HorizontalHdmaConfigured: true } ? sky.BuildGameplayHorizontalScrolls(runtime.Camera?.YPosition
+        ushort[]? skyX = sky is { HorizontalHdmaConfigured: true } ? sky.BuildGameplayHorizontalScrolls(runtime.Camera?.PixelPosition.Y
             ?? throw new InvalidOperationException("Scrolling sky has no gameplay camera.")) : null;
         if (skyX is not null)
             for (int line = 0; line < skyX.Length; line++) skyX[line] = Add(skyX[line], shake.Bg2X);

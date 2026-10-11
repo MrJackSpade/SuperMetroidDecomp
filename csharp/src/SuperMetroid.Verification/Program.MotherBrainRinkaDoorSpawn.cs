@@ -69,6 +69,6 @@ internal static partial class Program
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
     private sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
     {
-        public bool HasInitializedEnemySlot(int slot) => runtime.Camera!.XPosition <= cameraX;
+        public bool HasInitializedEnemySlot(int slot) => runtime.Camera!.PixelPosition.X <= cameraX;
     }
 }

@@ -55,12 +55,12 @@ internal static partial class Program
             var phantoon = runtime.Enemies.Phantoon!;
             ushort displayedX = phantoon.Bg2HorizontalScroll;
             ushort displayedY = phantoon.Bg2VerticalScroll;
-            ushort displayedBodyX = (ushort)(phantoon.Body.XPosition - runtime.Camera!.XPosition);
-            ushort displayedBodyY = (ushort)(phantoon.Body.YPosition - runtime.Camera.YPosition);
+            ushort displayedBodyX = (ushort)(phantoon.Body.XPosition - runtime.Camera!.PixelPosition.X);
+            ushort displayedBodyY = (ushort)(phantoon.Body.YPosition - runtime.Camera.PixelPosition.Y);
             runtime.StepFrame(0);
-            AssertEqual(phantoon.Bg2HorizontalScroll, runtime.BackgroundScroll.Bg2HorizontalScroll,
+            AssertEqual(phantoon.Bg2HorizontalScroll, runtime.BackgroundScroll.Bg2Scroll.X,
                 $"Phantoon live BG2 horizontal handoff frame {frame}");
-            AssertEqual(phantoon.Bg2VerticalScroll, runtime.BackgroundScroll.Bg2VerticalScroll,
+            AssertEqual(phantoon.Bg2VerticalScroll, runtime.BackgroundScroll.Bg2Scroll.Y,
                 $"Phantoon live BG2 vertical handoff frame {frame}");
             if (frame == 0) continue;
             var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];

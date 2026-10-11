@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailDeathCaptureTests
 {
@@ -43,7 +44,7 @@ internal static class RetailDeathCaptureTests
         if (legacy.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Death fixture startup failed.");
         foreach (var game in new[] { legacy, captured })
         {
-            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(SlowConsumerFixture.AlphaPowerBombRoom, 0, 0);
+            game.RuntimeForVerification!.LoadCartridgeRoomForDebug(SlowConsumerFixture.AlphaPowerBombRoom, new Position16<RoomPixels>(0, 0));
             game.RuntimeForVerification!.RunNmi(0, true);
             game.RuntimeForVerification!.Samus!.Health = 0;
             game.RuntimeForVerification!.Samus!.MaxReserveEnergy = ReserveCaptureFixtureDefinitions.Capacity;

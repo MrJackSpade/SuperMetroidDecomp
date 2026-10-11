@@ -65,7 +65,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime),
             "Mode-7 shaft cannot silently capture as ordinary tiles");
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.RunNmi(0, true);
         Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);

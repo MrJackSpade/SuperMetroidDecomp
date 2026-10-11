@@ -20,8 +20,8 @@ public static partial class GameplayDisplayCapture
                 unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1X)),
                 unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1Y)));
             floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, SnesPpuLayout.GameplayBg2TilemapWord,
-                GameplayRenderDefinitions.CeresCharacterWord, Add(ppu.Bg2HorizontalScroll, shake.Bg2X),
-                Add(ppu.Bg2VerticalScroll, shake.Bg2Y), 64, 32);
+                GameplayRenderDefinitions.CeresCharacterWord, Add(ppu.Bg2Scroll.X, shake.Bg2X),
+                Add(ppu.Bg2Scroll.Y, shake.Bg2Y), 64, 32);
         }
         else
         {
@@ -30,8 +30,8 @@ public static partial class GameplayDisplayCapture
             registers = new(unchecked((short)m.MatrixA), unchecked((short)m.MatrixB),
                 unchecked((short)m.MatrixC), unchecked((short)m.MatrixA),
                 unchecked((short)m.CenterX), unchecked((short)m.CenterY),
-                unchecked((short)Add(ppu.Bg1HorizontalScroll, shake.Bg1X)),
-                unchecked((short)Add(ppu.Bg1VerticalScroll, shake.Bg1Y)));
+                unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1X)),
+                unchecked((short)Add(ppu.Bg1Scroll.Y, shake.Bg1Y)));
         }
         var layer = new Mode7GameplayRenderLayer(registers, SnesPpuLayout.GameplayHudTilemapWord,
             SnesPpuLayout.GameplayHudCharacterBaseWord, SnesPpuLayout.GameplayHudHeightPixels, floor);

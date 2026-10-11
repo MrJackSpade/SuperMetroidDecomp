@@ -901,7 +901,8 @@ public sealed partial class RoomEnemySystem
         switch (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(projectile.PreInstruction, "enemy-projectile pre-instruction"))
         {
             case EnemyProjectilePreInstruction.PrePhantoonRoom:
-                RequireEnemyProjectileBackgroundScroll().Bg2YOffset = 0;
+                BackgroundScrollState scroll = RequireEnemyProjectileBackgroundScroll();
+                scroll.Bg2Offset = scroll.Bg2Offset.WithY(0);
                 return;
             case EnemyProjectilePreInstruction.None:
             case EnemyProjectilePreInstruction.RTS_868170:

@@ -144,7 +144,7 @@ public sealed partial class RoomEnemySystem
         // `$90:9589` loads $01D0, compares it with layer1_y_pos, and returns on BCC.
         // Equality deliberately performs the harmless native store; a larger camera Y is
         // already below the arena ceiling and is therefore left untouched.
-        if (SporeSpawnScrollingHooks.FightMinimumLayerOneY < camera.YPosition)
+        if (SporeSpawnScrollingHooks.FightMinimumLayerOneY < camera.PixelPosition.Y)
             return;
 
         camera.SetLayerOneYFromScrollingFinishedHook(

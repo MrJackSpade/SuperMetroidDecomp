@@ -33,6 +33,14 @@ internal static class DebuggerRetypedFieldDefinitions
             converted = convert(saved);
             return true;
         }
+        // #628: the retired four-word Samus checkpoint became a typed 16.16 position.
+        if (saved is LegacySamusCameraPoint checkpoint &&
+            (field.FieldType == typeof(SuperMetroid.Core.Spatial.FixedPosition<SuperMetroid.Core.Spatial.RoomPixels>) ||
+             field.FieldType == typeof(SuperMetroid.Core.Spatial.FixedPosition<SuperMetroid.Core.Spatial.RoomPixels>?)))
+        {
+            converted = checkpoint.ToFixedPosition();
+            return true;
+        }
         // Color words that became Bgr555 restore through one shape-preserving rule.
         if (DebuggerColorWordShapes.Applies(field.FieldType, saved.GetType()))
         {

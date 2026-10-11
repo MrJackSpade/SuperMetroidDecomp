@@ -47,8 +47,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(
             PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader,
-            cameraX: 0,
-            cameraY: 0);
+            camera: new Position16<RoomPixels>(0, 0));
         runtime.RunNmi(controller1Input: 0, mainLoopRequestedNmi: true);
 
         Rgba32[] baseline = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
@@ -68,8 +67,8 @@ internal static partial class Program
             expected,
             bus,
             explosion,
-            ppu.Layer1XPosition,
-            ppu.Layer1YPosition);
+            ppu.Layer1Position.X,
+            ppu.Layer1Position.Y);
         Rgba32[] actual = SuperMetroidRuntimeFrameRenderer.Render(runtime);
 
         int expectedChangedPixels = CountPowerBombFrameDifferences(baseline, expected);

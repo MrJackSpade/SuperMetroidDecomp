@@ -27,11 +27,13 @@ public sealed partial class SuperMetroidRuntime
         for (int i = 0; i < bytes.Length; i++)
             bytes[i] = memory.ReadWorkRamByte(XraySetupMemory.SavedBg1 + i);
         captured.LoadBytes(SnesPpuLayout.GameplayBg1TilemapWord * 2, bytes);
-        ushort x = BackgroundScroll.Layer1XPosition;
-        ushort y = BackgroundScroll.Layer1YPosition;
+        Position16<RoomPixels> layer1 = BackgroundScroll.Layer1Position;
+        ushort x = layer1.X;
+        ushort y = layer1.Y;
+        Position16<RoomPixels> bg1Scroll = layer1 + BackgroundScroll.Bg1Offset;
         var map = XrayRevealTilemap.Build(level, captured,
-            unchecked((ushort)(x + BackgroundScroll.Bg1XOffset)),
-            unchecked((ushort)(y + BackgroundScroll.Bg1YOffset)), x, y,
+            bg1Scroll.X,
+            bg1Scroll.Y, x, y,
             (byte)room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, Plms.Collectibles, System,
             room.State.XrayPointer, x, y, XrayRevealVisuals);

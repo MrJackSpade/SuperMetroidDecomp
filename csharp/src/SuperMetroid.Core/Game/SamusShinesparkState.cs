@@ -382,7 +382,7 @@ public sealed class SamusShinesparkState
         SamusProjectileSystem? projectiles = null,
         ushort gameTimeFrames = 0,
         bool deferTimeoutPoseChange = false,
-        SamusCameraPoint? previousCheckpoint = null)
+        FixedPosition<RoomPixels>? previousCheckpoint = null)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
@@ -798,7 +798,7 @@ false,             CrashSequenceFinished: true);
     /// Ports <c>$90:D1D6-$D1FB</c>: after horizontal spark movement, a previous X more than
     /// 15 pixels behind Samus is pulled to 15 behind, in either direction.
     /// </summary>
-    private static void CapPreviousX(SamusState samus, SamusCameraPoint checkpoint)
+    private static void CapPreviousX(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
         short delta = unchecked((short)(samus.XPosition - samus.PeekPreviousPositionWords(checkpoint).X));
         if (delta >= 0)
@@ -816,7 +816,7 @@ false,             CrashSequenceFinished: true);
     /// Ports <c>$90:D2A3-$D2B6</c>: after vertical spark movement, a previous Y more than 14
     /// pixels below Samus is pulled to 14 below.
     /// </summary>
-    private static void CapPreviousY(SamusState samus, SamusCameraPoint checkpoint)
+    private static void CapPreviousY(SamusState samus, FixedPosition<RoomPixels> checkpoint)
     {
         ushort delta = unchecked((ushort)(samus.YPosition - samus.PeekPreviousPositionWords(checkpoint).Y));
         // CMP #$FFF2 / BPL: the sign of delta - $FFF2.

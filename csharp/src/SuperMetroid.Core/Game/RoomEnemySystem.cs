@@ -601,7 +601,7 @@ public sealed partial class RoomEnemySystem
         RoomPlmSystem? collisionPlms = null,
         ushort? nmiFrameCounter = null,
         bool processingListPrepared = false,
-        SamusCameraPoint? samusPreviousPositionCheckpoint = null)
+        FixedPosition<RoomPixels>? samusPreviousPositionCheckpoint = null)
     {
         using var terrainScope = new EnemyTerrainScope(this, collisionPlms);
         EnsureLoaded();

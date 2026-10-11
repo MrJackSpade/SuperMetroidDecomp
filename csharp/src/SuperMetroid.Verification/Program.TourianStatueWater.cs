@@ -87,7 +87,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.InputLocked = false;
-        runtime.Camera!.SetPosition(0, 0);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 0));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game, SuperMetroidGameState.MainGameplay);
         for (int frame = 0; frame < 3; frame++) game.Step(0);
         AssertEqual(RoomFxType.TourianEntranceStatue, samus.LiquidPhysics.FxType, "Samus retains native special FX identity");
@@ -118,7 +118,7 @@ internal static partial class Program
         runtime.TourianStatues.LatchDisplay();
         runtime.RunNmi(0, true);
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
-        AssertEqual(unchecked((ushort)(runtime.DisplayedGameplayPpu.Layer1YPosition + runtime.TourianStatues.DisplayedVerticalOffset)),
+        AssertEqual(unchecked((ushort)(runtime.DisplayedGameplayPpu.Layer1Position.Y + runtime.TourianStatues.DisplayedVerticalOffset)),
             descending.Registers.Bg2Y, "Statue descent retains its independent BG2 vertical scroll");
         AssertEqual((short)0xb0, runtime.DisplayedRoomLayer3Fx!.Value.WaterSurfaceScreenY,
             "Statue motion does not move its water surface");

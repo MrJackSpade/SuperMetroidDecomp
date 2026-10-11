@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Constructs a bounded source-room boundary; subsequent frames use the frontend door owner.</summary>
 internal static class MaridiaPipeIncomingDoorSeed
@@ -22,7 +23,7 @@ internal static class MaridiaPipeIncomingDoorSeed
         ushort x = MaridiaPipeFixtureDefinitions.TubeCenterX;
         ushort y = checked((ushort)((entry / level.WidthInBlocks) * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom,
-            (ushort)(x & 0xff00), (ushort)(y & 0xff00));
+            new Position16<RoomPixels>((ushort)(x & 0xff00), (ushort)(y & 0xff00)));
         runtime.Samus!.Kinematics.SetXFixed((uint)x << 16);
         runtime.Samus.Kinematics.SetYFixed((uint)y << 16);
         // Let gravity reach the authored door block. Publishing a pending door here

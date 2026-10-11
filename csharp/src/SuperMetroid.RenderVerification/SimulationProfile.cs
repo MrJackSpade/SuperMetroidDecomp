@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Unpaced, room-local CPU baseline. Not a presentation, waveOut-underrun, or five-minute soak gate.</summary>
 internal static class SimulationProfile
@@ -71,7 +72,7 @@ internal static class SimulationProfile
         for (int tick = 0; tick < 2000 && game.GameState != SuperMetroidGameState.MainGameplay; tick++)
             Step(tick % 47 == 0 ? (ushort)SnesButton.Start : (ushort)0);
         if (game.GameState != SuperMetroidGameState.MainGameplay) throw new InvalidOperationException("Profile failed startup.");
-        game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, 0, 0);
+        game.RuntimeForVerification!.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
         game.RuntimeForVerification!.RunNmi(0, true);
         Step(0);
         if (paused)

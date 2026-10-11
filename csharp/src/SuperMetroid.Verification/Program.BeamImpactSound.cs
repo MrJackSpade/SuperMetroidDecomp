@@ -36,7 +36,7 @@ internal static partial class Program
         samus.YPosition = 490;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(400, 350);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);
 

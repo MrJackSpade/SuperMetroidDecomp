@@ -14,7 +14,7 @@ internal static partial class Program
             var next = loaded.Game.Step(frame < 180 ? (ushort)SnesButton.Right : (ushort)0);
             if (frame == 240)
             {
-                Console.WriteLine($"BG2={runtime.DisplayedGameplayPpu.Bg2HorizontalScroll},{runtime.DisplayedGameplayPpu.Bg2VerticalScroll} background={runtime.ActiveRoom!.State.BackgroundDataPointer:X4} FX={runtime.RoomLayer3Fx.Type}");
+                Console.WriteLine($"BG2={runtime.DisplayedGameplayPpu.Bg2Scroll.X},{runtime.DisplayedGameplayPpu.Bg2Scroll.Y} background={runtime.ActiveRoom!.State.BackgroundDataPointer:X4} FX={runtime.RoomLayer3Fx.Type}");
                 var capture = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);
                 var registers = ((OrdinaryGameplayRenderLayer)capture.Layers[0]).Registers;
                 if (registers.Bg2WidthTiles != 32 || registers.Bg2HeightTiles != 64)
@@ -43,8 +43,8 @@ internal static partial class Program
             SuperMetroidRuntimeFrameRenderer.Render(runtime));
         for (int frame = 0; frame < 240; frame++)
             loaded.Game.Step(frame < 18 ? (ushort)SnesButton.Left : (ushort)0);
-        Console.WriteLine($"After shaft approach Samus={runtime.Samus!.XPosition},{runtime.Samus.YPosition}, camera={runtime.Camera!.YPosition}");
-        if (runtime.Samus.YPosition <= 256 || runtime.Camera.YPosition == 0)
+        Console.WriteLine($"After shaft approach Samus={runtime.Samus!.XPosition},{runtime.Samus.YPosition}, camera={runtime.Camera!.PixelPosition.Y}");
+        if (runtime.Samus.YPosition <= 256 || runtime.Camera.PixelPosition.Y == 0)
             throw new InvalidOperationException("Tourian unlock did not make the shaft physically traversable with camera tracking.");
     }
 }

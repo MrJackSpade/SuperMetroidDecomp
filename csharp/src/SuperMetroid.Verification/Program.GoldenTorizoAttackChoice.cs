@@ -29,8 +29,8 @@ internal static partial class Program
         torizo.CurrentInstruction = landedFacingLeft;
         torizo.InstructionTimer = 1;
         runtime.Enemies.StepFrame(
-            runtime.Camera!.XPosition,
-            runtime.Camera.YPosition,
+            runtime.Camera!.PixelPosition.X,
+            runtime.Camera.PixelPosition.Y,
             timeIsFrozen: false,
             samus,
             0,

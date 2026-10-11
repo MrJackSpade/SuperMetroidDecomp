@@ -14,7 +14,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, cameraX: 128, cameraY: 768);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.WestOcean, camera: new Position16<RoomPixels>(128, 768));
         // Capture consumes the accepted NMI's register snapshot, not the room's
         // mutable scroll state. Draining only VRAM left the BG2 scanline window at
         // its zero-initialized 0..0 range, so both page layouts rendered no sky.
@@ -73,12 +73,12 @@ internal static partial class Program
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = (ushort)(runtime.Camera!.XPosition + 128);
-        samus.YPosition = (ushort)(runtime.Camera.YPosition + 128);
+        samus.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 128);
+        samus.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 128);
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         runtime.StepFrame(0);
-        ushort upper = unchecked((ushort)((runtime.Camera.YPosition & 0x7F8) - 16));
+        ushort upper = unchecked((ushort)((runtime.Camera.PixelPosition.Y & 0x7F8) - 16));
         int sourcePointer = 0x88ADA6 + (upper >> 8) * 2;
         int sourceWord = bus.ReadByte(sourcePointer) | bus.ReadByte(sourcePointer + 1) << 8;
         int expectedSource = 0x8A0000 | ((sourceWord + (upper & 255) * 8) & 65535);

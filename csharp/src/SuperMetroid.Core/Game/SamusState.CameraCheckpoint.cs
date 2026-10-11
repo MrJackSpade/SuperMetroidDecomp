@@ -68,32 +68,28 @@ public sealed partial class SamusState
     /// The live SamusPreviousXPosition/SamusPreviousYPosition words ($0B10/$0B14): the
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
-    internal (ushort X, ushort Y) PeekPreviousPositionWords(SamusCameraPoint previous) => (
-        _previousXPositionWrite ?? previous.XPosition,
-        unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.YPosition) + _poseAlignmentPreviousYDelta)));
+    internal (ushort X, ushort Y) PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => (
+        _previousXPositionWrite ?? previous.X.Whole,
+        unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
 
     /// <summary>
     /// Applies this frame's previous-position word writes before $90:94EC calculates
     /// distance. Its normal tail subsequently replaces the complete checkpoint.
     /// </summary>
-    internal SamusCameraPoint ApplyPreviousPositionWrites(SamusCameraPoint previous)
+    internal FixedPosition<RoomPixels> ApplyPreviousPositionWrites(FixedPosition<RoomPixels> previous)
     {
-        ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.YPosition)
+        ushort correctedY = unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole)
             + _poseAlignmentPreviousYDelta));
-        ushort xPosition = _previousXPositionWrite ?? previous.XPosition;
-        ushort xSubposition = ApplyBits(_previousXSubpositionWriteMask, _previousXSubpositionWriteValue, previous.XSubposition);
-        ushort ySubposition = ApplyBits(_previousYSubpositionWriteMask, _previousYSubpositionWriteValue, previous.YSubposition);
+        ushort xPosition = _previousXPositionWrite ?? previous.X.Whole;
+        ushort xSubposition = ApplyBits(_previousXSubpositionWriteMask, _previousXSubpositionWriteValue, previous.X.Fraction);
+        ushort ySubposition = ApplyBits(_previousYSubpositionWriteMask, _previousYSubpositionWriteValue, previous.Y.Fraction);
         _poseCollisionPreviousYPosition = null;
         _poseAlignmentPreviousYDelta = 0;
         _previousXPositionWrite = null;
         _previousXSubpositionWriteMask = _previousXSubpositionWriteValue = 0;
         _previousYSubpositionWriteMask = _previousYSubpositionWriteValue = 0;
-        return previous with
-        {
-            XPosition = xPosition,
-            XSubposition = xSubposition,
-            YPosition = correctedY,
-            YSubposition = ySubposition,
-        };
+        return new FixedPosition<RoomPixels>(
+            new SnesFixedPosition(xPosition, xSubposition),
+            new SnesFixedPosition(correctedY, ySubposition));
     }
 }

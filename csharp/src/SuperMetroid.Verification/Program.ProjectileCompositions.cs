@@ -180,15 +180,15 @@ internal static partial class Program
             {
                 var slot = runtime.BombProjectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+                slot.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100);
+                slot.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
             }
             else
             {
                 var slot = runtime.Projectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+                slot.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100);
+                slot.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
             }
             // Actor drawing also updates mutable visual state. Compare identical
             // captured states rather than two sequential draws of one runtime.

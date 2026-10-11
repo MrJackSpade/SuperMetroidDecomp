@@ -24,6 +24,13 @@ internal static class DebuggerStateTypeIdentity
             // identity so historical graphs retain exact composition data.
             return typeof(SuperMetroid.Core.Rendering.GameplayColorMathRenderLayer);
         }
+        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" &&
+            identity[0] == LegacySamusCameraPoint.RetiredTypeName)
+        {
+            // #628 replaced this four-word checkpoint with a typed 16.16 position. Its saved
+            // fields restore into the codec layout and convert at the owning field.
+            return typeof(LegacySamusCameraPoint);
+        }
         if (identity.Length >= 2 && identity[0] == LegacyRootName && identity[1] == LegacyAssemblyName)
             return typeof(DebuggerSaveStateStore).Assembly.GetType(LegacyRootName, throwOnError: true);
         if (name == RoomLoadCallbacksIdentity ||

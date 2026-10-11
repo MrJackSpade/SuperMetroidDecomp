@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Native AI-driven escape after staging either retail termination condition at hover.</summary>
 internal static class RetailRidleyEscapeTests
@@ -16,7 +17,7 @@ internal static class RetailRidleyEscapeTests
             var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.CeresRidleyRoom, new Position16<RoomPixels>(0, 0));
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             var ridley = runtime.Enemies.CeresRidley!;

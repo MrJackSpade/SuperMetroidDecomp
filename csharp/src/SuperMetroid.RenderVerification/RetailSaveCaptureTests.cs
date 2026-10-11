@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailSaveCaptureTests
 {
@@ -15,7 +16,7 @@ internal static class RetailSaveCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(bus);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.CrateriaSaveStation, new Position16<RoomPixels>(0, 0));
         var station = runtime.Plms.Stations.Single(s => s.Kind == StationKind.Save);
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;
@@ -45,7 +46,7 @@ internal static class RetailSaveCaptureTests
                 if (runtime.Enemies.EnemyProjectiles.Any(p => p.IsActive && p.Kind != RoomEnemyProjectileKind.SaveStationElectricity))
                     throw new InvalidOperationException("Unrelated projectile contaminates electricity visibility assertion.");
                 var oam = new OamBuffer(); oam.BeginFrame();
-                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Camera!.XPosition, runtime.Camera.YPosition);
+                runtime.Enemies.DrawEnemyProjectiles(oam, runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y);
                 oam.FinalizeFrame();
                 electricity = SnesObjRenderer.RenderResolved(oam, runtime.Vram, runtime.Cgram,
                     GameplayRenderDefinitions.ObjectSelection).Pixels.Any(p => p.A != 0 && (p.R != 0 || p.G != 0 || p.B != 0));

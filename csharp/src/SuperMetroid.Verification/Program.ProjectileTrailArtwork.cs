@@ -166,7 +166,7 @@ internal static partial class Program
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
-        side.XPosition = (ushort)(runtime.Camera!.XPosition + 100); side.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        side.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100); side.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var runtimeField = game.GetType().GetField("runtime", flags)!;

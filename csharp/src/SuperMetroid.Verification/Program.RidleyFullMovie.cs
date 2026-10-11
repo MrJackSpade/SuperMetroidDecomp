@@ -48,7 +48,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
-        runtime.Camera!.SetPosition(0, 158);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0, 158));
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
         body.XPosition = 139; body.YPosition = 282;
         body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
@@ -329,13 +329,13 @@ internal static partial class Program
             };
             samus.Kinematics.YSubposition = 0x97ff;
             samus.RefreshCollisionRadii(bus);
-            var previous = new SamusCameraPoint(128, 0, 401, 0xb7ff);
+            var previous = FixedPosition<RoomPixels>.FromWords(128, 0, 401, 0xb7ff);
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseId.MorphingTransitionLeftPose : SamusPoseId.MorphingTransitionRightPose, 0),
                 "source6289 airborne morph accepted");
             AssertEqual((ushort)411, samus.YPosition, "native morph center alignment");
             AssertEqual((ushort)0x97ff, samus.Kinematics.YSubposition, "morph preserves current fraction");
-            AssertEqual(previous with { YPosition = 411 }, samus.ApplyPreviousPositionWrites(previous),
+            AssertEqual(previous.WithY(previous.Y.WithWhole(411)), samus.ApplyPreviousPositionWrites(previous),
                 "command seven replaces previous whole Y and retains previous fraction");
             AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "checkpoint consumed once");
 
@@ -344,7 +344,7 @@ internal static partial class Program
             AssertTrue(samus.TryApplyMorphTransition(bus, level,
                 left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose, 0),
                 "unmorph command seven accepted");
-            AssertEqual(previous with { YPosition = samus.YPosition }, samus.ApplyPreviousPositionWrites(previous),
+            AssertEqual(previous.WithY(previous.Y.WithWhole(samus.YPosition)), samus.ApplyPreviousPositionWrites(previous),
                 "zero alignment entry still replaces previous whole Y");
         }
         Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");
@@ -770,13 +770,13 @@ internal static partial class Program
             if (index == 5)
             {
                 AssertEqual(0x010e9000u, samus.Kinematics.XFixed, "native placement rebases and advances Samus while loading tiles");
-                AssertEqual((ushort)0x00f8, runtime.Camera!.XPosition, "first loading IRQ moves camera four pixels");
+                AssertEqual((ushort)0x00f8, runtime.Camera!.PixelPosition.X, "first loading IRQ moves camera four pixels");
             }
             if (index == 4)
             {
                 AssertEqual(0x00135800u, samus.Kinematics.XFixed, "native scrolling setup moves Samus before destination placement");
                 AssertEqual(yFixed, samus.Kinematics.YFixed, "left scrolling setup preserves perpendicular coordinate");
-                AssertEqual((ushort)0x00fc, runtime.Camera!.XPosition, "native setup camera origin");
+                AssertEqual((ushort)0x00fc, runtime.Camera!.PixelPosition.X, "native setup camera origin");
             }
         }
         game.Step(0); // The atomic destination loader must use the pre-setup source.
@@ -1059,26 +1059,26 @@ internal static partial class Program
                 ? (runtime.PendingDoorTransition ?? throw new InvalidDataException("Missing selected destination door")).DestinationRoomPointer
                 : runtime.ActiveRoom!.Pointer;
             Check("Selected room", selectedRoom, NativeSnapshotMemory.Room);
-            Check("Camera X", runtime.Camera!.XPosition, NativeSnapshotMemory.CameraX);
-            Check("Camera X fraction", runtime.Camera.XSubposition, NativeSnapshotMemory.CameraXFraction);
-            Check("Camera Y", runtime.Camera.YPosition, NativeSnapshotMemory.CameraY);
-            Check("Camera Y fraction", runtime.Camera.YSubposition, NativeSnapshotMemory.CameraYFraction);
+            Check("Camera X", runtime.Camera!.PixelPosition.X, NativeSnapshotMemory.CameraX);
+            Check("Camera X fraction", runtime.Camera.Position.X.Fraction, NativeSnapshotMemory.CameraXFraction);
+            Check("Camera Y", runtime.Camera.PixelPosition.Y, NativeSnapshotMemory.CameraY);
+            Check("Camera Y fraction", runtime.Camera.Position.Y.Fraction, NativeSnapshotMemory.CameraYFraction);
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {
-                Check("Ideal camera X", runtime.Camera.IdealXPosition, NativeSnapshotMemory.IdealCameraX);
-                Check("Ideal camera Y", runtime.Camera.IdealYPosition, NativeSnapshotMemory.IdealCameraY);
-                Check("Camera speed X", runtime.Camera.CameraXSpeed, NativeSnapshotMemory.CameraSpeedX);
-                Check("Camera speed X fraction", runtime.Camera.CameraXSubspeed, NativeSnapshotMemory.CameraSpeedXFraction);
-                Check("Camera speed Y", runtime.Camera.CameraYSpeed, NativeSnapshotMemory.CameraSpeedY);
-                Check("Camera speed Y fraction", runtime.Camera.CameraYSubspeed, NativeSnapshotMemory.CameraSpeedYFraction);
+                Check("Ideal camera X", runtime.Camera.IdealPosition.X, NativeSnapshotMemory.IdealCameraX);
+                Check("Ideal camera Y", runtime.Camera.IdealPosition.Y, NativeSnapshotMemory.IdealCameraY);
+                Check("Camera speed X", runtime.Camera.Speed.X.WholeWord, NativeSnapshotMemory.CameraSpeedX);
+                Check("Camera speed X fraction", runtime.Camera.Speed.X.Fraction, NativeSnapshotMemory.CameraSpeedXFraction);
+                Check("Camera speed Y", runtime.Camera.Speed.Y.WholeWord, NativeSnapshotMemory.CameraSpeedY);
+                Check("Camera speed Y fraction", runtime.Camera.Speed.Y.Fraction, NativeSnapshotMemory.CameraSpeedYFraction);
                 // A fresh door camera defers its first sample to the runtime's frame-start
                 // fallback. Compare that effective sample instead of requiring storage.
-                var previous = runtime.Camera.PreviousSamusPoint ?? new SamusCameraPoint(
+                var previous = runtime.Camera.PreviousSamusPoint ?? FixedPosition<RoomPixels>.FromWords(
                     samus.XPosition, samus.Kinematics.XSubposition, samus.YPosition, samus.Kinematics.YSubposition);
-                Check("Previous Samus X", previous.XPosition, NativeSnapshotMemory.PreviousSamusX);
-                Check("Previous Samus X fraction", previous.XSubposition, NativeSnapshotMemory.PreviousSamusXFraction);
-                Check("Previous Samus Y", previous.YPosition, NativeSnapshotMemory.PreviousSamusY);
-                Check("Previous Samus Y fraction", previous.YSubposition, NativeSnapshotMemory.PreviousSamusYFraction);
+                Check("Previous Samus X", previous.X.Whole, NativeSnapshotMemory.PreviousSamusX);
+                Check("Previous Samus X fraction", previous.X.Fraction, NativeSnapshotMemory.PreviousSamusXFraction);
+                Check("Previous Samus Y", previous.Y.Whole, NativeSnapshotMemory.PreviousSamusY);
+                Check("Previous Samus Y fraction", previous.Y.Fraction, NativeSnapshotMemory.PreviousSamusYFraction);
             }
             if (game.GameState == SuperMetroidGameState.MainGameplay)
             {

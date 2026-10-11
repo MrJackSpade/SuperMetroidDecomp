@@ -345,7 +345,7 @@ public sealed partial class ManagedSpcPlayer
         }
 
         portsToSnes[(byte)ApuPort.Music] = 0;
-        inputPorts[(byte)ApuPort.Music] = SpcDriverData.NoPortCommand;
+        inputPorts[(byte)ApuPort.Music] = (byte)MusicPortCommand.None;
         // $1E8B leaves $BB on output port 1 and finishes with $F1 = $31, which resets the
         // CPU-to-APU input latches. The driver's $01-$0B words are untouched.
         portsToSnes[(byte)ApuPort.SoundLibrary1] = SpcDriverData.UploadReadyLibraryOnePort;

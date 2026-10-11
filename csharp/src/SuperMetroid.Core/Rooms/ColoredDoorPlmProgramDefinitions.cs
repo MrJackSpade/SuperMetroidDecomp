@@ -33,10 +33,31 @@ internal static class ColoredDoorPlmProgramDefinitions
     /// <summary>$84:A9B3: left blue flash draw; orientation stride sixty bytes.</summary>
     private const ushort BlueFlashDraw = 0xa9b3;
 
+    /// <summary>The three contiguous per-color instruction blobs, in address order.</summary>
+    private enum ColorBlob { Yellow, Green, Red }
+
+    private static readonly ColorBlob[] ColorBlobs = Enum.GetValues<ColorBlob>();
+
+    private static ushort LastByteOf(ColorBlob blob) => blob switch
+    {
+        ColorBlob.Yellow => YellowEnd,
+        ColorBlob.Green => GreenEnd,
+        ColorBlob.Red => RedEnd,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ColorBlob)} {(int)blob}."),
+    };
+
+    /// <summary>A word starting on a blob's last byte would cross into the next blob.</summary>
+    private static bool IsColorBlobEnd(ushort address)
+    {
+        foreach (ColorBlob blob in ColorBlobs)
+            if (LastByteOf(blob) == address) return true;
+        return false;
+    }
+
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (address is < YellowStart or > RedEnd or YellowEnd or GreenEnd or RedEnd) return false;
+        if (address is < YellowStart or > RedEnd || IsColorBlobEnd(address)) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
         value = (ushort)(low | high << 8);

@@ -54,12 +54,12 @@ public sealed partial class RoomEnemySystem
         if (state.TailSegments.Length != 7)
             throw new InvalidDataException("Ceres Ridley requires seven native tail segments.");
 
-        if (state.TailFunctionIndex != 0)
+        if (state.TailFunctionIndex != RidleyTailFunction.None)
         {
             state.TailMinimumClockwiseAngle = RidleyTailDefinitions.MinimumClockwise(state.FacingDirection);
             state.TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.MaximumCounterClockwise(state.FacingDirection);
 
-            if (state.TailFunctionIndex == RidleyTailDefinitions.Neutral)
+            if (state.TailFunctionIndex == RidleyTailFunction.Neutral)
             {
                 HandleCeresRidleyNeutralTailControl(slot, state, samus);
                 for (int index = 0; index < state.TailSegments.Length; index++)

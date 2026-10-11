@@ -88,7 +88,7 @@ internal static class EndingExplosionInstructionDefinitions
         return word == 21 ? (ushort)EndingSpriteInstruction.SpawnExplosionSilhouette : (ushort)CinematicSpriteInstruction.Delete;
     }
 
-    private static ushort PlanetFrame(int frame) => EndingExplosionSpriteDefinitions.Pointer((Pose)frame);
+    private static ushort PlanetFrame(int record) => EndingExplosionSpriteDefinitions.PlanetPointer(record);
 
     private static ushort HoldWord(ushort pointer, ushort start, ushort frame) => ((pointer - start) / 2) switch
     {

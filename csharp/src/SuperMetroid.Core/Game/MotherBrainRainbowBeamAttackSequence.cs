@@ -425,7 +425,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     {
         Body.XPosition = bodyX;
         Body.YPosition = bodyY;
-        Body.Pose = (ushort)bodyPose;
+        Body.Pose = bodyPose;
         Body.Form = form;
         BodyProperties = bodyProperties;
         BodyProperties2 = bodyExtraProperties;

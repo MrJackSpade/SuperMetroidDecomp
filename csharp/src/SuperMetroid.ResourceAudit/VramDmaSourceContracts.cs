@@ -40,7 +40,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs", "B0EF6EB7D1154ADDE345A678959A5FCC97EB94E3555B2633864B1DB7C24B3445"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapFrameDefinitions.cs", "3513BD799155CE8428C97652B5FFF68A8B1CC5175AF40958742BF6D1C6054B54"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs", "7BF84FD6D6B3185B670FC2DB0C8951B53D886A8B4547080C35DC6C7E909B0849"),
-             new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs", "508F338277A39A05D1257D29F9E38F03AC902F004543FBEC1E0075DE4E3D9DDD"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs", "B7A128B4A1B1FB9ABC8A89775007054698040BBE3A53F61089F4888B6C77AF97"),
              new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs", "AEC295EEC2013263835DA5FCA9BE81604F6A8D3B8550CDBDCDB0999ABE335403"),
              new("csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs", "8C0C442727D4C01AE214E89B8238FAFCEBA7870AC61D1E9C13B07376AA4DF304"),
              new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "1F0A858C191CEF505F59FBC544DA589F1481D8FE574A7795E709B9CD99204093"),

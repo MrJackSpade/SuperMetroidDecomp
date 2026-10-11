@@ -1,8 +1,19 @@
 namespace SuperMetroid.Core.Frontend;
 
+/// <summary>The three WRAM staging buffers the post-shot transfers read from.</summary>
+internal enum EndingPostShotUploadSource
+{
+    /// <summary>The subtitle font page staged at <c>$7F:D000</c>.</summary>
+    Subtitle,
+    /// <summary>The decompressed logo tiles staged from <c>$7E:6000</c>.</summary>
+    LogoTiles,
+    /// <summary>The decompressed logo tilemap staged at <c>$7E:8000</c>.</summary>
+    LogoMap,
+}
+
 /// <summary>One immutable eight-byte transfer record from <c>$8B:E45A</c>.</summary>
 internal readonly record struct EndingPostShotUploadDefinition(
-    ushort Length, int SourceAddress, ushort DestinationWord);
+    ushort Length, int SourceAddress, ushort DestinationWord, EndingPostShotUploadSource Source);
 
 /// <summary>
 /// Compiled six-transfer schedule for Func142's post-credits Super Metroid logo.
@@ -40,10 +51,12 @@ internal static class EndingPostShotUploadDefinitions
     public static EndingPostShotUploadDefinition Get(int index)
     {
         if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index == 0) return new(SubtitleLength, EndingPostShotDefinitions.SubtitleSource, SubtitleDestinationWord);
-        if (index == Count - 1) return new(LogoMapLength, EndingPostShotDefinitions.LogoMapSource, LogoMapDestinationWord);
+        if (index == 0) return new(SubtitleLength, EndingPostShotDefinitions.SubtitleSource, SubtitleDestinationWord,
+            EndingPostShotUploadSource.Subtitle);
+        if (index == Count - 1) return new(LogoMapLength, EndingPostShotDefinitions.LogoMapSource, LogoMapDestinationWord,
+            EndingPostShotUploadSource.LogoMap);
         int offset = (index - 1) * LogoTileChunkLength;
         return new(LogoTileChunkLength, EndingPostShotDefinitions.LogoTileSource + offset,
-            (ushort)(LogoTileDestinationWord + offset / sizeof(ushort)));
+            (ushort)(LogoTileDestinationWord + offset / sizeof(ushort)), EndingPostShotUploadSource.LogoTiles);
     }
 }

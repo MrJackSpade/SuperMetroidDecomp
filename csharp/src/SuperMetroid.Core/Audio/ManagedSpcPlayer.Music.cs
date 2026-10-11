@@ -522,15 +522,22 @@ public sealed partial class ManagedSpcPlayer
     private void HandleMusicCommand()
     {
         byte command = inputPorts[(byte)ApuPort.Music];
-        inputPorts[(byte)ApuPort.Music] = SpcDriverData.NoPortCommand;
-        if (command == SpcDriverData.PauseMusicCommand)
+        inputPorts[(byte)ApuPort.Music] = (byte)MusicPortCommand.None;
+        if (Enum.IsDefined((MusicPortCommand)command))
         {
-            keyOff |= unchecked((byte)~channelOnMask);
-            return;
+            switch ((MusicPortCommand)command)
+            {
+                case MusicPortCommand.Pause:
+                    keyOff |= unchecked((byte)~channelOnMask);
+                    return;
+                case MusicPortCommand.Resume:
+                case MusicPortCommand.None:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(MusicPortCommand)} {command}.");
+            }
         }
-
-        if (command != SpcDriverData.ResumeMusicCommand && command != SpcDriverData.NoPortCommand &&
-            command != portsToSnes[(byte)ApuPort.Music])
+        else if (command != portsToSnes[(byte)ApuPort.Music])
         {
             StartTrack(command);
             return;
@@ -567,10 +574,16 @@ public sealed partial class ManagedSpcPlayer
                 StartTrack(0);
                 return;
             }
-            if (record == SpcDriverData.Music.PatternFastForwardOn)
-                fastForward = SpcDriverData.Music.PatternFastForwardOn;
-            else if (record == SpcDriverData.Music.PatternFastForwardOff)
-                fastForward = 0;
+            if (MusicTrackControls.TryDecode(record, out MusicTrackControl control))
+            {
+                // The driver stores the control word's low byte as its fast-forward flag.
+                fastForward = control switch
+                {
+                    MusicTrackControl.FastForwardOn => unchecked((byte)record),
+                    MusicTrackControl.FastForwardOff => 0,
+                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {(int)control}."),
+                };
+            }
             else
             {
                 blockCount--;

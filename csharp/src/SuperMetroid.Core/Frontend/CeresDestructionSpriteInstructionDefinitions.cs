@@ -105,13 +105,47 @@ internal static class CeresDestructionSpriteInstructionDefinitions
             $"Ceres destruction instruction $8B:{pointer:X4} leaves its compiled lists.");
     }
 
+    /// <summary>Exclusive ends of the compiled lists a word read must not straddle.</summary>
+    private enum ListEnd
+    {
+        LargeAsteroid,
+        RearCluster,
+        Planet,
+        Title,
+        InitialExplosion,
+        RepeatingExplosion,
+        Explosions,
+        StarSheets,
+        StationBlast,
+    }
+
+    private static ushort AddressOf(ListEnd end) => end switch
+    {
+        ListEnd.LargeAsteroid => LargeAsteroidEnd,
+        ListEnd.RearCluster => CeresFlightSpriteInstructionDefinitions.RearClusterEnd,
+        ListEnd.Planet => PlanetEnd,
+        ListEnd.Title => TitleEnd,
+        ListEnd.InitialExplosion => InitialExplosionEnd,
+        ListEnd.RepeatingExplosion => RepeatingExplosionEnd,
+        ListEnd.Explosions => ExplosionsEnd,
+        ListEnd.StarSheets => StarSheetsEnd,
+        ListEnd.StationBlast => StationBlastEnd,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ListEnd)} {(int)end}."),
+    };
+
+    private static readonly ListEnd[] ListEnds = Enum.GetValues<ListEnd>();
+
+    private static bool IsListEnd(ushort address)
+    {
+        foreach (ListEnd end in ListEnds)
+            if (AddressOf(end) == address) return true;
+        return false;
+    }
+
     internal static ushort ReadWord(ushort pointer)
     {
         ushort next = unchecked((ushort)(pointer + 1));
-        if (next is LargeAsteroidEnd or PlanetEnd or TitleEnd or
-            InitialExplosionEnd or RepeatingExplosionEnd or ExplosionsEnd or
-            StationBlastEnd or StarSheetsEnd or
-            CeresFlightSpriteInstructionDefinitions.RearClusterEnd ||
+        if (IsListEnd(next) ||
             (next >= StarSheetsStart && next < StarSheetsEnd &&
                 (next - StarSheetsStart) % 8 == 0))
         {

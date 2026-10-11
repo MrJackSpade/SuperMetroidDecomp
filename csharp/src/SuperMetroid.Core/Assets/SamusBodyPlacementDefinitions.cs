@@ -22,6 +22,16 @@ internal static class SamusBodyPlacementDefinitions
     internal const int PosturePoseBytes = 2;
     /// <summary>$90:8D80..8D97: six right/left transition pairs, including two unused pairs.</summary>
     internal const int PostureDataBytes = 12 * PosturePoseBytes;
+    /// <summary>The twelve $35-$40 posture poses whose rows $90:8D80..8D97 hold, in table order.</summary>
+    private static readonly Game.SamusPoseId[] PostureBlockPoses =
+    [
+        Game.SamusPoseId.CrouchingTransitionRightPose, Game.SamusPoseId.CrouchingTransitionLeftPose,
+        Game.SamusPoseId.MorphingTransitionRightPose, Game.SamusPoseId.MorphingTransitionLeftPose,
+        Game.SamusPoseId.UnusedPose39, Game.SamusPoseId.UnusedPose3A,
+        Game.SamusPoseId.StandingTransitionRightPose, Game.SamusPoseId.StandingTransitionLeftPose,
+        Game.SamusPoseId.UnmorphingTransitionRightPose, Game.SamusPoseId.UnmorphingTransitionLeftPose,
+        Game.SamusPoseId.UnusedPose3F, Game.SamusPoseId.UnusedPose40,
+    ];
 
     /// <summary>Landing left-facing copies use their right-facing row; each source default follows the named landing/recovery phase.</summary>
     internal static int LandingSourceIndex(int index)
@@ -59,7 +69,7 @@ internal static class SamusBodyPlacementDefinitions
     internal static bool TryDefaultPostureByte(SamusBodyArtworkCatalog art, int index, out sbyte value)
     {
         int source = PostureSourceIndex(index);
-        var pose = (Game.SamusPoseId)((byte)Game.SamusPoseId.CrouchingTransitionRightPose + source / PosturePoseBytes);
+        Game.SamusPoseId pose = PostureBlockPoses[source / PosturePoseBytes];
         int frame = source % PosturePoseBytes;
         Game.SamusPoseId target;
         bool sourceBottom;

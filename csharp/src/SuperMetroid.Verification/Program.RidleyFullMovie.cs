@@ -55,7 +55,7 @@ internal static partial class Program
         state.FightMode = 1; state.MovementAnimationEnabled = 1; state.FacingDirection = 0;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
         state.HorizontalVelocity = 0xfc00; state.VerticalVelocity = 0x0300;
-        state.TailFunctionIndex = 0;
+        state.TailFunctionIndex = RidleyTailFunction.None;
         samus.XPosition = 110; samus.YPosition = 300; samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
         samus.Health = 399; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = 0; samus.RefreshCollisionRadii(bus);
@@ -1276,7 +1276,7 @@ internal static partial class Program
                     mismatches.Add($"Ridley interaction gate: native={expectedGate}");
                 Check("Ridley AI function", (ushort)ridleyState.Function, NativeSnapshotMemory.RidleyFunction);
                 Check("Ridley AI timer", ridleyState.FunctionTimer, NativeSnapshotMemory.RidleyFunctionTimer);
-                Check("Ridley TailFunctionIndex", ridleyState.TailFunctionIndex, NativeSnapshotMemory.RidleyTailFunctionIndex);
+                Check("Ridley TailFunctionIndex", (ushort)ridleyState.TailFunctionIndex, NativeSnapshotMemory.RidleyTailFunctionIndex);
                 Check("Ridley IdleTailWhipEnabled", ridleyState.IdleTailWhipEnabled, NativeSnapshotMemory.RidleyIdleTailWhipEnabled);
                 Check("Ridley TailWhipRequest", ridleyState.TailWhipRequest, NativeSnapshotMemory.RidleyTailWhipRequest);
                 Check("Ridley TailExtensionSpeed", ridleyState.TailExtensionSpeed, NativeSnapshotMemory.RidleyTailExtensionSpeed);

@@ -47,8 +47,6 @@ internal static class EndingRewardInstructionDefinitions
         /// <summary>$8B:EE4D, HeadJump actor instruction list.</summary>
         HeadJump = 0xee4d,
     }
-    private enum HairStage { Standing, Open1, Open2, Open3, Open4, Open5, Open6, Open7, Open8, Ready }
-    private enum ArmStage { Wait, Raise1, Raise2, Raise3, Raise4, Raise5, ThumbUp, Turn1, Turn2, Lower6, Lower5, Lower4, Lower3, Rest }
 
     internal static ushort ReadWord(ushort pointer)
     {
@@ -68,7 +66,7 @@ internal static class EndingRewardInstructionDefinitions
             int displayWords = legs ? 18 : 20;
             if (word < displayWords)
             {
-                var display = HairDisplay((HairStage)(word / 2));
+                var display = HairDisplays[word / 2];
                 return DisplayWord(word, display.Duration, legs ? Frame.SuitlessSamusLowerBody : display.Frame);
             }
             return !legs && word == displayWords ? (ushort)EndingRewardGestureInstruction.SpawnSuitlessJump : Delete;
@@ -88,8 +86,8 @@ internal static class EndingRewardInstructionDefinitions
         if (pointer < (ushort)List.GestureHelmet)
         {
             int word = Word(pointer, List.GestureArm);
-            if (word >= 28) return word == 28 ? (ushort)EndingRewardGestureInstruction.SpawnSuitedJump : Delete;
-            var display = ArmDisplay((ArmStage)(word / 2));
+            if (word >= 2 * ArmDisplays.Length) return word == 2 * ArmDisplays.Length ? (ushort)EndingRewardGestureInstruction.SpawnSuitedJump : Delete;
+            var display = ArmDisplays[word / 2];
             return DisplayWord(word, display.Duration, display.Frame);
         }
         if (pointer < (ushort)List.GestureHead)
@@ -104,7 +102,7 @@ internal static class EndingRewardInstructionDefinitions
             // Four consecutive two-part OAM records turn the helmetless head.
             int stage = word / 2;
             return DisplayWord(word, (ushort)(stage == 0 ? 128 : stage == 3 ? 190 : 5),
-                (Frame)((int)Frame.SamusHeadFromEndingFrame1 + stage));
+                EndingRewardSpriteFrameSeries.HelmetlessHead[stage]);
         }
         if (pointer < (ushort)List.HelmetJump) return SuitedJumpWord(Word(pointer, List.SuitedJump));
         bool helmet = pointer < (ushort)List.HeadJump;
@@ -118,39 +116,40 @@ internal static class EndingRewardInstructionDefinitions
             helmet ? Frame.LargeSamusHelmetFromEndingFrame2 : Frame.JumpingSamusHeadFromEnding);
     }
 
-    private static (ushort Duration, Frame Frame) HairDisplay(HairStage stage) => stage switch
-    {
-        HairStage.Standing => (90, Frame.SuitlessSamusStandingArmsStraight),
-        HairStage.Open1 => (8, Frame.SuitlessSamusOpeningHairFrame1),
-        HairStage.Open2 => (10, Frame.SuitlessSamusOpeningHairFrame2),
-        HairStage.Open3 => (10, Frame.SuitlessSamusOpeningHairFrame3),
-        HairStage.Open4 => (32, Frame.SuitlessSamusOpeningHairFrame4),
-        HairStage.Open5 => (10, Frame.SuitlessSamusOpeningHairFrame5),
-        HairStage.Open6 => (9, Frame.SuitlessSamusOpeningHairFrame6),
-        HairStage.Open7 => (16, Frame.SuitlessSamusOpeningHairFrame7),
-        HairStage.Open8 => (10, Frame.SuitlessSamusOpeningHairFrame8),
-        HairStage.Ready => (48, Frame.SuitlessSamusStanding),
-        _ => throw new ArgumentOutOfRangeException(nameof(stage)),
-    };
+    /// <summary>Hair-release display records in list order: standing, eight opening frames, ready.</summary>
+    private static readonly (ushort Duration, Frame Frame)[] HairDisplays =
+    [
+        (90, Frame.SuitlessSamusStandingArmsStraight),
+        (8, Frame.SuitlessSamusOpeningHairFrame1),
+        (10, Frame.SuitlessSamusOpeningHairFrame2),
+        (10, Frame.SuitlessSamusOpeningHairFrame3),
+        (32, Frame.SuitlessSamusOpeningHairFrame4),
+        (10, Frame.SuitlessSamusOpeningHairFrame5),
+        (9, Frame.SuitlessSamusOpeningHairFrame6),
+        (16, Frame.SuitlessSamusOpeningHairFrame7),
+        (10, Frame.SuitlessSamusOpeningHairFrame8),
+        (48, Frame.SuitlessSamusStanding),
+    ];
 
-    private static (ushort Duration, Frame? Frame) ArmDisplay(ArmStage stage) => stage switch
-    {
-        ArmStage.Wait => (64, null),
-        ArmStage.Raise1 => (8, Frame.SamusArmFromEndingFrame1),
-        ArmStage.Raise2 => (8, Frame.SamusArmFromEndingFrame2),
-        ArmStage.Raise3 => (5, Frame.SamusArmFromEndingFrame3),
-        ArmStage.Raise4 => (4, Frame.SamusArmFromEndingFrame4),
-        ArmStage.Raise5 => (3, Frame.SamusArmFromEndingFrame5),
-        ArmStage.ThumbUp => (32, Frame.SamusArmFromEndingFrame6),
-        ArmStage.Turn1 => (8, Frame.SamusArmFromEndingFrame7),
-        ArmStage.Turn2 => (64, Frame.SamusArmFromEndingFrame8),
-        ArmStage.Lower6 => (5, Frame.SamusArmFromEndingFrame6),
-        ArmStage.Lower5 => (5, Frame.SamusArmFromEndingFrame5),
-        ArmStage.Lower4 => (5, Frame.SamusArmFromEndingFrame4),
-        ArmStage.Lower3 => (5, Frame.SamusArmFromEndingFrame3),
-        ArmStage.Rest => (112, Frame.SamusArmFromEndingFrame2),
-        _ => throw new ArgumentOutOfRangeException(nameof(stage)),
-    };
+    /// <summary>Gesture-arm display records in list order: wait (no arm), raise, thumb up,
+    /// turn, lower and rest.</summary>
+    private static readonly (ushort Duration, Frame? Frame)[] ArmDisplays =
+    [
+        (64, null),
+        (8, Frame.SamusArmFromEndingFrame1),
+        (8, Frame.SamusArmFromEndingFrame2),
+        (5, Frame.SamusArmFromEndingFrame3),
+        (4, Frame.SamusArmFromEndingFrame4),
+        (3, Frame.SamusArmFromEndingFrame5),
+        (32, Frame.SamusArmFromEndingFrame6),
+        (8, Frame.SamusArmFromEndingFrame7),
+        (64, Frame.SamusArmFromEndingFrame8),
+        (5, Frame.SamusArmFromEndingFrame6),
+        (5, Frame.SamusArmFromEndingFrame5),
+        (5, Frame.SamusArmFromEndingFrame4),
+        (5, Frame.SamusArmFromEndingFrame3),
+        (112, Frame.SamusArmFromEndingFrame2),
+    ];
 
     private static ushort SuitlessJumpWord(int word)
     {

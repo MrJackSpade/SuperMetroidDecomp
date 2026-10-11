@@ -22,29 +22,29 @@ public sealed partial class RoomEnemySystem
     /// <summary>Live pogo tail controllers $A6:CB33..CBD3 and $CD24..CE64.</summary>
     private void TickRidleyPogoTail(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus)
     {
-        ushort function = state.TailFunctionIndex;
-        bool pointed = function is RidleyTailDefinitions.PogoSetup or RidleyTailDefinitions.PointDown or RidleyTailDefinitions.Stab;
-        if (!pointed && function is not (RidleyTailDefinitions.Pogo or RidleyTailDefinitions.StabSetup))
+        RidleyTailFunction function = state.TailFunctionIndex;
+        bool pointed = function is RidleyTailFunction.PogoSetup or RidleyTailFunction.PointDown or RidleyTailFunction.Stab;
+        if (!pointed && function is not (RidleyTailFunction.Pogo or RidleyTailFunction.StabSetup))
             throw new InvalidDataException($"Ridley tail function {function} is not translated.");
 
         state.TailMinimumClockwiseAngle = RidleyTailDefinitions.MinimumClockwise(state.FacingDirection);
         state.TailMaximumCounterClockwiseAngle = RidleyTailDefinitions.MaximumCounterClockwise(state.FacingDirection);
         if (pointed)
         {
-            state.TailAngleDelta = function == RidleyTailDefinitions.Stab ? (ushort)3 : (ushort)8;
+            state.TailAngleDelta = function == RidleyTailFunction.Stab ? (ushort)3 : (ushort)8;
             state.TailWhipTargetClockwiseAngle = state.FacingDirection == 0 ? ushort.MaxValue : RidleyTailDefinitions.DownAngle;
             state.TailWhipTargetCounterClockwiseAngle = state.FacingDirection == 0 ? RidleyTailDefinitions.DownAngle : ushort.MaxValue;
         }
-        HandleRidleyPogoTailControl(slot, state, samus, function == RidleyTailDefinitions.StabSetup);
+        HandleRidleyPogoTailControl(slot, state, samus, function == RidleyTailFunction.StabSetup);
         for (int index = 0; index < state.TailSegments.Length; index++)
             TickRidleyTailSegment(state, index);
         if (pointed && !state.TailSegments.Any(segment => segment.Active))
-            state.TailFunctionIndex = RidleyTailDefinitions.Pogo;
+            state.TailFunctionIndex = RidleyTailFunction.Pogo;
         // The setup/stab wrappers overwrite the result of the shared pointed-tail routine.
-        if (function == RidleyTailDefinitions.PogoSetup)
-            state.TailFunctionIndex = RidleyTailDefinitions.PointDown;
-        else if (function == RidleyTailDefinitions.Stab)
-            state.TailFunctionIndex = RidleyTailDefinitions.Stab;
+        if (function == RidleyTailFunction.PogoSetup)
+            state.TailFunctionIndex = RidleyTailFunction.PointDown;
+        else if (function == RidleyTailFunction.Stab)
+            state.TailFunctionIndex = RidleyTailFunction.Stab;
     }
 
     private void HandleRidleyPogoTailControl(RoomEnemySlot slot, RidleyEnemyState state, SamusState? samus, bool stabbing)
@@ -61,7 +61,7 @@ public sealed partial class RoomEnemySystem
         if (state.TailSegments.Any(segment => segment.Active)) return;
         if ((short)state.VerticalVelocity >= 0)
         {
-            state.TailFunctionIndex = stabbing ? RidleyTailDefinitions.Stab : RidleyTailDefinitions.StabSetup;
+            state.TailFunctionIndex = stabbing ? RidleyTailFunction.Stab : RidleyTailFunction.StabSetup;
             if (stabbing)
             {
                 foreach (var segment in state.TailSegments)

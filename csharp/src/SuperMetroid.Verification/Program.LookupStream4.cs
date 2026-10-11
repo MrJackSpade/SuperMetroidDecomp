@@ -1710,12 +1710,12 @@ internal static partial class Program
             var samus = new SamusState { Pose = (SamusPoseId)pose };
             byte flags = rom.ReadByte(0xa6bd04 + rom.ReadByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = 4, IntangibilityTimer = 99 };
+            var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = 99 };
             release(state, samus);
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer, "Actual release preserves native movement-dependent intangibility");
             AssertEqual((ushort)0, state.GrabState, "Actual release clears grab");
             AssertEqual((ushort)1, state.TailWhipRequest, "Actual release requests tail whip");
-            AssertEqual((ushort)1, state.TailFunctionIndex, "Actual release resets tail controller");
+            AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Actual release resets tail controller");
         }
         AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
         var absentState = new RidleyEnemyState();

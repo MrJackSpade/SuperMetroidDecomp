@@ -50,9 +50,11 @@ internal static class SamusProjectileCooldownDefinitions
             return 0;
         if (address is >= NonBeamCooldowns and < SamusProjectileRomData.Beams.AutoFireCooldowns)
         {
-            var kind = (NonBeamKind)(address - NonBeamCooldowns);
-            if (!Enum.IsDefined(kind))
+            // The table index is the non-beam projectile kind; kinds without a cooldown are zero.
+            int kindIndex = address - NonBeamCooldowns;
+            if (!Enum.IsDefined((NonBeamKind)kindIndex))
                 return 0;
+            var kind = (NonBeamKind)kindIndex;
             return kind switch
             {
                 NonBeamKind.Missile => 10,

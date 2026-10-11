@@ -10,7 +10,7 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
 {
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
-        for (Pose pose = Pose.SamusFalling; pose <= Pose.SamusShooting; pose++)
+        foreach (Pose pose in EndingRewardSpriteFrameSeries.ShootingScene)
             if (pointer == EndingRewardSpriteDefinitions.FramePointer(pose))
                 return supplied.CalculateIfMatching(new EndingRewardShootingSceneParts(pose));
         return supplied;

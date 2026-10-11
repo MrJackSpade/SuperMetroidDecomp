@@ -40,7 +40,7 @@ public static partial class GameplayDisplayCapture
         }
         registers = registers with
         {
-            MainScreenLayers = room.Pointer == XrayRoomDisplayRules.ExcludedRoomWithHiddenBg2 && mode == XrayRoomBlendMode.PreserveBackgrounds
+            MainScreenLayers = XrayRoomDisplayRules.RemovesBg2(room.Pointer) && mode == XrayRoomBlendMode.PreserveBackgrounds
                 ? SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Obj
                 : SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj,
         };

@@ -25,7 +25,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         // Function $B84D resets both tail control words before the lunge.
-        state.TailFunctionIndex = 1;
+        state.TailFunctionIndex = RidleyTailFunction.Neutral;
         state.TailAngleDelta = 1;
         state.Function = RidleyAiFunction.NorfairGrabApproach;
     }

@@ -4,20 +4,13 @@ namespace SuperMetroid.Core.Game;
 public static class ZoaSpeedDefinitions
 {
 
-    /// <summary>The five four-byte speed records reachable by a complete window of the definition.</summary>
-    private enum SpeedRecord
-    {
-        /// <summary>Byte offset 0, selected by initialization: stationary.</summary>
-        Initial = 0,
-        /// <summary>$A3:B429 selects byte offset 4: first shooting stage, half a pixel per frame.</summary>
-        FirstShooting = 1,
-        /// <summary>$A3:B434 selects byte offset 8: second shooting stage, five eighths of a pixel per frame.</summary>
-        SecondShooting = 2,
-        /// <summary>$A3:B43F selects byte offset 12: third shooting stage, two pixels per frame.</summary>
-        ThirdShooting = 3,
-        /// <summary>Byte offset 16, the trailing stationary record.</summary>
-        Trailing = 4,
-    }
+    /// <summary>
+    /// The five four-byte 16.16 speed records reachable by a complete window of the definition,
+    /// indexed by byte offset / 4: initialization's stationary record; the $A3:B429, $A3:B434 and
+    /// $A3:B43F shooting stages (half, five eighths and two pixels per frame); and the trailing
+    /// stationary record.
+    /// </summary>
+    private static readonly uint[] RecordSpeeds = [0, 1u << 15, 5u << 13, 2u << 16, 0];
 
     /// <summary>
     /// Reads the native pair of potentially unaligned words and combines them as 16.16.
@@ -37,14 +30,7 @@ public static class ZoaSpeedDefinitions
     // byte, so odd offsets and windows crossing record boundaries remain exact.
     private static byte Byte(int offset)
     {
-        uint speed = (SpeedRecord)(offset / 4) switch
-        {
-            SpeedRecord.Initial or SpeedRecord.Trailing => 0,
-            SpeedRecord.FirstShooting => 1u << 15,
-            SpeedRecord.SecondShooting => 5u << 13,
-            SpeedRecord.ThirdShooting => 2u << 16,
-            _ => throw new InvalidOperationException($"Undefined {nameof(SpeedRecord)} {offset / 4}."),
-        };
+        uint speed = RecordSpeeds[offset / 4];
         uint nativeWords = (speed >> 16) | (speed << 16);
         return (byte)(nativeWords >> (8 * (offset & 3)));
     }

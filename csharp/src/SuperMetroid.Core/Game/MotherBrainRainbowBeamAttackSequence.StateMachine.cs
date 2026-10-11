@@ -457,7 +457,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if ((LowerNeckMovementIndex | UpperNeckMovementIndex) == 0)
                 {
                     DroolGenerationEnabled = false;
-                    if (Body.Pose != 0)
+                    if (Body.Pose != MotherBrainBodyPose.Standing)
                         break;
                     Body.SetInstructionList(BodyCrouchingFastInstructionList);
                     bodyPostureRequested = true;
@@ -692,7 +692,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // Walking bytecode changes pose later in the enemy instruction stage. The
                 // AI therefore still sees pose zero on the call that requests a walk and may
                 // also select an attack, exactly as the source's post-handler `$C21B` load.
-                if (Body.Pose != 0 || Phase3DisableAttacks != 0 ||
+                if (Body.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks != 0 ||
                     (randomNumberSeed & 0x8000) == 0)
                     break;
 

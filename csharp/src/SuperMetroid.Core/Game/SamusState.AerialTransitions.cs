@@ -50,7 +50,7 @@ public sealed partial class SamusState
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling))
             throw new InvalidOperationException($"Turn fallback requires a turning movement type, not ${(byte)movementType:X2}.");
         HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
-        HorizontalSpeed.CancelRunningMomentum(ReadPoseXDirection(bus));
+        HorizontalSpeed.CancelRunningMomentum(ReadFacingDirection(bus));
     }
     /// <summary>
     /// Applies a normal-jump body selected when aim or Fire cancels a spin, Space Jump,
@@ -257,8 +257,8 @@ public sealed partial class SamusState
                 $"Spin direction transition ${(int)Pose:X2} -> ${(int)targetPose:X2} is not verified.");
         }
 
-        byte oldDirection = ReadPoseXDirection(bus);
-        byte newDirection = ReadPoseXDirection(bus, targetPose);
+        SamusFacingDirection oldDirection = ReadFacingDirection(bus);
+        SamusFacingDirection newDirection = ReadFacingDirection(bus, targetPose);
         if (oldDirection != newDirection)
         {
             FoldExtraRunSpeedIntoBaseAndStartTurn();
@@ -276,7 +276,7 @@ public sealed partial class SamusState
         // observable when both bits are equipped: an `$81 -> $82` ROM record must remain
         // Screw art, while the same directional intent with Screw unequipped becomes Space
         // Jump art instead of trusting stale pose-table equipment state.
-        SamusPoseId genericTarget = newDirection == 4 ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
+        SamusPoseId genericTarget = newDirection == SamusFacingDirection.Left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
         Pose = SelectEquippedSpinPose(genericTarget, skipFirstAnimationFrame: true);
         RefreshCollisionRadii(bus);
 

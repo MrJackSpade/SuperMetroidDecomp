@@ -72,8 +72,22 @@ public static class EndingFontAtlasFormat
     {
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
         int tile = pixel / Width / TileSize * TilesPerRow + pixel % Width / TileSize;
-        return tile is EndingTextDefinitions.ResultBlankWord or EndingTextDefinitions.LargeBlankWord;
+        foreach (SpaceCell space in SpaceCells)
+            if (TileOf(space) == tile) return true;
+        return false;
     }
+
+    /// <summary>The two blank characters the ending text maps to a space.</summary>
+    private enum SpaceCell { ResultBlank, LargeBlank }
+
+    private static readonly SpaceCell[] SpaceCells = Enum.GetValues<SpaceCell>();
+
+    private static int TileOf(SpaceCell space) => space switch
+    {
+        SpaceCell.ResultBlank => EndingTextDefinitions.ResultBlankWord,
+        SpaceCell.LargeBlank => EndingTextDefinitions.LargeBlankWord,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SpaceCell)} {(int)space}."),
+    };
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED selected foreground pen1.</summary>
     internal const byte GlyphFillInk = 1;
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED selected outline pen2.</summary>

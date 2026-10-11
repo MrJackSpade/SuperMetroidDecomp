@@ -472,7 +472,7 @@ public sealed partial class SamusState
                 $"Stable Morph-Ball transition ${(int)Pose:X2} -> ${(int)targetPose:X2} requires stable ball endpoints.");
         }
 
-        byte previousDirection = ReadPoseXDirection(bus);
+        SamusFacingDirection previousDirection = ReadFacingDirection(bus);
         int previousDelayList = AnimationDelayListAddress;
         Pose = targetPose;
         RefreshCollisionRadii(bus);
@@ -487,9 +487,9 @@ public sealed partial class SamusState
                 $"Morph-Ball transition selected mismatched animation lists ${previousDelayList:X6}/${targetDelayList:X6}.");
         }
 
-        byte currentDirection = ReadPoseXDirection(bus);
-        bool reversed = (previousDirection == 8 && currentDirection == 4) ||
-            (previousDirection == 4 && currentDirection == 8);
+        SamusFacingDirection currentDirection = ReadFacingDirection(bus);
+        bool reversed = (previousDirection == SamusFacingDirection.Right && currentDirection == SamusFacingDirection.Left) ||
+            (previousDirection == SamusFacingDirection.Left && currentDirection == SamusFacingDirection.Right);
         if (reversed)
         {
             // `$91:FA32-$91:FA52` folds run momentum into base speed with one 16-bit carry,

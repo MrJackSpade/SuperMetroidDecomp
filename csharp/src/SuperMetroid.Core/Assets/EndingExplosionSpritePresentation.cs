@@ -101,10 +101,11 @@ public sealed record EndingExplosionSpriteDocument
 /// <summary>Distinct bank-$8C frame identities consumed by the eight explosion actors.</summary>
 public static class EndingExplosionSpriteDefinitions
 {
-    /// <summary>Mutually exclusive poses in the published explosion frame order.</summary>
+    /// <summary>Mutually exclusive composite poses, valued by their published explosion frame
+    /// order after the ten small planet records addressed by <see cref="PlanetPointer"/>.</summary>
     internal enum Pose
     {
-        DamageFirst, Glow = 10, SupernovaFirst = 11, SupernovaSecond = 12, Stars = 13, Silhouette = 14, Afterglow = 15,
+        Glow = PlanetRecordCount, SupernovaFirst = 11, SupernovaSecond = 12, Stars = 13, Silhouette = 14, Afterglow = 15,
     }
     /// <summary>$8C:A396, ExplodingPlanetZebesFrame1; ten four-part records
     /// contain four damage poses, four flash poses and two lava poses.</summary>
@@ -113,20 +114,27 @@ public static class EndingExplosionSpriteDefinitions
     private const ushort Starfield = 0xa28b;
     private const int SmallParts = 4, GlowParts = 12, SupernovaParts = 20;
     private const int FrameCount = 16;
+    /// <summary>Four damage, four flash and two lava records precede the composite poses.</summary>
+    private const int PlanetRecordCount = 10;
 
     /// <summary>Ordered asset identities, calculated on demand without a stored frame array.</summary>
     public static IReadOnlyList<EndingExplosionSpriteFrameDefinition> Frames { get; } = new FrameView();
 
 
 
-    /// <summary>$8C:A396 consecutive counted OAM records, except the independent
+    /// <summary>One of the ten consecutive four-part planet records from $8C:A396, in
+    /// published order: four damage, four flash and two lava poses.</summary>
+    internal static ushort PlanetPointer(int record)
+    {
+        if ((uint)record >= PlanetRecordCount) throw new ArgumentOutOfRangeException(nameof(record));
+        return (ushort)(PlanetFirst + record * RecordBytes(SmallParts));
+    }
+
+    /// <summary>Composite records that follow the planet chain, except the independent
     /// $8C:A28B starfield. Shared by asset identity and executable display operands.</summary>
     internal static ushort Pointer(Pose pose)
     {
-        int index = (int)pose;
-        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(pose));
-        if (index < 10) return (ushort)(PlanetFirst + index * RecordBytes(SmallParts));
-        int glow = PlanetFirst + 10 * RecordBytes(SmallParts);
+        int glow = PlanetFirst + PlanetRecordCount * RecordBytes(SmallParts);
         int supernova = glow + RecordBytes(GlowParts);
         return pose switch
         {
@@ -143,16 +151,18 @@ public static class EndingExplosionSpriteDefinitions
     private static EndingExplosionSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        ushort pointer = Pointer((Pose)index);
-        if (index < 10)
+        if (index < PlanetRecordCount)
         {
+            ushort planet = PlanetPointer(index);
             string family = index < 4 ? "planet-damage" : index < 8 ? "planet-flash" : "lava";
             int stage = index < 4 ? index : index < 8 ? index - 4 : index - 8;
             return new(family + "-" + stage.ToString(System.Globalization.CultureInfo.InvariantCulture),
-                pointer, SmallParts);
+                planet, SmallParts);
         }
         // The glow and supernova compositions follow the small planet/core records.
-        return (Pose)index switch
+        var pose = (Pose)index;
+        ushort pointer = Pointer(pose);
+        return pose switch
         {
             Pose.Glow => new("glow-0", pointer, GlowParts),
             Pose.SupernovaFirst => new("glow-1", pointer, SupernovaParts),

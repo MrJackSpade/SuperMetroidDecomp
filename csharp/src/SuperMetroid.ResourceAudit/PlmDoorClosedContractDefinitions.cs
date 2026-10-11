@@ -30,7 +30,7 @@ internal static class PlmDoorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainEscapeGatePlmDrawDefinitions.cs", "C81C3183BB1200BED668179AFB9AD278FE8CC0908D5B0293415EFE81A10A5F2D")]),
         new("SuperMetroid.Core.Rooms.RoomPlmCollectibleVisualCatalog", "plm-collectible-complete-single-words", ["GetWord"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleVisualCatalog.cs", "2E34BE68E5702BF5C13C5E4999E4979AD53995BECA0903C386EF677C8F53208D"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleDrawDefinitions.cs", "A7459A94768B409116B7902B01252B84FED22E996FED7081A847FF4E5A150996")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmCollectibleDrawDefinitions.cs", "3D233386EEA7F87AA2335CD68D581BAD4F273F35DB41F4A2869D6EEBBCDB8038")]),
         new("SuperMetroid.Core.Rooms.RoomPlmGrappleBlockVisualCatalog", "plm-grapple-block-complete-single-words", ["GetWord"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockVisualCatalog.cs", "985EDADC1E29EB8DD7FD8BA23D9278B9312C33D7A48F486D69558142EA550755"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmGrappleBlockDrawDefinitions.cs", "FD210C6E13EED1DE1D6E9C7DAD697D0A9FB775C4C091BE91E4E0DE9BB9382A74")]),

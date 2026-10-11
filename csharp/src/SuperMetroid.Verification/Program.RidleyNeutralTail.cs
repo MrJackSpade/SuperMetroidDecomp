@@ -18,11 +18,11 @@ internal static partial class Program
             var state = new RidleyEnemyState
             {
                 FightMode = 1, GrabState = 0,
-                TailFunctionIndex = 4, TailAngleDelta = (ushort)raw,
+                TailFunctionIndex = RidleyTailFunction.Pogo, TailAngleDelta = (ushort)raw,
                 FeetDistanceIndex = (ushort)(ushort.MaxValue - raw),
             };
             prepare(state, armed);
-            AssertEqual((ushort)1, state.TailFunctionIndex, "Power Bomb sets neutral tail function");
+            AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Power Bomb sets neutral tail function");
             AssertEqual((ushort)1, state.TailAngleDelta, "Power Bomb resets native tail angle delta");
             AssertEqual((ushort)(ushort.MaxValue - raw), state.FeetDistanceIndex, "Power Bomb preserves animated foot displacement");
             AssertEqual(RidleyAiFunction.NorfairGrabApproach, state.Function, "Power Bomb lunge handoff");
@@ -36,11 +36,11 @@ internal static partial class Program
             var state = new RidleyEnemyState
             {
                 FightMode = fight, GrabState = grab,
-                TailFunctionIndex = 4, TailAngleDelta = 8, FeetDistanceIndex = 4,
+                TailFunctionIndex = RidleyTailFunction.Pogo, TailAngleDelta = 8, FeetDistanceIndex = 4,
                 Function = RidleyAiFunction.NorfairHover,
             };
             prepare(state, flag ? armed : unarmed);
-            AssertEqual((ushort)4, state.TailFunctionIndex, "Inactive reaction preserves tail function");
+            AssertEqual(RidleyTailFunction.Pogo, state.TailFunctionIndex, "Inactive reaction preserves tail function");
             AssertEqual((ushort)8, state.TailAngleDelta, "Inactive reaction preserves angle delta");
             AssertEqual((ushort)4, state.FeetDistanceIndex, "Inactive reaction preserves feet");
             AssertEqual(RidleyAiFunction.NorfairHover, state.Function, "Inactive reaction preserves phase");

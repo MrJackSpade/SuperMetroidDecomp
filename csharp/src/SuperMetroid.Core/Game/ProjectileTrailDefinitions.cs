@@ -14,6 +14,29 @@ public static class ProjectileTrailDefinitions
     /// <summary>$90:B5A1, InstList_BeamTrail_SuperMissile, also used by ordinary missiles.</summary>
     public const ushort Missile = 0xb5a1;
 
+    /// <summary>The five trail instruction lists, in address order.</summary>
+    private enum TrailList { Empty, LeftIce, RightIce, Wave, Missile }
+
+    private static readonly TrailList[] TrailLists = Enum.GetValues<TrailList>();
+
+    private static ushort StartOf(TrailList list) => list switch
+    {
+        TrailList.Empty => Empty,
+        TrailList.LeftIce => LeftIce,
+        TrailList.RightIce => RightIce,
+        TrailList.Wave => Wave,
+        TrailList.Missile => Missile,
+        _ => throw new InvalidOperationException($"Undefined {nameof(TrailList)} {(int)list}."),
+    };
+
+    /// <summary>True when a trail cursor still sits on a list's first record, before any record is consumed.</summary>
+    public static bool IsListStart(ushort cursor)
+    {
+        foreach (TrailList list in TrailLists)
+            if (StartOf(list) == cursor) return true;
+        return false;
+    }
+
     /// <summary>
     /// $90:B657-$B688: the25 words observed when the right trail selector's low-six-bit
     /// index reaches past its39 entries into Spawn projectile trail's machine code.

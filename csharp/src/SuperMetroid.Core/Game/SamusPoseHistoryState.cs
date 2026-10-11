@@ -22,9 +22,17 @@ public sealed class SamusPoseHistoryState
     /// $90:9D35 admits only older spinjump/walljump movement. The cartridge name
     /// says "last different", but the producer also shifts on same-pose transitions.
     /// </summary>
-    public bool AllowsWallJumpProbe =>
-        (SamusMovementType)(LastDifferentDirectionAndMovement >> 8) is
-            SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
+    public bool AllowsWallJumpProbe
+    {
+        get
+        {
+            // $90:9D35 compares the raw movement byte, so a byte outside the movement-type
+            // domain is simply not one of the two admitted movements.
+            byte movement = unchecked((byte)(LastDifferentDirectionAndMovement >> 8));
+            return Enum.IsDefined((SamusMovementType)movement) &&
+                (SamusMovementType)movement is SamusMovementType.SpinJumping or SamusMovementType.WallJumping;
+        }
+    }
 
     /// <summary>
     /// Applies the four literal word stores in $91:E719. Call for a committed

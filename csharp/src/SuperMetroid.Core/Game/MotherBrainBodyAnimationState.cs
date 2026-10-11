@@ -29,10 +29,10 @@ public sealed class MotherBrainBodyAnimationState
     public ushort YPosition { get; set; }
 
     /// <summary>
-    /// Native body pose word. The admitted programs publish zero standing, one walking,
-    /// two transitioning between postures, three crouching, and six leaning down.
+    /// Native body pose word. The admitted programs publish standing, walking, the
+    /// posture transition, crouched and leaning down.
     /// </summary>
-    public ushort Pose { get; set; }
+    public MotherBrainBodyPose Pose { get; set; }
 
     /// <summary>Phase/form word consulted by the native footstep sound gate.</summary>
     public ushort Form { get; set; }

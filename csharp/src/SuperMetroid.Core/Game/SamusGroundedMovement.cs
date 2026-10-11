@@ -392,7 +392,7 @@ public static class SamusGroundedMovement
         // without the Speed Booster item: `$91:F8D3` folded the numeric extra component but
         // deliberately left `$0B3C` set until this movement handler. Then `$90:A689-$A68C`
         // perform the separately observable zero writes to the two extra-speed words.
-        speed.CancelRunningMomentum(samus.ReadPoseXDirection(bus));
+        speed.CancelRunningMomentum(samus.ReadFacingDirection(bus));
         speed.ExtraRunSpeed = 0;
         speed.ExtraRunSubspeed = 0;
         return new GroundedMovementResult(horizontal, vertical);

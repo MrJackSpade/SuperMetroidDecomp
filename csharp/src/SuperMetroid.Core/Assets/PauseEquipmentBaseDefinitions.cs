@@ -81,6 +81,8 @@ public static class PauseEquipmentBaseDefinitions
     private const int EmptyGauge = 0xfc, GaugeEnd = 0xfe;
 
     private enum PanelKind { Supply, Beam, Suit, Misc, Boots }
+    /// <summary>Right-column panels whose left border joins the beam panel's guide line.</summary>
+    private static readonly PanelKind[] GuidedPanels = [PanelKind.Suit, PanelKind.Misc, PanelKind.Boots];
     private readonly record struct PanelShape(int Left, int Top, int Right, int Bottom,
         int TextColumn, int TextWidth, int TextTile, int TextPalette, bool TextPriority);
 
@@ -145,7 +147,7 @@ public static class PauseEquipmentBaseDefinitions
         if (diagonalColumn is 1 or 2 && diagonalRow == 3 - diagonalColumn)
             return Tile(GuideDiagonal + AtlasRowStride, diagonalColumn == 1 ? 6 : 2);
         if (column == beam.Right && row == beam.Top + 2) return Tile(GuideBorderJunction, 6);
-        for (PanelKind kind = PanelKind.Suit; kind <= PanelKind.Boots; kind++)
+        foreach (PanelKind kind in GuidedPanels)
         {
             PanelShape panel = Panel(kind);
             int guideRow = kind == PanelKind.Boots ? panel.Bottom - 1 : panel.Top + 2;
@@ -155,7 +157,7 @@ public static class PauseEquipmentBaseDefinitions
         if (row == 12 && column == 2) return Tile(ArrowJoin, 7);
         if (row == 12 && column is >= 3 and <= 6) return Tile(EmptyGauge, 7, false);
         if (row == 12 && column == 7) return Tile(GaugeEnd, 7);
-        for (PanelKind kind = PanelKind.Supply; kind <= PanelKind.Boots; kind++)
+        foreach (PanelKind kind in Enum.GetValues<PanelKind>())
         {
             PanelShape panel = Panel(kind);
             if (column < panel.Left || column > panel.Right || row < panel.Top || row > panel.Bottom) continue;

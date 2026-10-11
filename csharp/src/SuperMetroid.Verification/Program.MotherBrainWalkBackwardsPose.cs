@@ -14,7 +14,7 @@ internal static partial class Program
         PropertyInfo forward = typeof(MotherBrainRainbowBeamAttackSequence).GetProperty(
             nameof(MotherBrainRainbowBeamAttackSequence.PainfulWalkingForward))!;
 
-        MotherBrainRainbowBeamAttackSequence Walking(ushort x, ushort pose)
+        MotherBrainRainbowBeamAttackSequence Walking(ushort x, MotherBrainBodyPose pose)
         {
             var sequence = new MotherBrainRainbowBeamAttackSequence();
             forward.SetValue(sequence, false);
@@ -26,15 +26,15 @@ internal static partial class Program
             return sequence;
         }
 
-        MotherBrainRainbowBeamAttackSequence midStep = Walking(0x0029, pose: 1);
+        MotherBrainRainbowBeamAttackSequence midStep = Walking(0x0029, pose: MotherBrainBodyPose.Walking);
         step.Invoke(midStep, null);
         AssertEqual((ushort)0, midStep.PainfulWalkingFunctionTimer, "a mid-step body short of the target has not arrived");
 
-        MotherBrainRainbowBeamAttackSequence standing = Walking(0x0029, pose: 0);
+        MotherBrainRainbowBeamAttackSequence standing = Walking(0x0029, pose: MotherBrainBodyPose.Standing);
         step.Invoke(standing, null);
         AssertEqual((ushort)0x0010, standing.PainfulWalkingFunctionTimer, "a standing body inside the $30 limit has arrived");
 
-        MotherBrainRainbowBeamAttackSequence arrived = Walking(0x0026, pose: 1);
+        MotherBrainRainbowBeamAttackSequence arrived = Walking(0x0026, pose: MotherBrainBodyPose.Walking);
         step.Invoke(arrived, null);
         AssertEqual((ushort)0x0010, arrived.PainfulWalkingFunctionTimer, "a mid-step body at the target has arrived");
         Console.WriteLine("Mother Brain walk backwards: pose gates the $30 limit, not the target.");

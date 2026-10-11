@@ -226,7 +226,7 @@ public sealed class RidleyEnemyState
     /// <summary>Gets the decrement selected from velocity magnitude for the wing accumulator; nonnegative vertical motion halves it.</summary>
     public ushort WingAnimationTimerDelta { get; internal set; }
     /// <summary>Gets the shared native tail-controller index; zero retains offsets, one selects neutral control, and the other defined indexes select pogo/stab variants.</summary>
-    public ushort TailFunctionIndex { get; internal set; }
+    public RidleyTailFunction TailFunctionIndex { get; internal set; }
     /// <summary>Gets the angular step used by shared tail segment motion and stagger propagation.</summary>
     public ushort TailAngleDelta { get; internal set; }
     /// <summary>Gets the facing-dependent lower full-word angle clamp for clockwise tail movement.</summary>

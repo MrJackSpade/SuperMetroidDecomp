@@ -236,7 +236,7 @@ public static class DebuggerSaveStateSmokeTest
         current.AsSpan(0, tableOffset).CopyTo(old);
         current.AsSpan(tableEnd).CopyTo(old.AsSpan(tableOffset));
         System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(
-            old.AsSpan(DebuggerStateFormat.Magic.Length), DebuggerStateFormat.IdentifiedVersion);
+            old.AsSpan(DebuggerStateFormat.Magic.Length), (int)DebuggerStateVersion.Identified);
         File.WriteAllBytes(store.GetSlotPath(4), old);
         DebuggerSaveStateLoadResult restored = store.Load(4);
         if (restored.Warnings.Count != 1 ||
@@ -251,7 +251,7 @@ public static class DebuggerSaveStateSmokeTest
         current.AsSpan(0, identityOffset).CopyTo(legacy);
         current.AsSpan(tableEnd).CopyTo(legacy.AsSpan(identityOffset));
         System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(
-            legacy.AsSpan(DebuggerStateFormat.Magic.Length), DebuggerStateFormat.NamedDelegateVersion);
+            legacy.AsSpan(DebuggerStateFormat.Magic.Length), (int)DebuggerStateVersion.NamedDelegate);
         File.WriteAllBytes(store.GetSlotPath(3), legacy);
     }
 

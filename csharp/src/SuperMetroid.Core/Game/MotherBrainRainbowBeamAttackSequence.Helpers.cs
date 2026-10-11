@@ -72,7 +72,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         // `$C25A` refuses to call the walking function while body bytecode advertises any
         // nonzero pose. This makes each request edge-triggered: the requested walk runs to
         // its standing opcode before the scheduler is allowed to inspect its target again.
-        if (Body.Pose != 0)
+        if (Body.Pose != MotherBrainBodyPose.Standing)
             return false;
 
         switch (Phase3WalkingPhase)
@@ -271,7 +271,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     {
         if (unchecked((short)(targetX - Body.XPosition)) < 0)
             return MotherBrainWalkResult.Reached;
-        if (Body.Pose != 0)
+        if (Body.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
         if (NativeAtLeast(Body.XPosition, 0x0080))
             return MotherBrainWalkResult.Reached;
@@ -289,7 +289,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     {
         if (unchecked((short)(targetX - Body.XPosition)) >= 0)
             return MotherBrainWalkResult.Reached;
-        if (Body.Pose != 0)
+        if (Body.Pose != MotherBrainBodyPose.Standing)
             return MotherBrainWalkResult.Waiting;
         if (unchecked((short)(Body.XPosition - 0x0030)) < 0)
             return MotherBrainWalkResult.Reached;
@@ -322,13 +322,13 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         if ((randomNumberSeed & 0x00ff) < 0x00c0)
             return false;
 
-        if (Body.Pose == 0)
+        if (Body.Pose == MotherBrainBodyPose.Standing)
         {
             Body.SetInstructionList(BodyLeaningDownInstructionList);
             return true;
         }
 
-        if (Body.Pose == 6)
+        if (Body.Pose == MotherBrainBodyPose.LeaningDown)
         {
             MakeBodyStandUp(out bool requested);
             return requested;
@@ -340,14 +340,16 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     private bool MakeBodyStandUp(out bool animationRequested)
     {
         animationRequested = false;
-        if (Body.Pose == 0)
+        if (Body.Pose == MotherBrainBodyPose.Standing)
             return true;
 
         ushort instructionList = Body.Pose switch
         {
-            3 => BodyStandingUpAfterCrouchingFastInstructionList,
-            6 => BodyStandingUpAfterLeaningDownInstructionList,
-            _ => 0,
+            MotherBrainBodyPose.Crouched => BodyStandingUpAfterCrouchingFastInstructionList,
+            MotherBrainBodyPose.LeaningDown => BodyStandingUpAfterLeaningDownInstructionList,
+            MotherBrainBodyPose.Standing or MotherBrainBodyPose.Walking or
+                MotherBrainBodyPose.CrouchingTransition or MotherBrainBodyPose.DeathBeam => 0,
+            _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainBodyPose)} {(int)Body.Pose}."),
         };
         if (instructionList != 0)
         {

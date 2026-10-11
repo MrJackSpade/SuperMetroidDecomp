@@ -16,7 +16,7 @@ internal static partial class SwapchainTests
             worker = new(window, 640, 480, 1, kind, () =>
             {
                 Interlocked.Increment(ref attempts);
-                if (repeatDeviceLoss) new SharpGen.Runtime.Result(D3D11RecoveryPolicy.DeviceRemoved).CheckError();
+                if (repeatDeviceLoss) new SharpGen.Runtime.Result((int)DxgiDeviceLoss.DeviceRemoved).CheckError();
                 throw new InvalidDataException("Injected coverage failure must not be retried.");
             });
             PumpUntil(() => worker.Ready.IsCompleted);
@@ -30,7 +30,7 @@ internal static partial class SwapchainTests
             // Observe the original fault through the same health API used by the desktop.
             Exception? observed = null;
             try { worker.ThrowIfFaulted(); } catch (Exception error) { observed = error; }
-            if (repeatDeviceLoss ? observed?.HResult != D3D11RecoveryPolicy.DeviceRemoved : observed is not InvalidDataException)
+            if (repeatDeviceLoss ? observed?.HResult != (int)DxgiDeviceLoss.DeviceRemoved : observed is not InvalidDataException)
                 throw new InvalidOperationException("Renderer fault lost its original type/HRESULT.");
             Console.WriteLine($"{kind}: repeated loss={repeatDeviceLoss}; {attempts} attempts then original failure surfaced.");
         }

@@ -691,7 +691,8 @@ internal static class SamusAnimationDelayDefinitions
         if (address is >= PointerTableAddress and < DelayStreamsAddress)
         {
             int byteIndex = address - PointerTableAddress;
-            ushort pointer = PointerForPose((SamusPoseId)(byteIndex / 2));
+            ushort pointer = PointerForPose(
+                ClosedNativeWords.Decode<SamusPoseId>((byte)(byteIndex / 2), "animation-delay pointer-table pose"));
             return unchecked((byte)(pointer >> ((byteIndex & 1) * 8)));
         }
         if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)

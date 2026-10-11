@@ -109,21 +109,20 @@ internal static class SpcMusicDefinitionCodec
                     ended = true;
                     break;
                 case AudioMusicInstructionOperations.FastForwardOn:
-                    if (instruction.Value != SpcDriverData.Music.PatternFastForwardOn ||
+                    if (!MusicTrackControls.Is(instruction.Value, MusicTrackControl.FastForwardOn) ||
                         instruction.Target is not null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
                     break;
                 case AudioMusicInstructionOperations.FastForwardOff:
-                    if (instruction.Value != SpcDriverData.Music.PatternFastForwardOff ||
+                    if (!MusicTrackControls.Is(instruction.Value, MusicTrackControl.FastForwardOff) ||
                         instruction.Target is not null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
                     break;
                 case AudioMusicInstructionOperations.Repeat:
-                    if ((instruction.Value >> 8) != 0 || instruction.Value is 0 or
-                        SpcDriverData.Music.PatternFastForwardOn or
-                        SpcDriverData.Music.PatternFastForwardOff || instruction.Target is null)
+                    if ((instruction.Value >> 8) != 0 || instruction.Value == 0 ||
+                        MusicTrackControls.TryDecode(instruction.Value, out _) || instruction.Target is null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
                     WriteWord(bytes, instruction.Target.Value);
@@ -266,10 +265,13 @@ internal static class SpcMusicDefinitionCodec
                 phraseAddresses = [.. phrases];
                 return new(track, id, address, cursor - address, instructions);
             }
-            if (value == SpcDriverData.Music.PatternFastForwardOn)
-                instructions.Add(new(AudioMusicInstructionOperations.FastForwardOn, value, null));
-            else if (value == SpcDriverData.Music.PatternFastForwardOff)
-                instructions.Add(new(AudioMusicInstructionOperations.FastForwardOff, value, null));
+            if (MusicTrackControls.TryDecode(value, out MusicTrackControl control))
+                instructions.Add(new(control switch
+                {
+                    MusicTrackControl.FastForwardOn => AudioMusicInstructionOperations.FastForwardOn,
+                    MusicTrackControl.FastForwardOff => AudioMusicInstructionOperations.FastForwardOff,
+                    _ => throw new InvalidOperationException($"Undefined {nameof(MusicTrackControl)} {(int)control}."),
+                }, value, null));
             else
             {
                 ushort target = ReadWord(ram, written, ref cursor, id);

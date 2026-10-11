@@ -2451,8 +2451,8 @@ internal static class TorizoCollisionDefinitionsAccess
         {
             get
             {
-                yield return PrivateState.StaticField<ushort>(typeof(TorizoCollisionDefinitions), "BlankFrame");
-                yield return PrivateState.StaticField<ushort>(typeof(TorizoCollisionDefinitions), "TurningFrame");
+                foreach (object emptyFrame in Enum.GetValues(PrivateState.Nested(typeof(TorizoCollisionDefinitions), "EmptyFrame")))
+                    yield return Convert.ToUInt16(emptyFrame, System.Globalization.CultureInfo.InvariantCulture);
                 ushort cursor = PrivateState.StaticField<ushort>(typeof(TorizoCollisionDefinitions), "LeftStart");
                 foreach (GoldenTorizoCollisionComponent[] frame in PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "LeftFrames"))
                 {

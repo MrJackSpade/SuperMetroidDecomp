@@ -62,32 +62,51 @@ internal static class RoomPlmCollectibleDrawDefinitions
         return found;
     }
 
+    /// <summary>The six draw-list groups in address order; holes between them are not draw lists.</summary>
+    private enum DrawGroup { Empty, Orb, OrbBurst, Tank, Dynamic, ShotReveal }
+
+    private static readonly DrawGroup[] DrawGroups = Enum.GetValues<DrawGroup>();
+
+    private static (ushort First, int Count) SpanOf(DrawGroup group) => group switch
+    {
+        DrawGroup.Empty => (Empty, 1),
+        DrawGroup.Orb => (OrbFirst, 3),
+        DrawGroup.OrbBurst => (OrbBurst, 1),
+        DrawGroup.Tank => (TankFirst, 8),
+        DrawGroup.Dynamic => (DynamicFirst, 8),
+        DrawGroup.ShotReveal => (ShotRevealFirst, 3),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
+    };
+
     private static bool TryResolve(ushort pointer, bool includeId, out RoomPlmCollectibleDrawFrame frame)
     {
-        int index;
-        ushort word;
-        string id;
-        if (pointer == Empty) { word = 0x00ff; id = "empty"; }
-        else if (TryIndex(pointer, OrbFirst, 3, out index))
-        { word = (ushort)(0xc072 + index); id = includeId ? $"chozo-orb-{index}" : string.Empty; }
-        else if (pointer == OrbBurst) { word = 0x8075; id = "chozo-orb-burst"; }
-        else if (TryIndex(pointer, TankFirst, 8, out index))
+        foreach (DrawGroup group in DrawGroups)
         {
-            word = (ushort)(0xb04a + index);
-            string kind = (index / 2) switch
+            (ushort first, int count) = SpanOf(group);
+            if (!TryIndex(pointer, first, count, out int index)) continue;
+            (ushort word, string id) = group switch
             {
-                0 => "energy", 1 => "missile", 2 => "super-missile", _ => "power-bomb",
+                DrawGroup.Empty => ((ushort)0x00ff, "empty"),
+                DrawGroup.Orb => ((ushort)(0xc072 + index), includeId ? $"chozo-orb-{index}" : string.Empty),
+                DrawGroup.OrbBurst => ((ushort)0x8075, "chozo-orb-burst"),
+                DrawGroup.Tank => ((ushort)(0xb04a + index), includeId ? $"{TankKindName(index / 2)}-tank-{index % 2}" : string.Empty),
+                DrawGroup.Dynamic => ((ushort)(0xb08e + index),
+                    includeId ? $"dynamic-slot-{index / 2}-frame-{index % 2}" : string.Empty),
+                DrawGroup.ShotReveal => ((ushort)(0x8053 + index), includeId ? $"shot-reveal-{index}" : string.Empty),
+                _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
             };
-            id = includeId ? $"{kind}-tank-{index % 2}" : string.Empty;
+            frame = new(pointer, word, id);
+            return true;
         }
-        else if (TryIndex(pointer, DynamicFirst, 8, out index))
-        { word = (ushort)(0xb08e + index); id = includeId ? $"dynamic-slot-{index / 2}-frame-{index % 2}" : string.Empty; }
-        else if (TryIndex(pointer, ShotRevealFirst, 3, out index))
-        { word = (ushort)(0x8053 + index); id = includeId ? $"shot-reveal-{index}" : string.Empty; }
-        else { frame = default; return false; }
-        frame = new(pointer, word, id);
-        return true;
+        frame = default;
+        return false;
     }
+
+    private static string TankKindName(int kind) => kind switch
+    {
+        0 => "energy", 1 => "missile", 2 => "super-missile", _ => "power-bomb",
+    };
+
     private static bool TryIndex(ushort pointer, ushort first, int count, out int index)
     {
         int offset = pointer - first;

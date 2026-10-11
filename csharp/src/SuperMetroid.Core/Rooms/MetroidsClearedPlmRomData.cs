@@ -49,8 +49,17 @@ internal static class MetroidsClearedPlmRomData
     public static EventNumber? ResolveEvent(ushort roomArgument)
     {
         int wordIndex = ValidateAndGetWordIndex(roomArgument);
-        return wordIndex < 9 ? null : (EventNumber)((int)EventNumber.FirstMetroidHallCleared + wordIndex - 9);
+        return wordIndex < 9 ? null : QuotaObserverEvents[wordIndex - 9];
     }
+
+    /// <summary>Events marked by the four quota observers at $84:DADE, $DAEE, $DAFE and $DB0E, in table order.</summary>
+    private static readonly EventNumber[] QuotaObserverEvents =
+    [
+        EventNumber.FirstMetroidHallCleared,
+        EventNumber.FirstMetroidShaftCleared,
+        EventNumber.SecondMetroidHallCleared,
+        EventNumber.SecondMetroidShaftCleared,
+    ];
 
     private static int ValidateAndGetWordIndex(ushort roomArgument)
     {

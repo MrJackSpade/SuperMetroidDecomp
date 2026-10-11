@@ -687,7 +687,7 @@ static void VerifySamusVisorPalette()
         "second write advances packed offset to ten");
 
     for (int call = 0; call < 5; call++)
-        state.Update(bus, cgram, 0, LayerBlendingConfiguration.VisorBackdrop28);
+        state.Update(bus, cgram, SamusSpecialPaletteType.None, LayerBlendingConfiguration.VisorBackdrop28);
     AssertEqual(0x2002, cgram.Colors[196], "third backdrop visor color");
     AssertEqual(0x0605, state.PackedTimerIndex,
         "third write wraps only to room-cycle offset six");
@@ -695,7 +695,7 @@ static void VerifySamusVisorPalette()
     ushort packedBeforeXray = state.PackedTimerIndex;
     cgram.SetColor(196, Bgr555.FromWord(0x3456));
     state.Update(
-        bus, cgram, 8, LayerBlendingConfiguration.VisorBackdrop28);
+        bus, cgram, SamusSpecialPaletteType.Xray, LayerBlendingConfiguration.VisorBackdrop28);
     AssertTrue(state.PackedTimerIndex == packedBeforeXray && cgram.Colors[196].ToWord() == 0x3456,
         "X-ray special handler suppresses ordinary visor cycle");
     AssertEqual(packedBeforeXray, state.PackedTimerIndex,

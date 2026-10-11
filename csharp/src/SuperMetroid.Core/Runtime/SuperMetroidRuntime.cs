@@ -3205,7 +3205,7 @@ Landed: true, HitCeiling: false);
                     // Extra speed survives this command, but the next normal mover
                     // consumes the cancellation through HandleExtraRunSpeed.
                     Samus.HorizontalSpeed.AccelerationMode = 0;
-                    Samus.HorizontalSpeed.CancelRunningMomentum((byte)Samus.ReadFacingDirection(_addressSpace));
+                    Samus.HorizontalSpeed.CancelRunningMomentum(Samus.ReadFacingDirection(_addressSpace));
                 }
                 else if (!animationTransitionApplied &&
                          poseAtFrameStart is SamusPoseId.DamageBoostRightPose or SamusPoseId.DamageBoostLeftPose &&

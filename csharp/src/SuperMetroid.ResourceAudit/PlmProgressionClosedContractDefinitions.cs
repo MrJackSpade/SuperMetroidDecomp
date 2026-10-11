@@ -45,6 +45,6 @@ internal static class PlmProgressionClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmMotherBrainFakeDeathVisualCatalog", "plm-mother-brain-fake-death-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmMotherBrainFakeDeathVisualCatalog.cs", "DB42318205C9759EE17ED771CCE62752ED4ECF810A9D785B8A5BD07616478CB3"),
-             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "3E220A5224E772FE0D1112BDB0871D0DB906F67EA532C8415F0975ABBE8E73A3")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/MotherBrainFakeDeathPlmDrawDefinitions.cs", "5F47B7B79BAB354CFAD0DAF6EA314D7FF58C319D5109195A96ACACF8507AE5B1")]),
     ];
 }

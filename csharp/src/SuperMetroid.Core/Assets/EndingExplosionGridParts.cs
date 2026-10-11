@@ -14,7 +14,7 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
 
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
-        int offset = pointer - EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.DamageFirst);
+        int offset = pointer - EndingExplosionSpriteDefinitions.PlanetPointer(0);
         const int recordBytes = 2 + 4 * 5;
         if ((uint)offset >= 10 * recordBytes || offset % recordBytes != 0) return supplied;
         return supplied.CalculateIfMatching(new EndingExplosionGridParts(offset / recordBytes));

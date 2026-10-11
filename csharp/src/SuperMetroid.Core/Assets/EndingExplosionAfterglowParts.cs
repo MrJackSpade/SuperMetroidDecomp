@@ -20,7 +20,8 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         tiles = stock ? null : suppliedTiles;
     }
 
-    private enum LowerWing { LeftOuter, RightOuter, LeftInner }
+    /// <summary>Atlas columns of the three lower-wing pieces: left outer, right outer, left inner.</summary>
+    private static readonly int[] LowerWingColumns = [4, 10, 5];
 
     /// <summary>Original $8C:A5E2 draw order through cap, wing and body atlas regions.
     /// Large sprites step two tile columns; small cap/wing sprites step one.</summary>
@@ -30,13 +31,7 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         // Lower cap begins at its left end, then consumes the remaining columns backwards.
         if (index < 4) return Atlas(0x18, index == 0 ? 12 : 16 - index);
         if (index < 7)
-            return Atlas(0x1e, (LowerWing)(index - 4) switch
-            {
-                LowerWing.LeftOuter => 4,
-                LowerWing.RightOuter => 10,
-                LowerWing.LeftInner => 5,
-                _ => throw new ArgumentOutOfRangeException(nameof(index)),
-            });
+            return Atlas(0x1e, LowerWingColumns[index - 4]);
         if (index < 9) return Atlas(0x1d, 8 - 2 * (index - 7)); // Lower body pair.
         if (index < 13) return Atlas(0x18, 3 - (index - 9)); // Upper cap.
         if (index < 15) return Atlas(0x1b, index == 13 ? 14 : 0); // Right/left outer wings.

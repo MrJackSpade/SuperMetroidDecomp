@@ -25,9 +25,23 @@ internal static class DownwardGatePlmProgramDefinitions
     /// <summary>$84:BCDF: adjacent upward-trigger program, outside this decoder.</summary>
     private const ushort TriggerEnd = 0xbcdf;
 
+    /// <summary>The two movement-sound operands packed after the spawn and wake commands.</summary>
+    private enum PackedSound { Closing, Opening }
+
+    private static readonly PackedSound[] PackedSounds = Enum.GetValues<PackedSound>();
+
+    private static ushort AddressOf(PackedSound sound) => sound switch
+    {
+        PackedSound.Closing => ClosingSoundAddress,
+        PackedSound.Opening => OpeningSoundAddress,
+        _ => throw new InvalidOperationException($"Undefined {nameof(PackedSound)} {(int)sound}."),
+    };
+
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
-        bool owned = address is ClosingSoundAddress or OpeningSoundAddress;
+        bool owned = false;
+        foreach (PackedSound sound in PackedSounds)
+            owned |= AddressOf(sound) == address;
         value = owned ? DownwardGatePlmRomData.MovementSound : (byte)0;
         return owned;
     }

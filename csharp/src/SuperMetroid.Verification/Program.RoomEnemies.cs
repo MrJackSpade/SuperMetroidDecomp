@@ -1257,7 +1257,7 @@ static void VerifyCeresRidleyRoomEntry()
         "Ceres Ridley eye table terminator starts body fade");
     AssertEqual(1, state.MovementAnimationEnabled,
         "Ceres Ridley eye fade enables composite animation");
-    AssertEqual(0, state.TailFunctionIndex,
+    AssertEqual(RidleyTailFunction.None, state.TailFunctionIndex,
         "Ceres Ridley resting tail has not started its liftoff motion");
     // Native evidence (100% movie, source frame 3645): once the eye fade enables
     // composite animation, all seven inactive segments share the tail-root position

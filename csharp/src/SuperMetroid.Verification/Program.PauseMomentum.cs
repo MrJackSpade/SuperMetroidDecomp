@@ -23,7 +23,7 @@ internal static partial class Program
             // put them in departure mode. Unpause must erase rather than restart it.
             speed.CaptureSpeedEchoPosition(0, 80, 200);
             speed.CaptureSpeedEchoPosition(4, 90, 200);
-            speed.CancelRunningMomentum(8);
+            speed.CancelRunningMomentum(SamusFacingDirection.Right);
             speed.HasRunningMomentum = momentum;
             speed.SpeedBoostCounter = counter;
             speed.ReconcilePauseSpeedBoosterState(equipped);

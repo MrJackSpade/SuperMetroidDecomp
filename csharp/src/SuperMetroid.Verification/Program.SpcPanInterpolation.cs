@@ -1,15 +1,17 @@
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan interpolation")]
     private static void VerifySpcPanInterpolation()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pan interpolation oracle revision");
-        byte Instruction(int address) => rom.ReadByte(0xcf6c08 + address);
+        byte Instruction(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         var player = new ManagedSpcPlayer();
         var ram = (byte[])(typeof(ManagedSpcPlayer).GetField("ram", BindingFlags.Instance | BindingFlags.NonPublic)?.GetValue(player)
             ?? throw new InvalidOperationException("Missing SPC RAM fixture access."));
@@ -18,7 +20,7 @@ internal static partial class Program
         var write = method.CreateDelegate<Action<ManagedSpcMusicChannel, ushort>>(player);
         var channel = new ManagedSpcMusicChannel { FinalVolume = 255 };
         for (int index = 0; index <= 256; index++)
-            ram[0x1e1d + index] = rom.ReadByte(0xcf8a25 + index);
+            ram[0x1e1d + index] = rom.ReadCartridgeByte(0xcf8a25 + index);
 
         // The first sharp-echo tap127 followed by0 is the original descending pair.
         // Pan21.5 exposes the subtraction width before any other fixture variation.

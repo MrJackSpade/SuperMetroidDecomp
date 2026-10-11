@@ -4,15 +4,16 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Zebes escape explosion definitions")]
     private static void VerifyZebesEscapeExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
         {
             ZebesEscapeExplosionDefinition definition =
                 ZebesEscapeExplosionDefinitions.ForIndex(index);
-            AssertEqual(rom.ReadByte(0x8fc1d6 + index), (byte)definition.SpriteKind,
+            AssertEqual(rom.ReadCartridgeByte(0x8fc1d6 + index), (byte)definition.SpriteKind,
                 $"Zebes escape explosion sprite {index}");
-            AssertEqual(rom.ReadByte(0x8fc1de + index), definition.SoundEffect,
+            AssertEqual(rom.ReadCartridgeByte(0x8fc1de + index), definition.SoundEffect,
                 $"Zebes escape explosion sound {index}");
         }
 

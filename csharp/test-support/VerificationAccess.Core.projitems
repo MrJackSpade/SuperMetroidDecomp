@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreRoomsAccess.cs" Link="TestSupport/VerificationAccess/CoreRoomsAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreRuntimeAccess.cs" Link="TestSupport/VerificationAccess/CoreRuntimeAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreViewTypes.cs" Link="TestSupport/VerificationAccess/CoreViewTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/ProjectileInheritanceInspection.cs" Link="TestSupport/VerificationAccess/ProjectileInheritanceInspection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/RetailRomOracleConstants.cs" Link="TestSupport/VerificationAccess/RetailRomOracleConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CollisionRecordRunsAccess.cs" Link="TestSupport/VerificationAccess/CollisionRecordRunsAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreAccess.Group1.cs" Link="TestSupport/VerificationAccess/CoreAccess.Group1.cs" />

@@ -8,6 +8,11 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    /// <summary>The native bank-$A6 word at <paramref name="address"/>, as the breakup oracle reads it.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley breakup program words in bank $A6")]
+    private static ushort ReadRetailRidleyBankWord(ISnesAddressSpace rom, ushort address) =>
+        (ushort)(rom.ReadCartridgeByte(0xa60000 | address) | rom.ReadCartridgeByte(0xa60000 | (address + 1)) << 8);
+
     private static void VerifyRidleyBreakupPrograms()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -65,11 +70,11 @@ internal static partial class Program
         {
             ushort operand = RidleyExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
             ushort start = (ushort)(operand - 2);
-            ushort expectedPointer = (ushort)(rom.ReadByte(0xa60000 | operand) | rom.ReadByte(0xa60000 | (operand + 1)) << 8);
+            ushort expectedPointer = ReadRetailRidleyBankWord(rom, operand);
             foreach (int offset in new[] { 0, 4 })
             {
                 ushort address = (ushort)(start + offset);
-                ushort native = (ushort)(rom.ReadByte(0xa60000 | address) | rom.ReadByte(0xa60000 | (address + 1)) << 8);
+                ushort native = ReadRetailRidleyBankWord(rom, address);
                 AssertEqual(native, RidleyExplosionInstructionProgramDefinitions.ReadMechanicsWord(address), "breakup native mechanics");
             }
             var fragment = fragments[0];

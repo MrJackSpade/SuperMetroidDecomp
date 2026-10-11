@@ -52,7 +52,7 @@ internal static partial class Program
         for (int origin = 0; origin < 256; origin++)
         for (int offset = 0; offset < 256; offset++)
         {
-            bus.WriteByte(0x8c8004, (byte)offset);
+            WriteTestByte(bus, 0x8c8004, (byte)offset);
             oam.BeginFrame();
             DrawImportedSpritemap(bus, oam, 0x8c8000, new(5, (ushort)origin), 0, originIsOnScreen: false);
             int sum = origin + offset;

@@ -68,19 +68,3 @@ internal static class XraySetupMemory
     /// <summary>Reads the frozen reveal map through the production X-ray view.</summary>
     public static ushort[] ReadReveal(ISnesMemoryBus memory) => new XrayMemory(memory).RevealTilemap.ToArray();
 }
-
-/// <summary>Fireflea FX WRAM words, as verification reads them.</summary>
-internal static class FirefleaFxRomData
-{
-    /// <summary>$7E:1778, FirefleaFlashing_Timer.</summary>
-    public const int Timer = 0x1778;
-    /// <summary>$7E:177E, FirefleaFlashing_DarknessLevel.</summary>
-    public const int Darkness = 0x177e;
-}
-
-/// <summary>Projectile-inheritance WRAM words, as verification reads them.</summary>
-internal static class SamusProjectileInheritanceAddresses
-{
-    /// <summary>$0DA8 CameraYSubSpeed, the first of the nine adjacent words.</summary>
-    public const int CameraYSubspeed = 0x0da8;
-}

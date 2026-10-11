@@ -6,6 +6,14 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    /// <summary>The native signed sine sample for <paramref name="angle"/> from the $A0:B443 table.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B443 sine table used by Ridley's swoop")]
+    private static short ReadRetailSwoopSine(ISnesAddressSpace rom, int angle)
+    {
+        int address = 0xa0b443 + (angle & 255) * 2;
+        return unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
+    }
+
     private static void VerifyRidleyFlightTail()
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateRidleySwoopVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -23,8 +31,7 @@ internal static partial class Program
             update(state, 0, phase << 8, 0x500);
             ushort NativeComponent(int angle)
             {
-                int address = 0xa0b443 + (angle & 255) * 2;
-                short sample = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+                short sample = ReadRetailSwoopSine(rom, angle);
                 return unchecked((ushort)(Math.Sign(sample) * (0x500 * Math.Abs((int)sample) >> 8)));
             }
             AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");

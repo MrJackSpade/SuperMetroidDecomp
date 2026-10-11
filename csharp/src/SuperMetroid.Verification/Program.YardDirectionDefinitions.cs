@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Yard direction definitions")]
     private static void VerifyYardDirectionDefinitions(SuperMetroidAddressSpace rom)
     {
         const int directionAddress = 0xa3cd42;
@@ -14,7 +15,7 @@ internal static partial class Program
         BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
 
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+            (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
         for (ushort direction = 0; direction < 8; direction++)
         {

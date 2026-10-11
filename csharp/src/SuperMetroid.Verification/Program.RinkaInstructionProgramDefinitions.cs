@@ -137,12 +137,13 @@ internal static partial class Program
         return (enemies, rinka);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Rinka program words")]
     private static ushort ReadRinkaProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa20000 | address) |
-            source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa20000 | address) |
+            source.ReadCartridgeByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewRinkaInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)

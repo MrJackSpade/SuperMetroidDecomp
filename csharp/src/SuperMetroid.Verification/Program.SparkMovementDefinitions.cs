@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for spark movement definitions")]
     private static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa8e682;
@@ -25,10 +26,10 @@ internal static partial class Program
         for (ushort selector = 0; selector < 4; selector++)
         {
             int offset = selector * 2;
-            ushort nativeInstruction = (ushort)(rom.ReadByte(instructionTable + offset) |
-                rom.ReadByte(instructionTable + offset + 1) << 8);
-            var nativeFunction = (SparkEnemyFunction)(rom.ReadByte(functionTable + offset) |
-                rom.ReadByte(functionTable + offset + 1) << 8);
+            ushort nativeInstruction = (ushort)(rom.ReadCartridgeByte(instructionTable + offset) |
+                rom.ReadCartridgeByte(instructionTable + offset + 1) << 8);
+            var nativeFunction = (SparkEnemyFunction)(rom.ReadCartridgeByte(functionTable + offset) |
+                rom.ReadCartridgeByte(functionTable + offset + 1) << 8);
             SparkMovementDefinition definition = SparkMovementDefinitions.InitialState(selector);
             AssertEqual(nativeInstruction, definition.InstructionList,
                 $"compiled Spark instruction selector {selector}");
@@ -168,12 +169,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for spark program words")]
     private static ushort ReadSparkProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa80000 | address) |
-            source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa80000 | address) |
+            source.ReadCartridgeByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewSparkMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e682 and < 0xa8e690,

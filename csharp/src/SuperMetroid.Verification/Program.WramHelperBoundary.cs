@@ -7,6 +7,32 @@ internal static partial class Program
     private static void VerifyWramHelperBoundary()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
+        VerifyWramWordMapping(memory);
+
+        Suite(nameof(VerifyWramCorpseScheduler), () => VerifyWramCorpseScheduler(memory));
+        Suite(nameof(VerifyWramProjectileInheritance), () => VerifyWramProjectileInheritance(memory));
+        FirefleaRoomFx.Initialize(memory);
+        ushort[] shades = [0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
+        var fixedColor = new FixedColorMemory(memory);
+        var fireflea = new FirefleaFxMemory(memory);
+        for (int frame = 1; frame <= 144; frame++)
+        {
+            FirefleaRoomFx.Step(memory, frozen: false, darkness: 0);
+            AssertEqual((byte)(shades[frame / 6 % shades.Length] | 0x20),
+                fixedColor.Red, "Fireflea native six-frame shade cadence");
+        }
+        ushort retainedTimer = fireflea.Timer;
+        FirefleaRoomFx.Step(memory, frozen: true, darkness: 2);
+        AssertEqual(retainedTimer, fireflea.Timer,
+            "frozen Fireflea leaves the live WRAM timer unchanged");
+        AssertEqual((ushort)2, fireflea.Darkness,
+            "frozen Fireflea still publishes the enemy-owned darkness counter");
+        Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling, 50 projectile-inheritance records and Fireflea cadence pass without a cartridge.");
+    }
+
+    [CpuBusBoundary("exact bus test: WRAM word bank wrap, system-bank mirror and non-WRAM source rejection")]
+    private static void VerifyWramWordMapping(SuperMetroidAddressSpace memory)
+    {
         memory.WriteByte(0x7effff, 0x12);
         memory.WriteByte(0x7e0000, 0x34);
         memory.WriteByte(0x7f0000, 0x56);
@@ -17,24 +43,6 @@ internal static partial class Program
         foreach (int address in new[] { 0x908000, 0x700000, 0x002140 })
             AssertThrows<ArgumentOutOfRangeException>(() => SnesWorkRam.ReadWord(memory, address),
                 "WRAM helper rejects cartridge, SRAM and peripheral sources");
-
-        Suite(nameof(VerifyWramCorpseScheduler), () => VerifyWramCorpseScheduler(memory));
-        Suite(nameof(VerifyWramProjectileInheritance), () => VerifyWramProjectileInheritance(memory));
-        FirefleaRoomFx.Initialize(memory);
-        ushort[] shades = [0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
-        for (int frame = 1; frame <= 144; frame++)
-        {
-            FirefleaRoomFx.Step(memory, frozen: false, darkness: 0);
-            AssertEqual((byte)(shades[frame / 6 % shades.Length] | 0x20),
-                memory.ReadWorkRamByte(PpuFixedColorMirrors.Red.Address), "Fireflea native six-frame shade cadence");
-        }
-        ushort retainedTimer = SnesWorkRam.ReadWord(memory, FirefleaFxRomData.Timer);
-        FirefleaRoomFx.Step(memory, frozen: true, darkness: 2);
-        AssertEqual(retainedTimer, SnesWorkRam.ReadWord(memory, FirefleaFxRomData.Timer),
-            "frozen Fireflea leaves the live WRAM timer unchanged");
-        AssertEqual((ushort)2, SnesWorkRam.ReadWord(memory, FirefleaFxRomData.Darkness),
-            "frozen Fireflea still publishes the enemy-owned darkness counter");
-        Console.WriteLine("WRAM helper boundary: bank wrapping, source rejection, corpse scheduling, 50 projectile-inheritance records and Fireflea cadence pass without a cartridge.");
     }
 
     private static void VerifyWramCorpseScheduler(SuperMetroidAddressSpace memory)
@@ -70,12 +78,11 @@ internal static partial class Program
         ];
         foreach (ushort[] snapshot in snapshots)
         {
-            for (int index = 0; index < snapshot.Length; index++)
-            {
-                int address = SamusProjectileInheritanceAddresses.CameraYSubspeed + index * 2;
-                memory.WriteByte(address, (byte)snapshot[index]);
-                memory.WriteByte(address + 1, (byte)(snapshot[index] >> 8));
-            }
+            var inheritance = new ProjectileInheritanceMemory(memory) { CameraYSubspeed = snapshot[0] };
+            inheritance.Record(SamusCollisionDirection.Left, snapshot[1] << 16 | snapshot[2]);
+            inheritance.Record(SamusCollisionDirection.Right, snapshot[3] << 16 | snapshot[4]);
+            inheritance.Record(SamusCollisionDirection.Up, snapshot[5] << 16 | snapshot[6]);
+            inheritance.Record(SamusCollisionDirection.Down, snapshot[7] << 16 | snapshot[8]);
             for (ushort direction = 0; direction < 10; direction++)
             {
                 short speed = (short)(direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400);

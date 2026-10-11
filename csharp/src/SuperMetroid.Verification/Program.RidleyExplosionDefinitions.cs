@@ -4,10 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion definitions")]
     private static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         static ushort Word(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
         ReadOnlySpan<ushort> spawnPointerOperands =
         [
@@ -267,8 +268,9 @@ internal static partial class Program
         AssertEqual(32, cases, "Ridley breakup production initializer case count");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion words")]
     private static ushort ReadRidleyExplosionWord(SuperMetroidAddressSpace source, int address) =>
-        (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+        (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewRidleyExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is

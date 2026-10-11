@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate collision definitions")]
     private static void VerifySpacePirateCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -26,7 +27,7 @@ internal static partial class Program
             SpacePirateCollisionFrame frame =
                 SpacePirateCollisionDefinitions.Frame(index);
             int native = 0xb20000 | frame.Pointer;
-            AssertEqual(rom.ReadByte(native), frame.Components.Length,
+            AssertEqual(rom.ReadCartridgeByte(native), frame.Components.Length,
                 $"Space Pirate frame $B2:{frame.Pointer:X4} component count");
             Block(frame.Pointer, 2 + frame.Components.Length * 8);
             for (int componentIndex = 0;
@@ -224,8 +225,8 @@ internal static partial class Program
             "boundary probes pass with authored ROM bytes blocked.");
 
         ushort ReadWord(ushort address) => (ushort)(
-            rom.ReadByte(0xb20000 | address) |
-            rom.ReadByte(0xb20000 | unchecked((ushort)(address + 1))) << 8);
+            rom.ReadCartridgeByte(0xb20000 | address) |
+            rom.ReadCartridgeByte(0xb20000 | unchecked((ushort)(address + 1))) << 8);
 
         void Block(ushort pointer, int length)
         {

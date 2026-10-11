@@ -4,12 +4,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile definitions")]
     private static void VerifySporeSpawnProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         ushort Word(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         for (ushort index = 0; index < 4; index++)
         {
             AssertEqual(Word(0x86dcb9 + index * 2),
@@ -23,9 +24,9 @@ internal static partial class Program
         {
             Offset16<RoomPixels> delta =
                 SporeSpawnProjectileDefinitions.MovementAt(unchecked((byte)offset));
-            AssertEqual((short)unchecked((sbyte)rom.ReadByte(0x86dd6c + offset)), delta.X,
+            AssertEqual((short)unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset)), delta.X,
                 $"Spore Spawn movement X {offset:X2}");
-            AssertEqual((short)unchecked((sbyte)rom.ReadByte(0x86dd6c + ((offset + 1) & 0xff))),
+            AssertEqual((short)unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff))),
                 delta.Y, $"Spore Spawn movement Y {offset:X2}");
         }
 
@@ -69,8 +70,8 @@ internal static partial class Program
             spore.Position = spore.Position.WithWhole(new(0x0200, 0x0200));
             spore.Variable0 = unchecked((ushort)offset);
             spore.Variable1 = mirrored == 0 ? (ushort)0 : (ushort)0x0080;
-            int x = unchecked((sbyte)rom.ReadByte(0x86dd6c + offset));
-            int y = unchecked((sbyte)rom.ReadByte(0x86dd6c + ((offset + 1) & 0xff)));
+            int x = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset));
+            int y = unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff)));
             move(spore);
             AssertEqual(unchecked((ushort)(0x0200 + (mirrored == 0 ? x : -x))),
                 spore.Position.X.Whole, $"Spore Spawn production X {offset:X2}/{mirrored}");

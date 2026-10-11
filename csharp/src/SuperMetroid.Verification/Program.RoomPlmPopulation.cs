@@ -51,10 +51,11 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for door closing PLM definitions")]
     private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
         Suite(nameof(VerifyFallbackDoorHeaders), () => VerifyFallbackDoorHeaders(rom));
         Suite(nameof(VerifyFallbackDoorLists), () => VerifyFallbackDoorLists(rom));
@@ -109,10 +110,11 @@ internal static partial class Program
     /// then exercises the real room-population and transition redirect with that source
     /// word deliberately absent from the sparse bus.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for resident door closing definitions")]
     private static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
         static ushort ReadWord(ISnesAddressSpace source, int address) =>
-            (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
+            (ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8);
 
         AssertEqual(ResidentDoorClosingDefinitions.Count,
             ResidentDoorClosingDefinitions.All.Count(),
@@ -564,7 +566,7 @@ internal static partial class Program
             if (rom is not null)
             {
                 int source = 0x840000 | address;
-                AssertEqual((ushort)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8),
+                AssertEqual(ReadRetailPlmProgramWord(rom, source),
                     compiled,
                     $"Wrecked Ship attic list word ${address:X4} matches cartridge");
             }
@@ -1084,8 +1086,7 @@ internal static partial class Program
             SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
                 "Super Metroid.smc");
             int source = 0x840000 | RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired;
-            ushort nativeInstruction = (ushort)(rom.ReadByte(source) |
-                rom.ReadByte(source + 1) << 8);
+            ushort nativeInstruction = ReadRetailPlmProgramWord(rom, source);
             AssertEqual(nativeInstruction, compiledInstruction,
                 "Metroids-cleared one-word list matches pinned cartridge");
         }
@@ -1190,7 +1191,7 @@ internal static partial class Program
             if (rom is not null)
             {
                 int source = 0x840000 | address;
-                AssertEqual((ushort)(rom.ReadByte(source) | rom.ReadByte(source + 1) << 8),
+                AssertEqual(ReadRetailPlmProgramWord(rom, source),
                     compiled,
                     $"Shaktool room list word ${address:X4} matches pinned cartridge");
             }

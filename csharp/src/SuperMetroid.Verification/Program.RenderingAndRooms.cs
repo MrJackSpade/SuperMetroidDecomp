@@ -36,7 +36,7 @@ static void VerifyObjRendering()
 
     // A single palette-index-1 pixel at the tile's upper-left corner. SNES 4-bpp plane 0
     // uses bit 7 of byte 0 for (0,0); every omitted byte reads as zero in this fixture.
-    bus.WriteByte(0x828000, 0x80);
+    WriteTestByte(bus, 0x828000, 0x80);
     ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, sizeInBytes: 32, encodedDestination: 0x0000);
 
     // One small tile-zero OBJ at (10,20), with caller-selected palette 2. Palette index
@@ -159,12 +159,12 @@ static void VerifyHudStateAndBg3Rendering()
     // character equal to its SNES-layout index and mark every coordinate as existing; the
     // expected HUD words then prove room origin + Samus screen coordinates, 5x3 centering,
     // exploration palette, and the map-station/unexplored palette independently.
-    bus.WriteByte(0x82964a, 0x00);
-    bus.WriteByte(0x82964b, 0x80);
-    bus.WriteByte(0x82964c, 0xb5);
+    WriteTestByte(bus, 0x82964a, 0x00);
+    WriteTestByte(bus, 0x82964b, 0x80);
+    WriteTestByte(bus, 0x82964c, 0xb5);
     WriteTestWord(bus, 0x829717, 0x9000);
     for (int index = 0; index < 0x100; index++)
-        bus.WriteByte(0x829000 + index, 0xff);
+        WriteTestByte(bus, 0x829000 + index, 0xff);
     for (int index = 0; index < 0x800; index++)
         WriteTestWord(bus, 0xb58000 + index * 2, (ushort)(index & 0x03ff));
 
@@ -231,7 +231,7 @@ static void VerifyHudStateAndBg3Rendering()
     const int secretHudY = 4;
     const int publicHudX = 26;
     int secretHudByte = AreaMapLayout.GetBitByteIndex(new(secretHudX, secretHudY));
-    bus.WriteByte(
+    WriteTestByte(bus,
         0x829000 + secretHudByte,
         (byte)(bus.ReadByte(0x829000 + secretHudByte) & ~AreaMapLayout.GetBitMask(secretHudX)));
     var overrideSystem = new Bank80SystemState();
@@ -294,12 +294,12 @@ static void VerifyHudStateAndBg3Rendering()
     // this coordinate from the following row, while pause used the correct byte. A solid
     // map plane cannot expose that disagreement, so retain this deliberately sparse case.
     for (int index = 0; index < 0x100; index++)
-        bus.WriteByte(0x829000 + index, 0);
+        WriteTestByte(bus, 0x829000 + index, 0);
     const int rightPageNeighborX = 35;
     const int rightPageCenterY = 19;
     int rightPageMapByte = AreaMapLayout.GetBitByteIndex(
         new(rightPageNeighborX, rightPageCenterY));
-    bus.WriteByte(
+    WriteTestByte(bus,
         0x829000 + rightPageMapByte,
         AreaMapLayout.GetBitMask(rightPageNeighborX));
     var rightPageSystem = new Bank80SystemState();
@@ -332,7 +332,7 @@ static void VerifyHudStateAndBg3Rendering()
     // at a tile whose upper-left plane-0 bit is set; CGRAM 5 is maximum green.
     bus.WriteBytes(0x818000, [0x02, 0x04]);
     ImportedVramOracle.ExecuteQueued(vram, bus, 0x818000, 2, encodedDestination: 0x0100);
-    bus.WriteByte(0x828000, 0x80);
+    WriteTestByte(bus, 0x828000, 0x80);
     ImportedVramOracle.ExecuteQueued(vram, bus, 0x828000, 16, encodedDestination: 0x0010);
     var cgram = new SnesCgram();
     cgram.SetColor(5, Bgr555.FromWord(0x03e0));
@@ -394,12 +394,12 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     var bus = new TestAddressSpace();
     const int source = 0x808000;
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        bus.WriteByte(source + index, 1);
+        WriteTestByte(bus, source + index, 1);
 
     // The logical 3x2 grid begins fully blue. Give the five copied padding bytes distinct
     // values to prove LoadExplicit does not synthesize zeroes after the sixth logical cell.
     for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
-        bus.WriteByte(source + index, (byte)(0x80 + index));
+        WriteTestByte(bus, source + index, (byte)(0x80 + index));
 
     RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
@@ -414,7 +414,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     var shortTableBus = new TestAddressSpace();
     byte[] shortTableAndFollowingHeader = [2, 2, 2, 2, 0x1f, 0x02, 0x1d, 0x04];
     for (int index = 0; index < shortTableAndFollowingHeader.Length; index++)
-        shortTableBus.WriteByte(source + index, shortTableAndFollowingHeader[index]);
+        WriteTestByte(shortTableBus, source + index, shortTableAndFollowingHeader[index]);
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableBus,
         source,
@@ -503,7 +503,7 @@ static void VerifyMovedSamusCameraTracking()
     var bus = new TestAddressSpace();
     const int source = 0x818000;
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        bus.WriteByte(source + index, 1);
+        WriteTestByte(bus, source + index, 1);
     RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     var camera = new ScrollBoundaryCamera(grid);
 
@@ -586,7 +586,7 @@ static void VerifyMovedSamusCameraTracking()
     // a zero byte there makes the blue bottom row clamp to Y=$0400 without an array error.
     var bottomEdgeBus = new TestAddressSpace();
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        bottomEdgeBus.WriteByte(source + index, 1);
+        WriteTestByte(bottomEdgeBus, source + index, 1);
     RoomScrollGrid bottomEdgeGrid = LoadExplicitScrollFixture(
         bottomEdgeBus,
         source,
@@ -603,7 +603,7 @@ static void VerifyMovedSamusCameraTracking()
     // three-row grid leaves the cell below blue so the candidate remains unrounded.
     var verticalBus = new TestAddressSpace();
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
-        verticalBus.WriteByte(source + index, 1);
+        WriteTestByte(verticalBus, source + index, 1);
     RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
         verticalBus,
         source,
@@ -903,10 +903,10 @@ static void VerifyCartridgeRoomStateSelection()
     // derived from this exact command layout instead of fabricated by the production code.
     int selector = roomAddress + 11;
     WriteTestWord(bus, selector, (ushort)RoomStateSelectorCode.EventHasBeenSet);
-    bus.WriteByte(selector + 2, 0x00);
+    WriteTestByte(bus, selector + 2, 0x00);
     WriteTestWord(bus, selector + 3, 0x9100);
     WriteTestWord(bus, selector + 5, (ushort)RoomStateSelectorCode.BossIsDead);
-    bus.WriteByte(selector + 7, 0x04);
+    WriteTestByte(bus, selector + 7, 0x04);
     WriteTestWord(bus, selector + 8, 0x9120);
     WriteTestWord(bus, selector + 10, (ushort)RoomStateSelectorCode.MorphBallAndMissiles);
     WriteTestWord(bus, selector + 12, 0x9140);
@@ -1210,6 +1210,11 @@ static void VerifyHostRoomViewportAlignment()
     Console.WriteLine("  Host terrain: room crop remains aligned with physical BG1 scanlines and live OAM.");
 }
 
+/// <summary>The native first pre-scaled power-bomb profile's half width for <paramref name="row"/> at $88:9F06.</summary>
+[CpuBusBoundary("exact bus test: retail ROM oracle for the first pre-scaled power-bomb window profile")]
+static int ReadRetailPowerBombPreScaledHalfWidth(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int row) =>
+    rom.ReadCartridgeByte(0x889f06 + row);
+
 /// <summary>
 /// Proves that desktop power-bomb composition consumes the same bank-$88 radius frame and
 /// half-profile orientation as the original indirect-HDMA window builder.
@@ -1294,7 +1299,7 @@ static void VerifyPowerBombColorMathWindow()
     for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)
     {
         int row = Math.Abs(y - centerY);
-        int halfWidth = row < 192 ? shapeReference.ReadByte(0x889f06 + row) : 0;
+        int halfWidth = row < 192 ? ReadRetailPowerBombPreScaledHalfWidth(shapeReference, row) : 0;
         for (int x = 0; x < SnesGameplayFrameRenderer.Width; x++)
         {
             bool inside = y >= SnesGameplayFrameRenderer.HudHeight && halfWidth != 0 && Math.Abs(x - centerX) <= halfWidth;

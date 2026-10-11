@@ -170,12 +170,13 @@ internal static partial class Program
         return (enemies, body);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn program words")]
     private static ushort ReadSporeSpawnProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa50000 | address) |
-            source.ReadByte(0xa50000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa50000 | address) |
+            source.ReadCartridgeByte(0xa50000 | unchecked((ushort)(address + 1))) << 8));
 
     private static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)
     {

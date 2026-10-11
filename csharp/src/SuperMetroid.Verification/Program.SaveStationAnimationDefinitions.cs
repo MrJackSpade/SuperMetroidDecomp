@@ -3,10 +3,11 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for save station animation definitions")]
     private static void VerifySaveStationAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         AssertEqual(
-            rom.ReadByte(SaveStationAnimationDefinitions.NativeSaveAnimationLoopsAddress),
+            rom.ReadCartridgeByte(SaveStationAnimationDefinitions.NativeSaveAnimationLoopsAddress),
             (byte)SaveStationAnimationDefinitions.SaveAnimationLoops,
             "save-station animation loop count");
 

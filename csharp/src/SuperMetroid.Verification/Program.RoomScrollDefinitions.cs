@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room scroll definitions")]
     private static void VerifyCompiledRoomScrollDefinitions()
     {
         string symbolPath = Path.GetFullPath(
@@ -19,6 +20,7 @@ internal static partial class Program
             .Order()
             .ToArray();
 
+        var scrolls = new RoomScrollMemory(bus);
         var auditedStates = new HashSet<ushort>();
         var explicitPointers = new HashSet<ushort>();
         int explicitStateCount = 0;
@@ -39,7 +41,7 @@ internal static partial class Program
                 explicitPointers.Add(scrollPointer);
                 int source = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
                 for (int index = 0; index < expected.Length; index++)
-                    expected[index] = bus.ReadByte(source + index);
+                    expected[index] = bus.ReadCartridgeByte(source + index);
                 AssertTrue(expected.AsSpan().SequenceEqual(
                         RoomScrollDefinitions.Get(scrollPointer).Storage.Span),
                     $"compiled explicit scroll allocation $8F:{scrollPointer:X4}");
@@ -59,7 +61,7 @@ internal static partial class Program
                         ? (byte)(index / header.Size.X == header.Size.Y - 1
                             ? lastRow
                             : RoomScrollState.Green)
-                        : bus.ReadWorkRamByte(RoomScrollGrid.WorkRamAddress + index);
+                        : scrolls.Zones[index];
                 }
             }
 
@@ -93,7 +95,7 @@ internal static partial class Program
             bus, ceres.State.ScrollPointer));
         var ceresResidue = new byte[RoomScrollGrid.StorageByteCount];
         for (int index = 0; index < ceresResidue.Length; index++)
-            ceresResidue[index] = bus.ReadWorkRamByte(RoomScrollGrid.WorkRamAddress + index);
+            ceresResidue[index] = scrolls.Zones[index];
         guardedCeres.InitializeStartingCeresRoom();
         var expectedCeres = new byte[RoomScrollGrid.StorageByteCount];
         int ceresLogicalCount = ceres.Size.X * ceres.Size.Y;

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hyper beam colors")]
     private static void VerifySamusHyperBeamColors()
     {
         if (!File.Exists("Super Metroid.smc"))
@@ -44,16 +45,16 @@ internal static partial class Program
         for (int frame = 0; frame < SamusHyperBeamColorFormat.FrameCount; frame++)
         {
             int pointerAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPointers + frame * 2;
-            ushort pointer = unchecked((ushort)(rom.ReadByte(pointerAddress) |
-                rom.ReadByte(pointerAddress + 1) << 8));
+            ushort pointer = unchecked((ushort)(rom.ReadCartridgeByte(pointerAddress) |
+                rom.ReadCartridgeByte(pointerAddress + 1) << 8));
             int paletteAddress = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteSource(frame);
             AssertEqual(paletteAddress, SamusPaletteRomData.Banks.Palette | pointer,
                 $"Hyper Beam frame {frame} compiled pointer");
             for (int index = 0; index < SamusHyperBeamColorFormat.ColorsPerFrame; index++)
             {
                 int wordAddress = paletteAddress + index * 2;
-                ushort native = unchecked((ushort)(rom.ReadByte(wordAddress) |
-                    rom.ReadByte(wordAddress + 1) << 8));
+                ushort native = unchecked((ushort)(rom.ReadCartridgeByte(wordAddress) |
+                    rom.ReadCartridgeByte(wordAddress + 1) << 8));
                 AssertEqual(native, catalog.Resolve(frame, index),
                     $"Hyper Beam frame {frame} color {index}");
                 int sourceFrame = frame, sourceColor = index;

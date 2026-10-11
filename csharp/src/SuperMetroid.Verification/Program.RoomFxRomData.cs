@@ -142,7 +142,7 @@ internal static partial class Program
         const ushort record = 0x9400;
         int recordAddress = RoomFxRomDataBanksTooling.RoomDefinitions | record;
         WriteTestWord(bus, recordAddress + RoomFxRomDataRecordTooling.DoorPointerOffset, 0);
-        bus.WriteByte(
+        WriteTestByte(bus,
             recordAddress + RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset,
             (byte)LayerBlendingConfiguration.NormalGameplay);
 
@@ -155,7 +155,7 @@ internal static partial class Program
         ];
         foreach (RoomFxType type in nonLayer3Types)
         {
-            bus.WriteByte(recordAddress + RoomFxRomDataRecordTooling.TypeOffset, (byte)type);
+            WriteTestByte(bus, recordAddress + RoomFxRomDataRecordTooling.TypeOffset, (byte)type);
             LoadSyntheticRoomFx(state, bus, vram, cgram, record);
             AssertEqual(type, state.Type, $"{type} FX record type");
             AssertEqual(
@@ -180,7 +180,7 @@ internal static partial class Program
         ushort record,
         RoomFxType type)
     {
-        bus.WriteByte(
+        WriteTestByte(bus,
             RoomFxRomDataBanksTooling.RoomDefinitions |
                 unchecked((ushort)(record + RoomFxRomDataRecordTooling.TypeOffset)),
             (byte)type);
@@ -193,7 +193,7 @@ internal static partial class Program
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
             _ => throw new InvalidOperationException($"Unexpected renderable room FX {type}."),
         };
-        bus.WriteByte(
+        WriteTestByte(bus,
             RoomFxRomDataBanksTooling.RoomDefinitions |
                 unchecked((ushort)(record +
                     RoomFxRomDataRecordTooling.Layer3LayerBlendConfigurationOffset)),
@@ -207,7 +207,7 @@ internal static partial class Program
         if (type is RoomFxType.Water or RoomFxType.Lava or RoomFxType.Acid)
         {
             const ushort surfaceY = 100;
-            bus.WriteByte(
+            WriteTestByte(bus,
                 RoomFxRomDataBanksTooling.RoomDefinitions |
                     unchecked((ushort)(record + RoomFxRomDataRecordTooling.LiquidOptionsOffset)),
                 type == RoomFxType.Water

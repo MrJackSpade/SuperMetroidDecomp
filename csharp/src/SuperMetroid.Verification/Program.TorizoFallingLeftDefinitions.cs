@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo falling left definitions")]
     private static void VerifyTorizoFallingLeftDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -94,8 +95,8 @@ internal static partial class Program
             "one three-component physical frame match the pinned cartridge.");
 
         ushort ReadWord(ushort address) =>
-            (ushort)(rom.ReadByte((bank << 16) | address) |
-                rom.ReadByte((bank << 16) |
+            (ushort)(rom.ReadCartridgeByte((bank << 16) | address) |
+                rom.ReadCartridgeByte((bank << 16) |
                     unchecked((ushort)(address + 1))) << 8);
     }
 }

@@ -16,13 +16,14 @@ internal static partial class Program
     private static void VerifySpcSoundStream2(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 1, 127, 0xcfa5bb);
     private static void VerifySpcSoundStream3(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 2, 47, 0xcfba97);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound streams")]
     private static void VerifySpcSoundStreams(ISnesAddressSpace rom, int library, int count, int source)
     {
         AssertEqual(count, SpcSoundEffectTables.CommandCount(library), "native sound command extent");
         for (int command = 1; command <= count; command++)
         {
             int address = source + (command - 1) * sizeof(ushort);
-            ushort native = unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            ushort native = unchecked((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
             AssertEqual(native, SpcSoundEffectTables.StreamPointer(library, command), "original sound stream dispatch");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })

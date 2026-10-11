@@ -7,6 +7,7 @@ internal static partial class Program
     /// Validates projectile table shapes plus every beam data-to-instruction indirection
     /// against the retail cartridge, catching both wrong bases and wrong record strides.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile ROM data")]
     static void VerifySamusProjectileRomData()
     {
         AssertEqual(12, SamusProjectileRomData.Beams.CombinationCount,
@@ -156,15 +157,15 @@ internal static partial class Program
             32 * 16, "projectile non-square slope profiles");
         TouchRange(bus, SamusProjectileRomDataCollision.SquareSlopeDefinitions,
             4, "projectile square-slope quadrants");
-        bus.ReadByte(SamusProjectileRomData.Banks.Movement |
+        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Movement |
             (ushort)ProjectileTrailInstruction.MoveLeftDown);
-        bus.ReadByte(SamusProjectileRomData.Banks.Movement |
+        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Movement |
             (ushort)ProjectileTrailInstruction.MoveRightDown);
-        bus.ReadByte(SamusProjectileRomData.Banks.Movement |
+        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Movement |
             (ushort)ProjectileTrailInstruction.MoveLeftUp);
-        bus.ReadByte(SamusProjectileRomData.Banks.Projectile |
+        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Projectile |
             (ushort)SamusProjectileInstruction.Delete);
-        bus.ReadByte(SamusProjectileRomData.Banks.Projectile |
+        bus.ReadCartridgeByte(SamusProjectileRomData.Banks.Projectile |
             (ushort)SamusProjectileInstruction.GoTo);
 
         Console.WriteLine(
@@ -172,6 +173,7 @@ internal static partial class Program
             "instructions, missiles, explosions, trails, and slopes are in range.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile data words")]
     private static ushort ReadProjectileWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

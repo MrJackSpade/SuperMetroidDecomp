@@ -5,10 +5,11 @@ using SuperMetroid.Core.Input;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for running cadence")]
     private static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var bus = new RunningCadenceReadGuard(rom);
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
         Suite(nameof(VerifyOrdinaryRunningStream), () => VerifyOrdinaryRunningStream(rom));
         Suite(nameof(VerifyBoostRunningPointers), () => VerifyBoostRunningPointers(rom));
@@ -26,8 +27,8 @@ internal static partial class Program
         // another member of this bounded catalog or wrap to the genuine mutable alias,
         // but unrelated high-bank code is not accepted as animation cadence.
         for (ushort index = 0; index <= 10; index++)
-            AssertEqual(rom.ReadByte(0x91b5d3 + index), ordinary(bus, index), "Ordinary authored cadence");
-        AssertEqual(rom.ReadByte(0x91b5de), ordinary(bus, 11), "Ordinary restored index can reach the next compiled definition");
+            AssertEqual(rom.ReadCartridgeByte(0x91b5d3 + index), ordinary(bus, index), "Ordinary authored cadence");
+        AssertEqual(rom.ReadCartridgeByte(0x91b5de), ordinary(bus, 11), "Ordinary restored index can reach the next compiled definition");
         AssertEqual(bus.MutableDelay, ordinary(bus, 0x4d30), "Ordinary restored index retains low-bank wrapping");
         AssertThrows<InvalidDataException>(
             () => ordinary(bus, 0x0100),
@@ -42,7 +43,7 @@ internal static partial class Program
                 int address = 0x910000 | unchecked((ushort)(pointer + index));
                 byte expected = (address & 0xffff) < 0x8000
                     ? bus.ReadUncompiledByte(address)
-                    : rom.ReadByte(address);
+                    : rom.ReadCartridgeByte(address);
                 AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(bus, index), "Native Max6 cadence byte selection");
             }
         }
@@ -70,7 +71,7 @@ internal static partial class Program
             if (intercept && (next & 0x0400) == 0) next = unchecked((ushort)(next + 0x0100));
             int selection = sound ? 5 : next >> 8;
             ushort expectedTimer = intercept
-                ? unchecked((ushort)(raw + (selection == 5 ? bus.MutableDelay : rom.ReadByte(0x910000 | Word(0x91b5de + selection * 2)))))
+                ? unchecked((ushort)(raw + (selection == 5 ? bus.MutableDelay : rom.ReadCartridgeByte(0x910000 | Word(0x91b5de + selection * 2)))))
                 : (ushort)0;
             if (intercept) next = (ushort)((next & 0xff00) | Word(0x91b61f + selection * 2));
             int calls = 0;
@@ -105,7 +106,7 @@ internal static partial class Program
             AssertEqual(0x0400 | Word(0x91b61f + stage * 2), speed.SpeedBoostCounter, "All returned queue words retain native reset selection");
             byte expectedDelay = stage == 5
                 ? bus.MutableDelay
-                : rom.ReadByte(0x910000 | Word(0x91b5de + stage * 2));
+                : rom.ReadCartridgeByte(0x910000 | Word(0x91b5de + stage * 2));
             AssertEqual(unchecked((ushort)(accumulator + expectedDelay)), timer,
                 "Queue-selected delay includes live mutable aliases");
         }
@@ -136,10 +137,11 @@ internal static partial class Program
         Console.WriteLine("Running cadence: 90 bounded bytes, all native Max6 selections, 10240 command/gate cases, 1536 sound-return words, mutable stage-five alias, and loud non-native rejection pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ordinary running pointer")]
     private static void VerifyOrdinaryRunningPointer(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5d1, 2));
-        AssertEqual((ushort)(rom.ReadByte(0x91b5d1) | rom.ReadByte(0x91b5d2) << 8),
+        AssertEqual((ushort)(rom.ReadCartridgeByte(0x91b5d1) | rom.ReadCartridgeByte(0x91b5d2) << 8),
             SamusRunningCadenceDefinitions.DefaultRunningDelayListPointer, "Original ordinary pointer");
     }
 
@@ -150,36 +152,39 @@ internal static partial class Program
     private static void VerifyBoostRunningStream3(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b609, 11);
     private static void VerifyBoostRunningStream4(SuperMetroidAddressSpace rom) => VerifyCadenceBytes(rom, 0x91b614, 11);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for boost running pointers")]
     private static void VerifyBoostRunningPointers(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b5de, 10));
         for (byte selection = 0; selection <= 5; selection++)
         {
             int address = 0x91b5de + 2 * selection;
-            AssertEqual((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8),
+            AssertEqual((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8),
                 SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer(selection), "Original pointer including stage5 alias");
         }
         for (int selection = 6; selection <= byte.MaxValue; selection++)
             AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadSpeedBoostDelayListPointer((byte)selection), "Pointer unsupported stage");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for boost running resets")]
     private static void VerifyBoostRunningResets(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCadenceBytes), () => VerifyCadenceBytes(rom, 0x91b61f, 12));
         for (byte selection = 0; selection <= 5; selection++)
         {
             int address = 0x91b61f + 2 * selection;
-            AssertEqual((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8),
+            AssertEqual((ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8),
                 SamusRunningCadenceDefinitions.ReadResetWord(selection), "Original reset including pose0 alias");
         }
         for (int selection = 6; selection <= byte.MaxValue; selection++)
             AssertThrows<InvalidDataException>(() => SamusRunningCadenceDefinitions.ReadResetWord((byte)selection), "Reset unsupported stage");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for running cadence bytes")]
     private static void VerifyCadenceBytes(SuperMetroidAddressSpace rom, int start, int count)
     {
         for (int address = start; address < start + count; address++)
-            AssertEqual(rom.ReadByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
+            AssertEqual(rom.ReadCartridgeByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
     }
     [CpuBusBoundary("exact bus test: live WRAM delay alias at $91:0303 plus a constructed unimplemented-hardware byte signature that witnesses running-cadence operand routing")]
     private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
@@ -197,13 +202,22 @@ internal static partial class Program
         // Restored indexes can reach unimplemented hardware. A constructed address
         // signature checks exact fallback routing, not native I/O-register semantics.
         public byte ReadUncompiledByte(int address) => address == 0x910303 ? MutableDelay :
-            address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ (address >> 8))) : source.ReadByte(address);
-        public byte ReadWorkRamByte(int address) => address == 0x910303 ? MutableDelay :
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Running-cadence guard requires WRAM.")).ReadWorkRamByte(address);
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Running-cadence guard requires SRAM.")).ReadSaveRamByte(address);
+            address is >= 0x912000 and < 0x918000 ? unchecked((byte)(address ^ (address >> 8))) : ReadSourceByte(address);
+        public byte ReadWorkRamByte(int address) => address == 0x910303 ? MutableDelay : SourceMemory.ReadWorkRamByte(address);
+        public byte ReadSaveRamByte(int address) => SourceMemory.ReadSaveRamByte(address);
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+
+        private ISnesMutableMemory SourceMemory => source as ISnesMutableMemory ??
+            throw new InvalidOperationException("Running-cadence guard requires WRAM and SRAM.");
+
+        /// <summary>The source byte the CPU maps at <paramref name="address"/>: its cartridge ROM, WRAM or SRAM.</summary>
+        private byte ReadSourceByte(int address) => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
+        {
+            SnesDmaSourceKind.WorkRam => SourceMemory.ReadWorkRamByte(address),
+            SnesDmaSourceKind.SaveRam => SourceMemory.ReadSaveRamByte(address),
+            SnesDmaSourceKind.Cartridge => source.ReadCartridgeByte(address),
+            _ => throw new InvalidOperationException(
+                $"CPU read ${address >> 16:X2}:{address & 0xffff:X4} is outside the runtime address map."),
+        };
     }
 }

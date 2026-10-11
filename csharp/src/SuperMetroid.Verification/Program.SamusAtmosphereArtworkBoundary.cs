@@ -9,6 +9,14 @@ internal static partial class Program
     private static ushort ReadRetailAtmosphericAttribute(CartridgeImportAddressSpace importBus, int source) =>
         (ushort)(importBus.ReadCartridgeByte(source) | importBus.ReadCartridgeByte(source + 1) << 8);
 
+    /// <summary>Seeds the WRAM bytes a null bank-$90 atmospheric pointer reads through its system-bank mirror.</summary>
+    [CpuBusBoundary("exact bus test: seeds low WRAM that a null bank-$90 atmospheric pointer reads through the $90:0000 mirror")]
+    private static void SeedNullAtmosphericPointerWram(SuperMetroidAddressSpace bus)
+    {
+        bus.WriteByte(SamusMovementRomData.Banks.Movement, 0x5a);
+        bus.WriteByte(SamusMovementRomData.Banks.Movement + 1, 0x34);
+    }
+
     private static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -49,8 +57,7 @@ internal static partial class Program
                 missing.UpdateAndDraw(runtimeBus, oam, new(0, 0), 128);
             }, "authored atmospheric art cannot fall back to ROM");
 
-            runtimeBus.WriteByte(SamusMovementRomData.Banks.Movement, 0x5a);
-            runtimeBus.WriteByte(SamusMovementRomData.Banks.Movement + 1, 0x34);
+            SeedNullAtmosphericPointerWram(runtimeBus);
             var mutable = new SamusAtmosphericEffectsState();
             mutable.SetSlot(0, 2, 0, 2, new(128, 128));
             var mutableOam = new OamBuffer();

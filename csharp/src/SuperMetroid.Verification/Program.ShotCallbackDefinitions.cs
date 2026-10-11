@@ -5,9 +5,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for shot callback definitions")]
     private static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var shotCallbacks = new HashSet<int>();
         var touchCallbacks = new HashSet<int>();
         int headers = 0, lists = 0, boxes = 0;
@@ -17,7 +18,7 @@ internal static partial class Program
             Match match = Regex.Match(line, @"^EnemyHeaders_\w+:\s*;([0-9A-F]{6});");
             if (!match.Success) continue;
             int address = Convert.ToInt32(match.Groups[1].Value, 16);
-            int bank = rom.ReadByte(address + 12) << 16;
+            int bank = rom.ReadCartridgeByte(address + 12) << 16;
             touchCallbacks.Add(bank | Word(address + 48));
             shotCallbacks.Add(bank | Word(address + 50));
             headers++;
@@ -54,10 +55,10 @@ internal static partial class Program
         AssertEqual(80, shotCallbacks.Count, "distinct header and hitbox shot callbacks");
         AssertEqual(71, touchCallbacks.Count, "distinct header and hitbox touch callbacks");
         var expectedShotNoOps = shotCallbacks
-            .Where(address => (address & 65535) != 0 && rom.ReadByte(address) == 0x6b)
+            .Where(address => (address & 65535) != 0 && rom.ReadCartridgeByte(address) == 0x6b)
             .ToHashSet();
         var expectedTouchNoOps = touchCallbacks
-            .Where(address => (address & 65535) != 0 && rom.ReadByte(address) == 0x6b)
+            .Where(address => (address & 65535) != 0 && rom.ReadCartridgeByte(address) == 0x6b)
             .ToHashSet();
         AssertEqual(12, expectedShotNoOps.Count, "native literal shot no-op count");
         AssertEqual(15, expectedTouchNoOps.Count, "native literal touch no-op count");

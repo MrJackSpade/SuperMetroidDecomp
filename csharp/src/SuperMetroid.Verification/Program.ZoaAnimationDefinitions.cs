@@ -120,8 +120,9 @@ internal static partial class Program
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Zoa animation words")]
     private static ushort ReadZoaAnimationWord(SuperMetroidAddressSpace bus, int address) =>
-        (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static CartridgeReadGuard NewZoaAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3b40d and < 0xa3b415,

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Sbug movement definitions")]
     private static void VerifySbugMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa3a111;
@@ -25,7 +26,7 @@ internal static partial class Program
         for (ushort directionIndex = 0; directionIndex < 16; directionIndex++)
         {
             int address = instructionTable + (directionIndex >> 1) * 2;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, SbugMovementDefinitions.FacingInstructionList(directionIndex),
                 $"compiled Sbug facing selector {directionIndex}");
         }
@@ -33,7 +34,7 @@ internal static partial class Program
         for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
         {
             int address = activationTable + behavior * 2;
-            var native = (SbugEnemyFunction)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            var native = (SbugEnemyFunction)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, SbugMovementDefinitions.ActivationFunction((SbugActivationBehavior)behavior),
                 $"compiled Sbug activation selector {behavior}");
         }
@@ -45,8 +46,8 @@ internal static partial class Program
             slot.Parameter2 = 1;
             initialize(slot);
 
-            ushort native = (ushort)(rom.ReadByte(instructionTable + selector * 2) |
-                rom.ReadByte(instructionTable + selector * 2 + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(instructionTable + selector * 2) |
+                rom.ReadCartridgeByte(instructionTable + selector * 2 + 1) << 8);
             SbugEnemyState state = enemies.SbugStates[0]!;
             AssertEqual(unchecked((ushort)(selector * 2)), state.ForwardInstructionIndex,
                 $"Sbug production facing index {selector}");
@@ -67,7 +68,7 @@ internal static partial class Program
             runMain(slot, samus, null);
 
             int address = activationTable + behavior * 2;
-            var native = (SbugEnemyFunction)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            var native = (SbugEnemyFunction)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, state.Function, $"Sbug production activation {behavior}");
         }
 
@@ -177,12 +178,13 @@ internal static partial class Program
         return checksum;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Sbug program words")]
     private static ushort ReadSbugProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         unchecked((ushort)(
-            source.ReadByte(0xa30000 | address) |
-            source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
+            source.ReadCartridgeByte(0xa30000 | address) |
+            source.ReadCartridgeByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
     private static CartridgeReadGuard NewSbugMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3a111 and < 0xa3a12f,

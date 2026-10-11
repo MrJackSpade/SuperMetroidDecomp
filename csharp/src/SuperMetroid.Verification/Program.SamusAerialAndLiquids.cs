@@ -396,7 +396,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
         ushort stream = unchecked((ushort)(0xc000 + (int)pose * 0x20));
         WriteTestWord(bus, 0x91b010 + (int)pose * 2, stream);
         for (int frame = 0; frame < 31; frame++)
-            bus.WriteByte(0x910000 | unchecked((ushort)(stream + frame)), 4);
+            WriteTestByte(bus, 0x910000 | unchecked((ushort)(stream + frame)), 4);
     }
 
     // Running sources and spin-landing endpoints are sufficient to prove equipment
@@ -420,11 +420,11 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalJumpGunExtendedRightPose * 2, 0xc820);
     WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.WallJumpRightPose * 2, 0xc828);
     WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalJumpAimDownLeftPose * 2, 0xc830);
-    bus.WriteByte(0x91c800, 4);
-    bus.WriteByte(0x91c810, 4);
-    bus.WriteByte(0x91c820, 4);
-    bus.WriteByte(0x91c828, 4);
-    bus.WriteByte(0x91c830, 4);
+    WriteTestByte(bus, 0x91c800, 4);
+    WriteTestByte(bus, 0x91c810, 4);
+    WriteTestByte(bus, 0x91c820, 4);
+    WriteTestByte(bus, 0x91c828, 4);
+    WriteTestByte(bus, 0x91c830, 4);
 
     // Dry-air Samus_InitJump and gravity words. The type-three horizontal record is zeroed
     // intentionally so the assertions isolate the vertical 8.8 gate from X acceleration.
@@ -1083,7 +1083,7 @@ static void VerifySamusLiquidPhysics()
         [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpaceJumpRightPose * 2, 0xc000);
     for (int frame = 0; frame < 32; frame++)
-        bus.WriteByte(0x91c000 + frame, 4);
+        WriteTestByte(bus, 0x91c000 + frame, 4);
     foreach (int tableBase in new[] { 0x909f55, 0x90a08d, 0x90a1dd })
     {
         int spinEntry = tableBase + 3 * SpeedTableEntry.ByteCount;
@@ -1421,7 +1421,7 @@ static void VerifySamusAtmosphericEffects()
 
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
     // type `$000A`; with a dry surface it creates type-one splashes at +4/-3 and bottom-4.
-    bus.WriteByte(0x91f0f3, 1);
+    WriteTestByte(bus, 0x91f0f3, 1);
     landing.LiquidPhysics.RoomIdentity = RoomIdentities.LandingSite;
     landing.LiquidPhysics.FxType = RoomFxType.Rain;
     landing.LiquidPhysics.FxYPosition = ushort.MaxValue;

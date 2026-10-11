@@ -4,10 +4,11 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room palette FX definitions")]
     private static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
 
         ushort[] pointers =
         [

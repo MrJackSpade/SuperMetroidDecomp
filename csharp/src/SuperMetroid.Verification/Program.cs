@@ -1614,18 +1614,7 @@ if (args is ["--lookup-stream-1-powamp-programs"])
 if (args is ["--lookup-intro-narration-registry"])
 {
     var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var narrationSources = IntroNarrationDefinitions.Pages.ToArray();
-        AssertEqual(6, narrationSources.Length, "narration native registry has six pages");
-        byte[] narrationJson = SuperMetroid.AssetExtraction.IntroNarrationExtractor.Extract(rom);
-        var narration = IntroNarrationPresentation.Load(new MemoryStream(narrationJson, writable: false));
-        for (int page = 0; page < narrationSources.Length; page++)
-        {
-            IntroNarrationNativePage source = narrationSources[page];
-            AssertEqual((IntroNarrationPageId)(page + 1), source.Id, "narration native registry order");
-            int address = 0x8c0000 | source.InstructionPointer;
-            AssertEqual(source.BeginOpcode, (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8), "narration native begin callback");
-            AssertTrue(narration.Compile(source.Id).Length > 0, "native narration extracts and compiles every page through finish callback");
-        }
+        VerifyIntroNarrationNativePages(rom);
         AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)0), "narration registry lower bound");
         AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)7), "narration registry upper bound");
     Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and bounds pass.");
@@ -1650,13 +1639,7 @@ if (args is ["--lookup-stream-1-flare-placement"])
 if (args is ["--lookup-mochtroid-shake"])
 {
     var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-    foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfff8, 0xfff9, 0xfffa, 0xfffb, 0xfffc, 0xfffd, 0xfffe, 0xffff })
-    {
-        int offset = timer & 6;
-        short x = unchecked((short)(rom.ReadByte(0xa3a76d + offset) | rom.ReadByte(0xa3a76e + offset) << 8));
-        short y = unchecked((short)(rom.ReadByte(0xa3a775 + offset) | rom.ReadByte(0xa3a776 + offset) << 8));
-        AssertEqual(((int)x, (int)y), MochtroidShakeDefinitions.Offset(timer), "Native cardinal shake and timer-bit mask");
-    }
+    VerifyMochtroidShakeOffsets(rom);
     Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(rom));
     Console.WriteLine("Mochtroid shake: sixteen native masked-timer comparisons pass; amplitude remains required.");
     return 0;
@@ -1716,7 +1699,7 @@ if (args is ["--lookup-intro-caret-registration"])
 {
     var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual(1, IntroCaretSpriteDefinitions.Frames.Count, "Caret registration count");
-    AssertEqual((int)(rom.ReadByte(0x8c8d68) | rom.ReadByte(0x8c8d69) << 8), IntroCaretSpriteDefinitions.Visible.StockPartCount, "Native caret part count");
+    VerifyIntroCaretNativePartCount(rom);
     AssertEqual(new IntroCaretFrameDefinition(0x8d68, "caret-visible", 1), IntroCaretSpriteDefinitions.Frames.Single(), "Caret identity and enumeration");
     foreach (int invalid in new[] { -1, 1, int.MaxValue })
         AssertThrows<IndexOutOfRangeException>(() => _ = IntroCaretSpriteDefinitions.Frames[invalid], "Caret index bounds");
@@ -4864,10 +4847,9 @@ if (args is ["--lookup-phase-algorithms"])
     AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(phaseOracle.Rom)),
         "lookup phase oracle is NTSC J/U v1.0");
-    ushort PhaseWord(int address) => (ushort)(phaseOracle.ReadByte(address) | phaseOracle.ReadByte(address + 1) << 8);
     Suite(nameof(VerifyCompiledBotwoonSpeeds), () => VerifyCompiledBotwoonSpeeds(phaseOracle));
-    Suite(nameof(VerifyComboPowerBombCostAlgorithm), () => VerifyComboPowerBombCostAlgorithm(PhaseWord));
-    Suite(nameof(VerifyComboOriginAngleAlgorithm), () => VerifyComboOriginAngleAlgorithm(PhaseWord));
+    Suite(nameof(VerifyComboPowerBombCostAlgorithm), () => VerifyComboPowerBombCostAlgorithm(address => ReadPhaseAlgorithmWord(phaseOracle, address)));
+    Suite(nameof(VerifyComboOriginAngleAlgorithm), () => VerifyComboOriginAngleAlgorithm(address => ReadPhaseAlgorithmWord(phaseOracle, address)));
     Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(phaseOracle));
     return 0;
 }

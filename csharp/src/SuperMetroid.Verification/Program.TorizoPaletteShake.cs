@@ -71,14 +71,24 @@ internal static partial class Program
             restored.PaletteTransition!.Step(restoredColors, TorizoPaletteDefinitions.BodyPaletteMask);
             AssertTrue(cgram.Colors.SequenceEqual(restoredColors.Colors), "Mid-fade save preserves each color step");
         }
+        VerifyTorizoPaletteCatalogsAgainstRetailRom(cgram);
+        Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());
+        Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, defer target writes, fade only sprite palettes 1/2, and create no quake; all five cataloged Torizo palette pairs match the cartridge.");
+        return 0;
+    }
+
+    /// <summary>Compares the faded body colors and every cataloged Torizo palette row with bank $AA.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Torizo palette tables in bank $AA")]
+    private static void VerifyTorizoPaletteCatalogsAgainstRetailRom(SnesCgram cgram)
+    {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int i = 0; i < 32; i++)
         {
             int address = 0xaa8707 + i * 2;
-            ushort native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, cgram.Colors[144 + i], "Normal fade reaches pinned cartridge target");
             address = 0xaa8787 + i * 2;
-            native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(native, TorizoPaletteDefinitions.Golden[i], "Shared Golden fade target matches cartridge");
             foreach ((int source, string name, Bgr555 catalog) in new[]
             {
@@ -88,12 +98,9 @@ internal static partial class Program
             })
             {
                 address = source + i * 2;
-                native = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+                native = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
                 AssertEqual(native, catalog, $"Torizo {name} color {i} matches cartridge");
             }
         }
-        Suite(nameof(VerifyTorizoLandingLifetime), () => VerifyTorizoLandingLifetime());
-        Console.WriteLine("Torizo palette opcode: repeated calls preserve 32-frame landing shake, defer target writes, fade only sprite palettes 1/2, and create no quake; all five cataloged Torizo palette pairs match the cartridge.");
-        return 0;
     }
 }

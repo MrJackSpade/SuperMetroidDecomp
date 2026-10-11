@@ -9,6 +9,7 @@ internal static partial class Program
     /// LoROM offsets. When the private cartridge is available, every named list is also
     /// read through the production address space so a typo cannot survive as documentation.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room PLM instruction list catalog")]
     static void VerifyRoomPlmInstructionListCatalog()
     {
         FieldInfo[] fields = CatalogFields.Of(typeof(RoomPlmInstructionLists), BindingFlags.Public | BindingFlags.Static)
@@ -41,8 +42,8 @@ internal static partial class Program
             // Read a complete first word. We intentionally do not interpret it here: an
             // instruction-list entry can begin with either a positive timer or any native
             // opcode, including routines outside the currently translated execution slice.
-            byte low = bus.ReadByte((int)new SnesAddress(0x84, pointer));
-            byte high = bus.ReadByte((int)new SnesAddress(
+            byte low = bus.ReadCartridgeByte((int)new SnesAddress(0x84, pointer));
+            byte high = bus.ReadCartridgeByte((int)new SnesAddress(
                 0x84,
                 checked((ushort)(pointer + 1))));
             ushort firstWord = unchecked((ushort)(low | (high << 8)));

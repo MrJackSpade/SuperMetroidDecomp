@@ -11,6 +11,16 @@ using SuperMetroid.Core.Runtime;
 internal static partial class Program
 {
 
+/// <summary>The largest component of the stock fixed-color row three at $88:8D85, which bounds the native afterglow.</summary>
+[CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash fixed-color row")]
+static int ReadRetailCrystalFlashStockFadeSteps()
+{
+    var nativeColors = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+        Path.GetFullPath("Super Metroid.smc"));
+    return Enumerable.Range(0, 3).Max(component =>
+        nativeColors.ReadCartridgeByte(0x888d85 + 3 * 3 + component));
+}
+
 /// <summary>Crystal Flash, X-ray, and death-sequence verification.</summary>
 static void VerifySamusCrystalFlash()
 {
@@ -206,10 +216,7 @@ static void VerifySamusCrystalFlash()
 
     // Editable RGB reaches black after four calls, but the native lifetime remains
     // tied to the stock color row. Compare that lifetime against the cartridge itself.
-    var nativeColors = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
-        Path.GetFullPath("Super Metroid.smc"));
-    int stockFadeSteps = Enumerable.Range(0, 3).Max(component =>
-        nativeColors.ReadByte(0x888d85 + 3 * 3 + component));
+    int stockFadeSteps = ReadRetailCrystalFlashStockFadeSteps();
     for (int hdmaCall = 1; hdmaCall <= stockFadeSteps; hdmaCall++)
     {
         AssertTrue(!crystalWindow.StepFrame(bus), $"Crystal Flash afterglow call {hdmaCall}");

@@ -92,10 +92,11 @@ internal static partial class Program
         Suite(nameof(VerifyRoomShakeVector), () => VerifyRoomShakeVector(rom, RoomShakeDefinitions.ProjectileReferenceAddress, 4,
             definition => (definition.Projectile.X, definition.Projectile.Y), "projectile"));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for room shake vector")]
     private static void VerifyRoomShakeVector(SuperMetroidAddressSpace rom, int source, int stride,
         Func<RoomShakeDefinition, (short X, short Y)> select, string label)
     {
-        short Word(int address) => unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+        short Word(int address) => unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
         for (ushort type = 0; type < 36; type++)
             AssertEqual((Word(source + type * stride), Word(source + type * stride + 2)),
                 select(RoomShakeDefinitions.ForType(type)), $"Original shake {label} vector {type}");

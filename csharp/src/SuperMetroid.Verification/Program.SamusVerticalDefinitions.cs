@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus vertical definitions")]
     private static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+        ushort Word(int address) => (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var guard = NewSlopeHeightNoReadBus();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int cases = 0;

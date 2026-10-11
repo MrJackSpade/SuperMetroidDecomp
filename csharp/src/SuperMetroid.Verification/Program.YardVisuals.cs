@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Yard visuals")]
     private static void VerifyInstalledYardVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -19,7 +20,7 @@ internal static partial class Program
             ushort operand = YardInstructionProgramDefinitions.PresentationWordAddress(index);
             int selectorAddress = (YardVisualDefinitions.Bank << 16) | operand;
             ushort nativePointer = unchecked((ushort)(
-                rom.ReadByte(selectorAddress) | rom.ReadByte(selectorAddress + 1) << 8));
+                rom.ReadCartridgeByte(selectorAddress) | rom.ReadCartridgeByte(selectorAddress + 1) << 8));
             AssertEqual(nativePointer, YardVisualDefinitions.FrameAt(operand),
                 $"Yard visual selector {index} matches pinned cartridge");
             AssertTrue(EnemySpritemapDefinitions.TryFrameAt(

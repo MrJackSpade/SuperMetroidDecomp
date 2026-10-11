@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pitch basis algorithm")]
     private static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
     {
         BigInteger scale = BigInteger.Pow(10, 28);
@@ -15,7 +16,7 @@ internal static partial class Program
         for (int note = 0; note <= 12; note++)
         {
             int address = SpcMusicTables.BaseNoteReferenceAddress + note * 2;
-            int original = rom.ReadByte(address) | (rom.ReadByte(address + 1) << 8);
+            int original = rom.ReadCartridgeByte(address) | (rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(original, (int)SpcMusicTables.BaseNoteFrequency(note), $"Original pitch basis {note}");
             // Exact rational bounds establish the equal-temperament explanation without libm.
             int steps = Math.Abs(note - 9);

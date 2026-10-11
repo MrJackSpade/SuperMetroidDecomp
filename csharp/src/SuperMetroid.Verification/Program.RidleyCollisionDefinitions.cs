@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley collision definitions")]
     private static void VerifyRidleyCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -42,7 +43,7 @@ internal static partial class Program
                 $"Ridley collision frame $A6:{frame:X4} is selected artwork identity");
             var components =
                 RidleyCollisionDefinitions.ComponentsAt(frame);
-            AssertEqual((int)rom.ReadByte(0xa60000 | frame), components.Length,
+            AssertEqual((int)rom.ReadCartridgeByte(0xa60000 | frame), components.Length,
                 $"Ridley frame $A6:{frame:X4} native component count");
             for (int componentIndex = 0; componentIndex < components.Length;
                  componentIndex++)
@@ -165,7 +166,7 @@ internal static partial class Program
             "boundary probes match native callbacks without ROM reads.");
 
         ushort ReadWord(int address) => (ushort)(
-            rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
 
         // A0:9ADF..9B78 touch and 9C43..9D20 shot comparisons consume the original
         // component/list records in order; only this reference reads cartridge data.
@@ -177,7 +178,7 @@ internal static partial class Program
             ushort targetRight = unchecked((ushort)(x + radiusX));
             ushort targetTop = unchecked((ushort)(y - radiusY));
             ushort targetBottom = unchecked((ushort)(y + radiusY));
-            int count = rom.ReadByte(0xa60000 | frame);
+            int count = rom.ReadCartridgeByte(0xa60000 | frame);
             for (int component = 0; component < count; component++)
             {
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + component * 8));
@@ -211,7 +212,7 @@ internal static partial class Program
             int subjectRight = unchecked((ushort)(x + radiusX));
             int subjectTop = unchecked((ushort)(y - radiusY));
             int subjectBottom = unchecked((ushort)(y + radiusY));
-            int count = rom.ReadByte(0xa60000 | frame);
+            int count = rom.ReadCartridgeByte(0xa60000 | frame);
             for (int component = 0; component < count; component++)
             {
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + component * 8));

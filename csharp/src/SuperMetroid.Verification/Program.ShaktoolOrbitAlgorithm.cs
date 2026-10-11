@@ -3,12 +3,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool orbit algorithm")]
     private static void VerifyShaktoolOrbitAlgorithm(SuperMetroidAddressSpace rom)
     {
         short Original(int index)
         {
             int address = EnemyMathReferenceData.ShaktoolOrbit + 2 * index;
-            return unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
+            return unchecked((short)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8));
         }
         for (int index = 0; index < 320; index++)
         {

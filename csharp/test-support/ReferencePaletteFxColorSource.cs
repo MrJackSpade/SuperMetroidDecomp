@@ -9,10 +9,11 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal sealed class ReferencePaletteFxColorSource(ISnesAddressSpace source) : IPaletteFxColorSource
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for palette-FX color words")]
     public bool TryReadColor(ushort pointer, out Bgr555 color)
     {
         int address = RoomFxRomData.Banks.PaletteFx | pointer;
-        color = Bgr555.FromWord(unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8)));
+        color = Bgr555.FromWord(unchecked((ushort)(source.ReadCartridgeByte(address) | source.ReadCartridgeByte(address + 1) << 8)));
         return true;
     }
 }

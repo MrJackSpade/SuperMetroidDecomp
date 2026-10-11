@@ -63,7 +63,8 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for station animation program words")]
     private static ushort ReadStationRomWord(SuperMetroidAddressSpace rom, int address) =>
-        unchecked((ushort)(rom.ReadByte(0x840000 | address) |
-            rom.ReadByte(0x840000 | (address + 1)) << 8));
+        unchecked((ushort)(rom.ReadCartridgeByte(0x840000 | address) |
+            rom.ReadCartridgeByte(0x840000 | (address + 1)) << 8));
 }

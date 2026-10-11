@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo instruction VRAM artwork")]
     private static void VerifyTorizoInstructionVramArtwork(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -44,9 +45,9 @@ internal static partial class Program
             int descriptor = 0xaa0000 | unchecked((ushort)(transfer.Instruction + 2));
             AssertEqual(transfer.ByteCount, ReadWord(descriptor),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} byte count");
-            int nativeSource = rom.ReadByte(descriptor + 2) |
-                rom.ReadByte(descriptor + 3) << 8 |
-                rom.ReadByte(descriptor + 4) << 16;
+            int nativeSource = rom.ReadCartridgeByte(descriptor + 2) |
+                rom.ReadCartridgeByte(descriptor + 3) << 8 |
+                rom.ReadCartridgeByte(descriptor + 4) << 16;
             AssertEqual(transfer.SourceAddress, nativeSource,
                 $"Torizo transfer $AA:{transfer.Instruction:X4} source");
             AssertEqual(transfer.DestinationWord, ReadWord(descriptor + 5),
@@ -60,7 +61,7 @@ internal static partial class Program
                     out ReadOnlyMemory<byte> installed),
                 $"Torizo transfer $AA:{transfer.Instruction:X4} installed tile source");
             for (int offset = 0; offset < transfer.ByteCount; offset++)
-                AssertEqual(rom.ReadByte(transfer.SourceAddress + offset),
+                AssertEqual(rom.ReadCartridgeByte(transfer.SourceAddress + offset),
                     installed.Span[offset],
                     $"Torizo transfer $AA:{transfer.Instruction:X4} byte {offset:X4}");
             applyTransfer.Invoke(installedEnemies,
@@ -80,9 +81,9 @@ internal static partial class Program
                 continue;
             int descriptor = opcode + 2;
             ushort byteCount = ReadWord(descriptor);
-            int source = rom.ReadByte(descriptor + 2) |
-                rom.ReadByte(descriptor + 3) << 8 |
-                rom.ReadByte(descriptor + 4) << 16;
+            int source = rom.ReadCartridgeByte(descriptor + 2) |
+                rom.ReadCartridgeByte(descriptor + 3) << 8 |
+                rom.ReadCartridgeByte(descriptor + 4) << 16;
             ushort destination = ReadWord(descriptor + 5);
             if (byteCount is 0 or > 0x2000 ||
                 (source >> 16) < 0x80 || destination > 0x7fff)
@@ -153,7 +154,7 @@ internal static partial class Program
             "byte parity, live edit, reload, and invalid-asset rejection pass.");
 
         ushort ReadWord(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
     }
 
     private static CartridgeReadGuard NewForbiddenTorizoRomBus() =>

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for standard object artwork")]
     private static void VerifyStandardObjectArtwork(string sourceRom)
     {
         string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",
@@ -20,7 +21,7 @@ internal static partial class Program
             GameplayBasePaletteFiles.Extract(native, paletteDirectory, SupportedCartridge.Sha256);
             GameplayBasePaletteCatalog palettes = GameplayBasePaletteFiles.Load(paletteDirectory, null);
             for (int offset = 0; offset < StandardObjectArtworkFormat.TransferByteCount; offset++)
-                AssertEqual(native.ReadByte(StandardObjectArtworkAddresses.Source + offset),
+                AssertEqual(native.ReadCartridgeByte(StandardObjectArtworkAddresses.Source + offset),
                     baseline.Transfer.Span[offset], $"standard OBJ native byte {offset:X4}");
 
             var guard = NewFrontendCartridgeReadGuard(

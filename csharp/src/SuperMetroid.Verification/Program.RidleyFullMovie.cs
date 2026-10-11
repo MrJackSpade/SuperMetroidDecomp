@@ -775,14 +775,9 @@ internal static partial class Program
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
         AssertEqual((byte)0, runtime.NmiFrameCounter8, "door end-drawing IRQ clears the adjacent byte counter");
-        ushort palettePointer = (ushort)(bus.ReadByte(NativeSnapshotMemory.BeamPalettePointers + (samus.EquippedBeams & 0x0fff) * 2) |
-            bus.ReadByte(NativeSnapshotMemory.BeamPalettePointers + (samus.EquippedBeams & 0x0fff) * 2 + 1) << 8);
+        ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams);
         for (int color = 0; color < 16; color++)
-        {
-            int address = NativeSnapshotMemory.CannonDefinitionBank | (palettePointer + color * 2);
-            ushort expected = (ushort)((bus.ReadByte(address) | bus.ReadByte(address + 1) << 8) & 0x7fff);
-            AssertEqual(expected, runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
-        }
+            AssertEqual(beamPalette[color], runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
         AssertEqual((ushort)0, runtime.Cgram.Colors[196], "visor remains faded before scroll completes");
         int scrollCalls = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
@@ -842,6 +837,26 @@ internal static partial class Program
         AssertEqual((ushort)169, runtime.Enemies.Ridley.FunctionTimer, "native first gameplay update consumes one of 170 reveal ticks");
         Console.WriteLine("Ridley door entry/loading/fade: native positions, RNG, one NMI per dispatch, stationary Samus animation and continuing enemy visuals agree.");
     }
+
+    /// <summary>The 16 native beam colors $90:C3C9 selects for <paramref name="equippedBeams"/>, BGR555 only.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the equipped-beam palette pointer table and palettes")]
+    private static ushort[] ReadRetailBeamPalette(ISnesAddressSpace bus, ushort equippedBeams)
+    {
+        int pointerAddress = NativeSnapshotMemory.BeamPalettePointers + (equippedBeams & 0x0fff) * 2;
+        ushort palettePointer = (ushort)(bus.ReadCartridgeByte(pointerAddress) | bus.ReadCartridgeByte(pointerAddress + 1) << 8);
+        var colors = new ushort[16];
+        for (int color = 0; color < colors.Length; color++)
+        {
+            int address = NativeSnapshotMemory.CannonDefinitionBank | (palettePointer + color * 2);
+            colors[color] = (ushort)((bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8) & 0x7fff);
+        }
+        return colors;
+    }
+
+    /// <summary>A native little-endian PLM program word at a bank-$84 CPU address.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
+    private static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
+        (ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8);
 
     private static void VerifyRidleyFullMovie(string directory)
     {
@@ -1141,10 +1156,12 @@ internal static partial class Program
             for (int direction = 0; direction < 4; direction++)
                 Check($"Samus solid enemy {direction}", samus.Kinematics.SolidEnemyCollisionIndexes[direction],
                     NativeSnapshotMemory.SamusSolidEnemyIndices + direction * 2);
-            for (int address = NativeSnapshotMemory.ProjectileInheritancePrefix;
-                 address < NativeSnapshotMemory.SamusSlopeAdjusted; address += 2)
-                Check($"Projectile inherited movement ${address:X4}",
-                    (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8), address);
+            var inheritance = new ProjectileInheritanceInspection(bus);
+            for (int offset = 0; offset < inheritance.ByteCount; offset += 2)
+            {
+                int address = NativeSnapshotMemory.ProjectileInheritancePrefix + offset;
+                Check($"Projectile inherited movement ${address:X4}", inheritance.Word(offset), address);
+            }
             Check("Samus total horizontal speed", samus.HorizontalSpeed.TotalSpeed, NativeSnapshotMemory.TotalHorizontalSpeed);
             Check("Samus total horizontal fraction", samus.HorizontalSpeed.TotalSubspeed, NativeSnapshotMemory.TotalHorizontalSubspeed);
             Check("Samus movement handler", samus.KnockbackActive
@@ -1340,7 +1357,7 @@ internal static partial class Program
                         NativeSnapshotMemory.PlmExtraVariable + offset);
                     if (greyDoor.Phase != GreyDoorPhase.Closing)
                     {
-                        ushort NativeProgramWord(int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
+                        ushort NativeProgramWord(int address) => ReadRetailPlmProgramWord(bus, address);
                         ushort activation = NativeProgramWord(NativeSnapshotMemory.PlmProgramBank | (greyDoor.InitialList + 6));
                         ushort link = NativeProgramWord(NativeSnapshotMemory.PlmProgramBank | (activation + 2));
                         if (greyDoor.Phase == GreyDoorPhase.Locked)

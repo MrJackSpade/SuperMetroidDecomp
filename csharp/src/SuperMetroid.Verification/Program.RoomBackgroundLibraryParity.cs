@@ -11,6 +11,21 @@ internal static partial class Program
     /// transfer. Matching one representative list does not prove that an installed
     /// sky page or tilemap is selected by all the other native command paths.
     /// </summary>
+    /// <summary>
+    /// Compares the <paramref name="length"/> bank-$7E bytes a decompress-to-WRAM command wrote at its
+    /// cartridge-authored <paramref name="destination"/> after native and installed execution.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: compares the cartridge-selected WRAM range a library-background decompression fills")]
+    private static void AssertSameLibraryBackgroundWorkRam(SuperMetroidAddressSpace nativeBus,
+        SuperMetroidAddressSpace selectedBus, ushort destination, int length, ushort listPointer)
+    {
+        int start = RoomAssetRomData.LibraryBackground.WorkRamBank | destination;
+        for (int offset = 0; offset < length; offset++)
+            AssertEqual(nativeBus.ReadWorkRamByte(start + offset),
+                selectedBus.ReadWorkRamByte(start + offset),
+                $"library background $8F:{listPointer:X4} WRAM byte {offset}");
+    }
+
     private static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
     {
@@ -60,13 +75,8 @@ internal static partial class Program
                 foreach (LibraryBackgroundSource source in list.Where(source =>
                     source.Command == LibraryBackgroundCommand.DecompressToWorkRam))
                 {
-                    int length = backgrounds.Get(source.SourceAddress).Transfer.Length;
-                    int start = RoomAssetRomData.LibraryBackground.WorkRamBank |
-                        source.WorkRamDestination!.Value;
-                    for (int offset = 0; offset < length; offset++)
-                        AssertEqual(nativeBus.ReadByte(start + offset),
-                            selectedBus.ReadByte(start + offset),
-                            $"library background $8F:{program.Pointer:X4} WRAM byte {offset}");
+                    AssertSameLibraryBackgroundWorkRam(nativeBus, selectedBus, source.WorkRamDestination!.Value,
+                        backgrounds.Get(source.SourceAddress).Transfer.Length, program.Pointer);
                 }
                 cases++;
             }
@@ -115,9 +125,9 @@ internal static partial class Program
         {
             var bus = new TestAddressSpace();
             WriteWord(bus, commandAddress, (ushort)LibraryBackgroundCommand.TransferToVram);
-            bus.WriteByte(commandAddress + 2, (byte)sourceAddress);
-            bus.WriteByte(commandAddress + 3, (byte)(sourceAddress >> 8));
-            bus.WriteByte(commandAddress + 4, (byte)(sourceAddress >> 16));
+            WriteTestByte(bus, commandAddress + 2, (byte)sourceAddress);
+            WriteTestByte(bus, commandAddress + 3, (byte)(sourceAddress >> 8));
+            WriteTestByte(bus, commandAddress + 4, (byte)(sourceAddress >> 16));
             WriteWord(bus, commandAddress + 5, 0x4800);
             WriteWord(bus, commandAddress + 7, byteCount);
             WriteWord(bus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);
@@ -141,13 +151,13 @@ internal static partial class Program
         // artwork lookup: it must still transfer when all art catalogs are bound.
         var stagedBus = new TestAddressSpace();
         const int stagedSource = 0x7e2000;
-        stagedBus.WriteByte(stagedSource, 0x12);
-        stagedBus.WriteByte(stagedSource + 1, 0x34);
+        WriteTestByte(stagedBus, stagedSource, 0x12);
+        WriteTestByte(stagedBus, stagedSource + 1, 0x34);
         WriteWord(stagedBus, commandAddress,
             (ushort)LibraryBackgroundCommand.TransferToVram);
-        stagedBus.WriteByte(commandAddress + 2, unchecked((byte)stagedSource));
-        stagedBus.WriteByte(commandAddress + 3, unchecked((byte)(stagedSource >> 8)));
-        stagedBus.WriteByte(commandAddress + 4, (byte)(stagedSource >> 16));
+        WriteTestByte(stagedBus, commandAddress + 2, unchecked((byte)stagedSource));
+        WriteTestByte(stagedBus, commandAddress + 3, unchecked((byte)(stagedSource >> 8)));
+        WriteTestByte(stagedBus, commandAddress + 4, (byte)(stagedSource >> 16));
         WriteWord(stagedBus, commandAddress + 5, 0x4800);
         WriteWord(stagedBus, commandAddress + 7, 2);
         WriteWord(stagedBus, commandAddress + 9, (ushort)LibraryBackgroundCommand.End);

@@ -74,6 +74,7 @@ internal static partial class Program
     private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater header field")]
     private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -96,9 +97,9 @@ internal static partial class Program
                 // The native ceiling subtracts radius and increments held Y; floor adds
                 // radius, decrements the edge and decrements held Y.
                 AssertEqual((byte)(actual.Ceiling ? 0xed : 0x6d),
-                    rom.ReadByte(0x840000 | (setup + 4)), "plant native edge add/subtract opcode");
+                    rom.ReadCartridgeByte(0x840000 | (setup + 4)), "plant native edge add/subtract opcode");
                 AssertEqual((byte)(actual.Ceiling ? 0x1a : 0x3a),
-                    rom.ReadByte(actual.Ceiling ? 0x84b13f : 0x84b10c), "plant native held-Y direction");
+                    rom.ReadCartridgeByte(actual.Ceiling ? 0x84b13f : 0x84b10c), "plant native held-Y direction");
             }
             else
                 AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | (header + 2)),
@@ -106,6 +107,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater program controls")]
     private static void VerifySamusEaterProgramControls(SuperMetroidAddressSpace rom)
     {
         int[] drawWords = [0xacc1,0xacc5,0xacc9,0xacd2,0xacd6,0xacda,0xacde,0xace4,0xacf0,0xacf4,
@@ -119,7 +121,7 @@ internal static partial class Program
             AssertEqual(wordOwned, SamusEaterPlmProgramDefinitions.TryReadMechanicsWord(address, out ushort actualWord), "plant complete word ownership");
             if (!byteOwned) AssertEqual((byte)0, actualByte, "plant missing byte zero");
             else if (raw != 0xaccd && raw != 0xad0d && !drawWords.Any(pointer => raw == pointer || raw == pointer + 1))
-                AssertEqual(rom.ReadByte(0x840000 | raw), actualByte, "plant native control byte and timer operand");
+                AssertEqual(rom.ReadCartridgeByte(0x840000 | raw), actualByte, "plant native control byte and timer operand");
             if (!wordOwned) AssertEqual((ushort)0, actualWord, "plant missing word zero");
             else
             {
@@ -131,6 +133,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater program draws")]
     private static void VerifySamusEaterProgramDraws(SuperMetroidAddressSpace rom)
     {
         int[] pointers = [0xacc1,0xacc5,0xacc9,0xacd2,0xacd6,0xacda,0xacde,0xace4,0xacf0,0xacf4,
@@ -142,20 +145,22 @@ internal static partial class Program
             for (int half = 0; half < 2; half++)
             {
                 AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsByte((ushort)(pointer + half), out byte value), "plant draw operand byte");
-                AssertEqual(rom.ReadByte(0x840000 | (pointer + half)), value, "plant original draw operand byte");
+                AssertEqual(rom.ReadCartridgeByte(0x840000 | (pointer + half)), value, "plant original draw operand byte");
             }
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater program sound")]
     private static void VerifySamusEaterProgramSound(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in new ushort[] {0xaccd,0xad0d})
         {
             AssertTrue(SamusEaterPlmProgramDefinitions.TryReadMechanicsByte(pointer, out byte value), "plant packed sound byte");
-            AssertEqual(rom.ReadByte(0x840000 | pointer), value, "plant original sound selection");
+            AssertEqual(rom.ReadCartridgeByte(0x840000 | pointer), value, "plant original sound selection");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater PLM words")]
     private static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>
-        unchecked((ushort)(bus.ReadByte(address) | (bus.ReadByte(address + 1) << 8)));
+        unchecked((ushort)(bus.ReadCartridgeByte(address) | (bus.ReadCartridgeByte(address + 1) << 8)));
 }

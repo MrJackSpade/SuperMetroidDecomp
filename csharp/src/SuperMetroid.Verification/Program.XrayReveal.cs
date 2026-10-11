@@ -75,13 +75,14 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for native X-ray reveal words")]
     private static ushort ReadNativeXrayRevealWord(ISnesAddressSpace bus, int pointer)
     {
         if (pointer is < 0x8000 or >= ushort.MaxValue)
             throw new InvalidDataException(
                 $"Native X-ray reveal table crossed bank $91 at ${pointer:X}.");
         return unchecked((ushort)(
-            bus.ReadByte(XrayRevealCodePointers.Bank | pointer) |
-            bus.ReadByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
+            bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | pointer) |
+            bus.ReadCartridgeByte(XrayRevealCodePointers.Bank | (pointer + 1)) << 8));
     }
 }

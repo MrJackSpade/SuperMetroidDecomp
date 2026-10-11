@@ -8,12 +8,13 @@ internal static partial class Program
     private static void VerifySpcSoundPolicy2(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 1, 127, 0x31b1, 0x0441, 0x04bc);
     private static void VerifySpcSoundPolicy3(ISnesAddressSpace rom) => VerifySpcSoundPolicy(rom, 2, 47, 0x4776, 0x0479, 0x04bd);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound policy")]
     private static void VerifySpcSoundPolicy(ISnesAddressSpace rom, int library, int count, int dispatch, int voicesAddress, int priorityAddress)
     {
         // Original SPC image is loaded from CF:6C08 + SPC address. These dispatch
         // tables and handler labels are independently identified in PJBoy/SM-SPC
         // 17b0c1ee46eed2f97909fbb6141a5ee6a693c45a vanilla/sound library N.asm.
-        byte Read(int address) => rom.ReadByte(0xcf6c08 + address);
+        byte Read(int address) => rom.ReadCartridgeByte(0xcf6c08 + address);
         int Word(int address) => Read(address) | Read(address + 1) << 8;
         MethodInfo configure = typeof(ManagedSpcPlayer).GetMethod("ConfigureSoundLibrary", BindingFlags.Static | BindingFlags.NonPublic)
             ?? throw new InvalidOperationException("Missing production sound policy consumer.");

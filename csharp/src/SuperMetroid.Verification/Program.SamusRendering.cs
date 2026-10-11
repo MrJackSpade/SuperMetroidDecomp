@@ -939,10 +939,10 @@ static void SeedPoseOneSamusData(TestAddressSpace bus)
     bus.WriteBytes(0x92d1c8, [0x20, 0x88, 0x9d, 0xc0, 0x00, 0xc0, 0x00]);
 
     // Distinct first bytes prove each of the four fixed NMI destinations independently.
-    bus.WriteByte(0x9ce100, 0x10);
-    bus.WriteByte(0x9ce1c0, 0x20);
-    bus.WriteByte(0x9d8820, 0x30);
-    bus.WriteByte(0x9d88e0, 0x40);
+    WriteTestByte(bus, 0x9ce100, 0x10);
+    WriteTestByte(bus, 0x9ce1c0, 0x20);
+    WriteTestByte(bus, 0x9d8820, 0x30);
+    WriteTestByte(bus, 0x9d88e0, 0x40);
 
     ushort[] powerSuitColors = [
         0x3800, 0x0108, 0x03bd, 0x1405, 0x3be0, 0x21a8, 0x579f, 0x4ad2,

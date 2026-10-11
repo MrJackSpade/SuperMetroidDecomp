@@ -88,15 +88,26 @@ internal static partial class Program
     }
 
     /// <summary>
+    /// Seeds one byte of the sparse SNES-bus fixture, which stores exactly the CPU address
+    /// written and synthesizes no mirrors. Tests use it to construct synthetic cartridge
+    /// records and programs field by field.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: seeds one byte of the sparse synthetic CPU address space fixture")]
+    static void WriteTestByte(TestAddressSpace bus, int address, byte value)
+    {
+        ArgumentNullException.ThrowIfNull(bus);
+        bus.WriteByte(address, value);
+    }
+
+    /// <summary>
     /// Writes one native little-endian word into the sparse SNES-bus fixture. Tests should
     /// describe cartridge words as words; repeating two byte stores obscures both width and
     /// byte order.
     /// </summary>
     static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        bus.WriteByte(address, (byte)value);
-        bus.WriteByte(address + 1, (byte)(value >> 8));
+        WriteTestByte(bus, address, (byte)value);
+        WriteTestByte(bus, address + 1, (byte)(value >> 8));
     }
 
     /// <summary>
@@ -144,7 +155,7 @@ internal static partial class Program
         if ((uint)byteOffset >= 8)
             throw new ArgumentOutOfRangeException(nameof(byteOffset));
 
-        bus.WriteByte(0x91b629 + pose * 8 + byteOffset, value);
+        WriteTestByte(bus, 0x91b629 + pose * 8 + byteOffset, value);
     }
 
     /// <summary>

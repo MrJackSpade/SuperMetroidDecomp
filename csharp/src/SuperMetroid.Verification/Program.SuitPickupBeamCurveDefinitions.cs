@@ -3,12 +3,13 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for suit pickup beam curve definitions")]
     private static void VerifySuitPickupBeamCurveDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < SuitPickupBeamCurveDefinitions.OffsetCount; index++)
         {
             AssertEqual(
-                rom.ReadByte(SuitPickupBeamCurveDefinitions.NativeCurveAddress + index),
+                rom.ReadCartridgeByte(SuitPickupBeamCurveDefinitions.NativeCurveAddress + index),
                 SuitPickupBeamCurveDefinitions.OffsetAt(index),
                 $"suit-pickup beam offset {index}");
         }

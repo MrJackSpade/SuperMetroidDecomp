@@ -4,11 +4,12 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric animation definitions")]
     private static void VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroidAddressSpace rom)
     {
         static ushort Word(ISnesAddressSpace bus, int address) =>
-            unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
+            unchecked((ushort)(bus.ReadCartridgeByte(address) | bus.ReadCartridgeByte(address + 1) << 8));
 
         AssertEqual(0, Word(rom, 0x908b93), "inactive atmospheric timer pointer");
         AssertEqual(0, Word(rom, 0x908ba3), "trailing atmospheric timer pointer");
@@ -104,6 +105,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: a null bank-$90 atmospheric pointer reads low WRAM through the $90:0000 system-bank mirror")]
     private static void VerifyNullAtmosphericPointerReadsMirroredWorkRam(
         SuperMetroidAddressSpace rom,
         ISnesAddressSpace guarded)

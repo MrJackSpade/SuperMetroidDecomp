@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool segment definitions")]
     private static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyShaktoolPropertySelection), () => VerifyShaktoolPropertySelection(rom));
@@ -14,7 +15,7 @@ internal static partial class Program
         Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) =>
-            (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
         var definitions = new ShaktoolSegmentDefinition[7];
         for (int index = 0; index < definitions.Length; index++)
         {
@@ -113,13 +114,14 @@ internal static partial class Program
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeCallbackAddress,
             definition => (ushort)definition.PreInstruction, "callback selection"));
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool definition field")]
     private static void VerifyShaktoolDefinitionField(SuperMetroidAddressSpace rom,
         int nativeAddress, Func<ShaktoolSegmentDefinition, ushort> select, string label)
     {
         for (int index = 0; index < 7; index++)
         {
             int address = nativeAddress + 2 * index;
-            ushort expected = (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
+            ushort expected = (ushort)(rom.ReadCartridgeByte(address) | rom.ReadCartridgeByte(address + 1) << 8);
             AssertEqual(expected, select(ShaktoolSegmentDefinitions.ForIndex(index)),
                 $"Shaktool {label} original word {index}");
         }

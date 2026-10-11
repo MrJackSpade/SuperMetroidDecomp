@@ -19,8 +19,15 @@ internal sealed class EvidencedSoundAcknowledgements
     /// <summary>$064D..$064F: APU_CurrentSoundLib1..3, the byte each waiting state compares.</summary>
     private const int CurrentSoundLib1 = 0x064d;
 
-    private const byte WaitForRequestAcknowledgement = 1;
-    private const byte WaitForClearAcknowledgement = 3;
+    /// <summary>The <c>HandleSounds</c> library states that wait for an SPC echo.</summary>
+    private enum WaitingState : byte
+    {
+        /// <summary>State 1 waits for the SPC to echo the sent sound.</summary>
+        RequestAcknowledgement = 1,
+        /// <summary>State 3 waits for the SPC to echo the cleared request.</summary>
+        ClearAcknowledgement = 3,
+    }
+
     private const int LibraryCount = 3;
 
     private readonly byte[] states = new byte[LibraryCount];
@@ -38,7 +45,8 @@ internal sealed class EvidencedSoundAcknowledgements
         for (int library = 0; library < LibraryCount; library++)
         {
             byte before = states[library];
-            if (before is not (WaitForRequestAcknowledgement or WaitForClearAcknowledgement))
+            // Other handler states send or clear requests without awaiting an echo.
+            if (!Enum.IsDefined((WaitingState)before))
                 continue;
             byte compared = currents[library];
             bool echoed = nativeAfter[SoundStateLib1 + library] != before;

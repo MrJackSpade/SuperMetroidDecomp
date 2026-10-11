@@ -31,7 +31,7 @@ public sealed partial class MainActivity
                 intent.AddCategory(Intent.CategoryOpenable);
                 intent.SetType("*/*");
 #pragma warning disable CS0618
-                StartActivityForResult(intent, AndroidDocumentRequests.RomImport);
+                StartActivityForResult(intent, (int)AndroidDocumentRequest.RomImport);
 #pragma warning restore CS0618
             }
             catch (Exception failure) { ShowRomSetup(failure.Message); }

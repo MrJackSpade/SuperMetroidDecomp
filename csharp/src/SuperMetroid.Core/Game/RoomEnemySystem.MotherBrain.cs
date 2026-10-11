@@ -772,8 +772,7 @@ public sealed partial class RoomEnemySystem
             case MotherBrainInstruction.MotherBrainBody_IncrementDeathBeamAttackPhase:
             {
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
-                state.HandBeamPhase = unchecked((MotherBrainHandBeamPhase)(
-                    (ushort)state.HandBeamPhase + 1));
+                state.HandBeamPhase = MotherBrainHandBeamPhases.Next(state.HandBeamPhase);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }

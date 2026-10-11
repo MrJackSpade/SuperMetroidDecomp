@@ -29,35 +29,69 @@ internal static class ChozoStatuePlmProgramDefinitions
     /// <summary>$84:D14D: restore lowered acid and clear the hand on event-set room entry.</summary>
     private const ushort RestoreLoweredAcid = 0xd14d;
 
+    /// <summary>The four bounded instruction lists, each owning one inclusive bank-$84 byte range.</summary>
+    private enum ProgramList
+    {
+        /// <summary>$84:D0F6-D107, the crumbling plug list.</summary>
+        CrumblePlug,
+        /// <summary>$84:D13F-D154, the Lower Norfair hand list.</summary>
+        LowerNorfairHand,
+        /// <summary>$84:D3CF-D3D6, the Wrecked Ship clear-slope list.</summary>
+        ClearSlope,
+        /// <summary>$84:D3EC-D3F3, the Wrecked Ship block-slope list.</summary>
+        BlockSlope,
+    }
+
+    private static readonly ProgramList[] ProgramLists = Enum.GetValues<ProgramList>();
+
+    private static ushort StartOf(ProgramList list) => list switch
+    {
+        ProgramList.CrumblePlug => CrumblePlugStart,
+        ProgramList.LowerNorfairHand => LowerNorfairHandStart,
+        ProgramList.ClearSlope => ClearSlopeStart,
+        ProgramList.BlockSlope => BlockSlopeStart,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ProgramList)} {(int)list}."),
+    };
+
+    private static ushort EndOf(ProgramList list) => list switch
+    {
+        ProgramList.CrumblePlug => CrumblePlugEnd,
+        ProgramList.LowerNorfairHand => LowerNorfairHandEnd,
+        ProgramList.ClearSlope => ClearSlopeEnd,
+        ProgramList.BlockSlope => BlockSlopeEnd,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ProgramList)} {(int)list}."),
+    };
+
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (!TryLocate(address, out int start, out int length) || address == start + length - 1) return false;
-        value = (ushort)(ByteAt(start, address - start) | ByteAt(start, address - start + 1) << 8);
+        if (!TryLocate(address, out ProgramList list) || address == EndOf(list)) return false;
+        int offset = address - StartOf(list);
+        value = (ushort)(ByteAt(list, offset) | ByteAt(list, offset + 1) << 8);
         return true;
     }
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
-        if (!TryLocate(address, out int start, out _)) return false;
-        value = ByteAt(start, address - start);
+        if (!TryLocate(address, out ProgramList list)) return false;
+        value = ByteAt(list, address - StartOf(list));
         return true;
     }
-    private static bool TryLocate(ushort address, out int start, out int length)
+    private static bool TryLocate(ushort address, out ProgramList list)
     {
-        start = 0; length = 0;
-        if (address is >= CrumblePlugStart and <= CrumblePlugEnd)
-        { start = CrumblePlugStart; length = 18; }
-        else if (address is >= LowerNorfairHandStart and <= LowerNorfairHandEnd)
-        { start = LowerNorfairHandStart; length = 22; }
-        else if (address is >= ClearSlopeStart and <= ClearSlopeEnd)
-        { start = ClearSlopeStart; length = 8; }
-        else if (address is >= BlockSlopeStart and <= BlockSlopeEnd)
-        { start = BlockSlopeStart; length = 8; }
-        return length != 0;
+        foreach (ProgramList candidate in ProgramLists)
+        {
+            if (address >= StartOf(candidate) && address <= EndOf(candidate))
+            {
+                list = candidate;
+                return true;
+            }
+        }
+        list = default;
+        return false;
     }
-    private static byte ByteAt(int start, int offset) =>
-        (byte)(WordAt(start, offset & ~1) >> ((offset & 1) * 8));
+    private static byte ByteAt(ProgramList list, int offset) =>
+        (byte)(WordAt(list, offset & ~1) >> ((offset & 1) * 8));
 
     /// <summary>
     /// Native crumble uses four six-byte draw records with holds 4/4/4/1.
@@ -65,36 +99,45 @@ internal static class ChozoStatuePlmProgramDefinitions
     /// Slope programs draw once, apply their named transform and delete.
     /// Canonical words are calculated here; byte projection preserves all 52 overlaps.
     /// </summary>
-    private static ushort WordAt(int start, int offset)
+    private static ushort WordAt(ProgramList list, int offset)
     {
-        if (start == CrumblePlugStart)
+        switch (list)
         {
-            if (offset == 16) return (ushort)RoomPlmInstruction.Delete;
-            int frame = offset / 4;
-            return offset % 4 == 0 ? (ushort)(frame == 3 ? 1 : 4) :
-                (ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + frame * 6);
-        }
-        if (start == LowerNorfairHandStart)
-            return offset switch
+            case ProgramList.CrumblePlug:
             {
-                0 => (ushort)RoomPlmInstruction.GotoIfEventSet,
-                2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid,
-                4 => RestoreLoweredAcid,
-                6 => (ushort)RoomPlmInstruction.InstallPreInstruction,
-                8 => ChozoStatuePlmRomData.WaitForLowerNorfairHand,
-                10 => (ushort)RoomPlmInstruction.Sleep,
-                14 => (ushort)RoomPlmInstruction.SetLoweredAcidHeight,
-                16 => 1,
-                18 => (ushort)ChozoStatueDraw.LowerNorfairClearedHand,
-                _ => (ushort)RoomPlmInstruction.Delete,
-            };
-        bool clear = start == ClearSlopeStart;
-        return offset switch
-        {
-            0 => 1,
-            2 => clear ? (ushort)ChozoStatueDraw.ClearSlopeAccess : (ushort)ChozoStatueDraw.BlockSlopeAccess,
-            4 => clear ? (ushort)RoomPlmInstruction.TransformSpikesToSlopes : (ushort)RoomPlmInstruction.RevertSlopesToSpikes,
-            _ => (ushort)RoomPlmInstruction.Delete,
-        };
+                if (offset == 16) return (ushort)RoomPlmInstruction.Delete;
+                int frame = offset / 4;
+                return offset % 4 == 0 ? (ushort)(frame == 3 ? 1 : 4) :
+                    (ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + frame * 6);
+            }
+            case ProgramList.LowerNorfairHand:
+                return offset switch
+                {
+                    0 => (ushort)RoomPlmInstruction.GotoIfEventSet,
+                    2 => (ushort)EventNumber.LowerNorfairChozoLoweredAcid,
+                    4 => RestoreLoweredAcid,
+                    6 => (ushort)RoomPlmInstruction.InstallPreInstruction,
+                    8 => ChozoStatuePlmRomData.WaitForLowerNorfairHand,
+                    10 => (ushort)RoomPlmInstruction.Sleep,
+                    14 => (ushort)RoomPlmInstruction.SetLoweredAcidHeight,
+                    16 => 1,
+                    18 => (ushort)ChozoStatueDraw.LowerNorfairClearedHand,
+                    _ => (ushort)RoomPlmInstruction.Delete,
+                };
+            case ProgramList.ClearSlope:
+            case ProgramList.BlockSlope:
+            {
+                bool clear = list == ProgramList.ClearSlope;
+                return offset switch
+                {
+                    0 => 1,
+                    2 => clear ? (ushort)ChozoStatueDraw.ClearSlopeAccess : (ushort)ChozoStatueDraw.BlockSlopeAccess,
+                    4 => clear ? (ushort)RoomPlmInstruction.TransformSpikesToSlopes : (ushort)RoomPlmInstruction.RevertSlopesToSpikes,
+                    _ => (ushort)RoomPlmInstruction.Delete,
+                };
+            }
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(ProgramList)} {(int)list}.");
+        }
     }
 }

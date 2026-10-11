@@ -70,7 +70,7 @@ internal static partial class Program
         JsonObject rainbow = documents["Mother Brain rainbow"];
         var rainbowStock = ReadPaletteContract(rainbow, json => MotherBrainRainbowPalettePresentation.Load(json));
         var oldRainbow = (JsonObject)rainbow.DeepClone();
-        oldRainbow["version"] = MotherBrainRainbowPaletteFormat.PreFakeDeathVersion;
+        oldRainbow["version"] = (int)MotherBrainRainbowPaletteVersion.PreFakeDeath;
         oldRainbow.Remove("fakeDeathToGrey");
         ((JsonObject)oldRainbow["normal"]!["body"]![0]!)["red"] = 31;
         AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRainbow, json => MotherBrainRainbowPalettePresentation.Load(json)),

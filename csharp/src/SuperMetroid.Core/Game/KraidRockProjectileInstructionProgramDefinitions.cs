@@ -108,11 +108,43 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
             "is not compiled.");
     }
 
+    /// <summary>The instruction-cursor positions of the two fixed-pose programs, valued by bank-$86 address.</summary>
+    private enum FixedPoseCursor : ushort
+    {
+        /// <summary>$86:9C7D: the shared rock/Kago-bug pose record.</summary>
+        SharedPose = SharedRockAndKagoBug,
+        /// <summary>$86:9C81: the shared program's terminal Sleep.</summary>
+        SharedSleep = SharedRockAndKagoBugSleep,
+        /// <summary>$86:9C83: the right rising-rock pose record.</summary>
+        RisingRightPose = RisingRockRight,
+        /// <summary>$86:9C87: the right rising-rock program's terminal Sleep.</summary>
+        RisingRightSleep = RisingRockRightSleep,
+    }
+
+    /// <summary>The two fixed-pose programs that end in Sleep.</summary>
+    private enum FixedPoseProgram
+    {
+        /// <summary>$86:9C7D, shared by the spit, ceiling and left rising rocks and the Kago bug.</summary>
+        Shared,
+        /// <summary>$86:9C83, owned by the right rising rock.</summary>
+        RisingRight,
+    }
+
+    private static FixedPoseProgram ProgramOf(FixedPoseCursor cursor) => cursor switch
+    {
+        FixedPoseCursor.SharedPose or FixedPoseCursor.SharedSleep => FixedPoseProgram.Shared,
+        FixedPoseCursor.RisingRightPose or FixedPoseCursor.RisingRightSleep => FixedPoseProgram.RisingRight,
+        _ => throw new InvalidOperationException($"Undefined {nameof(FixedPoseCursor)} {(int)cursor}."),
+    };
+
+    private static bool IsFixedPoseCursor(ushort address, FixedPoseProgram program) =>
+        Enum.IsDefined((FixedPoseCursor)address) && ProgramOf((FixedPoseCursor)address) == program;
+
     private static bool IsSharedProgramAddress(ushort address) =>
-        address is SharedRockAndKagoBug or SharedRockAndKagoBugSleep;
+        IsFixedPoseCursor(address, FixedPoseProgram.Shared);
 
     private static bool IsRisingRightProgramAddress(ushort address) =>
-        address is RisingRockRight or RisingRockRightSleep;
+        IsFixedPoseCursor(address, FixedPoseProgram.RisingRight);
 
     private static bool IsSpitShotProgramAddress(ushort address) =>
         address >= SpitRockShot && address <= SpitRockShotDelete && (address & 1) != 0;

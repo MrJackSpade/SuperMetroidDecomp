@@ -122,7 +122,7 @@ internal static partial class Program
                 // leftovers must not change the identity of the visible caret selection.
                 frames = IntroCaretSpriteDefinitions.PreviousFrameNames.Select((name, index) =>
                     KeyValuePair.Create(name, new[] { part with { OffsetX = index } })).ToDictionary();
-                version = IntroCaretSpriteFormat.PreviousVersion;
+                version = (int)IntroCaretSpriteVersion.Previous;
             }
             return Json(new { Version = version, Frames = frames });
         }
@@ -202,7 +202,7 @@ internal static partial class Program
                     Id = IntroEyeTilemapFormat.FrameId(index), Cells = Cells("eye-" + index, IntroEyeTilemapFormat.CellsPerFrame),
                 }).ToArray(),
             })),
-            IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name), IntroCaretSpriteFormat.Version)),
+            IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name), (int)IntroCaretSpriteVersion.Current)),
             IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
             IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
             IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),

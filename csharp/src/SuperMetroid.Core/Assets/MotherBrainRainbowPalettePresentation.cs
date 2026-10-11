@@ -210,8 +210,9 @@ public sealed class MotherBrainRainbowPalettePresentation
     {
         MotherBrainRainbowPaletteDocument document = JsonAssetDocument.Read<MotherBrainRainbowPaletteDocument>(
             json, MapPresentationFormat.JsonOptions, "Mother Brain rainbow palette");
-        if (document.Version != MotherBrainRainbowPaletteFormat.Version &&
-            !(document.Version == MotherBrainRainbowPaletteFormat.PreFakeDeathVersion && currentStock is not null))
+        var version = (MotherBrainRainbowPaletteVersion)document.Version;
+        if (version != MotherBrainRainbowPaletteVersion.Current &&
+            !(version == MotherBrainRainbowPaletteVersion.PreFakeDeath && currentStock is not null))
             throw new InvalidDataException("Unsupported Mother Brain rainbow palette version.");
         return new(
             CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
@@ -223,7 +224,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             CompileFrames(document.FromGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
                 MotherBrainDrainedPaletteRomData.RevivalColors,
                 MotherBrainDrainedPaletteRomData.BackLegCount, true, nameof(document.FromGrey)),
-            document.Version == MotherBrainRainbowPaletteFormat.PreFakeDeathVersion
+            version == MotherBrainRainbowPaletteVersion.PreFakeDeath
                 ? currentStock!.fakeDeathToGrey
                 : CompileFakeDeathFrames(document.FakeDeathToGrey),
             CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
@@ -766,6 +767,15 @@ public sealed record MotherBrainRainbowPaletteFrameDocument
     public PaletteRgb5? TrailingColor { get; init; }
 }
 
+/// <summary>Schema revisions of the editable Mother Brain rainbow palette document.</summary>
+public enum MotherBrainRainbowPaletteVersion
+{
+    /// <summary>Legacy revision lacking fake-death colors, accepted only when loading with a verified current-stock fallback.</summary>
+    PreFakeDeath = 2,
+    /// <summary>Current palette schema revision, requiring the brain-only fake-death sequence alongside all previous color families.</summary>
+    Current = 3,
+}
+
 /// <summary>Installed palette filename and fixed native sequence geometry; color content is editable while attack/fade timing and loop termination remain engine-owned.</summary>
 public static class MotherBrainRainbowPaletteFormat
 {
@@ -814,10 +824,6 @@ public static class MotherBrainRainbowPaletteFormat
     internal const int BlueAddition = 5;
     /// <summary>Installed editable JSON filename for rainbow, drain/revival, fake-death, restoration, and beam-backdrop colors.</summary>
     public const string FileName = "mother-brain-rainbow-palette.json";
-    /// <summary>Current palette schema revision, requiring the brain-only fake-death sequence alongside all previous color families.</summary>
-    public const int Version = 3;
-    /// <summary>Legacy revision lacking fake-death colors, accepted only when loading with a verified current-stock fallback.</summary>
-    public const int PreFakeDeathVersion = 2;
     /// <summary>Ten full-palette phases before the zero terminator in the native $AD:E434 rainbow pointer list.</summary>
     public const int RainbowFrameCount = 10;
     /// <summary>Eight authored steps in each native drain and revival palette pointer sequence; cadence and completion are controlled by boss AI.</summary>

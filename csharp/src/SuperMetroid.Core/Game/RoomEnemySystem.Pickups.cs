@@ -466,7 +466,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
     {
-        EnemyPickupKind kind = (EnemyPickupKind)(projectile.Variable0 >> 1);
+        EnemyPickupKind kind = ClosedNativeWords.Decode<EnemyPickupKind>(
+            (ushort)(projectile.Variable0 >> 1), "enemy pickup kind");
         switch (kind)
         {
             case EnemyPickupKind.SmallEnergy:

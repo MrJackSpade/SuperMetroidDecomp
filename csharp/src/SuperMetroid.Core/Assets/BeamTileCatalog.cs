@@ -52,14 +52,13 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
     /// <summary>Resolves restored native beam uploads through installed artwork, without ROM DMA.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        if (BeamTileAtlasDefinitions.LegacySelectionFor(sourceAddress) is SamusBeamCombination selection &&
-            byteCount == BeamTileAtlasDefinitions.ByteCount)
+        if (!Enum.IsDefined((BeamTileSource)sourceAddress) || byteCount != BeamTileAtlasDefinitions.ByteCount)
         {
-            data = Resolve(AssetFor(selection));
-            return true;
+            data = default;
+            return false;
         }
-        data = default;
-        return false;
+        data = Resolve(AssetFor(BeamTileAtlasDefinitions.LegacySelectionFor((BeamTileSource)sourceAddress)));
+        return true;
     }
 
     /// <summary>Maps a supported native equipped-beam selection to its queued VRAM asset identity.</summary>

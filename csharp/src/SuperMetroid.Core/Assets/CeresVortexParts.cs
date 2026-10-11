@@ -8,10 +8,24 @@ namespace SuperMetroid.Core.Assets;
 internal sealed class CeresVortexParts(bool odd, int anchorX, int anchorY, IReadOnlyList<CompiledSpritePart> stars)
     : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>The two alternating bank-$8C vortex drawings this calculator owns among the Ceres flight visuals.</summary>
+    private enum VortexFrame : ushort
+    {
+        /// <summary>8C:8FE7, SpaceSpritemaps_CeresPurpleVortexFrame1.</summary>
+        Even = CeresFlightSpriteDefinitions.VortexEven,
+        /// <summary>8C:93D1, SpaceSpritemaps_CeresPurpleVortexFrame2.</summary>
+        Odd = CeresFlightSpriteDefinitions.VortexOdd,
+    }
+
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
     {
-        if (pointer is not (CeresFlightSpriteDefinitions.VortexEven or CeresFlightSpriteDefinitions.VortexOdd)) return supplied;
-        bool odd = pointer == CeresFlightSpriteDefinitions.VortexOdd;
+        if (!Enum.IsDefined((VortexFrame)pointer)) return supplied;
+        bool odd = (VortexFrame)pointer switch
+        {
+            VortexFrame.Even => false,
+            VortexFrame.Odd => true,
+            var frame => throw new InvalidOperationException($"Undefined {nameof(VortexFrame)} {(int)frame}."),
+        };
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;
         var anchor = supplied.Part(core + 10);

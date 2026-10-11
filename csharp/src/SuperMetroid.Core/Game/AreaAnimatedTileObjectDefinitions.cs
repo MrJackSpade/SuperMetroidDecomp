@@ -20,11 +20,19 @@ internal static class AreaAnimatedTileObjectDefinitions
     /// bits0/1. Later bits select named area effects or the empty object. This dispatch
     /// is independently verified against NTSC J/U v1.0 and pinned bank_83.asm
     /// (362be646929cf8e483f692b73a6561cfc2dc1d0d); no selection matrix remains.
-    /// Callers retain their distinct area bounds and validation order.</remarks>
-    private static AnimatedTileObject SelectObject(int area, int bit) => ((AreaId)area, bit) switch
+    /// Callers retain their distinct area bounds and validation order. Native area index 7,
+    /// beyond the seven retail areas, selects only the shared spikes.</remarks>
+    private static AnimatedTileObject SelectObject(int nativeArea, int bit) => bit switch
     {
-        (_, 0) => AnimatedTileObject.HorizontalSpikes,
-        (_, 1) => AnimatedTileObject.VerticalSpikes,
+        0 => AnimatedTileObject.HorizontalSpikes,
+        1 => AnimatedTileObject.VerticalSpikes,
+        _ => nativeArea < AreaIds.RetailCount
+            ? SelectAreaObject(AreaIds.FromCartridge((byte)nativeArea, "Animated-tile native area"), bit)
+            : AnimatedTileObject.Empty,
+    };
+
+    private static AnimatedTileObject SelectAreaObject(AreaId area, int bit) => (area, bit) switch
+    {
         (AreaId.Crateria, 2) => AnimatedTileObject.CrateriaLake,
         (AreaId.Crateria, 3) => AnimatedTileObject.UnusedCrateriaLava,
         (AreaId.Brinstar, 2) => AnimatedTileObject.BrinstarPlant,

@@ -27,17 +27,31 @@ internal abstract class PowampSpikeInstructionProgramDefinitions
     internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
         ? value : throw new InvalidDataException($"Powamp-spike instruction mechanics pointer $86:{address:X4} is not compiled.");
 
+    /// <summary>The control words that follow the three drawings, by bank-$86 address.</summary>
+    private enum ControlWord : ushort
+    {
+        /// <summary>$86:D214: the loop's GotoY opcode.</summary>
+        LoopGoto = LoopCommand,
+        /// <summary>$86:D216: the loop's target, the initial drawing.</summary>
+        LoopTarget = LoopCommand + 2,
+        /// <summary>$86:D218: the delete program's opcode.</summary>
+        DeleteOpcode = Delete,
+    }
+
     // Three six-frame drawings repeat until the producer chooses the separate delete program.
     internal static bool TryRead(ushort address, out ushort value)
     {
         value = 0;
         if (address >= Initial && address < LoopCommand && (address - Initial) % 4 == 0)
         { value = 6; return true; }
-        if (address == LoopCommand)
-        { value = (ushort)EnemyProjectileInstruction.GotoY; return true; }
-        if (address == LoopCommand + 2) { value = Initial; return true; }
-        if (address == Delete)
-        { value = (ushort)EnemyProjectileInstruction.Delete; return true; }
-        return false;
+        if (!Enum.IsDefined((ControlWord)address)) return false;
+        value = (ControlWord)address switch
+        {
+            ControlWord.LoopGoto => (ushort)EnemyProjectileInstruction.GotoY,
+            ControlWord.LoopTarget => Initial,
+            ControlWord.DeleteOpcode => (ushort)EnemyProjectileInstruction.Delete,
+            var word => throw new InvalidOperationException($"Undefined {nameof(ControlWord)} {(int)word}."),
+        };
+        return true;
     }
 }

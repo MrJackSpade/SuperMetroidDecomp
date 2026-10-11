@@ -33,14 +33,15 @@ internal sealed class EndingRewardJump
         // Both pre-instructions use the shared Samus velocity, so each call accelerates it.
         if (head is { IsActive: true })
         {
-            if (head.PreInstructionPointer == EndingRewardJumpDefinitions.HeadFlight)
+            if (InstalledPreInstruction(head) == EndingRewardJumpPreInstruction.HeadFlight)
             {
                 Move(head);
                 if (unchecked((short)head.YPosition) < EndingRewardJumpDefinitions.SheetSwitchY) head.Delete();
             }
             head.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
         }
-        if (body.PreInstructionPointer == EndingRewardJumpDefinitions.BodyFlight)
+        EndingRewardJumpPreInstruction? bodyPreInstruction = InstalledPreInstruction(body);
+        if (bodyPreInstruction == EndingRewardJumpPreInstruction.BodyFlight)
         {
             Move(body);
             if (BodyY < EndingRewardJumpDefinitions.SheetSwitchY)
@@ -48,10 +49,10 @@ internal sealed class EndingRewardJump
                 ObjectSelection = 3;
                 body.SetAttributes(SnesObjPalettes.Index6);
                 body.Redirect(EndingRewardJumpDefinitions.FallingList);
-                body.PreInstructionPointerForDiscovery(EndingRewardJumpDefinitions.Landing);
+                body.PreInstructionPointerForDiscovery((ushort)EndingRewardJumpPreInstruction.Landing);
             }
         }
-        else if (body.PreInstructionPointer == EndingRewardJumpDefinitions.Landing)
+        else if (bodyPreInstruction == EndingRewardJumpPreInstruction.Landing)
         {
             if (uploads < EndingRewardJumpDefinitions.UploadCount) queueGraphicsUpload(uploads++);
             Move(body);
@@ -107,6 +108,11 @@ internal sealed class EndingRewardJump
                 throw new InvalidOperationException($"Undefined EndingRewardJumpInstruction {instruction}.");
         }
     }
+
+    /// <summary>The jump-owned pre-instruction an actor runs, or null while it runs the shared no-op or none.</summary>
+    private static EndingRewardJumpPreInstruction? InstalledPreInstruction(IntroDiscoverySprite actor) =>
+        CinematicInstructionWords.TryDecode(actor.PreInstructionPointer, out EndingRewardJumpPreInstruction installed)
+            ? installed : null;
 
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)

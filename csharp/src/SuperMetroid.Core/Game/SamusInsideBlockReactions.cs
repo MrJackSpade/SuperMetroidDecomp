@@ -123,16 +123,24 @@ public static class SamusInsideBlockReactions
         }
         void ApplyConveyor(byte bts)
         {
-            bool groundedOnly = bts is ConveyorBlockRomData.GroundedRight or ConveyorBlockRomData.GroundedLeft;
-            bool always = bts is ConveyorBlockRomData.UnconditionalRight or ConveyorBlockRomData.UnconditionalLeft;
-            if (!groundedOnly && !always) return;
+            // The normal special-air table shares its BTS space; only conveyor entries react here.
+            if (!Enum.IsDefined((ConveyorBlockBts)bts)) return;
+            var conveyor = (ConveyorBlockBts)bts;
+            (bool groundedOnly, bool rightward) = conveyor switch
+            {
+                ConveyorBlockBts.GroundedRight => (true, true),
+                ConveyorBlockBts.GroundedLeft => (true, false),
+                ConveyorBlockBts.UnconditionalRight => (false, true),
+                ConveyorBlockBts.UnconditionalLeft => (false, false),
+                _ => throw new InvalidOperationException($"Undefined {nameof(ConveyorBlockBts)} {(int)conveyor}."),
+            };
             samus.HorizontalSpeed.SelectNormalAirSpeedTable();
             if (groundedOnly && ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed != 0))
                 return;
             // The original checks only whole Y speed: fractional vertical motion does
             // not suppress carry. This replaces external X displacement, never adds to it.
             body.ExtraXSubdisplacement = 0;
-            body.ExtraXDisplacement = bts is ConveyorBlockRomData.GroundedRight or ConveyorBlockRomData.UnconditionalRight
+            body.ExtraXDisplacement = rightward
                 ? ConveyorBlockRomData.RightDisplacement : ConveyorBlockRomData.LeftDisplacement;
         }
         void SetExtra(int displacement)

@@ -113,7 +113,7 @@ internal static class EndingRewardInstructionDefinitions
         if (headWord < 2) return DisplayWord(headWord, 10,
             helmet ? Frame.LargeSamusHelmetFromEndingFrame1 : Frame.JumpingSamusHeadFromEnding);
         if (headWord == 2) return SetPreInstruction;
-        if (headWord == 3) return EndingRewardJumpDefinitions.HeadFlight;
+        if (headWord == 3) return (ushort)EndingRewardJumpPreInstruction.HeadFlight;
         return HoldWord(headWord - 4, (ushort)((ushort)head + 8), 5,
             helmet ? Frame.LargeSamusHelmetFromEndingFrame2 : Frame.JumpingSamusHeadFromEnding);
     }
@@ -158,7 +158,7 @@ internal static class EndingRewardInstructionDefinitions
         if (word < 4) return DisplayWord(word, 10, Frame.SuitlessSamusPreparingToJump);
         if (word == 4) return (ushort)EndingRewardJumpInstruction.Launch;
         if (word == 5) return SetPreInstruction;
-        if (word == 6) return EndingRewardJumpDefinitions.BodyFlight;
+        if (word == 6) return (ushort)EndingRewardJumpPreInstruction.BodyFlight;
         return HoldWord(word - 7, (ushort)((ushort)List.SuitlessJump + 14), 48, Frame.SuitlessSamusJumping);
     }
 
@@ -169,7 +169,7 @@ internal static class EndingRewardInstructionDefinitions
         if (word == 3) return (ushort)EndingRewardJumpInstruction.LaunchHead;
         if (word == 4) return (ushort)EndingRewardJumpInstruction.Launch;
         if (word == 5) return SetPreInstruction;
-        if (word == 6) return EndingRewardJumpDefinitions.BodyFlight;
+        if (word == 6) return (ushort)EndingRewardJumpPreInstruction.BodyFlight;
         return HoldWord(word - 7, (ushort)((ushort)List.SuitedJump + 14), 5, Frame.LargeSamusFromEndingJumping);
     }
 

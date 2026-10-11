@@ -7,12 +7,14 @@ internal static class VramDmaProducerContracts
     {
         family = (owner, hash) switch
         {
-            ("SuperMetroid.Core.Assets.EscapeTimerTileAtlas.TryQueueNativeTransfer", "7F18166A4783DBEEFEC65767EDA4EA74DDEB0F8961C4BDEB4247A1F2FFFA57C8") => "timer",
+            // #627 reviewed: native records now match through the typed EscapeTimerTilePage table; still enqueues only the two installed pages.
+            ("SuperMetroid.Core.Assets.EscapeTimerTileAtlas.TryQueueNativeTransfer", "D0CB15DC46B616672F4ABF1711B408E26C25499534E9EBADCDAA0010DF2E11BF") => "timer",
             ("SuperMetroid.Core.Assets.GrappleTileAtlas.QueuePoint", "A2C82B42691558AB64B9927BB959BD43BDA58A64C27A998B69109A4DDED2299C") => "grapple-point",
             ("SuperMetroid.Core.Assets.GrappleTileAtlas.QueueSegments", "4F3C3E18D4968EF278B1423ADA955413E7F0EF739943E6E2A2C310B1F4C32077") => "grapple-segment",
             ("SuperMetroid.Core.Assets.ProjectileTrailAtlas.QueueTo", "AC33CFB7DD73737706097E3EE4FDF69AA3F192F309F06EE9AD1ED08EE950EB12") => "trails",
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueCeresEmergencyText", "54A804A7863688F277F41969841AFCF4B6F39E0A3AB348AC38B9F8E4E58A750C") => "emergency",
-            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueNextCeresEscapeTransfer", "194B6B287A8395FE96F576F435DC0AFEC94FA0FAED1BD5B15070BB7922D9F9A9") => "ceres",
+            // #627 reviewed: the escape-timer source guard now asks EscapeTimerTilePages.IsSource; transfer routing unchanged.
+            ("SuperMetroid.Core.Game.RoomEnemySystem.QueueNextCeresEscapeTransfer", "BAAAD199EC31AE06CFBA606BAD73B4EA65CD810B452F40FA0323EAC0D351523A") => "ceres",
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueCeresTransferList", "A24FB0E2FF85491412E0521924419D6AEE6A0199BD978BD10E45EC123DAB01B9") => "ceres-japanese",
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueDeadSidehopperFrameVramTransfers", "7262A6E682A2CA5E114299556A10E169E1AC256BE9AE74FDC3F71A653890A6E0") => "corpse",
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueDeadTorizoFrameVramTransfers", "C38E4E76EC0C8172695329818A80151767AC4D67412EBE7962AF0C9203BEE66F") => "dead-torizo",

@@ -482,7 +482,7 @@ internal static class ProjectileTrailCoordinateDefinitions
         if (block == 0) return false;
         int offset = address - block;
         int family = block + offset / 20 * 20;
-        pointer = unchecked((ushort)DirectionSequence((TrailFamily)family, (SamusProjectileDirection)(offset % 20 / 2)));
+        pointer = unchecked((ushort)DirectionSequence((TrailFamily)family, SamusProjectileDirections.At(offset % 20 / 2)));
         return true;
     }
     /// <summary>

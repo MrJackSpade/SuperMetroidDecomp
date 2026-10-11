@@ -172,7 +172,7 @@ internal static partial class Program
         // A version-one override predates the Baby rows. Preserve the user's
         // Ridley edits and supply only the new Baby colors from verified stock.
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(
-            document with { Version = CeresRidleyColorFormat.PreBabyVersion,
+            document with { Version = (int)CeresRidleyColorVersion.PreBaby,
                 Baby = null, Alarm = null },
             MapPresentationFormat.JsonOptions);
         File.WriteAllBytes(replacement, legacyJson);
@@ -188,7 +188,7 @@ internal static partial class Program
             migrated.CeresRidleyColors.ResolveAlarm(7, 1),
             "version-one Ceres Ridley override inherits stock alarm colors");
         byte[] preAlarmJson = JsonSerializer.SerializeToUtf8Bytes(
-            document with { Version = CeresRidleyColorFormat.PreAlarmVersion, Alarm = null },
+            document with { Version = (int)CeresRidleyColorVersion.PreAlarm, Alarm = null },
             MapPresentationFormat.JsonOptions);
         File.WriteAllBytes(replacement, preAlarmJson);
         AreaMapPresentationCatalog preAlarm =

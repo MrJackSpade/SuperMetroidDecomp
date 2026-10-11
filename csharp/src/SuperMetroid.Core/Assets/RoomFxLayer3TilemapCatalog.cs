@@ -133,16 +133,23 @@ public static class RoomFxLayer3TilemapFormat
 
     /// <summary>
     /// The six even type identities $02..0C at $83:ABF2..ABFC, in page order.
-    /// Index0..5 maps to 2*(index+1); enumeration computes values without a roster.
+    /// Index0..5 names Lava, Acid, Water, Spores, Rain and Fog in page order.
     /// </summary>
     public static IReadOnlyList<RoomFxType> Types { get; } = new CalculatedTypes();
 
     private sealed class CalculatedTypes : IReadOnlyList<RoomFxType>
     {
         public int Count => 6;
-        public RoomFxType this[int index] => (uint)index < Count
-            ? (RoomFxType)(2 * (index + 1))
-            : throw new ArgumentOutOfRangeException(nameof(index));
+        public RoomFxType this[int index] => index switch
+        {
+            0 => RoomFxType.Lava,
+            1 => RoomFxType.Acid,
+            2 => RoomFxType.Water,
+            3 => RoomFxType.Spores,
+            4 => RoomFxType.Rain,
+            5 => RoomFxType.Fog,
+            _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        };
 
         public IEnumerator<RoomFxType> GetEnumerator()
         {

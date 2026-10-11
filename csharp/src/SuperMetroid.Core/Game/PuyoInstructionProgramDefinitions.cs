@@ -36,17 +36,52 @@ internal abstract class PuyoInstructionProgramDefinitions
         offset = address - RightFrame0LeftFrame4;
         return (uint)offset < 30 && offset % 6 == 2;
     }
+    /// <summary>The three adjacent twenty-byte grounded-dropping loops, in bank order.</summary>
+    private enum GroundedLoop
+    {
+        /// <summary>$A2:99AD, five-frame drawings.</summary>
+        Fast,
+        /// <summary>$A2:99C1, eight-frame drawings.</summary>
+        Medium,
+        /// <summary>$A2:99D5, ten-frame drawings.</summary>
+        Slow,
+    }
+
+    private static GroundedLoop GroundedLoopAt(int ordinal) => ordinal switch
+    {
+        0 => GroundedLoop.Fast,
+        1 => GroundedLoop.Medium,
+        2 => GroundedLoop.Slow,
+        _ => throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "Puyo has three grounded loops."),
+    };
+
+    private static ushort StartOf(GroundedLoop loop) => loop switch
+    {
+        GroundedLoop.Fast => GroundedFast,
+        GroundedLoop.Medium => GroundedMedium,
+        GroundedLoop.Slow => GroundedSlow,
+        _ => throw new InvalidOperationException($"Undefined {nameof(GroundedLoop)} {(int)loop}."),
+    };
+
+    private static ushort FrameDurationOf(GroundedLoop loop) => loop switch
+    {
+        GroundedLoop.Fast => 5,
+        GroundedLoop.Medium => 8,
+        GroundedLoop.Slow => 10,
+        _ => throw new InvalidOperationException($"Undefined {nameof(GroundedLoop)} {(int)loop}."),
+    };
+
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - GroundedFast;
         if ((uint)offset < 60)
         {
             int local = offset % 20;
-            ushort start = (ushort)(GroundedFast + offset / 20 * 20);
+            GroundedLoop loop = GroundedLoopAt(offset / 20);
             if (local < 16 && local % 4 == 0)
-                return start == GroundedFast ? (ushort)5 : start == GroundedMedium ? (ushort)8 : (ushort)10;
+                return FrameDurationOf(loop);
             if (local == 16) return (ushort)CommonEnemyInstruction.Goto;
-            if (local == 18) return start;
+            if (local == 18) return StartOf(loop);
         }
         offset = address - RightFrame0LeftFrame4;
         if ((uint)offset < 30)

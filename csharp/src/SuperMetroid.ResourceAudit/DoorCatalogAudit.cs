@@ -131,8 +131,9 @@ internal static class DoorCatalogAudit
     {
         if (header.IsElevatorPseudoDoor)
         {
-            try { DoorListEntry.ElevatorPseudoDoor(header.Pointer); }
-            catch (ArgumentOutOfRangeException) { return "Native elevator pseudo-door is not a compiled pseudo-door entry."; }
+            if (!Enum.IsDefined((ElevatorPseudoDoorPointer)header.Pointer))
+                return "Native elevator pseudo-door is not a compiled pseudo-door entry.";
+            DoorListEntry.ElevatorPseudoDoor((ElevatorPseudoDoorPointer)header.Pointer);
             try
             {
                 DoorDefinitions.Get(header.Pointer);

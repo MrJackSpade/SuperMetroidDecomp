@@ -3734,7 +3734,7 @@ Landed: true, HitCeiling: false);
                             MovementType: Samus.ReadMovementType(_addressSpace),
                             XAccelerationMode: Samus.HorizontalSpeed.AccelerationMode,
                             PoseXDirection: Samus.ReadPoseXDirection(_addressSpace),
-                            CameraDistanceIndex: (ushort)Enemies.CameraDistanceIndex));
+                            CameraDistanceIndex: Enemies.CameraDistanceIndex));
                     Camera.TrackMovedSamusVertically(
                         previousCameraPoint,
                         currentCameraPoint,

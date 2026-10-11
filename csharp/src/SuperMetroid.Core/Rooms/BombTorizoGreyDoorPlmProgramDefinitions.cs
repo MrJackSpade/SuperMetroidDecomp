@@ -106,7 +106,7 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
-        if (!Owns(address) || address == ClosingEnd || address == ResidentEnd) return false;
+        if (!Owns(address) || !Owns((ushort)(address + 1))) return false;
         TryReadMechanicsByte(address, out byte low);
         TryReadMechanicsByte((ushort)(address + 1), out byte high);
         value = (ushort)(low | high << 8);

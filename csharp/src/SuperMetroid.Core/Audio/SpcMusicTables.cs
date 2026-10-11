@@ -19,7 +19,8 @@ internal static class SpcMusicTables
     internal static byte EffectByteLength(int index)
     {
         if ((uint)index >= EffectCount) throw new IndexOutOfRangeException();
-        return (SpcMusicEffect)(index + (int)SpcMusicEffect.SetInstrument) switch
+        byte opcode = (byte)(index + (int)SpcMusicEffect.SetInstrument);
+        return Game.ClosedNativeWords.Decode<SpcMusicEffect>(opcode, "SPC music effect opcode") switch
         {
             SpcMusicEffect.DisableVibrato or SpcMusicEffect.DisableTremolo or
             SpcMusicEffect.DisablePitchEnvelope or SpcMusicEffect.DisableEcho or

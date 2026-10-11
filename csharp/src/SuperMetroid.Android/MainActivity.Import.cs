@@ -20,7 +20,7 @@ public sealed partial class MainActivity
                     intent.AddCategory(Intent.CategoryOpenable);
                     intent.SetType("*/*");
 #pragma warning disable CS0618
-                    StartActivityForResult(intent, state ? AndroidDocumentRequests.StateImport : AndroidDocumentRequests.SaveImport);
+                    StartActivityForResult(intent, (int)(state ? AndroidDocumentRequest.StateImport : AndroidDocumentRequest.SaveImport));
 #pragma warning restore CS0618
                 }
                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }

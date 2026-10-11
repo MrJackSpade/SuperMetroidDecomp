@@ -34,12 +34,12 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => ((DoorDirection)4).IsVertical(), "undefined direction has no axis");
 
         // The pseudo-doors' overlapped bytes ($91/$93 at offset 3) are not orientations.
-        foreach (ushort pseudo in new[] { DoorHeaderRomData.ElevatorPseudoDoorPointer, DoorHeaderRomData.MaridiaTourianElevatorPseudoDoorPointer })
+        foreach (ElevatorPseudoDoorPointer pseudo in Enum.GetValues<ElevatorPseudoDoorPointer>())
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Get(pseudo), $"pseudo-door ${pseudo:X4} is not a header");
-            AssertTrue(DoorListEntry.ElevatorPseudoDoor(pseudo).IsElevatorPseudoDoor, $"pseudo-door ${pseudo:X4} entry");
+            AssertThrows<ArgumentOutOfRangeException>(() => DoorDefinitions.Get((ushort)pseudo), $"pseudo-door ${(int)pseudo:X4} is not a header");
+            AssertTrue(DoorListEntry.ElevatorPseudoDoor(pseudo).IsElevatorPseudoDoor, $"pseudo-door ${(int)pseudo:X4} entry");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => DoorListEntry.ElevatorPseudoDoor(0x88fe), "a physical pointer is not a pseudo-door");
+        AssertThrows<ArgumentOutOfRangeException>(() => DoorListEntry.ElevatorPseudoDoor((ElevatorPseudoDoorPointer)0x88fe), "a physical pointer is not a pseudo-door");
 
         // Debugger boundary: older primitive payloads decode through the domain's validation.
         FieldInfo orientationField = typeof(CartridgeDoorHeader).GetField("<Orientation>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;

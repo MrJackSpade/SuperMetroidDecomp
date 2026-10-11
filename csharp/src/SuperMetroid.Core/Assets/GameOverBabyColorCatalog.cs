@@ -48,20 +48,22 @@ internal sealed class GameOverBabyColorCatalog
         Bgr555[] closed = palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.ClosedCry)];
         greenCryRed = closed[4].Red;
         glassCryRed = closed[13].Red;
-        for (int phase = 0; phase < 4; phase++)
+        foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 supplied = palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][color];
-            int key = phase * 16 + color;
-            bool greenShade = phase < 2 && color is 2 or 3;
-            bool warmCry = phase == 1 && color is >= 5 and <= 12;
-            bool middleShade = phase == 0 && color is 7 or 11;
-            bool coolCry = phase == 1 && color is 1 or 15;
-            bool greenCry = phase == 1 && color == 4;
-            bool glassHighlight = phase == 1 && color == 14;
-            bool glassCry = phase == 1 && color == 13;
+            Bgr555 supplied = palettes[GameOverPresentationDefinitions.BabyPaletteName(palette)][color];
+            int key = (int)palette * 16 + color;
+            bool idle = palette == GameOverBabyPalette.Idle;
+            bool closedCry = palette == GameOverBabyPalette.ClosedCry;
+            bool greenShade = (idle || closedCry) && color is 2 or 3;
+            bool warmCry = closedCry && color is >= 5 and <= 12;
+            bool middleShade = idle && color is 7 or 11;
+            bool coolCry = closedCry && color is 1 or 15;
+            bool greenCry = closedCry && color == 4;
+            bool glassHighlight = closedCry && color == 14;
+            bool glassCry = closedCry && color == 13;
             if (!greenShade && !warmCry && !middleShade && !coolCry && !greenCry && !glassHighlight && !glassCry &&
-                (phase == 0 || (phase == 1 && color != 0)))
+                (idle || (closedCry && color != 0)))
             {
                 inputs.Add(key, supplied);
                 continue;
@@ -77,12 +79,12 @@ internal sealed class GameOverBabyColorCatalog
                 ? MiddleShade(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color - 1],
                     palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color + 1])
                 : greenShade
-                ? GreenShade(palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][4], color)
+                ? GreenShade(palettes[GameOverPresentationDefinitions.BabyPaletteName(palette)][4], color)
                 : warmCry ? WarmCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
                 : color == 0
                 ? palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][0]
-                : CryShade(palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)(phase - 1))][color],
-                    phase, color, color == 13 ? palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][14] : Bgr555.Black);
+                : CryShade(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalettes.PreviousCry(palette))][color],
+                    palette, color, color == 13 ? palettes[GameOverPresentationDefinitions.BabyPaletteName(palette)][14] : Bgr555.Black);
             if (supplied != expected)
                 differences.Add(key, new(supplied, expected));
         }
@@ -92,23 +94,24 @@ internal sealed class GameOverBabyColorCatalog
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
         if ((uint)color >= 16) throw new IndexOutOfRangeException();
-        int phase = (int)palette;
-        int key = phase * 16 + color;
+        int key = (int)palette * 16 + color;
         if (inputs.TryGetValue(key, out Bgr555 value)) return value;
-        Bgr555 expected = phase == 1 && color == 13
+        bool idle = palette == GameOverBabyPalette.Idle;
+        bool closedCry = palette == GameOverBabyPalette.ClosedCry;
+        Bgr555 expected = closedCry && color == 13
             ? GlassCry(Read(GameOverBabyPalette.Idle, color))
-            : phase == 1 && color == 14
+            : closedCry && color == 14
             ? Brighten(Read(GameOverBabyPalette.Idle, color), 5)
-            : phase == 1 && color is 1 or 15
+            : closedCry && color is 1 or 15
             ? CoolCry(Read(GameOverBabyPalette.Idle, color), color)
-            : phase == 1 && color == 4 ? GreenCry(Read(GameOverBabyPalette.Idle, color))
-            : phase == 0 && color is 7 or 11
+            : closedCry && color == 4 ? GreenCry(Read(GameOverBabyPalette.Idle, color))
+            : idle && color is 7 or 11
             ? MiddleShade(Read(palette, color - 1), Read(palette, color + 1))
-            : phase < 2 && color is 2 or 3
+            : (idle || closedCry) && color is 2 or 3
             ? GreenShade(Read(palette, 4), color)
-            : phase == 1 && color is >= 5 and <= 12 ? WarmCry(Read(GameOverBabyPalette.Idle, color))
-            : color == 0 ? inputs[0] : CryShade(Read((GameOverBabyPalette)(phase - 1), color),
-                phase, color, color == 13 ? Read(palette, 14) : Bgr555.Black);
+            : closedCry && color is >= 5 and <= 12 ? WarmCry(Read(GameOverBabyPalette.Idle, color))
+            : color == 0 ? inputs[0] : CryShade(Read(GameOverBabyPalettes.PreviousCry(palette), color),
+                palette, color, color == 13 ? Read(palette, 14) : Bgr555.Black);
         return differences.TryGetValue(key, out var channels) ? channels.Apply(expected) : expected;
     }
 
@@ -130,10 +133,10 @@ internal sealed class GameOverBabyColorCatalog
     private static Bgr555 MiddleShade(Bgr555 bright, Bgr555 dark) =>
         bright.Zip(dark, (_, light, shadow) => (light + shadow) / 2);
 
-    private static Bgr555 CryShade(Bgr555 previous, int phase, int ink, Bgr555 highlight)
+    private static Bgr555 CryShade(Bgr555 previous, GameOverBabyPalette palette, int ink, Bgr555 highlight)
     {
         Bgr555 bright = Brighten(previous, 3);
-        if (phase == 2 && ink is >= 10 and <= 12)
+        if (palette == GameOverBabyPalette.MiddleCry && ink is >= 10 and <= 12)
             return bright.WithRed(previous.Red);
         if (ink == 13)
             return bright.Zip(highlight, (_, brightened, glint) => Math.Min(brightened, Math.Max(0, glint - 1)));

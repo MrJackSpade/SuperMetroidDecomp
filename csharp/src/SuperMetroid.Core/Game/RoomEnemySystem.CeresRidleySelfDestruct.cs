@@ -164,8 +164,7 @@ public sealed partial class RoomEnemySystem
                 "Ceres escape graphics require the runtime's native VRAM write queue.");
         }
         if (TileArtwork is not null && EscapeTimerArtwork is null &&
-            sourceAddress is EscapeTimerTileRomData.FirstSourceAddress or
-                EscapeTimerTileRomData.SecondSourceAddress)
+            EscapeTimerTilePages.IsSource(sourceAddress))
             throw new InvalidDataException(
                 "Installed Ceres escape timer has no editable sprite tile artwork.");
         if (TileArtwork is { } installed &&

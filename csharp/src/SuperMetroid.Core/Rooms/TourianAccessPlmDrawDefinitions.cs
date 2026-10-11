@@ -31,13 +31,13 @@ internal static class TourianAccessPlmDrawDefinitions
     /// </summary>
     internal static bool TryDescribe(ushort pointer, out int rows, out ushort word)
     {
-        var list = (TourianAccessDraw)pointer;
-        if (!Enum.IsDefined(list))
+        if (!Enum.IsDefined((TourianAccessDraw)pointer))
         {
             rows = 0;
             word = 0;
             return false;
         }
+        var list = (TourianAccessDraw)pointer;
         (rows, word) = list switch
         {
             TourianAccessDraw.Clear => (6, (ushort)0x00ff),

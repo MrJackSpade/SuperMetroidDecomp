@@ -26,7 +26,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new WreckedShipGhostInstructionReadGuard(rom);
+        var guard = NewWreckedShipGhostInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -55,7 +55,7 @@ internal static partial class Program
                 WreckedShipGhostInstructionProgramDefinitions.Floating + 4)),
             ghost.CurrentInstruction,
             "Wrecked Ship ghost loop completes its native goto and first repeated frame");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "ghost visual selectors require no runtime cartridge reads");
         for (int index = 0; index < WreckedShipGhostInstructionProgramDefinitions.PresentationWordCount; index++)
         {
@@ -110,44 +110,9 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class WreckedShipGhostInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (WreckedShipGhostInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled ghost mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < WreckedShipGhostInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        WreckedShipGhostInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewWreckedShipGhostInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(WreckedShipGhostInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled ghost mechanics byte ${address:X6}.")
+            .ObserveWords(0xa80000, WreckedShipGhostInstructionProgramDefinitions.PresentationWordCount, WreckedShipGhostInstructionProgramDefinitions.PresentationWordAddress);
 }

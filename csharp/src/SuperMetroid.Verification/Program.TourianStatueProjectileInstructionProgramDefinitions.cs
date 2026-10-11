@@ -30,7 +30,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new TourianStatueProjectileInstructionReadGuard(rom);
+        var guard = NewTourianStatueProjectileInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
@@ -121,7 +121,7 @@ internal static partial class Program
         AssertEqual((ushort)0xb876, phantoon.InstructionPointer,
             "Phantoon statue loop remains stable");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "TourianStatueProjectile execution performs no live spritemap operand reads");
         AssertEqual(TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "TourianStatueProjectile executes every native visual operand");
@@ -189,43 +189,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class TourianStatueProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (TourianStatueProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
-                    address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Tourian statue mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = TourianStatueProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewTourianStatueProjectileInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(TourianStatueProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Tourian statue mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, TourianStatueProjectileInstructionProgramDefinitions.PresentationWordCount, TourianStatueProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

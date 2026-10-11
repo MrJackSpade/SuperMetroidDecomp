@@ -97,7 +97,7 @@ internal static partial class Program
                 $"Shaktool instruction mechanics word $AA:{definition.Address:X4}");
         }
 
-        var guard = new ShaktoolInstructionReadGuard(rom);
+        var guard = NewShaktoolInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateCompiledShaktoolGroup(guard, flags);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
 
@@ -132,7 +132,7 @@ internal static partial class Program
         for (int index = 0; index < 7; index++)
             RunForcedShaktoolInstructions(process, enemies, enemies.Slots[index], 8);
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Shaktool execution uses compiled spritemap selectors");
         for (int index = 0;
              index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -206,7 +206,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new ShaktoolInstructionReadGuard(rom));
+            enemies, NewShaktoolInstructionReadGuard(rom));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeShaktool", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         for (int index = 0; index < 7; index++)
@@ -221,45 +221,22 @@ internal static partial class Program
         return enemies;
     }
 
-    private sealed class ShaktoolInstructionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewShaktoolInstructionReadGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var guard = new CartridgeReadGuard(source).Forbid(ShaktoolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled Shaktool mechanics byte ${address:X6}.")
+            .Forbid(address => address is >= 0xaadd15 and < 0xaadd25 or >= 0xaadf13 and < 0xaadf2f,
+                address => $"Shaktool attempted migrated instruction-selector read ${address:X6}.");
+        // Every table word whose bytes are read is recorded, including repeated table entries.
+        return guard.Observe(address => (address & 0xff0000) == 0xaa0000, address =>
         {
-            if (ShaktoolInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0; index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Shaktool mechanics byte ${address:X6}.");
+                ushort presentation = ShaktoolInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
+                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                    guard.ObservedWords.Add(presentation);
             }
-            if (address is >= 0xaadd15 and < 0xaadd25 or >= 0xaadf13 and < 0xaadf2f)
-            {
-                throw new InvalidOperationException(
-                    $"Shaktool attempted migrated instruction-selector read ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xaa0000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        ShaktoolInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        });
     }
 }

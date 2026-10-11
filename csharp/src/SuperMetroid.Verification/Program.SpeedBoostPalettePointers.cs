@@ -39,8 +39,7 @@ internal static partial class Program
             AssertTrue(SamusSpecialSuperPalette.Update(installedColors, samus),
                 "installed special palette loads Speed Booster shade without a CPU bus");
             for (int color = 0; color < SamusFullBodyCycleColorFormat.ColorsPerPalette; color++)
-                AssertEqual((ushort)(RomDataReader.ReadWordFixedBank(rom,
-                        SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort))) & 0x7fff),
+                AssertEqual((ushort)(ReadNativeSpeedBoosterShadeColor(rom, nativePointer, color) & 0x7fff),
                     installedColors.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
                     $"Speed Booster CGRAM selection {selection}, color {color} matches ROM");
             AssertEqual((ushort)2, samus.SpecialSuperPaletteFlags,
@@ -51,4 +50,8 @@ internal static partial class Program
             "Metroid attachment requires installed Speed Booster colors");
         Console.WriteLine("Speed Booster palettes: four equipment cases match ROM and live CGRAM with no CPU bus; missing assets fail.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster full-body shade colors")]
+    private static ushort ReadNativeSpeedBoosterShadeColor(IImportCartridgeSource rom, int nativePointer, int color) =>
+        RomDataReader.ReadWordFixedBank(rom, SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort)));
 }

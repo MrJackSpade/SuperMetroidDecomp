@@ -752,7 +752,7 @@ static void VerifySamusDeathSequence()
         ToColors(shades),
         Enumerable.Range(0, 9).Select(frame => (ushort)bus.ReadByte(
             SamusDeathExplosionTimingDefinitions.NativeFirstTimerAddress + frame * 2 + 1)).ToArray());
-    var guardedBus = new SamusDeathExplosionTimingReadGuard(bus);
+    var guardedBus = NewSamusDeathExplosionTimingReadGuard(bus);
     var samus = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,

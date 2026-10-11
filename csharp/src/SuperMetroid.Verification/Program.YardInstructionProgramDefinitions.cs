@@ -81,7 +81,7 @@ internal static partial class Program
         AssertEqual(YardInstructionProgramDefinitions.PresentationWordCount, presentation,
             "Yard live presentation word count");
 
-        var guard = new YardInstructionReadGuard(rom);
+        var guard = NewYardInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateYardInstructionSystem(guard, out RoomEnemySlot yard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessInstructions",
@@ -98,7 +98,7 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Yard execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Yard production execution avoids compiled mechanics bytes");
@@ -168,46 +168,13 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class YardInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewYardInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Yard mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < YardInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        YardInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Yard read presentation byte ${address:X6}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new CartridgeReadGuard(source).Forbid(YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled Yard mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa30000, YardInstructionProgramDefinitions.PresentationWordCount, YardInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Installed Yard read presentation byte ${address:X6}.")
+            : guard.ObserveWords(0xa30000, YardInstructionProgramDefinitions.PresentationWordCount, YardInstructionProgramDefinitions.PresentationWordAddress);
     }
 }

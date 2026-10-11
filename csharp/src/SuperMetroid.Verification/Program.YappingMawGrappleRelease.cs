@@ -1,5 +1,6 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
@@ -7,7 +8,7 @@ internal static partial class Program
     private static void VerifyYappingMawGrappleRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        AssertEqual((ushort)0xc8c5, (ushort)(bus.ReadCartridgeByte(0x90f15b) | bus.ReadCartridgeByte(0x90f15c) << 8), "pinned cartridge command three selects Dropped");
+        AssertEqual((ushort)0xc8c5, ReadNativeGrappleCommandThree(bus), "pinned cartridge command three selects Dropped");
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
@@ -52,4 +53,8 @@ internal static partial class Program
         AssertEqual((ushort)936, samus.Position.X.Whole, "Maw release retains native held X");
         Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)samus.Pose:X2}, position={samus.Position.X.Whole}/{samus.Position.Y.Whole}, input unlocked.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple command three's $90:F15B handler word")]
+    private static ushort ReadNativeGrappleCommandThree(CartridgeImportAddressSpace bus) =>
+        (ushort)(bus.ReadCartridgeByte(0x90f15b) | bus.ReadCartridgeByte(0x90f15c) << 8);
 }

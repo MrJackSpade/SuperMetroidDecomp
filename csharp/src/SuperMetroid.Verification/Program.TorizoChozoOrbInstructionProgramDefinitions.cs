@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Torizo Chozo-orb mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new TorizoChozoOrbInstructionReadGuard(rom);
+        var guard = NewTorizoChozoOrbInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawnBomb = typeof(RoomEnemySystem).GetMethod(
@@ -105,7 +105,7 @@ internal static partial class Program
         Suite(nameof(VerifyShotDrop), () => VerifyShotDrop(golden: false));
         Suite(nameof(VerifyShotDrop), () => VerifyShotDrop(golden: true));
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled Torizo orb visuals require no cartridge reads");
         for (int index = 0; index < TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount; index++)
         {
@@ -221,42 +221,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class TorizoChozoOrbInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (TorizoChozoOrbInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Torizo Chozo-orb byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = TorizoChozoOrbInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewTorizoChozoOrbInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(TorizoChozoOrbInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Torizo Chozo-orb byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount, TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress);
 }

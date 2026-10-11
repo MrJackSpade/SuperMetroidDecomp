@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Yellow Pipe Bug instruction mechanics word $B3:{definition.Address:X4}");
         }
 
-        var guard = new YellowPipeBugInstructionProgramReadGuard(rom);
+        var guard = NewYellowPipeBugInstructionProgramReadGuard(rom);
         (ushort Program, ushort Cursor, int Frames)[] programs =
         [
             (YellowPipeBugInstructionProgramDefinitions.FlyingLeft, 0x8f00, 17),
@@ -43,7 +43,7 @@ internal static partial class Program
                 $"Yellow Pipe Bug program $B3:{program:X4} loops");
         }
 
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "Yellow Pipe Bug programs never read installed visual selectors");
         for (int index = 0;
              index < YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -123,41 +123,10 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class YellowPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Yellow Pipe Bug mechanics ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xb30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenPresentationReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read installed Yellow Pipe Bug selector ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewYellowPipeBugInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(YellowPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Yellow Pipe Bug mechanics ${address:X6}.")
+            .ForbidWords(0xb30000, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount, YellowPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read installed Yellow Pipe Bug selector ${address:X6}.");
 }

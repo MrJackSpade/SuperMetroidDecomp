@@ -155,7 +155,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, new SkreeMetareeAnimationReadGuard(rom));
+            .SetValue(enemies, NewSkreeMetareeAnimationReadGuard(rom));
         return enemies;
     }
 
@@ -190,17 +190,7 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class SkreeMetareeAnimationReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa3894e and < 0xa38956 or >= 0xa3c69c and < 0xa3c6a4
-                ? throw new InvalidOperationException(
-                    $"Skree/Metaree attempted migrated selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSkreeMetareeAnimationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3894e and < 0xa38956 or >= 0xa3c69c and < 0xa3c6a4,
+            address => $"Skree/Metaree attempted migrated selector read ${address:X6}.");
 }

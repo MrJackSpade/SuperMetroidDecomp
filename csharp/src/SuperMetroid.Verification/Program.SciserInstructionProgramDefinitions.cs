@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Sciser mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new SciserInstructionReadGuard(rom);
+        var guard = NewSciserInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
@@ -58,7 +58,7 @@ internal static partial class Program
                 $"Sciser {orientation} completes and loops all four frames");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Sciser instruction execution uses compiled spritemap selectors");
         for (int index = 0;
              index < SciserInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -66,7 +66,7 @@ internal static partial class Program
         {
             ushort address =
                 SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-            AssertTrue(!guard.ObservedPresentationWords.Contains(address),
+            AssertTrue(!guard.ObservedWords.Contains(address),
                 $"production execution avoids Sciser presentation word $A3:{address:X4}");
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,
@@ -129,42 +129,9 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SciserInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Sciser mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < SciserInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        SciserInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSciserInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Sciser mechanics byte ${address:X6}.")
+            .ObserveWords(0xa30000, SciserInstructionProgramDefinitionsTooling.PresentationWordCount, SciserInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

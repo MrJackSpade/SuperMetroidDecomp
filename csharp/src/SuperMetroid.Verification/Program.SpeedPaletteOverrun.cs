@@ -52,6 +52,10 @@ internal static partial class Program
                 AssertEqual((ushort)(Read(0x9b9f80 + color * 2) & 0x7fff), cgram.Colors[192 + color], "next tick restores native final Gravity boost shade");
         }
         Console.WriteLine("Speed palette overrun: Screw Attack phases 8/10, exact native colors, four-frame hold and next-tick recovery pass without gameplay ROM access.");
-        ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
+        ushort Read(int address) => ReadNativeSpeedOverrunPaletteWord(cart, address);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster overrun palette words")]
+    private static ushort ReadNativeSpeedOverrunPaletteWord(IImportCartridgeSource cart, int address) =>
+        RomDataReader.ReadWordFixedBank(cart, address);
 }

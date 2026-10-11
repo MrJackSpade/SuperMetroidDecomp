@@ -96,7 +96,7 @@ internal static partial class Program
 
         foreach (int callback in touchNoOps)
         {
-            var guard = new EnemyCallbackOpcodeReadGuard(rom, forbidden);
+            var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem(guard);
             enemy.Definition = default(RoomEnemyDefinition) with
@@ -121,7 +121,7 @@ internal static partial class Program
 
         foreach (int callback in shotNoOps)
         {
-            var guard = new EnemyCallbackOpcodeReadGuard(rom, forbidden);
+            var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem(guard);
             enemy.Definition = default(RoomEnemyDefinition) with
@@ -167,25 +167,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class EnemyCallbackOpcodeReadGuard(
-        ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Combat admission probed executable callback ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyCallbackOpcodeReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Combat admission probed executable callback ${address:X6}.");
 }

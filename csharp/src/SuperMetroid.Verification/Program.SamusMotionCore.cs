@@ -104,7 +104,7 @@ static void VerifySamusHorizontalSpeed()
 
     // Normal air stores $9F55. Running movement type one advances by one more 12-byte
     // record to $9F61: acceleration 0.3000, maximum 2.C000, deceleration 0.8000.
-    bus.WriteBytes(0x909f61, [
+    SyntheticSamusCartridge.WriteNormalAirSpeedEntry(bus, SamusMovementType.Running, [
         0x00, 0x00, 0x00, 0x30,
         0x02, 0x00, 0x00, 0xc0,
         0x00, 0x00, 0x00, 0x80,
@@ -253,9 +253,10 @@ static void VerifySamusHorizontalSpeed()
         0, 0, out ushort powerBoostFirst), "compiled first Power boost phase exists");
     AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         0, 2, out ushort powerBoostSecond), "compiled second Power boost phase exists");
-    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | powerBoostFirst, 0x1234);
-    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | powerBoostSecond, 0x4567);
-    WriteTestWord(bus, 0x9b9400, 0x0321);
+    SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostFirst, 0x1234);
+    SyntheticSamusCartridge.WriteSamusPaletteColors(bus, powerBoostSecond, 0x4567);
+    SyntheticSamusCartridge.WriteSamusPaletteColors(
+        bus, SamusPaletteRomData.Common.NormalSuitPalettePointer(0), 0x0321);
 
     var boostCgram = new SnesCgram();
     AssertTrue(booster.UpdateSpeedBoosterPalette(
@@ -283,7 +284,7 @@ static void VerifySamusHorizontalSpeed()
     // palette-index bit two bypasses that exact gate and must still follow the ROM pointer.
     AssertTrue(SamusPaletteRomData.FullBodyCycles.TryActiveSpeedBoosterPalettePointer(
         4, 0, out ushort gravityBoostFirst), "compiled first Gravity boost phase exists");
-    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityBoostFirst, 0x6a5a);
+    SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityBoostFirst, 0x6a5a);
     var submergedBoost = new SamusHorizontalSpeedState { SpeedBoostCounter = 0x0401 };
     var submergedBoostCgram = new SnesCgram();
     submergedBoostCgram.SetColor(192, Bgr555.FromWord(0x7777));
@@ -325,7 +326,7 @@ static void VerifySamusHorizontalSpeed()
     // refactor cannot fix running boost while accidentally leaving the spin palette active.
     AssertTrue(SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
         4, 0, out ushort gravityScrewFirst), "compiled first Gravity Screw phase exists");
-    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | gravityScrewFirst, 0x5b4b);
+    SyntheticSamusCartridge.WriteSamusPaletteColors(bus, gravityScrewFirst, 0x5b4b);
     var submergedScrew = new SamusHorizontalSpeedState();
     var submergedScrewCgram = new SnesCgram();
     submergedScrewCgram.SetColor(192, Bgr555.FromWord(0x2222));
@@ -353,8 +354,8 @@ static void VerifySamusHorizontalSpeed()
     AssertEqual(0x5b4b, submergedScrewCgram.Colors[192],
         "submerged Gravity Screw palette remains ROM-authored");
 
-    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette |
-        SamusPaletteRomData.Common.NormalSuitPalettePointer(4), 0x3a2a);
+    SyntheticSamusCartridge.WriteSamusPaletteColors(
+        bus, SamusPaletteRomData.Common.NormalSuitPalettePointer(4), 0x3a2a);
     AssertTrue(submergedScrew.UpdateSpeedBoosterPalette(
         bus, submergedScrewCgram, SamusMovementType.SpinJumping, animationFrame: 27,
         equippedItems: (SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack).ToNativeWord(),
@@ -502,23 +503,21 @@ static void VerifySamusExtraDisplacement()
     // Literal right-standing and normal-jump records. Only direction/movement/radius are
     // needed here, but using the retail bytes ensures production follows its normal metadata
     // path instead of a test-only pose shortcut.
-    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+    WritePoseDefinition(bus, 0x01, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
     WritePoseDefinition(
         bus,
         (int)SamusPoseId.MorphBallFallingRightPose,
         [0x08, 0x08, 0xff, 0xff, 0x00, 0x00, 0x07, 0x00]); // $31
-    bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
-    bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
+    WritePoseDefinition(bus, 0x4B, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
+    WritePoseDefinition(bus, 0x4D, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
 
     // Type-two normal-air X physics is deliberately zero. That isolates extra displacement
     // while still exercising the real pointer selection and no-input base-speed clear.
-    for (int offset = 0; offset < 12; offset += 2)
-        WriteTestWord(bus, 0x909f6d + offset, 0);
+    SyntheticSamusCartridge.WriteNormalAirSpeedEntry(bus, SamusMovementType.NormalJumping, new byte[12]);
 
     // Falling Morph Ball uses the type-eight record. Keeping it at exactly zero prevents
     // ordinary rolling physics from obscuring the external-producer bounce override below.
-    for (int offset = 0; offset < 12; offset += 2)
-        WriteTestWord(bus, 0x909f55 + 8 * 12 + offset, 0);
+    SyntheticSamusCartridge.WriteNormalAirSpeedEntry(bus, SamusMovementType.MorphBallFalling, new byte[12]);
 
     const int width = 16;
     const int height = 16;

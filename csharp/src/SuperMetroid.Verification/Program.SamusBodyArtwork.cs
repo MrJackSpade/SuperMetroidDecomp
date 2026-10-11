@@ -109,7 +109,7 @@ internal static partial class Program
             var installedOam = new OamBuffer();
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
-            DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, 127, 131);
+            DrawImportedSamusSpritemap(bus, nativeOam, (ushort)index, new(127, 131));
             installedOam.AddSamusSpritemap(spritemapGuard, (ushort)index, 127, 131, sprites);
             AssertTrue(nativeOam.LowTable.SequenceEqual(installedOam.LowTable) &&
                 nativeOam.HighTable.SequenceEqual(installedOam.HighTable) &&
@@ -748,7 +748,7 @@ internal static partial class Program
 
     /// <summary>Import-only oracle for Samus's bank-$92 OAM record format.</summary>
     private static void DrawImportedSamusSpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        ushort index, ushort originX, ushort originY)
+        ushort index, Position16<ScreenPixels> origin)
     {
         ushort ReadWord(int address) => (ushort)(bus.ReadByte(address) |
             (bus.ReadByte(SnesAddressMath.AddWithinBank(address, 1)) << 8));
@@ -760,7 +760,7 @@ internal static partial class Program
         {
             oam.AddSamusSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 bus.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
-                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), originX, originY);
+                ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3)), origin.X, origin.Y);
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }

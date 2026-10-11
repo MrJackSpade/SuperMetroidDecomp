@@ -10,8 +10,7 @@ internal static partial class Program
     private readonly record struct MochtroidClipNativeRecord(
         string Case,
         ushort EnemyNativeIndex,
-        ushort SamusX,
-        ushort SamusY,
+        Position16<RoomPixels> Samus,
         ushort EnemyX,
         ushort EnemyY,
         int FirstDownFrame,
@@ -68,7 +67,7 @@ internal static partial class Program
 
         SamusState samus = runtime.Samus ??
             throw new InvalidDataException("Botwoon Hallway did not initialize Samus.");
-        samus.Position = samus.Position.WithWhole(new(expected.SamusX, expected.SamusY));
+        samus.Position = samus.Position.WithWhole(expected.Samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0, 0, 0, 0);
         samus.HorizontalSpeed.BaseSpeed = 0;
@@ -166,7 +165,7 @@ internal static partial class Program
 
         return new MochtroidClipNativeRecord(
             fields[0],
-            ParseU16(fields[1]), ParseU16(fields[2]), ParseU16(fields[3]),
+            ParseU16(fields[1]), new Position16<RoomPixels>(ParseU16(fields[2]), ParseU16(fields[3])),
             ParseU16(fields[4]), ParseU16(fields[5]),
             ParseInt(fields[6]), ParseInt(fields[7]), ParseInt(fields[8]), ParseInt(fields[9]),
             ParseU16(fields[10]), (SamusPoseId)ParseByte(fields[11]), ParseU16(fields[12]), ParseU16(fields[13]),

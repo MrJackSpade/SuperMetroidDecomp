@@ -38,7 +38,7 @@ internal static class SuperMetroidRuntimeAccess
 
             // Radius is pose data, so construct/refresh pose $01 before deriving the surface
             // center. The temporary Y=0 is never rendered or stepped.
-            self.InitializeDebugSamus(xPosition, yPosition: 0);
+            self.InitializeDebugSamus(new(xPosition, 0));
             ushort yRadius = self.Samus!.Kinematics.Radius.Y;
 
             if ((uint)minimumFloorBlockY >= (uint)self.LevelData.HeightInBlocks)
@@ -91,11 +91,9 @@ internal static class SuperMetroidRuntimeAccess
                 self.BombProjectiles.Reset();
                 self.Projectiles.Reset(self.Samus);
                 return new DebugGroundedSamusPlacement(
-                    xPosition,
-                    restingY,
+                    new(xPosition, restingY),
                     desiredScreenY,
-                    blockX,
-                    blockY,
+                    new(checked((ushort)blockX), checked((ushort)blockY)),
                     floor,
                     height);
             }
@@ -108,13 +106,13 @@ internal static class SuperMetroidRuntimeAccess
         internal void LoadDebugGrapplePalette() => PrivateState.Invoke(self, "LoadGrapplePalette");
 
         /// <summary>Initializes the ROM-authored standing pose at an explicitly supplied point.</summary>
-        internal void InitializeDebugSamus(ushort xPosition, ushort yPosition)
+        internal void InitializeDebugSamus(Position16<RoomPixels> position)
         {
             PrivateState.SetProperty(self, "Samus", new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = 0,
-                Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, yPosition)),
+                Position = FixedPosition<RoomPixels>.FromWhole(position),
             });
             PrivateState.Invoke(self, "BindSamusPalettePresentation");
 

@@ -620,8 +620,7 @@ static void VerifySamusPowerBeamProjectiles()
             $"Mode 7 charge-flare OBJ {entry} receives transformed center Y");
     }
     AssertSamusPosition(
-        128,
-        96,
+        new(128, 96),
         rotatedMode7Samus,
         "Mode 7 flare calculation preserves physical Samus position");
 

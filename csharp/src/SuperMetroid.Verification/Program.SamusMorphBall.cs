@@ -1675,8 +1675,7 @@ static void VerifySamusMorphBallMovement()
             bus,
             collisionProbeLevel,
             collisionProbePlms,
-            xPosition: 48,
-            yPosition: 48);
+            position: new(48, 48));
     AssertTrue(collisionProbePlms.PopulationSlots.Any(slot => slot.BlockIndex == shotIndex),
         "expanding power bomb visits native BTS-ten collision-probe entry");
     AssertEqual(4, collisionProbePlms.ActiveCount,
@@ -2046,8 +2045,7 @@ private static void RunPowerBombToInitialBoundary(
     ISnesAddressSpace bus,
     RoomLevelData level,
     RoomPlmSystem plms,
-    ushort xPosition,
-    ushort yPosition)
+    Position16<RoomPixels> position)
 {
     var samus = new SamusState
     {
@@ -2056,7 +2054,7 @@ private static void RunPowerBombToInitialBoundary(
         SelectedHudItem = 3,
         PowerBombs = 1,
         MaxPowerBombs = 5,
-        Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, yPosition)),
+        Position = FixedPosition<RoomPixels>.FromWhole(position),
     };
     samus.RefreshCollisionRadii(bus);
     var bombs = CreateBombFixture();

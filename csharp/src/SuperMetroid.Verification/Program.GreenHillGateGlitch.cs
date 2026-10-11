@@ -12,12 +12,10 @@ internal static partial class Program
         int BaseSpeed,
         bool Opened,
         int OpenFrame,
-        int SamusX,
+        Position16<RoomPixels> Samus,
         int SamusSubX,
-        int SamusY,
         int Pose,
-        int GrappleX,
-        int GrappleY,
+        Position16<RoomPixels> Grapple,
         ushort GrappleFunction);
 
     private static void VerifyGreenHillGrappleSpeedGateGlitch()
@@ -120,12 +118,10 @@ internal static partial class Program
             baseSpeed,
             openFrame >= 0,
             openFrame,
-            samus.Position.X.Whole,
+            samus.Position.Whole,
             samus.Kinematics.Position.X.Fraction,
-            samus.Position.Y.Whole,
             (int)samus.Pose,
-            samus.Grapple.Anchor.X,
-            samus.Grapple.Anchor.Y,
+            samus.Grapple.Anchor,
             samus.Grapple.Phase == GrapplePhase.Firing ? (ushort)0xc703 : (ushort)0xc4f0);
 
         if (openFrame >= 0)
@@ -153,12 +149,14 @@ internal static partial class Program
             int.Parse(fields[1], CultureInfo.InvariantCulture),
             fields[2] != "0",
             int.Parse(fields[3], CultureInfo.InvariantCulture),
-            int.Parse(fields[4], CultureInfo.InvariantCulture),
+            new Position16<RoomPixels>(
+                ushort.Parse(fields[4], CultureInfo.InvariantCulture),
+                ushort.Parse(fields[6], CultureInfo.InvariantCulture)),
             int.Parse(fields[5], CultureInfo.InvariantCulture),
-            int.Parse(fields[6], CultureInfo.InvariantCulture),
             int.Parse(fields[7], NumberStyles.HexNumber, CultureInfo.InvariantCulture),
-            int.Parse(fields[8], CultureInfo.InvariantCulture),
-            int.Parse(fields[9], CultureInfo.InvariantCulture),
+            new Position16<RoomPixels>(
+                ushort.Parse(fields[8], CultureInfo.InvariantCulture),
+                ushort.Parse(fields[9], CultureInfo.InvariantCulture)),
             ushort.Parse(fields[10], NumberStyles.HexNumber, CultureInfo.InvariantCulture));
     }
 }

@@ -99,8 +99,7 @@ internal static partial class Program
 
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
-            xPosition: 100,
-            yPosition: 100);
+            position: new(100, 100));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         RoomLevelData emptyRoom = CreateEmptyRoom(32, 32);
@@ -136,7 +135,7 @@ internal static partial class Program
         AssertEqual(SamusPoseId.KnockbackRightPose, samus.Pose, "ejection selects pose from old facing");
         AssertEqual(1, samus.CeresRidleyEjection.PushDirection, "left-half Samus is pushed left");
         AssertEqual(5, samus.Kinematics.YSpeed, "ejection installs terminal downward speed");
-        AssertSamusPosition(100, 100, samus, "first ejection gamma leaves world position unchanged");
+        AssertSamusPosition(new(100, 100), samus, "first ejection gamma leaves world position unchanged");
 
         // The type-$0A air record supplies one pixel/frame after the first acceleration.
         // Put the radius-eight body flush against the room's left boundary so the very next
@@ -175,7 +174,7 @@ internal static partial class Program
         // #1275: InitializeSamusPose_1 does not publish the hurt pose's radius, so a shove
         // that interrupts a radius-$13 airborne body raises it by 21-19 = 2 pixels and keeps
         // the live radius until the following frame's pose epilogue.
-        SamusState airborne = CreateSamus(SamusPoseId.FallingRightPose, xPosition: 100, yPosition: 100);
+        SamusState airborne = CreateSamus(SamusPoseId.FallingRightPose, position: new(100, 100));
         airborne.RefreshCollisionRadii(bus);
         airborne.InitializeAnimation(bus);
         airborne.PoseHistory.PreviousPose = SamusPoseId.FallingRightPose;
@@ -198,8 +197,7 @@ internal static partial class Program
         state.Reset(active: true, scratch);
         SamusState outsideTrigger = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
-            xPosition: 32,
-            yPosition: 100);
+            position: new(32, 100));
 
         StepFrames(60, _ => state.Step(bus, outsideTrigger, 0x8000, allowDeparture: true, scratch));
         AssertEqual(0, state.RotationTimer, "shaft door delay retains zero for one room-main call");
@@ -236,8 +234,7 @@ internal static partial class Program
         trigger.Reset(active: true, triggerScratch);
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
-            xPosition: 113,
-            yPosition: 75);
+            position: new(113, 75));
         trigger.Step(bus, samus, 0x8000, allowDeparture: false, triggerScratch);
         AssertTrue(!trigger.DepartureRequested, "non-gameplay dispatcher cannot trigger departure");
 

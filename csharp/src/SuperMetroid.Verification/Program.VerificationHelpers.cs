@@ -46,14 +46,12 @@ internal static partial class Program
     /// together prevents a new fixture from accidentally validating only one axis.
     /// </summary>
     static void AssertSamusPosition(
-        ushort expectedX,
-        ushort expectedY,
+        Position16<RoomPixels> expected,
         SamusState actual,
         string context)
     {
         ArgumentNullException.ThrowIfNull(actual);
-        AssertEqual(expectedX, actual.Position.X.Whole, $"{context} X");
-        AssertEqual(expectedY, actual.Position.Y.Whole, $"{context} Y");
+        AssertEqual(expected, actual.Position.Whole, context);
     }
 
     /// <summary>
@@ -200,10 +198,10 @@ internal static partial class Program
     /// and whole-pixel position are assigned; all other fields retain production defaults
     /// unless the test changes them explicitly afterward.
     /// </summary>
-    static SamusState CreateSamus(SamusPoseId pose, ushort xPosition, ushort yPosition) => new()
+    static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new()
     {
         Pose = pose,
-        Position = new(new(xPosition, 0), new(yPosition, 0)),
+        Position = FixedPosition<RoomPixels>.FromWhole(position),
     };
 
     /// <summary>

@@ -20,7 +20,7 @@ internal static partial class Program
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         FieldInfo motherBrainField = typeof(RoomEnemySystem).GetField(
             "<MotherBrain>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var guarded = new MotherBrainDeathExplosionReadGuard(rom);
+        var guarded = NewMotherBrainDeathExplosionReadGuard(rom);
         for (ushort parameter = 0; parameter < 3; parameter++)
         {
             var enemies = new RoomEnemySystem();
@@ -60,17 +60,8 @@ internal static partial class Program
     private static ushort ReadMotherBrainExplosionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86c929 and < 0x86c92f
-                ? throw new InvalidOperationException(
-                    $"Mother Brain death explosion attempted migrated selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86c929 and < 0x86c92f,
+                address => $"Mother Brain death explosion attempted migrated selector read ${address:X6}.");
 }

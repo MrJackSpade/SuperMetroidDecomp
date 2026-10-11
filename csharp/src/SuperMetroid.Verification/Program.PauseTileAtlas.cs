@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause UI tile artwork")]
     private static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var vram = new SnesVram(); original.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
@@ -34,7 +35,7 @@ internal static partial class Program
             var nativeSamus = new SamusState { CollectedBeams = samus.CollectedBeams, EquippedBeams = samus.EquippedBeams };
             var native = new PauseMenuState(bus, nativeSamus, system, area,
                 new(10, 10), mapPresentation: original);
-            var pause = new PauseMenuState(new PauseArtworkReadGuard(bus), samus, system, area, new(10, 10), mapPresentation: original);
+            var pause = new PauseMenuState(NewPauseArtworkReadGuard(bus), samus, system, area, new(10, 10), mapPresentation: original);
             int toMap = 2 + PausePageTransitionNativeLength + 1;
             for (int tick = 0; tick < toMap + PausePageTransitionNativeLength + 2; tick++)
             {
@@ -78,12 +79,8 @@ internal static partial class Program
         Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions, immediate edited pixels, capture/restore, equipment isolation and strict resource failures pass.");
     }
 
-    private sealed class PauseArtworkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => (uint)(address - PauseTileAtlasFormat.SourceAddress) < PauseTileAtlasFormat.ByteCount
-            ? throw new InvalidOperationException($"Installed pause read UI artwork at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPauseArtworkReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => (uint)(address - PauseTileAtlasFormat.SourceAddress) < PauseTileAtlasFormat.ByteCount,
+            address => $"Installed pause read UI artwork at {address:X6}.");
 }

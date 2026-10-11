@@ -22,7 +22,7 @@ internal static partial class Program
         int advances = 0;
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new NorfairLavaJumpReadGuard(rom));
+            enemies, NewNorfairLavaJumpReadGuard(rom));
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
             enemies, (Func<ushort>)(() =>
             {
@@ -59,16 +59,8 @@ internal static partial class Program
             "Norfair lava-jump definitions: four native velocities and all 65,536 real RNG selections pass with the source table forbidden.");
     }
 
-    private sealed class NorfairLavaJumpReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa2be86 and < 0xa2be8e
-                ? throw new InvalidOperationException(
-                    $"Norfair lava jumper attempted migrated velocity read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewNorfairLavaJumpReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa2be86 and < 0xa2be8e,
+                address => $"Norfair lava jumper attempted migrated velocity read ${address:X6}.");
 }

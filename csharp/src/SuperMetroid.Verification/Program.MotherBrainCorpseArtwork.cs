@@ -16,15 +16,19 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledMotherBrainCorpseArtwork), () => VerifyInstalledMotherBrainCorpseArtwork(temporary.Root, EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain corpse character sheet")]
+    private static byte[] ReadNativeMotherBrainCorpseArtwork(CartridgeImportAddressSpace rom) =>
+        RomDataReader.ReadFixedBank(rom,
+            MotherBrainCorpseArtworkDefinitions.SourceAddress,
+            MotherBrainCorpseArtworkDefinitions.ByteCount);
+
     private static void VerifyInstalledMotherBrainCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
         RoomCharacterAtlas artwork = stock.MotherBrainCorpse ??
             throw new InvalidDataException("Extracted Mother Brain corpse PNG was not bound.");
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
-        byte[] native = RomDataReader.ReadFixedBank(rom,
-            MotherBrainCorpseArtworkDefinitions.SourceAddress,
-            MotherBrainCorpseArtworkDefinitions.ByteCount);
+        byte[] native = ReadNativeMotherBrainCorpseArtwork(rom);
         AssertTrue(artwork.Transfer.Span.SequenceEqual(native),
             "installed Mother Brain corpse PNG preserves all native source bytes");
 

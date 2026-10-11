@@ -25,7 +25,7 @@ internal static partial class Program
                 $"Norfair lava-jumper mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new NorfairLavaJumperInstructionReadGuard(rom);
+        var guard = NewNorfairLavaJumperInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -89,7 +89,7 @@ internal static partial class Program
         // installed artwork. Program.EnemySpritemapArtwork compares each selector
         // against the cartridge; this guard verifies that live execution never
         // falls back to either the mechanics or presentation ROM bytes.
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "lava-jumper execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled lava-jumper mechanics bytes");
@@ -153,39 +153,24 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class NorfairLavaJumperInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewNorfairLavaJumperInstructionReadGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var guard = new CartridgeReadGuard(source)
+            .Forbid(NorfairLavaJumperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled lava-jumper mechanics byte ${address:X6}.");
+        return guard.Observe(address => (address & 0xff0000) == 0xa20000, address =>
         {
-            if (NorfairLavaJumperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0;
+                 index < NorfairLavaJumperInstructionProgramDefinitions.PresentationWordCount;
+                 index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled lava-jumper mechanics byte ${address:X6}.");
+                ushort presentation =
+                    NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(index);
+                if (bankAddress == presentation ||
+                    bankAddress == unchecked((ushort)(presentation + 1)))
+                    guard.ObservedWords.Add(presentation);
             }
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < NorfairLavaJumperInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        NorfairLavaJumperInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                        ObservedPresentationWords.Add(presentation);
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        });
     }
 }

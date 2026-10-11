@@ -12,7 +12,7 @@ internal static partial class Program
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
         FieldInfo randomField = typeof(RoomEnemySystem).GetField("_nextRandom", instance)!;
-        var guarded = new MotherBrainGlassShardReadGuard(rom);
+        var guarded = NewMotherBrainGlassShardReadGuard(rom);
 
         Suite(nameof(VerifyGlassShardProgramSelection), () => VerifyGlassShardProgramSelection(rom));
         Suite(nameof(VerifyGlassShardProgramOrigins), () => VerifyGlassShardProgramOrigins(rom));
@@ -112,17 +112,8 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MotherBrainGlassShardReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86ce41 and < 0x86ce6d
-                ? throw new InvalidOperationException(
-                    $"Mother Brain glass shard attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainGlassShardReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86ce41 and < 0x86ce6d,
+                address => $"Mother Brain glass shard attempted migrated definition read ${address:X6}.");
 }

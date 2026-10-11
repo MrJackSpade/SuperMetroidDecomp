@@ -64,7 +64,6 @@ internal static partial class Program
 
         Console.WriteLine(
             "Mother Brain fake-death PLMs: 66 instruction words, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
-
     }
 
     private static void VerifyMotherBrainFakeDeathMutation(
@@ -100,7 +99,7 @@ internal static partial class Program
                 expected[(y + (vertical ? block : 0)) * width +
                     x + (vertical ? 0 : block)] = run.LevelWords.Span[block];
         }
-        var guard = new MotherBrainFakeDeathSourceGuard(new TestAddressSpace());
+        var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         plms.Step(guard, level, streamer, new(0, 0), 0);
         AssertEqual(1, plms.ActiveCount,
@@ -116,31 +115,16 @@ internal static partial class Program
             $"Mother Brain mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
-    private sealed class MotherBrainFakeDeathSourceGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+    private static CartridgeReadGuard NewMotherBrainFakeDeathSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
         {
             int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
+            return (address >> 16) == 0x84 &&
                 ((pointer >= MotherBrainFakeDeathPlmProgramDefinitions.Start &&
                   pointer < MotherBrainFakeDeathPlmProgramDefinitions.EndExclusive) ||
                  MotherBrainFakeDeathPlmDrawDefinitions.All.Any(draw =>
                      pointer >= draw.Pointer && pointer < draw.Pointer +
                          draw.Runs.Span.ToArray().Sum(run =>
-                             4 + run.LevelWords.Length * 2))))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Mother Brain mutation reread migrated source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                             4 + run.LevelWords.Length * 2)));
+        }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");
 }

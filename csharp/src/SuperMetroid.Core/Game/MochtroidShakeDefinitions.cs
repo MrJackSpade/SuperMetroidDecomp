@@ -7,10 +7,13 @@ internal static class MochtroidShakeDefinitions
     /// Axis and sign derive from the timer; the amplitude is an authored scalar (see residualScalarInputsReview).</summary>
     private const int Amplitude = 2;
 
-    internal static (int X, int Y) Offset(ushort timer)
+    /// <summary>Timer bits 1..2 select right, up, left or down in that order.</summary>
+    internal static (int X, int Y) Offset(ushort timer) => ((timer & 6) >> 1) switch
     {
-        int direction = (timer & 6) >> 1;
-        int signedAmplitude = (direction & 2) == 0 ? Amplitude : -Amplitude;
-        return (direction & 1) == 0 ? (signedAmplitude, 0) : (0, -signedAmplitude);
-    }
+        0 => (Amplitude, 0),
+        1 => (0, -Amplitude),
+        2 => (-Amplitude, 0),
+        3 => (0, Amplitude),
+        _ => throw new InvalidOperationException($"Mochtroid shake timer ${timer:X4} selected no direction."),
+    };
 }

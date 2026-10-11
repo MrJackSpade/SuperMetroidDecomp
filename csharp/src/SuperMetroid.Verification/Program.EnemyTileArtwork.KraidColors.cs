@@ -230,8 +230,11 @@ internal static partial class Program
         DeathArm,
     }
 
-    private sealed class KraidPaletteSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class KraidPaletteSourceGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);

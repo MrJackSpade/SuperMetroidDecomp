@@ -215,8 +215,11 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class FakeKraidInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 

@@ -3224,7 +3224,10 @@ public sealed partial class RoomEnemySystem
 
     private static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 
-    /// <summary>Live enemy staging memory; no cartridge reader can satisfy this dependency.</summary>
-    private ISnesMutableMemory EnemyWorkMemory => _bus as ISnesMutableMemory
-        ?? throw new InvalidOperationException("Enemy staging requires live WRAM.");
+    /// <summary>Live enemy memory; no cartridge reader can satisfy this dependency.</summary>
+    private ISnesMemoryBus EnemyMemoryBus =>
+        SnesMemoryBusRequirement.Require(_bus!, "Enemy staging requires live WRAM.");
+
+    /// <summary>The enemy staging surfaces in live WRAM.</summary>
+    private EnemyScratchMemory EnemyScratch => new(EnemyMemoryBus);
 }

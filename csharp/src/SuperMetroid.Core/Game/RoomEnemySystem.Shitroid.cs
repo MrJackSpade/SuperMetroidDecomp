@@ -184,9 +184,6 @@ public sealed partial class RoomEnemySystem
     }
 
 
-    private const int ShitroidWorkBufferAddress = 0x7e2000;
-    private const int ShitroidWorkBufferSize = 0x1000;
-
     // `frameCounter & 6` selects one of these four authored jitter offsets.
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
@@ -238,8 +235,7 @@ public sealed partial class RoomEnemySystem
 
         // The cutscene shares the same $7E:2000 scratch surface as corpse-rotting code.
         // Initialization clears every byte, descending by words in the original routine.
-        for (int offset = 0; offset < ShitroidWorkBufferSize; offset++)
-            _bus!.WriteByte(ShitroidWorkBufferAddress + offset, 0);
+        EnemyScratch.ShitroidScratch.Fill(0);
 
         // `$2000` is the scheduler's instruction-processing bit; `$1000` blocks plasma
         // from piercing the actor. The upstream C symbol calls `$2000` DisableSamusColl,

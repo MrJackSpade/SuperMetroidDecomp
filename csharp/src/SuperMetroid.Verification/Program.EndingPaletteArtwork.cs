@@ -593,8 +593,7 @@ internal static partial class Program
     }
 
     private sealed class EndingPaletteSourceReadGuard(ISnesAddressSpace source,
-        RoomPaletteFxPresentation effectColors) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+        RoomPaletteFxPresentation effectColors) : ISnesMemoryBus, IImportCartridgeSource
     {
         private static readonly (EndingPaletteId Id, int Start, int End)[] Ranges =
             Enum.GetValues<EndingPaletteId>()

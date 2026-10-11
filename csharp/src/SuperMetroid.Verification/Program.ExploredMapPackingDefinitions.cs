@@ -164,8 +164,7 @@ internal static partial class Program
             Directory.Delete(resolved, recursive: true);
         }
     }
-    private sealed class ExploredMapPackingReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class ExploredMapPackingReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 

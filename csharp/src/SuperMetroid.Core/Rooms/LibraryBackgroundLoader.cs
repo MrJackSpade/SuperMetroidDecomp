@@ -159,16 +159,7 @@ bg3CharacterBaseWord);
         byte[] decompressed = (tilemapArt ?? throw new InvalidOperationException(
             "Library-background decompression requires installed tilemaps."))
             .Get(sourceAddress).Transfer.ToArray();
-        if (destination + decompressed.Length > RoomAssetRomData.LibraryBackground.BankByteCount)
-        {
-            throw new InvalidDataException(
-                $"Library-background decompression from ${sourceAddress:X6} crosses bank $7E.");
-        }
-
-        for (int index = 0; index < decompressed.Length; index++)
-            bus.WriteByte(
-                RoomAssetRomData.LibraryBackground.WorkRamBank | (destination + index),
-                decompressed[index]);
+        new LibraryBackgroundMemory(RequireWorkMemory(bus)).WriteDecompressed(destination, decompressed, sourceAddress);
     }
 
     private static void ClearBg2(ISnesAddressSpace bus, SnesVram vram, bool includeKraidPage)
@@ -206,30 +197,15 @@ bg3CharacterBaseWord);
             transfer.VramDestinationWord);
     }
 
-    private static ISnesMutableMemory RequireWorkMemory(ISnesAddressSpace bus) =>
-        bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Library-background staging transfers require live WRAM.");
+    private static ISnesMemoryBus RequireWorkMemory(ISnesAddressSpace bus) =>
+        SnesMemoryBusRequirement.Require(bus, "Library-background staging transfers require live WRAM.");
 
     private static void FillWords(
         ISnesAddressSpace bus,
         ushort destination,
         int byteCount,
-        ushort value)
-    {
-        if ((byteCount & 1) != 0 ||
-            destination + byteCount > RoomAssetRomData.LibraryBackground.BankByteCount)
-            throw new ArgumentOutOfRangeException(nameof(byteCount));
-
-        for (int byteOffset = 0; byteOffset < byteCount; byteOffset += 2)
-        {
-            bus.WriteByte(
-                RoomAssetRomData.LibraryBackground.WorkRamBank | (destination + byteOffset),
-                (byte)value);
-            bus.WriteByte(
-                RoomAssetRomData.LibraryBackground.WorkRamBank | (destination + byteOffset + 1),
-                (byte)(value >> 8));
-        }
-    }
+        ushort value) =>
+        new LibraryBackgroundMemory(RequireWorkMemory(bus)).FillWords(destination, byteCount, value);
 
 
 }

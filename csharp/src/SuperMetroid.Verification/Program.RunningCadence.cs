@@ -181,8 +181,7 @@ internal static partial class Program
         for (int address = start; address < start + count; address++)
             AssertEqual(rom.ReadByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
     }
-    private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte MutableDelay = 0x35;
         public byte ReadCartridgeByte(int address) => ReadByte(address);

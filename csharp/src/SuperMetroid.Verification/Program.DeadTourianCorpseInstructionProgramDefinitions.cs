@@ -126,8 +126,11 @@ internal static partial class Program
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class DeadTourianCorpseInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+        ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];

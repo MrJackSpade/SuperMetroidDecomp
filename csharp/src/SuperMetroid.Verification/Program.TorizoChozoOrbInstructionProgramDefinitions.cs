@@ -222,8 +222,11 @@ internal static partial class Program
     }
 
     private sealed class TorizoChozoOrbInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 

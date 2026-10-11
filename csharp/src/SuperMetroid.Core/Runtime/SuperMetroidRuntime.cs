@@ -31,9 +31,9 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     internal ISnesAddressSpace AddressSpace => _addressSpace;
 
-    /// <summary>Explicit live-memory source for NMI DMA and captured tilemap reads.</summary>
-    private ISnesMutableMemory MutableMemory => _addressSpace as ISnesMutableMemory ??
-        throw new InvalidOperationException("The runtime requires live WRAM/SRAM access.");
+    /// <summary>Live WRAM/SRAM for NMI DMA and the typed domain memory views.</summary>
+    internal ISnesMemoryBus MemoryBus =>
+        SnesMemoryBusRequirement.Require(_addressSpace, "The runtime requires live WRAM/SRAM access.");
 
     /// <summary>Creates the frame-steppable runtime, installs host gameplay options, and loads the required initial palette.</summary>
     /// <param name="addressSpace">Cartridge definition source and mutable WRAM/SRAM owner used by translated systems.</param>
@@ -1537,7 +1537,7 @@ public sealed partial class SuperMetroidRuntime
                     // mirror are normally equivalent. Publish them before bank-$90 alpha
                     // so malformed callback-table entries can perform their literal WRAM
                     // writes, then reclaim ownership only when such a write occurred.
-                    System.WritePersistentMirror(_addressSpace);
+                    System.WritePersistentMirror(MemoryBus);
                     SamusProjectileFrameResult projectileFrame = Projectiles.StepFrame(
                         _addressSpace,
                         LevelData,
@@ -1553,7 +1553,7 @@ public sealed partial class SuperMetroidRuntime
                         controllerPreviousNewInput: Samus.PreviousDrawNewInput,
                         producerSoundSuppressed: BombProjectiles.SoundSuppressedBeforeProjectileHandling);
                     if (projectileFrame.PersistentMemoryCorrupted)
-                        System.LoadPersistentMirror(_addressSpace);
+                        System.LoadPersistentMirror(MemoryBus);
 
                     if (!TimeIsFrozen)
                         BombProjectiles.ResolveSamusOverlap(Samus, Projectiles.ProjectileInvincibilityTimer);
@@ -3959,7 +3959,7 @@ Landed: true, HitCeiling: false);
         DisplayedMorphBallEyeBeam = CaptureMorphBallEyeBeamForDisplay();
         Samus?.TileTransfers.TransferToVram(_addressSpace, Vram);
         PublishReboundHudArtwork();
-        VramWrites.DrainTo(Vram, MutableMemory, this);
+        VramWrites.DrainTo(Vram, MemoryBus, this);
         // A rebound snapshot may retain old VRAM and legacy queued transfers.
         // Apply current content only at this accepted NMI, after those writes.
         PublishReboundBeamArtwork();

@@ -271,8 +271,11 @@ internal static partial class Program
     }
 
     private sealed class SpacePirateCollisionReadGuard(
-        ISnesAddressSpace source, HashSet<int> blocked) : ISnesAddressSpace, IImportCartridgeSource
+        ISnesAddressSpace source, HashSet<int> blocked) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal int BlockedReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);

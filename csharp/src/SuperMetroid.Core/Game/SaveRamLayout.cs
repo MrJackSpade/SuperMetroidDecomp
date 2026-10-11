@@ -1,13 +1,24 @@
+using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Native SRAM directory and per-slot payload layout used by bank <c>$81</c>.</summary>
 /// <remarks>
-/// Values in this catalog are byte offsets unless a summary explicitly calls out a CPU-bus
-/// address. The serializer owns behavior; this type owns only the immutable cartridge data
-/// structure so layout review does not require reading save/load control flow.
+/// Values in this catalog are byte offsets within <see cref="Image"/>. The serializer owns
+/// behavior; this type owns only the immutable cartridge data structure so layout review does
+/// not require reading save/load control flow.
 /// </remarks>
+[CpuBusBoundary("catalog: native save SRAM")]
 public static class SaveRamLayout
 {
+    /// <summary>
+    /// <c>$70:0000-$70:1FFF</c>, the cartridge's complete 8-KiB battery-backed SRAM window: checksum
+    /// directories, three slot payloads, the completion marker and the selected-slot word. Every
+    /// offset in this catalog is relative to its first byte.
+    /// </summary>
+    public static readonly CpuBusCell Image = CpuBusCell.SramBytes(nameof(Image), 0x700000, 0x2000,
+        "native SRAM image (u8[], little-endian words)");
+
     /// <summary>The number of independently checksummed save payloads in the retail SRAM image.</summary>
     public const int SlotCount = 3;
 
@@ -28,12 +39,6 @@ public static class SaveRamLayout
 
     /// <summary>SRAM offset of the redundant three-word checksum-complement directory.</summary>
     public const int BackupComplementOffset = 0x1ff8;
-
-    /// <summary>The SNES CPU-bus bank through which the cartridge exposes battery-backed SRAM.</summary>
-    public const byte SramBank = 0x70;
-
-    /// <summary>Mask that wraps logical SRAM accesses into the cartridge's 8-KiB <c>$70:0000-$70:1FFF</c> window.</summary>
-    public const ushort SramOffsetMask = 0x1fff;
 
     /// <summary>Slot-relative offset of the 16-bit item-equipment mask mirrored from WRAM <c>$7E:D7C0</c>.</summary>
     public const int EquippedItemsOffset = 0x0000;
@@ -178,25 +183,6 @@ public static class SaveRamLayout
 
     /// <summary>Number of Zebes area maps packed into SRAM; the Ceres prologue has no persisted map.</summary>
     public const int PackedMapAreaCount = 6;
-
-    /// <summary>First CPU-bus byte of the cartridge's live SRAM mirror at $7E:D7C0.</summary>
-    public const int WramMirrorAddress = 0x7ed7c0;
-    /// <summary>First persistent event byte at $7E:D820.</summary>
-    public const int EventsWramAddress = WramMirrorAddress + EventsOffset;
-    /// <summary>First area-boss byte at $7E:D828.</summary>
-    public const int BossBitsWramAddress = WramMirrorAddress + BossBitsOffset;
-    /// <summary>First opened-Chozo-orb byte at $7E:D830.</summary>
-    public const int RoomChozoBitsWramAddress = WramMirrorAddress + RoomChozoBitsOffset;
-    /// <summary>First collected-item byte at $7E:D870.</summary>
-    public const int CollectedItemBitsWramAddress = WramMirrorAddress + CollectedItemBitsOffset;
-    /// <summary>First opened-door byte at $7E:D8B0.</summary>
-    public const int OpenedDoorBitsWramAddress = WramMirrorAddress + OpenedDoorBitsOffset;
-    /// <summary>First used save-station/elevator byte at $7E:D8F8.</summary>
-    public const int UsedSaveStationsWramAddress = WramMirrorAddress + UsedSaveStationsOffset;
-    /// <summary>First acquired-map-station byte at $7E:D908.</summary>
-    public const int MapStationsWramAddress = WramMirrorAddress + MapStationsOffset;
-    /// <summary>Saved frontend dispatcher word at $7E:D914.</summary>
-    public const int LoadingGameStateWramAddress = WramMirrorAddress + LoadingGameStateOffset;
 
     /// <summary>$81:812B SaveSlotOffsets: first payload begins after the sixteen-byte checksum directory.</summary>
     private const ushort FirstSlotOffset = 0x0010;

@@ -154,8 +154,7 @@ internal static partial class Program
             $"production {fxType} whole damage accumulation");
     }
 
-    private sealed class SamusAtmosphericAnimationReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class SamusAtmosphericAnimationReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 

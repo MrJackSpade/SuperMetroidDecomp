@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 
@@ -22,7 +23,7 @@ internal static class FileSelectCaptureComparison
         if (!SHA256.HashData(bus.Rom).AsSpan().SequenceEqual(recording.RomSha256))
             throw new InvalidDataException("Journal and local ROM differ.");
         // Caller must select a reset-origin journal, not a debugger-state continuation.
-        recording.InitialSaveRam.CopyTo(bus.SaveRam);
+        SaveRamImage.Load(bus, recording.InitialSaveRam);
         var game = new SuperMetroidGame(bus, recording.GameOptions);
         var assets = ExtractedAudioAssetCatalog.Load(Path.GetFullPath("standalone-assets/audio"));
         var actual = new CartridgeAudioRenderer(assets);

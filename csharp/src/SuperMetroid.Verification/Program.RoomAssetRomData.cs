@@ -262,7 +262,7 @@ internal static partial class Program
     }
 
     private sealed class RoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadByte(int address)
         {
@@ -300,7 +300,7 @@ internal static partial class Program
     }
 
     private sealed class TilesetDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         // The guarded range begins at graphics set zero's native definition, located once
         // through the unguarded source's pointer table.

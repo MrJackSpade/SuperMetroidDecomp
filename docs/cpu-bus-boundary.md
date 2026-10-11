@@ -17,8 +17,10 @@ other caller works with typed, domain-named members.
 
 `[CpuBusAccess]` marks the raw API: `ISnesAddressSpace`, `ISnesMutableMemory`, `ISnesMemoryBus`,
 `ISnesCpuPeripheralSource`, `IImportCartridgeSource`, `SnesWorkRam`, `SnesCpuOperandRead`,
-`SnesIndirectLongDataRead`, `SuperMetroidAddressSpace.SaveRam`, `CpuBusCell` and the cell
-primitives `WramByte`, `WramWord`, `WramBytes`, `WramWords`, `SramBytes`.
+`SnesIndirectLongDataRead`, `SnesLiveDataRead`, `CpuBusCell` and the cell primitives `WramByte`,
+`WramWord`, `WramBytes`, `WramWords`, `SramBytes`. The address space exposes no raw WRAM/SRAM
+buffer: whole-image SRAM import/export goes through the `SaveRamImage` codec. Views hand callers
+bounded `WorkRamByteTable`/`WorkRamWordTable` collections bound to their own cells.
 
 ## Rules (analyzer)
 
@@ -61,9 +63,14 @@ public static class SamusWorkRam
 ## Inventory and checks
 
 `docs/cpu-bus-inventory.json` is generated from the catalogs (owner, name, region, address, size,
-encoding, aliases, consumers). The verifier enumerates every `CpuBusCell`:
+encoding, aliases, consumers) by `SuperMetroid.DebugRunner --generate-cpu-bus-inventory`, run from
+the repository root; it refuses to write while a catalog rule below is broken. The verifier
+(`--cpu-bus-boundary`, part of the full run) enumerates every `CpuBusCell` and requires the
+committed inventory to list exactly the catalog cells:
 
 - `(owner, name)` is unique;
-- two cells overlap only through a declared `AliasOf`, and every alias pair is round-tripped
-  (write through one view, read through the other) to prove coherence;
+- two cells overlap only through a declared `AliasOf`: one cell's alias chain reaches the other
+  or a cell that covers it (overlap is judged on physical bytes, so `$00:0123` and `$7E:0123`
+  are the same WRAM byte). Every alias pair is round-tripped (write through one cell, read
+  through the other) to prove coherence;
 - representative typed round trips, mapping/mirror/wrap and side-effect tests cover the primitives.

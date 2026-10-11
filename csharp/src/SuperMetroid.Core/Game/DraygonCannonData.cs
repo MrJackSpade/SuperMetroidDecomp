@@ -6,9 +6,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public static class DraygonCannonData
 {
-    /// <summary>$84:DC67/$DCA7 cannon instructions write a word through PLM_Vars in WRAM bank $7E.</summary>
-    public const int ControlWordBank = 0x7e0000;
-
     /// <summary>$A5:87AA HandleFiringWallTurret selects four roles; $A5:87E4..87F3 holds their wall muzzle coordinates.</summary>
     internal static DraygonCannonTarget FiringTarget(DraygonFiringCannon cannon) => cannon switch
     {

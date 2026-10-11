@@ -206,8 +206,11 @@ internal static partial class Program
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
     private sealed class HopperAnimationReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
+        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 

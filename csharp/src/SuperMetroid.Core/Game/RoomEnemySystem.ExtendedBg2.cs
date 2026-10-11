@@ -67,9 +67,11 @@ public sealed partial class RoomEnemySystem
         if (CrocomireDeath is { } death)
             words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
         if (MotherBrain is not null)
+        {
+            WorkRamWordTable bg2 = EnemyScratch.EnemyBg2Tilemap;
             for (int index = 0; index < words.Length; index++)
-                WriteWord(_bus!, MotherBrainBg2Definitions.WorkAddress + (destinationWord + index) * 2,
-                    words[index]);
+                bg2[destinationWord + index] = words[index];
+        }
         _vram!.ExecuteWordTransfer(words,
             unchecked((ushort)(EnemyBg2FrameLayout.VramBase + destinationWord)),
             wordIncrement: 1);

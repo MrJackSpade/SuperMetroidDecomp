@@ -195,14 +195,8 @@ public sealed class SamusAtmosphericEffectsState
         oam.AddRawSmallSprite(new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), attributes);
     }
 
-    private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame)
-    {
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Atmospheric type two requires mirrored WRAM.");
-        int source = SamusMovementRomData.Banks.Movement | (frame * sizeof(ushort));
-        return (ushort)(memory.ReadWorkRamByte(source) |
-            memory.ReadWorkRamByte(source + 1) << 8);
-    }
+    private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame) =>
+        new SamusOverreadMemory(bus).AtmosphericTypeTwoAttributes(frame);
 
     private static ushort ResolveInstalledAttributes(
         SamusAtmosphericArtworkCatalog? artwork, byte type, byte frame)

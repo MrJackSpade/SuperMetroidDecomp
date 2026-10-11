@@ -540,8 +540,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class FullBodyColorReadGuard :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class FullBodyColorReadGuard : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();

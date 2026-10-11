@@ -439,8 +439,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class EndingObjectSourceReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    private sealed class EndingObjectSourceReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 

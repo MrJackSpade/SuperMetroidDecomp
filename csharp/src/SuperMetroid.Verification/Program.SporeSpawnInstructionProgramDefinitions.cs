@@ -177,8 +177,7 @@ internal static partial class Program
             source.ReadByte(0xa50000 | address) |
             source.ReadByte(0xa50000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SporeSpawnInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class SporeSpawnInstructionReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }

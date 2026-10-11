@@ -100,8 +100,11 @@ internal static partial class Program
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class DeadTorizoInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+        ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal bool SawPresentationWord { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 

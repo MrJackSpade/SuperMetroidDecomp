@@ -175,8 +175,11 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SparkMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class SparkMovementReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) => address is >= 0xa8e682 and < 0xa8e690
@@ -187,8 +190,11 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class SparkProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class SparkProgramReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal HashSet<ushort> ObservedPresentationWords { get; } = [];
         internal int ForbiddenReadAttempts { get; private set; }
 

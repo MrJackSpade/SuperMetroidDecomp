@@ -96,15 +96,6 @@ public readonly struct WramBytes
     /// <summary>Writes byte <paramref name="index"/>.</summary>
     public void Write(int index, byte value) => bus.WriteByte(Address(index), value);
 
-    /// <summary>Copies the whole range out, in address order.</summary>
-    public byte[] ToArray()
-    {
-        var bytes = new byte[Length];
-        for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = Read(index);
-        return bytes;
-    }
-
     /// <summary>Writes <paramref name="bytes"/> over the whole range, in address order.</summary>
     public void Write(ReadOnlySpan<byte> bytes)
     {

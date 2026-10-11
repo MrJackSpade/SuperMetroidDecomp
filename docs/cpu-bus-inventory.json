@@ -1,0 +1,430 @@
+{
+  "cells": [
+    {
+      "owner": "SuperMetroid.Core.Game.DraygonCannonWorkRam",
+      "name": "ControlWords",
+      "region": "WorkRam",
+      "address": "$7E:8802",
+      "byteCount": 10,
+      "encoding": "cannon disabled flags (u16[] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/DraygonCannonMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyOverreadWorkRam",
+      "name": "ClearedHeaderDropChances",
+      "region": "WorkRam",
+      "address": "$00:003A",
+      "byteCount": 2,
+      "encoding": "drop-chance table pointer (u16)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyOverreadMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyOverreadWorkRam",
+      "name": "SparkPropertyOverlay",
+      "region": "WorkRam",
+      "address": "$7E:0100",
+      "byteCount": 2,
+      "encoding": "EnemyProperties bits (u16)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyOverreadMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyScratchWorkRam",
+      "name": "CorpseTiles",
+      "region": "WorkRam",
+      "address": "$7E:2000",
+      "byteCount": 4096,
+      "encoding": "4bpp tiles (u8[])",
+      "aliasOf": "EnemyScratchWorkRam.EnemyBg2Tilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyScratchMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyScratchWorkRam",
+      "name": "DeadTorizoSand",
+      "region": "WorkRam",
+      "address": "$7E:9500",
+      "byteCount": 576,
+      "encoding": "4bpp tile bitplane words (u8[])",
+      "aliasOf": "EnemyScratchWorkRam.RottingHeap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyScratchMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyScratchWorkRam",
+      "name": "EnemyBg2Tilemap",
+      "region": "WorkRam",
+      "address": "$7E:2000",
+      "byteCount": 4096,
+      "encoding": "BG2 tilemap words (u16[] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyScratchMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyScratchWorkRam",
+      "name": "MotherBrainCorpseTiles",
+      "region": "WorkRam",
+      "address": "$7E:9000",
+      "byteCount": 1792,
+      "encoding": "4bpp tiles (u8[])",
+      "aliasOf": "EnemyScratchWorkRam.RottingHeap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyScratchMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyScratchWorkRam",
+      "name": "MotherBrainRotTable",
+      "region": "WorkRam",
+      "address": "$7E:9700",
+      "byteCount": 192,
+      "encoding": "corpse rot table ((s16 Y, u16 delay)[] little-endian)",
+      "aliasOf": "EnemyScratchWorkRam.RottingHeap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyScratchMemory.cs",
+        "csharp/src/SuperMetroid.Core/Game/MotherBrainCorpseRottingState.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyScratchWorkRam",
+      "name": "RottingHeap",
+      "region": "WorkRam",
+      "address": "$7E:9000",
+      "byteCount": 2048,
+      "encoding": "corpse rot tables ((s16 Y, u16 delay)[] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyScratchMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.EnemyScratchWorkRam",
+      "name": "ShitroidScratch",
+      "region": "WorkRam",
+      "address": "$7E:2000",
+      "byteCount": 4096,
+      "encoding": "scratch bytes (u8[])",
+      "aliasOf": "EnemyScratchWorkRam.EnemyBg2Tilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/EnemyScratchMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.FirefleaFxWorkRam",
+      "name": "Darkness",
+      "region": "WorkRam",
+      "address": "$00:177E",
+      "byteCount": 2,
+      "encoding": "darkness level (u16)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/FirefleaFxMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.FirefleaFxWorkRam",
+      "name": "Index",
+      "region": "WorkRam",
+      "address": "$00:177A",
+      "byteCount": 2,
+      "encoding": "flash table index (u16)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/FirefleaFxMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.FirefleaFxWorkRam",
+      "name": "Timer",
+      "region": "WorkRam",
+      "address": "$00:1778",
+      "byteCount": 2,
+      "encoding": "frame countdown (u16)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/FirefleaFxMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.HudWorkRam",
+      "name": "MutableTilemap",
+      "region": "WorkRam",
+      "address": "$7E:C608",
+      "byteCount": 192,
+      "encoding": "BG3 tilemap words (u16[] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/HudMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.MotherBrainPaletteWorkRam",
+      "name": "GreyTrailingWord",
+      "region": "WorkRam",
+      "address": "$7E:017C",
+      "byteCount": 2,
+      "encoding": "Bgr555 (u16)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/MotherBrainPaletteMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.ProjectileInheritanceWorkRam",
+      "name": "Records",
+      "region": "WorkRam",
+      "address": "$00:0DA8",
+      "byteCount": 18,
+      "encoding": "u16 camera Y subspeed, then signed 16.16 distance[4] (left, right, up, down)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SamusProjectileInheritance.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.RoomScrollWorkRam",
+      "name": "Zones",
+      "region": "WorkRam",
+      "address": "$7E:CD20",
+      "byteCount": 50,
+      "encoding": "RoomScrollState[] (u8)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/RoomScrollMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "BossBits",
+      "region": "WorkRam",
+      "address": "$7E:D828",
+      "byteCount": 8,
+      "encoding": "per-area boss bitset (u8[])",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "CollectedItemBits",
+      "region": "WorkRam",
+      "address": "$7E:D870",
+      "byteCount": 64,
+      "encoding": "room bitset (u8[])",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "Events",
+      "region": "WorkRam",
+      "address": "$7E:D820",
+      "byteCount": 8,
+      "encoding": "event bitset (u8[])",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs",
+        "csharp/src/SuperMetroid.Verification/Program.CpuBusBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "LoadedItemCount",
+      "region": "WorkRam",
+      "address": "$7E:D91A",
+      "byteCount": 2,
+      "encoding": "u16 little-endian",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs",
+        "csharp/src/SuperMetroid.Verification/Program.CpuBusBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "LoadingGameState",
+      "region": "WorkRam",
+      "address": "$7E:D914",
+      "byteCount": 2,
+      "encoding": "SaveLoadingGameState (u16)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "MapStations",
+      "region": "WorkRam",
+      "address": "$7E:D908",
+      "byteCount": 12,
+      "encoding": "per-area flags (u8[])",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "OpenedDoorBits",
+      "region": "WorkRam",
+      "address": "$7E:D8B0",
+      "byteCount": 64,
+      "encoding": "room bitset (u8[])",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "RoomChozoBits",
+      "region": "WorkRam",
+      "address": "$7E:D830",
+      "byteCount": 64,
+      "encoding": "room bitset (u8[])",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveMirrorWorkRam",
+      "name": "UsedSaveStations",
+      "region": "WorkRam",
+      "address": "$7E:D8F8",
+      "byteCount": 16,
+      "encoding": "per-area bitset (u8[])",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveMirrorMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SaveRamLayout",
+      "name": "Image",
+      "region": "SaveRam",
+      "address": "$70:0000",
+      "byteCount": 8192,
+      "encoding": "native SRAM image (u8[], little-endian words)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SaveRamImage.cs",
+        "csharp/src/SuperMetroid.Core/Game/SuperMetroidSaveRam.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SpacetimeBeamCorruptionLayout",
+      "name": "SourceLongPointer",
+      "region": "WorkRam",
+      "address": "$00:0000",
+      "byteCount": 3,
+      "encoding": "24-bit long pointer (u8[3] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SpacetimeBeamCorruptionLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Game.SpacetimeBeamCorruptionLayout",
+      "name": "SpritePaletteSix",
+      "region": "WorkRam",
+      "address": "$7E:C1C0",
+      "byteCount": 32,
+      "encoding": "BGR555[16] (u16[] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Game/SpacetimeBeamCorruptionLayout.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrors",
+      "name": "Blue",
+      "region": "WorkRam",
+      "address": "$00:0076",
+      "byteCount": 1,
+      "encoding": "COLDATA write (u8: channel bits | 5-bit intensity)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/PpuFixedColorMirrors.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrors",
+      "name": "Green",
+      "region": "WorkRam",
+      "address": "$00:0075",
+      "byteCount": 1,
+      "encoding": "COLDATA write (u8: channel bits | 5-bit intensity)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/PpuFixedColorMirrors.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Hardware.PpuFixedColorMirrors",
+      "name": "Red",
+      "region": "WorkRam",
+      "address": "$00:0074",
+      "byteCount": 1,
+      "encoding": "COLDATA write (u8: channel bits | 5-bit intensity)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hardware/PpuFixedColorMirrors.cs",
+        "csharp/src/SuperMetroid.Verification/Program.WramHelperBoundary.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Rooms.LibraryBackgroundWorkRam",
+      "name": "TilemapStaging",
+      "region": "WorkRam",
+      "address": "$7E:4000",
+      "byteCount": 4096,
+      "encoding": "BG tilemap words (u8[] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/LibraryBackgroundMemory.cs",
+        "csharp/src/SuperMetroid.Core/Rooms/XrayMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Rooms.XrayWorkRam",
+      "name": "RevealTilemap",
+      "region": "WorkRam",
+      "address": "$7E:4000",
+      "byteCount": 4096,
+      "encoding": "BG2 tilemap words (u16[] little-endian)",
+      "aliasOf": "LibraryBackgroundWorkRam.TilemapStaging",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/XrayMemory.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Rooms.XrayWorkRam",
+      "name": "SavedBg1",
+      "region": "WorkRam",
+      "address": "$7E:6000",
+      "byteCount": 4096,
+      "encoding": "BG1 tilemap words (u16[] little-endian)",
+      "aliasOf": null,
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Rooms/XrayMemory.cs"
+      ]
+    }
+  ]
+}

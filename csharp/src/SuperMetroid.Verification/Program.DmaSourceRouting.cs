@@ -47,8 +47,7 @@ internal static partial class Program
         Console.WriteLine("  PPU DMA sources: runtime rejects ROM, importer resolves ROM/WRAM wrap, and SRAM uses typed routes.");
     }
 
-    private sealed class DmaReadRoutingBus : ISnesAddressSpace, ISnesMutableMemory,
-        IImportCartridgeSource
+    private sealed class DmaReadRoutingBus : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly Dictionary<int, byte> cartridge = [];
         private readonly Dictionary<int, byte> workRam = [];

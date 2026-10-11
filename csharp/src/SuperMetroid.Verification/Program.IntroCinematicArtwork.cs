@@ -996,8 +996,7 @@ internal static partial class Program
         bool blockIntroDiscoveryActors = false,
         bool blockIntroScientistSprites = false,
         bool blockCeresFlightSprites = false,
-        bool blockCeresDestructionSprites = false) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+        bool blockCeresDestructionSprites = false) : ISnesMemoryBus, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 

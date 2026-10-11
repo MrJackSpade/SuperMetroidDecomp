@@ -169,8 +169,11 @@ internal static partial class Program
 
     private sealed class EnemyCallbackOpcodeReadGuard(
         ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
+        HashSet<int> forbidden) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);

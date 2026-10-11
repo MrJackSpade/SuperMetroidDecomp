@@ -87,7 +87,7 @@ internal static partial class Program
         Console.WriteLine("Projectile cooldowns: 59 native bytes, bounded SpaceTime observation, loud non-catalog rejection, 48 producer selections, four special attacks and two 70-frame held-fire sequences pass with cooldown ROM reads forbidden.");
     }
 
-    private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class ProjectileCooldownReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
         public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);

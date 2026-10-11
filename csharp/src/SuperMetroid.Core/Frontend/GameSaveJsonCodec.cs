@@ -86,7 +86,7 @@ public static partial class GameSaveJsonCodec
     {
         ArgumentNullException.ThrowIfNull(addressSpace);
         Validate(document);
-        addressSpace.SaveRam.Clear();
+        SaveRamImage.Clear(addressSpace);
         var saveRam = new SuperMetroidSaveRam(addressSpace, maps);
         for (int slotIndex = 0; slotIndex < document.Slots.Length; slotIndex++)
         {

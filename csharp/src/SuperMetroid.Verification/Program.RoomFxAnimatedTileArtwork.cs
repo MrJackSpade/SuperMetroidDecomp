@@ -245,7 +245,7 @@ internal static partial class Program
     }
 
     private sealed class RoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         public int ForbiddenReads { get; private set; }
         public byte ReadByte(int address)

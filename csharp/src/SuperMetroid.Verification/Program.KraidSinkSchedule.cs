@@ -124,8 +124,11 @@ internal static partial class Program
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }
 
-    private sealed class KraidSinkReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class KraidSinkReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) => address is >= 0xa7c5e7 and <= 0xa7c690

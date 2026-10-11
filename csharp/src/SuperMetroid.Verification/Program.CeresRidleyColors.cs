@@ -376,7 +376,7 @@ internal static partial class Program
     }
 
     private sealed class CeresRidleyColorReadGuard(ISnesAddressSpace inner,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        HashSet<int> forbidden) : ISnesMemoryBus, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 

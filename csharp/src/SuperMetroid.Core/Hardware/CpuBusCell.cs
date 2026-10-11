@@ -49,12 +49,8 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
     public static CpuBusCell SramBytes(string name, int address, int length, string encoding = "u8[]", CpuBusCell? aliasOf = null) =>
         new(name, CpuBusRegion.SaveRam, address, length, encoding, aliasOf);
 
-    /// <summary>A bounded cartridge range read by the asset importer.</summary>
-    public static CpuBusCell CartridgeBytes(string name, int address, int length, string encoding, CpuBusCell? aliasOf = null) =>
-        new(name, CpuBusRegion.Cartridge, address, length, encoding, aliasOf);
-
     /// <summary>The 24-bit CPU address of the first byte.</summary>
-    public int Address { get; } = Address is >= 0 and <= 0xffffff
+    public int Address { get; } = Address is >= 0 and <= SnesCpuAddressLayout.AddressMask
         ? Address
         : throw new ArgumentOutOfRangeException(nameof(Address), Address, "SNES CPU address must fit in 24 bits.");
 
@@ -67,9 +63,11 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
     internal void Require(CpuBusRegion region, int byteCount)
     {
         if (Region != region || ByteCount != byteCount)
-            throw new ArgumentException($"{Name} is a {ByteCount}-byte {Region} cell, not a {byteCount}-byte {region} cell.");
+            throw new ArgumentException($"{this} is not a {byteCount}-byte {region} cell.");
     }
 
     /// <inheritdoc />
-    public override string ToString() => $"{Name} ({Region} ${Address >> 16:X2}:{Address & 0xffff:X4}, {ByteCount} bytes)";
+    public override string ToString() =>
+        $"{Name} ({Region} ${Address >> 16:X2}:{Address & 0xffff:X4}, {ByteCount} bytes, {Encoding}" +
+        (AliasOf is { } target ? $", alias of {target.Name})" : ")");
 }

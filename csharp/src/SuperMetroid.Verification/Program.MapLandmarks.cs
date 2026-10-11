@@ -105,7 +105,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class LandmarkReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class LandmarkReadGuard : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> blocked = new();

@@ -166,7 +166,7 @@ internal static partial class Program
         AssertTrue(saves.ReadSlot(0)!.ToSnapshot().MapStationBytes.AsSpan().SequenceEqual(data.MapStationBytes), "screen edits preserve saved map progression");
     }
 
-    private sealed class MapScreenReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class MapScreenReadGuard : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();

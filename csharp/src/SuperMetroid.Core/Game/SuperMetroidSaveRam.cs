@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Game;
 /// physical layout remains the in-memory cartridge ABI for legacy emulator-save imports;
 /// durable JSON stores meaningful state and rebuilds padding and checksum directories.
 /// </remarks>
+[CpuBusBoundary("codec: native SRAM save slots, checksum directories and completion marker ($81:8000-$81:812A)")]
 public sealed class SuperMetroidSaveRam
 {
     /// <summary>The retail format's fixed number of checksum-protected save slots.</summary>
@@ -25,8 +26,7 @@ public sealed class SuperMetroidSaveRam
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
-    private readonly ISnesAddressSpace bus;
-    private readonly ISnesMutableMemory mutableMemory;
+    private readonly ISnesMemoryBus bus;
 
     /// <summary>Creates an SRAM codec over a mutable SNES address space.</summary>
     /// <param name="bus">Address space that supplies cartridge SRAM reads and writes.</param>
@@ -36,10 +36,12 @@ public sealed class SuperMetroidSaveRam
     public SuperMetroidSaveRam(ISnesAddressSpace bus, AreaMapPresentationCatalog? mapPresentation)
     {
         this.mapPresentation = mapPresentation;
-        this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        mutableMemory = bus as ISnesMutableMemory ??
+        ArgumentNullException.ThrowIfNull(bus);
+        this.bus = bus as ISnesMemoryBus ??
             throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
     }
+
+    private SramBytes Image => new(bus, SaveRamLayout.Image);
 
     internal void BindMapPresentation(AreaMapPresentationCatalog? maps) => mapPresentation = maps;
 
@@ -365,12 +367,9 @@ public sealed class SuperMetroidSaveRam
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
     }
 
-    private byte ReadSramByte(int offset) =>
-        mutableMemory.ReadSaveRamByte((int)new SnesAddress(
-            SaveRamLayout.SramBank, (ushort)(offset & SaveRamLayout.SramOffsetMask)));
+    private byte ReadSramByte(int offset) => Image.Read(offset);
 
-    private ushort ReadSramWord(int offset) => unchecked((ushort)(
-        ReadSramByte(offset) | (ReadSramByte(offset + 1) << 8)));
+    private ushort ReadSramWord(int offset) => Image.ReadWord(offset);
 
     private byte[] ReadSramBytes(int offset, int count)
     {
@@ -380,14 +379,9 @@ public sealed class SuperMetroidSaveRam
         return bytes;
     }
 
-    private void WriteSramByte(int offset, byte value) =>
-        bus.WriteByte((int)new SnesAddress(0x70, (ushort)(offset & 0x1fff)), value);
+    private void WriteSramByte(int offset, byte value) => Image.Write(offset, value);
 
-    private void WriteSramWord(int offset, ushort value)
-    {
-        WriteSramByte(offset, unchecked((byte)value));
-        WriteSramByte(offset + 1, unchecked((byte)(value >> 8)));
-    }
+    private void WriteSramWord(int offset, ushort value) => Image.WriteWord(offset, value);
 
     private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
     {

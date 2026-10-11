@@ -31,7 +31,7 @@ static ushort ReferenceNextRandom(ushort seed)
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
-sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
+sealed class TestAddressSpace : ISnesMemoryBus,
     IImportCartridgeSource,
     IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
 {

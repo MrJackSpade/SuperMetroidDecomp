@@ -113,8 +113,11 @@ internal static partial class Program
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
     private sealed class MotherBrainGlassShardReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>

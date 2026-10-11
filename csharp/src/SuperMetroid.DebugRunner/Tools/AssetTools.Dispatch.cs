@@ -10,6 +10,8 @@ internal static partial class AssetTools
                 return 0;
             case ["--generate-enemy-visual-selectors"]:
                 return GenerateEnemyVisualSelectors();
+            case ["--generate-cpu-bus-inventory"]:
+                return GenerateCpuBusInventory();
             case ["--generate-room-fx-records"]:
                 GenerateRoomFxRecordDefinitions();
                 return 0;

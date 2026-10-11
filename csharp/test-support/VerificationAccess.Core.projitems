@@ -7,6 +7,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreFrontendAccess.cs" Link="TestSupport/VerificationAccess/CoreFrontendAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreGameAccess.cs" Link="TestSupport/VerificationAccess/CoreGameAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreConstantsAccess.cs" Link="TestSupport/VerificationAccess/CoreConstantsAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CpuBusOracleConstants.cs" Link="TestSupport/VerificationAccess/CpuBusOracleConstants.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CatalogFields.cs" Link="TestSupport/VerificationAccess/CatalogFields.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreHardwareAccess.cs" Link="TestSupport/VerificationAccess/CoreHardwareAccess.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)VerificationAccess/CoreInputAccess.cs" Link="TestSupport/VerificationAccess/CoreInputAccess.cs" />

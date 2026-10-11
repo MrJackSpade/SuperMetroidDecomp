@@ -179,8 +179,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class FileSelectPresentationGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class FileSelectPresentationGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 

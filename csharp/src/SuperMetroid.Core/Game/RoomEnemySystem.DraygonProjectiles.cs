@@ -57,8 +57,7 @@ public sealed partial class RoomEnemySystem
         // Native writes WRAM, not an actor reference. The defeated room still has
         // cannon PLMs even though its enemy population no longer includes Draygon.
         EnsureLoaded();
-        _bus!.WriteByte(DraygonCannonData.ControlWordBank | variablePointer, 1);
-        _bus.WriteByte(DraygonCannonData.ControlWordBank | (variablePointer + 1), 0);
+        new DraygonCannonMemory(EnemyMemoryBus).Disable((DraygonCannonControlWord)variablePointer);
         // Keep the existing live-actor projection synchronized when one exists.
         Draygon?.DisabledCannonWords.Add(variablePointer);
     }

@@ -127,7 +127,7 @@ internal static partial class Program
             CartridgeImportSource.Require(bus), oam, address, origin,
             paletteBits, originIsOnScreen);
 
-    private sealed class MapSpriteReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class MapSpriteReadGuard : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();

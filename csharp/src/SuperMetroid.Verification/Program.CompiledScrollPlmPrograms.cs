@@ -46,7 +46,7 @@ internal static partial class Program
     }
 
     private sealed class RetailScrollProgramReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
 

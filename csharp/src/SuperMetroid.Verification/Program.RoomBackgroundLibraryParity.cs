@@ -182,7 +182,7 @@ internal static partial class Program
 
     private sealed class LibraryBackgroundVisualReadGuard(
         ISnesAddressSpace source, IReadOnlyList<LibraryBackgroundSource> entries)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadByte(int address)
         {

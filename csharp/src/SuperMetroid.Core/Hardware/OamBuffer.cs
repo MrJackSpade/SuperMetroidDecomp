@@ -130,23 +130,8 @@ public sealed class OamBuffer
         // A zero entry in the installed pointer table is not an empty picture: the
         // native bank-local dereference lands in the WRAM mirror at $92:0000.
         // Read that mutable state explicitly. No cartridge address is reachable here.
-        const int spritemapAddress = Game.SamusRenderingRomData.Banks.GraphicsDefinitions;
-        ushort ReadWorkRamWord(int address) => (ushort)(memory.ReadWorkRamByte(address) |
-            (memory.ReadWorkRamByte(AddWithinBank(address, 1)) << 8));
-        ushort entryCount = ReadWorkRamWord(spritemapAddress);
-        if (entryCount == 0)
-            return;
-
-        int entryAddress = AddWithinBank(spritemapAddress, 2);
-        for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
-        {
-            SnesSpritemapXWord encodedXOffset = ReadWorkRamWord(entryAddress);
-            byte encodedYOffset = memory.ReadWorkRamByte(AddWithinBank(entryAddress, 2));
-            ushort attributes = ReadWorkRamWord(AddWithinBank(entryAddress, 3));
-
-            AddSamusSpritePart(encodedXOffset, encodedYOffset, attributes, origin);
-            entryAddress = AddWithinBank(entryAddress, 5);
-        }
+        foreach (Game.SamusZeroSpritemapEntry entry in Game.SamusOverreadMemory.ZeroPointerSpritemap(memory))
+            AddSamusSpritePart(entry.EncodedX, entry.EncodedY, entry.Attributes, origin);
     }
 
     /// <summary>Emits one already-decoded Samus part with native OAM wrapping and authored attributes.</summary>

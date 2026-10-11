@@ -229,9 +229,7 @@ static void VerifyRoomEnemyLoading()
         "boss state, placeholders, and empty-room behavior agree.");
 }
 
-private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
-    ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
-    ISnesMutableMemory
+private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) : ISnesMemoryBus, IRoomEnemyFixtureSource, IImportCartridgeSource
 {
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
         source.ReadEnemyDefinition(pointer);

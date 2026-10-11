@@ -285,15 +285,19 @@ internal static partial class Program
         Console.WriteLine("Map catalog: deterministic reload, override precedence/identity, stock replacement preservation and corruption errors pass.");
     }
 
-    private sealed class PaletteReadForbiddenBus : ISnesAddressSpace
+    private sealed class PaletteReadForbiddenBus : ISnesMemoryBus
     {
         public Dictionary<int, byte> Writes { get; } = new();
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.");
+        public byte ReadWorkRamByte(int cpuAddress) => throw new InvalidOperationException(
+            $"Installed Mother Brain palette unexpectedly read WRAM address ${cpuAddress:X6}.");
+        public byte ReadSaveRamByte(int cpuAddress) => throw new InvalidOperationException(
+            $"Installed Mother Brain palette unexpectedly read SRAM address ${cpuAddress:X6}.");
         public void WriteByte(int address, byte value)
         {
-            if (address is not (MotherBrainDrainedPaletteRomData.TrailingWordWram or
-                MotherBrainDrainedPaletteRomData.TrailingWordWram + 1))
+            if (address is not (MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram or
+                MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1))
                 throw new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}.");
             Writes[address] = value;
         }
@@ -1358,8 +1362,7 @@ internal static partial class Program
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
-    private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class MapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps) : ISnesMemoryBus, IImportCartridgeSource
     {
         private void RejectMapSource(int address)
         {

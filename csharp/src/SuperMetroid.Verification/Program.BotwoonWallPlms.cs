@@ -164,7 +164,7 @@ internal static partial class Program
     }
 
     private sealed class BotwoonWallSourceGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
 

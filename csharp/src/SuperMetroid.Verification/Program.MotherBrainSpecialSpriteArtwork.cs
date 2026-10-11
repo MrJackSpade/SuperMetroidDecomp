@@ -22,7 +22,7 @@ internal static partial class Program
             "ApplyMotherBrainRainbowTileTransfer", flags)!;
 
         transfer.Invoke(enemies, [new MotherBrainSpriteTileTransferRequest(0, 1,
-            MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x7000)]);
+            MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)]);
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
             "Mother Brain corpse tile transfer reads mutable WRAM");
         // #549 removed the cartridge fallback: an unbound cartridge source is refused.
@@ -33,8 +33,7 @@ internal static partial class Program
             "Mother Brain cartridge-source refusal names the missing installed artwork");
     }
 
-    private sealed class MotherBrainTypedTransferReadGuard(TestAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    private sealed class MotherBrainTypedTransferReadGuard(TestAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public static byte ReadByte(int address) => throw new InvalidOperationException(
             $"Mother Brain tile transfer used the untyped CPU reader at ${address:X6}.");
@@ -267,7 +266,7 @@ internal static partial class Program
         bus.WriteByte(MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x5a);
         transfer.Invoke(enemies,
             [new MotherBrainSpriteTileTransferRequest(0, 1,
-                MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x7000)]);
+                MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)]);
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
             "installed Mother Brain still copies mutable corpse WRAM to VRAM");
     }
@@ -330,8 +329,11 @@ internal static partial class Program
 
     private sealed class MotherBrainSpecialArtworkReadGuard(
         ISnesAddressSpace source, MotherBrainSpecialSpriteSheetDefinition sheet) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
@@ -344,8 +346,11 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainBabyTileRecordReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
@@ -360,11 +365,10 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class MotherBrainTimerArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory
+    private sealed class MotherBrainTimerArtworkReadGuard(ISnesAddressSpace source) : ISnesMemoryBus
     {
         public byte ReadByte(int address) =>
-            address is MotherBrainCorpseRottingState.GraphicsBufferAddress or
+            address is MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress or
             >= EscapeTimerTileRomData.FirstSourceAddress and
              < (EscapeTimerTileRomData.SecondSourceAddress +
                  EscapeTimerTileAtlasFormat.SecondByteCount) ? throw new InvalidOperationException(
@@ -385,8 +389,11 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainLegTransferReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>

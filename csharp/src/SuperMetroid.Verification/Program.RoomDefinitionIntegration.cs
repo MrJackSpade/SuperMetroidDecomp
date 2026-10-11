@@ -201,8 +201,7 @@ internal static partial class Program
 
     private sealed class CompiledRoomDefinitionReadGuard(
         ISnesAddressSpace source,
-        HashSet<int> forbidden) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+        HashSet<int> forbidden) : ISnesMemoryBus, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
 

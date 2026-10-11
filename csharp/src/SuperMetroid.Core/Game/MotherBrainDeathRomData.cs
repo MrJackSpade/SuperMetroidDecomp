@@ -27,8 +27,6 @@ public static class MotherBrainDeathRomData
     public const ushort Bg2LastByte = 710;
     /// <summary>$A9:AFEC empty enemy BG2 tile written after the body fade terminates.</summary>
     public const ushort EmptyBodyTile = 0x0338;
-    /// <summary>$7E:2000, native enemy BG2 staging image shared with the extended tilemap writer.</summary>
-    public const int Bg2WorkAddress = 0x7e2000;
     /// <summary>$86:CB13, body-relative smoky/mixed death explosions.</summary>
     public const ushort ExplosionDefinition = 0xcb13;
     /// <summary>$A9:B203 loads music data index $24 through the delayed queue.</summary>

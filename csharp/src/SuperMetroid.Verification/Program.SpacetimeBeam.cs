@@ -341,8 +341,7 @@ internal static partial class Program
         }
     }
     // No import/cartridge capability is available while the production projectile path executes.
-    private sealed class SpacetimeMutableOnlyBus(SuperMetroidAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, ISnesCpuPeripheralSource
+    private sealed class SpacetimeMutableOnlyBus(SuperMetroidAddressSpace source) : ISnesMemoryBus, ISnesCpuPeripheralSource
     {
         public byte ReadWorkRamByte(int address) => ((ISnesMutableMemory)source).ReadWorkRamByte(address);
         public byte ReadSaveRamByte(int address) => ((ISnesMutableMemory)source).ReadSaveRamByte(address);

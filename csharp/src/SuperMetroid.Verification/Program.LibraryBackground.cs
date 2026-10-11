@@ -183,8 +183,7 @@ static void VerifyLibraryBackgroundLoader()
         "  Library BG: typed ROM/WRAM command reads, decompression, Ceres BG2 pages, and native clear agree.");
 }
 
-private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
-    ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
 {
     public int CartridgeReads { get; private set; }
     public int WorkRamReads { get; private set; }

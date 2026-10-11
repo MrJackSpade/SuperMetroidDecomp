@@ -3735,8 +3735,11 @@ internal static partial class Program
         return oam;
     }
 
-    private sealed class BankB4ReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private sealed class BankB4ReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) => (address >> 16) == 0xb4
@@ -3748,8 +3751,11 @@ internal static partial class Program
     }
 
     private sealed class MotherBrainFrameReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
+        : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address) =>
@@ -3763,8 +3769,11 @@ internal static partial class Program
     }
 
     private sealed class FrameReadGuard(ISnesAddressSpace source,
-        string? frameName = null) : ISnesAddressSpace, IImportCartridgeSource
+        string? frameName = null) : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 
         public byte ReadByte(int address)

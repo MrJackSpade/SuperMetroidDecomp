@@ -40,8 +40,7 @@ internal static partial class Program
             "indirect long operand cannot read cartridge bytes through the gameplay bus");
     }
 
-    private sealed class OperandReadWitness : ISnesAddressSpace,
-        ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
+    private sealed class OperandReadWitness : ISnesMemoryBus, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
         public byte ReadWorkRamByte(int address) => 0xab;
         public byte ReadSaveRamByte(int address) => 0xab;

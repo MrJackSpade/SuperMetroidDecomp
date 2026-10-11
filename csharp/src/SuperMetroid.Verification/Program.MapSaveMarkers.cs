@@ -169,7 +169,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class SaveMarkerReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class SaveMarkerReadGuard : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> blocked = new();

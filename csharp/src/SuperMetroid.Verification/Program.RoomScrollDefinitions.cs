@@ -117,13 +117,13 @@ internal static partial class Program
     }
 
     private sealed class RoomScrollNoReadAddressSpace(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
         // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
         public byte ReadWorkRamByte(int address) =>
-            address is >= RoomScrollGrid.WorkRamAddress and
-            < (RoomScrollGrid.WorkRamAddress + RoomScrollGrid.StorageByteCount)
+            address is >= RoomScrollGridConstants.WorkRamAddress and
+            < (RoomScrollGridConstants.WorkRamAddress + RoomScrollGrid.StorageByteCount)
                 ? ((ISnesMutableMemory)source).ReadWorkRamByte(address)
                 : ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);
@@ -136,7 +136,7 @@ internal static partial class Program
 
     private sealed class RoomScrollSourceReadGuard(
         ISnesAddressSpace source,
-        ushort scrollPointer) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        ushort scrollPointer) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
         public byte ReadWorkRamByte(int address) =>

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Assets;
 using System.Text;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -46,7 +47,7 @@ public static class GameSaveFileStore
                 $"Legacy save RAM '{legacySramPath}' contains {legacy.Length} bytes; " +
                 $"Super Metroid requires exactly {SuperMetroidAddressSpace.SaveRamByteCount} bytes.");
         }
-        legacy.CopyTo(addressSpace.SaveRam);
+        SaveRamImage.Load(addressSpace, legacy);
         WriteAtomic(addressSpace, jsonPath, maps);
         return new GameSaveLoadResult(jsonPath, MigratedLegacySram: true);
     }

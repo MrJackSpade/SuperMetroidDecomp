@@ -560,7 +560,7 @@ public sealed partial class PlayableGameControl : UserControl
             throw new InvalidDataException(
                 "The replay was recorded from a different ROM image (SHA-256 mismatch).");
         }
-        replay.InitialSaveRam.CopyTo(addressSpace.SaveRam);
+        SaveRamImage.Load(addressSpace, replay.InitialSaveRam);
     }
 
     private DebuggerSaveStateStore CreateStateStore()
@@ -576,7 +576,7 @@ public sealed partial class PlayableGameControl : UserControl
     {
         return ControllerInputRecorder.StartInstalled(
             playerDataDirectory,
-            addressSpace.SaveRam,
+            SaveRamImage.Capture(addressSpace),
             gameOptions,
             installedContentIdentity ?? throw new InvalidOperationException(
                 "Installed desktop session has no content identity."));

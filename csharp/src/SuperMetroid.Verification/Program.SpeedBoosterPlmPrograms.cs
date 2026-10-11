@@ -209,8 +209,11 @@ internal static partial class Program
     }
 
     private sealed class SpeedBoosterPlmReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
+        : ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal int ForbiddenReadAttempts { get; private set; }
 
         public byte ReadCartridgeByte(int address) => ReadByte(address);

@@ -38,8 +38,7 @@ internal static partial class Program
             "  Projectile sound routing: 24 authored and 8 bounded adjacent-table observations agree.");
     }
 
-    private sealed class ProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class ProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly ISnesMutableMemory memory = ReferenceMutableMemory.From(source);
 

@@ -205,8 +205,7 @@ internal static partial class Program
         return (ushort)(low | high << 8);
     }
 
-    private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesAddressSpace,
-        ISnesMutableMemory, IImportCartridgeSource
+    private sealed class TrailCoordinateGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadWorkRamByte(int address) =>
             ((ISnesMutableMemory)source).ReadWorkRamByte(address);

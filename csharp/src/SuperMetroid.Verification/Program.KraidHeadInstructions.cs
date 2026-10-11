@@ -168,8 +168,7 @@ internal static partial class Program
             "Kraid growth reads its live low-half alias through typed WRAM");
     }
 
-    private sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public ushort MutableTilemap { get; set; }
         public int ForbiddenReadAttempts { get; private set; }

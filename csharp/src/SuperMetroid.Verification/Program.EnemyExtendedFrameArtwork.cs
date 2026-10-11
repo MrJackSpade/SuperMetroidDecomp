@@ -1501,8 +1501,11 @@ internal static partial class Program
     }
 
     private sealed class ExtendedVisualReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         private readonly HashSet<int> blocked = [];
 
         internal void BlockFrame(byte bank, ushort pointer)

@@ -68,8 +68,7 @@ internal static partial class Program
         Console.WriteLine("World-map labels: native pixels/window timing, blocked ROM reads, visible edits, availability isolation and override preservation pass.");
     }
 
-    private sealed class WorldLabelReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class WorldLabelReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         private static void RejectLabelSource(int address)
         {

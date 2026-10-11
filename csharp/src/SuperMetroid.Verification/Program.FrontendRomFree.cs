@@ -841,8 +841,7 @@ internal static partial class Program
     }
 
     private sealed class FrontendCartridgeReadGuard(
-        ISnesAddressSpace source, ISnesAddressSpace? lookupSource = null) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        ISnesAddressSpace source, ISnesAddressSpace? lookupSource = null) : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly HashSet<int> blockedPresentationBytes = [];
 

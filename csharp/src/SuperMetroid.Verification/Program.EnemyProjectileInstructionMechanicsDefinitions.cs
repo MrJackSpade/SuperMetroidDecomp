@@ -524,8 +524,11 @@ internal static partial class Program
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
     private sealed class EnemyProjectileMechanicsReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         private readonly HashSet<int> _presentationReadBytes = [];
 
         public int ForbiddenReadAttempts { get; private set; }

@@ -157,8 +157,11 @@ internal static partial class Program
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
 
     private sealed class KraidNailInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+        ISnesMemoryBus, IImportCartridgeSource
     {
+        public byte ReadWorkRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadWorkRamByte(cpuAddress);
+        public byte ReadSaveRamByte(int cpuAddress) => ((ISnesMutableMemory)source).ReadSaveRamByte(cpuAddress);
+
         internal int ForbiddenPresentationReadAttempts { get; private set; }
         internal int ForbiddenReadAttempts { get; private set; }
 

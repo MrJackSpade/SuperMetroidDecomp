@@ -194,7 +194,7 @@ internal static partial class Program
     }
 
     private sealed class SkyPageReadGuard(ISnesAddressSpace source,
-        bool blockLandingList = false) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        bool blockLandingList = false) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadByte(int address)
         {

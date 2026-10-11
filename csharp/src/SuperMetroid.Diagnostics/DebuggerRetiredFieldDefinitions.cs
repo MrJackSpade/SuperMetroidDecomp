@@ -369,6 +369,9 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Game.SolidEnemyCollisionResult", "<TargetYPosition>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.SporeSpawnDropRequest", "<X>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.SporeSpawnDropRequest", "<Y>k__BackingField")] = Discard,
+        // #629: the SRAM codec reads through its one memory-bus reference; the duplicate
+        // mutable-memory view of the same address space carried no state of its own.
+        [("SuperMetroid.Core.Game.SuperMetroidSaveRam", "mutableMemory")] = Discard,
         [("SuperMetroid.Core.Game.TorizoOrbDropRequest", "<EnemyDefinitionPointer>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.TorizoOrbDropRequest", "<ItemDropChancesPointer>k__BackingField")] = Discard,
         [("SuperMetroid.Core.Game.TorizoOrbDropRequest", "<X>k__BackingField")] = Discard,

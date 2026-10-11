@@ -63,12 +63,6 @@ public static class RoomAssetRomData
         /// <summary>Lowest full 24-bit SNES ROM address for command-source classification.</summary>
         public const int RomSourceAddressFloor = 0x800000;
 
-        /// <summary>Bank containing the shared decompression and tilemap staging buffers.</summary>
-        public const int WorkRamBank = 0x7e0000;
-
-        /// <summary>Exclusive byte offset at the end of one SNES address bank.</summary>
-        public const int BankByteCount = 0x10000;
-
         /// <summary>Maximum commands accepted before a malformed unterminated list fails.</summary>
         public const int MaximumCommandsPerList = 128;
 

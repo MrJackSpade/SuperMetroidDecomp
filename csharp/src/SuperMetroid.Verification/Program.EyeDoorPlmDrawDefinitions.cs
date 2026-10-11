@@ -276,7 +276,7 @@ internal static partial class Program
 
     private sealed class EyeDoorDrawReadGuard(
         ISnesAddressSpace source,
-        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        RoomPlmShotBlockDrawDefinitions.DrawList[] lists) : ISnesMemoryBus, IImportCartridgeSource
     {
         internal int ForbiddenReadAttempts { get; private set; }
 

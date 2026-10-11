@@ -207,7 +207,7 @@ internal static partial class Program
         Console.WriteLine("Projectile trail low-bank alias: two typed WRAM reads, no generic bus read.");
     }
 
-    private sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class TrailMutableMirrorBus : ISnesMemoryBus, IImportCartridgeSource
     {
         public int WorkRamReads { get; private set; }
 

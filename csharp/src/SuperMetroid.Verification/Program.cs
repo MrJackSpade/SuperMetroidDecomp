@@ -5037,6 +5037,11 @@ if (args is ["--wram-helper-boundary"])
     Suite(nameof(VerifyWramHelperBoundary), () => VerifyWramHelperBoundary());
     return 0;
 }
+if (args is ["--cpu-bus-boundary"])
+{
+    Suite(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary());
+    return 0;
+}
 if (args is ["--plm-population-input-boundary"])
 {
     Suite(nameof(VerifyPlmPopulationInputBoundary), () => VerifyPlmPopulationInputBoundary());

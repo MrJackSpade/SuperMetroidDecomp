@@ -217,7 +217,7 @@ internal static partial class Program
     }
 
     private sealed class SuitColorReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         private static readonly int[] Sources =
         [

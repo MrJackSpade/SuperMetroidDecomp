@@ -185,9 +185,9 @@ public sealed class MotherBrainRainbowPalettePresentation
         }
         for (int color = 0; color < frames.LegCount; color++)
             cgram.SetColor(MotherBrainDrainedPaletteRomData.BackLegColor + color, frames.Leg(frame, color));
-        ushort trailing = frames.Trailing(frame)!.Value.ToWord();
-        bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram, (byte)trailing);
-        bus.WriteByte(MotherBrainDrainedPaletteRomData.TrailingWordWram + 1, (byte)(trailing >> 8));
+        var spill = new MotherBrainPaletteMemory(
+            SnesMemoryBusRequirement.Require(bus, "Mother Brain's grey palette spill requires live WRAM."));
+        spill.GreyTrailingWord = frames.Trailing(frame)!.Value;
     }
 
     private static void ApplyColors(SnesCgram cgram, PaletteFrame selected, int legDestination)

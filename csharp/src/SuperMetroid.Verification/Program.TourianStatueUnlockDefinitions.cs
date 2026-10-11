@@ -165,8 +165,7 @@ internal static partial class Program
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
-    private sealed class TourianStatueMechanicsForbiddenBus(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class TourianStatueMechanicsForbiddenBus(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public int ForbiddenReadAttempts { get; private set; }
         public bool ForbidArtworkReads { get; set; }

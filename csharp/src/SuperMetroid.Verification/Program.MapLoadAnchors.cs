@@ -213,8 +213,7 @@ internal static partial class Program
             (ushort)((bus.ReadByte(room + 3) + (worldY >> 8) + 1) << 3));
     }
 
-    private sealed class MapLoadMetadataReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    private sealed class MapLoadMetadataReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public bool BlockReads { get; set; } = true;
         public byte ReadByte(int address)

@@ -99,7 +99,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class MapArrowReadGuard : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class MapArrowReadGuard : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly ISnesAddressSpace source;
         private readonly HashSet<int> forbidden = new();

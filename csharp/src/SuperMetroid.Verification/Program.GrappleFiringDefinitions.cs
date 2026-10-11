@@ -237,8 +237,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");
         AssertThrows<IndexOutOfRangeException>(() => select(byte.MaxValue), $"Grapple {label} invalid maximum");
     }
-    private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesAddressSpace,
-        IImportCartridgeSource, ISnesMutableMemory
+    private sealed class GrappleFiringReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address) => ReadByte(address);
 

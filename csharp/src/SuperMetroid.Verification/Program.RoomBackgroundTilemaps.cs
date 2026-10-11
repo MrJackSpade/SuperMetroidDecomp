@@ -78,7 +78,7 @@ internal static partial class Program
     }
 
     private sealed class BackgroundTilemapReadGuard(ISnesAddressSpace source, int blockedSource)
-        : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+        : ISnesMemoryBus, IImportCartridgeSource
     {
         private ISnesMutableMemory WorkMemory => source as ISnesMutableMemory ??
             throw new InvalidOperationException("Background tilemap read guard source has no live WRAM.");

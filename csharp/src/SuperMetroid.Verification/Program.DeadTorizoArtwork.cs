@@ -258,8 +258,7 @@ internal static partial class Program
                 description);
     }
 
-    private sealed class DeadTorizoArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class DeadTorizoArtworkReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadByte(int address)
         {
@@ -295,8 +294,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class DeadTorizoOamReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class DeadTorizoOamReadGuard(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadByte(int address)
         {

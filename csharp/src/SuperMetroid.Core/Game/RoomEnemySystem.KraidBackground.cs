@@ -91,9 +91,9 @@ public sealed partial class RoomEnemySystem
             // Supported native low-half pointers alias live WRAM, not immutable
             // head art. Preserve that exceptional cartridge behavior exactly.
             var alias = new ushort[KraidBackgroundRomData.HeadTilemapWords];
-            int sourceAddress = KraidBackgroundRomData.NativeBank | sourcePointer;
+            var lowBank = new KraidLowBankAliasMemory(_bus!);
             for (int word = 0; word < KraidBackgroundRomData.HeadTilemapWords; word++)
-                alias[word] = SnesWorkRam.ReadWord(EnemyWorkMemory, sourceAddress + word * 2);
+                alias[word] = lowBank.HeadTilemapWord(sourcePointer, word);
             source = alias;
         }
         // $A7:AF5D queues this source directly to VRAM. Mirroring it into the

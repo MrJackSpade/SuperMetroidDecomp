@@ -22,8 +22,6 @@ public static class MotherBrainDrainedPaletteRomData
     public const int BackLegColor = 180;
     /// <summary>$AD:EF37/EF74 copies five back-leg colors after body/brain colors.</summary>
     public const int BackLegCount = 5;
-    /// <summary>$AD:EF44/EF81 writes the trailing source word directly to low WRAM $017C, not CGRAM.</summary>
-    public const int TrailingWordWram = 0x7e017c;
     /// <summary>$AD:EF71 selects rear CGRAM color B4, three inks after $A9:BD39's B1 source.</summary>
     public const int RearSourceColor = BackLegColor - MotherBrainRainbowPaletteRomData.SecondaryColor;
     /// <summary>$AD:EF99's final word EFC1 repeats rainbow rear ink E, zero-based nontransparent index13; EF7E-EF81 writes it to WRAM.</summary>

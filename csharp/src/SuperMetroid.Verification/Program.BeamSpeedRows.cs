@@ -108,8 +108,7 @@ internal static partial class Program
         Console.WriteLine("Projectile motion definitions: 85 native words, loud non-catalog rejection, 120 beam launches, 160 indexed initializations and 120 missile trajectory frames pass with motion ROM reads forbidden.");
     }
 
-    private sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesAddressSpace,
-        ISnesMutableMemory, IImportCartridgeSource
+    private sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadWorkRamByte(int address) => ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);

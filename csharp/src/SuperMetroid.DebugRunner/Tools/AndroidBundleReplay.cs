@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
@@ -45,7 +46,7 @@ internal static class AndroidBundleReplay
             CartridgeAudioRenderer audio;
             if (seed is null)
             {
-                recording.InitialSaveRam.CopyTo(bus.SaveRam);
+                SaveRamImage.Load(bus, recording.InitialSaveRam);
                 game = new SuperMetroidGame(bus, recording.GameOptions);
                 audio = new CartridgeAudioRenderer(assets);
             }
@@ -59,7 +60,7 @@ internal static class AndroidBundleReplay
                 game = loaded.Game;
                 audio = new CartridgeAudioRenderer(assets, loaded.AudioPlayer
                     ?? throw new InvalidDataException("Android seed omitted its managed audio graph."));
-                if (!bus.SaveRam.SequenceEqual(recording.InitialSaveRam))
+                if (!SaveRamImage.Capture(bus).AsSpan().SequenceEqual(recording.InitialSaveRam))
                     throw new InvalidDataException("Preserved seed SRAM differs from the journal reset header.");
             }
 

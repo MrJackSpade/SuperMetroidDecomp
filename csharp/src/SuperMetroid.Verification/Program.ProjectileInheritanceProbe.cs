@@ -158,7 +158,7 @@ internal static partial class Program
             "Input-locked projectile alpha still clears directional movement records");
     }
 
-    private sealed class ProjectileInheritanceProbeBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private sealed class ProjectileInheritanceProbeBus : ISnesMemoryBus, IImportCartridgeSource
     {
         private readonly Dictionary<int, byte> _bytes = new();
         public byte ReadCartridgeByte(int address) => ReadByte(address);

@@ -207,16 +207,9 @@ internal static class KraidHeadInstructionDefinitions
 
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
-        if (pointer < 0x8000)
-        {
-            // Bank $A7's low system window mirrors WRAM, not cartridge data. The
-            // typed reader also rejects the unmapped expansion range instead of
-            // accepting a synthetic value from an overly permissive fake bus.
-            ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-                throw new InvalidOperationException(
-                    "Kraid's live low-half head alias requires WRAM access.");
-            return memory.ReadWorkRamByte(KraidBackgroundRomData.NativeBank | pointer);
-        }
+        // Bank $A7's low system window mirrors WRAM, not cartridge data.
+        if (pointer < KraidBackgroundRomData.HeadRomWindowStart)
+            return new KraidLowBankAliasMemory(bus).HeadInstructionByte(pointer);
 
         int boundaryIndex = pointer - 0x8000;
         if ((uint)boundaryIndex < 3)

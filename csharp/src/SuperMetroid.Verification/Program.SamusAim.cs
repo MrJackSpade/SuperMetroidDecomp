@@ -49,7 +49,7 @@ static void VerifySamusStandingAimMovement()
     for (int pose = 1; pose <= 0x12; pose++)
     {
         ushort stream = unchecked((ushort)(0xc100 + pose * 0x10));
-        SyntheticSamusCartridge.WriteAnimationDelays(bus, (SamusPoseId)pose, stream, [0x0a, 0xf6]);
+        WritePoseAnimationDelays(bus, (SamusPoseId)pose, stream, [0x0a, 0xf6]);
     }
 
     const int width = 8;
@@ -213,7 +213,7 @@ static void VerifySamusAimedAerialMovement()
         (SamusPoseId.NormalLandingLeftPose, 0xc1f8, [0x02, 0xf8, 0x02]),
     ];
     foreach ((SamusPoseId pose, ushort stream, byte[] bytes) in animations)
-        SyntheticSamusCartridge.WriteAnimationDelays(bus, pose, stream, bytes);
+        WritePoseAnimationDelays(bus, pose, stream, bytes);
 
     SyntheticSamusCartridge.WriteDryAirJumpSpeed(bus, whole: 0x0004, subspeed: 0xe000);
     SyntheticSamusCartridge.WriteDryAirGravity(bus, whole: 0x0000, subspeed: 0x1c00);
@@ -570,7 +570,7 @@ static void VerifySamusGunExtendedMovement()
         (SamusPoseId.FiringLandingLeftPose, 0xd0d0, [0x01, 0xf8, 0x02]),
     ];
     foreach ((SamusPoseId pose, ushort stream, byte[] bytes) in animations)
-        SyntheticSamusCartridge.WriteAnimationDelays(bus, pose, stream, bytes);
+        WritePoseAnimationDelays(bus, pose, stream, bytes);
 
     // Minimal transition programs retain the literal held masks from `$91:A1F8`,
     // `$91:A2F6`, and `$91:A70C`. They prove that Shot+forward, Shot in neutral jump,

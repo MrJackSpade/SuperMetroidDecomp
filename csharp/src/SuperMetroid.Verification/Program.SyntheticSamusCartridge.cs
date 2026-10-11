@@ -13,33 +13,6 @@ internal static partial class Program
 static class SyntheticSamusCartridge
 {
     /// <summary>
-    /// Points pose <paramref name="pose"/>'s entry of the <c>$91:B010</c> animation-delay
-    /// pointer table (one bank-$91 word per pose) at <paramref name="list"/>.
-    /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $91:B010 Samus animation-delay pointer table")]
-    internal static void WriteAnimationDelayPointer(TestAddressSpace bus, SamusPoseId pose, ushort list) =>
-        WriteTestWord(bus, 0x91b010 + (int)pose * 2, list);
-
-    /// <summary>
-    /// Installs a bank-$91 animation-delay list at <paramref name="list"/>: frame delays
-    /// interleaved with the native <c>$F0-$FF</c> command bytes and their operands.
-    /// </summary>
-    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$91 Samus animation-delay lists")]
-    internal static void WriteAnimationDelayList(TestAddressSpace bus, ushort list, ReadOnlySpan<byte> delays) =>
-        bus.WriteBytes(0x910000 | list, delays);
-
-    /// <summary>Points <paramref name="pose"/> at a delay list and installs that list.</summary>
-    internal static void WriteAnimationDelays(
-        TestAddressSpace bus,
-        SamusPoseId pose,
-        ushort list,
-        ReadOnlySpan<byte> delays)
-    {
-        WriteAnimationDelayPointer(bus, pose, list);
-        WriteAnimationDelayList(bus, list, delays);
-    }
-
-    /// <summary>
     /// Points pose <paramref name="pose"/>'s entry of the <c>$91:9EE2</c> pose-transition
     /// pointer table (one bank-$91 word per pose) at <paramref name="list"/>.
     /// </summary>

@@ -110,9 +110,9 @@ static void VerifySamusGrappleSwingAndRelease()
         SamusPoseId.GrappleCrouchingLeftPose,
     })
     {
-        SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, pose, 0xbf00);
+        WritePoseAnimationDelayPointer(bus, pose, 0xbf00);
     }
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xbf00, [0x05, 0xff]);
+    WriteAnimationDelayStream(bus, 0xbf00, [0x05, 0xff]);
 
     // Dry-air wall-jump table zero is 4.A000. A grapple wall jump reaches the same
     // `$90:9949` initializer as an ordinary spin wall jump after its reversed pose choice.

@@ -37,28 +37,28 @@ static void VerifySamusDrainedController()
     WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
 
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.CrouchingRightPose, 0xc000);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.CrouchingLeftPose, 0xc001);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.KnockbackLeftPose, 0xc020);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedCrouchingRightPose, 0xb257);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedCrouchingLeftPose, 0xb268);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedStandingRightPose, 0xb288);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.DrainedStandingLeftPose, 0xb290);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc010);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingLeftNormalPose, 0xc011);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc000, [0x05, 0x05]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc010, [0x05, 0x05]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc020, [0x01, 0xfe, 0x01]);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.CrouchingRightPose, 0xc000);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.CrouchingLeftPose, 0xc001);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.KnockbackLeftPose, 0xc020);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.DrainedCrouchingRightPose, 0xb257);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.DrainedCrouchingLeftPose, 0xb268);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.DrainedStandingRightPose, 0xb288);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.DrainedStandingLeftPose, 0xb290);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc010);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingLeftNormalPose, 0xc011);
+    WriteAnimationDelayStream(bus, 0xc000, [0x05, 0x05]);
+    WriteAnimationDelayStream(bus, 0xc010, [0x05, 0x05]);
+    WriteAnimationDelayStream(bus, 0xc020, [0x01, 0xfe, 0x01]);
 
     // Copy the byte-oriented streams verbatim. Controller-written frame values are byte
     // indices, so command operands remain part of the index space by design.
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb257, [
+    WriteAnimationDelayStream(bus, 0xb257, [
         0x02, 0x02, 0x02, 0x10, 0xf7,
         0x01, 0xfe, 0x01,
         0x10, 0x10, 0x10, 0x10, 0xfe, 0x04,
         0x03, 0xfd, 0x01,
     ]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb268, [
+    WriteAnimationDelayStream(bus, 0xb268, [
         0x02, 0x02, 0x10, 0xf7,
         0x01, 0xfe, 0x01,
         0x08, 0x10, 0x10, 0x10, 0x10, 0xfe, 0x04,
@@ -67,8 +67,8 @@ static void VerifySamusDrainedController()
         0x10, 0xfe, 0x11,
         0x10, 0xfe, 0x01,
     ]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb288, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x01]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb290, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x02]);
+    WriteAnimationDelayStream(bus, 0xb288, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x01]);
+    WriteAnimationDelayStream(bus, 0xb290, [0x10, 0x10, 0x10, 0x10, 0xff, 0x03, 0xfd, 0x02]);
 
     InstallHyperBeamSuitPaletteFixture(bus);
     InstallHyperBeamProjectilePaletteProgramFixture(bus);
@@ -644,8 +644,8 @@ static void VerifySamusGrabbedByDraygon()
         // `$BA-$BD/$EC-$EF` use stationary `$B2B4`; `$BE/$F0` use six-frame `$B53C`.
         ushort leftDelay = index == 4 ? (ushort)0xb53c : (ushort)0xb2b4;
         ushort rightDelay = index == 4 ? (ushort)0xb53c : (ushort)0xb2b4;
-        SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, leftPoses[index], leftDelay);
-        SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, rightPoses[index], rightDelay);
+        WritePoseAnimationDelayPointer(bus, leftPoses[index], leftDelay);
+        WritePoseAnimationDelayPointer(bus, rightPoses[index], rightDelay);
 
         // All five poses on a side point to the same held-input transition program.
         SyntheticSamusCartridge.WritePoseTransitionPointer(bus, leftPoses[index], 0xae18);
@@ -657,12 +657,12 @@ static void VerifySamusGrabbedByDraygon()
         [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
     WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose,
         [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc000);
-    SyntheticSamusCartridge.WriteAnimationDelayPointer(bus, SamusPoseId.FacingLeftNormalPose, 0xc001);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb2b4, [0x10, 0xff]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xb53c, [0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0xff]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc000, [0x0a]);
-    SyntheticSamusCartridge.WriteAnimationDelayList(bus, 0xc001, [0x0a]);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingRightNormalPose, 0xc000);
+    WritePoseAnimationDelayPointer(bus, SamusPoseId.FacingLeftNormalPose, 0xc001);
+    WriteAnimationDelayStream(bus, 0xb2b4, [0x10, 0xff]);
+    WriteAnimationDelayStream(bus, 0xb53c, [0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0xff]);
+    WriteAnimationDelayStream(bus, 0xc000, [0x0a]);
+    WriteAnimationDelayStream(bus, 0xc001, [0x0a]);
 
     SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xae18, [
         (0x0000, 0x0a40, 0x00bb), (0x0000, 0x0640, 0x00bd), (0x0000, 0x0240, 0x00bc),

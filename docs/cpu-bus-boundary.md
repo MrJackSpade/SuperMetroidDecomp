@@ -30,6 +30,23 @@ bounded `WorkRamByteTable`/`WorkRamWordTable` collections bound to their own cel
   or a concrete implementation of an attributed interface member) outside a `[CpuBusBoundary]`.
 - **SME6291** — a class/struct implementing a `[CpuBusAccess]` interface outside a boundary.
 
+Both are build errors. The analyzer checks the enclosing member, so a boundary on a local function
+or lambda has no effect; extract a named method.
+
+**Code fix (SME6290).** A view property that returns exactly one cell's raw value — same width and
+signedness, no validation or conversion — declares `[CpuBusViewOf(typeof(Catalog), nameof(Cell))]`.
+The IDE fix (`SuperMetroid.EnsureAnalyzer.CodeFixes`) rewrites a constant-address WRAM word/byte or
+SRAM byte read, or a primitive read over a named cell, to `new View(bus).Member` only when the
+address, width and region identify one catalog cell and exactly one member declares it with the
+read's own type. Every other mapping is ambiguous and is migrated by hand.
+
+**Test doubles.** Shared exact bus doubles live in `csharp/test-support/CpuBusTestDoubles`
+(`CartridgeReadGuard`, `MutableCartridgeReadGuard`, `SyntheticCartridge`). A double that wraps a
+source reads through `CpuBusRegionRead`, which routes each address to the source's typed cartridge,
+WRAM or SRAM contract and fails when the source lacks it. Raw seeding of the sparse
+`TestAddressSpace` (`WriteTestByte/Word/Words`, `WriteBytes`) happens only inside named synthetic
+cartridge fixture builders.
+
 Boundaries are narrow: mark the view/catalog/codec type or the exact test method, never a whole
 project, test class family or `Program` partial. The reason names which layer it is.
 

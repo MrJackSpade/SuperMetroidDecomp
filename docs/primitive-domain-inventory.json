@@ -8,7 +8,9 @@
   "SME6274": "closed domain compared as a primitive",
   "SME6275": "primitive parameter only cast to a domain enum",
   "SME6276": "arithmetic produces a closed-domain value",
-  "SME6277": "closed-domain value carried as a primitive"
+  "SME6277": "closed-domain value carried as a primitive",
+  "SME6278": "closed domain stored as literals",
+  "SME6279": "masked primitive compared as a selector"
  },
  "open": {},
  "resolved": {
@@ -1557,6 +1559,96 @@
    "status": "resolved",
    "commits": [
     "519173fce"
+   ]
+  },
+  "SamusVerticalDirection": {
+   "previous": "ushort SamusKinematicsState.YDirection ($0B36) written/compared as literals 0/1/2",
+   "type": "SamusVerticalDirection (None, Up, Down)",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "SamusContactDamageIndex": {
+   "previous": "ushort ContactDamageIndex ($0A6E) literals 0-4",
+   "type": "SamusContactDamageIndex",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "SamusBallBounceState": {
+   "previous": "ushort MorphBallBounceState literals 0/1/2/$0601/$0602",
+   "type": "SamusBallBounceState",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "SamusSpecialPaletteType (PaletteType)": {
+   "previous": "ushort SamusShinesparkState.PaletteType ($0ACC) literals 0/1/6",
+   "type": "SamusSpecialPaletteType",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "RidleyFightMode": {
+   "previous": "ushort FightMode ($7E:7802) literals 0/1/2/$FFFF",
+   "type": "RidleyFightMode",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "RidleyFacing (FacingDirection)": {
+   "previous": "ushort FacingDirection ($7E:7820) literals 0/1/2",
+   "type": "RidleyFacing",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "MotherBrainNeckMovement": {
+   "previous": "ushort neck movement indices ($7E:8064/8066) literals 0/2/4",
+   "type": "MotherBrainNeckMovement",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "YardBehavior": {
+   "previous": "ushort Yard Behavior ($7E:7810) literals 0-5",
+   "type": "YardBehavior",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
+   ]
+  },
+  "SpazerComboPhase": {
+   "previous": "ushort AuxiliaryPhase ($0CA4) literals 0/2/4",
+   "type": "SpazerComboPhase",
+   "boundary": "native snapshot import decodes with ClosedNativeWords.Decode where the word is imported",
+   "status": "resolved",
+   "commits": [
+    "5a83b0290",
+    "5d3bc4277"
    ]
   }
  },

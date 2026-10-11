@@ -23,6 +23,7 @@ internal static partial class Program
             VerifyPrimitiveDomainAnalyzer();
             VerifySpatialClumpAnalyzer();
             VerifyCpuBusAccessAnalyzer();
+            VerifyCpuBusAccessCodeFix();
             VerifyPaletteFxDependencyContract();
             Console.WriteLine("Ensure API, analyzer and palette-FX dependency checks passed.");
             return 0;

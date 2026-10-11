@@ -27,8 +27,10 @@ public static class EnemyOverreadWorkRam
 public readonly struct EnemyOverreadMemory(ISnesMemoryBus bus)
 {
     /// <summary>The drop-chance pointer a cleared enemy header's explosion inherits.</summary>
+    [CpuBusViewOf(typeof(EnemyOverreadWorkRam), nameof(EnemyOverreadWorkRam.ClearedHeaderDropChances))]
     public ushort ClearedHeaderDropChances => new WramWord(bus, EnemyOverreadWorkRam.ClearedHeaderDropChances).Read();
 
     /// <summary>The live stack-page word Spark's initializer ORs into its properties.</summary>
+    [CpuBusViewOf(typeof(EnemyOverreadWorkRam), nameof(EnemyOverreadWorkRam.SparkPropertyOverlay))]
     public ushort SparkPropertyOverlay => new WramWord(bus, EnemyOverreadWorkRam.SparkPropertyOverlay).Read();
 }

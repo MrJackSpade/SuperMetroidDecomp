@@ -7,12 +7,8 @@
   <ItemGroup>
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj" />
-    <Reference Include="Microsoft.CodeAnalysis">
-      <HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CodeAnalysis.CSharp">
-      <HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="../SuperMetroid.EnsureAnalyzer.CodeFixes/SuperMetroid.EnsureAnalyzer.CodeFixes.csproj" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../../test-support/VerificationAccess/PrivateState.cs" Link="TestSupport/VerificationAccess/PrivateState.cs" />

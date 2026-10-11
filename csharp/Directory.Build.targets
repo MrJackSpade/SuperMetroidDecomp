@@ -6,8 +6,12 @@
          SME6271 and SME6272 have reached zero; .editorconfig makes them errors. -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);SME6270</WarningsNotAsErrors>
   </PropertyGroup>
-  <ItemGroup Condition="'$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureAnalyzer.CodeFixes' and '$(MSBuildProjectName)' != 'SuperMetroid.EnsureVerification'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)src/SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+    <!-- IDE code fixes for the analyzer's rules (#629); the compiler loads no analyzers from it. -->
+    <ProjectReference Include="$(MSBuildThisFileDirectory)src/SuperMetroid.EnsureAnalyzer.CodeFixes/SuperMetroid.EnsureAnalyzer.CodeFixes.csproj"
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>

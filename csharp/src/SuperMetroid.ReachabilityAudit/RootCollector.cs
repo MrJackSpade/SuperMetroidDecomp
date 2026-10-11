@@ -13,7 +13,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
 
     private static readonly HashSet<string> FrameworkCreatedAttributes =
         ["ActivityAttribute", "ApplicationAttribute", "ServiceAttribute", "BroadcastReceiverAttribute",
-         "ContentProviderAttribute", "DiagnosticAnalyzerAttribute"];
+         "ContentProviderAttribute", "DiagnosticAnalyzerAttribute", "ExportCodeFixProviderAttribute"];
 
     /// <summary>Roots of every repository executable, tools and verifiers included.</summary>
     public HashSet<string> Roots { get; } = [];

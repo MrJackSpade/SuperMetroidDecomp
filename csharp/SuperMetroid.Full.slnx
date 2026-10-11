@@ -6,6 +6,7 @@
     <Project Path="src/SuperMetroid.Rendering.Direct3D11/SuperMetroid.Rendering.Direct3D11.csproj" />
     <Project Path="src/SuperMetroid.Desktop/SuperMetroid.Desktop.csproj" />
     <Project Path="src/SuperMetroid.EnsureAnalyzer/SuperMetroid.EnsureAnalyzer.csproj" />
+    <Project Path="src/SuperMetroid.EnsureAnalyzer.CodeFixes/SuperMetroid.EnsureAnalyzer.CodeFixes.csproj" />
   </Folder>
   <Folder Name="/Apps/">
     <Project Path="src/SuperMetroid.Game/SuperMetroid.Game.csproj" />

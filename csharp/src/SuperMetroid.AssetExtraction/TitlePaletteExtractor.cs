@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Converts the title's complete cartridge CGRAM image to editable RGB5 JSON.</summary>
+[CpuBusBoundary("codec: ROM title CGRAM image → title palette")]
 internal static class TitlePaletteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)

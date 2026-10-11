@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs seven literal bank-$8A sky tilemap pages with persistent JSON overrides.</summary>
+[CpuBusBoundary("codec: ROM bank-$8A sky tilemap pages → room sky tilemap artwork files")]
 public static class RoomSkyTilemapArtworkFiles
 {
     private const int FormatVersion = 1;

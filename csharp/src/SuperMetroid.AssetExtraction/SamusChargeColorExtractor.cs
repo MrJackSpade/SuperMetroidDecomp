@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports charge-body and Hyper-shot colors in native playback order.</summary>
+[CpuBusBoundary("codec: ROM charge-body and Hyper-shot palettes → Samus charge colors")]
 public static class SamusChargeColorExtractor
 {
     /// <summary>Exports charged-beam and pseudo-Screw body palettes by suit, plus Hyper-shot flash palettes in native playback order.</summary>

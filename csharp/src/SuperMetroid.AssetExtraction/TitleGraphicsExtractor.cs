@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Expands title graphics and OBJ compositions into indexed PNG/JSON assets.</summary>
+[CpuBusBoundary("codec: ROM compressed title graphics and OBJ compositions → title artwork")]
 internal static class TitleGraphicsExtractor
 {
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)

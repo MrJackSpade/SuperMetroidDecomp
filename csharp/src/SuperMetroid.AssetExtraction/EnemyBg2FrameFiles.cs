@@ -9,6 +9,7 @@ namespace SuperMetroid.AssetExtraction;
 /// tilemap writes enter JSON; component hitbox pointers remain cartridge-derived
 /// engine data and must never be interpreted as appearance overrides.
 /// </summary>
+[CpuBusBoundary("codec: ROM extended-enemy $FFFE BG2 tilemap streams → enemy BG2 frame files")]
 internal static class EnemyBg2FrameFiles
 {
     internal static byte[] Extract(ISnesAddressSpace bus, byte bank,

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts native beam sheets per legal selection; shared stock sheets may be edited independently.</summary>
+[CpuBusBoundary("codec: ROM beam tile pointer table and bank-$9A beam sheets → beam tile artwork")]
 public static class BeamTileExtractor
 {
     /// <summary>Decodes each legal native beam tile sheet to indexed PNG and verifies that loading the PNG reproduces the original planar transfer bytes.</summary>

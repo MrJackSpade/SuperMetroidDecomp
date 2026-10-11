@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Read one native on-screen OAM frame into visual-only editable fields.</summary>
+[CpuBusBoundary("codec: ROM opening-scene OAM spritemap frames → intro sprite frames")]
 internal static class IntroCinematicSpriteFrameExtractor
 {
     internal static SpriteVisualPart[] Extract(ISnesAddressSpace bus,

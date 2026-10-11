@@ -7,6 +7,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts the shared CRE and all distinct retail room-character sources as indexed PNGs.</summary>
+[CpuBusBoundary("codec: ROM compressed CRE and room character sources → indexed room character PNGs")]
 public static class RoomCharacterAtlasExtractor
 {
     /// <summary>Imports shared CRE characters, every distinct room graphics-set character source, and the uncompressed Tourian-statue ghost span.</summary>

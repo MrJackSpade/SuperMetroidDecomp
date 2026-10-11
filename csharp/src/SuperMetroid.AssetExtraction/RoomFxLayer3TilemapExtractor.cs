@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports all six contiguous bank-$8A room-FX BG3 pages as named tile cells.</summary>
+[CpuBusBoundary("codec: ROM bank-$8A room-FX BG3 tilemap pages → room-FX layer-3 tilemaps")]
 public static class RoomFxLayer3TilemapExtractor
 {
     /// <summary>Builds the six named room-FX BG3 pages after checking their native tilemap-pointer identities.</summary>

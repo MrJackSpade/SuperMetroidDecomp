@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts all three bank-$AA Chozo/tube target sprite-palette pairs.</summary>
+[CpuBusBoundary("codec: ROM bank-$AA Chozo statue and tube target sprite palettes → Chozo/tube colors")]
 public static class ChozoAndTubeColorExtractor
 {
     /// <summary>Reads the tube-crack, Wrecked Ship, and Lower Norfair native target palettes, rejects high-bit colors, and serializes their RGB5 components.</summary>

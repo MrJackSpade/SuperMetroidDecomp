@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Imports the visual portion of map arrow records without exporting controller masks.</summary>
+[CpuBusBoundary("codec: ROM map arrow records → map arrow visuals")]
 public static class MapArrowExtractor
 {
     /// <summary>Exports the four map-scroll arrows' drawing anchors and cosmetic phase durations while verifying their fixed native spritemap bindings.</summary>

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Splits station drawing positions from the cartridge's mixed drawing/discovery records.</summary>
+[CpuBusBoundary("codec: ROM map station drawing/discovery records → map station layout")]
 public static class MapStationLayoutExtractor
 {
     /// <summary>Exports every missile, energy, and map station's drawing anchor while checking its native area-map discovery cell and record count.</summary>

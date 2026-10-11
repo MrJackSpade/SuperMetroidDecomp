@@ -12,6 +12,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports every retail room-enemy graphics sheet; user PNG overrides live outside stock content.</summary>
+[CpuBusBoundary("codec: ROM enemy graphics sheets, palettes and tile copy programs → enemy tile artwork")]
 public static class EnemyTileArtworkFiles
 {
     private static readonly JsonSerializerOptions JsonOptions = new()

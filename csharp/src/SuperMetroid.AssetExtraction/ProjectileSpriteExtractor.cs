@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts timed-projectile visual parts only; physical fields and instruction programs stay compiled.</summary>
+[CpuBusBoundary("codec: ROM bank-$93 projectile spritemaps → projectile sprite frames")]
 public static class ProjectileSpriteExtractor
 {
     /// <summary>Decodes all catalogued bank-$93 Samus-projectile OAM compositions and validates the resulting visual catalog.</summary>
@@ -27,7 +28,7 @@ public static class ProjectileSpriteExtractor
         for (int pointerIndex = 0; pointerIndex < requiredCount; pointerIndex++)
         {
             ushort id = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
-            int address = 0x930000 | id;
+            int address = CartridgeBankWindow.At(SamusCartridgeTables.ProjectileBank, id);
             int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
             if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id:X4} exceeds OAM capacity.");
             var parts = new SpriteVisualPart[count];

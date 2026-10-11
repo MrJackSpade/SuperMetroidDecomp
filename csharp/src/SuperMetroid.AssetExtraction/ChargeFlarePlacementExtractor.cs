@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts actual native visual offsets, retaining adjacent-row results for unnamed directions.</summary>
+[CpuBusBoundary("codec: ROM charge-flare visual offset tables → charge flare placements")]
 public static class ChargeFlarePlacementExtractor
 {
     /// <summary>Reads signed native charge-flare X/Y offsets for every default and running direction row, including unnamed adjacent-direction results.</summary>

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts the one-row item/status messages as editable UTF-8 titles.</summary>
+[CpuBusBoundary("codec: ROM one-row item/status message tilemaps → gameplay message titles")]
 public static class GameplayMessageTitleExtractor
 {
     /// <summary>Decodes the fifteen editable one-row item/status titles and preserves their common 32-cell border as raw tilemap words.</summary>

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Resolves reserve-screen presentation once without exposing its mode or energy mechanics.</summary>
+[CpuBusBoundary("codec: ROM bank-$82 reserve-screen labels and colors → pause reserve UI presentation")]
 public static class PauseReserveUiExtractor
 {
     /// <summary>Resolves reserve labels, decimal digit cells, arrow positions, palettes, and animation colors into a versioned presentation document.</summary>
@@ -63,7 +64,7 @@ public static class PauseReserveUiExtractor
             int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.LabelDestinations + index * 2) -
                 PauseReserveUiDefinitions.TilemapWramBase;
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseReserveUiDefinitions.LabelSources + index * 2);
-            return DirectLabel(0x820000 | pointer, destination / 2, words);
+            return DirectLabel(CartridgeBankWindow.At(PauseMenuCartridgeTables.MenuBank, pointer), destination / 2, words);
         }
         PauseReserveLabelVisual DirectLabel(int address, int cell, int words) => new()
         {

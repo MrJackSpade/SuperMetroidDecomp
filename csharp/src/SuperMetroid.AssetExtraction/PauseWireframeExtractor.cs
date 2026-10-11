@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Resolves wireframe pointers at import, exposing only visual atlas cells to authors.</summary>
+[CpuBusBoundary("codec: ROM pause wireframe pointer table and art → pause wireframe atlas cells")]
 public static class PauseWireframeExtractor
 {
     /// <summary>Resolves every native suit wireframe pointer and converts its tile words to bounded semantic atlas cells.</summary>

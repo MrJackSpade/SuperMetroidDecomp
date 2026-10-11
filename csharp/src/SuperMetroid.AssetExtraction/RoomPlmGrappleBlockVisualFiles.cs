@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Installs editable Grapple-block visual references while verifying every native
 /// source draw record against the immutable collision/shape catalog.
 /// </summary>
+[CpuBusBoundary("codec: ROM bank-$84 Grapple block PLM draw lists → Grapple block visual files")]
 public static class RoomPlmGrappleBlockVisualFiles
 {
     /// <summary>Family-relative stock/override JSON filename for the five initial, breakup, and blank breakable-Grapple frames.</summary>
@@ -112,9 +113,9 @@ public static class RoomPlmGrappleBlockVisualFiles
             if (ReadWord(bus, pointer) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount ||
                 ReadWord(bus, unchecked((ushort)(pointer + 2))) != draw.LevelWord ||
-                bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 4))) !=
+                bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 4)))) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX ||
-                bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 5))) !=
+                bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 5)))) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY)
                 throw new InvalidDataException(
                     $"Grapple-block draw list ${pointer:X4} differs from compiled cartridge data.");
@@ -155,8 +156,8 @@ public static class RoomPlmGrappleBlockVisualFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
-            bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
+            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 1)))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

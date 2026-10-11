@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports authored bank-$8D projectile OAM parts, not animation control flow.</summary>
+[CpuBusBoundary("codec: ROM bank-$86 projectile instruction operands and bank-$8D spritemaps → enemy projectile spritemaps")]
 public static class EnemyProjectileSpritemapFiles
 {
     /// <summary>Imports named enemy-projectile OAM compositions, including frames selected by native instruction operands.</summary>
@@ -24,8 +25,8 @@ public static class EnemyProjectileSpritemapFiles
                  EnemyProjectilePresentationFrameDefinitions.All)
         {
             ushort pointer = unchecked((ushort)(
-                bus.ReadCartridgeByte(0x860000 | frame.OperandAddress) |
-                bus.ReadCartridgeByte(0x860000 | unchecked((ushort)(frame.OperandAddress + 1))) << 8));
+                bus.ReadCartridgeByte(CartridgeBankWindow.At(EnemyCartridgeTables.ProjectileInstructionBank, frame.OperandAddress)) |
+                bus.ReadCartridgeByte(CartridgeBankWindow.At(EnemyCartridgeTables.ProjectileInstructionBank, unchecked((ushort)(frame.OperandAddress + 1)))) << 8));
             programFrames.Add(frame.Name, EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
         }
         return EnemyProjectileSpritemapCatalog.Write(new EnemyProjectileSpritemapDocument

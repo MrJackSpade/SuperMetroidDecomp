@@ -166,14 +166,10 @@ public sealed class RidleyTailSegment
 
     /// <summary>Gets the wrapped native tail angle; the low byte indexes the sine table and the full word retains winding and clamp state.</summary>
     public ushort Angle { get; internal set; }
-    /// <summary>Gets the signed whole-pixel horizontal displacement from the preceding anchor, stored unchanged in a sixteen-bit word.</summary>
-    public ushort XOffset { get; internal set; }
-    /// <summary>Gets the signed whole-pixel vertical displacement from the preceding anchor, stored unchanged in a sixteen-bit word.</summary>
-    public ushort YOffset { get; internal set; }
-    /// <summary>Gets the composed sixteen-bit world X coordinate used for drawing and tail contact.</summary>
-    public ushort XPosition { get; internal set; }
-    /// <summary>Gets the composed sixteen-bit world Y coordinate used for drawing and tail contact.</summary>
-    public ushort YPosition { get; internal set; }
+    /// <summary>Gets the signed whole-pixel displacement from the preceding anchor.</summary>
+    public Offset16<RoomPixels> Offset { get; internal set; }
+    /// <summary>Gets the composed sixteen-bit room position used for drawing and tail contact.</summary>
+    public Position16<RoomPixels> Position { get; internal set; }
 }
 
 /// <summary>
@@ -205,20 +201,14 @@ public sealed class RidleyEnemyState
     public ushort FunctionTimer { get; internal set; }
     /// <summary>Gets the current row index in the shared eye/body reveal palette fade.</summary>
     public ushort FadePaletteOffset { get; internal set; }
-    /// <summary>Gets the movement clamp's minimum whole-pixel Y boundary, retaining negative limits as wrapped native words.</summary>
-    public ushort MinimumY { get; internal set; }
-    /// <summary>Gets the movement clamp's maximum whole-pixel Y boundary.</summary>
-    public ushort MaximumY { get; internal set; }
-    /// <summary>Gets the movement clamp's minimum whole-pixel X boundary.</summary>
-    public ushort MinimumX { get; internal set; }
-    /// <summary>Gets the movement clamp's maximum whole-pixel X boundary.</summary>
-    public ushort MaximumX { get; internal set; }
+    /// <summary>Gets the movement clamp's minimum whole-pixel corner, retaining negative limits as wrapped native words.</summary>
+    public Position16<RoomPixels> MovementMinimum { get; internal set; }
+    /// <summary>Gets the movement clamp's maximum whole-pixel corner.</summary>
+    public Position16<RoomPixels> MovementMaximum { get; internal set; }
     /// <summary>Nonzero predicate of $A6:D86B's hitARoomBoundary, consumed by $A6:BABC.</summary>
     public bool HitRoomBoundary { get; internal set; }
-    /// <summary>Gets Ridley's signed 8.8 horizontal velocity stored as its unchanged native word.</summary>
-    public ushort HorizontalVelocity { get; internal set; }
-    /// <summary>Gets Ridley's signed 8.8 vertical velocity stored as its unchanged native word.</summary>
-    public ushort VerticalVelocity { get; internal set; }
+    /// <summary>Gets Ridley's signed 8.8 velocity, each axis stored as its unchanged native word.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; internal set; }
     /// <summary>Gets the shared wing animation phase, cycling through ten frames when its timer underflows.</summary>
     public ushort WingFrame { get; internal set; }
     /// <summary>Gets the wing animation's native countdown accumulator, reloaded to $20 after signed underflow.</summary>
@@ -251,14 +241,10 @@ public sealed class RidleyEnemyState
     public ushort HoverCounter { get; internal set; }
     /// <summary>Gets the native feet-position table index installed by Ridley's body animation instructions.</summary>
     public ushort FeetDistanceIndex { get; internal set; }
-    /// <summary>Gets the Ceres fireball attack's whole-pixel body X anchor; firing motion aims at random jitter around this saved position.</summary>
-    public ushort FireballBaseXPosition { get; internal set; }
-    /// <summary>Gets the Ceres fireball attack's whole-pixel body Y anchor; firing motion aims at random jitter around this saved position.</summary>
-    public ushort FireballBaseYPosition { get; internal set; }
-    /// <summary>Gets the signed 8.8 horizontal velocity computed from the clamped fireball aim angle.</summary>
-    public ushort FireballXVelocity { get; internal set; }
-    /// <summary>Gets the signed 8.8 vertical velocity computed from the clamped fireball aim angle.</summary>
-    public ushort FireballYVelocity { get; internal set; }
+    /// <summary>Gets the Ceres fireball attack's whole-pixel body anchor; firing motion aims at random jitter around this saved position.</summary>
+    public Position16<RoomPixels> FireballBasePosition { get; internal set; }
+    /// <summary>Gets the signed 8.8 velocity computed from the clamped fireball aim angle.</summary>
+    public EightEightVector<RoomPixels> FireballVelocity { get; internal set; }
     /// <summary>$7E:7800, independent swoop phase countdown used by $A6:B441-$B594.</summary>
     public ushort SwoopPhaseTimer { get; internal set; }
     /// <summary>Gets the wrapped swoop angle accumulator; its high byte indexes the native sine table.</summary>
@@ -274,20 +260,16 @@ public sealed class RidleyEnemyState
     public ushort GrabState { get; internal set; }
     /// <summary>Gets the Lower Norfair countdown keeping the body intangible after a grab release.</summary>
     public ushort IntangibilityTimer { get; internal set; }
-    /// <summary>Gets the current Lower Norfair movement target's whole-pixel world X coordinate.</summary>
-    public ushort TargetX { get; internal set; }
-    /// <summary>Gets the current Lower Norfair movement target's whole-pixel world Y coordinate.</summary>
-    public ushort TargetY { get; internal set; }
+    /// <summary>Gets the current Lower Norfair movement target's whole-pixel room position.</summary>
+    public Position16<RoomPixels> Target { get; internal set; }
     /// <summary>Gets the Lower Norfair pogo bounce counter, reset after its two-bounce threshold.</summary>
     public ushort PogoBounceCount { get; internal set; }
     /// <summary>Gets the native 8.8 velocity increment selected by health stage for downward pogo motion.</summary>
     public ushort PogoDownwardAcceleration { get; internal set; }
     /// <summary>Gets the native 8.8 velocity increment selected by health stage for upward pogo motion.</summary>
     public ushort PogoUpwardAcceleration { get; internal set; }
-    /// <summary>Gets Samus's signed whole-pixel X displacement from the claw anchor; carry updates decay it toward zero.</summary>
-    public ushort GrabXOffset { get; internal set; }
-    /// <summary>Gets Samus's signed whole-pixel Y displacement from the claw anchor; carry updates decay it toward zero.</summary>
-    public ushort GrabYOffset { get; internal set; }
+    /// <summary>Gets Samus's signed whole-pixel displacement from the claw anchor; carry updates decay each axis toward zero.</summary>
+    public Offset16<RoomPixels> GrabOffset { get; internal set; }
     /// <summary>Gets the Lower Norfair hit-pressure accumulator, increased by shots and decayed during AI; its threshold can force a grabbed-Samus release.</summary>
     public ushort HurtMovementClamp { get; internal set; }
     /// <summary>Gets the number of zero-health Lower Norfair lunges completed before the authored death transition.</summary>
@@ -320,10 +302,8 @@ public sealed class RidleyEnemyState
     public CeresBabyFunction BabyFunction { get; internal set; }
     /// <summary>Gets the current native spritemap identity selected by the Ceres Baby's animation list.</summary>
     public ushort BabyCurrentSpritemap { get; internal set; }
-    /// <summary>Gets the Ceres Baby's wrapped whole-pixel world X coordinate, independently updated while falling or attached to a hand.</summary>
-    public ushort BabyXPosition { get; internal set; }
-    /// <summary>Gets the Ceres Baby's wrapped whole-pixel world Y coordinate.</summary>
-    public ushort BabyYPosition { get; internal set; }
+    /// <summary>Gets the Ceres Baby's wrapped whole-pixel room position, updated while falling or attached to a hand.</summary>
+    public Position16<RoomPixels> BabyPosition { get; internal set; }
     /// <summary>Gets the Ceres Baby's sixteen-bit fractional Y position used by its falling integrator.</summary>
     public ushort BabyYSubposition { get; internal set; }
     /// <summary>Gets the Ceres Baby's signed 8.8 falling velocity, with a native increment of eight each falling update.</summary>
@@ -336,10 +316,8 @@ public sealed class RidleyEnemyState
     public ushort Mode7TableByteIndex { get; internal set; }
     /// <summary>Gets the native wrapping angle for the Ceres getaway transform; its table index selects sine/cosine coefficients.</summary>
     public SnesAngle Mode7Angle { get; internal set; }
-    /// <summary>Gets the native signed horizontal offset word applied to the Ceres getaway transform.</summary>
-    public ushort Mode7HorizontalOffset { get; internal set; }
-    /// <summary>Gets the native signed vertical offset word applied to the Ceres getaway transform.</summary>
-    public ushort Mode7VerticalOffset { get; internal set; }
+    /// <summary>Gets the native signed M7HOFS/M7VOFS offset words applied to the Ceres getaway transform.</summary>
+    public Offset16<Mode7Pixels> Mode7Offset { get; internal set; }
     /// <summary>Gets the native 8.8 zoom magnitude selected by Ceres's getaway table and used to scale its sine/cosine matrix.</summary>
     public ushort Mode7Zoom { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 A coefficient, computed from zoom-scaled cosine.</summary>
@@ -350,10 +328,8 @@ public sealed class RidleyEnemyState
     public ushort Mode7MatrixC { get; internal set; }
     /// <summary>Gets the Ceres getaway's signed 8.8 Mode-7 D coefficient, equal to its A coefficient.</summary>
     public ushort Mode7MatrixD { get; internal set; }
-    /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 horizontal center, initialized to $40 and cleared on completion.</summary>
-    public ushort Mode7CenterX { get; internal set; }
-    /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 vertical center, initialized to $40 and cleared on completion.</summary>
-    public ushort Mode7CenterY { get; internal set; }
+    /// <summary>Gets the Ceres getaway's whole-pixel Mode-7 center, initialized to ($40,$40) and cleared on completion.</summary>
+    public Position16<Mode7Pixels> Mode7Center { get; internal set; }
     /// <summary>Gets the four-phase Ceres Baby graphics-transfer animation index during the Mode-7 getaway.</summary>
     public ushort Mode7BabyFrame { get; internal set; }
     /// <summary>Gets the two-phase Ridley wing graphics-transfer animation index during the Mode-7 getaway.</summary>

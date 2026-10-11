@@ -594,8 +594,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot source,
         NinjaSpacePirateEnemyState state,
         ushort direction,
-        ushort xOffset,
-        ushort yOffset)
+        Offset16<RoomPixels> spawnOffset)
     {
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
         if (projectile is null)
@@ -605,7 +604,7 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.PirateClaw,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
-        projectile.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(source.Position.X.Whole + unchecked((short)xOffset))), unchecked((ushort)(source.Position.Y.Whole + unchecked((short)yOffset)))));
+        projectile.Position = FixedPosition<RoomPixels>.FromWhole(source.Position.Whole + spawnOffset);
         projectile.DirectionParameter = direction;
         projectile.InstructionPointer = direction == 0
             ? SpacePirateProjectileInstructionProgramDefinitions.ClawLeft
@@ -699,8 +698,9 @@ public sealed partial class RoomEnemySystem
                     slot,
                     state,
                     ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 2))),
-                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4))),
-                    ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 6))));
+                    new Offset16<RoomPixels>(
+                        unchecked((short)ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 4)))),
+                        unchecked((short)ReadEnemyInstructionMechanicsWord(slot, unchecked((ushort)(cursor + 6))))));
                 cursor = unchecked((ushort)(cursor + 8));
                 return true;
             case SpacePirateInstruction.PirateNinja_SetFunction0FAC_Active:

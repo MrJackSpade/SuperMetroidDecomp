@@ -1,11 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One randomized room-coordinate placement record for bank-$86 misc dust.</summary>
+/// <param name="RandomMask">Per-axis masks applied to the random word's low (X) and high (Y) bytes; each is the scatter span minus one.</param>
+/// <param name="Base">Signed offset added before the masked random scatter.</param>
 internal readonly record struct MiscDustPlacementDefinition(
-    ushort XMask,
-    ushort YMask,
-    short XBase,
-    short YBase);
+    Extent16<RoomPixels> RandomMask,
+    Offset16<RoomPixels> Base);
 
 /// <summary>Compiled cartridge definitions shared by room-graphics dust and explosions.</summary>
 internal static class MiscDustProjectileDefinitions
@@ -23,6 +23,8 @@ internal static class MiscDustProjectileDefinitions
         bool tall = placementIndex >= 3;
         int xRadius = 1 << (placementIndex + (tall ? 0 : 1));
         int yRadius = tall ? xRadius * 2 : xRadius;
-        return new((ushort)(xRadius * 2 - 1), (ushort)(yRadius * 2 - 1), (short)-xRadius, (short)-yRadius);
+        return new(
+            new Extent16<RoomPixels>((ushort)(xRadius * 2 - 1), (ushort)(yRadius * 2 - 1)),
+            new Offset16<RoomPixels>((short)-xRadius, (short)-yRadius));
     }
 }

@@ -67,15 +67,15 @@ internal static partial class Program
         {
             state.HealthStage = (ushort)raw;
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[Math.Min(raw, 2)];
-            state.HorizontalVelocity = state.VerticalVelocity = 0;
+            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             slot.Position = slot.Position.WithWhole(new((ushort)(ushort.MaxValue - raw), (ushort)raw));
             beginCarry(slot, state);
             ushort x = carry[Math.Min(raw, 2)];
             ushort y = unchecked((short)(raw - 320)) < 0 ? (ushort)256 : unchecked((ushort)(raw - 64));
-            AssertEqual(x, state.TargetX, "Real carry anchor facing selection");
-            AssertEqual(y, state.TargetY, "Real carry height selection");
-            AssertEqual(Expected(slot.Position.X.Whole, x, 0), state.HorizontalVelocity, "Carry target drives exact X acceleration");
-            AssertEqual(Expected(slot.Position.Y.Whole, y, 0), state.VerticalVelocity, "Carry target drives exact Y acceleration");
+            AssertEqual(x, state.Target.X, "Real carry anchor facing selection");
+            AssertEqual(y, state.Target.Y, "Real carry height selection");
+            AssertEqual(Expected(slot.Position.X.Whole, x, 0), state.Velocity.X.RawValue, "Carry target drives exact X acceleration");
+            AssertEqual(Expected(slot.Position.Y.Whole, y, 0), state.Velocity.Y.RawValue, "Carry target drives exact Y acceleration");
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual((ushort)31, state.FunctionTimer, "Carry setup timer");
             AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "Carry setup phase");
@@ -90,19 +90,19 @@ internal static partial class Program
             state.HealthStage = health;
             foreach (bool down in new[] { false, true })
             {
-                state.HorizontalVelocity = state.VerticalVelocity = 0;
+                state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
                 pogo(slot, state, null, down);
                 ushort target = (down ? descending : ascending)[(int)facing];
-                AssertEqual(Expected(x, target, hover[health]), state.HorizontalVelocity, "Pogo side target and health divisor reach motion");
+                AssertEqual(Expected(x, target, hover[health]), state.Velocity.X.RawValue, "Pogo side target and health divisor reach motion");
             }
-            state.HorizontalVelocity = state.VerticalVelocity = 0;
+            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             moveSide(slot, state, null);
-            AssertEqual(Expected(x, ground[(int)facing], 0), state.HorizontalVelocity, "Ground side target reaches motion");
-            state.HorizontalVelocity = state.VerticalVelocity = 0;
+            AssertEqual(Expected(x, ground[(int)facing], 0), state.Velocity.X.RawValue, "Ground side target reaches motion");
+            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             state.Function = RidleyAiFunction.NorfairCarryRelease;
             state.FunctionTimer = 1;
             run(slot, state, null, 0, null);
-            AssertEqual(Expected(x, release[(int)facing], 0), state.HorizontalVelocity, "Carry release target reaches motion");
+            AssertEqual(Expected(x, release[(int)facing], 0), state.Velocity.X.RawValue, "Carry release target reaches motion");
         }
         // Grab approach legitimately reads Samus pose data and the not-yet-migrated
         // claw offsets, so forbid only its migrated health-table dependency here.
@@ -114,7 +114,7 @@ internal static partial class Program
         {
             state.HealthStage = (ushort)health;
             state.FacingDirection = Enum.GetValues<RidleyFacing>()[health % 3];
-            state.HorizontalVelocity = state.VerticalVelocity = 0;
+            state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             // Start ahead of the lunge stopping boundary for each facing.
             ushort startX = state.FacingDirection == RidleyFacing.Right ? (ushort)128 : (ushort)384;
             slot.Position = slot.Position.WithWhole(new(startX, 128));
@@ -122,8 +122,8 @@ internal static partial class Program
             approach(slot, state, samus);
             ushort targetX = (ushort)(state.FacingDirection == RidleyFacing.Left ? 240 : 272);
             int divisor = grab[Math.Min(health, 3)];
-            AssertEqual(Expected(startX, targetX, divisor), state.HorizontalVelocity, "Actual grab health divisor drives X acceleration");
-            AssertEqual(Expected(128, 252, divisor), state.VerticalVelocity, "Actual grab health divisor drives Y acceleration");
+            AssertEqual(Expected(startX, targetX, divisor), state.Velocity.X.RawValue, "Actual grab health divisor drives X acceleration");
+            AssertEqual(Expected(128, 252, divisor), state.Velocity.Y.RawValue, "Actual grab health divisor drives Y acceleration");
         }
         Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }

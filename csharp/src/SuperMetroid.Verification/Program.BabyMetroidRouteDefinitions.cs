@@ -19,9 +19,9 @@ internal static partial class Program
             int address = 0xa90000 | pointer;
             BabyMetroidRouteRecord record = BabyMetroidRouteDefinitions.GetRecord(pointer);
 
-            AssertEqual(ReadRomWord(rom, address), record.TargetX,
+            AssertEqual(ReadRomWord(rom, address), record.Target.X,
                 $"Baby route {index} target X");
-            AssertEqual(ReadRomWord(rom, address + 2), record.TargetY,
+            AssertEqual(ReadRomWord(rom, address + 2), record.Target.Y,
                 $"Baby route {index} target Y");
             AssertEqual(ReadRomWord(rom, address + 4), record.AccelerationDivisorIndex,
                 $"Baby route {index} acceleration-divisor index");

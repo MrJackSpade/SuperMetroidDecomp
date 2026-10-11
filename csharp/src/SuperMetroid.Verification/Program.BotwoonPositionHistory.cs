@@ -22,10 +22,9 @@ internal static partial class Program
             slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon);
         BotwoonEnemyState state = runtime.Enemies.Botwoon
             ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
-        AssertTrue(state.HistoryX.All(x => x == 0) && state.HistoryY.All(y => y == 0),
+        AssertTrue(state.History.All(position => position == Position16<RoomPixels>.Zero),
             "Botwoon's position history starts as Initialise_Enemies' zeroed RAM");
-        AssertTrue(state.HeadHistoryX.All(x => x == head.Position.X.Whole) &&
-            state.HeadHistoryY.All(y => y == head.Position.Y.Whole),
+        AssertTrue(state.HeadHistory.All(position => position == head.Position.Whole),
             "InitAI_Botwoon seeds its four delayed head positions with the spawn position");
 
         // $B3:961B and $B3:96F5 are ORA #$0400 (ignore Samus collision), never $8000. The

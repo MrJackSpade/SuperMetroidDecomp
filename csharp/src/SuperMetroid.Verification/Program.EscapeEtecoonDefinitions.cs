@@ -21,9 +21,9 @@ internal static partial class Program
             ushort parameter = unchecked((ushort)(role * 2));
             EscapeEtecoonInitialization initialization =
                 EscapeEtecoonDefinitions.Initialization(parameter);
-            AssertEqual(ReadWord(rom, xTable + parameter), initialization.XPosition,
+            AssertEqual(ReadWord(rom, xTable + parameter), initialization.Position.X,
                 $"escape Etecoon role {role} X");
-            AssertEqual(ReadWord(rom, yTable + parameter), initialization.YPosition,
+            AssertEqual(ReadWord(rom, yTable + parameter), initialization.Position.Y,
                 $"escape Etecoon role {role} Y");
             AssertEqual((EscapeEtecoonPreInstruction)ReadWord(
                     rom,
@@ -65,9 +65,9 @@ internal static partial class Program
                 EscapeEtecoonDefinitions.Initialization(parameter);
             EscapeEtecoonEnemyState state = enemies.EscapeEtecoonStates[0] ??
                 throw new InvalidDataException("Escape Etecoon initializer omitted typed state.");
-            AssertEqual(expected.XPosition, slot.Position.X.Whole,
+            AssertEqual(expected.Position.X, slot.Position.X.Whole,
                 $"production escape Etecoon selector {parameter} X");
-            AssertEqual(expected.YPosition, slot.Position.Y.Whole,
+            AssertEqual(expected.Position.Y, slot.Position.Y.Whole,
                 $"production escape Etecoon selector {parameter} Y");
             AssertEqual(expected.PreInstruction, state.PreInstruction,
                 $"production escape Etecoon selector {parameter} pre-instruction");

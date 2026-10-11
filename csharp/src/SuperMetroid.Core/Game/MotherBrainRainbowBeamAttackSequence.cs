@@ -80,11 +80,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
     // `$A9:BCA6/$BCB6` are indexed after incrementing the explosion index. Keeping all eight
     // signed records here preserves the initial index-zero -> record-one behavior.
-    private static ReadOnlySpan<short> ExplosionXOffsets =>
-        [-8, 6, -4, 2, 3, -6, 8, 0];
-
-    private static ReadOnlySpan<short> ExplosionYOffsets =>
-        [-7, 2, 5, -4, 6, -2, -6, 7];
+    private static readonly Offset16<RoomPixels>[] ExplosionOffsets =
+        [new(-8, -7), new(6, 2), new(-4, 5), new(2, -4), new(3, 6), new(-6, -2), new(8, -6), new(0, 7)];
 
     private readonly MotherBrainRainbowBeamSamusMovement _movement = new();
     private readonly MotherBrainCorpseRottingState _corpseRotting = new();

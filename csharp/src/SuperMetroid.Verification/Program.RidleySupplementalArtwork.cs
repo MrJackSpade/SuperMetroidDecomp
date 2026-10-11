@@ -83,8 +83,9 @@ internal static partial class Program
             TailSegments = tailDirection is null ? [] :
                 [.. Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 {
-                    XPosition = unchecked((ushort)(80 + index * 10)),
-                    YPosition = unchecked((ushort)(120 + index * 3)),
+                    Position = new Position16<RoomPixels>(
+                        unchecked((ushort)(80 + index * 10)),
+                        unchecked((ushort)(120 + index * 3))),
                     Angle = index == 6 ? unchecked((ushort)(tailDirection.Value << 4)) : (ushort)0,
                 })],
         };

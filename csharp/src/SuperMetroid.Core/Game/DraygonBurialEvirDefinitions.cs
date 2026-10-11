@@ -23,17 +23,31 @@ internal static class DraygonBurialEvirDefinitions
         int angle = FirstAngle - 0x10 * entry;
         double radians = angle * Math.PI / 128;
         double x = Math.Cos(radians), y = Math.Sin(radians);
-        return new((ushort)Math.Floor(ushort.MaxValue * Math.Abs(x)),
-            (ushort)Math.Floor(ushort.MaxValue * y),
-            unchecked((ushort)(int)Math.Floor(CenterX + Radius * x)),
-            (ushort)Math.Floor(CenterY - Radius * y), (ushort)angle);
+        return new(
+            FixedVector<RoomPixels>.FromWords(
+                0, (ushort)Math.Floor(ushort.MaxValue * Math.Abs(x)),
+                0, (ushort)Math.Floor(ushort.MaxValue * y)),
+            new Position16<RoomPixels>(
+                unchecked((ushort)(int)Math.Floor(CenterX + Radius * x)),
+                (ushort)Math.Floor(CenterY - Radius * y)),
+            (ushort)angle);
     }
 }
 
 /// <summary>One compiled Draygon death/burial Evir position and movement record.</summary>
+/// <param name="SubspeedMagnitude">The <c>$A5:A1AF</c> per-axis subpixel speeds: unsigned magnitudes with zero whole words.</param>
+/// <param name="Initial">The <c>$A5:A1C7</c> spawn position.</param>
+/// <param name="Angle">The <c>$A5:A1DF</c> angle word that selects each axis's movement sign.</param>
 internal readonly record struct DraygonBurialEvirDefinition(
-    ushort XSubspeed,
-    ushort YSubspeed,
-    ushort InitialX,
-    ushort InitialY,
-    ushort Angle);
+    FixedVector<RoomPixels> SubspeedMagnitude,
+    Position16<RoomPixels> Initial,
+    ushort Angle)
+{
+    /// <summary>
+    /// The signed per-frame displacement: X moves right when angle+$40 has bit 7 set and Y moves
+    /// down when angle+$80 has bit 7 set; otherwise each magnitude is subtracted.
+    /// </summary>
+    internal FixedVector<RoomPixels> Velocity => new(
+        ((Angle + 0x0040) & 0x0080) != 0 ? SubspeedMagnitude.X : SnesSignedSixteenSixteen.Zero - SubspeedMagnitude.X,
+        ((Angle + 0x0080) & 0x0080) != 0 ? SubspeedMagnitude.Y : SnesSignedSixteenSixteen.Zero - SubspeedMagnitude.Y);
+}

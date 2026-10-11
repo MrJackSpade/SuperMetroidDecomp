@@ -37,6 +37,9 @@ public readonly record struct Offset16<TSpace>(short X, short Y)
     /// <summary>No displacement.</summary>
     public static Offset16<TSpace> Zero => default;
 
+    /// <summary>Replaces the X axis.</summary>
+    public Offset16<TSpace> WithX(short x) => this with { X = x };
+
     /// <summary>Replaces the Y axis.</summary>
     public Offset16<TSpace> WithY(short y) => this with { Y = y };
 

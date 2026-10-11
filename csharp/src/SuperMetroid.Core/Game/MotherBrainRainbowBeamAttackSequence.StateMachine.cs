@@ -931,8 +931,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     bus,
                     bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                         "Mother Brain corpse rotting requires live WRAM."),
-                    BrainPosition.X,
-                    BrainPosition.Y,
+                    BrainPosition,
                     randomNumberSeed,
                     mainEnemyExecutionCounter);
                 corpseRottingVramTransfers.AddRange(corpseRotting.VramTransfers);

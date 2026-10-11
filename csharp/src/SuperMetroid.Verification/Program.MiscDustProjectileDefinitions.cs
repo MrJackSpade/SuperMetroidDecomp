@@ -31,13 +31,13 @@ internal static partial class Program
             int address = placementTable + index * 8;
             MiscDustPlacementDefinition definition =
                 MiscDustProjectileDefinitions.SmokePlacement(index);
-            AssertEqual(ReadMiscDustWord(rom, address), definition.XMask,
+            AssertEqual(ReadMiscDustWord(rom, address), definition.RandomMask.X,
                 $"misc-dust placement X mask {index}");
-            AssertEqual(ReadMiscDustWord(rom, address + 2), definition.YMask,
+            AssertEqual(ReadMiscDustWord(rom, address + 2), definition.RandomMask.Y,
                 $"misc-dust placement Y mask {index}");
-            AssertEqual(unchecked((short)ReadMiscDustWord(rom, address + 4)), definition.XBase,
+            AssertEqual(unchecked((short)ReadMiscDustWord(rom, address + 4)), definition.Base.X,
                 $"misc-dust placement X base {index}");
-            AssertEqual(unchecked((short)ReadMiscDustWord(rom, address + 6)), definition.YBase,
+            AssertEqual(unchecked((short)ReadMiscDustWord(rom, address + 6)), definition.Base.Y,
                 $"misc-dust placement Y base {index}");
 
             const ushort random = 0x5aad;
@@ -53,11 +53,11 @@ internal static partial class Program
             initialize(smoke, (ushort)((index << 8) | 10), new(7, 9));
             AssertEqual(MiscDustProjectileDefinitions.InstructionList(10), smoke.InstructionPointer,
                 $"eye-door smoke production instruction {index}");
-            AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.XBase +
-                (random & definition.XMask))), smoke.Position.X.Whole,
+            AssertEqual(unchecked((ushort)(7 * 16 + 8 + definition.Base.X +
+                (random & definition.RandomMask.X))), smoke.Position.X.Whole,
                 $"eye-door smoke production X {index}");
-            AssertEqual(unchecked((ushort)(9 * 16 + 8 + definition.YBase +
-                ((random >> 8) & definition.YMask))), smoke.Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(9 * 16 + 8 + definition.Base.Y +
+                ((random >> 8) & definition.RandomMask.Y))), smoke.Position.Y.Whole,
                 $"eye-door smoke production Y {index}");
             AssertEqual(1, advances, $"eye-door smoke RNG advance {index}");
         }

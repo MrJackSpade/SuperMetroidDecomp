@@ -92,8 +92,8 @@ internal static partial class Program
             short[] rowYBefore = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
                 .Select(index => MotherBrainCorpseRottingState.ReadEntry(baseline, index).YOffset)
                 .ToArray();
-            var expected = baselineRot.Step(baseline, baseline, 100, 120, seed, (ushort)call);
-            var actual = editedRot.Step(edited, edited, 100, 120, seed, (ushort)call);
+            var expected = baselineRot.Step(baseline, baseline, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
+            var actual = editedRot.Step(edited, edited, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
             AssertEqual(call < 118, expected.StillRotting, "exact corpse lifetime");
             AssertEqual(expected.StillRotting, actual.StillRotting, "corpse lifetime independent of pixels");
             AssertAnimationValues(baselineRot, editedRot, "corpse counters at call " + call);
@@ -111,8 +111,8 @@ internal static partial class Program
             foreach ((MotherBrainCorpseDustRequest dust, int index) in expected.DustRequests.Zip(finishedRows))
             {
                 AssertEqual(2 * index + Math.Max(1, (index + 1) / 2), call, "exact per-row completion call");
-                AssertEqual(unchecked((ushort)(100 + (seed & 31) - 16)), dust.XPosition, "native dust X and sampled RNG");
-                AssertEqual((ushort)136, dust.YPosition, "native dust Y");
+                AssertEqual(unchecked((ushort)(100 + (seed & 31) - 16)), dust.Position.X, "native dust X and sampled RNG");
+                AssertEqual((ushort)136, dust.Position.Y, "native dust Y");
                 AssertEqual((call & 7) == 0, dust.SoundEffectQueued, "native dust sound cadence");
                 finished++;
             }

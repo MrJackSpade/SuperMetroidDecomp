@@ -7,11 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    private static ReadOnlySpan<short> MotherBrainDroolXOffsets =>
-        [6, 14, 8, 10, 11, 12];
-
-    private static ReadOnlySpan<short> MotherBrainDroolYOffsets =>
-        [20, 18, 23, 19, 25, 18];
+    // The six authored drool spawn offsets from the brain's centre.
+    private static readonly Offset16<RoomPixels>[] MotherBrainDroolOffsets =
+        [new(6, 20), new(14, 18), new(8, 23), new(10, 19), new(11, 25), new(12, 18)];
 
     /// <summary>
     /// Ports head opcode <c>$A9:9E29</c> and initializer <c>$86:C2F3</c>. The shared
@@ -118,9 +116,7 @@ public sealed partial class RoomEnemySystem
                 $"Mother Brain drool offset parameter {parameter} is outside 0..5.");
         }
 
-        drool.Position = drool.Position.WithWhole(new(unchecked((ushort)(
-            head.Position.X.Whole + MotherBrainDroolXOffsets[parameter])), unchecked((ushort)(
-            head.Position.Y.Whole + MotherBrainDroolYOffsets[parameter]))));
+        drool.Position = drool.Position.WithWhole(head.Position.Whole + MotherBrainDroolOffsets[parameter]);
         drool.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
     }
 

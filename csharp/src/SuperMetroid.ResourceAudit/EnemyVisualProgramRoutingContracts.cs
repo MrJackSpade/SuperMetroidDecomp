@@ -31,7 +31,9 @@ internal static class EnemyVisualProgramRoutingContracts
         // #628 re-pin: Samus position/radius reads became typed values; same cases, guards and order.
         // #628 re-pin: the camera parameter and enemy-projectile position/velocity/radius are typed
         // values; same cases, guards and order.
-        ["ProcessEnemyProjectileInstructions"] = "8F52FDFCF0B99148800089171A9AF7089CE69D8F1BB6B61B97081420A28E9849",
+        // #628 re-pin: the Spore Spawn spore spawner passes its whole position as one typed value;
+        // same cases, guards and order.
+        ["ProcessEnemyProjectileInstructions"] = "A39CC744AA4B687EAB98AC42E4202298AC95B2594875E78FFD33FFBAD608424D",
     };
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)

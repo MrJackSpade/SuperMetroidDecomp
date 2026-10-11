@@ -1915,8 +1915,7 @@ internal static class SamusGrappleMovementAccess
         internal static void ConnectUnobstructedSwing(
             ISnesAddressSpace bus,
             SamusState samus,
-            ushort anchorX,
-            ushort anchorY,
+            Position16<RoomPixels> anchor,
             byte ropeLength,
             SnesAngle angle,
             short angularVelocity,
@@ -1934,8 +1933,7 @@ internal static class SamusGrappleMovementAccess
 
             SamusGrappleState grapple = samus.Grapple;
             grapple.Phase = GrapplePhase.ConnectedSwinging;
-            grapple.Anchor = grapple.Anchor.WithX(anchorX);
-            grapple.Anchor = grapple.Anchor.WithY(anchorY);
+            grapple.Anchor = anchor;
             grapple.RopeLength = ropeLength;
             grapple.RopeLengthDelta = 0;
             grapple.Angle = angle;

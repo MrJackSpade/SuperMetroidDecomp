@@ -110,56 +110,38 @@ public sealed class KiHunterEnemyState
     public ushort MaximumAngularVelocity { get; internal set; }
     /// <summary>Wing $7E:7800,x bank-$A8 secondary function pointer, alternating between non-colliding and collision-bearing detached arcs.</summary>
     public KiHunterWingFunction WingFunction { get; internal set; }
-    /// <summary>Wing $7E:7802,x signed pixel X correction for the collision-bearing arc, calculated from angle $A0 and radius $30.</summary>
-    public ushort FallingArcXOffset { get; internal set; }
     /// <summary>Body $7E:7804,x signed high word of 16.16 angular velocity; this whole-angle step advances the swoop angle each frame.</summary>
     public ushort AngularVelocityWhole { get; internal set; }
-    /// <summary>Wing $7E:7804,x signed pixel Y correction for the collision-bearing arc, calculated from negative sine at angle $A0.</summary>
-    public ushort FallingArcYOffset { get; internal set; }
     /// <summary>Body $7E:7806,x fractional low word of angular velocity; acceleration carries into <see cref="AngularVelocityWhole"/>.</summary>
     public ushort AngularVelocityFraction { get; internal set; }
-    /// <summary>Wing $7E:7806,x signed pixel X correction for the non-colliding arc, calculated from angle $E0 and radius $30.</summary>
-    public ushort OrbitXOffset { get; internal set; }
     /// <summary>Body $7E:7808,x signed high word of angular acceleration, paired with <see cref="AngularAccelerationFraction"/> for a plus or minus one-eighth angle step per frame squared.</summary>
     public ushort AngularAccelerationWhole { get; internal set; }
-    /// <summary>Wing $7E:7808,x signed pixel Y correction for the non-colliding arc, calculated from negative sine at angle $E0.</summary>
-    public ushort OrbitYOffset { get; internal set; }
     /// <summary>Body $7E:780A,x low word of 16.16 angular acceleration: $2000 rightward or $E000 with high word $FFFF leftward.</summary>
     public ushort AngularAccelerationFraction { get; internal set; }
-    /// <summary>Wing $7E:780A,x room-pixel X anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
-    public ushort OrbitCenterX { get; internal set; }
-    /// <summary>Body $7E:780C,x fractional low word of signed 16.16 horizontal displacement in pixels per gameplay frame.</summary>
-    public ushort HorizontalSubvelocity { get; internal set; }
-    /// <summary>Wing $7E:780C,x room-pixel Y anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
-    public ushort OrbitCenterY { get; internal set; }
-    /// <summary>Body $7E:780E,x signed whole-pixel horizontal velocity; patrol starts at minus one and a grounded hop uses plus or minus two.</summary>
-    public ushort HorizontalVelocity { get; internal set; }
-    /// <summary>Wing $7E:780E,x original room-pixel Y saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
-    public ushort SavedWingY { get; internal set; }
-    /// <summary>Body $7E:7810,x fractional low word of signed 16.16 vertical displacement in pixels per gameplay frame.</summary>
-    public ushort VerticalSubvelocity { get; internal set; }
-    /// <summary>Wing $7E:7810,x original room-pixel X saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
-    public ushort SavedWingX { get; internal set; }
-    /// <summary>Body $7E:7812,x signed whole-pixel vertical velocity, positive downward; gravity accumulates through <see cref="VerticalSubvelocity"/>.</summary>
-    public ushort VerticalVelocity { get; internal set; }
     /// <summary>Body $7E:7814,x upper room-pixel patrol boundary, initialized sixteen pixels above the spawn Y.</summary>
     public ushort UpperPatrolY { get; internal set; }
     /// <summary>Wing $7E:7814,x 8.8 speed-table reset index computed at detachment by accumulating angular deltas until $2000; reapplied at each arc transition.</summary>
     public ushort DetachedSpeedReset { get; internal set; }
     /// <summary>Body $7E:7816,x lower room-pixel patrol boundary, initialized sixteen pixels below spawn Y; wing detachment also reads its own same-address word.</summary>
     public ushort LowerPatrolY { get; internal set; }
-    /// <summary>Body $7E:7818,x initial room-pixel X retained from body initialization, rather than the changing patrol position.</summary>
-    public ushort SpawnX { get; internal set; }
-    /// <summary>Body $7E:781A,x initial room-pixel Y; collision recovery returns to patrol after rising above this height.</summary>
-    public ushort SpawnY { get; internal set; }
+    /// <summary>Body $7E:7818/$781A,x initial room position retained from body initialization rather than the changing patrol position; collision recovery returns to patrol after rising above its Y.</summary>
+    public Position16<RoomPixels> SpawnPosition { get; internal set; }
     /// <summary>Body $7E:781E,x gameplay-frame thinking countdown: twelve after landing or twenty-four after acid emission, consumed once the animation selects ground wait.</summary>
     public ushort WaitTimer { get; internal set; }
     /// <summary>Body $7E:7820,x swipe-animation latch, cleared on swoop setup and set once the angle passes its facing-specific trigger.</summary>
     public bool SwoopAnimationChanged { get; internal set; }
-    /// <summary>Body $7E:7822,x whole-pixel ellipse X radius, captured as absolute horizontal separation from Samus when a swoop begins.</summary>
-    public ushort SwoopHorizontalRadius { get; internal set; }
-    /// <summary>Body $7E:7824,x whole-pixel ellipse Y radius, captured as Samus Y minus body Y when a swoop begins.</summary>
-    public ushort SwoopVerticalRadius { get; internal set; }
+    /// <summary>Body $7E:7822/$7824,x whole-pixel swoop ellipse radii: the absolute horizontal separation from Samus and Samus Y minus body Y when a swoop begins.</summary>
+    public Extent16<RoomPixels> SwoopRadius { get; internal set; }
+    /// <summary>Body $7E:780C-$7812,x signed 16.16 velocity in pixels per gameplay frame (X fraction/whole at $780C/$780E, Y at $7810/$7812); positive Y is downward and gravity accumulates through the Y fraction.</summary>
+    public FixedVector<RoomPixels> Velocity { get; internal set; }
+    /// <summary>Wing $7E:7806/$7808,x signed pixel correction for the non-colliding arc, calculated at angle $E0 and radius $30.</summary>
+    public Offset16<RoomPixels> OrbitOffset { get; internal set; }
+    /// <summary>Wing $7E:7802/$7804,x signed pixel correction for the collision-bearing arc, calculated at angle $A0 and radius $30.</summary>
+    public Offset16<RoomPixels> FallingArcOffset { get; internal set; }
+    /// <summary>Wing $7E:780A/$780C,x room-pixel anchor used with an arc-specific correction; recaptured whenever the detached arc changes.</summary>
+    public Position16<RoomPixels> OrbitCenter { get; internal set; }
+    /// <summary>Wing $7E:7810/$780E,x original room position saved at detachment and restored when the collision-bearing arc deletes the wing.</summary>
+    public Position16<RoomPixels> SavedWingPosition { get; internal set; }
     /// <summary>Body $7E:7828,x wingless latch, set by spawn parameter-one bit 15 or by health reaching the following wing record's parameter-one threshold.</summary>
     public bool HasLostWings { get; internal set; }
 }
@@ -247,14 +229,10 @@ public sealed partial class RoomEnemySystem
         InstallKiHunterInstruction(body, KiHunterInstructionProgramDefinitions.FlyingLeft);
         state.Angle = 0;
         state.Function = KiHunterEnemyFunction.FlyingPatrol;
-        state.VerticalSubvelocity = 0;
-        state.VerticalVelocity = 1;
-        state.HorizontalSubvelocity = 0;
-        state.HorizontalVelocity = unchecked((ushort)-1);
+        state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(-1, 1));
         state.UpperPatrolY = unchecked((ushort)(body.Position.Y.Whole - 16));
         state.LowerPatrolY = unchecked((ushort)(state.UpperPatrolY + 32));
-        state.SpawnX = body.Position.X.Whole;
-        state.SpawnY = body.Position.Y.Whole;
+        state.SpawnPosition = body.Position.Whole;
 
         // Parameter bit 15 selects the permanently ground-bound form used by two red
         // Ki-Hunters. Its following wing record starts deleted and the body skips every
@@ -263,8 +241,7 @@ public sealed partial class RoomEnemySystem
         {
             state.HasLostWings = true;
             state.Function = KiHunterEnemyFunction.FallingAfterWingLoss;
-            state.VerticalSubvelocity = 0;
-            state.VerticalVelocity = 1;
+            state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(1, 0));
         }
     }
 
@@ -350,26 +327,26 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(
                 level,
                 body,
-                ComposeKiHunterFixed(state.VerticalVelocity, state.VerticalSubvelocity)))
+                state.Velocity.Y.RawValue))
         {
-            state.VerticalVelocity = unchecked((ushort)-state.VerticalVelocity);
+            state.Velocity = state.Velocity.WithWholeY(unchecked((short)-state.Velocity.Y.WholePixels));
         }
         else if (unchecked((short)(body.Position.Y.Whole - state.UpperPatrolY)) < 0)
         {
-            state.VerticalVelocity = 1;
+            state.Velocity = state.Velocity.WithWholeY(1);
         }
         else if (unchecked((short)(body.Position.Y.Whole - state.LowerPatrolY)) >= 0)
         {
-            state.VerticalVelocity = unchecked((ushort)-1);
+            state.Velocity = state.Velocity.WithWholeY(-1);
         }
 
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                ComposeKiHunterFixed(state.HorizontalVelocity, state.HorizontalSubvelocity)))
+                state.Velocity.X.RawValue))
         {
-            state.HorizontalVelocity = unchecked((ushort)-state.HorizontalVelocity);
-            SetKiHunterPairFacing(body, unchecked((short)state.HorizontalVelocity) >= 0);
+            state.Velocity = state.Velocity.WithWholeX(unchecked((short)-state.Velocity.X.WholePixels));
+            SetKiHunterPairFacing(body, state.Velocity.X.WholePixels >= 0);
         }
         AlignEnemyYWithNonSquareSlope(level, body);
 
@@ -385,8 +362,9 @@ public sealed partial class RoomEnemySystem
         state.AngularVelocityWhole = 0;
         state.AngularVelocityFraction = 0;
         state.SwoopAnimationChanged = false;
-        state.SwoopHorizontalRadius = absoluteXDistance;
-        state.SwoopVerticalRadius = unchecked((ushort)(samus.Position.Y.Whole - body.Position.Y.Whole));
+        state.SwoopRadius = new Extent16<RoomPixels>(
+            absoluteXDistance,
+            unchecked((ushort)(samus.Position.Y.Whole - body.Position.Y.Whole)));
         state.TargetXOrSpeedIndex = samus.Position.X.Whole;
         state.SwoopOriginY = body.Position.Y.Whole;
         state.Function = KiHunterEnemyFunction.Swooping;
@@ -399,7 +377,7 @@ public sealed partial class RoomEnemySystem
             state.AngularAccelerationFraction = 0xe000;
             state.Angle = 255;
             state.AnimationChangeAngle = 240;
-            state.HorizontalVelocity = unchecked((ushort)-1);
+            state.Velocity = state.Velocity.WithWholeX(-1);
         }
         else
         {
@@ -408,7 +386,7 @@ public sealed partial class RoomEnemySystem
             state.AngularAccelerationFraction = 0x2000;
             state.Angle = 128;
             state.AnimationChangeAngle = 144;
-            state.HorizontalVelocity = 1;
+            state.Velocity = state.Velocity.WithWholeX(1);
         }
         SetKiHunterPairFacing(body, movingRight: !swoopLeft);
     }
@@ -458,12 +436,11 @@ public sealed partial class RoomEnemySystem
 
         ushort targetX = unchecked((ushort)(
             state.TargetXOrSpeedIndex +
-            ReadEightBitCosineProduct(state.Angle, state.SwoopHorizontalRadius)));
+            ReadEightBitCosineProduct(state.Angle, state.SwoopRadius.X)));
         int horizontalDisplacement = unchecked((short)(targetX - body.Position.X.Whole)) << 16;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, body, horizontalDisplacement))
         {
-            state.HorizontalSubvelocity = 0;
-            state.HorizontalVelocity = leftArc ? (ushort)1 : unchecked((ushort)-1);
+            state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(leftArc ? (short)1 : (short)-1, 0));
             StartKiHunterSwoopRecovery(state);
             return;
         }
@@ -471,7 +448,7 @@ public sealed partial class RoomEnemySystem
         AlignEnemyYWithNonSquareSlope(level, body);
         ushort targetY = unchecked((ushort)(
             state.SwoopOriginY +
-            ReadEightBitNegativeSineProduct(state.Angle, state.SwoopVerticalRadius)));
+            ReadEightBitNegativeSineProduct(state.Angle, state.SwoopRadius.Y)));
         int verticalDisplacement = unchecked((short)(targetY - body.Position.Y.Whole)) << 16;
         if (MoveEnemyVertically(level, body, verticalDisplacement))
             StartKiHunterSwoopRecovery(state);
@@ -480,8 +457,7 @@ public sealed partial class RoomEnemySystem
     private static void StartKiHunterSwoopRecovery(KiHunterEnemyState state)
     {
         state.Function = KiHunterEnemyFunction.RecoveringFromSwoop;
-        state.VerticalSubvelocity = 0;
-        state.VerticalVelocity = unchecked((ushort)-1);
+        state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(-1, 0));
     }
 
     /// <summary>Ports the collision escape leg at <c>$A8:F4ED</c>.</summary>
@@ -493,7 +469,7 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                ComposeKiHunterFixed(state.HorizontalVelocity, state.HorizontalSubvelocity)))
+                state.Velocity.X.RawValue))
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
             return;
@@ -503,8 +479,8 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(
                 level,
                 body,
-                ComposeKiHunterFixed(state.VerticalVelocity, state.VerticalSubvelocity)) ||
-            unchecked((short)(body.Position.Y.Whole - state.SpawnY)) < 0)
+                state.Velocity.Y.RawValue) ||
+            unchecked((short)(body.Position.Y.Whole - state.SpawnPosition.Y)) < 0)
         {
             state.Function = KiHunterEnemyFunction.FlyingPatrol;
         }
@@ -519,17 +495,13 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(
                 level,
                 body,
-                ComposeKiHunterFixed(state.VerticalVelocity, state.VerticalSubvelocity)))
+                state.Velocity.Y.RawValue))
         {
             state.Function = KiHunterEnemyFunction.StartGroundJump;
             return;
         }
 
-        (state.VerticalVelocity, state.VerticalSubvelocity) = AddKiHunterFixed(
-            state.VerticalVelocity,
-            state.VerticalSubvelocity,
-            KiHunterMotionDefinitions.GravityWhole,
-            KiHunterMotionDefinitions.GravityFraction);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + KiHunterGravity);
     }
 
     /// <summary>Ports grounded jump setup <c>$A8:F58B</c>.</summary>
@@ -539,12 +511,11 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         state.Function = KiHunterEnemyFunction.NoOp;
-        state.VerticalSubvelocity = 0;
         ushort random = RequireRandomNumber();
-        state.VerticalVelocity = unchecked((ushort)((random & 1) - 8));
         bool jumpLeft = unchecked((short)(body.Position.X.Whole - samus.Position.X.Whole)) >= 0;
-        state.HorizontalSubvelocity = 0;
-        state.HorizontalVelocity = jumpLeft ? unchecked((ushort)-2) : (ushort)2;
+        state.Velocity = FixedVector<RoomPixels>.FromWholePixels(new Offset16<RoomPixels>(
+            jumpLeft ? (short)-2 : (short)2,
+            unchecked((short)((random & 1) - 8))));
         InstallKiHunterInstruction(
             body,
             jumpLeft
@@ -561,21 +532,20 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyVertically(
                 level,
                 body,
-                ComposeKiHunterFixed(state.VerticalVelocity, state.VerticalSubvelocity)))
+                state.Velocity.Y.RawValue))
         {
-            if ((state.VerticalVelocity & 0x8000) != 0)
+            if (state.Velocity.Y.WholePixels < 0)
             {
-                state.VerticalVelocity = 1;
+                state.Velocity = state.Velocity.WithWholeY(1);
             }
             else
             {
-                state.VerticalSubvelocity = 0;
-                state.VerticalVelocity = unchecked((ushort)-4);
+                state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(-4, 0));
                 state.Function = KiHunterEnemyFunction.NoOp;
                 state.WaitTimer = KiHunterGroundWaitFrames;
                 InstallKiHunterInstruction(
                     body,
-                    unchecked((short)state.HorizontalVelocity) < 0
+                    state.Velocity.X.WholePixels < 0
                         ? KiHunterInstructionProgramDefinitions.LandLeft
                         : KiHunterInstructionProgramDefinitions.LandRight);
             }
@@ -585,18 +555,14 @@ public sealed partial class RoomEnemySystem
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 body,
-                ComposeKiHunterFixed(state.HorizontalVelocity, state.HorizontalSubvelocity)))
+                state.Velocity.X.RawValue))
         {
-            state.HorizontalVelocity = unchecked((ushort)-state.HorizontalVelocity);
+            state.Velocity = state.Velocity.WithWholeX(unchecked((short)-state.Velocity.X.WholePixels));
             return;
         }
 
         AlignEnemyYWithNonSquareSlope(level, body);
-        (state.VerticalVelocity, state.VerticalSubvelocity) = AddKiHunterFixed(
-            state.VerticalVelocity,
-            state.VerticalSubvelocity,
-            KiHunterMotionDefinitions.GravityWhole,
-            KiHunterMotionDefinitions.GravityFraction);
+        state.Velocity = state.Velocity.WithY(state.Velocity.Y + KiHunterGravity);
     }
 
     /// <summary>Ports post-landing wait/decision function <c>$A8:F68B</c>.</summary>
@@ -665,12 +631,7 @@ public sealed partial class RoomEnemySystem
             negativeHalf: true)));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
-        wings.Position = wings.Position.WithWholeY(unchecked((ushort)(
-            state.OrbitCenterY +
-            ReadEightBitNegativeSineProduct(byteAngle, radius) -
-            state.OrbitYOffset)));
-        wings.Position = wings.Position.WithWholeX(unchecked((ushort)(
-            state.OrbitCenterX + ReadEightBitCosineProduct(byteAngle, radius) - state.OrbitXOffset)));
+        wings.Position = wings.Position.WithWhole(state.OrbitCenter + CircleOffset(byteAngle, radius) - state.OrbitOffset);
 
         if (unchecked((short)(state.Angle + 0x4000)) < 0)
         {
@@ -692,22 +653,22 @@ public sealed partial class RoomEnemySystem
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         ushort byteAngle = unchecked((byte)(state.Angle >> 8));
         ushort desiredY = unchecked((ushort)(
-            state.OrbitCenterY +
+            state.OrbitCenter.Y +
             ReadEightBitNegativeSineProduct(byteAngle, radius) -
-            state.FallingArcYOffset));
+            state.FallingArcOffset.Y));
         if (MoveEnemyVertically(
                 level,
                 wings,
                 unchecked((short)(desiredY - wings.Position.Y.Whole)) << 16))
         {
             wings.Properties = wings.Properties.With(EnemyProperties.Deleted);
-            wings.Position = wings.Position.WithWhole(new(state.SavedWingX, state.SavedWingY));
+            wings.Position = wings.Position.WithWhole(state.SavedWingPosition);
             DecrementKiHunterDetachedSpeedIndex(state);
             return;
         }
 
         wings.Position = wings.Position.WithWholeX(unchecked((ushort)(
-            state.OrbitCenterX + ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcXOffset)));
+            state.OrbitCenter.X + ReadEightBitCosineProduct(byteAngle, radius) - state.FallingArcOffset.X)));
         if (unchecked((short)(state.Angle + 0x4000)) >= 0)
         {
             BeginDetachedKiHunterWingOrbit(wings, state);
@@ -740,8 +701,7 @@ public sealed partial class RoomEnemySystem
             {
                 bodyState.HasLostWings = true;
                 bodyState.Function = KiHunterEnemyFunction.FallingAfterWingLoss;
-                bodyState.VerticalSubvelocity = 0;
-                bodyState.VerticalVelocity = 1;
+                bodyState.Velocity = bodyState.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(1, 0));
                 if (wingState.Function != KiHunterEnemyFunction.DetachedWing)
                     DetachKiHunterWings(wings, wingState);
             }
@@ -757,20 +717,18 @@ public sealed partial class RoomEnemySystem
     /// <summary>Initializes all fields written by <c>$A8:F701/$F851/$F87F/$F98D</c>.</summary>
     private static void DetachKiHunterWings(RoomEnemySlot wings, KiHunterEnemyState state)
     {
-        state.SavedWingY = wings.Position.Y.Whole;
-        state.SavedWingX = wings.Position.X.Whole;
+        state.SavedWingPosition = wings.Position.Whole;
         CalculateKiHunterDetachedSpeedReset(state);
 
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
-        state.OrbitXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xe0, radius));
-        state.OrbitYOffset = unchecked((ushort)ReadEightBitNegativeSineProduct(0xe0, radius));
-        state.FallingArcXOffset = unchecked((ushort)ReadEightBitCosineProduct(0xa0, radius));
-        state.FallingArcYOffset = unchecked((ushort)ReadEightBitNegativeSineProduct(0xa0, radius));
+        state.OrbitOffset = CircleOffset(0xe0, radius);
+        state.FallingArcOffset = CircleOffset(0xa0, radius);
         state.Angle = unchecked((ushort)-0x2000);
         state.Function = KiHunterEnemyFunction.DetachedWing;
         state.WingFunction = KiHunterWingFunction.Orbit;
-        state.OrbitCenterY = unchecked((ushort)(state.SavedWingY - state.LowerPatrolY));
-        state.OrbitCenterX = wings.Position.X.Whole;
+        state.OrbitCenter = new Position16<RoomPixels>(
+            wings.Position.X.Whole,
+            unchecked((ushort)(state.SavedWingPosition.Y - state.LowerPatrolY)));
         state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
         InstallKiHunterInstruction(
             wings,
@@ -801,8 +759,7 @@ public sealed partial class RoomEnemySystem
         state.WingFunction = KiHunterWingFunction.Orbit;
         state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
         state.Angle = unchecked((ushort)-0x2000);
-        state.OrbitCenterX = wings.Position.X.Whole;
-        state.OrbitCenterY = wings.Position.Y.Whole;
+        state.OrbitCenter = wings.Position.Whole;
     }
 
     private static void BeginDetachedKiHunterWingCollisionArc(
@@ -812,8 +769,7 @@ public sealed partial class RoomEnemySystem
         state.WingFunction = KiHunterWingFunction.FallingCollisionArc;
         state.TargetXOrSpeedIndex = state.DetachedSpeedReset;
         state.Angle = unchecked((ushort)-0x6000);
-        state.OrbitCenterX = wings.Position.X.Whole;
-        state.OrbitCenterY = wings.Position.Y.Whole;
+        state.OrbitCenter = wings.Position.Whole;
     }
 
     private static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
@@ -835,7 +791,7 @@ public sealed partial class RoomEnemySystem
     private ushort ReturnKiHunterToSteadyInstruction(RoomEnemySlot body)
     {
         KiHunterEnemyState state = RequireKiHunterState(body);
-        bool movingRight = unchecked((short)state.HorizontalVelocity) >= 0;
+        bool movingRight = state.Velocity.X.WholePixels >= 0;
         ushort wingInstruction = movingRight
             ? KiHunterInstructionProgramDefinitions.WingsRight
             : KiHunterInstructionProgramDefinitions.WingsLeft;
@@ -960,8 +916,10 @@ public sealed partial class RoomEnemySystem
         slot.Timer = 0;
     }
 
-    private static int ComposeKiHunterFixed(ushort whole, ushort fraction) =>
-        unchecked((int)(((uint)whole << 16) | fraction));
+    /// <summary>The <c>$0000:E000</c> 16.16 downward acceleration added to a falling or hopping body each frame.</summary>
+    private static SnesSignedSixteenSixteen KiHunterGravity => SnesSignedSixteenSixteen.FromParts(
+        unchecked((short)KiHunterMotionDefinitions.GravityWhole),
+        KiHunterMotionDefinitions.GravityFraction);
 
     private static (ushort Whole, ushort Fraction) AddKiHunterFixed(
         ushort whole,

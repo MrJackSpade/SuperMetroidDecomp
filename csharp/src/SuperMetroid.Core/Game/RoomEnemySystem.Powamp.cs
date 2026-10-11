@@ -50,16 +50,22 @@ public sealed class PowampEnemyState
     public bool IsBalloon => _slot.Parameter1 != 0;
 
     // Body meanings for variables A/B. Together these are a signed 16.16 displacement.
-    /// <summary>Body variable A, the signed high word of vertical pixels-per-AI-update displacement; negative values move upward, and this word aliases <see cref="BalloonSpawnX"/> on balloon slots.</summary>
+    /// <summary>Body variable A, the signed high word of vertical pixels-per-AI-update displacement; negative values move upward, and this word aliases <see cref="BalloonSpawn"/>'s X on balloon slots.</summary>
     public ushort YVelocity { get => _slot.VariableA; internal set => _slot.VariableA = value; }
-    /// <summary>Body variable B, the low word of vertical displacement in 1/65536-pixel units, combined with <see cref="YVelocity"/> as signed 16.16; aliases <see cref="BalloonSpawnY"/> on balloon slots.</summary>
+    /// <summary>Body variable B, the low word of vertical displacement in 1/65536-pixel units, combined with <see cref="YVelocity"/> as signed 16.16; aliases <see cref="BalloonSpawn"/>'s Y on balloon slots.</summary>
     public ushort YSubvelocity { get => _slot.VariableB; internal set => _slot.VariableB = value; }
 
     // Balloon meanings for the same physical words.
-    /// <summary>Balloon variable A, the original room-pixel X used as both halves' horizontal wiggle center; aliases body <see cref="YVelocity"/>.</summary>
-    public ushort BalloonSpawnX { get => _slot.VariableA; internal set => _slot.VariableA = value; }
-    /// <summary>Balloon variable B, the original room-pixel Y used for the body's resting and rise-target calculations; aliases body <see cref="YSubvelocity"/>.</summary>
-    public ushort BalloonSpawnY { get => _slot.VariableB; internal set => _slot.VariableB = value; }
+    /// <summary>Balloon variables A/B, the original room position: X is both halves' horizontal wiggle center and Y feeds the body's resting and rise-target calculations; aliases body <see cref="YVelocity"/> and <see cref="YSubvelocity"/>.</summary>
+    public Position16<RoomPixels> BalloonSpawn
+    {
+        get => new(_slot.VariableA, _slot.VariableB);
+        internal set
+        {
+            _slot.VariableA = value.X;
+            _slot.VariableB = value.Y;
+        }
+    }
 
     /// <summary>Body variable C, the zero-based index 0-11 into the signed three-pixel wiggle wave; phases zero and six are centered.</summary>
     public ushort WiggleIndex { get => _slot.VariableC; internal set => _slot.VariableC = value; }
@@ -119,8 +125,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        state.BalloonSpawnX = slot.Position.X.Whole;
-        state.BalloonSpawnY = slot.Position.Y.Whole;
+        state.BalloonSpawn = slot.Position.Whole;
         state.Function = PowampEnemyFunction.BalloonNoOp;
         SetPowampInstruction(slot, PowampInstructionProgramDefinitions.BalloonDeflated);
         state.BalloonGrappleTravelDistance = slot.Parameter2;
@@ -234,7 +239,7 @@ public sealed partial class RoomEnemySystem
         int travelDistance = grappled
             ? RequirePowampState(balloon).BalloonGrappleTravelDistance
             : PowampUngrappledTravelDistance;
-        ushort targetY = unchecked((ushort)(RequirePowampState(balloon).BalloonSpawnY - travelDistance));
+        ushort targetY = unchecked((ushort)(RequirePowampState(balloon).BalloonSpawn.Y - travelDistance));
 
         // CMP target,body followed by BMI means "continue while body is still below the
         // target". A room collision completes the rise regardless of its Y coordinate.
@@ -321,7 +326,7 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
-        ushort spawnY = RequirePowampState(balloon).BalloonSpawnY;
+        ushort spawnY = RequirePowampState(balloon).BalloonSpawn.Y;
         if (!IsNegative16(body.Position.Y.Whole - spawnY))
         {
             body.Position = body.Position.WithWholeY(spawnY);
@@ -455,7 +460,7 @@ public sealed partial class RoomEnemySystem
         }
 
         ushort x = unchecked((ushort)(
-            RequirePowampState(balloon).BalloonSpawnX + PowampMotionDefinitions.WiggleOffset(state.WiggleIndex)));
+            RequirePowampState(balloon).BalloonSpawn.X + PowampMotionDefinitions.WiggleOffset(state.WiggleIndex)));
         balloon.Position = balloon.Position.WithWholeX(x);
         body.Position = body.Position.WithWholeX(x);
         if (stopWhenCentered && IsPowampCentered(state.WiggleIndex))

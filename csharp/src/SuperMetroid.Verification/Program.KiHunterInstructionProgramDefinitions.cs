@@ -68,7 +68,7 @@ internal static partial class Program
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
-            state.HorizontalVelocity = movingRight ? (ushort)1 : ushort.MaxValue;
+            state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
             Install(body, program);
             RunFrames(enemies, body, 7);
             AssertTrue(body.CurrentInstruction >= program &&
@@ -80,7 +80,7 @@ internal static partial class Program
         {
             (RoomEnemySystem enemies, RoomEnemySlot body, _, KiHunterEnemyState state, _) =
                 CreatePair();
-            state.HorizontalVelocity = movingRight ? (ushort)1 : ushort.MaxValue;
+            state.Velocity = state.Velocity.WithWholeX(movingRight ? (short)1 : (short)-1);
             Install(body, program);
             RunFrames(enemies, body, 55);
             ushort idle = movingRight

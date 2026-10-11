@@ -53,8 +53,7 @@ internal static partial class Program
             new RidleyEnemyState
             {
                 FacingDirection = RidleyFacing.Left,
-                FireballXVelocity = 0xfe00,
-                FireballYVelocity = 0x0100,
+                FireballVelocity = new EightEightVector<RoomPixels>(unchecked((short)0xfe00), 0x0100),
             });
         spawnFireball.Invoke(fireballSystem, [ridley, true]);
         RoomEnemyProjectileSlot fireball = fireballSystem.EnemyProjectiles.Single(

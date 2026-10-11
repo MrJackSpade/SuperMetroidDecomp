@@ -19,8 +19,8 @@ internal static partial class Program
         {
             ushort vx = Word(EnemyRomTablePointersDeadSidehopper.HorizontalVelocityWords + phase * 2);
             ushort vy = Word(EnemyRomTablePointersDeadSidehopper.VerticalVelocityWords + phase * 2);
-            AssertEqual(vx, DeadSidehopperLaunchDefinitions.Horizontal[phase], "Native corpse X launch");
-            AssertEqual(vy, DeadSidehopperLaunchDefinitions.Vertical[phase], "Native corpse Y launch");
+            AssertEqual(vx, DeadSidehopperLaunchDefinitions.Velocity(phase).X.RawValue, "Native corpse X launch");
+            AssertEqual(vy, DeadSidehopperLaunchDefinitions.Velocity(phase).Y.RawValue, "Native corpse Y launch");
             foreach (ushort paletteStage in new ushort[] { 0, 1 })
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {

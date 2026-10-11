@@ -17,7 +17,7 @@ internal enum DraygonHitboxList : ushort
 
 /// <summary>A fixed bank-$A5 component offset and hitbox-list identity, not editable art.</summary>
 internal readonly record struct DraygonCollisionComponent(
-    short X, short Y, DraygonHitboxList HitboxPointer);
+    Offset16<RoomPixels> Offset, DraygonHitboxList HitboxPointer);
 
 /// <summary>One native Draygon rectangle with its touch and shot callbacks.</summary>
 internal readonly record struct DraygonCollisionHitbox(
@@ -63,7 +63,7 @@ internal static partial class DraygonCollisionDefinitions
     {
         public IEnumerator<DraygonCollisionComponent> GetEnumerator()
         {
-            if (HasComponent) yield return new(0, 0, HitboxPointer);
+            if (HasComponent) yield return new(Offset16<RoomPixels>.Zero, HitboxPointer);
         }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }

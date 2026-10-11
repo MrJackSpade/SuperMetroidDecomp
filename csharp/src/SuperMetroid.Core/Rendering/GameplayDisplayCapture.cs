@@ -110,8 +110,8 @@ public static partial class GameplayDisplayCapture
         SnesMainScreenLayers displayedMainScreen =
             (SnesMainScreenLayers)(displayedWindows.MainScreen & 0x1f);
         var registers = new OrdinaryGameplayRegisters(bg1Scroll,
-            new Position16<Bg2Pixels>(kraidBg ? Add(kraid!.Bg2HorizontalScroll, shake.Bg2.X)
-                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2Scroll.X, shake.Bg2.X) : bg2Scroll.X, kraidBg ? Add(kraid!.Bg2VerticalScroll, shake.Bg2.Y)
+            new Position16<Bg2Pixels>(kraidBg ? Add(kraid!.Bg2Scroll.X, shake.Bg2.X)
+                : crocomireBg ? Add(runtime.Enemies.CrocomireBg2Scroll.X, shake.Bg2.X) : bg2Scroll.X, kraidBg ? Add(kraid!.Bg2Scroll.Y, shake.Bg2.Y)
                 : crocomireBg ? Add(runtime.Enemies.CrocomireBg2Scroll.Y, shake.Bg2.Y)
                 : sky is not null ? Add(sky.VerticalScroll, shake.Bg2.Y) : bg2Scroll.Y),
             kraidBg ? new Extent16<TilemapCells>(KraidBackgroundRomData.TilemapWidthInTiles, KraidBackgroundRomData.TilemapHeightInTiles)

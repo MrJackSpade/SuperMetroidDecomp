@@ -68,7 +68,7 @@ internal static partial class Program
                     samus.Kinematics.Radius = new(5, 19);
 
                     (bool expected, ushort expectedXDisplacement) =
-                        ExpectedMotherBrainContact(part, xDelta, yDelta, 5, 19);
+                        ExpectedMotherBrainContact(part, new((short)xDelta, (short)yDelta), new(5, 19));
                     AssertEqual(expected,
                         resolve(state, samus, part, new(originX, originY)),
                         $"Mother Brain {part} contact at ({xDelta},{yDelta})");
@@ -92,19 +92,17 @@ internal static partial class Program
 
     private static (bool Collides, ushort XDisplacement) ExpectedMotherBrainContact(
         MotherBrainContactPart part,
-        int xDelta,
-        int yDelta,
-        int xRadius,
-        int yRadius)
+        Offset16<RoomPixels> delta,
+        Extent16<RoomPixels> radius)
     {
         foreach (MotherBrainContactHitbox hitbox in MotherBrainContactHitboxDefinitions.Get(part))
         {
-            int yExtent = yDelta >= 0 ? hitbox.Bottom : hitbox.Top;
-            if (yRadius + Math.Abs(yExtent) - Math.Abs(yDelta) < 0)
+            int yExtent = delta.Y >= 0 ? hitbox.Bottom : hitbox.Top;
+            if (radius.Y + Math.Abs(yExtent) - Math.Abs((int)delta.Y) < 0)
                 continue;
 
-            int xExtent = xDelta >= 0 ? hitbox.Right : hitbox.Left;
-            int overlap = xRadius + Math.Abs(xExtent) - Math.Abs(xDelta);
+            int xExtent = delta.X >= 0 ? hitbox.Right : hitbox.Left;
+            int overlap = radius.X + Math.Abs(xExtent) - Math.Abs((int)delta.X);
             if (overlap >= 0)
                 return (true, unchecked((ushort)Math.Max(overlap, 4)));
         }

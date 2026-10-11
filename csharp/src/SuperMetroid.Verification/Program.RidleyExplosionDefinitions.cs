@@ -188,8 +188,9 @@ internal static partial class Program
             TailSegments = Enumerable.Range(0, 7)
                 .Select(index => new RidleyTailSegment
                 {
-                    XPosition = unchecked((ushort)(0x1200 + index * 0x11)),
-                    YPosition = unchecked((ushort)(0x3400 + index * 0x13)),
+                    Position = new Position16<RoomPixels>(
+                        unchecked((ushort)(0x1200 + index * 0x11)),
+                        unchecked((ushort)(0x3400 + index * 0x13))),
                 })
                 .ToArray(),
         };
@@ -224,9 +225,9 @@ internal static partial class Program
                 if (parameter <= (ushort)RidleyExplosionPart.TailTip)
                 {
                     int tailIndex = parameter >> 1;
-                    AssertEqual(state.TailSegments[tailIndex].XPosition, fragment.Position.X.Whole,
+                    AssertEqual(state.TailSegments[tailIndex].Position.X, fragment.Position.X.Whole,
                         $"Ridley breakup production tail X ${parameter:X2}");
-                    AssertEqual(state.TailSegments[tailIndex].YPosition, fragment.Position.Y.Whole,
+                    AssertEqual(state.TailSegments[tailIndex].Position.Y, fragment.Position.Y.Whole,
                         $"Ridley breakup production tail Y ${parameter:X2}");
                     ushort expectedInstruction = parameter == (ushort)RidleyExplosionPart.TailTip
                         ? ReadRidleyExplosionWord(rom, 0xa6c7ba + orientation * 2)

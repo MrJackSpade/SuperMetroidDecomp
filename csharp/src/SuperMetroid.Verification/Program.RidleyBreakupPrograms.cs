@@ -24,7 +24,7 @@ internal static partial class Program
         {
             GrabState = 1, FunctionTimer = 0,
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
-                { Angle = index == 6 ? (ushort)0x10 : (ushort)0, XPosition = 128, YPosition = 128 }).ToArray(),
+                { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
         death(body, state, new SamusState());
         AssertEqual((ushort)0, state.GrabState, "Ridley death releases Samus before breakup");

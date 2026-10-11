@@ -83,11 +83,8 @@ internal static class RidleyExplosionDefinitions
     /// <c>SpawnSmallExplosionNearRidley</c> at <c>$A6:C623</c> (words $A6:C66E-$A6:C695,
     /// shared with the Baby Metroid death).
     /// </summary>
-    public static Offset16<RoomPixels> DeathExplosionPlacement(int index)
-    {
-        (short x, short y) = DeathExplosionScatterDefinitions.Offset(index);
-        return new(x, y);
-    }
+    public static Offset16<RoomPixels> DeathExplosionPlacement(int index) =>
+        DeathExplosionScatterDefinitions.Offset(index);
 
     /// <summary>
     /// Selects the fixed tail instruction list loaded by <c>$A6:C6FE-$A6:C7B9</c>. Each of the sixteen tip programs selected at $A6:C7BA occupies six bytes.

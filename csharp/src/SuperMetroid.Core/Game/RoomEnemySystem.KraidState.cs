@@ -217,11 +217,8 @@ public sealed class KraidEnemyState
     /// </summary>
     public bool OwnsBg2Tilemap { get; internal set; }
 
-    /// <summary>Live BG2HOFS calculated by Kraid main AI from camera and body X.</summary>
-    public ushort Bg2HorizontalScroll { get; internal set; }
-
-    /// <summary>Live BG2VOFS calculated by Kraid main AI from camera and body Y.</summary>
-    public ushort Bg2VerticalScroll { get; internal set; }
+    /// <summary>Live BG2HOFS/BG2VOFS calculated by Kraid main AI from the camera and body position.</summary>
+    public Position16<Bg2Pixels> Bg2Scroll { get; internal set; }
 
     /// <summary>Native BG2 top/bottom upload requests issued during the rise sequence.</summary>
     public int TopTilemapUploadCount { get; internal set; }

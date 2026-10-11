@@ -60,8 +60,8 @@ internal static partial class Program
             KraidFootCollisionDefinitions.TryGetComponents(frame, out var components);
             foreach (KraidFootCollisionComponent component in components)
             {
-                ushort componentX = unchecked((ushort)(originX + component.X));
-                ushort componentY = unchecked((ushort)(originY + component.Y));
+                ushort componentX = unchecked((ushort)(originX + component.Offset.X));
+                ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
                 foreach (ushort x in BoundaryPoints(componentX, box.Left, box.Right))
                 foreach (ushort y in BoundaryPoints(componentY, box.Top, box.Bottom))
                 for (int shot = 0; shot <= 1; shot++)

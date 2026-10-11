@@ -423,9 +423,8 @@ public sealed partial class RoomEnemySystem
         Array.Clear(_chootInitialYSpeedTableIndexes);
         Array.Clear(_chootJumpDelayTimers);
         Array.Clear(_platformStates);
-        Array.Clear(_platformYMovementFunctions);
+        Array.Clear(_platformMovementFunctions);
         Array.Clear(_platformPreviousPositions);
-        Array.Clear(_platformXMovementFunctions);
         Array.Clear(_platformVerticallyMovingFlags);
         Array.Clear(_platformVerticallyStillFlags);
         Array.Clear(_platformMaximumYSpeedTableIndexes);

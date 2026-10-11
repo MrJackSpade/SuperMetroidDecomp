@@ -36,10 +36,10 @@ internal static partial class Program
                     frame.Components[componentIndex];
                 ushort record = unchecked((ushort)(frame.Pointer + 2 +
                     componentIndex * 8));
-                AssertEqual(unchecked((short)ReadWord(record)), component.X,
+                AssertEqual(unchecked((short)ReadWord(record)), component.Offset.X,
                     "Space Pirate native collision-component X");
                 AssertEqual(unchecked((short)ReadWord(unchecked((ushort)(record + 2)))),
-                    component.Y, "Space Pirate native collision-component Y");
+                    component.Offset.Y, "Space Pirate native collision-component Y");
                 AssertEqual(ReadWord(unchecked((ushort)(record + 6))),
                     component.HitboxPointer,
                     "Space Pirate native component hitbox identity");
@@ -179,8 +179,8 @@ internal static partial class Program
                              SpacePirateCollisionDefinitions.HitboxesAt(
                                  component.HitboxPointer))
                     {
-                        ushort componentX = unchecked((ushort)(originX + component.X));
-                        ushort componentY = unchecked((ushort)(originY + component.Y));
+                        ushort componentX = unchecked((ushort)(originX + component.Offset.X));
+                        ushort componentY = unchecked((ushort)(originY + component.Offset.Y));
                         ushort left = unchecked((ushort)(componentX + hitbox.Left));
                         ushort right = unchecked((ushort)(componentX + hitbox.Right));
                         ushort top = unchecked((ushort)(componentY + hitbox.Top));

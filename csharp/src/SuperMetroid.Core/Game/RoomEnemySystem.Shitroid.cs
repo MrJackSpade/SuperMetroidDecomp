@@ -187,8 +187,9 @@ public sealed partial class RoomEnemySystem
     private const int ShitroidWorkBufferAddress = 0x7e2000;
     private const int ShitroidWorkBufferSize = 0x1000;
 
-    private static ReadOnlySpan<short> ShitroidShakeX => [0, -1, 0, 1];
-    private static ReadOnlySpan<short> ShitroidShakeY => [0, 1, -1, 1];
+    // `frameCounter & 6` selects one of these four authored jitter offsets.
+    private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
+        [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     private readonly List<ShitroidPlmRequest> _shitroidPlmRequests = [];
     private ShitroidEnemyState? _shitroid;
@@ -580,8 +581,8 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(victim.Position.X.Whole + ShitroidShakeX[shakeIndex])), unchecked((ushort)(
-            victim.Position.Y.Whole + ShitroidShakeY[shakeIndex] - 32))));
+        slot.Position = slot.Position.WithWhole(
+            victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
         ushort oldTimer = state.StateTimer;
         state.StateTimer = unchecked((ushort)(oldTimer - 1));
         if (oldTimer == 1)
@@ -661,7 +662,8 @@ public sealed partial class RoomEnemySystem
             samus.Kinematics.YSpeed = 2;
 
         int shakeIndex = (slot.FrameCounter & 6) >> 1;
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + ShitroidShakeX[shakeIndex] + xCarry)), unchecked((ushort)(samus.Position.Y.Whole + ShitroidShakeY[shakeIndex] - 20))));
+        slot.Position = slot.Position.WithWhole(
+            samus.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>((short)xCarry, -20));
 
         // `$A9:C560-$C57C` subtracts four without Varia and two with it. The native
         // expression is written as `health + (equipped & 1) + (-4 or -3)`, so reducing

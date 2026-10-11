@@ -52,9 +52,9 @@ internal static partial class Program
             {
                 int address = 0xa40000 | unchecked((ushort)(frame + 2 + index * 8));
                 CrocomireBodyCollisionComponent component = components[index];
-                AssertEqual(unchecked((short)ReadWord(address)), component.X,
+                AssertEqual(unchecked((short)ReadWord(address)), component.Offset.X,
                     $"Crocomire $A4:{frame:X4} component {index} X");
-                AssertEqual(unchecked((short)ReadWord(address + 2)), component.Y,
+                AssertEqual(unchecked((short)ReadWord(address + 2)), component.Offset.Y,
                     $"Crocomire $A4:{frame:X4} component {index} Y");
                 AssertEqual(ReadWord(address + 6), component.HitboxPointer,
                     $"Crocomire $A4:{frame:X4} component {index} hitbox list");

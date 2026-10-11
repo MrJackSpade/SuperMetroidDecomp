@@ -1133,8 +1133,7 @@ public sealed partial class RoomEnemySystem
                         markCollision);
                     ResolveCrocomireHitboxShot(
                         projectile.Type,
-                        projectile.Position.X.Whole,
-                        projectile.Position.Y.Whole,
+                        projectile.Position.Whole,
                         hitboxShotAiPointer);
                     hitCount++;
                     break;
@@ -1276,12 +1275,11 @@ public sealed partial class RoomEnemySystem
                         {
                             // $A3:EF31 records the drop origin, EnemyDeath ($A3:EF4B) spawns
                             // the explosion, and only then $A3:EF74 spawns the five drops.
-                            ushort dropOriginX = enemy.Position.X.Whole;
-                            ushort dropOriginY = enemy.Position.Y.Whole;
+                            Position16<RoomPixels> dropOrigin = enemy.Position.Whole;
                             MetroidEnemyState dyingMetroid = RequireMetroidState(enemy);
                             FinishMetroidDeath(enemy, samus);
                             StartGenericEnemyDeath(enemy, deathAnimation: 4);
-                            RequestMetroidDrops(dropOriginX, dropOriginY);
+                            RequestMetroidDrops(dropOrigin);
                         }
 
                         hitCount++;
@@ -1299,8 +1297,7 @@ public sealed partial class RoomEnemySystem
                         enemy,
                         projectile.Type,
                         projectile.Damage,
-                        projectiles.Slots[0].Position.X.Whole,
-                        projectiles.Slots[0].Position.Y.Whole,
+                        projectiles.Slots[0].Position.Whole,
                         samus);
                     hitCount++;
                     break;
@@ -1815,8 +1812,7 @@ public sealed partial class RoomEnemySystem
                     // no-op counter, dust, or mouth reaction selected by the authored map.
                     ResolveCrocomireHitboxShot(
                         bomb.Type,
-                        bomb.Position.X.Whole,
-                        bomb.Position.Y.Whole,
+                        bomb.Position.Whole,
                         selectedShotAiPointer);
                 }
                 else if (enemy.EnemyDefinitionPointer is
@@ -1881,8 +1877,7 @@ public sealed partial class RoomEnemySystem
                             enemy,
                             bomb.Type,
                             bomb.Damage,
-                            recoilOrigin.Position.X.Whole,
-                            recoilOrigin.Position.Y.Whole,
+                            recoilOrigin.Position.Whole,
                             samus);
                     }
                 }
@@ -2725,16 +2720,15 @@ public sealed partial class RoomEnemySystem
                      SpacePirateCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
                 foreach (SpacePirateCollisionHitbox hitbox in
                          SpacePirateCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
                 {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                     if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                             targetTop, targetBottom, left, top, right, bottom,
                             selectShotCallback))
@@ -2755,16 +2749,15 @@ public sealed partial class RoomEnemySystem
                      DraygonCollisionDefinitions.ComponentsAt(
                          enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
                 foreach (DraygonCollisionHitbox hitbox in
                          DraygonCollisionDefinitions.HitboxesAt(
                              component.HitboxPointer))
                 {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                     if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                             targetTop, targetBottom, left, top, right, bottom,
                             selectShotCallback))
@@ -2818,15 +2811,14 @@ public sealed partial class RoomEnemySystem
             foreach (PhantoonCollisionComponent component in
                      PhantoonCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
                 foreach (PhantoonCollisionHitbox hitbox in
                          PhantoonCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                     if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                             targetTop, targetBottom, left, top, right, bottom,
                             selectShotCallback))
@@ -2881,15 +2873,14 @@ public sealed partial class RoomEnemySystem
             foreach (CeresSteamCollisionComponent component in
                      CeresSteamCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
                 foreach (CeresSteamCollisionHitbox hitbox in
                          CeresSteamCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                     if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                             targetTop, targetBottom, left, top, right, bottom,
                             selectShotCallback))
@@ -2938,15 +2929,14 @@ public sealed partial class RoomEnemySystem
             foreach (CrocomireBodyCollisionComponent component in
                      CrocomireBodyCollisionDefinitions.ComponentsAt(enemy.SpritemapPointer))
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
                 foreach (CrocomireBodyCollisionHitbox hitbox in
                          CrocomireBodyCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                     if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                             targetTop, targetBottom, left, top, right, bottom,
                             selectShotCallback))
@@ -3009,15 +2999,14 @@ public sealed partial class RoomEnemySystem
             // still places two physical components against one shared hitbox list.
             foreach (KraidFootCollisionComponent component in footComponents)
             {
-                ushort componentX = unchecked((ushort)(enemy.Position.X.Whole + component.X));
-                ushort componentY = unchecked((ushort)(enemy.Position.Y.Whole + component.Y));
+                Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
                 foreach (KraidFootCollisionHitbox hitbox in
                          KraidFootCollisionDefinitions.HitboxesAt(component.HitboxPointer))
                 {
-                    ushort left = unchecked((ushort)(componentX + hitbox.Left));
-                    ushort top = unchecked((ushort)(componentY + hitbox.Top));
-                    ushort right = unchecked((ushort)(componentX + hitbox.Right));
-                    ushort bottom = unchecked((ushort)(componentY + hitbox.Bottom));
+                    ushort left = unchecked((ushort)(componentOrigin.X + hitbox.Left));
+                    ushort top = unchecked((ushort)(componentOrigin.Y + hitbox.Top));
+                    ushort right = unchecked((ushort)(componentOrigin.X + hitbox.Right));
+                    ushort bottom = unchecked((ushort)(componentOrigin.Y + hitbox.Bottom));
                     if (!OverlapsExtendedHitbox(targetLeft, targetRight,
                             targetTop, targetBottom, left, top, right, bottom,
                             selectShotCallback))

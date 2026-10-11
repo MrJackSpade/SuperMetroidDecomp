@@ -62,9 +62,9 @@ internal static partial class Program
             visualGuard.BlockFrame(bank,
                 CommonEnemyEmptyExtendedFrameDefinitions.Frame);
             OamBuffer native = DrawReferenceExtendedFrame(rom, bank,
-                CommonEnemyEmptyExtendedFrameDefinitions.Frame, 0x0080, 0x0080);
+                CommonEnemyEmptyExtendedFrameDefinitions.Frame, new(0x0080, 0x0080));
             OamBuffer installed = DrawExtendedForBank(stock, visualGuard, bank,
-                CommonEnemyEmptyExtendedFrameDefinitions.Frame, 0x0080, 0x0080);
+                CommonEnemyEmptyExtendedFrameDefinitions.Frame, new(0x0080, 0x0080));
             AssertTrue(native.LowTable.SequenceEqual(installed.LowTable) &&
                 native.HighTable.SequenceEqual(installed.HighTable) &&
                 native.NextByteOffset == installed.NextByteOffset,

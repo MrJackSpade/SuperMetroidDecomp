@@ -25,11 +25,11 @@ internal static class EscapeEtecoonDefinitions
     internal static EscapeEtecoonInitialization Initialization(ushort parameter1) =>
         (EscapeEtecoonRole)(parameter1 & 0xfffe) switch
         {
-            EscapeEtecoonRole.LeftWalker => new(128, 200, EscapeEtecoonPreInstruction.WalkAndFall,
+            EscapeEtecoonRole.LeftWalker => new(new(128, 200), EscapeEtecoonPreInstruction.WalkAndFall,
                 EscapeEtecoonInstructionProgramDefinitions.RunningLeftLowTide, unchecked((ushort)-512)),
-            EscapeEtecoonRole.RightWalker => new(160, 200, EscapeEtecoonPreInstruction.WalkAndFall,
+            EscapeEtecoonRole.RightWalker => new(new(160, 200), EscapeEtecoonPreInstruction.WalkAndFall,
                 EscapeEtecoonInstructionProgramDefinitions.RunningRightLowTide, 640),
-            EscapeEtecoonRole.WaitForEscapeEvent => new(232, 200, EscapeEtecoonPreInstruction.WaitForEscapeEvent,
+            EscapeEtecoonRole.WaitForEscapeEvent => new(new(232, 200), EscapeEtecoonPreInstruction.WaitForEscapeEvent,
                 EscapeEtecoonInstructionProgramDefinitions.Stationary, 0),
             _ => throw new ArgumentOutOfRangeException(nameof(parameter1), parameter1,
                 "Escape Etecoon parameter must select one of the three authored roles."),
@@ -38,8 +38,7 @@ internal static class EscapeEtecoonDefinitions
 
 /// <summary>One escape Etecoon's initial position, behavior, animation, and speed.</summary>
 internal readonly record struct EscapeEtecoonInitialization(
-    ushort XPosition,
-    ushort YPosition,
+    Position16<RoomPixels> Position,
     EscapeEtecoonPreInstruction PreInstruction,
     ushort InstructionList,
     ushort HorizontalSpeed);

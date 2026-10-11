@@ -16,10 +16,10 @@ public static partial class GameplayDisplayCapture
         {
             registers = new(unchecked((short)getaway.Mode7MatrixA), unchecked((short)getaway.Mode7MatrixB),
                 unchecked((short)getaway.Mode7MatrixC), unchecked((short)getaway.Mode7MatrixD),
-                new Offset16<Mode7Pixels>(unchecked((short)getaway.Mode7CenterX), unchecked((short)getaway.Mode7CenterY)),
+                getaway.Mode7Center.AsSignedRegister(),
                 new Offset16<Mode7Pixels>(
-                    unchecked((short)(getaway.Mode7HorizontalOffset + shake.Bg1.X)),
-                    unchecked((short)(getaway.Mode7VerticalOffset + shake.Bg1.Y))));
+                    unchecked((short)(getaway.Mode7Offset.X + shake.Bg1.X)),
+                    unchecked((short)(getaway.Mode7Offset.Y + shake.Bg1.Y))));
             floor = new(GameplayRenderDefinitions.CeresFloorFirstScanline, SnesPpuLayout.GameplayBg2TilemapWord,
                 GameplayRenderDefinitions.CeresCharacterWord,
                 ppu.Bg2Scroll + shake.Bg2,

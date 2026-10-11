@@ -55,7 +55,7 @@ internal static partial class Program
         body.SpritemapPointer = 0xe9e9; body.Properties = 0x3800;
         state.FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = 1; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = 10;
-        state.HorizontalVelocity = 0xfc00; state.VerticalVelocity = 0x0300;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0300));
         state.TailFunctionIndex = RidleyTailFunction.None;
         samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
         samus.Health = 399; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;
@@ -125,7 +125,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(NativeSnapshotMemory.RidleyRoom);
         var body = runtime.Enemies.Slots[0]; var state = runtime.Enemies.Ridley!; var samus = runtime.Samus!;
         body.Position = body.Position.WithWhole(new(211, 346));
-        state.HorizontalVelocity = 0xc0; state.VerticalVelocity = 0x400;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x400));
         state.FacingDirection = RidleyFacing.Right; state.Function = RidleyAiFunction.NorfairFireballAttack;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
@@ -134,8 +134,8 @@ internal static partial class Program
         attack.Invoke(runtime.Enemies, [body, state, samus, runtime.LevelData]);
         AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "native grab immediately enters carry movement");
         AssertEqual((ushort)31, state.FunctionTimer, "native setup falls through first carry countdown");
-        AssertEqual((ushort)0xb6, state.HorizontalVelocity, "native same-update grab X acceleration");
-        AssertEqual((ushort)0xfbfc, state.VerticalVelocity, "native same-update grab Y acceleration");
+        AssertEqual((ushort)0xb6, state.Velocity.X.RawValue, "native same-update grab X acceleration");
+        AssertEqual((ushort)0xfbfc, state.Velocity.Y.RawValue, "native same-update grab Y acceleration");
         AssertTrue(samus.StationaryScriptControlLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         typeof(SamusBombProjectileSystem).GetMethod("SetSharedCooldown", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(bombs, [(ushort)10]);
@@ -149,7 +149,7 @@ internal static partial class Program
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.
         body.Position = new(new(172, 0x6300), new(345, 0x0a00));
-        state.HorizontalVelocity = 0x2b0; state.VerticalVelocity = 0x3cd;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x2b0)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x3cd));
         state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
         state.GrabState = 0; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(156, 411)); samus.Pose = SamusPoseId.FacingLeftNormalPose;
@@ -157,29 +157,29 @@ internal static partial class Program
         var lunge = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGrabApproach", BindingFlags.Instance | BindingFlags.NonPublic)!;
         lunge.Invoke(runtime.Enemies, [body, state, samus]);
         AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "lunge grab enters immediate carry");
-        AssertEqual((ushort)0x2b2, state.HorizontalVelocity, "native lunge grab X acceleration");
-        AssertEqual((ushort)0xfc25, state.VerticalVelocity, "native lunge grab reverses before carry acceleration");
+        AssertEqual((ushort)0x2b2, state.Velocity.X.RawValue, "native lunge grab X acceleration");
+        AssertEqual((ushort)0xfc25, state.Velocity.Y.RawValue, "native lunge grab reverses before carry acceleration");
         AssertEqual((ushort)31, state.FunctionTimer, "native lunge grab falls through countdown");
         // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
         body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
-        state.HorizontalVelocity = 0x1de; state.VerticalVelocity = 0x419;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x1de)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x419));
         state.FightMode = RidleyFightMode.Fighting; state.GrabState = 0; state.FunctionTimer = 0x29;
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus);
         lunge.Invoke(runtime.Enemies, [body, state, samus]);
         AssertEqual(RidleyAiFunction.NorfairReleaseSamus, state.Function, "zero-health grab enters death movement");
-        AssertEqual((ushort)0x1c6, state.HorizontalVelocity, "death entry immediately accelerates X toward death spot");
-        AssertEqual((ushort)0xfbde, state.VerticalVelocity, "death entry immediately accelerates Y toward death spot");
+        AssertEqual((ushort)0x1c6, state.Velocity.X.RawValue, "death entry immediately accelerates X toward death spot");
+        AssertEqual((ushort)0xfbde, state.Velocity.Y.RawValue, "death entry immediately accelerates Y toward death spot");
         AssertEqual((ushort)0x29, state.FunctionTimer, "death entry retains existing general countdown");
         var dispatch = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", BindingFlags.Instance | BindingFlags.NonPublic)!;
         foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
         {
             state.Function = function; state.FunctionTimer = 0;
-            state.HorizontalVelocity = 0xffca; state.VerticalVelocity = 0xfecb;
-            state.TargetX = 208; body.Position = body.Position.WithWhole(new(212, 142));
+            state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffca)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xfecb));
+            state.Target = state.Target.WithX(208); body.Position = body.Position.WithWhole(new(212, 142));
             dispatch.Invoke(runtime.Enemies, [body, state, samus, (ushort)0, runtime.LevelData]);
-            AssertEqual((ushort)0xffca, state.HorizontalVelocity, "native expiry skips X acceleration");
-            AssertEqual((ushort)0xfecb, state.VerticalVelocity, "native expiry skips Y acceleration");
+            AssertEqual((ushort)0xffca, state.Velocity.X.RawValue, "native expiry skips X acceleration");
+            AssertEqual((ushort)0xfecb, state.Velocity.Y.RawValue, "native expiry skips Y acceleration");
             AssertEqual(function == RidleyAiFunction.NorfairCarryRise ? RidleyAiFunction.NorfairCarryRelease : RidleyAiFunction.NorfairSelectAttack, state.Function, "native expiry selects next carry phase");
             AssertEqual((ushort)(function == RidleyAiFunction.NorfairCarryRise ? 8 : 16), state.IdealInterSegmentTailAngle, "native expiry changes ideal tail angle");
             AssertEqual((ushort)240, state.TailExtensionSpeed, "native expiry restores tail extension speed");
@@ -440,8 +440,7 @@ internal static partial class Program
         var state = runtime.Enemies.Ridley!;
         var body = runtime.Enemies.Slots[0];
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.TailSegments[6].XPosition = 4;
-        state.TailSegments[6].YPosition = 118;
+        state.TailSegments[6].Position = new Position16<RoomPixels>(4, 118);
         var impact = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttack", BindingFlags.Instance | BindingFlags.NonPublic)!;
         impact.Invoke(runtime.Enemies, [body, state, null, runtime.LevelData]);
         var dust = runtime.Enemies.EnemyProjectiles[17];
@@ -530,23 +529,23 @@ internal static partial class Program
         };
         var segment = state.TailSegments[0];
         segment.Active = true; segment.StaggerAngle = 2;
-        segment.XOffset = 7; segment.YOffset = 11;
+        segment.Offset = new Offset16<RoomPixels>(7, 11);
         tick.Invoke(null, [state, 0]);
         AssertEqual((ushort)4, segment.StaggerAngle, "native stagger advances before returning");
-        AssertEqual((ushort)7, segment.XOffset, "stagger retains X offset");
-        AssertEqual((ushort)11, segment.YOffset, "stagger retains Y offset");
+        AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
+        AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
         segment.StaggerAngle = ushort.MaxValue; segment.Angle = 0x4000;
         segment.MovementDirection = 0x8000; segment.Distance = 0x0200;
         tick.Invoke(null, [state, 0]);
         AssertEqual((ushort)0x3ffe, segment.Angle, "native clockwise comparison decrements then restores one before storing");
-        AssertEqual(ushort.MaxValue, segment.XOffset, "signed Mode 7 multiplication floors negative fraction");
-        AssertEqual((ushort)1, segment.YOffset, "signed Mode 7 cosine product");
+        AssertEqual((short)-1, segment.Offset.X, "signed Mode 7 multiplication floors negative fraction");
+        AssertEqual((short)1, segment.Offset.Y, "signed Mode 7 cosine product");
         state.TailWhipTargetClockwiseAngle = 0x4000;
-        segment.Angle = 0x4000; segment.XOffset = 7; segment.YOffset = 11;
+        segment.Angle = 0x4000; segment.Offset = new Offset16<RoomPixels>(7, 11);
         tick.Invoke(null, [state, 0]);
         AssertTrue(!segment.Active, "root stops at whip target");
-        AssertEqual((ushort)7, segment.XOffset, "stop retains X offset");
-        AssertEqual((ushort)11, segment.YOffset, "stop retains Y offset");
+        AssertEqual((short)7, segment.Offset.X, "stop retains X offset");
+        AssertEqual((short)11, segment.Offset.Y, "stop retains Y offset");
         var child = state.TailSegments[1];
         segment.Active = true;
         child.Active = true; child.StaggerAngle = ushort.MaxValue;
@@ -558,7 +557,7 @@ internal static partial class Program
         foreach (var part in state.TailSegments)
         {
             part.Distance = 0x1200; part.TargetDistance = 0x0c00;
-            part.Angle = 0x3ff8; part.XOffset = 0xfffd; part.YOffset = 13;
+            part.Angle = 0x3ff8; part.Offset = new Offset16<RoomPixels>(-3, 13);
         }
         flip.Invoke(null, [state]);
         ushort[] nativeRest = [0x0200, 0x0800, 0x0800, 0x0800, 0x0800, 0x0800, 0x0500];
@@ -568,8 +567,8 @@ internal static partial class Program
             AssertEqual(nativeRest[i], part.Distance, "native flip restores each authored rest distance");
             AssertEqual((ushort)0x4008, part.Angle, "native flip reflects angle");
             AssertEqual((ushort)0x0c00, part.TargetDistance, "native flip preserves extension target");
-            AssertEqual((ushort)0xfffd, part.XOffset, "native flip preserves current X offset");
-            AssertEqual((ushort)13, part.YOffset, "native flip preserves current Y offset");
+            AssertEqual((short)-3, part.Offset.X, "native flip preserves current X offset");
+            AssertEqual((short)13, part.Offset.Y, "native flip preserves current Y offset");
         }
         Console.WriteLine("Ridley tail offsets: stagger/stop retention, clockwise arithmetic, signed multiplication and predecessor gate pass.");
     }
@@ -1278,8 +1277,8 @@ internal static partial class Program
                 Check("Ridley TailWhipTargetClockwiseAngle", ridleyState.TailWhipTargetClockwiseAngle, NativeSnapshotMemory.RidleyTailWhipTargetClockwiseAngle);
                 Check("Ridley TailWhipTargetCounterClockwiseAngle", ridleyState.TailWhipTargetCounterClockwiseAngle, NativeSnapshotMemory.RidleyTailWhipTargetCounterClockwiseAngle);
                 Check("Ridley IdealInterSegmentTailAngle", ridleyState.IdealInterSegmentTailAngle, NativeSnapshotMemory.RidleyIdealInterSegmentTailAngle);
-                Check("Ridley HorizontalVelocity", ridleyState.HorizontalVelocity, NativeSnapshotMemory.RidleyHorizontalVelocity);
-                Check("Ridley VerticalVelocity", ridleyState.VerticalVelocity, NativeSnapshotMemory.RidleyVerticalVelocity);
+                Check("Ridley HorizontalVelocity", ridleyState.Velocity.X.RawValue, NativeSnapshotMemory.RidleyHorizontalVelocity);
+                Check("Ridley VerticalVelocity", ridleyState.Velocity.Y.RawValue, NativeSnapshotMemory.RidleyVerticalVelocity);
                 Check("Ridley FightMode", (ushort)ridleyState.FightMode, NativeSnapshotMemory.RidleyFightMode);
                 Check("Ridley MovementAnimationEnabled", ridleyState.MovementAnimationEnabled, NativeSnapshotMemory.RidleyMovementAnimationEnabled);
                 Check("Ridley WingFrame", ridleyState.WingFrame, NativeSnapshotMemory.RidleyWingFrame);
@@ -1287,8 +1286,8 @@ internal static partial class Program
                 Check("Ridley WingAnimationTimer", ridleyState.WingAnimationTimer, NativeSnapshotMemory.RidleyWingAnimationTimer);
                 Check("Ridley FacingDirection", (ushort)ridleyState.FacingDirection, NativeSnapshotMemory.RidleyFacingDirection);
                 Check("Ridley HealthStage", ridleyState.HealthStage, NativeSnapshotMemory.RidleyHealthStage);
-                Check("Ridley GrabXOffset", ridleyState.GrabXOffset, NativeSnapshotMemory.RidleyGrabXOffset);
-                Check("Ridley GrabYOffset", ridleyState.GrabYOffset, NativeSnapshotMemory.RidleyGrabYOffset);
+                Check("Ridley GrabXOffset", unchecked((ushort)ridleyState.GrabOffset.X), NativeSnapshotMemory.RidleyGrabXOffset);
+                Check("Ridley GrabYOffset", unchecked((ushort)ridleyState.GrabOffset.Y), NativeSnapshotMemory.RidleyGrabYOffset);
                 Check("Ridley TailDamage", ridleyState.TailDamage, NativeSnapshotMemory.RidleyTailDamage);
                 Check("Ridley FeetDistanceIndex", ridleyState.FeetDistanceIndex, NativeSnapshotMemory.RidleyFeetDistanceIndex);
                 Check("Ridley IntangibilityTimer", ridleyState.IntangibilityTimer, NativeSnapshotMemory.RidleyIntangibilityTimer);
@@ -1299,8 +1298,8 @@ internal static partial class Program
                 if (game.GameState == SuperMetroidGameState.MainGameplay)
                 {
                     // Tail workspace becomes live after its first fade-owned composition.
-                    Check("Ridley tail tip X", ridleyState.TailSegments[6].XPosition, NativeSnapshotMemory.TailTipX);
-                    Check("Ridley tail tip Y", ridleyState.TailSegments[6].YPosition, NativeSnapshotMemory.TailTipY);
+                    Check("Ridley tail tip X", ridleyState.TailSegments[6].Position.X, NativeSnapshotMemory.TailTipX);
+                    Check("Ridley tail tip Y", ridleyState.TailSegments[6].Position.Y, NativeSnapshotMemory.TailTipY);
                     for (int tailIndex = 0; tailIndex < ridleyState.TailSegments.Length; tailIndex++)
                     {
                         var segment = ridleyState.TailSegments[tailIndex];
@@ -1312,10 +1311,10 @@ internal static partial class Program
                         Check(tailOwner + " Distance", segment.Distance, tailAddress + 6);
                         Check(tailOwner + " TargetDistance", segment.TargetDistance, tailAddress + 8);
                         Check(tailOwner + " Angle", segment.Angle, tailAddress + 10);
-                        Check(tailOwner + " XPosition", segment.XPosition, tailAddress + 12);
-                        Check(tailOwner + " YPosition", segment.YPosition, tailAddress + 14);
-                        Check(tailOwner + " XOffset", segment.XOffset, tailAddress + 16);
-                        Check(tailOwner + " YOffset", segment.YOffset, tailAddress + 18);
+                        Check(tailOwner + " XPosition", segment.Position.X, tailAddress + 12);
+                        Check(tailOwner + " YPosition", segment.Position.Y, tailAddress + 14);
+                        Check(tailOwner + " XOffset", unchecked((ushort)segment.Offset.X), tailAddress + 16);
+                        Check(tailOwner + " YOffset", unchecked((ushort)segment.Offset.Y), tailAddress + 18);
                     }
                 }
             }

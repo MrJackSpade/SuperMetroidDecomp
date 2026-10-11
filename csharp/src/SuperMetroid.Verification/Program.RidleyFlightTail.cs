@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -11,7 +12,7 @@ internal static partial class Program
             .CreateDelegate<Action<RidleyEnemyState, int, int, int>>();
         var state = new RidleyEnemyState { SwoopSpeedMagnitude = 0x500 };
         update(state, 0, 0, 0x500);
-        AssertEqual((ushort)0x500, state.VerticalVelocity, "native downward swoop uses full speed");
+        AssertEqual((ushort)0x500, state.Velocity.Y.RawValue, "native downward swoop uses full speed");
         state.SwoopAngleAccumulator = 0x7800;
         update(state, 0, short.MinValue, 0x500);
         AssertEqual((ushort)0x7800, state.SwoopAngleAccumulator, "native CMP/BMI retains right-facing recovery angle");
@@ -26,8 +27,8 @@ internal static partial class Program
                 short sample = unchecked((short)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
                 return unchecked((ushort)(Math.Sign(sample) * (0x500 * Math.Abs((int)sample) >> 8)));
             }
-            AssertEqual(NativeComponent(phase), state.HorizontalVelocity, "native swoop X table multiplication");
-            AssertEqual(NativeComponent(phase + 64), state.VerticalVelocity, "native swoop Y table multiplication");
+            AssertEqual(NativeComponent(phase), state.Velocity.X.RawValue, "native swoop X table multiplication");
+            AssertEqual(NativeComponent(phase + 64), state.Velocity.Y.RawValue, "native swoop Y table multiplication");
         }
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -56,9 +57,9 @@ internal static partial class Program
         AssertTrue(state.TailSegments.All(segment => segment.Angle == 0x4000 && !segment.Active), "pogo tail points down and stops");
         // $D10E returns on deactivation before recomputing offsets: retain the
         // previous $F8-angle Mode 7 products (-1,+1), not the new angle's (0,2).
-        AssertEqual((ushort)159, state.TailSegments[0].XPosition, "pointed root retains pre-stop native hip X");
-        AssertEqual((ushort)145, state.TailSegments[0].YPosition, "pointed root retains pre-stop native hip Y");
-        state.VerticalVelocity = 0;
+        AssertEqual((ushort)159, state.TailSegments[0].Position.X, "pointed root retains pre-stop native hip X");
+        AssertEqual((ushort)145, state.TailSegments[0].Position.Y, "pointed root retains pre-stop native hip Y");
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0));
         tail(slot, state, null);
         AssertEqual(RidleyTailFunction.StabSetup, state.TailFunctionIndex, "descending normal pogo starts stab setup");
         tail(slot, state, null);
@@ -72,9 +73,9 @@ internal static partial class Program
             .CreateDelegate<Action<RidleyEnemyState, SamusState?, byte>>(enemies);
         state.FightMode = RidleyFightMode.Fighting;
         state.FacingDirection = RidleyFacing.Left;
-        state.TailSegments[0].XPosition = state.TailSegments[0].YPosition = 128;
+        state.TailSegments[0].Position = new Position16<RoomPixels>(128, 128);
         state.TailSegments[0].Angle = 0x4000;
-        state.TailSegments[6].XPosition = state.TailSegments[6].YPosition = 128;
+        state.TailSegments[6].Position = new Position16<RoomPixels>(128, 128);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
         ushort samusTarget = state.TailWhipTargetClockwiseAngle;
@@ -104,19 +105,19 @@ internal static partial class Program
         AssertEqual(0, advances, "tail controller never advances RNG");
         var direction = typeof(RoomEnemySystem).GetMethod("SetRidleyPogoHorizontalDirection", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
-        state.MinimumX = 64;
-        state.MaximumX = 192;
+        state.MovementMinimum = state.MovementMinimum.WithX(64);
+        state.MovementMaximum = state.MovementMaximum.WithX(192);
         slot.Position = slot.Position.WithWholeX(128);
-        state.HorizontalVelocity = 0x100;
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x100));
         seed = 0x1000;
         direction(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
-        AssertEqual(unchecked((ushort)-0x100), state.HorizontalVelocity, "pogo bounce turns toward Samus for ordinary seed");
+        AssertEqual(unchecked((ushort)-0x100), state.Velocity.X.RawValue, "pogo bounce turns toward Samus for ordinary seed");
         slot.Position = slot.Position.WithWholeX(32);
         direction(slot, state, samus);
-        AssertEqual((ushort)0x100, state.HorizontalVelocity, "pogo left boundary forces rightward bounce");
+        AssertEqual((ushort)0x100, state.Velocity.X.RawValue, "pogo left boundary forces rightward bounce");
         slot.Position = slot.Position.WithWholeX(192);
         direction(slot, state, samus);
-        AssertEqual(unchecked((ushort)-0x100), state.HorizontalVelocity, "pogo right boundary forces leftward bounce");
+        AssertEqual(unchecked((ushort)-0x100), state.Velocity.X.RawValue, "pogo right boundary forces leftward bounce");
         AssertEqual(0, advances, "pogo direction does not advance RNG");
         Console.WriteLine("Ridley flight: native swoop magnitude and signed angle comparison confirmed.");
         Console.WriteLine("Ridley tail: real pogo setup, exact segment angles/position, stop, descending stab and neutral recovery confirmed.");

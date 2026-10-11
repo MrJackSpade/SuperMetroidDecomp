@@ -358,7 +358,7 @@ internal static partial class Program
         {
             var native = new OamBuffer();
             var actual = new OamBuffer();
-            DrawImportedProjectileSpritemap(rom, native, pointer, 255, 255);
+            DrawImportedProjectileSpritemap(rom, native, pointer, new(255, 255));
             selected.Draw(pointer, actual, new(255, 255));
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "All417 calculated/remaining identities extract and draw exact native OAM");
         }
@@ -420,7 +420,7 @@ internal static partial class Program
         {
             var native = new OamBuffer();
             var actual = new OamBuffer();
-            DrawImportedProjectileSpritemap(rom, native, ChargeFlareSpriteDefinitions.Selectors[selector], 255, 255);
+            DrawImportedProjectileSpritemap(rom, native, ChargeFlareSpriteDefinitions.Selectors[selector], new(255, 255));
             flare.Draw(selector, actual, new(255, 255));
             AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable), "Existing flare span caller preserves exact extracted OAM");
         }
@@ -1067,9 +1067,9 @@ internal static partial class Program
                 setYard(slot, yard, direction);
                 int nativeDirection = 0xa3cd82 + direction * 8;
                 AssertEqual(unchecked((ushort)((expected ^ Word(nativeDirection)) + Word(nativeDirection + 2))),
-                    yard.CrawlingXVelocity, "Actual Yard reset X magnitude");
+                    yard.CrawlingVelocity.X.RawValue, "Actual Yard reset X magnitude");
                 AssertEqual(unchecked((ushort)((expected ^ Word(nativeDirection + 4)) + Word(nativeDirection + 6))),
-                    yard.CrawlingYVelocity, "Actual Yard reset Y magnitude");
+                    yard.CrawlingVelocity.Y.RawValue, "Actual Yard reset Y magnitude");
             }
         }
         AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler parameter upper bound");

@@ -23,7 +23,8 @@ internal static partial class Program
                     throw new InvalidOperationException($"{merge.TypeName}.{legacy} still exists beside its merged {merge.Field}.");
 
             // Signed and high components prove exact word reinterpretation, not only small values.
-            object[] components = merge.LegacyTypes.Select((componentType, index) => SpatialMergeSample(componentType, index)).ToArray();
+            object[] components = merge.LegacySamples ??
+                merge.LegacyTypes.Select((componentType, index) => SpatialMergeSample(componentType, index)).ToArray();
 
             object instance = RuntimeHelpers.GetUninitializedObject(type);
             // Restoration validates closed domains (#627); give enum fields a defined member.

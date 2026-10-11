@@ -206,7 +206,7 @@ internal static partial class Program
             rom.ReadByte((address & 0xff0000) | unchecked((ushort)(address + 1))) << 8));
 
         (OamBuffer Oam, byte[] Vram) DrawNative(ushort pointer, bool newFrame) =>
-            (DrawReferenceExtendedFrame(rom, 0xa4, pointer, 0x0080, 0x0080),
+            (DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
         static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)

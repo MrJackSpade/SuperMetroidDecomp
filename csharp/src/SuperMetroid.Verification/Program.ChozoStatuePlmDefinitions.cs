@@ -73,8 +73,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem();
             var request = new ChozoStatuePlmRequest(
                 definition.HeaderPointer,
-                BlockX: 3,
-                BlockY: 4,
+                Block: new Position16<RoomBlocks>(3, 4),
                 IsHardcoded: false);
 
             AssertTrue(

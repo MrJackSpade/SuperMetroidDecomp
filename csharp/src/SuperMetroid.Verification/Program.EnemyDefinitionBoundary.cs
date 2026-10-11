@@ -27,7 +27,7 @@ internal static partial class Program
         {
             AssertTrue(artwork.ExtendedFrames!.TryGet(TorizoInstructionProgramDefinitions.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
-            OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoInstructionProgramDefinitions.Bank, frame, x, y);
+            OamBuffer actual = DrawExtendedForBank(artwork, memory, TorizoInstructionProgramDefinitions.Bank, frame, new(x, y));
             var expected = new OamBuffer();
             int count = NativeWord(source, 0xaa0000 | frame);
             for (int index = 0; index < count; index++)
@@ -47,7 +47,7 @@ internal static partial class Program
             drawCases++;
         }
         AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, memory,
-                TorizoInstructionProgramDefinitions.Bank, 0x87d0, 128, 96),
+                TorizoInstructionProgramDefinitions.Bank, 0x87d0, new(128, 96)),
             "missing enemy artwork cannot recover an address decoder");
         Console.WriteLine($"Enemy definitions: all 1,761 Torizo mechanics words, 564 selectors, 106 physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }

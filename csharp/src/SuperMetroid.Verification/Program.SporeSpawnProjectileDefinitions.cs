@@ -21,11 +21,11 @@ internal static partial class Program
         }
         for (int offset = 0; offset < 256; offset++)
         {
-            SporeSpawnMovementDelta delta =
+            Offset16<RoomPixels> delta =
                 SporeSpawnProjectileDefinitions.MovementAt(unchecked((byte)offset));
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x86dd6c + offset)), delta.X,
+            AssertEqual((short)unchecked((sbyte)rom.ReadByte(0x86dd6c + offset)), delta.X,
                 $"Spore Spawn movement X {offset:X2}");
-            AssertEqual(unchecked((sbyte)rom.ReadByte(0x86dd6c + ((offset + 1) & 0xff))),
+            AssertEqual((short)unchecked((sbyte)rom.ReadByte(0x86dd6c + ((offset + 1) & 0xff))),
                 delta.Y, $"Spore Spawn movement Y {offset:X2}");
         }
 

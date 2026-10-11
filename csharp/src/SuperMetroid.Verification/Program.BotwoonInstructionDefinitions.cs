@@ -63,8 +63,7 @@ internal static partial class Program
             RoomEnemySlot movementHead = movementEnemies.Slots[0];
             var movementState = new BotwoonEnemyState(movementHead);
             movementHead.Position = movementHead.Position.WithWhole(new(unchecked((ushort)(1000 + dx)), unchecked((ushort)(1000 + dy))));
-            movementState.HeadHistoryX[3] = 1000;
-            movementState.HeadHistoryY[3] = 1000;
+            movementState.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
             animateHead(movementHead, movementState);
             AssertEqual(definition.MovementInstruction, movementHead.CurrentInstruction,
                 $"production Botwoon moving-head octant {octant}");

@@ -72,8 +72,7 @@ public sealed class ChozoStatueState
 /// </summary>
 public readonly record struct ChozoStatuePlmRequest(
     PlmHeaderId HeaderPointer,
-    int BlockX,
-    int BlockY,
+    Position16<RoomBlocks> Block,
     bool IsHardcoded);
 
 public sealed partial class RoomEnemySystem
@@ -175,15 +174,15 @@ public sealed partial class RoomEnemySystem
             statue.CurrentInstruction =
                 ChozoStatueInstructionProgramDefinitions.WreckedShipInitial;
             LoadChozoStatuePalette(wreckedShip: true);
-            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, blockX: 0x4a, blockY: 0x17);
-            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, blockX: 0x17, blockY: 0x1d);
+            PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, new Position16<RoomBlocks>(0x4a, 0x17));
+            PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(0x17, 0x1d));
         }
         else
         {
             statue.CurrentInstruction =
                 ChozoStatueInstructionProgramDefinitions.LowerNorfairInitial;
             LoadChozoStatuePalette(wreckedShip: false);
-            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, blockX: 0x0c, blockY: 0x1d);
+            PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, new Position16<RoomBlocks>(0x0c, 0x1d));
         }
     }
 
@@ -226,8 +225,7 @@ public sealed partial class RoomEnemySystem
             RequireSetEvent(EventNumber.LowerNorfairChozoLoweredAcid);
             PublishHardcodedChozoPlm(
                 PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-                blockX: 0x0c,
-                blockY: 0x1d);
+                new Position16<RoomBlocks>(0x0c, 0x1d));
         }
         else
         {
@@ -240,8 +238,7 @@ public sealed partial class RoomEnemySystem
             RequireSetRoomScrollState(14, RoomScrollState.Blue);
             PublishHardcodedChozoPlm(
                 PlmHeaderId.ClearSlopeAccessForWreckedShipChozo,
-                blockX: 0x17,
-                blockY: 0x1d);
+                new Position16<RoomBlocks>(0x17, 0x1d));
         }
     }
 
@@ -421,8 +418,7 @@ public sealed partial class RoomEnemySystem
 
         _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
             PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug,
-            probeX >> 4,
-            probeY >> 4,
+            new Position16<RoomPixels>(probeX, probeY).ToRoomBlock(),
             IsHardcoded: false));
         SpawnWreckedShipChozoFootstep(statue, rawXOffset);
     }
@@ -453,8 +449,7 @@ public sealed partial class RoomEnemySystem
 
         PublishHardcodedChozoPlm(
             PlmHeaderId.BlockSlopeAccessForWreckedShipChozo,
-            blockX: 0x17,
-            blockY: 0x1d);
+            new Position16<RoomBlocks>(0x17, 0x1d));
     }
 
     private void SetChozoStatueSamusControls(bool enabled)
@@ -463,11 +458,10 @@ public sealed partial class RoomEnemySystem
         RequireSetSamusControlsEnabled(enabled);
     }
 
-    private void PublishHardcodedChozoPlm(PlmHeaderId header, int blockX, int blockY) =>
+    private void PublishHardcodedChozoPlm(PlmHeaderId header, Position16<RoomBlocks> block) =>
         _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
             header,
-            blockX,
-            blockY,
+            block,
             IsHardcoded: true));
 
     private ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>

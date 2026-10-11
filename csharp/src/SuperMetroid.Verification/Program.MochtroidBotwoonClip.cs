@@ -11,8 +11,7 @@ internal static partial class Program
         string Case,
         ushort EnemyNativeIndex,
         Position16<RoomPixels> Samus,
-        ushort EnemyX,
-        ushort EnemyY,
+        Position16<RoomPixels> Enemy,
         int FirstDownFrame,
         int StandFrame,
         int FinalJumpFrame,
@@ -44,7 +43,7 @@ internal static partial class Program
         foreach (MochtroidClipNativeRecord expected in records)
             VerifyMochtroidClipRecord(expected);
 
-        AssertTrue(records[0].EnemyY + 1 == records[1].EnemyY,
+        AssertTrue(records[0].Enemy.Y + 1 == records[1].Enemy.Y,
             "Mochtroid failure differs from success by exactly one Y pixel");
         Console.WriteLine(
             "PASS Mochtroid Botwoon pipe clip: retail room, frozen-enemy overlap, " +
@@ -96,7 +95,7 @@ internal static partial class Program
         {
             slot.Clear();
         }
-        mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(new(expected.EnemyX, expected.EnemyY));
+        mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(expected.Enemy);
         mochtroid.FrozenTimer = 1000;
         mochtroid.AiHandlerBits = 4;
 
@@ -163,7 +162,7 @@ internal static partial class Program
         return new MochtroidClipNativeRecord(
             fields[0],
             ParseU16(fields[1]), new Position16<RoomPixels>(ParseU16(fields[2]), ParseU16(fields[3])),
-            ParseU16(fields[4]), ParseU16(fields[5]),
+            new Position16<RoomPixels>(ParseU16(fields[4]), ParseU16(fields[5])),
             ParseInt(fields[6]), ParseInt(fields[7]), ParseInt(fields[8]), ParseInt(fields[9]),
             ParseU16(fields[10]), (SamusPoseId)ParseByte(fields[11]), ParseU16(fields[12]), ParseU16(fields[13]),
             ParseU16(fields[14]), (SamusPoseId)ParseByte(fields[15]), ParseU16(fields[16]), ParseU16(fields[17]),

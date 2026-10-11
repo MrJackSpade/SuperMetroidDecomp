@@ -103,7 +103,7 @@ internal static partial class Program
             }
             var actual = MotherBrainGlassShardDefinitions.Placement(parameter);
             short expected = unchecked((short)ReadMotherBrainGlassShardWord(rom, (yAxis ? 0x86ce67 : 0x86ce61) + parameter));
-            AssertEqual(expected, yAxis ? actual.YOffset : actual.XOffset, "Glass shard original signed placement field");
+            AssertEqual(expected, yAxis ? actual.Offset.Y : actual.Offset.X, "Glass shard original signed placement field");
         }
     }
 

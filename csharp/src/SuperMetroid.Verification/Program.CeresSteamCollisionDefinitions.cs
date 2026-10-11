@@ -84,9 +84,9 @@ internal static partial class Program
             AssertEqual((ushort)0x1001, ReadWord(0xa60000 | frame),
                 $"Ceres steam $A6:{frame:X4} preserves the native $1001 header");
             CeresSteamCollisionComponent component = components[0];
-            AssertEqual(unchecked((short)ReadWord(0xa60000 | frame + 2)), component.X,
+            AssertEqual(unchecked((short)ReadWord(0xa60000 | frame + 2)), component.Offset.X,
                 "Ceres steam native component X");
-            AssertEqual(unchecked((short)ReadWord(0xa60000 | frame + 4)), component.Y,
+            AssertEqual(unchecked((short)ReadWord(0xa60000 | frame + 4)), component.Offset.Y,
                 "Ceres steam native component Y");
             AssertEqual(ReadWord(0xa60000 | frame + 8), component.HitboxPointer,
                 "Ceres steam native hitbox-list pointer");

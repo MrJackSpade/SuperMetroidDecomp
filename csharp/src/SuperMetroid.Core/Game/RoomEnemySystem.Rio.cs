@@ -41,18 +41,15 @@ public sealed class RioEnemyState
         internal set => _slot.VariableB = (ushort)value;
     }
 
-    /// <summary>Signed 8.8 vertical velocity passed to the 16.16 collision helper.</summary>
-    public ushort YVelocity
+    /// <summary>Signed 8.8 velocity: the horizontal word is native common variable D and the vertical word variable C; the horizontal word feeds the 16.16 collision helper.</summary>
+    public EightEightVector<RoomPixels> Velocity
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Signed 8.8 horizontal velocity passed to the 16.16 collision helper.</summary>
-    public ushort XVelocity
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => new(new SnesSignedEightEight(_slot.VariableD), new SnesSignedEightEight(_slot.VariableC));
+        internal set
+        {
+            _slot.VariableD = value.X.RawValue;
+            _slot.VariableC = value.Y.RawValue;
+        }
     }
 
     /// <summary>Handshake set by instruction $A2:BBC3 and consumed by main AI.</summary>
@@ -134,10 +131,11 @@ public sealed partial class RoomEnemySystem
                     return;
                 }
 
-                state.YVelocity = RioLaunchDefinitions.RioYVelocity;
-                state.XVelocity = RioLaunchDefinitions.RioXVelocity;
+                state.Velocity = new EightEightVector<RoomPixels>(
+                    new SnesSignedEightEight(RioLaunchDefinitions.RioXVelocity),
+                    new SnesSignedEightEight(RioLaunchDefinitions.RioYVelocity));
                 if (unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0)
-                    state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
+                    state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 InstallRioInstructionList(
                     slot,
                     state,
@@ -166,27 +164,26 @@ public sealed partial class RoomEnemySystem
                 if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level!,
                         slot,
-                        ToEightBitVelocityDisplacement(state.XVelocity)))
+                        ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
                 {
-                    state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
+                    state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
                 }
                 if (MoveEnemyVertically(
                         level!,
                         slot,
-                        ToEightBitVelocityDisplacement(state.YVelocity)))
+                        ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
                     ReverseRioVerticalVelocityAndBounce(state);
                     return;
                 }
 
-                state.YVelocity = unchecked((ushort)(state.YVelocity - RioGravityStep));
-                if (unchecked((short)state.YVelocity) < 0)
+                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
+                if (state.Velocity.Y.SignedRawValue < 0)
                 {
-                    state.SavedHorizontalVelocity = state.XVelocity;
-                    state.XVelocity = 0;
-                    state.YVelocity = 0;
+                    state.SavedHorizontalVelocity = state.Velocity.X.RawValue;
+                    state.Velocity = new EightEightVector<RoomPixels>(0, 0);
                     state.Function = RioEnemyFunction.HoveringTowardSamus;
                 }
                 else if (state.AnimationFinished)
@@ -204,14 +201,14 @@ public sealed partial class RoomEnemySystem
                 if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                         level!,
                         slot,
-                        ToEightBitVelocityDisplacement(state.XVelocity)))
+                        ToEightBitVelocityDisplacement(state.Velocity.X.RawValue)))
                 {
-                    state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
+                    state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.X.SignedRawValue)));
                 }
                 if (MoveEnemyVertically(
                         level!,
                         slot,
-                        ToEightBitVelocityDisplacement(state.YVelocity)))
+                        ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue)))
                 {
                     InstallRioInstructionList(
                         slot,
@@ -221,7 +218,7 @@ public sealed partial class RoomEnemySystem
                 }
                 else
                 {
-                    state.YVelocity = unchecked((ushort)(state.YVelocity - RioGravityStep));
+                    state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(state.Velocity.Y.RawValue - RioGravityStep))));
                 }
                 return;
 
@@ -234,25 +231,26 @@ public sealed partial class RoomEnemySystem
                 // horizontal dive speed and starts the upward/bounce phase at -1/256 px.
                 if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
                 {
-                    state.XVelocity = state.SavedHorizontalVelocity;
-                    state.YVelocity = 0xffff;
+                    state.Velocity = new EightEightVector<RoomPixels>(
+                        new SnesSignedEightEight(state.SavedHorizontalVelocity),
+                        new SnesSignedEightEight(0xffff));
                     state.Function = RioEnemyFunction.BouncingBackToPerch;
                     return;
                 }
 
                 byte angle = CalculateCartridgeAngle(
                     new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
-                state.XVelocity = ReadRioSignedSineCosineSample(
-                    unchecked((byte)(angle + 0x40)));
-                state.YVelocity = ReadRioSignedSineCosineSample(angle);
+                state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(ReadRioSignedSineCosineSample(
+                    unchecked((byte)(angle + 0x40)))));
+                state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(ReadRioSignedSineCosineSample(angle)));
                 MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                     level!,
                     slot,
-                    ToEightBitVelocityDisplacement(state.XVelocity));
+                    ToEightBitVelocityDisplacement(state.Velocity.X.RawValue));
                 MoveEnemyVertically(
                     level!,
                     slot,
-                    ToEightBitVelocityDisplacement(state.YVelocity));
+                    ToEightBitVelocityDisplacement(state.Velocity.Y.RawValue));
                 return;
 
             default:
@@ -292,7 +290,7 @@ public sealed partial class RoomEnemySystem
 
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
-        state.YVelocity = unchecked((ushort)-(short)state.YVelocity);
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.Y.SignedRawValue)));
         state.Function = RioEnemyFunction.BouncingBackToPerch;
     }
 

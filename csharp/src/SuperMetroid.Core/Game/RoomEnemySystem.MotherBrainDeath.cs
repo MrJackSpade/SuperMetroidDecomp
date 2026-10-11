@@ -61,7 +61,7 @@ public sealed partial class RoomEnemySystem
         foreach (var transfer in step.CorpseRottingVramTransfers) ApplyMotherBrainRainbowTileTransfer(transfer);
         foreach (var dust in step.CorpseDustRequests)
         {
-            SpawnRoomGraphicsDustExplosion(new(dust.XPosition, dust.YPosition), dust.ProjectileParameter);
+            SpawnRoomGraphicsDustExplosion(dust.Position, dust.ProjectileParameter);
             // $A9:B252 queues the rot dust through QueueSound_Lib2_Max3.
             if (dust.SoundEffectQueued)
                 QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, dust.SoundEffect), maximumQueued: 3);

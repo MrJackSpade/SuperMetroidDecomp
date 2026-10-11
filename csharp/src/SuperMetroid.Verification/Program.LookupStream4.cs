@@ -1775,10 +1775,9 @@ internal static partial class Program
             {
                 var state = new RidleyEnemyState
                 {
-                    TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment { XPosition = 256 }).ToArray(),
+                    TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment { Position = new Position16<RoomPixels>(256, 0) }).ToArray(),
                 };
-                state.TailSegments[segmentIndex].XPosition = 0;
-                state.TailSegments[segmentIndex].YPosition = y;
+                state.TailSegments[segmentIndex].Position = new Position16<RoomPixels>(0, y);
                 bool expected = false;
                 if (segmentIndex >= 2)
                 {
@@ -2228,10 +2227,10 @@ internal static partial class Program
         for (int entry = 0; entry < 6; entry++)
         {
             var actual = DraygonBurialEvirDefinitions.ForEntry(entry);
-            AssertEqual(Word(0xa5a1af + 4 * entry), actual.XSubspeed, "stream4 burial radial X subspeed");
-            AssertEqual(Word(0xa5a1b1 + 4 * entry), actual.YSubspeed, "stream4 burial radial Y subspeed");
-            AssertEqual(Word(0xa5a1c7 + 4 * entry), actual.InitialX, "stream4 burial radial spawn X including negative wrap");
-            AssertEqual(Word(0xa5a1c9 + 4 * entry), actual.InitialY, "stream4 burial radial spawn Y");
+            AssertEqual(Word(0xa5a1af + 4 * entry), actual.SubspeedMagnitude.X.Fraction, "stream4 burial radial X subspeed");
+            AssertEqual(Word(0xa5a1b1 + 4 * entry), actual.SubspeedMagnitude.Y.Fraction, "stream4 burial radial Y subspeed");
+            AssertEqual(Word(0xa5a1c7 + 4 * entry), actual.Initial.X, "stream4 burial radial spawn X including negative wrap");
+            AssertEqual(Word(0xa5a1c9 + 4 * entry), actual.Initial.Y, "stream4 burial radial spawn Y");
             AssertEqual(Word(0xa5a1df + 4 * entry), actual.Angle, "stream4 burial radial angle");
         }
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
@@ -3103,7 +3102,7 @@ internal static partial class Program
             {
                 TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 {
-                    XPosition = (ushort)(100 + index), YPosition = (ushort)(200 + index),
+                    Position = new Position16<RoomPixels>((ushort)(100 + index), (ushort)(200 + index)),
                 }).ToArray(),
             };
             if (freeSlots < expected.Length)

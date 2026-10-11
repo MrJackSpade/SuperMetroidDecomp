@@ -142,9 +142,9 @@ internal static partial class Program
             {
                 int record = root + 2 + index * 8;
                 DraygonCollisionComponent component = components[index];
-                AssertEqual(ReadWord(record), unchecked((ushort)component.X),
+                AssertEqual(ReadWord(record), unchecked((ushort)component.Offset.X),
                     $"Draygon {frame.Name} collision X offset");
-                AssertEqual(ReadWord(record + 2), unchecked((ushort)component.Y),
+                AssertEqual(ReadWord(record + 2), unchecked((ushort)component.Offset.Y),
                     $"Draygon {frame.Name} collision Y offset");
                 AssertEqual(ReadWord(record + 6), (ushort)component.HitboxPointer,
                     $"Draygon {frame.Name} hitbox list identity");

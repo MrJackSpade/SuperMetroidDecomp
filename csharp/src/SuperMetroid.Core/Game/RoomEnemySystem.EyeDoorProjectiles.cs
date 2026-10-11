@@ -118,8 +118,8 @@ public sealed partial class RoomEnemySystem
         projectile.InstructionPointer = instructionList;
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
-            unchecked((short)(8 + placement.XBase + (random & placement.XMask))),
-            unchecked((short)(8 + placement.YBase + ((random >> 8) & placement.YMask)))));
+            unchecked((short)(8 + placement.Base.X + (random & placement.RandomMask.X))),
+            unchecked((short)(8 + placement.Base.Y + ((random >> 8) & placement.RandomMask.Y)))));
 
         // $E4FA advances the global seed after sampling it for both coordinates.
         (_nextRandom ?? throw new InvalidOperationException(

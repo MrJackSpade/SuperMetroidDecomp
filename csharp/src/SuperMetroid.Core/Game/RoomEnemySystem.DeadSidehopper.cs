@@ -221,9 +221,7 @@ public sealed partial class RoomEnemySystem
                 SetDeadSidehopperInstruction(
                     slot,
                     DeadSidehopperInstructionProgramDefinitions.AliveIdle);
-                state.Velocity = new EightEightVector<RoomPixels>(
-                    new SnesSignedEightEight(DeadSidehopperLaunchDefinitions.Horizontal[state.JumpPhase]),
-                    new SnesSignedEightEight(DeadSidehopperLaunchDefinitions.Vertical[state.JumpPhase]));
+                state.Velocity = DeadSidehopperLaunchDefinitions.Velocity(state.JumpPhase);
                 return;
 
             case DeadSidehopperAiFunction.TransformPalette:

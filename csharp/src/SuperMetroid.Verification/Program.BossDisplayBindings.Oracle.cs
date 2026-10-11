@@ -73,11 +73,11 @@ internal static partial class Program
     private static (short X, short Y, ushort Pointer)[] BossPhysicalComponents(EnemyExtendedFrameDefinition frame) => frame.Bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
-            .Select(part => (part.X, part.Y, part.HitboxPointer)).ToArray(),
+            .Select(part => (part.Offset.X, part.Offset.Y, part.HitboxPointer)).ToArray(),
         PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
-            .Select(part => (part.X, part.Y, part.HitboxPointer)).ToArray(),
+            .Select(part => (part.Offset.X, part.Offset.Y, part.HitboxPointer)).ToArray(),
         DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
-            .Select(part => (part.X, part.Y, (ushort)part.HitboxPointer)).ToArray(),
+            .Select(part => (part.Offset.X, part.Offset.Y, (ushort)part.HitboxPointer)).ToArray(),
         _ => throw new InvalidDataException("Unknown native oracle family."),
     };
 

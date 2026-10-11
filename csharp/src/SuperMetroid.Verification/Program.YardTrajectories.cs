@@ -39,7 +39,7 @@ internal static partial class Program
                 if (distance > largest)
                 {
                     largest = distance;
-                    Console.WriteLine($"Yard {focus}, frame {frame}, {function}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingXVelocity:X4}/{state.CrawlingYVelocity:X4}, airborne={state.AirborneXVelocity:X4}.{state.AirborneXSubvelocity:X4}/{state.AirborneYVelocity:X4}.{state.AirborneYSubvelocity:X4}");
+                    Console.WriteLine($"Yard {focus}, frame {frame}, {function}: ({x},{y})->({actor.Position.X.Whole},{actor.Position.Y.Whole}), crawl={state.CrawlingVelocity.X.RawValue:X4}/{state.CrawlingVelocity.Y.RawValue:X4}, airborne={state.AirborneVelocity.X.WholeWord:X4}.{state.AirborneVelocity.X.Fraction:X4}/{state.AirborneVelocity.Y.WholeWord:X4}.{state.AirborneVelocity.Y.Fraction:X4}");
                 }
             }
             Console.WriteLine($"Yard {focus}: maximum axis step {largest}");
@@ -64,7 +64,7 @@ internal static partial class Program
             state.AirborneFacingDirection = facing;
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.Dropped;
-            state.AirborneYVelocity = 1;
+            state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
             samus.RefreshCollisionRadii(bus);
@@ -73,9 +73,9 @@ internal static partial class Program
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.
             ushort speed = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + actor.Parameter1 * 2);
-            AssertEqual(facing == 0 ? unchecked((ushort)-speed) : speed, state.CrawlingXVelocity,
+            AssertEqual(facing == 0 ? unchecked((ushort)-speed) : speed, state.CrawlingVelocity.X.RawValue,
                 $"landed Yard direction {direction}, facing {facing}: native X reset");
-            AssertEqual(speed, state.CrawlingYVelocity, "landed Yard probes downward");
+            AssertEqual(speed, state.CrawlingVelocity.Y.RawValue, "landed Yard probes downward");
         }
     }
 }

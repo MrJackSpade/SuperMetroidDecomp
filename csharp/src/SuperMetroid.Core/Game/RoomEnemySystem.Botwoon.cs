@@ -176,22 +176,18 @@ public sealed class BotwoonEnemyState
     /// </summary>
     internal bool[] SegmentInsideHole { get; } = new bool[13];
 
-    /// <summary>One kilobyte of native position history, represented as 256 X/Y pairs.</summary>
-    internal ushort[] HistoryX { get; } = new ushort[256];
-    internal ushort[] HistoryY { get; } = new ushort[256];
+    /// <summary>One kilobyte of native position history, represented as 256 whole-pixel positions.</summary>
+    internal Position16<RoomPixels>[] History { get; } = new Position16<RoomPixels>[256];
 
     /// <summary>Four delayed head positions used to choose the visible head orientation.</summary>
-    internal ushort[] HeadHistoryX { get; } = new ushort[4];
-    internal ushort[] HeadHistoryY { get; } = new ushort[4];
+    internal Position16<RoomPixels>[] HeadHistory { get; } = new Position16<RoomPixels>[4];
 }
 
 /// <summary>Observable request emitted by Botwoon's specialized item-drop tail.</summary>
-/// <param name="X">Wrapping room-world pixel X, randomized to 64 through 191 by the specialized sixteen-drop producer.</param>
-/// <param name="Y">Wrapping room-world pixel Y, randomized to 128 through 191 by that same producer.</param>
+/// <param name="Position">Wrapping room position, randomized to X 64 through 191 and Y 128 through 191 by the specialized sixteen-drop producer.</param>
 /// <param name="ItemDropChancesPointer">The retained head definition's native six-entry item-chance-table pointer, consumed by ordinary pickup selection.</param>
 public readonly record struct BotwoonDropRequest(
-    ushort X,
-    ushort Y,
+    Position16<RoomPixels> Position,
     ushort ItemDropChancesPointer);
 
 /// <summary>Delayed music queue request emitted by Botwoon's completed death sequence.</summary>
@@ -288,8 +284,7 @@ public sealed partial class RoomEnemySystem
 
         for (int history = 0; history < 4; history++)
         {
-            state.HeadHistoryX[history] = head.Position.X.Whole;
-            state.HeadHistoryY[history] = head.Position.Y.Whole;
+            state.HeadHistory[history] = head.Position.Whole;
         }
         // BotwoonPositionHistory ($7E:9000-$93FF) is never seeded by InitAI_Botwoon. It
         // lies inside the $7E:7000-$97FF range Initialise_Enemies ($A0:8AA9) zeroes on room
@@ -574,8 +569,7 @@ public sealed partial class RoomEnemySystem
     private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int ringIndex = state.RingByteOffset >> 2;
-        state.HistoryX[ringIndex] = head.Position.X.Whole;
-        state.HistoryY[ringIndex] = head.Position.Y.Whole;
+        state.History[ringIndex] = head.Position.Whole;
     }
 
     private static void PositionBotwoonBody(BotwoonEnemyState state)
@@ -591,7 +585,7 @@ public sealed partial class RoomEnemySystem
 
             ToggleBotwoonSegmentAtHole(state, segmentIndex, historyOffset);
             int historyIndex = historyOffset >> 2;
-            segment.Position = segment.Position.WithWhole(new(state.HistoryX[historyIndex], state.HistoryY[historyIndex]));
+            segment.Position = segment.Position.WithWhole(state.History[historyIndex]);
             historyOffset = unchecked((ushort)(
                 (historyOffset - state.SegmentSpacingBytes) & 0x03ff));
         }
@@ -712,8 +706,9 @@ public sealed partial class RoomEnemySystem
 
     private static void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
-        short dx = unchecked((short)(head.Position.X.Whole - state.HeadHistoryX[3]));
-        short dy = unchecked((short)(head.Position.Y.Whole - state.HeadHistoryY[3]));
+        Offset16<RoomPixels> moved = head.Position.Whole - state.HeadHistory[3];
+        short dx = moved.X;
+        short dy = moved.Y;
         if (dx != 0 || dy != 0)
         {
             ushort instruction;
@@ -737,11 +732,9 @@ public sealed partial class RoomEnemySystem
 
         for (int index = 3; index > 0; index--)
         {
-            state.HeadHistoryX[index] = state.HeadHistoryX[index - 1];
-            state.HeadHistoryY[index] = state.HeadHistoryY[index - 1];
+            state.HeadHistory[index] = state.HeadHistory[index - 1];
         }
-        state.HeadHistoryX[0] = head.Position.X.Whole;
-        state.HeadHistoryY[0] = head.Position.Y.Whole;
+        state.HeadHistory[0] = head.Position.Whole;
     }
 
     private void AimBotwoonAtSamus(
@@ -853,13 +846,14 @@ public sealed partial class RoomEnemySystem
         {
             ushort random = _nextRandom!();
             var request = new BotwoonDropRequest(
-                X: unchecked((ushort)((random & 0x007f) + 64)),
-                Y: unchecked((ushort)(((random & 0x3f00) >> 8) + 128)),
+                Position: new Position16<RoomPixels>(
+                    unchecked((ushort)((random & 0x007f) + 64)),
+                    unchecked((ushort)(((random & 0x3f00) >> 8) + 128))),
                 ItemDropChancesPointer: head.Definition.ItemDropChancesPointer);
             _botwoonDropRequests.Add(request);
             LastBotwoonDropRequest = request;
             SpawnEnemyDropFromChanceTable(
-                new(request.X, request.Y),
+                request.Position,
                 request.ItemDropChancesPointer);
         }
         state.DropRequested = true;

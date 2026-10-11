@@ -65,9 +65,7 @@ public sealed partial class RoomEnemySystem
 
         MotherBrainGlassShardPlacement placement =
             MotherBrainGlassShardDefinitions.Placement(request.Parameter);
-        shard.Position = shard.Position.WithWhole(new(unchecked((ushort)(
-            request.PlmBlock.X * 16 + placement.XOffset)), unchecked((ushort)(
-            request.PlmBlock.Y * 16 + placement.YOffset))));
+        shard.Position = shard.Position.WithWhole(request.PlmBlock.ToRoomPixels() + placement.Offset);
 
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.

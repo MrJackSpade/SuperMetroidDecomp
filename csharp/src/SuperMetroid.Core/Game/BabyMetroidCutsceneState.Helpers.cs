@@ -105,9 +105,8 @@ public sealed partial class BabyMetroidCutsceneState
             DeathExplosionPatternIndex = 0;
         // `$A9:CDFC` holds the scatter shared with Ridley's death. The handler increments its
         // index before looking up a pair, so a freshly cleared counter begins at entry one.
-        (short x, short y) = DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex);
         return new BabyMetroidDeathExplosionRequest(
-            Position: Position.Whole + new Offset16<RoomPixels>(x, y),
+            Position: Position.Whole + DeathExplosionScatterDefinitions.Offset(DeathExplosionPatternIndex),
             ProjectileParameter: 3,
             SoundEffect: 0x0013);
     }
@@ -195,57 +194,53 @@ public sealed partial class BabyMetroidCutsceneState
     }
 
     private bool CollidesWithRectangle(
-        ushort centerX,
-        ushort centerY,
-        ushort rectangleXRadius,
-        ushort rectangleYRadius)
+        Position16<RoomPixels> center,
+        Extent16<RoomPixels> rectangleRadius)
     {
         // `$A9:EF06` adds both radii and one, then rejects `abs(delta) >= sum+1`.
         // In the normal room-coordinate domain that is equivalently `abs(delta) <= sum`.
-        int xDistance = Math.Abs(unchecked((short)(centerX - Position.X.Whole)));
-        if (xDistance > rectangleXRadius + XHitboxRadius)
+        int xDistance = Math.Abs(unchecked((short)(center.X - Position.X.Whole)));
+        if (xDistance > rectangleRadius.X + XHitboxRadius)
             return false;
-        int yDistance = Math.Abs(unchecked((short)(centerY - Position.Y.Whole)));
-        return yDistance <= rectangleYRadius + YHitboxRadius;
+        int yDistance = Math.Abs(unchecked((short)(center.Y - Position.Y.Whole)));
+        return yDistance <= rectangleRadius.Y + YHitboxRadius;
     }
 
     private void GraduallyAccelerateTowardsPoint(
-        ushort targetX,
-        ushort targetY,
+        Position16<RoomPixels> target,
         ushort accelerationDivisor,
         ushort wrongWayOffScreenXSpeed,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         byte divisor = checked((byte)accelerationDivisor);
         Velocity = Velocity.WithX(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateHorizontally(
-            Position.X.Whole, targetX, Velocity.X.RawValue, divisor, wrongWayOffScreenXSpeed,
-            () => IsVaguelyOffScreen(layer1X, layer1Y))));
+            Position.X.Whole, target.X, Velocity.X.RawValue, divisor, wrongWayOffScreenXSpeed,
+            () => IsVaguelyOffScreen(layer1))));
         Velocity = Velocity.WithY(new SnesSignedEightEight(BabyMetroidGradualAcceleration.AccelerateVertically(
-            Position.Y.Whole, targetY, Velocity.Y.RawValue, divisor)));
+            Position.Y.Whole, target.Y, Velocity.Y.RawValue, divisor)));
     }
 
-    private bool IsVaguelyOffScreen(ushort layer1X, ushort layer1Y)
+    private bool IsVaguelyOffScreen(Position16<RoomPixels> layer1)
     {
         // This is the signed-branch sequence at `$A9:F57A`; its generous rectangle extends
         // 16 pixels left/right and 96 pixels vertically beyond the ordinary 256x224 view.
         if (unchecked((short)Position.Y.Whole) < 0)
             return true;
-        short relativeY = unchecked((short)(Position.Y.Whole + 0x0060 - layer1Y));
+        short relativeY = unchecked((short)(Position.Y.Whole + 0x0060 - layer1.Y));
         if (relativeY is < 0 or >= 0x01a0)
             return true;
         if (unchecked((short)Position.X.Whole) < 0)
             return true;
-        short relativeX = unchecked((short)(Position.X.Whole + 0x0010 - layer1X));
+        short relativeX = unchecked((short)(Position.X.Whole + 0x0010 - layer1.X));
         return relativeX is < 0 or >= 0x0120;
     }
 
-    private bool AccelerateTowardsPoint(ushort targetX, ushort targetY, ushort acceleration)
+    private bool AccelerateTowardsPoint(Position16<RoomPixels> target, ushort acceleration)
     {
         // `$F5A6` counts axes whose next whole-pixel prediction reaches/crosses target,
         // then shifts the count twice. Carry is set only for count two.
-        bool reachedX = AccelerateTowardsXPosition(targetX, acceleration);
-        bool reachedY = AccelerateTowardsYPosition(targetY, acceleration);
+        bool reachedX = AccelerateTowardsXPosition(target.X, acceleration);
+        bool reachedY = AccelerateTowardsYPosition(target.Y, acceleration);
         return reachedX && reachedY;
     }
 
@@ -305,4 +300,7 @@ public sealed partial class BabyMetroidCutsceneState
     }
 
     private static BabyMetroidCutscenePoint Capture() => new();
+
+    /// <summary>The 4x4 half-extent rectangle every route and staging target is tested with.</summary>
+    private static Extent16<RoomPixels> TargetRadius => new(4, 4);
 }

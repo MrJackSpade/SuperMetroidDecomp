@@ -56,8 +56,8 @@ internal static partial class Program
         getaway.Mode7Active = true;
         getaway.Mode7MatrixA = 240; getaway.Mode7MatrixB = 33;
         getaway.Mode7MatrixC = unchecked((ushort)-33); getaway.Mode7MatrixD = 240;
-        getaway.Mode7CenterX = 128; getaway.Mode7CenterY = 120;
-        getaway.Mode7HorizontalOffset = 7; getaway.Mode7VerticalOffset = 19;
+        getaway.Mode7Center = new Position16<Mode7Pixels>(128, 120);
+        getaway.Mode7Offset = new Offset16<Mode7Pixels>(7, 19);
         Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         var retained = RoundTripRenderPacket(new(new(100, 1, 0), GameplayDisplayCapture.TryCaptureFrame(runtime)!));
         AssertTrue(retail.AsSpan().SequenceEqual(RenderForComparison(retained)), "retail Ridley capture resolves mixed bands and haze");

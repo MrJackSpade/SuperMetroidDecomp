@@ -32,8 +32,9 @@ internal static partial class Program
                 for (ushort y = 32; y < 240; y += 8)
                 foreach (bool shot in new[] { false, true })
                 {
-                    var physical = baseline.Hitbox(x, y, shot);
-                    AssertEqual(physical, replacement.Hitbox(x, y, shot), frame.Name + " preserves first overlapping callback");
+                    var probe = new Position16<RoomPixels>(x, y);
+                    var physical = baseline.Hitbox(probe, shot);
+                    AssertEqual(physical, replacement.Hitbox(probe, shot), frame.Name + " preserves first overlapping callback");
                     hitSamples++; if (physical.Hit) hits++;
                 }
                 replacement.SetFrame(frame.Pointer, fresh: false);

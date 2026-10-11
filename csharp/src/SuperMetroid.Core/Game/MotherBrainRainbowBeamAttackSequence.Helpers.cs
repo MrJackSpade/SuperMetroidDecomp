@@ -551,7 +551,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
         ExplosionIndex++;
         int offsetIndex = ExplosionIndex & 7;
         return new MotherBrainRainbowExplosionRequest(
-            new Offset16<RoomPixels>(ExplosionXOffsets[offsetIndex], ExplosionYOffsets[offsetIndex]));
+            ExplosionOffsets[offsetIndex]);
     }
 
     private static void DamageSamusDueToRainbowBeam(SamusState samus)

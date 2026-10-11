@@ -20,7 +20,7 @@ internal static partial class Program
         ridley.Function = RidleyAiFunction.CeresLungeMain;
         ridley.FunctionTimer = 100;
         ridley.MovementAnimationEnabled = 1;
-        ridley.HorizontalVelocity = unchecked((ushort)-768);
+        ridley.Velocity = ridley.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));
         runtime.Samus!.Position = runtime.Samus!.Position.WithWholeX(20);
         runtime.Samus.Position = runtime.Samus.Position.WithWholeY(168);
@@ -39,7 +39,7 @@ internal static partial class Program
         // Stop further attack acceleration so this checks one impact's lifetime, not
         // repeated wall contacts refreshing its timer.
         ridley.Function = RidleyAiFunction.WaitBeforeRoar;
-        ridley.HorizontalVelocity = ridley.VerticalVelocity = 0;
+        ridley.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         for (int remaining = 10; remaining >= 0; remaining--)
         {
             runtime.StepFrame(0);

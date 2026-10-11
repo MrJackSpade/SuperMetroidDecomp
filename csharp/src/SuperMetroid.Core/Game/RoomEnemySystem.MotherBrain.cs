@@ -356,16 +356,15 @@ public sealed partial class RoomEnemySystem
         if (AdvanceMotherBrainBrainInstructions(state) is not ushort brainSpritemap)
             return;
 
-        (short brainShakeX, short brainShakeY) = GetMotherBrainBrainShake(state, head);
+        Offset16<RoomPixels> brainShake = GetMotherBrainBrainShake(state, head);
         // The caller must cull before the nine-bit OAM coordinate loses world-space bits.
         // Otherwise a brain half a room to the left reappears in the approach hallway.
-        if (unchecked((short)(head.Position.X.Whole + brainShakeX +
+        if (unchecked((short)(head.Position.X.Whole + brainShake.X +
                 MotherBrainDrawData.BrainLeftCullMargin - camera.X)) >= 0)
         DrawMotherBrainWorldSpritemap(
             oam,
             brainSpritemap,
-            unchecked((ushort)(head.Position.X.Whole + brainShakeX)),
-            unchecked((ushort)(head.Position.Y.Whole + brainShakeY)),
+            head.Position.Whole + brainShake,
             // The custom draw hook bypasses ordinary enemy palette selection. Retail
             // still selects the shared white hurt palette on odd flash-timer frames.
             (head.FlashTimer & 1) != 0 ? (ushort)0 : state.BrainPaletteIndex,
@@ -378,8 +377,7 @@ public sealed partial class RoomEnemySystem
         // `$A9:930C-$9354` emits the joint nearest the brain first and the body-side joint
         // last. Equal-priority overlap therefore follows the same low-OAM precedence.
         int shakeIndex = (head.FlashTimer & 6) >> 1;
-        short neckShakeX = MotherBrainShakeXOffsets[shakeIndex];
-        short neckShakeY = MotherBrainShakeYOffsets[shakeIndex];
+        Offset16<RoomPixels> neckShake = MotherBrainShakeOffsets[shakeIndex];
         Position16<RoomPixels>[] segments =
         [
             state.NeckSegment0,
@@ -394,22 +392,21 @@ public sealed partial class RoomEnemySystem
             DrawMotherBrainWorldSpritemap(
                 oam,
                 spritemapPointer: 0xa694,
-                unchecked((ushort)(segment.X + neckShakeX)),
-                unchecked((ushort)(segment.Y + neckShakeY)),
+                segment + neckShake,
                 state.NeckPaletteIndex,
                 head.VramTilesIndex,
                 camera);
         }
     }
 
-    private static readonly short[] MotherBrainShakeXOffsets = [0, -1, 0, 1];
-    private static readonly short[] MotherBrainShakeYOffsets = [0, 1, -1, 1];
+    // `shake & 6` selects one of these four authored jitter offsets.
+    private static readonly Offset16<RoomPixels>[] MotherBrainShakeOffsets =
+        [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     private void DrawMotherBrainWorldSpritemap(
         OamBuffer oam,
         ushort spritemapPointer,
-        ushort worldX,
-        ushort worldY,
+        Position16<RoomPixels> world,
         ushort paletteIndex,
         ushort vramTilesIndex,
         Position16<RoomPixels> camera)
@@ -417,20 +414,20 @@ public sealed partial class RoomEnemySystem
         // Mother Brain's private `$A9:93EE` writer rejects an entire map whose center begins
         // above the screen. The generic writer intentionally wraps, so preserve that unique
         // vertical gate here before sharing its byte-exact map decoder.
-        ushort screenY = unchecked((ushort)(worldY - camera.Y));
-        if (unchecked((short)screenY) < 0)
+        Position16<ScreenPixels> screen = world.ToScreen(camera);
+        if (unchecked((short)screen.Y) < 0)
             return;
 
         DrawEnemySpritemap(
             oam,
             MotherBrainVisualDefinitions.Bank,
             spritemapPointer,
-            new(unchecked((ushort)(worldX - camera.X)), screenY),
+            screen.ToOam(),
             paletteIndex,
             vramTilesIndex);
     }
 
-    private static (short X, short Y) GetMotherBrainBrainShake(
+    private static Offset16<RoomPixels> GetMotherBrainBrainShake(
         MotherBrainEnemyState state,
         RoomEnemySlot head)
     {
@@ -446,7 +443,7 @@ public sealed partial class RoomEnemySystem
         }
 
         int index = (shake & 6) >> 1;
-        return (MotherBrainShakeXOffsets[index], MotherBrainShakeYOffsets[index]);
+        return MotherBrainShakeOffsets[index];
     }
 
     private static void StepMotherBrainNeck(MotherBrainEnemyState state, SamusState samus)
@@ -796,7 +793,7 @@ public sealed partial class RoomEnemySystem
                 BabyMetroidCutsceneState baby = state.BabyMetroid ??
                     throw new InvalidOperationException(
                         "Mother Brain's Baby-targeting opcode ran without the Baby actor.");
-                AimMotherBrainOnionRingsAt(state, baby.Position.X.Whole, baby.Position.Y.Whole);
+                AimMotherBrainOnionRingsAt(state, baby.Position.Whole);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
@@ -805,7 +802,7 @@ public sealed partial class RoomEnemySystem
                 MotherBrainEnemyState state = RequireCompleteMotherBrainState(slot);
                 SamusState target = samus ?? throw new InvalidOperationException(
                     "Mother Brain onion-ring aiming requires the active Samus actor.");
-                AimMotherBrainOnionRingsAt(state, target.Position.X.Whole, target.Position.Y.Whole);
+                AimMotherBrainOnionRingsAt(state, target.Position.Whole);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
@@ -891,12 +888,11 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static void AimMotherBrainOnionRingsAt(
         MotherBrainEnemyState state,
-        ushort targetX,
-        ushort targetY)
+        Position16<RoomPixels> target)
     {
         RoomEnemySlot head = state.Head!;
-        short deltaX = unchecked((short)(targetX - head.Position.X.Whole - 0x000a));
-        short deltaY = unchecked((short)(targetY - head.Position.Y.Whole - 0x0010));
+        short deltaX = unchecked((short)(target.X - head.Position.X.Whole - 0x000a));
+        short deltaY = unchecked((short)(target.Y - head.Position.Y.Whole - 0x0010));
         byte angle = unchecked((byte)(0x80 - CalculateCartridgeAngle(new(deltaX, deltaY))));
 
         // `$9E86-$9E98` performs two signed-flag comparisons in 8-bit mode. The

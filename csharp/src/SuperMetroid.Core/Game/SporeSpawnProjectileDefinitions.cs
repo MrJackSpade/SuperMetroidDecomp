@@ -1,8 +1,5 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One signed pixel delta pair from Spore Spawn's wrapped movement stream.</summary>
-internal readonly record struct SporeSpawnMovementDelta(sbyte X, sbyte Y);
-
 /// <summary>Compiled spawn geometry and movement mechanics for Spore Spawn projectiles.</summary>
 internal static class SporeSpawnProjectileDefinitions
 {
@@ -35,7 +32,8 @@ internal static class SporeSpawnProjectileDefinitions
     internal static ushort SpawnerX(ushort spawnArgument) =>
         (ushort)(32 + 64 * SpawnIndex(spawnArgument));
 
-    internal static SporeSpawnMovementDelta MovementAt(byte offset) =>
+    /// <summary>One signed pixel delta pair from the wrapped movement stream: X at the offset and Y at the next byte.</summary>
+    internal static Offset16<RoomPixels> MovementAt(byte offset) =>
         new(Movement[offset], Movement[unchecked((byte)(offset + 1))]);
 
     private static int SpawnIndex(ushort spawnArgument)

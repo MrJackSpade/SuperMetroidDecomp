@@ -1255,7 +1255,7 @@ static void VerifyCeresRidleyRoomEntry()
     // composite animation, all seven inactive segments share the tail-root position
     // and stay there through the body fade until liftoff.
     AssertEqual(1, state.TailSegments
-            .Select(segment => (segment.XPosition, segment.YPosition))
+            .Select(segment => (segment.Position.X, segment.Position.Y))
             .Distinct()
             .Count(),
         "Ceres Ridley resting tail segments share the tail root before liftoff");
@@ -1511,8 +1511,8 @@ static void VerifyCeresRidleyRoomEntry()
         expectedX = unchecked((ushort)(expectedX - curve.Velocity.X));
         expectedY = unchecked((ushort)(expectedY + curve.Velocity.Y));
         AssertEqual(curve.Zoom, state.Mode7Zoom, "Ceres real getaway zoom publication");
-        AssertEqual(expectedX, state.Mode7HorizontalOffset, "Ceres real getaway horizontal integration");
-        AssertEqual(expectedY, state.Mode7VerticalOffset, "Ceres real getaway vertical integration");
+        AssertEqual(unchecked((short)expectedX), state.Mode7Offset.X, "Ceres real getaway horizontal integration");
+        AssertEqual(unchecked((short)expectedY), state.Mode7Offset.Y, "Ceres real getaway vertical integration");
         AssertTrue(!state.Mode7Finished, "Ceres getaway retains all 112 authored motion frames");
     }
     GetawayFrame();

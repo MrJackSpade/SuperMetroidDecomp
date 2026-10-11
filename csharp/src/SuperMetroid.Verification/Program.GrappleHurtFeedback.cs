@@ -82,7 +82,7 @@ internal static partial class Program
         samus.EquippedItems = (ushort)SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = SamusHudRomData.GrappleSelectedItem;
         typeof(SuperMetroidRuntime).GetMethod("BindGrapplePresentation", flags)!.Invoke(runtime, null);
-        SamusGrappleMovement.ConnectUnobstructedSwing(bus, samus, 160, 64, 52,
+        SamusGrappleMovement.ConnectUnobstructedSwing(bus, samus, new Position16<RoomPixels>(160, 64), 52,
             SnesAngle.QuarterTurn, 0, faceRight: true);
         samus.CommitPoseHistory(bus);
         runtime.StepFrame((ushort)SnesButton.X);

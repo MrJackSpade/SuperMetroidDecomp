@@ -32,7 +32,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        MoveNorfairRidleyToward(body, state, 128, 328,
+        MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
             RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
         if (IsWithinRidleyRectangle(body, new(128, 328), new(4, 4)))
             BeginNorfairRidleyDeathRoar(body, state);
@@ -57,13 +57,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         RidleyEnemyState state)
     {
-        MoveNorfairRidleyToward(body, state, 128, 328,
+        MoveNorfairRidleyToward(body, state, new Position16<RoomPixels>(128, 328),
             RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
         if (!TickRidleyFunctionTimer(state))
             return;
 
-        state.HorizontalVelocity = 0;
-        state.VerticalVelocity = 0;
+        state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         PublishRidleyLiquidMotion(state, RidleyLiquidRomData.DrainedHeight,
             RidleyLiquidRomData.DrainVelocity, RidleyLiquidRomData.DrainDelay);
         state.DeathExplosionTimer = 0;
@@ -90,8 +89,7 @@ public sealed partial class RoomEnemySystem
         if (state.GrabState != 0)
             ReleaseNorfairRidleyGrab(state, samus);
         state.Function = RidleyAiFunction.NorfairDeathImpact;
-        state.HorizontalVelocity = 0;
-        state.VerticalVelocity = 0;
+        state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         SpawnNorfairRidleyBreakupActors(body, state);
     }
 

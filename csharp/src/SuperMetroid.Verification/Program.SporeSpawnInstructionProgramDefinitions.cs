@@ -33,7 +33,7 @@ internal static partial class Program
                 $"Spore Spawn mechanics word $A5:{definition.Address:X4}");
         }
 
-        var guarded = new SporeSpawnInstructionReadGuard(rom) { DenyPresentationReads = true };
+        var guarded = NewSporeSpawnInstructionReadGuard(rom);
         (RoomEnemySystem deadSystem, RoomEnemySlot dead) = RunSporeSpawnProgram(
             guarded,
             SporeSpawnInstructionProgramDefinitions.InitialDead,
@@ -90,7 +90,7 @@ internal static partial class Program
             AssertEqual(ReadSporeSpawnProgramWord(rom, address), value,
                 $"compiled Spore Spawn selector matches cartridge at {address:X4}");
         }
-        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+        AssertEqual(0, guarded.ObservedWords.Count,
             "production Spore Spawn programs never read cartridge selectors");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids every compiled Spore Spawn mechanics byte");
@@ -125,7 +125,7 @@ internal static partial class Program
     }
 
     private static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
-        SporeSpawnInstructionReadGuard bus,
+        MutableCartridgeReadGuard bus,
         ushort initialPointer,
         int frames,
         EnemyTileArtworkCatalog? artwork = null,
@@ -177,72 +177,14 @@ internal static partial class Program
             source.ReadByte(0xa50000 | address) |
             source.ReadByte(0xa50000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SporeSpawnInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    private static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-        internal bool DenyPresentationReads { get; init; }
-
-        public byte ReadByte(int address)
-        {
-            CheckRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            CheckRead(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Spore Spawn instruction guard requires cartridge data."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Spore Spawn instruction guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Spore Spawn instruction guard requires SRAM."))
-            .ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private void CheckRead(int address)
-        {
-            if (SporeSpawnInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Spore Spawn mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa50000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (DenyPresentationReads)
-                        {
-                            ForbiddenReadAttempts++;
-                            throw new InvalidOperationException(
-                                $"Installed Spore Spawn reread visual selector ${address:X6}.");
-                        }
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-        }
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(SporeSpawnInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Spore Spawn mechanics byte ${address:X6}.")
+            .ForbidWords(0xa50000, SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordCount,
+                SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Installed Spore Spawn reread visual selector ${address:X6}.");
+        return guard;
     }
 }

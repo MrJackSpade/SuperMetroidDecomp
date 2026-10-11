@@ -29,10 +29,7 @@ internal static partial class Program
         foreach ((ushort pointer, int frames) in programs)
         {
 
-            var installedBus = new SporeSpawnInstructionReadGuard(rom)
-            {
-                DenyPresentationReads = true,
-            };
+            var installedBus = NewSporeSpawnInstructionReadGuard(rom);
             var nativeTrace = ReadReferenceSporeSpawnProgram(rom, pointer, frames, allNativeSelectors);
             var installedTrace = new List<SporeSpawnProgramFrame>(frames);
             RunSporeSpawnProgram(installedBus, pointer, frames, stock,
@@ -43,7 +40,7 @@ internal static partial class Program
             for (int frame = 0; frame < frames; frame++)
                 AssertEqual(nativeTrace[frame], installedTrace[frame],
                     $"Spore Spawn program {pointer:X4} installed mechanics/frame at tick {frame}");
-            AssertEqual(0, installedBus.ObservedPresentationWords.Count,
+            AssertEqual(0, installedBus.ObservedWords.Count,
                 $"Spore Spawn program {pointer:X4} installs every frame selector");
             AssertEqual(0, installedBus.ForbiddenReadAttempts,
                 $"Spore Spawn program {pointer:X4} avoids ROM selector reads");
@@ -160,10 +157,8 @@ internal static partial class Program
         ];
         foreach ((ushort pointer, int frames) in programs)
         {
-            var stockBus = new SporeSpawnInstructionReadGuard(rom)
-            { DenyPresentationReads = true };
-            var remappedBus = new SporeSpawnInstructionReadGuard(rom)
-            { DenyPresentationReads = true };
+            var stockBus = NewSporeSpawnInstructionReadGuard(rom);
+            var remappedBus = NewSporeSpawnInstructionReadGuard(rom);
             var stockTrace = new List<SporeSpawnProgramFrame>(frames);
             var remappedTrace = new List<SporeSpawnProgramFrame>(frames);
             RunSporeSpawnProgram(stockBus, pointer, frames, stock,

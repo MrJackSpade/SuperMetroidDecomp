@@ -11,7 +11,7 @@ internal static partial class Program
         Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(rom));
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new SlopeHeightNoReadBus());
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
         var reflect = typeof(RoomEnemySystem).GetMethod("KraidBodyContourReflectsNail", flags)!
             .CreateDelegate<Func<RoomEnemySlot, bool>>(enemies);
         var body = enemies.Slots[0];

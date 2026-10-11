@@ -209,9 +209,10 @@ internal static partial class Program
                 $"installed ending {id} palette preserves every cartridge color byte");
         }
 
-        var guardedBus = new EndingPaletteSourceReadGuard(
+        bool rejectAllCartridgeReads = false;
+        var guardedBus = NewEndingPaletteSourceReadGuard(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"),
-            maps.RoomPaletteFx);
+            maps.RoomPaletteFx, () => rejectAllCartridgeReads);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var nativeState = CreateRetailEndingFixture(nativeBus, nativeAudio, 2, 59);
@@ -229,7 +230,7 @@ internal static partial class Program
         // This matches the playable host's installed ending bindings. The fallback
         // bus remains available in narrower native-reference tests below, but the
         // production-shaped scene must complete without *any* cartridge read.
-        guardedBus.RejectAllCartridgeReads = true;
+        rejectAllCartridgeReads = true;
         AssertThrows<InvalidOperationException>(
             () => guardedBus.ReadByte(EndingCreditsRomData.Assets.FlyawayCharacters),
             "ending ROM guard rejects an otherwise valid non-palette cartridge source");
@@ -258,7 +259,7 @@ internal static partial class Program
             "native ending reaches final hold in palette parity fixture");
         AssertEqual(nativeState.Phase, installedState.Phase,
             "installed ending reaches the same final hold");
-        guardedBus.RejectAllCartridgeReads = false;
+        rejectAllCartridgeReads = false;
         foreach (EndingCreditsPhase phase in new[]
         {
             EndingCreditsPhase.WaitForEscapeMusic,
@@ -456,7 +457,7 @@ internal static partial class Program
     }
 
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
-        ISnesAddressSpace nativeBus, EndingPaletteSourceReadGuard guardedBus)
+        ISnesAddressSpace nativeBus, MutableCartridgeReadGuard guardedBus)
     {
         var nativeCgram = new SnesCgram();
         var installedCgram = new SnesCgram();
@@ -592,65 +593,35 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
-    private sealed class EndingPaletteSourceReadGuard(ISnesAddressSpace source,
-        RoomPaletteFxPresentation effectColors) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    private static readonly (EndingPaletteId Id, int Start, int End)[] EndingPaletteSourceRanges =
+        Enum.GetValues<EndingPaletteId>()
+            .Where(id => id != EndingPaletteId.LogoCrossfade)
+            .Select(id => (id, EndingPaletteDefinitions.SourceAddress(id),
+                EndingPaletteDefinitions.SourceAddress(id) +
+                EndingPaletteDefinitions.ColorCount(id) * sizeof(ushort)))
+            .Append((EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
+            .ToArray();
+
+    /// <summary>
+    /// Forbids every installed ending palette source. While <paramref name="rejectAllCartridgeReads"/>
+    /// holds, any other cartridge read is also rejected; that rejection is not a forbidden-source
+    /// attempt, so it throws from an observation rule and leaves the counter unchanged.
+    /// </summary>
+    private static MutableCartridgeReadGuard NewEndingPaletteSourceReadGuard(ISnesAddressSpace source,
+        RoomPaletteFxPresentation effectColors, Func<bool> rejectAllCartridgeReads)
     {
-        private static readonly (EndingPaletteId Id, int Start, int End)[] Ranges =
-            Enum.GetValues<EndingPaletteId>()
-                .Where(id => id != EndingPaletteId.LogoCrossfade)
-                .Select(id => (id, EndingPaletteDefinitions.SourceAddress(id),
-                    EndingPaletteDefinitions.SourceAddress(id) +
-                    EndingPaletteDefinitions.ColorCount(id) * sizeof(ushort)))
-                .Append((EndingPaletteId.LogoCrossfade, 0x8cefe9, 0x8cf3e9))
-                .ToArray();
-
-        public int ForbiddenReadAttempts { get; private set; }
-        public bool RejectAllCartridgeReads { get; set; }
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x8d8000 and < 0x8e0000 &&
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address is >= 0x8d8000 and < 0x8e0000 &&
                 (effectColors.TryReadColor((ushort)address, out _) ||
-                 effectColors.TryReadColor(unchecked((ushort)(address - 1)), out _)))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending reread installed palette-FX color byte ${address:X6}.");
-            }
-            foreach ((EndingPaletteId id, int start, int end) in Ranges)
-            {
-                if (address < start || address >= end) continue;
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending reread {id} palette source ${address:X6}.");
-            }
-            int bank = address >> 16;
-            if (RejectAllCartridgeReads && bank is not (0x7e or 0x7f) &&
-                (address & 0x8000) != 0)
-                throw new InvalidOperationException(
-                    $"Installed ending reread cartridge byte ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadCartridgeByte(int address)
-        {
-            _ = ReadByte(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Ending palette guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ending palette guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ending palette guard requires SRAM."))
-            .ReadSaveRamByte(address);
+                 effectColors.TryReadColor(unchecked((ushort)(address - 1)), out _)),
+            address => $"Ending reread installed palette-FX color byte ${address:X6}.");
+        foreach ((EndingPaletteId id, int start, int end) in EndingPaletteSourceRanges)
+            guard.Forbid(address => address >= start && address < end,
+                address => $"Ending reread {id} palette source ${address:X6}.");
+        guard.Observe(address => rejectAllCartridgeReads() && address >> 16 is not (0x7e or 0x7f) &&
+                (address & 0x8000) != 0,
+            address => throw new InvalidOperationException(
+                $"Installed ending reread cartridge byte ${address:X6}."));
+        return guard;
     }
 }

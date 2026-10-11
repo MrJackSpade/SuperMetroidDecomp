@@ -180,7 +180,7 @@ internal static partial class Program
         RoomEnemySlot slot,
         ushort address)
     {
-        var probe = new EnemyInstructionOwnerReadProbe(source);
+        var probe = NewEnemyInstructionOwnerReadProbe(source);
         busField.SetValue(enemies, probe);
         try
         {
@@ -274,16 +274,9 @@ internal static partial class Program
         int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
-    private sealed class EnemyInstructionOwnerReadProbe(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) =>
-            throw new EnemyInstructionOwnerFallbackReadException(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyInstructionOwnerReadProbe(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(_ => true,
+            address => new EnemyInstructionOwnerFallbackReadException(address));
 
     private sealed class EnemyInstructionOwnerFallbackReadException(int address) :
         Exception($"Ordinary-enemy mechanics fell back to ROM at ${address:X6}.");

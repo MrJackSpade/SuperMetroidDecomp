@@ -97,7 +97,7 @@ internal static partial class Program
             () => TourianEntranceStatueInstructionProgramDefinitions.GetInitialInstruction(1),
             "Tourian statue selector rejects odd byte offsets");
 
-        var guarded = new EnemyInstructionSelectionReadGuard(rom);
+        var guarded = NewEnemyInstructionSelectionReadGuard(rom);
         Type type = typeof(RoomEnemySystem);
         MethodInfo statueInitializer = type.GetMethod(
             "InitializeTourianEntranceStatue", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -142,24 +142,13 @@ internal static partial class Program
             "  Enemy instruction selectors: nine native words and all three production initializers avoid their source tables.");
     }
 
-    private sealed class EnemyInstructionSelectionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
+    private static CartridgeReadGuard NewEnemyInstructionSelectionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
                     < EnemyRomTablePointersTorizo.SuperMissileInstructionPointers + 4 or
-                >= EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords and
+                    >= EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords and
                     < EnemyRomTablePointersWorkRobotConstants.InitialInstructionListWords + 8 or
-                >= EnemyRomTablePointersTourianStatueConstants.InstructionListWords and
-                    < EnemyRomTablePointersTourianStatueConstants.InstructionListWords + 6)
-                throw new InvalidOperationException(
-                    $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    >= EnemyRomTablePointersTourianStatueConstants.InstructionListWords and
+                    < EnemyRomTablePointersTourianStatueConstants.InstructionListWords + 6,
+                address => $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");
 }

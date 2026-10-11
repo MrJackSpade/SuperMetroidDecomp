@@ -115,6 +115,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending object sheets and BG maps")]
     private static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
@@ -196,7 +197,7 @@ internal static partial class Program
         Suite(nameof(VerifyEndingRewardSpriteArtwork), () => VerifyEndingRewardSpriteArtwork(bus, stock));
         Suite(nameof(VerifyEndingLogoSpriteArtwork), () => VerifyEndingLogoSpriteArtwork(bus, stock));
 
-        var guard = new EndingObjectSourceReadGuard(
+        var guard = NewEndingObjectSourceReadGuard(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
@@ -315,7 +316,7 @@ internal static partial class Program
                 1 => EndingObjectArtworkFormat.ExplosionByteCount,
                 _ => EndingObjectArtworkFormat.FragmentByteCount,
             };
-            var sceneBus = new EndingObjectSourceReadGuard(
+            var sceneBus = NewEndingObjectSourceReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var scene = CreateRetailEndingFixture(sceneBus, audio, 0, 0);
@@ -439,115 +440,60 @@ internal static partial class Program
         }
     }
 
-    private sealed class EndingObjectSourceReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewEndingObjectSourceReadGuard(ISnesAddressSpace source)
     {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (address >= (int)new SnesAddress(0x8b,
-                    EndingCloudInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b,
-                    EndingCloudInstructionDefinitions.End))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending cloud reread compiled instruction ${address:X6}.");
-            }
-            if (address >= (int)new SnesAddress(0x8b,
-                    EndingExplosionInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b,
-                    EndingExplosionInstructionDefinitions.End))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending explosion reread compiled instruction ${address:X6}.");
-            }
-            if (address >= (int)new SnesAddress(0x8b,
-                    EndingCompletionTextInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b,
-                    EndingCompletionTextInstructionDefinitions.End))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending completion text reread compiled instruction ${address:X6}.");
-            }
-            if (address >= (int)new SnesAddress(0x8b,
-                    EndingRewardInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b,
-                    EndingRewardInstructionDefinitions.End))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending reward reread compiled instruction ${address:X6}.");
-            }
-            if (address >= (int)new SnesAddress(0x8b,
-                    EndingLogoInstructionDefinitions.Start) &&
-                address < (int)new SnesAddress(0x8b,
-                    EndingLogoInstructionDefinitions.End))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending logo reread compiled instruction ${address:X6}.");
-            }
-            foreach (EndingCloudSpriteFrameDefinition frame in EndingCloudSpriteDefinitions.Frames)
-            {
-                int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
-                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingCloudInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b, EndingCloudInstructionDefinitions.End),
+            address => $"Ending cloud reread compiled instruction ${address:X6}.");
+        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingExplosionInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b, EndingExplosionInstructionDefinitions.End),
+            address => $"Ending explosion reread compiled instruction ${address:X6}.");
+        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingCompletionTextInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b, EndingCompletionTextInstructionDefinitions.End),
+            address => $"Ending completion text reread compiled instruction ${address:X6}.");
+        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingRewardInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b, EndingRewardInstructionDefinitions.End),
+            address => $"Ending reward reread compiled instruction ${address:X6}.");
+        guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingLogoInstructionDefinitions.Start) &&
+                address < (int)new SnesAddress(0x8b, EndingLogoInstructionDefinitions.End),
+            address => $"Ending logo reread compiled instruction ${address:X6}.");
+        guard.Forbid(address => EndingCloudSpriteDefinitions.Frames.Any(frame =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Ending cloud reread installed spritemap ${address:X6}.");
-                }
-            }
-            foreach (EndingExplosionSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
-            {
-                int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
-                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                    int start = (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    return address >= start && address < start + 2 + frame.StockPartCount * 5;
+                }),
+            address => $"Ending cloud reread installed spritemap ${address:X6}.");
+        guard.Forbid(address => EndingExplosionSpriteDefinitions.Frames.Any(frame =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Ending explosion reread installed spritemap ${address:X6}.");
-                }
-            }
-            foreach (EndingCompletionTextSpriteFrameDefinition frame in
-                EndingCompletionTextSpriteDefinitions.Frames)
-            {
-                int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
-                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                    int start = (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    return address >= start && address < start + 2 + frame.StockPartCount * 5;
+                }),
+            address => $"Ending explosion reread installed spritemap ${address:X6}.");
+        guard.Forbid(address => EndingCompletionTextSpriteDefinitions.Frames.Any(frame =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Ending completion text reread installed spritemap ${address:X6}.");
-                }
-            }
-            foreach (EndingRewardSpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
-            {
-                int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
-                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                    int start = (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    return address >= start && address < start + 2 + frame.StockPartCount * 5;
+                }),
+            address => $"Ending completion text reread installed spritemap ${address:X6}.");
+        guard.Forbid(address => EndingRewardSpriteDefinitions.Frames.Any(frame =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Ending reward reread installed spritemap ${address:X6}.");
-                }
-            }
-            foreach (EndingLogoSpriteFrameDefinition frame in EndingLogoSpriteDefinitions.Frames)
-            {
-                int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
-                if (address >= start && address < start + 2 + frame.StockPartCount * 5)
+                    int start = (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    return address >= start && address < start + 2 + frame.StockPartCount * 5;
+                }),
+            address => $"Ending reward reread installed spritemap ${address:X6}.");
+        guard.Forbid(address => EndingLogoSpriteDefinitions.Frames.Any(frame =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Ending logo reread installed spritemap ${address:X6}.");
-                }
-            }
-            if (address is EndingCreditsRomData.Assets.EscapeCloudCharacters or
+                    int start = (int)new SnesAddress(
+                        IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    return address >= start && address < start + 2 + frame.StockPartCount * 5;
+                }),
+            address => $"Ending logo reread installed spritemap ${address:X6}.");
+        guard.Forbid(address => address is EndingCreditsRomData.Assets.EscapeCloudCharacters or
                 EndingCreditsRomData.Assets.EndingObjectCharacters or
                 EndingCreditsRomData.Assets.EndingObjectCharacters70 or
                 EndingCreditsRomData.Assets.EndingObjectCharacters74 or
@@ -561,32 +507,8 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.PostCreditsTileFragmentB or
                 EndingCreditsRomData.Assets.PostCreditsMode7Characters or
                 EndingPostShotDefinitions.LogoTiles or
-                EndingPostShotDefinitions.LogoMap)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException($"Ending OBJ reread cartridge source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadCartridgeByte(int address)
-        {
-            _ = ReadByte(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Ending OBJ guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ending OBJ guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ending OBJ guard requires SRAM."))
-            .ReadSaveRamByte(address);
+                EndingPostShotDefinitions.LogoMap,
+            address => $"Ending OBJ reread cartridge source ${address:X6}.");
+        return guard;
     }
 }

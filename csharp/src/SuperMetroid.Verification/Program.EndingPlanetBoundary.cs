@@ -65,6 +65,7 @@ internal static partial class Program
         return output;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending planet-explosion VRAM reconstruction")]
     private static void VerifyEndingPlanetBoundary()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

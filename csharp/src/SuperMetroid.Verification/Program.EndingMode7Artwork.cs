@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode-7 scene artwork")]
     private static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -29,7 +30,7 @@ internal static partial class Program
                     $"installed ending {id} map preserves low-lane cell {cell}");
         }
 
-        var guardedBus = new EndingMode7SourceReadGuard(
+        var guardedBus = NewEndingMode7SourceReadGuard(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
@@ -79,7 +80,7 @@ internal static partial class Program
                 EndingMode7SceneId.PlanetExplosion => EndingCreditsPhase.FadeInZebesExplosion,
                 _ => throw new ArgumentOutOfRangeException(nameof(id)),
             };
-            var sceneBus = new EndingMode7SourceReadGuard(
+            var sceneBus = NewEndingMode7SourceReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
             var audio = new CartridgeAudioState();
             var state = CreateRetailEndingFixture(sceneBus, audio, 0, 0);
@@ -123,7 +124,7 @@ internal static partial class Program
                 $"edited ending {id} map changes visible pixels, but only its Mode-7 VRAM lanes");
             if (id == EndingMode7SceneId.PlanetExplosion)
             {
-                var partialBus = new EndingMode7SourceReadGuard(
+                var partialBus = NewEndingMode7SourceReadGuard(
                     SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"));
                 var partialAudio = new CartridgeAudioState();
                 var partial = CreateRetailEndingFixture(partialBus, partialAudio, 0, 0);
@@ -220,14 +221,11 @@ internal static partial class Program
     }
 
 
-    private sealed class EndingMode7SourceReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    private static MutableCartridgeReadGuard NewEndingMode7SourceReadGuard(ISnesAddressSpace source)
     {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if ((address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
+        var guard = new MutableCartridgeReadGuard(source);
+        guard.Forbid(address =>
+                (address >= EndingRewardGraphicsUploadDefinitions.SourceTable &&
                  address < EndingRewardGraphicsUploadDefinitions.DestinationTable +
                  EndingRewardJumpDefinitions.UploadCount * sizeof(ushort)) ||
                 address is EndingCreditsRomData.Assets.EscapeMapA or
@@ -236,33 +234,8 @@ internal static partial class Program
                 EndingCreditsRomData.Assets.EscapeCharactersB or
                 EndingCreditsRomData.Assets.ExplosionMap or
                 EndingCreditsRomData.Assets.ExplosionCharacters or
-                EndingCreditsRomData.Assets.PostCreditsMode7Characters)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending art reread cartridge source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        public byte ReadCartridgeByte(int address)
-        {
-            _ = ReadByte(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Ending Mode-7 guard requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ending Mode-7 guard requires WRAM."))
-            .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ending Mode-7 guard requires SRAM."))
-            .ReadSaveRamByte(address);
+                EndingCreditsRomData.Assets.PostCreditsMode7Characters,
+            address => $"Ending art reread cartridge source ${address:X6}.");
+        return guard;
     }
 }

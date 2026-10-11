@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Dragon instruction mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new DragonInstructionProgramReadGuard(rom);
+        var guard = NewDragonInstructionProgramReadGuard(rom);
         (DragonAnimationSelector Selector, ushort Terminal, int Frames)[] programs =
         [
             (DragonAnimationSelector.IdleFacingLeft, 0xe59f, 2),
@@ -54,7 +54,7 @@ internal static partial class Program
                 $"Dragon {selector} attack-completion callback state");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Dragon execution uses compiled spritemap selectors");
         for (int index = 0;
              index < DragonInstructionProgramDefinitions.PresentationWordCount;
@@ -88,7 +88,7 @@ internal static partial class Program
             "spritemap selectors pass with mechanics bytes forbidden.");
 
         static RoomEnemySystem CreateDragonProgramSystem(
-            DragonInstructionProgramReadGuard guard,
+            CartridgeReadGuard guard,
             DragonAnimationSelector selector,
             out RoomEnemySlot slot)
         {
@@ -137,44 +137,10 @@ internal static partial class Program
     private static ushort ReadDragonInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class DragonInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (DragonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Dragon mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < DragonInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        DragonInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDragonInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(DragonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Dragon mechanics byte ${address:X6}.")
+            .ObserveWords(0xa20000, DragonInstructionProgramDefinitions.PresentationWordCount,
+                DragonInstructionProgramDefinitions.PresentationWordAddress);
 }

@@ -34,7 +34,7 @@ internal static partial class Program
             EnemyDefinitionId.DraygonArms,
         ];
         var enemies = new RoomEnemySystem();
-        var guard = new DraygonInstructionReadGuard();
+        var guard = NewDraygonInstructionReadGuard();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         MethodInfo readMechanics = typeof(RoomEnemySystem).GetMethod(
             "ReadEnemyInstructionMechanicsWord", BindingFlags.NonPublic | BindingFlags.Static)!;
@@ -57,7 +57,7 @@ internal static partial class Program
                     $"Draygon definition ${(int)enemyDefinition:X4} owns $A5:{word.Address:X4}");
             }
         }
-        AssertEqual(0, guard.ReadAttempts,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "all four Draygon definitions avoid cartridge mechanics reads");
 
         RoomEnemySlot body = enemies.Slots[0];
@@ -149,21 +149,8 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class DraygonInstructionReadGuard : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Draygon mechanics attempted cartridge read ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException(
-                $"Draygon mechanics attempted cartridge write ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewDraygonInstructionReadGuard() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Draygon mechanics attempted cartridge read ${address:X6}.")
+            .RejectWrites(address => $"Draygon mechanics attempted cartridge write ${address:X6}.");
 }

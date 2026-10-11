@@ -1,6 +1,7 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
@@ -9,6 +10,7 @@ internal static partial class Program
     /// This inventories declared words, not executed paths. No production actor
     /// receives this source; the separate isolation fixture uses mutable RAM only.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Boyon and Torizo animation words")]
     private static void VerifyEnemyAnimationStockParity()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

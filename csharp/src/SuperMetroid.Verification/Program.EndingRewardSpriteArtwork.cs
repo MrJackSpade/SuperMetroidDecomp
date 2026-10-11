@@ -41,7 +41,7 @@ internal static partial class Program
     }
 
     private static void VerifyEndingRewardVisualOverride(GameInstallation installation,
-        EndingObjectArtworkCatalog stock, EndingObjectSourceReadGuard guard)
+        EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingRewardSpriteFormat.FileName;
         string stockPath = Path.Combine(installation.EndingObjectDirectory, name);

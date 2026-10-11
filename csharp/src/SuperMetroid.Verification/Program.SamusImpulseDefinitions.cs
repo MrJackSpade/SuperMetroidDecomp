@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
-        var noReads = new SlopeHeightNoReadBus();
+        var noReads = NewSlopeHeightNoReadBus();
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
         var bomb = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
@@ -41,7 +41,7 @@ internal static partial class Program
             bombCases++;
         }
 
-        var poseOnly = new ImpulsePoseReadGuard(rom);
+        var poseOnly = NewImpulsePoseReadGuard(rom);
         SamusPoseId[] poses = [SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.MorphBallGroundRightPose, SamusPoseId.MorphBallGroundLeftPose];
         int hurtCases = 0;
@@ -80,13 +80,9 @@ internal static partial class Program
         Console.WriteLine($"Samus impulse definitions: {bombCases} surface/equipment/direction bomb launches and {hurtCases} hurt transitions pass; physics ROM reads forbidden.");
     }
 
-    private sealed class ImpulsePoseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address >> 16 == 0x91
-            ? source.ReadByte(address)
-            : throw new InvalidOperationException($"Impulse test permits only remaining pose/animation reads, got ${address:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected impulse bus write.");
-    }
+    private static CartridgeReadGuard NewImpulsePoseReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address >> 16 != 0x91,
+                address => $"Impulse test permits only remaining pose/animation reads, got ${address:X6}.")
+            .RejectWrites(_ => "Unexpected impulse bus write.");
 }

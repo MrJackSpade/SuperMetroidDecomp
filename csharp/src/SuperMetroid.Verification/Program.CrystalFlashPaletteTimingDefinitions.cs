@@ -47,7 +47,7 @@ internal static partial class Program
                 rom, samus, controllerInput: 0, skipInputCheck: true),
             "Crystal Flash timing production fixture begins");
 
-        var guard = new CrystalFlashPaletteTimingReadGuard(rom);
+        var guard = NewCrystalFlashPaletteTimingReadGuard(rom);
         var cgram = new SnesCgram();
         var colors = RetailPresentationFixture().CrystalFlashColors;
         int callCount = CrystalFlashPaletteTimingDefinitions.RecordCount *
@@ -77,29 +77,15 @@ internal static partial class Program
             "100-call production cycle pass with timer-word reads forbidden.");
     }
 
-    private sealed class CrystalFlashPaletteTimingReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int relative = address -
-                CrystalFlashPaletteTimingDefinitions.NativeFirstTimerAddress;
-            if (relative >= 0 &&
-                relative < CrystalFlashPaletteTimingDefinitions.RecordCount *
-                    CrystalFlashPaletteTimingDefinitions.RecordByteCount &&
-                relative % CrystalFlashPaletteTimingDefinitions.RecordByteCount < 2)
+    private static CartridgeReadGuard NewCrystalFlashPaletteTimingReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Crystal Flash palette handler attempted timer read ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                int relative = address -
+                    CrystalFlashPaletteTimingDefinitions.NativeFirstTimerAddress;
+                return relative >= 0 &&
+                    relative < CrystalFlashPaletteTimingDefinitions.RecordCount *
+                        CrystalFlashPaletteTimingDefinitions.RecordByteCount &&
+                    relative % CrystalFlashPaletteTimingDefinitions.RecordByteCount < 2;
+            },
+            address => $"Crystal Flash palette handler attempted timer read ${address:X6}.");
 }

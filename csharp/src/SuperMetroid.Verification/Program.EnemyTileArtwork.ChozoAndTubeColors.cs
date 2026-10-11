@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo and tube palette bands")]
     private static void VerifyInstalledChozoAndTubeColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -50,7 +51,7 @@ internal static partial class Program
         // instruction identity and native PLM requests remain engine-owned.
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         Type type = typeof(RoomEnemySystem);
-        var guarded = new ChozoAndTubePaletteReadGuard(rom);
+        var guarded = NewChozoAndTubePaletteReadGuard(rom);
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveTubeCracks,
             "n00b-tube cracks", "InitializeN00bTubeCracks", null));
         Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveWreckedShip,
@@ -128,19 +129,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class ChozoAndTubePaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= ChozoAndTubeColorRomData.TubeCracksSource and
-            < (ChozoAndTubeColorRomData.LowerNorfairSource +
-                ChozoAndTubeColorRomData.ColorCount * sizeof(ushort))
-                ? throw new InvalidOperationException(
-                    $"Chozo/tube accessed migrated palette ROM ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewChozoAndTubePaletteReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= ChozoAndTubeColorRomData.TubeCracksSource and < (ChozoAndTubeColorRomData.LowerNorfairSource + ChozoAndTubeColorRomData.ColorCount * sizeof(ushort)),
+                address => $"Chozo/tube accessed migrated palette ROM ${address:X6}.");
 }

@@ -6,11 +6,12 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo crossfade palette tables")]
     private static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));
         Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(bus));
-        var guarded = new EndingLogoDefinitionReadGuard(bus);
+        var guarded = NewEndingLogoDefinitionReadGuard(bus);
         var cgram = new SnesCgram();
         var nativeCgram = new SnesCgram();
         int landings = 0;
@@ -60,6 +61,7 @@ internal static partial class Program
         Console.WriteLine($"  Logo: {fadeStart} actor frames, sixteen exact palette pairs, {poses.Count} OAM poses.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo instruction words")]
     private static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
         ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
@@ -234,44 +236,19 @@ internal static partial class Program
             "  Logo definitions: twelve actor words and 32 palette pointers match the cartridge.");
     }
 
-    private sealed class EndingLogoDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= (0x8b0000 + EndingLogoInstructionDefinitions.Start) and
-                < (0x8b0000 + EndingLogoInstructionDefinitions.End))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending logo reread compiled instruction byte ${address:X6}.");
-            }
-            if (address >= EndingLogoPalettePointerDefinitions.NativeTableAddress &&
-                address < EndingLogoPalettePointerDefinitions.NativeTableAddress +
-                EndingLogoDefinitions.PaletteSteps * 2 * sizeof(ushort))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ending logo reread palette pointer byte ${address:X6}.");
-            }
-            for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)
-            {
-                // The four six-byte logo definitions start at $8B:EF81.
-                int start = EndingLogoDefinitions.NativeDefinitionBank | (0xef81 + index * 6);
-                if (address >= start && address < start + 3 * sizeof(ushort))
+    private static CartridgeReadGuard NewEndingLogoDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= (0x8b0000 + EndingLogoInstructionDefinitions.Start) and
+                    < (0x8b0000 + EndingLogoInstructionDefinitions.End),
+                address => $"Ending logo reread compiled instruction byte ${address:X6}.")
+            .ForbidRange(EndingLogoPalettePointerDefinitions.NativeTableAddress,
+                EndingLogoDefinitions.PaletteSteps * 2 * sizeof(ushort),
+                address => $"Ending logo reread palette pointer byte ${address:X6}.")
+            .Forbid(address => Enumerable.Range(0, EndingLogoDefinitions.ActorCount).Any(index =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Ending logo reread definition byte ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    // The four six-byte logo definitions start at $8B:EF81.
+                    int start = EndingLogoDefinitions.NativeDefinitionBank | (0xef81 + index * 6);
+                    return address >= start && address < start + 3 * sizeof(ushort);
+                }),
+                address => $"Ending logo reread definition byte ${address:X6}.");
 }

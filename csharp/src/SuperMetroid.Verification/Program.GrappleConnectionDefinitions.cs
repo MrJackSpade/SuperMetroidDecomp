@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        var guard = new GrappleConnectionReadGuard(rom);
+        var guard = NewGrappleConnectionReadGuard(rom);
         // All three table bases and every serialized direction byte, including native
         // reads into the next authored table. Other addresses fail explicitly.
         int compiled = 0;
@@ -36,7 +36,6 @@ internal static partial class Program
             }
         }
         AssertEqual(60, compiled, "Default 30 + vertical 20 + crouching 10 authored reads");
-        guard.ForbidReads = true;
         Suite(nameof(VerifyGrappleConnectionDispatch), () => VerifyGrappleConnectionDispatch(rom));
         Suite(nameof(VerifyGrappleSpecialConnections), () => VerifyGrappleSpecialConnections(rom, guard));
         Suite(nameof(VerifyGrappleCancellationAndDrop), () => VerifyGrappleCancellationAndDrop(rom));
@@ -48,8 +47,9 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
             SamusGrappleMovement.ConnectAcceptedFiring;
-        var metadata = new GrappleFiringReadGuard(rom);
-        var guard = new GrappleConnectionReadGuard(metadata);
+        SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
+        var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
+        var guard = NewGrappleConnectionReadGuard(metadata);
         var samus = new SamusState();
         samus.Grapple.FlarePlacement = SuperMetroid.Core.Assets.ChargeFlarePlacementCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.GrappleFlarePlacementExtractor.Extract(rom)));
@@ -63,8 +63,7 @@ internal static partial class Program
             int sourcePose = Enumerable.Range(0, 253).FirstOrDefault(pose =>
                 rom.ReadByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) == movement, -1);
             if (sourcePose < 0) continue; // Native unused movement $0C has no authored pose.
-            metadata.SourcePose = samus.Pose = (SamusPoseId)sourcePose;
-            metadata.Direction = direction;
+            metadataPose = samus.Pose = (SamusPoseId)sourcePose;
             samus.Position = samus.Position.WithWhole(new(512, 512));
             samus.Kinematics.YSpeed = vertical == 1 ? (ushort)1 : (ushort)0;
             samus.Kinematics.YSubspeed = vertical == 2 ? (ushort)1 : (ushort)0;
@@ -78,7 +77,7 @@ internal static partial class Program
             if (movement == 26)
             {
                 AssertEqual(GrapplePhase.ConnectedLocked, g.Phase, "Draygon bypass phase");
-                AssertEqual(metadata.SourcePose, samus.Pose, "Draygon retains held body pose");
+                AssertEqual(metadataPose, samus.Pose, "Draygon retains held body pose");
                 AssertEqual(512, samus.Position.X.Whole, "Draygon retains body position");
                 continue;
             }
@@ -162,7 +161,7 @@ internal static partial class Program
         // Exercise only combinations owned by actual pose records. Older coverage routed
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
-        var guard = new GrappleConnectionReadGuard(rom);
+        var guard = NewGrappleConnectionReadGuard(rom);
         var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
         using var artworkDirectory = new TestTempDirectory("map-catalog");
@@ -222,21 +221,12 @@ internal static partial class Program
         {
             samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(radius);
-            AssertEqual(left ? 2 : 1, drop(new SlopeHeightNoReadBus(), samus), "Swing-pose drop bypasses all metadata");
+            AssertEqual(left ? 2 : 1, drop(NewSlopeHeightNoReadBus(), samus), "Swing-pose drop bypasses all metadata");
         }
     }
 
-    private sealed class GrappleConnectionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public bool ForbidReads = true;
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ForbidReads && (address is >= 0x9bb8b8 and < 0x9bb8d4 or >= 0x9bc3c6 and < 0x9bc48e or >= 0x9bc9ba and < 0x9bc9ce))
-                throw new InvalidOperationException($"Compiled Grapple connection read ROM ${address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewGrappleConnectionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x9bb8b8 and < 0x9bb8d4 or >= 0x9bc3c6 and < 0x9bc48e or >= 0x9bc9ba and < 0x9bc9ce,
+                address => $"Compiled Grapple connection read ROM ${address:X6}.");
 }

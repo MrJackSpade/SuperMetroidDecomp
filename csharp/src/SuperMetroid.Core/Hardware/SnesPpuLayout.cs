@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Hardware;
 /// Dimensions belonging to one animation, temporary buffer, or algorithm remain beside
 /// that code even when their numeric value happens to match one of these constants.
 /// </remarks>
+[PpuLayoutBoundary("catalog: PPU memory geometry and gameplay VRAM bases")]
 public static class SnesPpuLayout
 {
     /// <summary>INIDISP ($2100) brightness nibble: fifteen is full intensity.</summary>
@@ -41,44 +42,58 @@ public static class SnesPpuLayout
         TilemapPageWidthInTiles * TilemapPageWidthInTiles;
 
     /// <summary>Physical 15-bit VMADD capacity.</summary>
+    [PpuLayoutAccess]
     public const int VramWordCount = 0x8000;
 
     /// <summary>Physical 64-KiB VRAM capacity.</summary>
+    [PpuLayoutAccess]
     public const int VramByteCount = VramWordCount * 2;
 
     /// <summary>Number of native BGR555 entries in CGRAM.</summary>
+    [PpuLayoutAccess]
     public const int CgramColorCount = 256;
 
     /// <summary>Size of the complete CGRAM image uploaded by NMI.</summary>
+    [PpuLayoutAccess]
     public const int CgramByteCount = CgramColorCount * 2;
 
     /// <summary>Number of hardware OBJ records.</summary>
+    [PpuLayoutAccess]
     public const int OamSpriteCount = 128;
 
     /// <summary>Size of OAM's four-byte-per-OBJ low table.</summary>
+    [PpuLayoutAccess]
     public const int OamLowTableByteCount = OamSpriteCount * 4;
 
     /// <summary>Size of OAM's two-bits-per-OBJ high table.</summary>
+    [PpuLayoutAccess]
     public const int OamHighTableByteCount = OamSpriteCount / 4;
 
     /// <summary>Complete low-plus-high OAM DMA payload.</summary>
+    [PpuLayoutAccess]
     public const int OamUploadByteCount = OamLowTableByteCount + OamHighTableByteCount;
 
     /// <summary>Ordinary gameplay BG1's first VMADD tilemap word.</summary>
+    [PpuLayoutAccess]
     public const ushort GameplayBg1TilemapWord = 0x5000;
 
     /// <summary>Ordinary gameplay BG2's first VMADD tilemap word.</summary>
+    [PpuLayoutAccess]
     public const ushort GameplayBg2TilemapWord = 0x4800;
 
     /// <summary>IRQ-visible gameplay HUD BG3's first VMADD tilemap word.</summary>
+    [PpuLayoutAccess]
     public const ushort GameplayHudTilemapWord = 0x5800;
 
     /// <summary>Ordinary gameplay BG3 character base selected by BG34NBA=$04.</summary>
+    [PpuLayoutAccess]
     public const ushort GameplayHudCharacterBaseWord = 0x4000;
 
     /// <summary>Shared menu BG1 tilemap location.</summary>
+    [PpuLayoutAccess]
     public const ushort MenuBg1TilemapWord = 0x5000;
 
     /// <summary>Shared menu BG2 tilemap location.</summary>
+    [PpuLayoutAccess]
     public const ushort MenuBg2TilemapWord = 0x5800;
 }

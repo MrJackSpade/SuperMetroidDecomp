@@ -13,30 +13,37 @@ namespace SuperMetroid.Core.Hardware;
 /// size. Four sprites therefore share each high-table byte. NMI uploads all 544 bytes to
 /// PPU OAM in one DMA at <c>$80:933A</c>.
 /// </remarks>
+[PpuLayoutBoundary("backend: OAM low/high-table construction and packing")]
 public sealed class OamBuffer
 {
     /// <summary>Number of hardware OBJ records representable by one OAM image.</summary>
     public const int SpriteCount = SnesPpuLayout.OamSpriteCount;
     /// <summary>Byte length of the 128 four-byte coordinate and attribute records.</summary>
+    [PpuLayoutAccess]
     public const int LowTableByteCount = SnesPpuLayout.OamLowTableByteCount;
     /// <summary>Byte length of the packed X-high and size-bit table.</summary>
+    [PpuLayoutAccess]
     public const int HighTableByteCount = SnesPpuLayout.OamHighTableByteCount;
     /// <summary>Total 544-byte DMA payload containing the low table followed by the high table.</summary>
+    [PpuLayoutAccess]
     public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
 
     private readonly byte[] _lowTable = new byte[LowTableByteCount];
     private readonly byte[] _highTable = new byte[HighTableByteCount];
 
     /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
+    [PpuLayoutAccess]
     public ReadOnlySpan<byte> LowTable => _lowTable;
 
     /// <summary>Raw 32-byte high OAM table used by PPU DMA.</summary>
+    [PpuLayoutAccess]
     public ReadOnlySpan<byte> HighTable => _highTable;
 
     /// <summary>
     /// Byte offset of the next low-table record, equivalent to WRAM <c>$0590</c>. It moves
     /// in four-byte increments and reaches <c>$0200</c> when all 128 sprites are occupied.
     /// </summary>
+    [PpuLayoutAccess]
     public int NextByteOffset { get; private set; }
 
     /// <summary>
@@ -251,6 +258,7 @@ public sealed class OamBuffer
     /// and flips are calculated by the native caller. X remains a nine-bit hardware value;
     /// Y wraps to its low byte exactly like a direct store to OAMLow.
     /// </remarks>
+    [PpuLayoutAccess]
     public void AddRawSmallSprite(Position16<OamPixels> position, ushort attributes)
     {
         int spriteIndex = NextByteOffset >> 2;
@@ -273,6 +281,7 @@ public sealed class OamBuffer
     /// coordinates have zero high bytes, so the cleared high-OAM pair already describes a
     /// small object at X 0..255 and is deliberately left untouched.
     /// </remarks>
+    [PpuLayoutAccess]
     public void AddProjectileTrailSprite(Position16<OamPixels> position, ushort attributes)
     {
         if (NextByteOffset >= LowTableByteCount)
@@ -334,6 +343,7 @@ public sealed class OamBuffer
     /// physical image has no construction cursor. Retain the producer's modeled
     /// sprite count because existing raster kernels deliberately stop at that count.
     /// </summary>
+    [PpuLayoutAccess]
     public void LoadUploadPayload(ReadOnlySpan<byte> payload, int modeledSpriteCount)
     {
         if ((uint)modeledSpriteCount > SpriteCount)

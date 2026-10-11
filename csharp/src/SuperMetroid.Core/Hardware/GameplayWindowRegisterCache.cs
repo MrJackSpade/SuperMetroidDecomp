@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Hardware;
 /// including the gameplay_TM byte between TM and TS: a word write must not treat
 /// those screen registers as adjacent. It does not infer CPU Y or effect settings.
 /// </summary>
+[PpuLayoutBoundary("backend: gameplay window/screen-selection register cache")]
 public sealed class GameplayWindowRegisterCache
 {
     private readonly byte[] _bytes = new byte[
@@ -17,18 +18,21 @@ public sealed class GameplayWindowRegisterCache
     /// <param name="address">Native WRAM offset from <c>$69</c> through <c>$74</c>.</param>
     /// <returns>The current main-loop-owned byte; this need not equal the last NMI-latched value.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="address"/> lies outside the modeled cache.</exception>
+    [PpuLayoutAccess]
     public byte ReadByte(ushort address) => _bytes[Index(address)];
 
     /// <summary>Writes one raw byte to the main-loop-owned WRAM cache without changing <see cref="Displayed"/>.</summary>
     /// <param name="address">Native WRAM offset from <c>$69</c> through <c>$74</c>.</param>
     /// <param name="value">Unmasked byte to preserve until an accepted NMI uploads it.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="address"/> lies outside the modeled cache.</exception>
+    [PpuLayoutAccess]
     public void WriteByte(ushort address, byte value) => _bytes[Index(address)] = value;
 
     /// <summary>
     /// Writes both bytes of a native little-endian store. Validate the whole range
     /// before mutation: callers outside this modeled WRAM region need another owner.
     /// </summary>
+    [PpuLayoutAccess]
     public void WriteWord(ushort address, ushort value)
     {
         int index = Index(address);

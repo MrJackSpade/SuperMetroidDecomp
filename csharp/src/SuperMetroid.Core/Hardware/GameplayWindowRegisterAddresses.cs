@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Hardware;
 
 /// <summary>WRAM shadow bytes consumed by bank-$80's NmiUpdateIoRegisters.</summary>
+[PpuLayoutAccess]
 public static class GameplayWindowRegisterAddresses
 {
     /// <summary>$7E:0060, reg_W12SEL; BG1/BG2 window selection.</summary>

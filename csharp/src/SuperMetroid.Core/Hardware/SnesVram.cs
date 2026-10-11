@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 /// The SNES PPU's 64 KiB of video RAM, exposed as bytes while retaining word-addressed
 /// DMA behavior.
 /// </summary>
+[PpuLayoutAccess]
 public sealed class SnesVram
 {
     /// <summary>The PPU contains 32,768 16-bit VRAM words.</summary>

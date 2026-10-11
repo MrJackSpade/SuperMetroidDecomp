@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Hardware;
 /// debugging palette fades: the game mutates 15-bit target/current palette buffers and
 /// NMI later uploads their exact 512-byte image to CGRAM.
 /// </remarks>
+[PpuLayoutAccess]
 public sealed class SnesCgram
 {
     /// <summary>The number of native palette words held by CGRAM.</summary>

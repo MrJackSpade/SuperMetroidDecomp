@@ -112,6 +112,38 @@ internal static partial class Program
         Expect(api + "[CpuBusBoundary(\"exact bus test double\")] sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }");
     }
 
+    private static void VerifyPpuLayoutAccessAnalyzer()
+    {
+        var analyzer = new PpuLayoutAccessAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer);
+        const string api =
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class PpuLayoutAccessAttribute : System.Attribute { } " +
+            "[System.AttributeUsage(System.AttributeTargets.All)] sealed class PpuLayoutBoundaryAttribute(string reason) : System.Attribute { } " +
+            "[PpuLayoutAccess] sealed class Vram { public ushort ReadWord(int word) => 0; public void LoadBytes(int offset, byte[] bytes) { } } " +
+            "[PpuLayoutAccess] static class Registers { public const ushort MainScreen = 0x69; } " +
+            "[PpuLayoutAccess] interface IOamSink { void Write(int offset, byte value); } " +
+            "[PpuLayoutBoundary(\"backend\")] sealed class Oam { [PpuLayoutAccess] public System.ReadOnlySpan<byte> LowTable => default; public void AddSprite() { } } ";
+
+        // SME6300: raw VRAM/register/OAM access, including register-number constants, outside a boundary.
+        Expect(api + "class Renderer { ushort M(Vram vram) => vram.ReadWord(0x5000); }",
+            PpuLayoutAccessAnalyzer.RawAccessId, "'Vram.ReadWord' is raw PPU layout access");
+        Expect(api + "class Renderer { ushort M() => Registers.MainScreen; }",
+            PpuLayoutAccessAnalyzer.RawAccessId, "'Registers.MainScreen'");
+        Expect(api + "class Renderer { int M(Oam oam) => oam.LowTable.Length; }",
+            PpuLayoutAccessAnalyzer.RawAccessId, "'Oam.LowTable'");
+        // Typed members of a backend, a rendering view, and passing the backend along pass.
+        Expect(api + "class Renderer { void M(Oam oam) => oam.AddSprite(); }");
+        Expect(api + "[PpuLayoutBoundary(\"rendering view\")] sealed class Bg1Tilemap(Vram vram) { public ushort At(int cell) => vram.ReadWord(0x5000 + cell); } " +
+            "class Renderer { ushort M(Bg1Tilemap map) => map.At(3); }");
+        Expect(api + "class Renderer { Bg1Tilemap M(Vram vram) => new(vram); } class Bg1Tilemap(Vram vram) { }");
+
+        // SME6301: raw PPU contracts implemented outside a boundary.
+        Expect(api + "sealed class Sink : IOamSink { public void Write(int offset, byte value) { } }",
+            PpuLayoutAccessAnalyzer.RawImplementationId, "Sink implements raw PPU contract 'IOamSink'");
+        Expect(api + "[PpuLayoutBoundary(\"exact hardware test\")] sealed class Sink : IOamSink { public void Write(int offset, byte value) { } }");
+    }
+
     private static void VerifySpatialClumpAnalyzer()
     {
         var analyzer = new SpatialClumpAnalyzer();

@@ -12,7 +12,7 @@ internal static class PlmVramArtworkSourceContract
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileCatalog.cs", "50181E5C609316DD0F2C695663588BB09571977292EA5C829505D768E2DBDEED"),
         new("csharp/src/SuperMetroid.Core/Assets/BeamTileAtlasDefinitions.cs", "DDFAAF3A4D7581D3C3238C8444ADCD45EC6E1FFF350390A5EE87C365DE41416D"),
         new("csharp/src/SuperMetroid.Core/Hardware/VramWriteQueue.cs", "166966888B22696A68535EE40C1A53EB0D612B9F18F02344B7376F79C35A1DDB"),
-        new("csharp/src/SuperMetroid.AssetExtraction/EnemyTileArtworkFiles.cs", "C16954021E059B385ADA43DCFB4F32CDE15C232A4FFBCAE2A6FE2BCC435CEA9E"),
+        new("csharp/src/SuperMetroid.AssetExtraction/EnemyTileArtworkFiles.cs", "DC54E2F26C3C14437512B4EF215745D5A9FF11EA3AD4147E10D2BBD670E2C5E0"),
         new("csharp/src/SuperMetroid.Core/Hardware/SnesDmaSourceMap.cs", "97A3BE0CE8E9BA9AD71F1385D30CC23BEDE5965A6EAA078F81E54FABBBB37E2F"),
     ];
 }

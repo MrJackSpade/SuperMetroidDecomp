@@ -22,7 +22,7 @@ internal static partial class Program
             "ApplyMotherBrainRainbowTileTransfer", flags)!;
 
         transfer.Invoke(enemies, [new MotherBrainSpriteTileTransferRequest(0, 1,
-            MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x7000)]);
+            MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)]);
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
             "Mother Brain corpse tile transfer reads mutable WRAM");
         // #549 removed the cartridge fallback: an unbound cartridge source is refused.
@@ -257,7 +257,7 @@ internal static partial class Program
         bus.WriteByte(MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x5a);
         transfer.Invoke(enemies,
             [new MotherBrainSpriteTileTransferRequest(0, 1,
-                MotherBrainCorpseRottingState.GraphicsBufferAddress, 0x7000)]);
+                MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000)]);
         AssertEqual((byte)0x5a, vram.ReadByte(0x7000 * 2),
             "installed Mother Brain still copies mutable corpse WRAM to VRAM");
     }

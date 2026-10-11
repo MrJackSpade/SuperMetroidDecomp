@@ -2059,10 +2059,10 @@ public sealed partial class RoomPlmSystem
     }
 
     private static ushort ReadPlmWorkRamWord(ISnesMutableMemory memory, ushort offset) =>
-        SnesWorkRam.ReadWord(memory, (int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
+        new PlmLowBankAliasMemory(memory).Word(offset);
 
     private static byte ReadPlmWorkRamByte(ISnesMutableMemory memory, ushort offset) =>
-        memory.ReadWorkRamByte((int)new SnesAddress(RoomPlmMemoryLayout.ProgramBank, offset));
+        new PlmLowBankAliasMemory(memory).Byte(offset);
 
     // Instruction control is compiled independently of PLM draw-list payloads. A
     // compiled family claims only its own exact control addresses; all other bank-$84

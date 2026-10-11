@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 
@@ -361,7 +362,7 @@ internal sealed class AndroidSessionData : IDisposable
     private ControllerInputRecorder StartRecorder() =>
         ControllerInputRecorder.StartInstalled(
             root,
-            Bus.SaveRam,
+            SaveRamImage.Capture(Bus),
             Options,
             ContentIdentity);
 

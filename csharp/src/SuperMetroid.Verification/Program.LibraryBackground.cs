@@ -187,7 +187,7 @@ static void VerifyLibraryBackgroundLoader()
 
 [CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]
 private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
-    ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
+    ISnesMemoryBus, IImportCartridgeSource
 {
     public int CartridgeReads { get; private set; }
     public int WorkRamReads { get; private set; }

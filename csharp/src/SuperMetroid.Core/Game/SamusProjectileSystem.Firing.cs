@@ -552,9 +552,7 @@ public sealed partial class SamusProjectileSystem
         short baseSpeed)
     {
         slot.Position = slot.Position.WithFractionX(0).WithFractionY(0);
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-            throw new InvalidOperationException("Projectile inheritance requires live WRAM.");
-        slot.Velocity = SamusProjectileInheritance.ReadVelocity(memory, slot.Direction, baseSpeed);
+        slot.Velocity = SamusProjectileInheritance.ReadVelocity(bus, slot.Direction, baseSpeed);
     }
 
 }

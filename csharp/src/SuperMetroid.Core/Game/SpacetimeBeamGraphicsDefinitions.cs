@@ -12,12 +12,11 @@ internal static class SpacetimeBeamGraphicsDefinitions
     /// <summary>$90:19FF: $90:C3E5's palette color used as a pointer by $90:ACCD, mirroring live WRAM.</summary>
     internal const ushort PalettePointer = 0x19ff;
 
-    [CpuBusBoundary("native emulation: $90:ACCD LDA [dp],Y copies SpaceTime beam colors through the glitched $90:19FF long pointer")]
     internal static void LoadPalette(ISnesAddressSpace bus, SnesCgram cgram)
     {
         for (ushort color = 0; color < Assets.BeamPaletteDefinitions.ColorCount; color++)
             // The glitched pointer reads arbitrary words; the CGRAM port keeps fifteen bits.
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + color,
-                Bgr555.FromCgramPortWord(SnesIndirectLongDataRead.ReadWord(bus, 0x90, PalettePointer, (ushort)(color * 2))));
+                Bgr555.FromCgramPortWord(new SamusOverreadMemory(bus).SpacetimePaletteWord(color)));
     }
 }

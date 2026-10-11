@@ -929,8 +929,6 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
                 MotherBrainCorpseRottingStepResult corpseRotting = _corpseRotting.Step(
                     bus,
-                    bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                        "Mother Brain corpse rotting requires live WRAM."),
                     BrainPosition,
                     randomNumberSeed,
                     mainEnemyExecutionCounter);

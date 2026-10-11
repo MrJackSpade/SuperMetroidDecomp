@@ -6,9 +6,11 @@ using SuperMetroid.Core.Hardware;
 /// throws its configured failure; an observe rule records the read and continues. A read no rule rejects
 /// is served by the wrapped source through the reference reader, or fails when the guard is unbacked.
 /// Writes are checked against reject rules, then forwarded to the source or, when unbacked, recorded.
+/// The guard is a full <see cref="ISnesMemoryBus"/> so production paths that require live memory can run
+/// over it: WRAM and SRAM reads pass through to the source's mutable memory unchecked.
 /// </summary>
 [CpuBusBoundary("exact bus test: guard double that forbids, observes and counts reads of declared CPU-bus ranges")]
-internal class CartridgeReadGuard : ISnesAddressSpace, IImportCartridgeSource
+internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
 {
     private readonly ISnesAddressSpace? source;
     private readonly List<ReadRule> readRules = [];
@@ -119,6 +121,16 @@ internal class CartridgeReadGuard : ISnesAddressSpace, IImportCartridgeSource
             source.WriteByte(address, value);
     }
 
+    /// <inheritdoc />
+    public virtual byte ReadWorkRamByte(int address) => Mutable.ReadWorkRamByte(address);
+
+    /// <inheritdoc />
+    public virtual byte ReadSaveRamByte(int address) => Mutable.ReadSaveRamByte(address);
+
+    /// <summary>The source's WRAM/SRAM, which serves mutable-memory reads.</summary>
+    private protected ISnesMutableMemory Mutable => Source as ISnesMutableMemory ?? throw new InvalidOperationException(
+        $"Bus guard source {Source.GetType().Name} does not expose WRAM/SRAM.");
+
     /// <summary>Applies the read rules to <paramref name="address"/>.</summary>
     private protected void Check(int address)
     {
@@ -159,27 +171,23 @@ internal class CartridgeReadGuard : ISnesAddressSpace, IImportCartridgeSource
 }
 
 /// <summary>
-/// A <see cref="CartridgeReadGuard"/> that also serves WRAM/SRAM reads (#629), for production paths that
-/// require mutable memory. The read rules apply to every read; a WRAM/SRAM read no rule rejects is served by
-/// the source's mutable memory.
+/// A <see cref="CartridgeReadGuard"/> whose read rules also apply to WRAM/SRAM reads (#629): a WRAM/SRAM
+/// read no rule rejects is served by the source's mutable memory.
 /// </summary>
 [CpuBusBoundary("exact bus test: guard double over a mutable bus that forbids, observes and counts reads")]
-internal sealed class MutableCartridgeReadGuard(ISnesAddressSpace source) : CartridgeReadGuard(source), ISnesMutableMemory
+internal sealed class MutableCartridgeReadGuard(ISnesAddressSpace source) : CartridgeReadGuard(source)
 {
     /// <inheritdoc />
-    public byte ReadWorkRamByte(int address)
+    public override byte ReadWorkRamByte(int address)
     {
         Check(address);
-        return Mutable.ReadWorkRamByte(address);
+        return base.ReadWorkRamByte(address);
     }
 
     /// <inheritdoc />
-    public byte ReadSaveRamByte(int address)
+    public override byte ReadSaveRamByte(int address)
     {
         Check(address);
-        return Mutable.ReadSaveRamByte(address);
+        return base.ReadSaveRamByte(address);
     }
-
-    private ISnesMutableMemory Mutable => Source as ISnesMutableMemory ?? throw new InvalidOperationException(
-        $"Mutable bus guard source {Source.GetType().Name} does not expose WRAM/SRAM.");
 }

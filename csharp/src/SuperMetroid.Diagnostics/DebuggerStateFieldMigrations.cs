@@ -116,10 +116,6 @@ internal static class DebuggerStateFieldMigrations
             }),
         new(typeof(EnemyTileArtworkCatalog).FullName!, ["<MotherBrainBodyBg2Frames>k__BackingField"],
             "Legacy enemy catalog lacks Mother Brain body BG2 presentation; the host must rebind its current installed artwork."),
-        new(typeof(SuperMetroidSaveRam).FullName!, ["mutableMemory"],
-            "Legacy save manager lacks its typed SRAM capability; rebinding to its existing mutable bus.",
-            saveRam => Set(saveRam, "mutableMemory", Get(saveRam, "bus") as SuperMetroid.Core.Hardware.ISnesMutableMemory
-                ?? throw new InvalidDataException("Legacy save manager's bus cannot supply active SRAM."))),
         // The old room graph already contains the exact native streaming arrays. Alias those
         // arrays just as a new room with no visual override does.
         new(typeof(RoomLevelData).FullName!, ["_visualStreamingForegroundAllocation", "_visualStreamingBackgroundAllocation"],

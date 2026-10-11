@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Hardware;
-
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -15,31 +13,19 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class CorpseRottingTableProcessor
 {
-    private const int EntryByteCount = 4;
-
     /// <summary>Builds the descending-Y, ascending-delay table from <c>$A9:DC40</c>.</summary>
-    public static void Initialize(
-        ISnesAddressSpace bus,
-        int tableAddress,
-        ushort entryCount)
+    public static void Initialize(CorpseRotTable table)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        if (entryCount == 0)
-            throw new ArgumentOutOfRangeException(nameof(entryCount));
-
+        ushort entryCount = table.EntryCount;
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++)
         {
-            int entryAddress = checked(tableAddress + entryIndex * EntryByteCount);
-            WriteWord(bus, entryAddress, unchecked((ushort)(entryCount - 1 - entryIndex)));
-            WriteWord(bus, entryAddress + 2, unchecked((ushort)(entryIndex * 2)));
+            table.SetYOffset(entryIndex, unchecked((ushort)(entryCount - 1 - entryIndex)));
+            table.SetDelay(entryIndex, unchecked((ushort)(entryIndex * 2)));
         }
     }
 
     /// <summary>Runs one complete call of the shared cartridge table processor.</summary>
-    /// <param name="bus">Address space used to write updated row offsets, delay words, and finished-entry markers.</param>
-    /// <param name="memory">Mutable WRAM backing the same table, used to read its current row and delay words.</param>
-    /// <param name="tableAddress">Full WRAM byte address of the first four-byte signed-Y/delay entry.</param>
-    /// <param name="entryCount">Nonzero number of entries processed in ascending index order.</param>
+    /// <param name="table">The live rot table; its entries are processed in ascending index order.</param>
     /// <param name="yLimit">Exclusive pixel-row limit for the two-pixel advance; also the native entry-index threshold that returns final completion.</param>
     /// <param name="lateMoveEntryIndex">First entry index that uses the destructive move callback during the last four delay states instead of copying its pixel row.</param>
     /// <param name="copyOrMovePixelRow">
@@ -52,37 +38,29 @@ public static class CorpseRottingTableProcessor
     /// </param>
     /// <returns>True while another rotting call is required; false on final completion.</returns>
     public static bool Step(
-        ISnesAddressSpace bus,
-        ISnesMutableMemory memory,
-        int tableAddress,
-        ushort entryCount,
+        CorpseRotTable table,
         ushort yLimit,
         ushort lateMoveEntryIndex,
         Action<ushort, bool> copyOrMovePixelRow,
         Action<ushort> entryFinished)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(memory);
-        ArgumentNullException.ThrowIfNull(copyOrMovePixelRow);
-        ArgumentNullException.ThrowIfNull(entryFinished);
-        if (entryCount == 0)
-            throw new ArgumentOutOfRangeException(nameof(entryCount));
+        Ensure.NotNull(copyOrMovePixelRow);
+        Ensure.NotNull(entryFinished);
 
-        for (ushort entryIndex = 0; entryIndex < entryCount; entryIndex++)
+        for (ushort entryIndex = 0; entryIndex < table.EntryCount; entryIndex++)
         {
-            int entryAddress = checked(tableAddress + entryIndex * EntryByteCount);
-            short yOffset = unchecked((short)SnesWorkRam.ReadWord(memory, entryAddress));
+            short yOffset = unchecked((short)table.YOffset(entryIndex));
 
             // `$FFFF` marks a finished non-final entry. The assembly uses BMI, so every
             // signed-negative value is skipped rather than testing one invented sentinel.
             if (yOffset < 0)
                 continue;
 
-            ushort timer = SnesWorkRam.ReadWord(memory, entryAddress + 2);
+            ushort timer = table.Delay(entryIndex);
             if (timer != 0)
             {
                 timer = unchecked((ushort)(timer - 1));
-                WriteWord(bus, entryAddress + 2, timer);
+                table.SetDelay(entryIndex, timer);
                 if (timer < 4)
                 {
                     copyOrMovePixelRow(
@@ -98,7 +76,7 @@ public static class CorpseRottingTableProcessor
             ushort nextYOffset = unchecked((ushort)(yOffset + 2));
             if (nextYOffset < yLimit)
             {
-                WriteWord(bus, entryAddress, nextYOffset);
+                table.SetYOffset(entryIndex, nextYOffset);
                 continue;
             }
 
@@ -106,15 +84,9 @@ public static class CorpseRottingTableProcessor
             if (entryIndex >= yLimit)
                 return false;
 
-            WriteWord(bus, entryAddress, 0xffff);
+            table.SetYOffset(entryIndex, 0xffff);
         }
 
         return true;
-    }
-
-    private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
-    {
-        bus.WriteByte(address, unchecked((byte)value));
-        bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
     }
 }

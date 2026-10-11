@@ -92,8 +92,8 @@ internal static partial class Program
             short[] rowYBefore = Enumerable.Range(0, MotherBrainCorpseRottingState.EntryCount)
                 .Select(index => MotherBrainCorpseRottingState.ReadEntry(baseline, index).YOffset)
                 .ToArray();
-            var expected = baselineRot.Step(baseline, baseline, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
-            var actual = editedRot.Step(edited, edited, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
+            var expected = baselineRot.Step(baseline, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
+            var actual = editedRot.Step(edited, new Position16<RoomPixels>(100, 120), seed, (ushort)call);
             AssertEqual(call < 118, expected.StillRotting, "exact corpse lifetime");
             AssertEqual(expected.StillRotting, actual.StillRotting, "corpse lifetime independent of pixels");
             AssertAnimationValues(baselineRot, editedRot, "corpse counters at call " + call);

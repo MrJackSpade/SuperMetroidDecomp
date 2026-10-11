@@ -62,13 +62,6 @@ internal static partial class Program
             new MemoryStream(new byte[1]), LegacyCartridgeStateFormat.BankByteCount),
             "truncated retired payload fails inside the harness");
 
-        var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var manager = new SuperMetroidSaveRam(memory, RetailPresentationFixture());
-        typeof(SuperMetroidSaveRam).GetField("mutableMemory", System.Reflection.BindingFlags.Instance |
-            System.Reflection.BindingFlags.NonPublic)!.SetValue(manager, null);
-        RestoreLegacy(manager, "mutableMemory");
-        AssertTrue(manager.ReadSlot(0) is null, "legacy save manager rebinds its original SRAM owner");
-
         static void Field(BinaryWriter writer, string name)
         {
             writer.Write(DebuggerStateTypeIdentity.GetSerializedName(typeof(SuperMetroidAddressSpace)));

@@ -17,8 +17,7 @@ public static partial class GameplayDisplayCapture
         if (basis.Layers[0] is not OrdinaryGameplayRenderLayer ordinary)
             throw new NotSupportedException("X-ray display requires ordinary gameplay layers.");
         var room = runtime.ActiveRoom ?? throw new InvalidOperationException("X-ray has no room.");
-        ISnesMutableMemory mutableMemory = runtime.AddressSpace as ISnesMutableMemory ??
-            throw new InvalidOperationException("X-ray display requires WRAM access.");
+        ISnesMemoryBus memoryBus = runtime.MemoryBus;
         var ppu = runtime.DisplayedGameplayPpu;
         var mode = XrayRoomDisplayRules.Select(room.Pointer, runtime.RoomLayer3Fx.Type, runtime.Enemies.BossId);
         bool reveal = mode == XrayRoomBlendMode.RevealBlocks;
@@ -26,7 +25,7 @@ public static partial class GameplayDisplayCapture
         var registers = ordinary.Registers;
         if (reveal)
         {
-            ushort[] map = XraySetupMemory.ReadReveal(mutableMemory);
+            ushort[] map = new XrayMemory(memoryBus).RevealTilemap.ToArray();
             for (int i = 0; i < map.Length; i++)
             {
                 int offset = (SnesPpuLayout.GameplayBg2TilemapWord + i) * 2;
@@ -69,8 +68,8 @@ public static partial class GameplayDisplayCapture
         bool subtract = runtime.RoomLayer3Fx.LayerBlendConfiguration is
             LayerBlendingConfiguration.WaterSubtractive or LayerBlendingConfiguration.WaterfallSubtractive;
         var control = XrayRoomDisplayRules.ColorMath(mode, subtract);
-        byte red = Fixed(PpuFixedColorMirrors.Red), green = Fixed(PpuFixedColorMirrors.Green),
-            blue = Fixed(PpuFixedColorMirrors.Blue);
+        var fixedColor = new FixedColorMemory(memoryBus);
+        byte red = fixedColor.RedIntensity, green = fixedColor.GreenIntensity, blue = fixedColor.BlueIntensity;
         if (reveal || mode == XrayRoomBlendMode.Fireflea && red < XrayWindowRenderDefinitions.FixedColorComponent)
             red = green = blue = XrayWindowRenderDefinitions.FixedColorComponent;
         // Phase five deletes the HDMA object but its blend bits have already been
@@ -90,7 +89,5 @@ public static partial class GameplayDisplayCapture
             lines,
             reveal, control, mode != XrayRoomBlendMode.Fireflea, red, green, blue, sub);
         return new(memory, new RenderLayer[] { layer }, basis.ObjectSelection, basis.Brightness);
-
-        byte Fixed(int address) => (byte)(mutableMemory.ReadWorkRamByte(address) & 31);
     }
 }

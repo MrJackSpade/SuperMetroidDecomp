@@ -32,7 +32,7 @@ static ushort ReferenceNextRandom(ushort seed)
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
 [CpuBusBoundary("exact bus test: sparse synthetic CPU address space whose bytes the test seeds directly")]
-sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
+sealed class TestAddressSpace : ISnesMemoryBus,
     IImportCartridgeSource,
     IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
 {

@@ -58,13 +58,7 @@ public static class ProjectileTrailProgramDefinitions
 
         SnesAddress source = SnesAddress.FromBusAddress(address);
         if (source.Bank == 0x90 && !source.IsUpperLoRomWindow)
-        {
-            ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-                throw new InvalidOperationException(
-                    "Projectile trail low-bank alias requires mutable console memory.");
-            return (ushort)(memory.ReadWorkRamByte(address) |
-                (memory.ReadWorkRamByte((int)source.AddWithinBank(1)) << 8));
-        }
+            return new SamusOverreadMemory(bus).TrailProgramWord(source);
 
         throw new InvalidDataException(
             $"Projectile trail program word {source} is outside compiled mechanics data " +

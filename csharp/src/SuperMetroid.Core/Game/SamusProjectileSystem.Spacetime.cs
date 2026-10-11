@@ -29,51 +29,12 @@ public sealed partial class SamusProjectileSystem
 
         while (unchecked((short)(y - SpacetimeBeamCorruptionLayout.PaletteByteCount)) < 0)
         {
-            int sourcePointer =
-                (bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                    "SpaceTime source pointer requires WRAM.")).ReadWorkRamByte(
-                    SpacetimeBeamCorruptionLayout.SourceLongPointerAddress) |
-                ((ISnesMutableMemory)bus).ReadWorkRamByte(
-                    SpacetimeBeamCorruptionLayout.SourceLongPointerAddress + 1) << 8 |
-                ((ISnesMutableMemory)bus).ReadWorkRamByte(
-                    SpacetimeBeamCorruptionLayout.SourceLongPointerAddress + 2) << 16;
-            int sourceAddress = (sourcePointer + y) &
-                SpacetimeBeamCorruptionLayout.CpuAddressMask;
-            int destinationAddress =
-                (SpacetimeBeamCorruptionLayout.SpritePaletteSixWramAddress + x) &
-                SpacetimeBeamCorruptionLayout.CpuAddressMask;
-
-            bus.WriteByte(destinationAddress, ReadSpacetimeSourceByte(bus, sourceAddress));
-            bus.WriteByte(
-                (destinationAddress + 1) & SpacetimeBeamCorruptionLayout.CpuAddressMask,
-                ReadSpacetimeSourceByte(bus, (sourceAddress + 1) &
-                    SpacetimeBeamCorruptionLayout.CpuAddressMask));
-            persistentMemoryCorrupted |=
-                destinationAddress <= SaveRamLayout.LoadingGameStateWramAddress + 1 &&
-                destinationAddress + 1 >= SaveRamLayout.EventsWramAddress;
-
+            persistentMemoryCorrupted |= new SpacetimeBeamCorruptionMemory(
+                SnesMemoryBusRequirement.Require(bus, "SpaceTime source pointer requires WRAM.")).CopyPaletteWord(x, y);
             x = unchecked((ushort)(x + sizeof(ushort)));
             y = unchecked((ushort)(y + sizeof(ushort)));
         }
 
         return persistentMemoryCorrupted;
     }
-
-    [CpuBusBoundary("native emulation: the SpaceTime beam copy loop reads arbitrary CPU-bus source bytes")]
-    private static byte ReadSpacetimeSourceByte(ISnesAddressSpace bus, int address) =>
-        SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
-        {
-            SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
-                throw new InvalidOperationException("SpaceTime source requires WRAM."))
-                .ReadWorkRamByte(address),
-            SnesDmaSourceKind.Cartridge => SpacetimeBeamCopyDefinitions.ReadCartridgeByte(address),
-            SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ??
-                throw new InvalidOperationException("SpaceTime source requires SRAM."))
-                .ReadSaveRamByte(address),
-            SnesDmaSourceKind.Unmapped => (bus as ISnesCpuPeripheralSource ??
-                throw new InvalidOperationException($"SpaceTime source ${address:X6} requires an unimplemented peripheral."))
-                .ReadPeripheralByte(address),
-            _ => throw new InvalidOperationException(
-                $"SpaceTime source ${address:X6} requires a compiled cartridge definition."),
-        };
 }

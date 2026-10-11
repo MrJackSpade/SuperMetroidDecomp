@@ -7,10 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Retail Dead Torizo actor and its bank-$A9 corpse-rotting graphics path.</summary>
 public sealed partial class RoomEnemySystem
 {
-    private const int DeadTorizoWorkBufferAddress = 0x7e2000;
-    private const int DeadTorizoWorkBufferSize = 0x1000;
-    private const int DeadTorizoSandBufferAddress = 0x7e9500;
-
     private readonly List<VramWriteEntry> _deadTorizoFrameVramTransfers = [];
     private DeadTorizoEnemyState? _deadTorizo;
 
@@ -33,8 +29,7 @@ public sealed partial class RoomEnemySystem
                 $"Dead Torizo requires native slot zero, not slot {slot.SlotIndex}.");
         }
 
-        for (int offset = 0; offset < DeadTorizoWorkBufferSize; offset++)
-            _bus!.WriteByte(DeadTorizoWorkBufferAddress + offset, 0);
+        EnemyScratch.CorpseTiles.Fill(0);
 
         slot.VariableA = (ushort)DeadTorizoFunction.Wait;
         slot.Properties = slot.Properties.With(
@@ -66,9 +61,7 @@ public sealed partial class RoomEnemySystem
         };
 
         CorpseRottingTableProcessor.Initialize(
-            _bus!,
-            0x7e0000 | definition.RottingTablePointer,
-            definition.EntryCount);
+            EnemyScratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadTorizoGraphics();
     }
 
@@ -136,10 +129,7 @@ public sealed partial class RoomEnemySystem
         MoveBankA9EnemyWithVelocity(slot);
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _bus!,
-            EnemyWorkMemory,
-            0x7e0000 | state.TablePointer,
-            state.EntryCount,
+            EnemyScratch.RotTable(state.TablePointer, state.EntryCount),
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, move),
@@ -219,15 +209,14 @@ public sealed partial class RoomEnemySystem
         ReadOnlySpan<byte> installedTiles = DeadTorizoInstalledTiles();
         if (installedTiles.IsEmpty)
             throw new InvalidDataException("Dead Torizo requires installed corpse artwork.");
+        WorkRamByteTable tiles = EnemyScratch.CorpseTiles;
         for (int row = 0; row < DeadTorizoGeometryDefinitions.Rows; row++)
         {
             DeadTorizoGraphicsCopy copy = DeadTorizoGeometryDefinitions.InitialCopy(row);
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
                 int sourceOffset = copy.SourceOffset + byteIndex;
-                _bus!.WriteByte(
-                    DeadTorizoWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    installedTiles[sourceOffset]);
+                tiles[copy.DestinationOffset + byteIndex] = installedTiles[sourceOffset];
             }
         }
     }
@@ -302,14 +291,12 @@ public sealed partial class RoomEnemySystem
 
         // Eighteen tile rows are sixteen bytes apart in both the source sheet and the WRAM
         // heap surface. Only the first 16-bit bitplane word of each row is replaced.
+        WorkRamByteTable sand = EnemyScratch.DeadTorizoSand;
         for (int row = 0; row < 18; row++)
         {
             int tileOffset = sourceOffset + row * 16;
             ushort value = BinaryPrimitives.ReadUInt16LittleEndian(installedTiles.Slice(tileOffset, 2));
-            WriteWord(
-                _bus!,
-                DeadTorizoSandBufferAddress + destinationOffset + row * 16,
-                value);
+            sand.WriteWord(destinationOffset + row * 16, value);
         }
     }
 
@@ -384,20 +371,13 @@ public sealed partial class RoomEnemySystem
     }
 
     private ushort ReadWorkWord(int wordOffset) =>
-        SnesWorkRam.ReadWord(EnemyWorkMemory, DeadTorizoWorkBufferAddress + wordOffset * 2);
+        EnemyScratch.CorpseTiles.ReadWord(wordOffset * 2);
 
     private void WriteWorkWord(int wordOffset, ushort value) =>
-        WriteWord(_bus!, DeadTorizoWorkBufferAddress + wordOffset * 2, value);
+        EnemyScratch.CorpseTiles.WriteWord(wordOffset * 2, value);
 
     private static ushort NativeAbsolute(ushort value) =>
         (value & 0x8000) == 0 ? value : unchecked((ushort)(~value + 1));
-
-    private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
-    {
-        bus.WriteByte(address, unchecked((byte)value));
-        bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
-    }
-
 }
 
 /// <summary>Typed projection of Dead Torizo's bank-$A9 extended WRAM fields.</summary>

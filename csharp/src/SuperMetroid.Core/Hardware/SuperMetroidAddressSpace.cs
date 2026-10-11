@@ -27,10 +27,6 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
     public static SuperMetroidAddressSpace CreateWithoutCartridge() =>
         new();
 
-    /// <summary>Mutable battery-backed SRAM; persistence remains an explicit host concern.</summary>
-    [CpuBusAccess]
-    public Span<byte> SaveRam => _saveRam;
-
     /// <inheritdoc />
     public byte ReadWorkRamByte(int cpuAddress)
     {

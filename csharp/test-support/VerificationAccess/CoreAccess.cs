@@ -147,6 +147,7 @@ internal static partial class CoreAccess
     extension(SuperMetroidAddressSpace bus)
     {
         internal Span<byte> WorkRam => PrivateState.Field<byte[]>(bus, "_workRam");
+        internal Span<byte> SaveRam => PrivateState.Field<byte[]>(bus, "_saveRam");
     }
 
     extension(VramWriteQueue queue)

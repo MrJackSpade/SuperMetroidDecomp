@@ -49,7 +49,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: sparse per-region store whose read counters witness PPU DMA source routing")]
-    private sealed class DmaReadRoutingBus : ISnesAddressSpace, ISnesMutableMemory,
+    private sealed class DmaReadRoutingBus : ISnesMemoryBus,
         IImportCartridgeSource
     {
         private readonly Dictionary<int, byte> cartridge = [];

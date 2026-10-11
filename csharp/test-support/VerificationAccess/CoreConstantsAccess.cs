@@ -52,7 +52,7 @@ internal static class AreaAnimatedTileObjectDefinitionsConstants
 internal static class AttractDemoRomDataConstants
 {
     /// <summary>$70:1FE0, completion marker checked by VerifySRAM to unlock set four.</summary>
-    public const int CompletionMarkerAddress = (SuperMetroid.Core.Game.SaveRamLayout.SramBank << 16) | SuperMetroid.Core.Game.SaveRamLayout.CompletionMarkerOffset;
+    public const int CompletionMarkerAddress = (SaveRamLayoutConstants.SramBank << 16) | SuperMetroid.Core.Game.SaveRamLayout.CompletionMarkerOffset;
     /// <summary>CheckForNextDemo's room-list termination word.</summary>
     public const ushort EndOfSet = 0xffff;
     /// <summary>LoadDemoData's bank and sixteen-byte equipment record stride.</summary>
@@ -2323,11 +2323,15 @@ internal static class MotherBrainCorpseRottingStateConstants
 {
     /// <summary>Six tile rows times <c>$E0</c> bytes per row.</summary>
     public const int GraphicsBufferSize = 0x0540;
+    /// <summary>$7E:9000, first byte of the six-row corpse graphics staging buffer.</summary>
+    public const int GraphicsBufferAddress = 0x7e9000;
 
     extension(MotherBrainCorpseRottingState)
     {
         /// <inheritdoc cref="MotherBrainCorpseRottingStateConstants.GraphicsBufferSize"/>
         internal static int GraphicsBufferSize => MotherBrainCorpseRottingStateConstants.GraphicsBufferSize;
+        /// <inheritdoc cref="MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress"/>
+        internal static int GraphicsBufferAddress => MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress;
     }
 }
 
@@ -2823,11 +2827,19 @@ internal static class RoomAssetRomDataLibraryBackgroundConstants
 {
     /// <summary>Bank containing room-authored library-background command lists.</summary>
     public const int CommandBank = 0x8f0000;
+    /// <summary>Bank containing the shared decompression and tilemap staging buffers.</summary>
+    public const int WorkRamBank = 0x7e0000;
+    /// <summary>Exclusive byte offset at the end of one SNES address bank.</summary>
+    public const int BankByteCount = 0x10000;
 
     extension(RoomAssetRomData.LibraryBackground)
     {
         /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundConstants.CommandBank"/>
         internal static int CommandBank => RoomAssetRomDataLibraryBackgroundConstants.CommandBank;
+        /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundConstants.WorkRamBank"/>
+        internal static int WorkRamBank => RoomAssetRomDataLibraryBackgroundConstants.WorkRamBank;
+        /// <inheritdoc cref="RoomAssetRomDataLibraryBackgroundConstants.BankByteCount"/>
+        internal static int BankByteCount => RoomAssetRomDataLibraryBackgroundConstants.BankByteCount;
     }
 }
 
@@ -3992,12 +4004,40 @@ internal static class SaveRamLayoutConstants
     /// <summary>Size of the unassigned $7E:D8F0-$7E:D8F7 allocation.</summary>
     public const int ProgressionPaddingByteCount = 8;
     /// <summary>Unassigned eight-byte SRAM-mirror allocation at $7E:D8F0-$7E:D8F7.</summary>
-    public const int ProgressionPaddingWramAddress = SaveRamLayout.OpenedDoorBitsWramAddress + Bank80SystemState.DoorBitByteCount;
+    public const int ProgressionPaddingWramAddress = OpenedDoorBitsWramAddress + Bank80SystemState.DoorBitByteCount;
     public const int SelectedSlotComplementOffset = SaveRamLayout.SelectedSlotOffset + WordByteCount;
     public const int WordByteCount = 2;
+    /// <summary>The SNES CPU-bus bank through which the cartridge exposes battery-backed SRAM.</summary>
+    public const byte SramBank = 0x70;
+    /// <summary>Mask that wraps logical SRAM accesses into the cartridge's 8-KiB <c>$70:0000-$70:1FFF</c> window.</summary>
+    public const ushort SramOffsetMask = 0x1fff;
+    /// <summary>First persistent event byte at $7E:D820.</summary>
+    public const int EventsWramAddress = 0x7ed820;
+    /// <summary>First area-boss byte at $7E:D828.</summary>
+    public const int BossBitsWramAddress = 0x7ed828;
+    /// <summary>First collected-item byte at $7E:D870.</summary>
+    public const int CollectedItemBitsWramAddress = 0x7ed870;
+    /// <summary>First opened-door byte at $7E:D8B0.</summary>
+    public const int OpenedDoorBitsWramAddress = 0x7ed8b0;
+    /// <summary>First acquired-map-station byte at $7E:D908.</summary>
+    public const int MapStationsWramAddress = 0x7ed908;
 
     extension(SaveRamLayout)
     {
+        /// <inheritdoc cref="SaveRamLayoutConstants.SramBank"/>
+        internal static byte SramBank => SaveRamLayoutConstants.SramBank;
+        /// <inheritdoc cref="SaveRamLayoutConstants.SramOffsetMask"/>
+        internal static ushort SramOffsetMask => SaveRamLayoutConstants.SramOffsetMask;
+        /// <inheritdoc cref="SaveRamLayoutConstants.EventsWramAddress"/>
+        internal static int EventsWramAddress => SaveRamLayoutConstants.EventsWramAddress;
+        /// <inheritdoc cref="SaveRamLayoutConstants.BossBitsWramAddress"/>
+        internal static int BossBitsWramAddress => SaveRamLayoutConstants.BossBitsWramAddress;
+        /// <inheritdoc cref="SaveRamLayoutConstants.CollectedItemBitsWramAddress"/>
+        internal static int CollectedItemBitsWramAddress => SaveRamLayoutConstants.CollectedItemBitsWramAddress;
+        /// <inheritdoc cref="SaveRamLayoutConstants.OpenedDoorBitsWramAddress"/>
+        internal static int OpenedDoorBitsWramAddress => SaveRamLayoutConstants.OpenedDoorBitsWramAddress;
+        /// <inheritdoc cref="SaveRamLayoutConstants.MapStationsWramAddress"/>
+        internal static int MapStationsWramAddress => SaveRamLayoutConstants.MapStationsWramAddress;
         /// <inheritdoc cref="SaveRamLayoutConstants.ButtonConfigWordCount"/>
         internal static int ButtonConfigWordCount => SaveRamLayoutConstants.ButtonConfigWordCount;
         /// <inheritdoc cref="SaveRamLayoutConstants.ProgressionPaddingByteCount"/>

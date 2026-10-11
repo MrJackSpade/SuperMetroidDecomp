@@ -109,8 +109,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: write-overlay fixture over the retail bus that rejects compiled projectile-mechanics reads")]
-    private sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesAddressSpace,
-        ISnesMutableMemory, IImportCartridgeSource
+    private sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadWorkRamByte(int address) => ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);

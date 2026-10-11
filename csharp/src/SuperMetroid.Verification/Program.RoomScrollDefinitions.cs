@@ -120,8 +120,8 @@ internal static partial class Program
     private static MutableCartridgeReadGuard NewRoomScrollNoReadAddressSpace(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address is not (>= RoomScrollGrid.WorkRamAddress and
-                < RoomScrollGrid.WorkRamAddress + RoomScrollGrid.StorageByteCount),
+        guard.Forbid(address => address is not (>= RoomScrollGridConstants.WorkRamAddress and
+                < RoomScrollGridConstants.WorkRamAddress + RoomScrollGrid.StorageByteCount),
             address => $"Compiled room-scroll construction read address ${address:X6}.");
         return guard;
     }

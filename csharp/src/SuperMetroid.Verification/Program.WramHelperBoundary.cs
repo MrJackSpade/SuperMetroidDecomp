@@ -24,12 +24,12 @@ internal static partial class Program
         ushort[] shades = [0, 1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
         for (int frame = 1; frame <= 144; frame++)
         {
-            FirefleaRoomFx.Step(memory, memory, frozen: false, darkness: 0);
+            FirefleaRoomFx.Step(memory, frozen: false, darkness: 0);
             AssertEqual((byte)(shades[frame / 6 % shades.Length] | 0x20),
-                memory.ReadWorkRamByte(PpuFixedColorMirrors.Red), "Fireflea native six-frame shade cadence");
+                memory.ReadWorkRamByte(PpuFixedColorMirrors.Red.Address), "Fireflea native six-frame shade cadence");
         }
         ushort retainedTimer = SnesWorkRam.ReadWord(memory, FirefleaFxRomData.Timer);
-        FirefleaRoomFx.Step(memory, memory, frozen: true, darkness: 2);
+        FirefleaRoomFx.Step(memory, frozen: true, darkness: 2);
         AssertEqual(retainedTimer, SnesWorkRam.ReadWord(memory, FirefleaFxRomData.Timer),
             "frozen Fireflea leaves the live WRAM timer unchanged");
         AssertEqual((ushort)2, SnesWorkRam.ReadWord(memory, FirefleaFxRomData.Darkness),
@@ -39,23 +39,23 @@ internal static partial class Program
 
     private static void VerifyWramCorpseScheduler(SuperMetroidAddressSpace memory)
     {
-        const int table = 0x7e1800;
-        CorpseRottingTableProcessor.Initialize(memory, table, 3);
+        CorpseRotTable table = new EnemyScratchMemory(memory).RotTable(0x9000, 3);
+        CorpseRottingTableProcessor.Initialize(table);
         for (int index = 0; index < 3; index++)
             AssertEqual(new CorpseRottingTableEntry((short)(2 - index), (ushort)(2 * index)),
-                CorpseRottingTableProcessor.ReadEntry(memory, table, 3, index), "native rot table initialization");
+                CorpseRottingTableProcessor.ReadEntry(table, index), "native rot table initialization");
         var rows = new List<(ushort Row, bool Move)>();
         var finished = new List<ushort>();
-        bool active = CorpseRottingTableProcessor.Step(memory, memory, table, 3, 2, 1,
+        bool active = CorpseRottingTableProcessor.Step(table, 2, 1,
             (row, move) => rows.Add((row, move)), finished.Add);
         AssertTrue(active, "a finished non-final rot entry does not finish the scheduler");
         AssertTrue(rows.SequenceEqual(new[] { ((ushort)2, true), ((ushort)1, true), ((ushort)0, true) }),
             "rot callback order and late-move selection");
         AssertTrue(finished.SequenceEqual(new ushort[] { 0 }), "only the expired first row finishes");
         AssertEqual(new CorpseRottingTableEntry(-1, 0),
-            CorpseRottingTableProcessor.ReadEntry(memory, table, 3, 0), "finished row receives native negative sentinel");
+            CorpseRottingTableProcessor.ReadEntry(table, 0), "finished row receives native negative sentinel");
         AssertEqual(new CorpseRottingTableEntry(1, 1),
-            CorpseRottingTableProcessor.ReadEntry(memory, table, 3, 1), "second row retains its decremented WRAM delay");
+            CorpseRottingTableProcessor.ReadEntry(table, 1), "second row retains its decremented WRAM delay");
     }
 
     private static void VerifyWramProjectileInheritance(SuperMetroidAddressSpace memory)

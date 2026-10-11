@@ -40,7 +40,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapArtworkCatalog.cs", "B0EF6EB7D1154ADDE345A678959A5FCC97EB94E3555B2633864B1DB7C24B3445"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapFrameDefinitions.cs", "3513BD799155CE8428C97652B5FFF68A8B1CC5175AF40958742BF6D1C6054B54"),
              new("csharp/src/SuperMetroid.Core/Assets/GrappleSwingFrameCatalog.cs", "7BF84FD6D6B3185B670FC2DB0C8951B53D886A8B4547080C35DC6C7E909B0849"),
-             new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs", "B7A128B4A1B1FB9ABC8A89775007054698040BBE3A53F61089F4888B6C77AF97"),
+             new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayDefinitions.cs", "C5B601834FBB262185714565BB95877A93CAD1968A162C5A196C575A1FDD64E0"),
              new("csharp/src/SuperMetroid.Core/Game/SamusAnimationDelayPrograms.cs", "AEC295EEC2013263835DA5FCA9BE81604F6A8D3B8550CDBDCDB0999ABE335403"),
              new("csharp/src/SuperMetroid.Core/Game/SamusDeathExplosionTimingDefinitions.cs", "8C0C442727D4C01AE214E89B8238FAFCEBA7870AC61D1E9C13B07376AA4DF304"),
              new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "1F0A858C191CEF505F59FBC544DA589F1481D8FE574A7795E709B9CD99204093"),
@@ -57,7 +57,8 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/CeresEscapeVramTransferDefinitions.cs", "9E546C3E2FC69B26020FEDF3EAAD3186F91A3C69EE84384F419E1AE0A8D0BBC9"),
         new("csharp/src/SuperMetroid.Core/Game/DeadMonsterRottingDefinitions.cs", "78C3985FFF2CADED7804A8F09A4887431C5751B62A71ABFA8431A83F8107C844"),
         new("csharp/src/SuperMetroid.Core/Game/DeadTorizoVramTransferDefinitions.cs", "4C843F0DA75BB2AB134408B809ADCCDEC92DC669A6382A81114DC524C5A3FCD8"),
-        new("csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs", "C20C54846A1C7EDFDB2745F3585EB25E5065DC2A7171234BC0C5E6CF0F29D521"),
+        // #629 re-pinned: corpse tiles and rot tables are written through EnemyScratchMemory; the installed tiles and WRAM destinations are unchanged.
+        new("csharp/src/SuperMetroid.Core/Game/RoomEnemySystem.DeadTourianCorpses.cs", "AB59F66D2434A2B9DAC1A8F824914F4E69E26C52ED5E5595AB41736BE8E3FACC"),
         new("csharp/src/SuperMetroid.Core/Game/RoomFxAnimatedTileMechanicsDefinitions.cs", "0BED72D64D88AAC3D4A4B5D1959321B972C4FCBDFE5C4713A9AA645298F02ECA"),
         new("csharp/src/SuperMetroid.Core/Game/TourianStatueAnimatedTileMechanicsDefinitions.cs", "D9A79397F9EB216C57FEB802894ADE14B01621570CF94C6EB27E561093446537"),
         new("csharp/src/SuperMetroid.Core/Game/WreckedShipTreadmillMechanicsDefinitions.cs", "3FE0B99AD9E35E404BE0C86AED8C9AB28D49B20677FF0BD5F2FDDF092BEEFA61"),

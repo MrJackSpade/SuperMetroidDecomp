@@ -663,9 +663,9 @@ public sealed partial class RoomEnemySystem
         // The native transition now requests the prepared enemy image, replacing the
         // room's pipe background before the articulated body becomes visible.
         var words = new ushort[state.EnemyBg2TilemapSize / 2];
+        WorkRamWordTable bg2 = EnemyScratch.EnemyBg2Tilemap;
         for (int index = 0; index < words.Length; index++)
-            words[index] = SnesWorkRam.ReadWord(EnemyWorkMemory,
-                MotherBrainBg2Definitions.WorkAddress + index * 2);
+            words[index] = bg2[index];
         _vram!.ExecuteWordTransfer(words, EnemyBg2FrameLayout.VramBase, wordIncrement: 1);
         state.EnemyBg2TilemapTransferRequested = true;
     }

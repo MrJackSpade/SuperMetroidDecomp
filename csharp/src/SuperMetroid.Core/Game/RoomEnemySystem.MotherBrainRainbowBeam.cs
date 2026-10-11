@@ -410,12 +410,10 @@ public sealed partial class RoomEnemySystem
             throw new InvalidDataException(
                 $"Mother Brain sprite transfer {transfer} has no installed artwork binding.");
         }
-        var bytes = new byte[transfer.Size];
-        ISnesMutableMemory memory = _bus as ISnesMutableMemory ??
-            throw new InvalidOperationException("Mother Brain's mutable sprite transfer requires WRAM.");
-        for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = memory.ReadWorkRamByte(unchecked((int)transfer.SourceAddress + index));
-        _vram!.LoadBytes(transfer.VramDestination * 2, bytes);
+        // The live $7E:9000 corpse buffer reaches VRAM through the ordinary mode-1 DMA.
+        _vram!.ExecuteQueuedMemoryWrite(
+            SnesMemoryBusRequirement.Require(_bus!, "Mother Brain's mutable sprite transfer requires WRAM."),
+            unchecked((int)transfer.SourceAddress), transfer.Size, transfer.VramDestination);
     }
 
     private static MotherBrainBodyFunction MapLiveMotherBrainRainbowFunction(

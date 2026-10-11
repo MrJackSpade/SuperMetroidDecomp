@@ -43,8 +43,9 @@ public sealed partial class RoomEnemySystem
             state.Body.Properties = sequence.BodyProperties;
             var words = new ushort[MotherBrainDeathRomData.Bg2LastByte / 2 + 1];
             Array.Fill(words, MotherBrainDeathRomData.EmptyBodyTile);
+            WorkRamWordTable bg2 = EnemyScratch.EnemyBg2Tilemap;
             for (int i = 0; i < words.Length; i++)
-                WriteWord(_bus!, MotherBrainDeathRomData.Bg2WorkAddress + i * 2, words[i]);
+                bg2[i] = words[i];
             _vram!.ExecuteWordTransfer(words, SnesPpuLayout.GameplayBg2TilemapWord, wordIncrement: 1);
             state.EnemyBg2TilemapSize = MotherBrainDeathRomData.Bg2LastByte;
             state.EnemyBg2TilemapTransferRequested = true;

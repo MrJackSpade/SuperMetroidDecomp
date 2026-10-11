@@ -17,13 +17,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class MotherBrainCorpseRottingState
 {
-    /// <summary>First byte of the six-row corpse graphics staging buffer.</summary>
-    public const int GraphicsBufferAddress = 0x7e9000;
-
-    /// <summary>Native 48-entry rot table at <c>$7E:9700-$97BF</c>.</summary>
-    public const int RotTableAddress = 0x7e9700;
-
-    /// <summary>One rot entry per visible pixel row.</summary>
+    /// <summary>One rot entry per visible pixel row of the table at <see cref="EnemyScratchWorkRam.MotherBrainRotTable"/>.</summary>
     public const int EntryCount = 0x0030;
 
     /// <summary>True after the head initialization equivalent at <c>$A9:8705</c>.</summary>
@@ -47,20 +41,23 @@ public sealed class MotherBrainCorpseRottingState
         if (installedTiles.Length != MotherBrainCorpseArtworkDefinitions.ByteCount)
             throw new InvalidDataException("Installed Mother Brain corpse PNG has the wrong tile count.");
 
+        var scratch = new EnemyScratchMemory(
+            SnesMemoryBusRequirement.Require(bus, "Mother Brain corpse rotting requires live WRAM."));
+
         // `$DC40` starts at height-1 and writes four bytes per entry. Y decreases from the
         // corpse's bottom row to its top while the delay grows by two calls per entry.
-        CorpseRottingTableProcessor.Initialize(bus, RotTableAddress, EntryCount);
+        CorpseRottingTableProcessor.Initialize(scratch.MotherBrainRotTable);
 
         // MVN copies A+1 bytes. The lengths below already include that 65816 convention,
         // so a host loop uses `< Length` without adding another byte.
+        WorkRamByteTable tiles = scratch.MotherBrainCorpseTiles;
         for (int row = 0; row < MotherBrainCorpseArtworkDefinitions.RowCount; row++)
         {
             for (int byteIndex = 0; byteIndex < MotherBrainCorpseArtworkDefinitions.InitialCopyLength(row); byteIndex++)
             {
                 int sourceAddress = MotherBrainCorpseArtworkDefinitions.InitialCopySource(row) + byteIndex;
-                bus.WriteByte(
-                    GraphicsBufferAddress + row * MotherBrainCorpseArtworkDefinitions.RowBytes + byteIndex,
-                    installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress]);
+                tiles[row * MotherBrainCorpseArtworkDefinitions.RowBytes + byteIndex] =
+                    installedTiles[sourceAddress - MotherBrainCorpseArtworkDefinitions.SourceAddress];
             }
         }
 
@@ -72,13 +69,11 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>Runs one exact call of <c>ProcessCorpseRotting</c> for Mother Brain.</summary>
     public MotherBrainCorpseRottingStepResult Step(
         ISnesAddressSpace bus,
-        ISnesMutableMemory memory,
         Position16<RoomPixels> brainPosition,
         ushort randomNumberSeed,
         ushort mainEnemyExecutionCounter)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(memory);
         if (!IsInitialized)
         {
             throw new InvalidOperationException(
@@ -87,15 +82,15 @@ public sealed class MotherBrainCorpseRottingState
 
         ProcessCallCount++;
         var dustRequests = new List<MotherBrainCorpseDustRequest>(capacity: 1);
+        var scratch = new EnemyScratchMemory(
+            SnesMemoryBusRequirement.Require(bus, "Mother Brain corpse rotting requires live WRAM."));
+        WorkRamByteTable tiles = scratch.MotherBrainCorpseTiles;
 
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            bus,
-            memory,
-            RotTableAddress,
-            EntryCount,
+            scratch.MotherBrainRotTable,
             yLimit: EntryCount - 1,
             lateMoveEntryIndex: EntryCount - 2,
-            copyOrMovePixelRow: (yOffset, move) => CopyOrMovePixelRow(bus, memory, yOffset, move),
+            copyOrMovePixelRow: (yOffset, move) => CopyOrMovePixelRow(tiles, yOffset, move),
             entryFinished: entryIndex =>
             {
                 // `$B223` samples the already-existing global seed; it does not advance
@@ -127,7 +122,7 @@ public sealed class MotherBrainCorpseRottingState
             DustRequests: dustRequests);
     }
 
-    private static void CopyOrMovePixelRow(ISnesAddressSpace bus, ISnesMutableMemory memory, ushort yOffset, bool move)
+    private static void CopyOrMovePixelRow(WorkRamByteTable tiles, ushort yOffset, bool move)
     {
         // Divide by eight to choose the tile row, then multiply the remaining pixel index
         // by two because each 4bpp bitplane row stores a 16-bit planes-0/1 word.
@@ -154,38 +149,21 @@ public sealed class MotherBrainCorpseRottingState
                 // Each tile pixel row consists of two independent 16-bit words: planes
                 // 0/1 at +0 and planes 2/3 at +$10. Read before any source clear so move
                 // retains the exact load/store ordering of `$EA40-$EB07`.
-                ushort planes01 = SnesWorkRam.ReadWord(
-                    memory,
-                    GraphicsBufferAddress + columnOffset + sourceOffset);
-                ushort planes23 = SnesWorkRam.ReadWord(
-                    memory,
-                    GraphicsBufferAddress + columnOffset + sourceOffset + 0x10);
-                WriteWord(
-                    bus,
-                    GraphicsBufferAddress + columnOffset + destinationOffset + 2,
-                    planes01);
-                WriteWord(
-                    bus,
-                    GraphicsBufferAddress + columnOffset + destinationOffset + 0x12,
-                    planes23);
+                ushort planes01 = tiles.ReadWord(columnOffset + sourceOffset);
+                ushort planes23 = tiles.ReadWord(columnOffset + sourceOffset + 0x10);
+                tiles.WriteWord(columnOffset + destinationOffset + 2, planes01);
+                tiles.WriteWord(columnOffset + destinationOffset + 0x12, planes23);
             }
 
             if (move)
             {
                 // Move clears even when Y is 46/47 and the copy was suppressed. That subtle
                 // asymmetry is how the bottom rows disappear without writing past height 48.
-                WriteWord(bus, GraphicsBufferAddress + columnOffset + sourceOffset, 0);
-                WriteWord(bus, GraphicsBufferAddress + columnOffset + sourceOffset + 0x10, 0);
+                tiles.WriteWord(columnOffset + sourceOffset, 0);
+                tiles.WriteWord(columnOffset + sourceOffset + 0x10, 0);
             }
         }
     }
-
-    private static void WriteWord(ISnesAddressSpace bus, int address, ushort value)
-    {
-        bus.WriteByte(address, unchecked((byte)value));
-        bus.WriteByte(address + 1, unchecked((byte)(value >> 8)));
-    }
-
 }
 
 /// <summary>One MiscDust projectile emitted by Mother Brain's row-finished hook.</summary>

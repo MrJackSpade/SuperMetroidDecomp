@@ -114,28 +114,10 @@ internal static class KraidMouthHitboxes
         return (ushort)(low | high << 8);
     }
 
-    [CpuBusBoundary("native emulation: a Kraid mouth hitbox pointer below $8000 reads bank $A7 low-window WRAM, SRAM or peripheral bytes")]
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
-        if (pointer < 0x8000)
-        {
-            int address = KraidBackgroundRomData.NativeBank | pointer;
-            return SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
-            {
-                SnesDmaSourceKind.WorkRam => (bus as ISnesMutableMemory ??
-                    throw new InvalidOperationException("Kraid mouth alias requires WRAM."))
-                    .ReadWorkRamByte(address),
-                SnesDmaSourceKind.SaveRam => (bus as ISnesMutableMemory ??
-                    throw new InvalidOperationException("Kraid mouth alias requires SRAM."))
-                    .ReadSaveRamByte(address),
-                SnesDmaSourceKind.Unmapped => (bus as ISnesCpuPeripheralSource ??
-                    throw new InvalidOperationException(
-                        $"CPU read ${address >> 16:X2}:{address & 0xffff:X4} is outside the runtime address map."))
-                    .ReadPeripheralByte(address),
-                _ => throw new InvalidDataException(
-                    $"Kraid mouth alias ${address:X6} requires a compiled cartridge definition."),
-            };
-        }
+        if (pointer < KraidBackgroundRomData.HeadRomWindowStart)
+            return new KraidLowBankAliasMemory(bus).MouthHitboxByte(pointer);
 
         int boundaryIndex = pointer - 0x8000;
         if ((uint)boundaryIndex < LowHalfBoundaryLength)

@@ -119,7 +119,7 @@ public sealed partial class RoomEnemySystem
         // exact live WRAM dependency so stack-page contents, including a zero word, produce
         // the same properties as the cartridge instead of inventing forced invisibility.
         slot.Properties = unchecked((ushort)(
-            slot.Properties | SnesWorkRam.ReadWord(EnemyWorkMemory, 0x7e0100)));
+            slot.Properties | new EnemyOverreadMemory(EnemyMemoryBus).SparkPropertyOverlay));
     }
 
     /// <summary>Ports the indirect main dispatcher at <c>$A8:E68E</c>.</summary>

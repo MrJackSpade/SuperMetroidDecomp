@@ -170,7 +170,7 @@ public sealed class RoomLayer3FxState
         ApplyPaletteBlend(cgram, definition.PaletteBlend);
 
         if (Type == RoomFxType.Fireflea)
-            FirefleaRoomFx.Initialize(bus);
+            FirefleaRoomFx.Initialize(SnesMemoryBusRequirement.Require(bus, "Fireflea FX requires live WRAM."));
         if (!IsRenderable)
             return;
 
@@ -291,8 +291,7 @@ public sealed class RoomLayer3FxState
         if (Type == RoomFxType.Fireflea)
         {
             LayerBlendConfiguration = LayerBlendingConfiguration.Fireflea;
-            FirefleaRoomFx.Step(bus, bus as ISnesMutableMemory ??
-                throw new InvalidOperationException("Fireflea FX requires live WRAM."),
+            FirefleaRoomFx.Step(SnesMemoryBusRequirement.Require(bus, "Fireflea FX requires live WRAM."),
                 timeIsFrozen, firefleaDarknessLevel);
             return;
         }

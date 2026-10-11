@@ -163,9 +163,7 @@ public sealed partial class RoomEnemySystem
         slot.VariableA = profile.WaitFunction;
         SetDeadSidehopperInstruction(slot, definition.InitialInstructionPointer);
         CorpseRottingTableProcessor.Initialize(
-            _bus!,
-            0x7e0000 | definition.RottingTablePointer,
-            definition.EntryCount);
+            EnemyScratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadTourianCorpseGraphics(variant, installedTiles);
     }
 
@@ -229,10 +227,7 @@ public sealed partial class RoomEnemySystem
     {
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _bus!,
-            EnemyWorkMemory,
-            0x7e0000 | state.TablePointer,
-            state.EntryCount,
+            EnemyScratch.RotTable(state.TablePointer, state.EntryCount),
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, move),
@@ -245,14 +240,13 @@ public sealed partial class RoomEnemySystem
     private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant,
         ReadOnlySpan<byte> installedTiles)
     {
+        WorkRamByteTable tiles = EnemyScratch.CorpseTiles;
         foreach (DeadTourianCorpseGraphicsCopy copy in variant.InitialGraphicsCopies)
         {
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
                 int sourceOffset = copy.SourceOffset + byteIndex;
-                _bus!.WriteByte(
-                    DeadMonsterWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    installedTiles[sourceOffset]);
+                tiles[copy.DestinationOffset + byteIndex] = installedTiles[sourceOffset];
             }
         }
     }

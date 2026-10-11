@@ -234,21 +234,8 @@ internal static class CorpseRottingTableProcessorAccess
     extension(CorpseRottingTableProcessor)
     {
         /// <summary>Reads one native table record without inventing a parallel host state.</summary>
-        internal static CorpseRottingTableEntry ReadEntry(
-            ISnesMutableMemory memory,
-            int tableAddress,
-            ushort entryCount,
-            int entryIndex)
-        {
-            ArgumentNullException.ThrowIfNull(memory);
-            if ((uint)entryIndex >= entryCount)
-                throw new ArgumentOutOfRangeException(nameof(entryIndex));
-
-            int entryAddress = checked(tableAddress + entryIndex * PrivateState.StaticField<int>(typeof(CorpseRottingTableProcessor), "EntryByteCount"));
-            return new CorpseRottingTableEntry(
-                unchecked((short)SnesWorkRam.ReadWord(memory, entryAddress)),
-                SnesWorkRam.ReadWord(memory, entryAddress + 2));
-        }
+        internal static CorpseRottingTableEntry ReadEntry(CorpseRotTable table, int entryIndex) =>
+            new(unchecked((short)table.YOffset(entryIndex)), table.Delay(entryIndex));
     }
 }
 
@@ -980,17 +967,10 @@ internal static class MotherBrainCorpseRottingStateAccess
     extension(MotherBrainCorpseRottingState)
     {
         /// <summary>Reads one native four-byte table entry for debugger and verification use.</summary>
-        internal static MotherBrainCorpseRotEntry ReadEntry(ISnesMutableMemory memory, int entryIndex)
+        internal static MotherBrainCorpseRotEntry ReadEntry(ISnesMemoryBus memory, int entryIndex)
         {
-            ArgumentNullException.ThrowIfNull(memory);
-            if ((uint)entryIndex >= MotherBrainCorpseRottingState.EntryCount)
-                throw new ArgumentOutOfRangeException(nameof(entryIndex));
-
             CorpseRottingTableEntry entry = CorpseRottingTableProcessor.ReadEntry(
-                memory,
-                MotherBrainCorpseRottingState.RotTableAddress,
-                MotherBrainCorpseRottingState.EntryCount,
-                entryIndex);
+                new EnemyScratchMemory(memory).MotherBrainRotTable, entryIndex);
             return new MotherBrainCorpseRotEntry(entry.YOffset, entry.Timer);
         }
     }

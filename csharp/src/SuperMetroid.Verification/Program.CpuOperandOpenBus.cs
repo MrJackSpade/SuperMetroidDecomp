@@ -42,8 +42,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: witness answering every WRAM, SRAM, cartridge and peripheral operand read with a marker byte")]
-    private sealed class OperandReadWitness : ISnesAddressSpace,
-        ISnesMutableMemory, IImportCartridgeSource, ISnesCpuPeripheralSource
+    private sealed class OperandReadWitness : ISnesMemoryBus, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
         public byte ReadWorkRamByte(int address) => 0xab;
         public byte ReadSaveRamByte(int address) => 0xab;

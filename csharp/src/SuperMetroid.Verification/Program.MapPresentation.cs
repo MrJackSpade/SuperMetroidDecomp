@@ -1349,8 +1349,8 @@ internal static partial class Program
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address =>
                 $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.")
-            .RejectWrites(address => address is not (MotherBrainDrainedPaletteRomData.TrailingWordWram or
-                    MotherBrainDrainedPaletteRomData.TrailingWordWram + 1),
+            .RejectWrites(address => address is not (MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram or
+                    MotherBrainDrainedPaletteRomDataConstants.TrailingWordWram + 1),
                 address => new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}."));
 
     private static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)

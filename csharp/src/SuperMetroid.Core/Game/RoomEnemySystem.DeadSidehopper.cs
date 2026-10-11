@@ -31,7 +31,6 @@ public sealed partial class RoomEnemySystem
     }
 
 
-    private const int DeadMonsterWorkBufferAddress = 0x7e2000;
     private const ushort DeadMonsterSolidProperty = 0x8000;
     private const ushort DeadMonsterInteractionRejectedProperty = 0x0400;
 
@@ -150,9 +149,7 @@ public sealed partial class RoomEnemySystem
         _deadSidehopperStates[slot.SlotIndex] = state;
 
         CorpseRottingTableProcessor.Initialize(
-            _bus!,
-            0x7e0000 | definition.RottingTablePointer,
-            definition.EntryCount);
+            EnemyScratch.RotTable(definition.RottingTablePointer, definition.EntryCount));
         InitializeDeadSidehopperGraphics(graphicsVariant);
         return state;
     }
@@ -445,10 +442,7 @@ public sealed partial class RoomEnemySystem
     {
         state.ProcessCallCount++;
         bool stillRotting = CorpseRottingTableProcessor.Step(
-            _bus!,
-            EnemyWorkMemory,
-            0x7e0000 | state.TablePointer,
-            state.EntryCount,
+            EnemyScratch.RotTable(state.TablePointer, state.EntryCount),
             state.YLimit,
             state.LateMoveEntryIndex,
             (yOffset, move) => CopyOrMoveDeadSidehopperPixelRow(state, yOffset, move),
@@ -464,15 +458,14 @@ public sealed partial class RoomEnemySystem
         if (installedTiles.IsEmpty)
             throw new InvalidDataException("Dead sidehopper requires installed corpse artwork.");
 
+        WorkRamByteTable tiles = EnemyScratch.CorpseTiles;
         for (int row = 0; row < 5; row++)
         {
             var copy = DeadMonsterRottingDefinitions.SidehopperInitialCopy(graphicsVariant, row);
             for (int byteIndex = 0; byteIndex < copy.Length; byteIndex++)
             {
                 int sourceOffset = copy.SourceOffset + byteIndex;
-                _bus!.WriteByte(
-                    DeadMonsterWorkBufferAddress + copy.DestinationOffset + byteIndex,
-                    installedTiles[sourceOffset]);
+                tiles[copy.DestinationOffset + byteIndex] = installedTiles[sourceOffset];
             }
         }
     }
@@ -562,10 +555,10 @@ public sealed partial class RoomEnemySystem
     }
 
     private ushort ReadDeadMonsterWorkWord(int wordOffset) =>
-        SnesWorkRam.ReadWord(EnemyWorkMemory, DeadMonsterWorkBufferAddress + wordOffset * 2);
+        EnemyScratch.CorpseTiles.ReadWord(wordOffset * 2);
 
     private void WriteDeadMonsterWorkWord(int wordOffset, ushort value) =>
-        WriteWord(_bus!, DeadMonsterWorkBufferAddress + wordOffset * 2, value);
+        EnemyScratch.CorpseTiles.WriteWord(wordOffset * 2, value);
 
 
 }

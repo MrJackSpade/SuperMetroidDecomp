@@ -5,7 +5,6 @@ namespace SuperMetroid.Core.Game;
 
 internal static class SamusSpeedBoosterPalette
 {
-    [CpuBusBoundary("native emulation: the speed-booster palette copy LDA $0000..001E,X with an overrun pointer reads the CPU bus")]
     internal static void Apply(ISnesAddressSpace bus, SnesCgram cgram, ushort pointer,
         SamusFullBodyCycleColorCatalog? colors)
     {
@@ -18,8 +17,7 @@ internal static class SamusSpeedBoosterPalette
                 // operand-driven bus value for expansion reads, not a generic zero fallback.
                 ushort word = overrun switch
                 {
-                    SpeedBoosterPaletteOverrun.Expansion => SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus,
-                        (byte)(SamusPaletteRomData.Banks.Palette >> 16), (ushort)(index * 2), pointer),
+                    SpeedBoosterPaletteOverrun.Expansion => new SamusOverreadMemory(bus).SpeedBoosterExpansionWord(index, pointer),
                     SpeedBoosterPaletteOverrun.GrappleCode => SpeedBoosterPaletteOverrunDefinitions.GrappleInstructionWord(index),
                     _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBoosterPaletteOverrun)} {(int)overrun}."),
                 };

@@ -15,13 +15,11 @@ public sealed class RoomScrollGrid
 {
     /// <summary>Size in bytes of the fixed native room scroll-zone allocation.</summary>
     public const int StorageByteCount = 0x32;
-    /// <summary>24-bit WRAM address of the first room scroll-zone byte.</summary>
-    public const int WorkRamAddress = 0x7ecd20;
 
     private readonly byte[] _cells = new byte[StorageByteCount];
-    private readonly ISnesAddressSpace _bus;
+    private readonly ISnesMemoryBus _bus;
 
-    private RoomScrollGrid(ISnesAddressSpace bus, Extent16<RoomScreens> size)
+    private RoomScrollGrid(ISnesMemoryBus bus, Extent16<RoomScreens> size)
     {
         _bus = bus ?? throw new ArgumentNullException(nameof(bus));
         if (size.X == 0 || size.Y == 0 || size.X * size.Y > StorageByteCount)
@@ -49,12 +47,14 @@ public sealed class RoomScrollGrid
                 nameof(storage));
         }
 
-        var grid = new RoomScrollGrid(bus, size);
+        var grid = new RoomScrollGrid(
+            SnesMemoryBusRequirement.Require(bus, "Room scroll storage requires live WRAM."), size);
+        WorkRamByteTable zones = grid.Memory.Zones;
         for (int index = 0; index < StorageByteCount; index++)
         {
             byte value = storage[index];
             grid._cells[index] = value;
-            bus.WriteByte(WorkRamAddress + index, value);
+            zones[index] = value;
         }
 
         return grid;
@@ -77,21 +77,21 @@ public sealed class RoomScrollGrid
     {
         ArgumentNullException.ThrowIfNull(bus);
         RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-            "Implicit scroll storage keeps the previous room's bytes past its cells; it requires WRAM.");
-        var grid = new RoomScrollGrid(bus, size);
+        var grid = new RoomScrollGrid(SnesMemoryBusRequirement.Require(bus,
+            "Implicit scroll storage keeps the previous room's bytes past its cells; it requires WRAM."), size);
+        WorkRamByteTable zones = grid.Memory.Zones;
         for (int index = 0; index < StorageByteCount; index++)
         {
             if (index >= grid.LogicalCellCount)
             {
-                grid._cells[index] = memory.ReadWorkRamByte(WorkRamAddress + index);
+                grid._cells[index] = zones[index];
                 continue;
             }
             byte value = (byte)(index / size.X == size.Y - 1
                 ? lastRowState
                 : RoomScrollState.Green);
             grid._cells[index] = value;
-            bus.WriteByte(WorkRamAddress + index, value);
+            zones[index] = value;
         }
         return grid;
     }
@@ -122,10 +122,10 @@ public sealed class RoomScrollGrid
             throw new ArgumentOutOfRangeException(nameof(index));
         return index < StorageByteCount
             ? _cells[index]
-            : (_bus as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Native scroll edge reads require WRAM."))
-                .ReadWorkRamByte(WorkRamAddress + index);
+            : Memory.ReadIndexed(index);
     }
+
+    private RoomScrollMemory Memory => new(_bus);
 
     /// <summary>
     /// Typed view of a native-relative read, including legal adjacent-WRAM reads. Enum casts
@@ -145,7 +145,8 @@ public sealed class RoomScrollGrid
             throw new ArgumentOutOfRangeException(nameof(index));
         RoomScrollStates.Validate(state, nameof(state));
         _cells[index] = (byte)state;
-        _bus.WriteByte(WorkRamAddress + index, (byte)state);
+        WorkRamByteTable zones = Memory.Zones;
+        zones[index] = (byte)state;
     }
 
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
@@ -156,6 +157,7 @@ public sealed class RoomScrollGrid
         RoomScrollStates.Validate(state, nameof(state));
         int index = screen.Y * Size.X + screen.X;
         _cells[index] = (byte)state;
-        _bus.WriteByte(WorkRamAddress + index, (byte)state);
+        WorkRamByteTable zones = Memory.Zones;
+        zones[index] = (byte)state;
     }
 }

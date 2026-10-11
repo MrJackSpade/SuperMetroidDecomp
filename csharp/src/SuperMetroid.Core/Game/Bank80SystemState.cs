@@ -134,58 +134,40 @@ public sealed class Bank80SystemState
     /// Invalid native callbacks operate on this shared WRAM rather than on domain objects.
     /// Untranslated padding bytes are deliberately left untouched.
     /// </summary>
-    public void WritePersistentMirror(ISnesAddressSpace bus)
+    public void WritePersistentMirror(ISnesMemoryBus bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        WriteBytes(bus, SaveRamLayout.EventsWramAddress, _events);
-        WriteBytes(bus, SaveRamLayout.BossBitsWramAddress, _bossBitsByArea);
-        WriteBytes(bus, SaveRamLayout.RoomChozoBitsWramAddress, _roomChozoBits);
-        WriteBytes(bus, SaveRamLayout.CollectedItemBitsWramAddress, _collectedItemBits);
-        WriteBytes(bus, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
-        WriteBytes(bus, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
-        WriteBytes(bus, SaveRamLayout.MapStationsWramAddress, _mapStations);
-        bus.WriteByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset, (byte)LoadedItemCount);
-        bus.WriteByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset + 1, (byte)(LoadedItemCount >> 8));
-        bus.WriteByte(SaveRamLayout.LoadingGameStateWramAddress,
-            unchecked((byte)SavedLoadingGameState));
-        bus.WriteByte(SaveRamLayout.LoadingGameStateWramAddress + 1,
-            unchecked((byte)(SavedLoadingGameState >> 8)));
+        var mirror = new SaveMirrorMemory(bus);
+        mirror.Events.CopyFrom(_events);
+        mirror.BossBits.CopyFrom(_bossBitsByArea);
+        mirror.RoomChozoBits.CopyFrom(_roomChozoBits);
+        mirror.CollectedItemBits.CopyFrom(_collectedItemBits);
+        mirror.OpenedDoorBits.CopyFrom(_openedDoorBits);
+        mirror.UsedSaveStations.CopyFrom(_usedSaveStationsAndElevators);
+        mirror.MapStations.CopyFrom(_mapStations);
+        mirror.LoadedItemCount = LoadedItemCount;
+        mirror.LoadingGameState = SavedLoadingGameState;
     }
 
     /// <summary>
     /// Reclaims the translated owners after native-compatible WRAM corruption. This is a
     /// raw load, not bitwise gameplay API use: every cartridge-written bit must survive.
     /// </summary>
-    public void LoadPersistentMirror(ISnesAddressSpace bus)
+    public void LoadPersistentMirror(ISnesMemoryBus bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-            throw new ArgumentException("Persistent mirror loading requires WRAM.", nameof(bus));
-        ReadBytes(memory, SaveRamLayout.EventsWramAddress, _events);
-        ReadBytes(memory, SaveRamLayout.BossBitsWramAddress, _bossBitsByArea);
-        ReadBytes(memory, SaveRamLayout.RoomChozoBitsWramAddress, _roomChozoBits);
-        ReadBytes(memory, SaveRamLayout.CollectedItemBitsWramAddress, _collectedItemBits);
-        ReadBytes(memory, SaveRamLayout.OpenedDoorBitsWramAddress, _openedDoorBits);
-        ReadBytes(memory, SaveRamLayout.UsedSaveStationsWramAddress, _usedSaveStationsAndElevators);
-        ReadBytes(memory, SaveRamLayout.MapStationsWramAddress, _mapStations);
-        LoadedItemCount = (ushort)(memory.ReadWorkRamByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset) |
-            memory.ReadWorkRamByte(SaveRamLayout.WramMirrorAddress + SaveRamLayout.LoadedItemCountOffset + 1) << 8);
-        SavedLoadingGameState = unchecked((ushort)(
-            memory.ReadWorkRamByte(SaveRamLayout.LoadingGameStateWramAddress) |
-            memory.ReadWorkRamByte(SaveRamLayout.LoadingGameStateWramAddress + 1) << 8));
+        var mirror = new SaveMirrorMemory(bus);
+        mirror.Events.CopyTo(_events);
+        mirror.BossBits.CopyTo(_bossBitsByArea);
+        mirror.RoomChozoBits.CopyTo(_roomChozoBits);
+        mirror.CollectedItemBits.CopyTo(_collectedItemBits);
+        mirror.OpenedDoorBits.CopyTo(_openedDoorBits);
+        mirror.UsedSaveStations.CopyTo(_usedSaveStationsAndElevators);
+        mirror.MapStations.CopyTo(_mapStations);
+        LoadedItemCount = mirror.LoadedItemCount;
+        SavedLoadingGameState = mirror.LoadingGameState;
     }
 
-    private static void WriteBytes(ISnesAddressSpace bus, int address, ReadOnlySpan<byte> bytes)
-    {
-        for (int index = 0; index < bytes.Length; index++)
-            bus.WriteByte(address + index, bytes[index]);
-    }
-
-    private static void ReadBytes(ISnesMutableMemory memory, int address, Span<byte> bytes)
-    {
-        for (int index = 0; index < bytes.Length; index++)
-            bytes[index] = memory.ReadWorkRamByte(address + index);
-    }
 
     /// <summary>
     /// Current 16-bit RNG state, corresponding to WRAM <c>$05E5</c>.

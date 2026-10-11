@@ -23,10 +23,14 @@ public sealed partial class SuperMetroidRuntime
         // The builder reads only BG1 tilemap words. Feed the two captured pages,
         // not current VRAM: each page was read on a different setup call.
         var captured = new SnesVram();
-        var bytes = new byte[XrayTilemapLayout.BufferWords * 2];
-        ISnesMutableMemory memory = MutableMemory;
-        for (int i = 0; i < bytes.Length; i++)
-            bytes[i] = memory.ReadWorkRamByte(XraySetupMemory.SavedBg1 + i);
+        var xrayMemory = new XrayMemory(MemoryBus);
+        ushort[] saved = xrayMemory.SavedBg1.ToArray();
+        var bytes = new byte[saved.Length * 2];
+        for (int i = 0; i < saved.Length; i++)
+        {
+            bytes[i * 2] = (byte)saved[i];
+            bytes[i * 2 + 1] = (byte)(saved[i] >> 8);
+        }
         captured.LoadBytes(SnesPpuLayout.GameplayBg1TilemapWord * 2, bytes);
         Position16<RoomPixels> layer1 = BackgroundScroll.Layer1Position;
         Position16<RoomPixels> bg1Scroll = layer1 + BackgroundScroll.Bg1Offset;
@@ -34,7 +38,8 @@ public sealed partial class SuperMetroidRuntime
             (byte)room.AreaIndex, XrayRevealVisuals);
         XrayRevealOverlays.Apply(level, map, Plms.Collectibles, System,
             room.State.XrayPointer, layer1, XrayRevealVisuals);
-        for (int i = 0; i < map.Length; i++) WriteXrayWord(XraySetupMemory.RevealTilemap + i * 2, map[i]);
+        WorkRamWordTable reveal = xrayMemory.RevealTilemap;
+        for (int i = 0; i < map.Length; i++) reveal[i] = map[i];
     }
 
     /// <summary>Completes the previous setup call's VRAM read after NMI's video writes.</summary>
@@ -44,27 +49,22 @@ public sealed partial class SuperMetroidRuntime
         // SetupStage already names the NEXT main-thread call. Calls two and three enqueue
         // reads; the following NMI performs them before call four consumes the captured
         // pages. In particular, queued writes must win first.
-        (int Source, int Destination)? read = xray.SetupStage switch
+        (int Source, int SavedScreen)? read = xray.SetupStage switch
         {
             XraySetupStage.ReadBg1FirstScreen => (
-                SnesPpuLayout.GameplayBg1TilemapWord + XrayTilemapLayout.ScreenWords,
-                XraySetupMemory.SavedBg1SecondScreen),
+                SnesPpuLayout.GameplayBg1TilemapWord + XrayTilemapLayout.ScreenWords, 1),
             XraySetupStage.BuildRevealReadBg2FirstScreen => (
-                SnesPpuLayout.GameplayBg1TilemapWord, XraySetupMemory.SavedBg1),
+                SnesPpuLayout.GameplayBg1TilemapWord, 0),
             XraySetupStage.Complete or XraySetupStage.FreezeTimeBackupBg2Registers or
                 XraySetupStage.ReadBg1SecondScreen or XraySetupStage.ReadBg2SecondScreen or
                 XraySetupStage.TransferRevealFirstScreen or XraySetupStage.InitializeTransferRevealSecondScreen or
                 XraySetupStage.BackdropColor => null,
             _ => throw new InvalidOperationException($"Undefined X-ray setup stage {xray.SetupStage}."),
         };
-        if (read is not (int source, int destination)) return;
+        if (read is not (int source, int savedScreen)) return;
+        WorkRamWordTable saved = new XrayMemory(MemoryBus).SavedBg1;
+        int firstWord = savedScreen * XrayTilemapLayout.ScreenWords;
         for (int i = 0; i < XrayTilemapLayout.ScreenWords; i++)
-            WriteXrayWord(destination + i * 2, Vram.ReadWord(source + i));
-    }
-
-    private void WriteXrayWord(int address, ushort value)
-    {
-        _addressSpace.WriteByte(address, (byte)value);
-        _addressSpace.WriteByte(address + 1, (byte)(value >> 8));
+            saved[firstWord + i] = Vram.ReadWord(source + i);
     }
 }

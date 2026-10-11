@@ -18,8 +18,6 @@ public sealed class HudState
     public const int MutableTileCount = WidthInTiles * MutableRowCount;
     /// <summary>$00C0 bytes in the little-endian mutable HUD upload, two bytes for each of the ninety-six tile words.</summary>
     public const int MutableByteCount = MutableTileCount * 2;
-    /// <summary>$7E:C608, native mutable HUD tilemap buffer written before the $80:9CC3-$9CE9 VRAM queue entry is appended.</summary>
-    public const int WorkRamAddress = 0x7ec608;
     /// <summary>VRAM word $5820, one 32-cell row beyond the BG3 tilemap base $5800; direct VRAM byte access uses twice this address.</summary>
     public const ushort VramDestination = 0x5820;
 
@@ -319,14 +317,12 @@ public sealed class HudState
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before queueing its tilemap.");
 
+        WorkRamWordTable buffer = new HudMemory(
+            SnesMemoryBusRequirement.Require(bus, "The HUD tilemap upload requires live WRAM.")).MutableTilemap;
         for (int tile = 0; tile < MutableTileCount; tile++)
-        {
-            ushort value = _tiles[tile];
-            bus.WriteByte(WorkRamAddress + tile * 2, (byte)value);
-            bus.WriteByte(WorkRamAddress + tile * 2 + 1, (byte)(value >> 8));
-        }
+            buffer[tile] = _tiles[tile];
 
-        queue.Enqueue(MutableByteCount, WorkRamAddress, VramDestination);
+        HudMemory.EnqueueMutableTilemapUpload(queue, VramDestination);
     }
 
     private void DrawHealth(ushort health, ushort maxHealth)

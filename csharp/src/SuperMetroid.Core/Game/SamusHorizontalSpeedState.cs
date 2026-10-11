@@ -790,15 +790,7 @@ public sealed class SamusHorizontalSpeedState
                 "is not an authored mechanics record or mutable low-bank alias.");
         }
 
-        ISnesMutableMemory memory = bus as ISnesMutableMemory ??
-            throw new InvalidOperationException("A wrapped speed table requires live WRAM.");
-        return new SpeedTableEntry(
-            SnesWorkRam.ReadWord(memory, address + 0),
-            SnesWorkRam.ReadWord(memory, address + 2),
-            SnesWorkRam.ReadWord(memory, address + 4),
-            SnesWorkRam.ReadWord(memory, address + 6),
-            SnesWorkRam.ReadWord(memory, address + 8),
-            SnesWorkRam.ReadWord(memory, address + 10));
+        return new SamusOverreadMemory(bus).HorizontalSpeedEntry(address);
     }
 
     /// <summary>

@@ -67,9 +67,11 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
     internal void Require(CpuBusRegion region, int byteCount)
     {
         if (Region != region || ByteCount != byteCount)
-            throw new ArgumentException($"{Name} is a {ByteCount}-byte {Region} cell, not a {byteCount}-byte {region} cell.");
+            throw new ArgumentException($"{this} is not a {byteCount}-byte {region} cell.");
     }
 
     /// <inheritdoc />
-    public override string ToString() => $"{Name} ({Region} ${Address >> 16:X2}:{Address & 0xffff:X4}, {ByteCount} bytes)";
+    public override string ToString() =>
+        $"{Name} ({Region} ${Address >> 16:X2}:{Address & 0xffff:X4}, {ByteCount} bytes, {Encoding}" +
+        (AliasOf is { } target ? $", alias of {target.Name})" : ")");
 }

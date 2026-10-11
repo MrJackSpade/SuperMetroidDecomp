@@ -68,18 +68,18 @@ internal static partial class Program
         var scroll = runtime.BackgroundScroll;
         var room = runtime.ActiveRoom!;
         var original = XrayRevealTilemap.Build(runtime.LevelData!, captured,
-            unchecked((ushort)(scroll.Layer1XPosition + scroll.Bg1XOffset)),
-            unchecked((ushort)(scroll.Layer1YPosition + scroll.Bg1YOffset)),
-            scroll.Layer1XPosition, scroll.Layer1YPosition, (byte)room.AreaIndex);
+            unchecked((ushort)(scroll.Layer1Position.X + scroll.Bg1Offset.X)),
+            unchecked((ushort)(scroll.Layer1Position.Y + scroll.Bg1Offset.Y)),
+            scroll.Layer1Position.X, scroll.Layer1Position.Y, (byte)room.AreaIndex);
         var expected = XrayRevealTilemap.Build(runtime.LevelData!, captured,
-            unchecked((ushort)(scroll.Layer1XPosition + scroll.Bg1XOffset)),
-            unchecked((ushort)(scroll.Layer1YPosition + scroll.Bg1YOffset)),
-            scroll.Layer1XPosition, scroll.Layer1YPosition, (byte)room.AreaIndex,
+            unchecked((ushort)(scroll.Layer1Position.X + scroll.Bg1Offset.X)),
+            unchecked((ushort)(scroll.Layer1Position.Y + scroll.Bg1Offset.Y)),
+            scroll.Layer1Position.X, scroll.Layer1Position.Y, (byte)room.AreaIndex,
             runtime.XrayRevealVisuals);
         AssertTrue(!original.SequenceEqual(expected),
             "installed X-ray visual selection changes the actual room reveal map");
         XrayRevealOverlays.Apply(runtime.LevelData!, expected, runtime.Plms.Collectibles, runtime.System,
-            room.State.XrayPointer, scroll.Layer1XPosition, scroll.Layer1YPosition, runtime.XrayRevealVisuals);
+            room.State.XrayPointer, scroll.Layer1Position.X, scroll.Layer1Position.Y, runtime.XrayRevealVisuals);
         runtime.StepFrame(held);
         Suite(nameof(VerifySaved), () => VerifySaved(XraySetupMemory.SavedBg1, first, "stage-three read completes before stage-four build"));
         AssertTrue(expected.SequenceEqual(XraySetupMemory.ReadReveal(bus)), "stage four builds from the separately captured pages and overlays");

@@ -61,7 +61,7 @@ internal static class RetailElevatorReturnTests
         {
             runtime.StepFrame(0);
             arrivalFrames++;
-            cameraPositions.Add(runtime.Camera!.YPosition);
+            cameraPositions.Add(runtime.Camera!.PixelPosition.Y);
             var actor = runtime.Enemies.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
             actorPositions.Add(actor.YPosition);
             Compare("return");
@@ -73,9 +73,9 @@ internal static class RetailElevatorReturnTests
         // Preserve the existing cartridge-derived regression endpoint, not a forced
         // screen origin: front-facing Samus selects the room's up-scroller target.
         ushort expectedCameraY = unchecked((ushort)(samus.YPosition - runtime.ActiveRoom!.UpScroller));
-        if (runtime.Camera!.YPosition != expectedCameraY || runtime.Camera.IdealYPosition != expectedCameraY ||
-            runtime.BackgroundScroll.Layer1YPosition != expectedCameraY ||
-            runtime.BackgroundScroll.Bg1VerticalScroll != unchecked((ushort)(expectedCameraY + runtime.BackgroundScroll.Bg1YOffset)))
+        if (runtime.Camera!.PixelPosition.Y != expectedCameraY || runtime.Camera.IdealPosition.Y != expectedCameraY ||
+            runtime.BackgroundScroll.Layer1Position.Y != expectedCameraY ||
+            runtime.BackgroundScroll.Bg1Scroll.Y != unchecked((ushort)(expectedCameraY + runtime.BackgroundScroll.Bg1Offset.Y)))
             throw new InvalidOperationException("Settled elevator camera and BG1 disagree with the room up-scroller target.");
         Console.WriteLine($"{device.Kind}: upward elevator {samples} exact frames, {scrolling} scroll frames, " +
             $"{arrivalFrames} return frames, {cameraPositions.Count} camera positions; control released.");

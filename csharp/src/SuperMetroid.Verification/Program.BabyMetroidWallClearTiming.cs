@@ -43,7 +43,7 @@ internal static partial class Program
         samus.HorizontalSpeed.BaseSubspeed = 0x3000;
         samus.HorizontalSpeed.ExtraRunSpeed = 2;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0xc000;
-        runtime.Camera!.SetPosition(0x0200, 0x0000);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));
         runtime.StepFrame(unchecked((ushort)(SnesButton.Right | SnesButton.B)));
 
         AssertEqual(ShitroidAiFunction.HoverNearSamus, shitroid.Function, "Baby Metroid finished rising this frame");

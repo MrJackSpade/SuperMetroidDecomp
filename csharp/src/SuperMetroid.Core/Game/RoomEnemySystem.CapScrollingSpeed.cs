@@ -7,7 +7,7 @@ public sealed partial class RoomEnemySystem
     /// words ($0B10/$0B14) are this point plus the frame's writes so far. Null when no camera
     /// owns them, as in standalone enemy fixtures.
     /// </summary>
-    private SamusCameraPoint? _samusPreviousPositionCheckpoint;
+    private FixedPosition<RoomPixels>? _samusPreviousPositionCheckpoint;
 
     /// <summary>
     /// <c>CapScrollingSpeed</c> ($A0:B7A1), called by Draygon and Yapping Maw after they place

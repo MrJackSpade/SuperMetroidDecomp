@@ -200,7 +200,7 @@ public sealed class SamusAtmosphericEffectsState
         ushort attributes = type == 2
             ? ReadTypeTwoWorkRamAttributes(bus, slot.AnimationFrame)
             : ResolveInstalledAttributes(directArtwork, type, slot.AnimationFrame);
-        oam.AddRawSmallSprite(unchecked((ushort)screenX), unchecked((ushort)screenY), attributes);
+        oam.AddRawSmallSprite(new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), attributes);
     }
 
     private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame)
@@ -245,8 +245,7 @@ public sealed class SamusAtmosphericEffectsState
             bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus atmospheric spritemap requires WRAM."),
             unchecked((ushort)(firstSpritemap + slot.AnimationFrame)),
-            screenX,
-            screenY,
+            new Position16<OamPixels>(screenX, screenY),
             artwork ?? throw new InvalidOperationException(
                 "Samus atmospheric spritemap requires installed artwork."));
     }

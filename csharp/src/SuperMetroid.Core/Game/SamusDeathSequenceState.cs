@@ -247,7 +247,7 @@ public sealed class SamusDeathSequenceState
             return;
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus death spritemap requires WRAM."),
-            spritemap, ScreenX, ScreenY, artwork ?? throw new InvalidOperationException(
+            spritemap, new Position16<OamPixels>(ScreenX, ScreenY), artwork ?? throw new InvalidOperationException(
                 "Samus death spritemap requires installed artwork."));
     }
 

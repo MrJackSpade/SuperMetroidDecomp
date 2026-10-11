@@ -16,11 +16,12 @@ internal static class MaridiaPipeTerrainAudit
         var level = runtime.LevelData!;
         foreach (bool background in new[] { false, true })
         {
-            if (background && ((scroll.Layer2ScrollX | scroll.Layer2ScrollY) & 1) != 0) continue;
-            int offsetX = background ? scroll.Bg2XOffset : scroll.Bg1XOffset;
-            int offsetY = background ? scroll.Bg2YOffset : scroll.Bg1YOffset;
-            int registerX = background ? r.Bg2X : r.Bg1X;
-            int registerY = background ? r.Bg2Y : r.Bg1Y;
+            if (background && ((scroll.Layer2Scroll.Horizontal | scroll.Layer2Scroll.Vertical) & 1) != 0) continue;
+            // The audit compares wrapped register words, so take each offset as its native word.
+            int offsetX = unchecked((ushort)(background ? scroll.Bg2Offset.X : scroll.Bg1Offset.X));
+            int offsetY = unchecked((ushort)(background ? scroll.Bg2Offset.Y : scroll.Bg1Offset.Y));
+            int registerX = background ? r.Bg2Scroll.X : r.Bg1Scroll.X;
+            int registerY = background ? r.Bg2Scroll.Y : r.Bg1Scroll.Y;
             int tilemap = background ? r.Bg2TilemapWord : SnesPpuLayout.GameplayBg1TilemapWord;
             var source = background ? level.BackgroundEntries.Span : level.ForegroundEntries.Span;
             int differences = 0;

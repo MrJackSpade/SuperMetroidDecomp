@@ -21,7 +21,7 @@ public sealed class MapSpriteCatalog
         for (int index = 0; index < MapMarkerGeometry.PartCount(id); index++)
         {
             var part = MapMarkerGeometry.Part(id, index);
-            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), x, y);
+            oam.AddOnScreenSpritePart(part.X, part.Y, part.Attributes.WithPaletteBits(paletteBits), new Position16<OamPixels>(x, y));
         }
     }
     /// <summary>Loads the compiled shared 4-bpp map-object characters at a byte-addressed VRAM destination.</summary>

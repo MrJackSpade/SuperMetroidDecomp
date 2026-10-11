@@ -2237,13 +2237,30 @@ internal static class ScrollBoundaryCameraAccess
 
     extension(ScrollBoundaryCamera self)
     {
+        /// <summary>
+        /// Replaces the integer X speed word, then moves the ideal and integer layer-one X words
+        /// to <paramref name="target"/>; fractions and the Y axis are untouched.
+        /// </summary>
+        private void ApplyDebugStimulusX(ushort pixelDistance, ushort target)
+        {
+            PrivateState.SetProperty(self, "Speed", self.Speed.WithX(self.Speed.X.WithWholePixels(unchecked((short)pixelDistance))));
+            PrivateState.SetProperty(self, "IdealPosition", self.IdealPosition.WithX(target));
+            PrivateState.SetProperty(self, "Position", self.Position.WithX(self.Position.X.WithWhole(target)));
+        }
+
+        /// <summary>The vertical counterpart of <see cref="ApplyDebugStimulusX"/>.</summary>
+        private void ApplyDebugStimulusY(ushort pixelDistance, ushort target)
+        {
+            PrivateState.SetProperty(self, "Speed", self.Speed.WithY(self.Speed.Y.WithWholePixels(unchecked((short)pixelDistance))));
+            PrivateState.SetProperty(self, "IdealPosition", self.IdealPosition.WithY(target));
+            PrivateState.SetProperty(self, "Position", self.Position.WithY(self.Position.Y.WithWhole(target)));
+        }
+
         /// <summary>Applies a debug rightward stimulus, then runs <c>$80:A641</c>.</summary>
         internal void MoveRight(ushort pixelDistance)
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
-            PrivateState.SetProperty(self, "CameraXSpeed", pixelDistance);
-            PrivateState.SetProperty(self, "IdealXPosition", unchecked((ushort)(self.XPosition + pixelDistance)));
-            PrivateState.SetProperty(self, "XPosition", self.IdealXPosition);
+            self.ApplyDebugStimulusX(pixelDistance, unchecked((ushort)(self.PixelPosition.X + pixelDistance)));
             PrivateState.Invoke(self, "HandleScrollingRight");
         }
 
@@ -2251,9 +2268,7 @@ internal static class ScrollBoundaryCameraAccess
         internal void MoveLeft(ushort pixelDistance)
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
-            PrivateState.SetProperty(self, "CameraXSpeed", pixelDistance);
-            PrivateState.SetProperty(self, "IdealXPosition", unchecked((ushort)(self.XPosition - pixelDistance)));
-            PrivateState.SetProperty(self, "XPosition", self.IdealXPosition);
+            self.ApplyDebugStimulusX(pixelDistance, unchecked((ushort)(self.PixelPosition.X - pixelDistance)));
             PrivateState.Invoke(self, "HandleScrollingLeft");
         }
 
@@ -2261,9 +2276,7 @@ internal static class ScrollBoundaryCameraAccess
         internal void MoveDown(ushort pixelDistance)
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
-            PrivateState.SetProperty(self, "CameraYSpeed", pixelDistance);
-            PrivateState.SetProperty(self, "IdealYPosition", unchecked((ushort)(self.YPosition + pixelDistance)));
-            PrivateState.SetProperty(self, "YPosition", self.IdealYPosition);
+            self.ApplyDebugStimulusY(pixelDistance, unchecked((ushort)(self.PixelPosition.Y + pixelDistance)));
             PrivateState.Invoke(self, "HandleScrollingDown");
         }
 
@@ -2271,9 +2284,7 @@ internal static class ScrollBoundaryCameraAccess
         internal void MoveUp(ushort pixelDistance)
         {
             ScrollBoundaryCamera.RequireDistance(pixelDistance);
-            PrivateState.SetProperty(self, "CameraYSpeed", pixelDistance);
-            PrivateState.SetProperty(self, "IdealYPosition", unchecked((ushort)(self.YPosition - pixelDistance)));
-            PrivateState.SetProperty(self, "YPosition", self.IdealYPosition);
+            self.ApplyDebugStimulusY(pixelDistance, unchecked((ushort)(self.PixelPosition.Y - pixelDistance)));
             PrivateState.Invoke(self, "HandleScrollingUp");
         }
     }

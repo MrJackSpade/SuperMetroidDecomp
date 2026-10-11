@@ -75,7 +75,7 @@ internal sealed class WorldMapLabelComposition
             int tile = 0x6a + text[text.Length - 1 - index] - 'A';
             oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(HorizontalOffset(index, text.Length), false),
                 unchecked((byte)VerticalOffset(identity, index)),
-                SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), x, y);
+                SnesObjAttributeWord.Create(tile, 0, 3).WithPaletteBits(paletteBits), new Position16<OamPixels>(x, y));
         }
     }
 

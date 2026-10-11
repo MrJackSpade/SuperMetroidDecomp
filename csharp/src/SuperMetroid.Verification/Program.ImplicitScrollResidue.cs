@@ -18,9 +18,9 @@ internal static partial class Program
         AssertTrue(unchecked((short)room.State.ScrollPointer) >= 0, "$A7B3 uses an implicit scroll table");
 
         RoomScrollGrid before = RoomScrollDefinitions.CreateGrid(bus, previous.State.ScrollPointer,
-            previous.WidthInScreens, previous.HeightInScreens);
+            new Extent16<RoomScreens>(previous.WidthInScreens, previous.HeightInScreens));
         RoomScrollGrid grid = RoomScrollDefinitions.CreateGrid(bus, room.State.ScrollPointer,
-            room.WidthInScreens, room.HeightInScreens);
+            new Extent16<RoomScreens>(room.WidthInScreens, room.HeightInScreens));
 
         AssertEqual(6, grid.LogicalCellCount, "$A7B3 is three screens by two");
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3), "the bottom row is blue");

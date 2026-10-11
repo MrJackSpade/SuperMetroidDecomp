@@ -2,6 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class WaterfallTests
 {
@@ -38,10 +39,10 @@ internal static class WaterfallTests
         oam[0] = 80; oam[1] = 64; oam[3] = 0x36;
         oam[4] = 96; oam[5] = 64; oam[7] = 0x38;
         var memory = new PpuMemorySnapshot(vram.Bytes, cgram.Colors, oam, 2);
-        var registers = new OrdinaryGameplayRegisters(0, 0, 0, 0, 64, 32,
+        var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(0, 0), new Position16<Bg2Pixels>(0, 0), new Extent16<TilemapCells>(64, 32),
             SnesPpuLayout.GameplayBg2TilemapWord, 0, 0, 0x1000, WaterfallRoomDisplayRules.MainScreen);
         var bg3 = new Bg2BppColorMathRenderLayer(0x5c00, 0x1000, 32, 32,
-            ExpandedColorMathOperation.Subtract, new BackgroundLineScroll[224]);
+            ExpandedColorMathOperation.Subtract, new Position16<BgPlanePixels>[224]);
         var layer = new GameplayColorMathRenderLayer(new(registers),
             Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false,
             WaterfallRoomDisplayRules.ColorMath, true, 0, 0, 0, bg3, subscreenUsesBg2: true);

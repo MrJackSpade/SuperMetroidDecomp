@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailCeresQuakeTests
 {
@@ -15,7 +16,7 @@ internal static class RetailCeresQuakeTests
             var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
             runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
             runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-            runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+            runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
             runtime.Enemies.CeresStatus = CeresQuakeFixture.EscapeStatus;
             var offsets = new HashSet<RoomShakeFrameResult>();
             int shaking = 0;

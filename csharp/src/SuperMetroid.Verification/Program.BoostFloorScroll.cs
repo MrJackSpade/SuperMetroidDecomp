@@ -15,7 +15,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarRoom08, cameraX: 1024);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.BrinstarRoom08, camera: new Position16<RoomPixels>(1024, 0));
         var level = runtime.LevelData!;
         var samus = runtime.Samus!;
         samus.InputLocked = false;
@@ -38,11 +38,11 @@ internal static partial class Program
             {
                 AssertEqual(RoomScrollState.Green, runtime.Camera!.Scrolls.ReadNativeState(11),
                     "lower trigger keeps shaft unlocked after torso leaves upper trigger");
-                int screenY = samus.YPosition - runtime.Camera.YPosition;
+                int screenY = samus.YPosition - runtime.Camera.PixelPosition.Y;
                 AssertTrue(screenY is >= 32 and < 224, "falling Samus remains within the viewport without byte wrapping");
             }
             if (tick % 100 == 0)
-                Console.WriteLine($"frame={tick} Samus={samus.XPosition}/{samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition}");
+                Console.WriteLine($"frame={tick} Samus={samus.XPosition}/{samus.YPosition} camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y}");
         }
         runtime.RunNmi(0, true);
         var frame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
@@ -50,10 +50,10 @@ internal static partial class Program
         PngWriterTooling.WriteRgba("csharp/test-temp/issue-374-floor/entry.png", 256, 224,
             SoftwareLayeredSnapshotRenderer.Render(frame));
         AssertTrue(samus.YPosition > 1000, "fixture breaks through the actual speed floor and falls down the shaft");
-        AssertTrue(runtime.Camera!.YPosition > 900,
+        AssertTrue(runtime.Camera!.PixelPosition.Y > 900,
             "#374: camera must follow the opened shaft instead of leaving falling Samus more than a screen below it");
         AssertEqual((ushort)1707, samus.YPosition, "descent lands on the retail bottom floor");
-        AssertEqual((ushort)1567, runtime.Camera.YPosition, "camera reaches the bottom blue-scroll alignment");
-        Console.WriteLine($"Dachora floor descent completed: SamusY={samus.YPosition}, cameraY={runtime.Camera.YPosition}.");
+        AssertEqual((ushort)1567, runtime.Camera.PixelPosition.Y, "camera reaches the bottom blue-scroll alignment");
+        Console.WriteLine($"Dachora floor descent completed: SamusY={samus.YPosition}, cameraY={runtime.Camera.PixelPosition.Y}.");
     }
 }

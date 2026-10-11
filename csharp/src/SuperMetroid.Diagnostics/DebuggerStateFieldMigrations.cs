@@ -315,10 +315,8 @@ internal static class DebuggerStateFieldMigrations
         // #1275: older builds derived $0A1E/$0A1F from the live pose on every read.
         new(typeof(SamusState).FullName!, ["<InitializedPose>k__BackingField"], null,
             samus => Set(samus, "<InitializedPose>k__BackingField", ((SamusState)samus).Pose)),
-        // #1275: older builds cleared the layer-one fractions whenever a runtime was released.
-        new(typeof(SuperMetroidGame).FullName!, ["retainedLayer1XSubposition", "retainedLayer1YSubposition"], null),
-        new(typeof(SuperMetroid.Core.Runtime.SuperMetroidRuntime).FullName!,
-            ["<InheritedLayer1XSubposition>k__BackingField", "<InheritedLayer1YSubposition>k__BackingField"], null),
+        // #1275's layer-one fractions (older builds cleared them whenever a runtime was released)
+        // are now typed positions; DebuggerSpatialFieldMigrations owns both layouts.
         // #1275: older builds always faded a Yes answer into the area map.
         new("SuperMetroid.Core.Frontend.GameOverMenuState",
             ["continueLoadsCeresArrival", "<CeresArrivalRequested>k__BackingField"], null),
@@ -373,6 +371,9 @@ internal static class DebuggerStateFieldMigrations
             "Older debugger state has no statue displacement/water surface; initializing to zero."),
         new(typeof(RoomEnemySystem).FullName!, ["<EnemyDoorTransitionActive>k__BackingField"],
             "Legacy enemy state lacks the enemy door-transition latch; restoring no transition in progress."),
+
+        // #628: parallel scalar coordinates became typed spatial values.
+        .. DebuggerSpatialFieldMigrations.Introductions,
 
         // v0.4.0 hotfix (#1269) additions. Fields restored as their zero/false/null value need
         // no initializer: that value reproduces the earlier build's behavior.

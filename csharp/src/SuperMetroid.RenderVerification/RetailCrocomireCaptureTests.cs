@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class RetailCrocomireCaptureTests
 {
@@ -12,7 +13,7 @@ internal static class RetailCrocomireCaptureTests
         var runtime = RepositoryInstallation.CreateRuntime(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, CrocomireCaptureFixture.CameraX, 0);
+        runtime.LoadCartridgeRoomForDebug(CrocomireCaptureFixture.Room, new Position16<RoomPixels>(CrocomireCaptureFixture.CameraX, 0));
         var samus = runtime.Samus!;
         samus.XPosition = CrocomireCaptureFixture.InitialSamusX; samus.YPosition = 120;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

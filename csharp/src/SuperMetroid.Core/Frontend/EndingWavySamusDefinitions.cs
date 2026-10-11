@@ -23,9 +23,9 @@ internal static class EndingWavySamusDefinitions
     /// <summary>$8B:E193 / CinematicFunction_PostCredits_WavySamus advances BG3Y by two per call.</summary>
     private const int VerticalStep = 2;
 
-    internal static BackgroundLineScroll[] ScrollsAtAge(int age)
+    internal static Position16<BgPlanePixels>[] ScrollsAtAge(int age)
     {
-        var result = new BackgroundLineScroll[224];
+        var result = new Position16<BgPlanePixels>[224];
         // Global HDMA precedes the cinematic dispatcher. Age one executes setup only;
         // age two is the first pre-instruction. Derive this deterministic owner from
         // the existing cinematic countdown so debugger restores retain exact phase.

@@ -34,6 +34,9 @@ public readonly record struct SnesSignedSixteenSixteen
     /// <summary>The signed whole-pixel word.</summary>
     public short WholePixels => unchecked((short)(RawValue >> 16));
 
+    /// <summary>The whole-pixel word as its unsigned native bit pattern.</summary>
+    public ushort WholeWord => unchecked((ushort)(RawValue >> 16));
+
     /// <summary>The unsigned fractional word.</summary>
     public ushort Fraction => unchecked((ushort)RawValue);
 
@@ -67,6 +70,13 @@ public readonly record struct SnesSignedSixteenSixteen
 /// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
 public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction)
 {
+    /// <summary>Splits one native 32-bit position (whole word high, fraction word low).</summary>
+    public static SnesFixedPosition FromRaw(uint rawValue) =>
+        new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
+
+    /// <summary>The native 32-bit position: the whole word high and the fraction word low.</summary>
+    public uint RawValue => ((uint)Whole << 16) | Fraction;
+
     /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
     public SnesFixedPosition WithWhole(ushort whole) => this with { Whole = whole };
 

@@ -42,7 +42,7 @@ internal static partial class Program
         samus.Kinematics.XRadius = 5;
         samus.Kinematics.YRadius = 12;
         samus.InvincibilityTimer = 0;
-        runtime.Camera!.SetPosition(400, 350);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(400, 350));
         ushort health = samus.Health;
 
         runtime.StepFrame(0);

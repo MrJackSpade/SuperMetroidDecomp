@@ -38,10 +38,10 @@ internal static class SpinJumpMissingAudioAudit
                 Console.WriteLine($"frame={frame} room={runtime.ActiveRoom?.Identity} pose={(int)runtime.Samus.Pose:X2} position={runtime.Samus.XPosition}/{runtime.Samus.YPosition} playing={currentSoundField.GetValue(firstLibrary)} audio={string.Join(',', next.Frame.AudioCommands)}");
             if (frame == 0 && next.Snapshot is { } snapshot)
             {
-                var pixels = new Rgba32[snapshot.Width * snapshot.Height];
+                var pixels = new Rgba32[snapshot.Size.X * snapshot.Size.Y];
                 SoftwareFrameSnapshotRenderer.Render(snapshot, pixels);
                 Directory.CreateDirectory("csharp/test-temp/issue-480-spin");
-                PngWriterTooling.WriteRgba("csharp/test-temp/issue-480-spin/start.png", snapshot.Width, snapshot.Height, pixels);
+                PngWriterTooling.WriteRgba("csharp/test-temp/issue-480-spin/start.png", snapshot.Size.X, snapshot.Size.Y, pixels);
             }
         }
         if (!heardScrewAttackStart)

@@ -39,7 +39,7 @@ internal static partial class Program
         // placeholder; only the next frame's prologue admits the respawned actor.
         AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(enemy.XPosition, enemy.YPosition).Reaction == GrappleEnemyReaction.None,
             "the respawn frame's interactive list does not yet contain the respawned actor");
-        runtime.Enemies.PrepareEnemyProcessingList(runtime.Camera!.XPosition, runtime.Camera.YPosition);
+        runtime.Enemies.PrepareEnemyProcessingList(runtime.Camera!.PixelPosition.X, runtime.Camera.PixelPosition.Y);
         AssertTrue(runtime.Enemies.ResolveGrappleEndpoint(enemy.XPosition, enemy.YPosition).Reaction != GrappleEnemyReaction.None,
             "the next frame's prologue list lets the grapple reach the respawned actor");
         enemy.AiHandlerBits = 0;

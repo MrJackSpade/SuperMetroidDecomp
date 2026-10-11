@@ -107,9 +107,8 @@ public sealed partial class RoomEnemySystem
                         "Ceres steam elevator variant requires the active Mode-7 transform.");
                 }
 
-                SamusMode7Point transformed = transform.Transform(
-                    slot.XPosition,
-                    slot.YPosition);
+                Position16<RoomPixels> transformed = transform.Transform(
+                    new Position16<RoomPixels>(slot.XPosition, slot.YPosition));
                 slot.SpawnXOffset = unchecked((ushort)(transformed.X - slot.XPosition));
                 slot.SpawnYOffset = unchecked((ushort)(transformed.Y - slot.YPosition));
                 return;

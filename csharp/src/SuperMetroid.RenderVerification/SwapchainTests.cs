@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class SwapchainTests
 {
@@ -18,7 +19,7 @@ internal static partial class SwapchainTests
         try
         {
             int injectedLoss = 0;
-            worker = new(window, 640, 480, 1, selection.Kind, () =>
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, selection.Kind, () =>
             {
                 int failure = Interlocked.Exchange(ref injectedLoss, 0);
                 if (failure != 0) new SharpGen.Runtime.Result(failure).CheckError();
@@ -35,24 +36,24 @@ internal static partial class SwapchainTests
                 worker.Publish(new(new(sequence, 1, 0), new Rgba32(19,73,129)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.LastConsumedSequence == 1000; });
             long previousRedraws = worker.RetainedRedraws;
-            worker.Resize(800, 600);
-            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == (800, 600); });
+            worker.Resize(new Extent16<DisplayPixels>(800, 600));
+            PumpUntil(() => { worker.ThrowIfFaulted(); return worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == new Extent16<DisplayPixels>(800, 600); });
             if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Retained redraw consumed or manufactured a simulation frame.");
             previousRedraws = worker.RetainedRedraws;
             Interlocked.Exchange(ref injectedLoss, (int)DxgiDeviceLoss.DeviceRemoved);
-            worker.Resize(801, 601);
+            worker.Resize(new Extent16<DisplayPixels>(801, 601));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 1 &&
-                worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == (801, 601); });
+                worker.RetainedRedraws > previousRedraws && worker.LastDrawnSize == new Extent16<DisplayPixels>(801, 601); });
             if (MailboxCounters(worker).Published != 1000 || worker.LastConsumedSequence != 1000)
                 throw new InvalidOperationException("Device recovery manufactured a simulation frame.");
             var loss = worker.LastDeviceLoss;
             if (loss is null || loss.FailureHResult != (int)DxgiDeviceLoss.DeviceRemoved ||
                 loss.RemovalReason != 0 || loss.Adapter != selection.AdapterDescription || loss.Backend != selection.Kind ||
-                loss.Width != 801 || loss.Height != 601 || loss.Frame?.Sequence != 1000)
+                loss.Target.X != 801 || loss.Target.Y != 601 || loss.Frame?.Sequence != 1000)
                 throw new InvalidOperationException("Device-loss diagnostic lost original failure/device/frame context.");
             worker.AdvanceGeneration(2);
-            worker.Resize(319, 601);
+            worker.Resize(new Extent16<DisplayPixels>(319, 601));
             Interlocked.Exchange(ref injectedLoss, (int)DxgiDeviceLoss.DeviceReset);
             worker.Publish(new(new(1001,2,0), new Rgba32(91,27,173)));
             PumpUntil(() => { worker.ThrowIfFaulted(); return worker.DeviceRecoveries == 2 && worker.LastConsumedSequence == 1001; });
@@ -93,6 +94,7 @@ internal static partial class SwapchainTests
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [SpatialComponents("Win32 interop: the blittable MSG layout flattens its POINT cursor field into two ints.")]
     private struct WindowMessage
     {
         public nint Window; public uint Id; public nuint WParam; public nint LParam;
@@ -115,7 +117,7 @@ internal static partial class SwapchainTests
         if (window == 0) throw new Win32Exception(Marshal.GetLastWin32Error());
         try
         {
-            using var presenter = new D3D11SwapchainPresenter(device, window, 640, 480);
+            using var presenter = new D3D11SwapchainPresenter(device, window, new Extent16<DisplayPixels>(640, 480));
             var gate = new RenderPresentationGate(1);
             var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(173,91,27));
             renderer.Render(packet);
@@ -129,9 +131,9 @@ internal static partial class SwapchainTests
             try { presenter.Present(renderer, new(2,2,0), gate, null); }
             catch (InvalidOperationException) { mismatch = true; }
             if (!mismatch) throw new InvalidOperationException("Swapchain accepted mismatched GPU frame identity.");
-            foreach (var size in new[] { (319,601), (1,1), (800,600) })
+            foreach (var size in new Extent16<DisplayPixels>[] { new(319, 601), new(1, 1), new(800, 600) })
             {
-                presenter.Resize(size.Item1, size.Item2);
+                presenter.Resize(size);
                 packet = new(new(packet.Identity.Sequence + 1, 2, 0), new Rgba32(27,91,173));
                 renderer.Render(packet);
                 outcome = presenter.Present(renderer, packet.Identity, gate, null);

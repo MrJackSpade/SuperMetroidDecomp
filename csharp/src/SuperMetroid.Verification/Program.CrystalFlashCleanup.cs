@@ -22,10 +22,10 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         // Keep the constructed clearing visible; the old mechanics-only fixture
         // left the displayed camera at zero, outside the tested Samus trajectory.
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, cameraX: 384, cameraY: 384);
-        for (int y = 1; y <= 2; y++)
-        for (int x = 1; x <= 2; x++)
-            runtime.Camera!.Scrolls.SetLogicalState(x, y, RoomScrollState.Green);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.LandingSite, camera: new Position16<RoomPixels>(384, 384));
+        for (ushort y = 1; y <= 2; y++)
+        for (ushort x = 1; x <= 2; x++)
+            runtime.Camera!.Scrolls.SetLogicalState(new(x, y), RoomScrollState.Green);
         var level = runtime.LevelData!;
         for (int y = 16; y < 36; y++)
         for (int x = 16; x < 48; x++)

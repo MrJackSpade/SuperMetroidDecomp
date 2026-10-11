@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using System.Runtime.ExceptionServices;
 using SuperMetroid.Core.Rendering;
 
@@ -16,7 +17,7 @@ public sealed class D3D11RenderWorker
     private readonly TaskCompletionSource completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private ExceptionDispatchInfo? fault;
     private bool stopping;
-    private (int Width, int Height)? resize;
+    private Extent16<DisplayPixels>? resize;
     private long presented, occluded, stale;
     private long lastConsumedSequence;
     private long retainedRedraws;
@@ -61,17 +62,16 @@ public sealed class D3D11RenderWorker
 
     /// <summary>Starts a background render-owner thread with a latest-frame mailbox and generation gate; creates GPU resources asynchronously, so the UI must await <see cref="Ready"/> without blocking its message pump.</summary>
     /// <param name="window">Existing HWND kept alive through <see cref="StopAsync"/> completion; window validation/device creation failures are reported asynchronously.</param>
-    /// <param name="width">Positive initial client width in pixels, validated by swapchain startup on the worker.</param>
-    /// <param name="height">Positive initial client height in pixels.</param>
+    /// <param name="clientSize">Positive initial client size in pixels, validated by swapchain startup on the worker.</param>
     /// <param name="generation">Positive load/reset identity shared with every initially published frame, not its sequence number.</param>
     /// <param name="kind">Explicit hardware or WARP backend; startup and recovery never silently change the selection.</param>
     /// <param name="timingCapacity">Positive retained-sample capacity for each timing history, bounded by the shared telemetry limit.</param>
     /// <exception cref="ArgumentOutOfRangeException">Generation or timing capacity is outside its supported range.</exception>
-    public D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind,
+    public D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
         int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
-        : this(window, width, height, generation, kind, null, timingCapacity) { }
+        : this(window, clientSize, generation, kind, null, timingCapacity) { }
 
-    internal D3D11RenderWorker(nint window, int width, int height, long generation, D3D11DeviceKind kind,
+    internal D3D11RenderWorker(nint window, Extent16<DisplayPixels> clientSize, long generation, D3D11DeviceKind kind,
         Action? beforeRenderForVerification, int timingCapacity = RenderTelemetryLimits.DefaultHistoryCapacity)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(timingCapacity);
@@ -83,7 +83,7 @@ public sealed class D3D11RenderWorker
         cpuUploadTiming = new(timingCapacity);
         this.beforeRenderForVerification = beforeRenderForVerification;
         mailbox = new(generation); gate = new(generation);
-        var thread = new Thread(() => Run(window, width, height, kind))
+        var thread = new Thread(() => Run(window, clientSize, kind))
         { IsBackground = true, Name = "Super Metroid GPU owner" };
         thread.Start();
     }
@@ -101,15 +101,11 @@ public sealed class D3D11RenderWorker
     }
 
     /// <summary>Queues the latest client-size request and wakes the owner without calling DXGI on the caller; either zero dimension suspends presentation, while a positive resize redraws retained current-generation artwork.</summary>
-    /// <param name="width">Nonnegative client width in pixels, zero when the surface is unavailable/minimized.</param>
-    /// <param name="height">Nonnegative client height in pixels.</param>
-    /// <exception cref="ArgumentOutOfRangeException">A dimension is negative.</exception>
+    /// <param name="clientSize">Client size in pixels; a zero dimension means the surface is unavailable/minimized.</param>
     /// <exception cref="InvalidOperationException">The worker is stopping; stored worker failures are also rethrown.</exception>
-    public void Resize(int width, int height)
+    public void Resize(Extent16<DisplayPixels> clientSize)
     {
-        ArgumentOutOfRangeException.ThrowIfNegative(width);
-        ArgumentOutOfRangeException.ThrowIfNegative(height);
-        lock (lifecycle) { VerifyRunning(); resize = (width, height); wake.Set(); }
+        lock (lifecycle) { VerifyRunning(); resize = clientSize; wake.Set(); }
     }
 
     /// <summary>Called only at the simulation load/reset boundary, before new-generation publication.</summary>
@@ -157,7 +153,7 @@ public sealed class D3D11RenderWorker
         if (stopping) throw new InvalidOperationException("GPU worker is stopping.");
     }
 
-    private void Run(nint window, int width, int height, D3D11DeviceKind kind)
+    private void Run(nint window, Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind)
     {
         try
         {
@@ -171,7 +167,7 @@ public sealed class D3D11RenderWorker
                 lock (lifecycle) { if (stopping && ready.Task.IsCompleted) break; }
                 try
                 {
-                    RunDevice(window, ref width, ref height, kind, ref retained, ref suspended, ref consecutiveLosses);
+                    RunDevice(window, ref clientSize, kind, ref retained, ref suspended, ref consecutiveLosses);
                     break;
                 }
                 catch (Exception error) when (ready.Task.IsCompletedSuccessfully &&
@@ -197,14 +193,14 @@ public sealed class D3D11RenderWorker
         }
     }
 
-    private void RunDevice(nint window, ref int width, ref int height, D3D11DeviceKind kind,
+    private void RunDevice(nint window, ref Extent16<DisplayPixels> clientSize, D3D11DeviceKind kind,
         ref RenderFrameSnapshot? retained, ref bool suspended, ref int consecutiveLosses)
     {
             using var device = new D3D11RenderDevice(kind);
             try
             {
             using var renderer = new D3D11FrameRenderer(device);
-            using var presenter = new D3D11SwapchainPresenter(device, window, width, height);
+            using var presenter = new D3D11SwapchainPresenter(device, window, clientSize);
             using var gpuTimer = new D3D11GpuTimer(device);
             if (!ready.TrySetResult(device.DiagnosticDescription))
             {
@@ -226,7 +222,7 @@ public sealed class D3D11RenderWorker
                     }
                     else Interlocked.Increment(ref invalidGpuTimingSamples);
                 }
-                (int Width, int Height)? nextSize;
+                Extent16<DisplayPixels>? nextSize;
                 lock (lifecycle)
                 {
                     if (stopping) break;
@@ -234,11 +230,11 @@ public sealed class D3D11RenderWorker
                 }
                 if (nextSize is { } size)
                 {
-                    suspended = size.Width == 0 || size.Height == 0;
+                    suspended = size.X == 0 || size.Y == 0;
                     if (!suspended)
                     {
-                        width = size.Width; height = size.Height;
-                        presenter.Resize(width, height);
+                        clientSize = size;
+                        presenter.Resize(clientSize);
                         redraw = true;
                     }
                     Volatile.Write(ref surfaceSuspended, suspended);
@@ -280,7 +276,8 @@ public sealed class D3D11RenderWorker
                         }
                         retained = packet;
                         consecutiveLosses = 0;
-                        Interlocked.Exchange(ref lastDrawnSize, ((long)width << 32) | (uint)height);
+                        // Both dimensions are published as one atomic word for the host's queries.
+                        Interlocked.Exchange(ref lastDrawnSize, ((long)clientSize.X << 32) | clientSize.Y);
                         redraw = false;
                         if (newlyTaken || packet.Identity.Sequence > Interlocked.Read(ref lastConsumedSequence))
                             Interlocked.Exchange(ref lastConsumedSequence, packet.Identity.Sequence);
@@ -298,7 +295,7 @@ public sealed class D3D11RenderWorker
                 // HRESULT correctly reports S_OK here; do not invent a removal cause.
                 var diagnostic = new D3D11DeviceLossDiagnostic(error.HResult,
                     device.Device.DeviceRemovedReason.Code, device.AdapterDescription,
-                    kind, width, height, retained?.Identity);
+                    kind, clientSize, retained?.Identity);
                 Volatile.Write(ref lastDeviceLoss, diagnostic);
                 Console.Error.WriteLine(diagnostic);
                 throw; // Preserve the HRESULT used by bounded recovery and strict failure.

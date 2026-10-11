@@ -76,7 +76,7 @@ internal static partial class Program
             side.XPosition = coordinate; side.YPosition = coordinate; side.TileNumberAttributes = attributes;
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
-            { native.AddProjectileTrailSprite(0, 0, 0); authored.AddProjectileTrailSprite(0, 0, 0); }
+            { native.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); authored.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); }
             system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), native, 0, 0, true);
             system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authored, 0, 0, true, catalog);
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable) && native.HighTable.SequenceEqual(authored.HighTable), "Trail catalog preserves native culling and complete OAM bytes");
@@ -153,7 +153,7 @@ internal static partial class Program
                 if (side.InstructionTimer == 0) continue;
             }
             if (side.XPosition < 256 && side.YPosition < 256)
-                oam.AddProjectileTrailSprite((byte)side.XPosition, (byte)side.YPosition,
+                oam.AddProjectileTrailSprite(new Position16<OamPixels>((byte)side.XPosition, (byte)side.YPosition),
                     side.TileNumberAttributes);
         }
     }
@@ -166,7 +166,7 @@ internal static partial class Program
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
         side.InstructionTimer = 3; side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
-        side.XPosition = (ushort)(runtime.Camera!.XPosition + 100); side.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        side.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100); side.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
         var game = CreateRetailGameFixture(bus);
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var runtimeField = game.GetType().GetField("runtime", flags)!;

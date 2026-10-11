@@ -6,6 +6,7 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class EndingWavySamusTests
 {
@@ -44,7 +45,7 @@ internal static class EndingWavySamusTests
                 var vram = new SnesVram(); vram.LoadBytes(0, snapshot.Memory.Vram);
                 var cgram = new SnesCgram();
                 for (int i = 0; i < 256; i++) cgram.SetColor(i, snapshot.Memory.Cgram[i]);
-                var main = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, 0x4c00, 0x5000, 0, 0, 256, 224, 32, 32);
+                var main = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, 0x4c00, 0x5000, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(256, 224), new Extent16<TilemapCells>(32, 32));
                 var sub = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, 0x2400, 0x2000, rowCount: 32, transparentColorZero: true);
                 var expected = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
                 var oam = new OamBuffer();
@@ -80,7 +81,7 @@ internal static class EndingWavySamusTests
                     var supplied = wave.Scrolls.ToArray();
                     var owned = wave.WithScrolls(supplied);
                     supplied[0] = new(123, 123);
-                    Require(owned.Scrolls[0] == new BackgroundLineScroll(0, 0), "Captured line scrolls own their input memory");
+                    Require(owned.Scrolls[0] == new Position16<BgPlanePixels>(0, 0), "Captured line scrolls own their input memory");
                 }
                 if (age == 3) Require(previous is not null && !expected.AsSpan().SequenceEqual(previous), "Wave changes visible pixels between consecutive frames");
                 previous = expected;

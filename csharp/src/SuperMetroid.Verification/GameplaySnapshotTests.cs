@@ -18,7 +18,7 @@ internal static partial class Program
         var memory = new PpuMemorySnapshot(bytes, ToColors(palette), oam, 128);
         var live = new SoftwarePpuSnapshotMemory(memory);
         int samples = 0;
-        foreach ((int width, int height) in new[] { (64, 32), (32, 64), (64, 64) })
+        foreach (Extent16<TilemapCells> mapSize in new Extent16<TilemapCells>[] { new(64, 32), new(32, 64), new(64, 64) })
         for (int mask = 0; mask < 8; mask++)
         for (int hdma = 0; hdma < 4; hdma++)
         {
@@ -27,13 +27,13 @@ internal static partial class Program
             SnesMainScreenLayers layers = (mask & 1) == 0 ? 0 : SnesMainScreenLayers.Bg1;
             if ((mask & 2) != 0) layers |= SnesMainScreenLayers.Bg2;
             if ((mask & 4) != 0) layers |= SnesMainScreenLayers.Obj;
-            var registers = new OrdinaryGameplayRegisters(511, 255, 65535, 511,
-                width, height, SnesPpuLayout.GameplayBg2TilemapWord, 0, 0x6000,
+            var registers = new OrdinaryGameplayRegisters(new Position16<RoomPixels>(511, 255), new Position16<Bg2Pixels>(65535, 511),
+                mapSize, SnesPpuLayout.GameplayBg2TilemapWord, 0, 0x6000,
                 SnesPpuLayout.GameplayHudCharacterBaseWord, layers);
             Rgba32[] expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(
-                live.Vram, live.Cgram, live.Oam, registers.Bg1X, registers.Bg1Y, registers.Bg2X, registers.Bg2Y,
+                live.Vram, live.Cgram, live.Oam, registers.Bg1Scroll, registers.Bg2Scroll,
                 x.Length == 0 ? null : x, y.Length == 0 ? null : y,
-                width, height, registers.Bg2TilemapWord, registers.Bg1CharacterWord,
+                mapSize, registers.Bg2TilemapWord, registers.Bg1CharacterWord,
                 registers.Bg2CharacterWord, registers.HudCharacterWord, mainScreenLayers: layers);
             var layer = new OrdinaryGameplayRenderLayer(registers, x, y);
             // Mutating both caller arrays after capture must not alter retained HDMA.
@@ -42,7 +42,7 @@ internal static partial class Program
             var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)samples),
                 new LayeredRenderSnapshot(memory, new RenderLayer[] { layer }, 3, 15));
             AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(packet))),
-                $"gameplay snapshot {width}x{height}, mask {mask}, HDMA {hdma}");
+                $"gameplay snapshot {mapSize.X}x{mapSize.Y}, mask {mask}, HDMA {hdma}");
             if (samples == 1)
             {
                 byte[] old = RenderFrameSnapshotCodec.Serialize(packet);
@@ -65,7 +65,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         AssertThrows<InvalidOperationException>(() => GameplayDisplayCapture.CaptureOrdinaryBase(runtime),
             "Mode-7 shaft cannot silently capture as ordinary tiles");
-        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(PowerBombRuntimeVerificationDefinitions.AlphaPowerBombRoomHeader, new Position16<RoomPixels>(0, 0));
         runtime.RunNmi(0, true);
         Rgba32[] retail = SuperMetroidRuntimeFrameRenderer.Render(runtime);
         LayeredRenderSnapshot captured = GameplayDisplayCapture.CaptureOrdinaryBase(runtime);

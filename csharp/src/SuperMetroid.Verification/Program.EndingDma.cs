@@ -16,8 +16,8 @@ internal static partial class Program
         var ending = CreateRetailEndingFixture(bus, audio, 0, 0);
         ending.Step();
         var projection = ending.CaptureRenderSnapshot().Layers.ToArray().OfType<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
-        AssertEqual((short)0, projection.HorizontalOffset, "native atmospheric scroll X");
-        AssertEqual((short)0, projection.VerticalOffset, "native atmospheric scroll Y");
+        AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
+        AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
         AssertEqual((short)45, projection.MatrixA, "native initial angle 32, scale 64 cosine");
         AssertEqual((short)45, projection.MatrixB, "native initial angle 32, scale 64 sine");
         var memory = ending.CaptureRenderSnapshot().Memory;

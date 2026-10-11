@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static partial class SwapchainTests
 {
@@ -18,7 +19,7 @@ internal static partial class SwapchainTests
         D3D11RenderWorker? worker = null;
         try
         {
-            worker = new(window, 640, 480, 1, device.Kind, () =>
+            worker = new(window, new Extent16<DisplayPixels>(640, 480), 1, device.Kind, () =>
             {
                 entered.Set();
                 if (!release.Wait(TimeSpan.FromSeconds(60))) throw new TimeoutException("Door consumer release missing.");

@@ -21,29 +21,25 @@ public sealed class RoomScrollGrid
     private readonly byte[] _cells = new byte[StorageByteCount];
     private readonly ISnesAddressSpace _bus;
 
-    private RoomScrollGrid(ISnesAddressSpace bus, int widthInScreens, int heightInScreens)
+    private RoomScrollGrid(ISnesAddressSpace bus, Extent16<RoomScreens> size)
     {
         _bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        if (widthInScreens <= 0 || heightInScreens <= 0 || widthInScreens * heightInScreens > StorageByteCount)
-            throw new ArgumentOutOfRangeException(nameof(widthInScreens));
+        if (size.X == 0 || size.Y == 0 || size.X * size.Y > StorageByteCount)
+            throw new ArgumentOutOfRangeException(nameof(size));
 
-        WidthInScreens = widthInScreens;
-        HeightInScreens = heightInScreens;
+        Size = size;
     }
 
-    /// <summary>Gets the room width in 256-pixel scroll-zone cells.</summary>
-    public int WidthInScreens { get; }
-    /// <summary>Gets the room height in 256-pixel scroll-zone cells.</summary>
-    public int HeightInScreens { get; }
+    /// <summary>Gets the room size in 256-pixel scroll-zone cells.</summary>
+    public Extent16<RoomScreens> Size { get; }
     /// <summary>Gets the number of logical room cells within the fixed storage allocation.</summary>
-    public int LogicalCellCount => WidthInScreens * HeightInScreens;
+    public int LogicalCellCount => Size.X * Size.Y;
 
     /// <summary>Installs an application-owned copy of the native 50-byte scroll allocation.</summary>
     public static RoomScrollGrid LoadCompiled(
         ISnesAddressSpace bus,
         ReadOnlySpan<byte> storage,
-        int widthInScreens,
-        int heightInScreens)
+        Extent16<RoomScreens> size)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (storage.Length != StorageByteCount)
@@ -53,7 +49,7 @@ public sealed class RoomScrollGrid
                 nameof(storage));
         }
 
-        var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
+        var grid = new RoomScrollGrid(bus, size);
         for (int index = 0; index < StorageByteCount; index++)
         {
             byte value = storage[index];
@@ -76,15 +72,14 @@ public sealed class RoomScrollGrid
     /// </remarks>
     public static RoomScrollGrid CreateImplicit(
         ISnesAddressSpace bus,
-        int widthInScreens,
-        int heightInScreens,
+        Extent16<RoomScreens> size,
         RoomScrollState lastRowState)
     {
         ArgumentNullException.ThrowIfNull(bus);
         RoomScrollStates.Validate(lastRowState, nameof(lastRowState));
         ISnesMutableMemory memory = bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Implicit scroll storage keeps the previous room's bytes past its cells; it requires WRAM.");
-        var grid = new RoomScrollGrid(bus, widthInScreens, heightInScreens);
+        var grid = new RoomScrollGrid(bus, size);
         for (int index = 0; index < StorageByteCount; index++)
         {
             if (index >= grid.LogicalCellCount)
@@ -92,7 +87,7 @@ public sealed class RoomScrollGrid
                 grid._cells[index] = memory.ReadWorkRamByte(WorkRamAddress + index);
                 continue;
             }
-            byte value = (byte)(index / widthInScreens == heightInScreens - 1
+            byte value = (byte)(index / size.X == size.Y - 1
                 ? lastRowState
                 : RoomScrollState.Green);
             grid._cells[index] = value;
@@ -154,12 +149,12 @@ public sealed class RoomScrollGrid
     }
 
     /// <summary>Updates a logical cell as a scroll PLM would.</summary>
-    public void SetLogicalState(int x, int y, RoomScrollState state)
+    public void SetLogicalState(Position16<RoomScreens> screen, RoomScrollState state)
     {
-        if ((uint)x >= WidthInScreens || (uint)y >= HeightInScreens)
-            throw new ArgumentOutOfRangeException(nameof(x));
+        if (screen.X >= Size.X || screen.Y >= Size.Y)
+            throw new ArgumentOutOfRangeException(nameof(screen));
         RoomScrollStates.Validate(state, nameof(state));
-        int index = y * WidthInScreens + x;
+        int index = screen.Y * Size.X + screen.X;
         _cells[index] = (byte)state;
         _bus.WriteByte(WorkRamAddress + index, (byte)state);
     }

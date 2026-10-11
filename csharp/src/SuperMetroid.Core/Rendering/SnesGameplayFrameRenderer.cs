@@ -24,14 +24,11 @@ public static partial class SnesGameplayFrameRenderer
         SnesVram vram,
         SnesCgram cgram,
         OamBuffer oam,
-        ushort bg1HorizontalScroll,
-        ushort bg1VerticalScroll,
-        ushort bg2HorizontalScroll,
-        ushort bg2VerticalScroll,
+        Position16<RoomPixels> bg1Scroll,
+        Position16<Bg2Pixels> bg2Scroll,
         IReadOnlyList<ushort>? bg2HorizontalScrollByLine = null,
         IReadOnlyList<ushort>? bg2VerticalScrollByLine = null,
-        int bg2TilemapWidthInTiles = 64,
-        int bg2TilemapHeightInTiles = 32,
+        Extent16<TilemapCells>? bg2TilemapSize = null,
         ushort bg2TilemapBaseWord = SnesPpuLayout.GameplayBg2TilemapWord,
         ushort bg1CharacterBaseWord = 0,
         ushort bg2CharacterBaseWord = 0,
@@ -73,9 +70,7 @@ public static partial class SnesGameplayFrameRenderer
                 cgram,
                 obsel,
                 objectPixels,
-                objectPriorities,
-                Width,
-                Height);
+                objectPriorities);
             CompositeOrdinaryGameplayViewport(
                 output,
                 vram,
@@ -84,14 +79,12 @@ public static partial class SnesGameplayFrameRenderer
                 objectPriorities,
                 bg1CharacterBaseWord,
                 bg2CharacterBaseWord,
-                bg1HorizontalScroll,
-                bg1VerticalScroll,
-                bg2HorizontalScroll,
-                bg2VerticalScroll,
+                bg1Scroll,
+                bg2Scroll,
                 bg2HorizontalScrollByLine,
                 bg2VerticalScrollByLine,
-                bg2TilemapWidthInTiles,
-                bg2TilemapHeightInTiles,
+                // Ordinary rooms use two horizontal 32x32 BG2 screens.
+                bg2TilemapSize ?? new Extent16<TilemapCells>(64, 32),
                 bg2TilemapBaseWord,
                 mainScreenLayers, bg2FirstScanline, bg2EndScanline, windowMasks, bg2Mosaic,
                 mainScreenLayersByLine);
@@ -132,14 +125,11 @@ public static partial class SnesGameplayFrameRenderer
         ReadOnlySpan<byte> objectPriorities,
         ushort bg1CharacterBaseWord,
         ushort bg2CharacterBaseWord,
-        ushort bg1HorizontalScroll,
-        ushort bg1VerticalScroll,
-        ushort bg2HorizontalScroll,
-        ushort bg2VerticalScroll,
+        Position16<RoomPixels> bg1Scroll,
+        Position16<Bg2Pixels> bg2Scroll,
         IReadOnlyList<ushort>? bg2HorizontalScrollByLine,
         IReadOnlyList<ushort>? bg2VerticalScrollByLine,
-        int bg2TilemapWidthInTiles,
-        int bg2TilemapHeightInTiles,
+        Extent16<TilemapCells> bg2TilemapSize,
         ushort bg2TilemapBaseWord,
         SnesMainScreenLayers mainScreenLayers,
         int bg2FirstScanline, int bg2EndScanline,
@@ -167,13 +157,13 @@ public static partial class SnesGameplayFrameRenderer
                 "BG2 vertical HDMA scrolls must cover all 192 gameplay lines.",
                 nameof(bg2VerticalScrollByLine));
         }
-        if (bg2TilemapWidthInTiles is not (32 or 64) ||
-            bg2TilemapHeightInTiles is not (32 or 64) ||
-            bg2TilemapWidthInTiles * bg2TilemapHeightInTiles is not (1024 or 2048 or 4096))
+        if (bg2TilemapSize.X is not (32 or 64) ||
+            bg2TilemapSize.Y is not (32 or 64) ||
+            bg2TilemapSize.X * bg2TilemapSize.Y is not (1024 or 2048 or 4096))
         {
             throw new ArgumentException(
                 "BG2 gameplay tilemaps must use 32 or 64 tiles on each axis.",
-                nameof(bg2TilemapWidthInTiles));
+                nameof(bg2TilemapSize));
         }
 
         // Resolve the complete Mode-1 ladder in a single destination scan. The previous
@@ -191,9 +181,9 @@ public static partial class SnesGameplayFrameRenderer
         if (!mainScreenLayersByLine.IsEmpty && mainScreenLayersByLine.Length != Height - HudHeight)
             throw new ArgumentException("Main-screen HDMA must cover exactly 192 gameplay lines.", nameof(mainScreenLayersByLine));
 
-        int bg2XMask = bg2TilemapWidthInTiles * 8 - 1;
-        int bg2YMask = bg2TilemapHeightInTiles * 8 - 1;
-        int bg2ScreensPerRow = bg2TilemapWidthInTiles >> 5;
+        int bg2XMask = bg2TilemapSize.X * 8 - 1;
+        int bg2YMask = bg2TilemapSize.Y * 8 - 1;
+        int bg2ScreensPerRow = bg2TilemapSize.X >> 5;
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             SnesMainScreenLayers activeLayers = mainScreenLayersByLine.IsEmpty ? mainScreenLayers
@@ -205,12 +195,12 @@ public static partial class SnesGameplayFrameRenderer
             // Output rows are zero-based, while Mode-1 BG sampling starts on
             // physical scanline one. OBJ's preceding-line evaluation is separate.
             int physicalBackgroundY = screenY + SnesPpuLayout.FirstVisibleBackgroundScanline;
-            int bg1ScrolledY = unchecked(bg1VerticalScroll + physicalBackgroundY) & 0xff;
+            int bg1ScrolledY = unchecked(bg1Scroll.Y + physicalBackgroundY) & 0xff;
             ushort activeBg2HorizontalScroll = bg2HorizontalScrollByLine is null
-                ? bg2HorizontalScroll
+                ? bg2Scroll.X
                 : bg2HorizontalScrollByLine[screenY - HudHeight];
             ushort activeBg2VerticalScroll = bg2VerticalScrollByLine is null
-                ? bg2VerticalScroll
+                ? bg2Scroll.Y
                 : bg2VerticalScrollByLine[screenY - HudHeight];
             int bg2ScrolledY = bg2Mosaic.SourceY(screenY, activeBg2VerticalScroll) & bg2YMask;
             int bg1TileY = bg1ScrolledY >> 3;
@@ -261,8 +251,7 @@ public static partial class SnesGameplayFrameRenderer
                         palette,
                         bg2Entry,
                         bg2CharacterBaseWord,
-                        bg2ScrolledX & 7,
-                        bg2PixelY,
+                        new Position16<CharacterPixels>((ushort)(bg2ScrolledX & 7), (ushort)bg2PixelY),
                         out Rgba32 bg2Color,
                         out bool bg2High))
                 {
@@ -270,7 +259,7 @@ public static partial class SnesGameplayFrameRenderer
                     winnerRank = bg2High ? 6 : 3;
                 }
 
-                int bg1ScrolledX = unchecked(bg1HorizontalScroll + screenX) & 0x01ff;
+                int bg1ScrolledX = unchecked(bg1Scroll.X + screenX) & 0x01ff;
                 int bg1TileX = bg1ScrolledX >> 3;
                 if (bg1Enabled && bg1TileX != previousBg1TileX)
                 {
@@ -292,8 +281,7 @@ public static partial class SnesGameplayFrameRenderer
                         palette,
                         bg1Entry,
                         bg1CharacterBaseWord,
-                        bg1ScrolledX & 7,
-                        bg1PixelY,
+                        new Position16<CharacterPixels>((ushort)(bg1ScrolledX & 7), (ushort)bg1PixelY),
                         out Rgba32 bg1Color,
                         out bool bg1High))
                 {
@@ -338,19 +326,18 @@ public static partial class SnesGameplayFrameRenderer
         ReadOnlySpan<Rgba32> palette,
         SnesBgTilemapWord entry,
         ushort characterBaseWord,
-        int pixelX,
-        int pixelY,
+        Position16<CharacterPixels> pixel,
         out Rgba32 color,
         out bool highPriority)
     {
         highPriority = entry.HasPriority;
 
         int sourceX = entry.FlipHorizontally
-            ? 7 - pixelX
-            : pixelX;
+            ? 7 - pixel.X
+            : pixel.X;
         int sourceY = entry.FlipVertically
-            ? 7 - pixelY
-            : pixelY;
+            ? 7 - pixel.Y
+            : pixel.Y;
         int characterByteAddress =
             ((characterBaseWord + entry.CharacterIndex * 16) & 0x7fff) * 2;
         int mask = 1 << (7 - sourceX);
@@ -417,10 +404,8 @@ public static partial class SnesGameplayFrameRenderer
         short matrixB,
         short matrixC,
         short matrixD,
-        short centerX,
-        short centerY,
-        short horizontalOffset,
-        short verticalOffset,
+        Offset16<Mode7Pixels> center,
+        Offset16<Mode7Pixels> scroll,
         byte obsel = 0x03,
         Rgba32[]? outputBuffer = null)
     {
@@ -433,12 +418,8 @@ public static partial class SnesGameplayFrameRenderer
             matrixB,
             matrixC,
             matrixD,
-            centerX,
-            centerY,
-            horizontalOffset,
-            verticalOffset,
-            Width,
-            Height);
+            center,
+            scroll);
 
         // IRQ command four gives the upper 32 physical scanlines exclusively to BG3.
         // Mode 7 is projected at physical screen coordinates across the destination first;
@@ -462,12 +443,9 @@ public static partial class SnesGameplayFrameRenderer
         short matrixB,
         short matrixC,
         short matrixD,
-        short centerX,
-        short centerY,
-        short horizontalOffset,
-        short verticalOffset,
-        ushort bg2HorizontalScroll,
-        ushort bg2VerticalScroll,
+        Offset16<Mode7Pixels> center,
+        Offset16<Mode7Pixels> scroll,
+        Position16<Bg2Pixels> bg2Scroll,
         ushort bg2CharacterBaseWord,
         byte obsel = 0x03,
         Rgba32[]? outputBuffer = null)
@@ -489,13 +467,9 @@ public static partial class SnesGameplayFrameRenderer
             matrixB,
             matrixC,
             matrixD,
-            centerX,
-            centerY,
-            horizontalOffset,
-            verticalOffset,
-            Width,
-            Height);
-        ResolvedObjFrame objects = scratch.ResolveObjects(oam, vram, cgram, obsel, Width, Height);
+            center,
+            scroll);
+        ResolvedObjFrame objects = scratch.ResolveObjects(oam, vram, cgram, obsel);
 
         // IndirectHDMATable_CeresRidleyMode_BGTileSize and its matching TM table keep
         // scanlines 32..207 in Mode 7 with BG1/BG2/OBJ selected. The existing Mode-7
@@ -523,7 +497,7 @@ public static partial class SnesGameplayFrameRenderer
         ExpandCgram(cgram, palette);
         for (int screenY = floorFirstScanline; screenY < Height; screenY++)
         {
-            int scrolledY = unchecked(bg2VerticalScroll + screenY) & 0xff;
+            int scrolledY = unchecked(bg2Scroll.Y + screenY) & 0xff;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
             int previousTileX = -1;
@@ -534,7 +508,7 @@ public static partial class SnesGameplayFrameRenderer
                 int destination = screenY * Width + screenX;
                 Rgba32 winner = output[destination];
                 int winnerRank = 0;
-                int scrolledX = unchecked(bg2HorizontalScroll + screenX) & 0x01ff;
+                int scrolledX = unchecked(bg2Scroll.X + screenX) & 0x01ff;
                 int tileX = scrolledX >> 3;
                 if (tileX != previousTileX)
                 {
@@ -553,8 +527,7 @@ public static partial class SnesGameplayFrameRenderer
                         palette,
                         bg2Entry,
                         bg2CharacterBaseWord,
-                        scrolledX & 7,
-                        pixelY,
+                        new Position16<CharacterPixels>((ushort)(scrolledX & 7), (ushort)pixelY),
                         out Rgba32 bg2Color,
                         out bool bg2High))
                 {
@@ -639,8 +612,7 @@ public static partial class SnesGameplayFrameRenderer
         Span<Rgba32> frame,
         ISnesAddressSpace bus,
         SamusPowerBombExplosionState explosion,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(explosion);
@@ -649,8 +621,10 @@ public static partial class SnesGameplayFrameRenderer
         if (!explosion.IsActive)
             return;
 
-        int centerX = unchecked((short)(explosion.XPosition - layer1X));
-        int centerY = unchecked((short)(explosion.YPosition - layer1Y));
+        Offset16<ScreenPixels> center = new Position16<RoomPixels>(explosion.XPosition, explosion.YPosition)
+            .RelativeToCamera(layer1);
+        int centerX = center.X;
+        int centerY = center.Y;
         byte addRed = ExpandFiveBit(explosion.FixedColorRed);
         byte addGreen = ExpandFiveBit(explosion.FixedColorGreen);
         byte addBlue = ExpandFiveBit(explosion.FixedColorBlue);
@@ -755,7 +729,7 @@ public static partial class SnesGameplayFrameRenderer
             // the liquid Y coordinate erased it and exposed only dotted body tile $53.
             ushort verticalScroll = liquid && screenY < firstLiquidScrollLine
                 ? (ushort)0
-                : fx.VerticalScroll;
+                : fx.Scroll.Y;
             int scrolledY = unchecked(verticalScroll + screenY) & verticalCoordinateMask;
             int tileY = scrolledY >> 3;
             int pixelY = scrolledY & 7;
@@ -769,7 +743,7 @@ public static partial class SnesGameplayFrameRenderer
             for (int screenX = 0; screenX < Width; screenX++)
             {
                 int scrolledX = unchecked(
-                    fx.HorizontalScroll + waveDisplacement + screenX) & 0xff;
+                    fx.Scroll.X + waveDisplacement + screenX) & 0xff;
                 int tileX = scrolledX >> 3;
                 int pixelX = scrolledX & 7;
                 SnesBgTilemapWord entry = vram.ReadWord(
@@ -813,14 +787,13 @@ public static partial class SnesGameplayFrameRenderer
     /// </summary>
     public static ushort[]? BuildWaterBg2HorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
-        ushort bg2HorizontalScroll,
-        ushort bg2VerticalScroll)
+        Position16<Bg2Pixels> bg2Scroll)
     {
         if (fx.Type != RoomFxType.Water || (fx.LiquidOptions & 2) == 0)
             return null;
 
-        var result = Enumerable.Repeat(bg2HorizontalScroll, Height - HudHeight).ToArray();
-        int verticalPhase = bg2VerticalScroll & 0x000f;
+        var result = Enumerable.Repeat(bg2Scroll.X, Height - HudHeight).ToArray();
+        int verticalPhase = bg2Scroll.Y & 0x000f;
         for (int screenY = Math.Max(HudHeight, fx.WaterSurfaceScreenY + 1);
              screenY < Height;
              screenY++)
@@ -829,7 +802,7 @@ public static partial class SnesGameplayFrameRenderer
                 screenY - fx.WaterSurfaceScreenY - 1) &
                 (RoomFxRomData.Water.WaveDisplacementCount - 1);
             result[screenY - HudHeight] = unchecked((ushort)(
-                bg2HorizontalScroll + RoomFxRomData.Water.WaveDisplacement(index)));
+                bg2Scroll.X + RoomFxRomData.Water.WaveDisplacement(index)));
         }
         return result;
     }
@@ -841,8 +814,7 @@ public static partial class SnesGameplayFrameRenderer
     /// </summary>
     public static ushort[]? BuildLavaAcidBg2HorizontalScrolls(
         RoomLayer3FxRenderSnapshot fx,
-        ushort bg2HorizontalScroll,
-        ushort bg2VerticalScroll)
+        Position16<Bg2Pixels> bg2Scroll)
     {
         bool isLavaAcid = fx.Type is RoomFxType.Lava or RoomFxType.Acid;
         bool usesVertical =
@@ -853,8 +825,8 @@ public static partial class SnesGameplayFrameRenderer
             return null;
 
         return BuildLavaAcidBg2Wave(
-            bg2HorizontalScroll,
-            bg2VerticalScroll,
+            bg2Scroll.X,
+            bg2Scroll.Y,
             fx.LavaAcidBg2WavePhase,
             verticalWave: false);
     }
@@ -908,8 +880,7 @@ public static partial class SnesGameplayFrameRenderer
         Span<Rgba32> frame,
         ISnesAddressSpace bus,
         MorphBallEyeBeamRenderSnapshot beam,
-        ushort layer1X,
-        ushort layer1Y)
+        Position16<RoomPixels> layer1)
     {
         ArgumentNullException.ThrowIfNull(bus);
         if (frame.Length != Width * Height)
@@ -923,7 +894,7 @@ public static partial class SnesGameplayFrameRenderer
         // Both display-packet and immediate rendering consume the same cartridge
         // endpoint builder. Backend equality is useful coverage, but the separate
         // executed-ROM fixture is the independent oracle for these endpoints.
-        ScanlineColorAddRenderLayer layer = CaptureMorphBallEyeBeam(bus, beam, layer1X, layer1Y)!;
+        ScanlineColorAddRenderLayer layer = CaptureMorphBallEyeBeam(bus, beam, layer1)!;
         for (int screenY = HudHeight; screenY < Height; screenY++)
         {
             ColorAddWindow window = layer.Windows[screenY];
@@ -1022,7 +993,8 @@ public static partial class SnesGameplayFrameRenderer
     private static byte SaturatingSubtract(byte left, byte right) =>
         (byte)Math.Max(byte.MinValue, left - right);
 
-    private static XrayDirection ReadXrayDirection(int angle)
+    /// <summary>One signed 8.8 screen-space direction vector reconstructed from `$91:C9D4`.</summary>
+    private static Offset16<ScreenPixels> ReadXrayDirection(int angle)
     {
         int wrappedAngle = SnesAngle.NormalizeTableIndex(angle).TableIndex;
 
@@ -1030,23 +1002,26 @@ public static partial class SnesGameplayFrameRenderer
         // contains `$3C00` as a screen-sized infinity substitute, but using (±1,0) here is
         // the identical limiting ray and also preserves the dedicated zero-width line.
         if (wrappedAngle == SnesAngle.Zero.TableIndex)
-            return new XrayDirection(0, -SamusXrayRomData.Window.UnitVector);
+            return Direction(0, -SamusXrayRomData.Window.UnitVector);
         if (wrappedAngle == SnesAngle.QuarterTurn.TableIndex)
-            return new XrayDirection(SamusXrayRomData.Window.UnitVector, 0);
+            return Direction(SamusXrayRomData.Window.UnitVector, 0);
         if (wrappedAngle == SnesAngle.HalfTurn.TableIndex)
-            return new XrayDirection(0, SamusXrayRomData.Window.UnitVector);
+            return Direction(0, SamusXrayRomData.Window.UnitVector);
         if (wrappedAngle == SnesAngle.ThreeQuarterTurn.TableIndex)
-            return new XrayDirection(-SamusXrayRomData.Window.UnitVector, 0);
+            return Direction(-SamusXrayRomData.Window.UnitVector, 0);
 
         int tangentIndex = wrappedAngle & (SnesAngle.HalfTurn.TableIndex - 1);
         int tangent = AbsoluteTangentDefinitions.Sample(tangentIndex);
         if (wrappedAngle < SnesAngle.QuarterTurn.TableIndex)
-            return new XrayDirection(tangent, -SamusXrayRomData.Window.UnitVector);
+            return Direction(tangent, -SamusXrayRomData.Window.UnitVector);
         if (wrappedAngle < SnesAngle.HalfTurn.TableIndex)
-            return new XrayDirection(tangent, SamusXrayRomData.Window.UnitVector);
+            return Direction(tangent, SamusXrayRomData.Window.UnitVector);
         if (wrappedAngle < SnesAngle.ThreeQuarterTurn.TableIndex)
-            return new XrayDirection(-tangent, SamusXrayRomData.Window.UnitVector);
-        return new XrayDirection(-tangent, -SamusXrayRomData.Window.UnitVector);
+            return Direction(-tangent, SamusXrayRomData.Window.UnitVector);
+        return Direction(-tangent, -SamusXrayRomData.Window.UnitVector);
+
+        // One screen-space ray direction; the table's largest tangent ($3C00) fits a signed word.
+        static Offset16<ScreenPixels> Direction(int x, int y) => new(checked((short)x), checked((short)y));
     }
 
     private static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
@@ -1090,9 +1065,7 @@ public static partial class SnesGameplayFrameRenderer
                 cgram,
                 obsel,
                 objectPixels,
-                objectPriorities,
-                Width,
-                Height);
+                objectPriorities);
             for (int pixel = HudHeight * Width; pixel < output.Length; pixel++)
             {
                 // Every resolved OBJ priority is above Mode 7 in this PPU configuration.
@@ -1106,7 +1079,4 @@ public static partial class SnesGameplayFrameRenderer
             ArrayPool<byte>.Shared.Return(rentedObjectPriorities, clearArray: false);
         }
     }
-
-    /// <summary>One signed 8.8 direction vector reconstructed from `$91:C9D4`.</summary>
-    private readonly record struct XrayDirection(int X, int Y);
 }

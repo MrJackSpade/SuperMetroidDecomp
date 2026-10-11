@@ -16,10 +16,10 @@ internal sealed partial class EndingCreditsState
         {
             if (endingLogo.CrossfadeStarted)
                 layers.Add(new Bg4BppRenderLayer(EndingLogoDefinitions.Tilemap, EndingLogoDefinitions.Characters,
-                    0, 0, 32, 32, null));
+                    new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null));
             layers.Add(new ObjRenderLayer(endingLogo.CrossfadeStarted));
             layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
-                0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
+                new Position16<BgPlanePixels>(0, postCreditsVerticalScroll), new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)), null));
             return new(PpuMemorySnapshot.Capture(vram, cgram,
                 PrepareSprites()), layers.ToArray(), 3, brightness);
         }
@@ -38,7 +38,7 @@ internal sealed partial class EndingCreditsState
         if (Phase == EndingCreditsPhase.Credits)
         {
             layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
-                EndingCreditsRomData.Rendering.CreditsCharacterWord, 0, credits!.VerticalScroll, 32, 32, null));
+                EndingCreditsRomData.Rendering.CreditsCharacterWord, new Position16<BgPlanePixels>(0, credits!.VerticalScroll), new Extent16<TilemapCells>(32, 32), null));
             // Credits intentionally do not run the sprite draw routine.
             oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
         }
@@ -51,12 +51,12 @@ internal sealed partial class EndingCreditsState
                     layers.Add(new ObjPriorityRenderLayer(0));
                 if (PostCreditsBackgroundEnabled)
                     layers.Add(new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord,
-                        CurrentPostCreditsCharacterWord, 0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null));
+                        CurrentPostCreditsCharacterWord, new Position16<BgPlanePixels>(0, postCreditsVerticalScroll), new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)), null));
                 if (Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop)
                     layers.Add(new BgSubscreenAddRenderLayer(EndingWavySamusDefinitions.TilemapWord,
                         EndingWavySamusDefinitions.CharacterWord,
                         new Bg4BppRenderLayer(CurrentPostCreditsTilemapWord, CurrentPostCreditsCharacterWord,
-                            0, postCreditsVerticalScroll, 32, postCreditsMapHeight, null))
+                            new Position16<BgPlanePixels>(0, postCreditsVerticalScroll), new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)), null))
                         .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
                             EndingCreditsRomData.Timing.WaitingBackdropFrames - phaseTimer)));
             }
@@ -68,8 +68,8 @@ internal sealed partial class EndingCreditsState
                 short a = Scale(ReadSine(mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), mode7Zoom);
                 short b = Scale(ReadSine(mode7Angle.TableIndex), mode7Zoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
-                    CurrentMode7CenterX, CurrentMode7CenterY,
-                    unchecked((short)mode7X), unchecked((short)mode7Y), WrapOutsideMap: AtmosphericMapWraps),
+                    new Offset16<Mode7Pixels>(CurrentMode7CenterX, CurrentMode7CenterY),
+                    new Offset16<Mode7Pixels>(unchecked((short)mode7X), unchecked((short)mode7Y)), WrapOutsideMap: AtmosphericMapWraps),
                     AddBg1Subscreen: AtmosphericMapWraps));
             }
             oam = PrepareSprites();
@@ -104,8 +104,8 @@ internal sealed partial class EndingCreditsState
             short a = Scale(ReadSine(unchecked((byte)(postShot!.Angle + SnesAngle.QuarterTurn.TableIndex))), (ushort)postShot.Scale);
             short b = Scale(ReadSine(postShot.Angle), (ushort)postShot.Scale);
             return new(a, b, unchecked((short)-b), a,
-                EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY,
-                EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY);
+                new Offset16<Mode7Pixels>(EndingPostShotDefinitions.CenterX, EndingPostShotDefinitions.CenterY),
+                new Offset16<Mode7Pixels>(EndingPostShotDefinitions.OffsetX, EndingPostShotDefinitions.OffsetY));
         }
     }
 }

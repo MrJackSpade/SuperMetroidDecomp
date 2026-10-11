@@ -15,8 +15,8 @@ internal static class SoftwareMode7GameplayRenderer
         Mode7RenderRegisters m = layer.Registers;
         Rgba32[] mode7 = scratch.Colors(width * height);
         SnesMode7Renderer.CompositeViewport(mode7, memory.Vram, memory.Cgram,
-            m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.CenterX, m.CenterY,
-            m.HorizontalOffset, m.VerticalOffset, fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero,
+            m.MatrixA, m.MatrixB, m.MatrixC, m.MatrixD, m.Center,
+            m.Scroll, fillOutsideWithCharacterZero: m.FillOutsideWithCharacterZero,
             wrapOutsideMap: m.WrapOutsideMap);
         // Resolve the winning OAM record once, before choosing its layer priority.
         ResolvedObjFrame objects = scratch.ResolveObjects(memory, objectSelection);
@@ -33,11 +33,11 @@ internal static class SoftwareMode7GameplayRenderer
             var low = scratch.Colors(output.Length);
             var high = scratch.Colors(output.Length);
             SnesBgTilemapRenderer.Composite4BppViewport(low, memory.Vram, memory.Cgram,
-                floor.TilemapWord, floor.CharacterWord, floor.HorizontalScroll, floor.VerticalScroll,
-                width, height, floor.MapWidthTiles, floor.MapHeightTiles, priority: false);
+                floor.TilemapWord, floor.CharacterWord, floor.Scroll.AsBgPlaneScroll(),
+                SnesPpuLayout.ScreenSize, floor.MapSize, priority: false);
             SnesBgTilemapRenderer.Composite4BppViewport(high, memory.Vram, memory.Cgram,
-                floor.TilemapWord, floor.CharacterWord, floor.HorizontalScroll, floor.VerticalScroll,
-                width, height, floor.MapWidthTiles, floor.MapHeightTiles, priority: true);
+                floor.TilemapWord, floor.CharacterWord, floor.Scroll.AsBgPlaneScroll(),
+                SnesPpuLayout.ScreenSize, floor.MapSize, priority: true);
             for (int i = floorStart * width; i < output.Length; i++)
             {
                 byte priority = objects.Priorities[i];

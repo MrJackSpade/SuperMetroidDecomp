@@ -13,11 +13,10 @@ public sealed partial class RoomEnemySystem
         if (EarthquakeTimer == 0 || timeIsFrozen || EarthquakeType >= RoomFxRomData.Earthquake.FirstNonRenderedType)
             return default;
         RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
-        short x = definition.ProjectileX;
-        short y = definition.ProjectileY;
-        if ((EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
-            return (unchecked((short)-x), unchecked((short)-y));
-        return (x, y);
+        Offset16<RoomPixels> shake = (EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0
+            ? -definition.Projectile
+            : definition.Projectile;
+        return (shake.X, shake.Y);
     }
 
     /// <summary>
@@ -42,19 +41,15 @@ public sealed partial class RoomEnemySystem
             return LastRoomShake;
 
         RoomShakeDefinition definition = RoomShakeDefinitions.ForType(EarthquakeType);
-        short bg1X = definition.Bg1X;
-        short bg1Y = definition.Bg1Y;
-        short bg2X = definition.Bg2X;
-        short bg2Y = definition.Bg2Y;
+        Offset16<RoomPixels> bg1 = definition.Bg1;
+        Offset16<Bg2Pixels> bg2 = definition.Bg2;
 
         // Bit one alternates which side of the origin is shown. Native code forms the
         // negative half with EOR #$FFFF / INC before adding the same table word.
         if ((EarthquakeTimer & RoomFxRomData.Earthquake.AlternatingDirectionTimerMask) != 0)
         {
-            bg1X = unchecked((short)-bg1X);
-            bg1Y = unchecked((short)-bg1Y);
-            bg2X = unchecked((short)-bg2X);
-            bg2Y = unchecked((short)-bg2Y);
+            bg1 = -bg1;
+            bg2 = -bg2;
         }
 
         EarthquakeTimer = unchecked((ushort)(EarthquakeTimer - 1));
@@ -70,18 +65,14 @@ public sealed partial class RoomEnemySystem
                     RoomFxRomData.Earthquake.EnemyShakeDuration;
         }
 
-        LastRoomShake = new RoomShakeFrameResult(
-            Bg1X: bg1X,
-            Bg1Y: bg1Y,
-            Bg2X: bg2X,
-            Bg2Y: bg2Y);
+        LastRoomShake = new RoomShakeFrameResult(bg1, bg2);
         return LastRoomShake;
     }
 }
 
 /// <summary>Signed PPU-scroll deltas produced by one accepted gameplay frame.</summary>
+/// <param name="Bg1">BG1 scroll displacement.</param>
+/// <param name="Bg2">BG2 scroll displacement.</param>
 public readonly record struct RoomShakeFrameResult(
-    short Bg1X,
-    short Bg1Y,
-    short Bg2X,
-    short Bg2Y);
+    Offset16<RoomPixels> Bg1,
+    Offset16<Bg2Pixels> Bg2);

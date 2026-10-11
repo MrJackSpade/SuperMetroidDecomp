@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
+using SuperMetroid.Core.Spatial;
 
 internal static class TileSmokeTests
 {
@@ -12,11 +13,11 @@ internal static class TileSmokeTests
         Bgr555[] palette = Enumerable.Range(0, SnesPpuLayout.CgramColorCount).Select(_ => Bgr555.FromWord((ushort)random.Next(32768))).ToArray();
         var memory = new PpuMemorySnapshot(bytes, palette, new byte[SnesPpuLayout.OamUploadByteCount], 0);
         int count = 0;
-        foreach (int width in new[] { 32, 64 })
-        foreach (int height in new[] { 32, 64 })
+        foreach (ushort width in new ushort[] { 32, 64 })
+        foreach (ushort height in new ushort[] { 32, 64 })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (ushort scroll in new ushort[] { 0, 7, 255, 511, ushort.MaxValue })
-            Check(new RenderLayer[] { new Bg4BppRenderLayer(0x7ffe, 0x6000, scroll, scroll, width, height, priority) }, "4bpp geometry/priority/scroll");
+            Check(new RenderLayer[] { new Bg4BppRenderLayer(0x7ffe, 0x6000, new Position16<BgPlanePixels>(scroll, scroll), new Extent16<TilemapCells>(width, height), priority) }, "4bpp geometry/priority/scroll");
         foreach (bool transparent in new[] { false, true })
         foreach (bool? priority in new bool?[] { null, false, true })
         foreach (ushort scroll in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
@@ -25,8 +26,8 @@ internal static class TileSmokeTests
             Check(new RenderLayer[] { new Bg2BppRenderLayer(0x5800, 0x4000, 28, priority) }, "2bpp visible plane");
         for (byte brightness = 0; brightness <= 15; brightness++)
             Check(new RenderLayer[] {
-                new Bg4BppRenderLayer(0x4000, 0, 3, 11, 64, 32, false),
-                new Bg4BppRenderLayer(0x4800, 0x6000, 65535, 255, 32, 64, true),
+                new Bg4BppRenderLayer(0x4000, 0, new Position16<BgPlanePixels>(3, 11), new Extent16<TilemapCells>(64, 32), false),
+                new Bg4BppRenderLayer(0x4800, 0x6000, new Position16<BgPlanePixels>(65535, 255), new Extent16<TilemapCells>(32, 64), true),
                 new Bg2BppViewportRenderLayer(0x5800, 0x4000, 13, true, null),
                 new FixedColorAddRenderLayer(3, 17, 31) }, "ordered planes/fixed-color/fades", brightness);
         Console.WriteLine($"{device.Kind}: {device.AdapterDescription}; {count} tile/color-math GPU comparisons passed.");
@@ -57,7 +58,7 @@ internal static class TileSmokeTests
         palette[3 * 16 + 2] = new Bgr555(31, 0, 0); palette[3 * 16 + 10] = new Bgr555(0, 0, 31);
         var memory = new PpuMemorySnapshot(vram, palette, new byte[SnesPpuLayout.OamUploadByteCount], 0);
         var frame = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory,
-            new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, 0, 0, 32, 32, null) }, 3, 15));
+            new RenderLayer[] { new Bg4BppRenderLayer(0x4000, 0x6000, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null) }, 3, 15));
         var expected = SoftwareFrameSnapshotRenderer.Render(frame);
         if (expected[0] != new SuperMetroid.Core.Assets.Rgba32(255, 0, 0))
             throw new InvalidOperationException("Fourth-plane fixture no longer selects color two.");

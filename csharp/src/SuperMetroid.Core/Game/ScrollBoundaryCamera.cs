@@ -1,3 +1,4 @@
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -19,58 +20,59 @@ public sealed class ScrollBoundaryCamera
         Scrolls = scrolls ?? throw new ArgumentNullException(nameof(scrolls));
     }
 
-    /// <summary>Gets the integer pixel word of the layer-one horizontal position.</summary>
-    public ushort XPosition { get; private set; }
-    /// <summary>Gets the fractional word of the layer-one horizontal 16.16 position.</summary>
-    public ushort XSubposition { get; private set; }
-    /// <summary>Gets the integer pixel word of the layer-one vertical position.</summary>
-    public ushort YPosition { get; private set; }
-    /// <summary>Gets the fractional word of the layer-one vertical 16.16 position.</summary>
-    public ushort YSubposition { get; private set; }
-    /// <summary>Gets the horizontal camera target calculated from Samus's position and facing context.</summary>
-    public ushort IdealXPosition { get; private set; }
-    /// <summary>Gets the vertical camera target calculated from Samus's position and scroller offsets.</summary>
-    public ushort IdealYPosition { get; private set; }
-    /// <summary>Gets the integer word of the most recently calculated horizontal camera speed.</summary>
-    public ushort CameraXSpeed { get; private set; }
-    /// <summary>Gets the fractional word of the most recently calculated horizontal 16.16 camera speed.</summary>
-    public ushort CameraXSubspeed { get; private set; }
-    /// <summary>Gets the integer word of the most recently calculated vertical camera speed.</summary>
-    public ushort CameraYSpeed { get; private set; }
-    /// <summary>Gets the fractional word of the most recently calculated vertical 16.16 camera speed.</summary>
-    public ushort CameraYSubspeed { get; private set; }
+    /// <summary>
+    /// Gets the layer-one 16.16 position: the integer words <c>$0911/$0915</c> and the fraction
+    /// words <c>$090F/$0913</c>.
+    /// </summary>
+    public FixedPosition<RoomPixels> Position { get; private set; }
+
+    /// <summary>Gets the layer-one integer position (the camera's top-left room pixel).</summary>
+    public Position16<RoomPixels> PixelPosition => Position.Whole;
+
+    /// <summary>
+    /// Gets the camera target calculated from Samus's position: horizontally from her facing
+    /// context, vertically from the scroller offsets (<c>$0939/$093B</c>).
+    /// </summary>
+    public Position16<RoomPixels> IdealPosition { get; private set; }
+
+    /// <summary>
+    /// Gets the most recently calculated 16.16 camera speed on each axis (<c>$0DA0-$0DA6</c>):
+    /// Samus's unsigned distance moved plus one pixel, held as its native word pattern.
+    /// </summary>
+    public FixedVector<RoomPixels> Speed { get; private set; }
 
     /// <summary>
     /// Samus's four previous-position words written at the end of $90:94EC.
     /// Room-main movement occurs later and must remain visible to the next scroll call.
     /// Null represents a newly constructed camera without an accepted scrolling pass.
     /// </summary>
-    public SamusCameraPoint? PreviousSamusPoint { get; private set; }
+    public FixedPosition<RoomPixels>? PreviousSamusPoint { get; private set; }
 
     /// <summary>Publishes the native previous-position checkpoint after both axes and the scrolling hook.</summary>
-    public void FinishSamusScrolling(SamusCameraPoint current) => PreviousSamusPoint = current;
+    public void FinishSamusScrolling(FixedPosition<RoomPixels> current) => PreviousSamusPoint = current;
 
     /// <summary>Door room replacement retains the global scrolling history and targets.</summary>
     internal void InheritTrackingState(ScrollBoundaryCamera previous)
     {
-        IdealXPosition = previous.IdealXPosition;
-        IdealYPosition = previous.IdealYPosition;
-        CameraXSpeed = previous.CameraXSpeed;
-        CameraXSubspeed = previous.CameraXSubspeed;
-        CameraYSpeed = previous.CameraYSpeed;
-        CameraYSubspeed = previous.CameraYSubspeed;
+        IdealPosition = previous.IdealPosition;
+        Speed = previous.Speed;
         PreviousSamusPoint = previous.PreviousSamusPoint;
     }
 
-    /// <summary>Door placement/IRQ writes whole previous-position words, retaining fractions.</summary>
-    internal void PublishDoorSamusPosition(ushort? x, ushort? y)
+    /// <summary>Door placement writes both whole previous-position words, retaining fractions.</summary>
+    internal void PublishDoorSamusPosition(Position16<RoomPixels> samus) =>
+        PreviousSamusPoint = (PreviousSamusPoint ?? default).WithWhole(samus);
+
+    /// <summary>
+    /// The door IRQ writes only the travel axis's whole previous-position word, retaining the
+    /// other axis and both fractions.
+    /// </summary>
+    internal void PublishDoorSamusTravelAxis(bool vertical, Position16<RoomPixels> samus)
     {
-        SamusCameraPoint previous = PreviousSamusPoint ?? default;
-        PreviousSamusPoint = previous with
-        {
-            XPosition = x ?? previous.XPosition,
-            YPosition = y ?? previous.YPosition,
-        };
+        FixedPosition<RoomPixels> previous = PreviousSamusPoint ?? default;
+        PreviousSamusPoint = vertical
+            ? previous.WithY(previous.Y.WithWhole(samus.Y))
+            : previous.WithX(previous.X.WithWhole(samus.X));
     }
 
     /// <summary>The mutable 50-byte scroll table consulted by this camera.</summary>
@@ -80,21 +82,20 @@ public sealed class ScrollBoundaryCamera
     /// Sets an entry/door camera position. This does only physical room-edge clamping;
     /// directional internal boundaries are evaluated when movement is attempted.
     /// </summary>
-    public void SetPosition(int x, int y)
+    public void SetPosition(Position16<RoomPixels> requested)
     {
         PreviousSamusPoint = null;
-        int maxX = (Scrolls.WidthInScreens - 1) << 8;
+        int maxX = (Scrolls.Size.X - 1) << 8;
 
         // The vertical maximum depends on blue/green scroll alignment. Starting with the
         // room-wide conservative +$1F allowance matches $80:A731's largest legal result;
         // the first vertical movement applies the cell-specific exact maximum.
-        int maxY = ((Scrolls.HeightInScreens - 1) << 8) + 0x1f;
-        XPosition = (ushort)Math.Clamp(x, 0, maxX);
-        YPosition = (ushort)Math.Clamp(y, 0, maxY);
-        XSubposition = 0;
-        YSubposition = 0;
-        IdealXPosition = XPosition;
-        IdealYPosition = YPosition;
+        int maxY = ((Scrolls.Size.Y - 1) << 8) + 0x1f;
+        var clamped = new Position16<RoomPixels>(
+            (ushort)Math.Clamp(requested.X, 0, maxX),
+            (ushort)Math.Clamp(requested.Y, 0, maxY));
+        Position = FixedPosition<RoomPixels>.FromWhole(clamped);
+        IdealPosition = clamped;
     }
 
     /// <summary>
@@ -103,14 +104,14 @@ public sealed class ScrollBoundaryCamera
     /// previous room's fractions remain in RAM.
     /// </summary>
     public void RetainSubpositions(ScrollBoundaryCamera previous) =>
-        RetainSubpositions(previous.XSubposition, previous.YSubposition);
+        RetainSubpositions(previous.Position);
 
-    /// <summary>Keeps layer-one fraction words that survived a released gameplay owner.</summary>
-    public void RetainSubpositions(ushort xSubposition, ushort ySubposition)
-    {
-        XSubposition = xSubposition;
-        YSubposition = ySubposition;
-    }
+    /// <summary>
+    /// Keeps the layer-one fraction words of <paramref name="retained"/>, such as those that
+    /// survived a released gameplay owner; the integer words are unchanged.
+    /// </summary>
+    public void RetainSubpositions(FixedPosition<RoomPixels> retained) =>
+        Position = Position.WithFractionsOf(retained);
 
     /// <summary>
     /// Publishes the raw modular layer-one words owned by the door-opening IRQ.
@@ -122,25 +123,24 @@ public sealed class ScrollBoundaryCamera
     /// positions to clamp. Keeping this operation separate from <see cref="SetPosition"/>
     /// prevents ordinary loaders and debug callers from bypassing room-edge validation.
     /// </remarks>
-    public void SetDoorTransitionPosition(ushort x, ushort y) =>
-        SetDoorTransitionPosition(x, y, XSubposition, YSubposition);
-
-    /// <summary>Transfers the retained native camera fractions when loading a door's new scroll grid.</summary>
-    public void SetDoorTransitionPosition(ushort x, ushort y, ushort xSubposition, ushort ySubposition)
-    {
-        XPosition = x;
-        YPosition = y;
+    public void SetDoorTransitionPosition(Position16<RoomPixels> position) =>
         // Door IRQ/setup writes integer layer-one positions, leaving both fractions intact.
-        XSubposition = xSubposition;
-        YSubposition = ySubposition;
-    }
+        Position = Position.WithWhole(position);
+
+    /// <summary>
+    /// Transfers the retained native camera fractions when loading a door's new scroll grid:
+    /// the integer words come from <paramref name="position"/>, the fractions from
+    /// <paramref name="retainedFractions"/>.
+    /// </summary>
+    public void SetDoorTransitionPosition(Position16<RoomPixels> position, FixedPosition<RoomPixels> retainedFractions) =>
+        Position = retainedFractions.WithWhole(position);
 
     /// <summary>
     /// Applies the direct <c>layer1_x_pos</c> write used by bank-$A9 Shitroid AI. Unlike
     /// entry placement, the cartridge does not clear subposition or replace either ideal
     /// camera coordinate at this point in the gameplay frame.
     /// </summary>
-    public void SetLayerOneXFromEnemyAi(ushort xPosition) => XPosition = xPosition;
+    public void SetLayerOneXFromEnemyAi(ushort xPosition) => SetWholeX(xPosition);
 
     /// <summary>
     /// Applies a direct layer-one Y write made by a room-installed scrolling-finished
@@ -148,7 +148,7 @@ public sealed class ScrollBoundaryCamera
     /// and ideal-camera words retain the values produced by ordinary scrolling.
     /// </summary>
     public void SetLayerOneYFromScrollingFinishedHook(ushort yPosition) =>
-        YPosition = yPosition;
+        SetWholeY(yPosition);
 
     /// <summary>
     /// Ports horizontal Samus tracking at <c>$90:95A0</c> plus camera-speed calculation
@@ -157,24 +157,20 @@ public sealed class ScrollBoundaryCamera
     /// as the original routine does (subpixel-only Samus movement still affects speed).
     /// </summary>
     public void TrackMovedSamusHorizontally(
-        SamusCameraPoint previous,
-        SamusCameraPoint current,
+        FixedPosition<RoomPixels> previous,
+        FixedPosition<RoomPixels> current,
         HorizontalCameraContext context,
         bool timeIsFrozen = false)
     {
         if (!Enum.IsDefined(context.CameraDistanceIndex))
             throw new ArgumentOutOfRangeException(nameof(context), "Camera distance index must be byte offset 0, 2, 4, or 6.");
 
-        (CameraXSpeed, CameraXSubspeed) = CalculateDistanceMovedPlusOne(
-            previous.XPosition,
-            previous.XSubposition,
-            current.XPosition,
-            current.XSubposition);
+        Speed = Speed.WithX(CalculateDistanceMovedPlusOne(previous.X, current.X));
 
         // $90:95A8 compares the integer words only. This is intentionally after speed
         // calculation: even when those words match, differing fractional samples can make
-        // the integer CameraXSpeed used by $80:A528 zero, one, or (on wrap) much larger.
-        if (previous.XPosition == current.XPosition)
+        // the integer X speed used by $80:A528 zero, one, or (on wrap) much larger.
+        if (previous.X.Whole == current.X.Whole)
         {
             HandleHorizontalAutoscrolling(timeIsFrozen);
             return;
@@ -188,19 +184,19 @@ public sealed class ScrollBoundaryCamera
             || context.XAccelerationMode == 1;
         bool useFacingRightTarget = backwards ^ (context.PoseXDirection != 4);
         ushort targetOffset = HorizontalCameraTargetDefinitions.Offset(context.CameraDistanceIndex, useFacingRightTarget);
-        IdealXPosition = unchecked((ushort)(current.XPosition - targetOffset));
+        IdealPosition = IdealPosition.WithX(unchecked((ushort)(current.X.Whole - targetOffset)));
 
-        if (IdealXPosition == XPosition)
+        if (IdealPosition.X == Position.X.Whole)
             return;
 
-        if (SignedDifference(IdealXPosition, XPosition) < 0)
+        if (SignedDifference(IdealPosition.X, Position.X.Whole) < 0)
         {
-            SubtractFromX(CameraXSpeed, CameraXSubspeed);
+            Position = Position.WithX((SnesSignedSixteenSixteen.Zero - Speed.X).AddTo(Position.X.Whole, Position.X.Fraction));
             HandleScrollingLeft();
         }
         else
         {
-            AddToX(CameraXSpeed, CameraXSubspeed);
+            Position = Position.WithX(Speed.X.AddTo(Position.X.Whole, Position.X.Fraction));
             HandleScrollingRight();
         }
     }
@@ -210,16 +206,16 @@ public sealed class ScrollBoundaryCamera
     /// steps three pixels toward a dead zone around Samus, then both autoscrollers run.
     /// The camera speed words are not recalculated. A negative Samus X skips both axes.
     /// </summary>
-    public void TrackGrappleSlowScrolling(ushort samusX, ushort samusY, bool timeIsFrozen = false)
+    public void TrackGrappleSlowScrolling(Position16<RoomPixels> samus, bool timeIsFrozen = false)
     {
-        if (unchecked((short)samusX) >= 0)
+        if (unchecked((short)samus.X) >= 0)
         {
-            XPosition = StepTowardDeadZone(XPosition, samusX,
-                GrappleSlowScrollDefinitions.LeftEdgeX, GrappleSlowScrollDefinitions.RightEdgeX);
-            if (unchecked((short)samusY) >= 0)
+            SetWholeX(StepTowardDeadZone(Position.X.Whole, samus.X,
+                GrappleSlowScrollDefinitions.LeftEdgeX, GrappleSlowScrollDefinitions.RightEdgeX));
+            if (unchecked((short)samus.Y) >= 0)
             {
-                YPosition = StepTowardDeadZone(YPosition, samusY,
-                    GrappleSlowScrollDefinitions.TopEdgeY, GrappleSlowScrollDefinitions.BottomEdgeY);
+                SetWholeY(StepTowardDeadZone(Position.Y.Whole, samus.Y,
+                    GrappleSlowScrollDefinitions.TopEdgeY, GrappleSlowScrollDefinitions.BottomEdgeY));
             }
         }
         HandleHorizontalAutoscrolling(timeIsFrozen);
@@ -245,18 +241,14 @@ public sealed class ScrollBoundaryCamera
     /// <c>$90:96FF</c>. An unchanged integer Y position runs <c>$80:A731</c>.
     /// </summary>
     public void TrackMovedSamusVertically(
-        SamusCameraPoint previous,
-        SamusCameraPoint current,
+        FixedPosition<RoomPixels> previous,
+        FixedPosition<RoomPixels> current,
         VerticalCameraContext context,
         bool timeIsFrozen = false)
     {
-        (CameraYSpeed, CameraYSubspeed) = CalculateDistanceMovedPlusOne(
-            previous.YPosition,
-            previous.YSubposition,
-            current.YPosition,
-            current.YSubposition);
+        Speed = Speed.WithY(CalculateDistanceMovedPlusOne(previous.Y, current.Y));
 
-        if (previous.YPosition == current.YPosition)
+        if (previous.Y.Whole == current.Y.Whole)
         {
             HandleVerticalAutoscrolling(timeIsFrozen);
             return;
@@ -266,19 +258,19 @@ public sealed class ScrollBoundaryCamera
         // literal $90:9666-$90:9681: upward motion subtracts down_scroller, all else
         // subtracts up_scroller.
         ushort targetOffset = context.YDirection == SamusVerticalDirection.Up ? context.DownScroller : context.UpScroller;
-        IdealYPosition = unchecked((ushort)(current.YPosition - targetOffset));
+        IdealPosition = IdealPosition.WithY(unchecked((ushort)(current.Y.Whole - targetOffset)));
 
-        if (IdealYPosition == YPosition)
+        if (IdealPosition.Y == Position.Y.Whole)
             return;
 
-        if (SignedDifference(IdealYPosition, YPosition) < 0)
+        if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
-            SubtractFromY(CameraYSpeed, CameraYSubspeed);
+            Position = Position.WithY((SnesSignedSixteenSixteen.Zero - Speed.Y).AddTo(Position.Y.Whole, Position.Y.Fraction));
             HandleScrollingUp();
         }
         else
         {
-            AddToY(CameraYSpeed, CameraYSubspeed);
+            Position = Position.WithY(Speed.Y.AddTo(Position.Y.Whole, Position.Y.Fraction));
             HandleScrollingDown();
         }
     }
@@ -301,36 +293,36 @@ public sealed class ScrollBoundaryCamera
 
         // $0939 captures the pre-clamp position. Every proposed movement below starts from
         // this original word, even if the live position is first clamped to a room edge.
-        ushort proposed = XPosition;
+        ushort proposed = Position.X.Whole;
 
-        if ((short)XPosition < 0)
-            XPosition = 0;
+        if ((short)Position.X.Whole < 0)
+            SetWholeX(0);
 
-        ushort roomMaximum = (ushort)((Scrolls.WidthInScreens - 1) << 8);
-        if (XPosition > roomMaximum)
-            XPosition = roomMaximum;
+        ushort roomMaximum = (ushort)((Scrolls.Size.X - 1) << 8);
+        if (Position.X.Whole > roomMaximum)
+            SetWholeX(roomMaximum);
 
-        int row = ((ushort)(YPosition + 0x0080) >> 8) * Scrolls.WidthInScreens;
-        int currentCell = row + (XPosition >> 8);
+        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
+        int currentCell = row + (Position.X.Whole >> 8);
 
         if (Scrolls.ReadNativeState(currentCell) == RoomScrollState.RedBoundary)
         {
             // In a red current cell, drift right by camera speed + 2 toward its right edge.
             // If the next cell is also red, discard the fractional screen position and stay
             // on this cell's left edge instead of allowing the viewport to enter it.
-            ushort rightBoundary = unchecked((ushort)((XPosition & 0xff00) + 0x0100));
-            ushort candidate = unchecked((ushort)(proposed + CameraXSpeed + 2));
+            ushort rightBoundary = NextScreenStart(Position.X.Whole);
+            ushort candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
             if (candidate >= rightBoundary)
             {
-                XPosition = rightBoundary;
+                SetWholeX(rightBoundary);
                 return;
             }
 
             proposed = candidate;
             int candidateRightCell = row + (proposed >> 8) + 1;
-            XPosition = Scrolls.ReadNativeState(candidateRightCell) != RoomScrollState.RedBoundary
+            SetWholeX(Scrolls.ReadNativeState(candidateRightCell) != RoomScrollState.RedBoundary
                 ? proposed
-                : (ushort)(proposed & 0xff00);
+                : ScreenStart(proposed));
             return;
         }
 
@@ -340,19 +332,19 @@ public sealed class ScrollBoundaryCamera
         // A legal current cell with a red cell to its right is the mirror case: drift left
         // toward the current cell's left edge. If the candidate itself lands in red, round
         // up to the next screen boundary. Signed comparison reproduces BMI at $80:A5F9.
-        ushort leftBoundary = (ushort)(XPosition & 0xff00);
-        ushort leftCandidate = unchecked((ushort)(proposed - CameraXSpeed - 2));
+        ushort leftBoundary = ScreenStart(Position.X.Whole);
+        ushort leftCandidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
         if (SignedDifference(leftCandidate, leftBoundary) < 0)
         {
-            XPosition = leftBoundary;
+            SetWholeX(leftBoundary);
             return;
         }
 
         proposed = leftCandidate;
         int candidateCell = row + (proposed >> 8);
-        XPosition = Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
+        SetWholeX(Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
-            : unchecked((ushort)((proposed & 0xff00) + 0x0100));
+            : NextScreenStart(proposed));
     }
 
     /// <summary>
@@ -363,8 +355,8 @@ public sealed class ScrollBoundaryCamera
         if (timeIsFrozen)
             return;
 
-        int centeredXScreen = (ushort)(XPosition + 0x0080) >> 8;
-        int preClampCell = (YPosition >> 8) * Scrolls.WidthInScreens + centeredXScreen;
+        int centeredXScreen = (ushort)(Position.X.Whole + 0x0080) >> 8;
+        int preClampCell = (Position.Y.Whole >> 8) * Scrolls.Size.X + centeredXScreen;
 
         // Blue scroll cells align the 224-line gameplay viewport to the top of the screen;
         // red and green cells permit the ROM's $1F-pixel lower alignment. Crucially, the
@@ -372,124 +364,124 @@ public sealed class ScrollBoundaryCamera
         ushort verticalAlignment = Scrolls.ReadNativeState(preClampCell) == RoomScrollState.Blue
             ? (ushort)0
             : (ushort)0x001f;
-        ushort proposed = YPosition;
+        ushort proposed = Position.Y.Whole;
 
-        if ((short)YPosition < 0)
-            YPosition = 0;
+        if ((short)Position.Y.Whole < 0)
+            SetWholeY(0);
 
-        ushort roomMaximum = unchecked((ushort)(((Scrolls.HeightInScreens - 1) << 8) + verticalAlignment));
-        if (YPosition > roomMaximum)
-            YPosition = roomMaximum;
+        ushort roomMaximum = unchecked((ushort)(((Scrolls.Size.Y - 1) << 8) + verticalAlignment));
+        if (Position.Y.Whole > roomMaximum)
+            SetWholeY(roomMaximum);
 
-        int currentCell = (YPosition >> 8) * Scrolls.WidthInScreens + centeredXScreen;
+        int currentCell = (Position.Y.Whole >> 8) * Scrolls.Size.X + centeredXScreen;
         if (Scrolls.ReadNativeState(currentCell) == RoomScrollState.RedBoundary)
         {
             // A red current cell pushes downward toward its bottom boundary. As in the X
             // routine, a second red cell beyond the candidate causes screen-edge rounding.
-            ushort bottomBoundary = unchecked((ushort)((YPosition & 0xff00) + 0x0100));
-            ushort candidate = unchecked((ushort)(proposed + CameraYSpeed + 2));
+            ushort bottomBoundary = NextScreenStart(Position.Y.Whole);
+            ushort candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
             if (candidate >= bottomBoundary)
             {
-                YPosition = bottomBoundary;
+                SetWholeY(bottomBoundary);
                 return;
             }
 
             proposed = candidate;
-            int belowCandidate = ((candidate >> 8) + 1) * Scrolls.WidthInScreens + centeredXScreen;
-            YPosition = Scrolls.ReadNativeState(belowCandidate) != RoomScrollState.RedBoundary
+            int belowCandidate = ((candidate >> 8) + 1) * Scrolls.Size.X + centeredXScreen;
+            SetWholeY(Scrolls.ReadNativeState(belowCandidate) != RoomScrollState.RedBoundary
                 ? proposed
-                : (ushort)(proposed & 0xff00);
+                : ScreenStart(proposed));
             return;
         }
 
-        if (Scrolls.ReadNativeState(currentCell + Scrolls.WidthInScreens) !=
+        if (Scrolls.ReadNativeState(currentCell + Scrolls.Size.X) !=
             RoomScrollState.RedBoundary)
             return;
 
-        ushort topBoundary = unchecked((ushort)((YPosition & 0xff00) + verticalAlignment));
+        ushort topBoundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
 
         // CMP/BCC at $80:A82D only pulls the camera upward when it is strictly below the
         // aligned boundary. Equality intentionally does nothing.
-        if (topBoundary >= YPosition)
+        if (topBoundary >= Position.Y.Whole)
             return;
 
-        ushort upwardCandidate = unchecked((ushort)(proposed - CameraYSpeed - 2));
+        ushort upwardCandidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
         if (SignedDifference(upwardCandidate, topBoundary) < 0)
         {
-            YPosition = topBoundary;
+            SetWholeY(topBoundary);
             return;
         }
 
         proposed = upwardCandidate;
-        int candidateCell = (upwardCandidate >> 8) * Scrolls.WidthInScreens + centeredXScreen;
-        YPosition = Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
+        int candidateCell = (upwardCandidate >> 8) * Scrolls.Size.X + centeredXScreen;
+        SetWholeY(Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
-            : unchecked((ushort)((proposed & 0xff00) + 0x0100));
+            : NextScreenStart(proposed));
     }
 
     private void HandleScrollingRight()
     {
-        ushort proposed = XPosition;
+        ushort proposed = Position.X.Whole;
 
         // CMP ideal,current / BPL in $80:A651: if movement overshot the ideal in signed
         // 16-bit space, snap to it and discard the fractional camera position.
-        if (SignedDifference(IdealXPosition, XPosition) < 0)
+        if (SignedDifference(IdealPosition.X, Position.X.Whole) < 0)
         {
-            XPosition = IdealXPosition;
-            XSubposition = 0;
+            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            Position = Position.WithX(new SnesFixedPosition(IdealPosition.X, 0));
         }
 
-        ushort roomMaximum = (ushort)((Scrolls.WidthInScreens - 1) << 8);
-        if (XPosition > roomMaximum)
+        ushort roomMaximum = (ushort)((Scrolls.Size.X - 1) << 8);
+        if (Position.X.Whole > roomMaximum)
         {
-            XPosition = roomMaximum;
+            SetWholeX(roomMaximum);
             return;
         }
 
         // The horizontal routines sample the row containing the screen's vertical center
         // (Y+$80), then the screen immediately to the right of the camera's high X byte.
-        int row = ((ushort)(YPosition + 0x0080) >> 8) * Scrolls.WidthInScreens;
-        int rightCell = row + (XPosition >> 8) + 1;
+        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
+        int rightCell = row + (Position.X.Whole >> 8) + 1;
         if (Scrolls.ReadNativeState(rightCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = (ushort)(XPosition & 0xff00);
-        ushort candidate = unchecked((ushort)(proposed - CameraXSpeed - 2));
+        ushort boundary = ScreenStart(Position.X.Whole);
+        ushort candidate = unchecked((ushort)(proposed - Speed.X.WholeWord - 2));
         if (SignedDifference(candidate, boundary) < 0)
             candidate = boundary;
-        XPosition = candidate;
+        SetWholeX(candidate);
     }
 
     private void HandleScrollingLeft()
     {
-        ushort proposed = XPosition;
-        if (SignedDifference(XPosition, IdealXPosition) < 0)
+        ushort proposed = Position.X.Whole;
+        if (SignedDifference(Position.X.Whole, IdealPosition.X) < 0)
         {
-            XPosition = IdealXPosition;
-            XSubposition = 0;
+            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            Position = Position.WithX(new SnesFixedPosition(IdealPosition.X, 0));
         }
 
-        if ((short)XPosition < 0)
+        if ((short)Position.X.Whole < 0)
         {
-            XPosition = 0;
+            SetWholeX(0);
             return;
         }
 
-        int row = ((ushort)(YPosition + 0x0080) >> 8) * Scrolls.WidthInScreens;
-        int currentCell = row + (XPosition >> 8);
+        int row = ((ushort)(Position.Y.Whole + 0x0080) >> 8) * Scrolls.Size.X;
+        int currentCell = row + (Position.X.Whole >> 8);
         if (Scrolls.ReadNativeState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = unchecked((ushort)((XPosition & 0xff00) + 0x0100));
-        ushort candidate = unchecked((ushort)(proposed + CameraXSpeed + 2));
+        ushort boundary = NextScreenStart(Position.X.Whole);
+        ushort candidate = unchecked((ushort)(proposed + Speed.X.WholeWord + 2));
         if (candidate >= boundary)
             candidate = boundary;
-        XPosition = candidate;
+        SetWholeX(candidate);
     }
 
     private void HandleScrollingDown()
     {
-        ushort proposed = YPosition;
+        ushort proposed = Position.Y.Whole;
         int currentCell = VerticalCellIndex();
 
         // Blue scrolls align the 224-line playfield at +0; red/green scrolls use +$1F.
@@ -498,50 +490,50 @@ public sealed class ScrollBoundaryCamera
             ? (ushort)0
             : (ushort)0x001f;
 
-        if (SignedDifference(IdealYPosition, YPosition) < 0)
+        if (SignedDifference(IdealPosition.Y, Position.Y.Whole) < 0)
         {
-            YPosition = IdealYPosition;
-            YSubposition = 0;
+            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            Position = Position.WithY(new SnesFixedPosition(IdealPosition.Y, 0));
         }
 
-        ushort boundary = unchecked((ushort)(((Scrolls.HeightInScreens - 1) << 8) + verticalAlignment));
-        bool beyondRoomBottom = boundary < YPosition;
+        ushort boundary = unchecked((ushort)(((Scrolls.Size.Y - 1) << 8) + verticalAlignment));
+        bool beyondRoomBottom = boundary < Position.Y.Whole;
         bool blockedBelow = false;
         if (!beyondRoomBottom)
         {
             // Preserve the assembly branch order: if the physical room maximum was already
             // exceeded, $80:A8F2 branches before reading the cell below. This also prevents
             // a legitimate bottom-row/right-edge camera from indexing beyond $7E:CD51.
-            blockedBelow = Scrolls.ReadNativeState(currentCell + Scrolls.WidthInScreens) ==
+            blockedBelow = Scrolls.ReadNativeState(currentCell + Scrolls.Size.X) ==
                 RoomScrollState.RedBoundary;
             if (blockedBelow)
             {
-                boundary = unchecked((ushort)((YPosition & 0xff00) + verticalAlignment));
-                blockedBelow = boundary < YPosition;
+                boundary = unchecked((ushort)(ScreenStart(Position.Y.Whole) + verticalAlignment));
+                blockedBelow = boundary < Position.Y.Whole;
             }
         }
 
         if (beyondRoomBottom || blockedBelow)
         {
-            ushort candidate = unchecked((ushort)(proposed - CameraYSpeed - 2));
+            ushort candidate = unchecked((ushort)(proposed - Speed.Y.WholeWord - 2));
             if (SignedDifference(candidate, boundary) < 0)
                 candidate = boundary;
-            YPosition = candidate;
+            SetWholeY(candidate);
         }
     }
 
     private void HandleScrollingUp()
     {
-        ushort proposed = YPosition;
-        if (SignedDifference(YPosition, IdealYPosition) < 0)
+        ushort proposed = Position.Y.Whole;
+        if (SignedDifference(Position.Y.Whole, IdealPosition.Y) < 0)
         {
-            YPosition = IdealYPosition;
-            YSubposition = 0;
+            // Overshoot snaps to the ideal word and discards the fractional camera position.
+            Position = Position.WithY(new SnesFixedPosition(IdealPosition.Y, 0));
         }
 
-        if ((short)YPosition < 0)
+        if ((short)Position.Y.Whole < 0)
         {
-            YPosition = 0;
+            SetWholeY(0);
             return;
         }
 
@@ -549,84 +541,50 @@ public sealed class ScrollBoundaryCamera
         if (Scrolls.ReadNativeState(currentCell) != RoomScrollState.RedBoundary)
             return;
 
-        ushort boundary = unchecked((ushort)((YPosition & 0xff00) + 0x0100));
-        ushort candidate = unchecked((ushort)(proposed + CameraYSpeed + 2));
+        ushort boundary = NextScreenStart(Position.Y.Whole);
+        ushort candidate = unchecked((ushort)(proposed + Speed.Y.WholeWord + 2));
         if (candidate >= boundary)
             candidate = boundary;
-        YPosition = candidate;
+        SetWholeY(candidate);
     }
 
     private int VerticalCellIndex()
     {
-        int xScreenAtCenter = (ushort)(XPosition + 0x0080) >> 8;
-        int yScreen = YPosition >> 8;
-        return yScreen * Scrolls.WidthInScreens + xScreenAtCenter;
+        int xScreenAtCenter = (ushort)(Position.X.Whole + 0x0080) >> 8;
+        int yScreen = Position.Y.Whole >> 8;
+        return yScreen * Scrolls.Size.X + xScreenAtCenter;
     }
 
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 
-    private static (ushort Speed, ushort Subspeed) CalculateDistanceMovedPlusOne(
-        ushort previousPosition,
-        ushort previousSubposition,
-        ushort currentPosition,
-        ushort currentSubposition)
-    {
-        uint previousFixed = ((uint)previousPosition << 16) | previousSubposition;
-        uint currentFixed = ((uint)currentPosition << 16) | currentSubposition;
+    /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
+    private static ushort ScreenStart(ushort pixel) => (ushort)(pixel & 0xff00);
 
-        // $90:96C3 compares only integer positions as signed 16-bit values. It then
-        // subtracts the complete 16.16 pair in the selected direction and adds exactly
-        // $0001:0000. Preserve modular uint arithmetic for the routine's noted subpixel
-        // corner case where its result can still be less than 1.0.
-        uint distance = SignedDifference(currentPosition, previousPosition) >= 0
-            ? unchecked(currentFixed - previousFixed + 0x0001_0000u)
-            : unchecked(previousFixed - currentFixed + 0x0001_0000u);
-        return ((ushort)(distance >> 16), (ushort)distance);
+    /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
+    private static ushort NextScreenStart(ushort pixel) => unchecked((ushort)(ScreenStart(pixel) + 0x0100));
+
+    /// <summary>
+    /// $90:96C3/$90:9702: compares only the integer words as signed 16-bit values, then
+    /// subtracts the complete 16.16 pair in the selected direction and adds exactly
+    /// $0001:0000. Modular arithmetic keeps the routine's noted subpixel corner case, where
+    /// the result can still be less than 1.0.
+    /// </summary>
+    private static SnesSignedSixteenSixteen CalculateDistanceMovedPlusOne(
+        SnesFixedPosition previous,
+        SnesFixedPosition current)
+    {
+        uint distance = SignedDifference(current.Whole, previous.Whole) >= 0
+            ? unchecked(current.RawValue - previous.RawValue + 0x0001_0000u)
+            : unchecked(previous.RawValue - current.RawValue + 0x0001_0000u);
+        return SnesSignedSixteenSixteen.FromRaw(unchecked((int)distance));
     }
 
-    private void AddToX(ushort speed, ushort subspeed)
-    {
-        uint fixedPosition = ((uint)XPosition << 16) | XSubposition;
-        uint fixedSpeed = ((uint)speed << 16) | subspeed;
-        fixedPosition = unchecked(fixedPosition + fixedSpeed);
-        XPosition = (ushort)(fixedPosition >> 16);
-        XSubposition = (ushort)fixedPosition;
-    }
+    // The scroll handlers are per-axis ports: each writes one integer layer-one word, leaving
+    // the other axis and (unless stated) both fraction words untouched.
+    private void SetWholeX(ushort x) => Position = Position.WithX(Position.X.WithWhole(x));
 
-    private void SubtractFromX(ushort speed, ushort subspeed)
-    {
-        uint fixedPosition = ((uint)XPosition << 16) | XSubposition;
-        uint fixedSpeed = ((uint)speed << 16) | subspeed;
-        fixedPosition = unchecked(fixedPosition - fixedSpeed);
-        XPosition = (ushort)(fixedPosition >> 16);
-        XSubposition = (ushort)fixedPosition;
-    }
-
-    private void AddToY(ushort speed, ushort subspeed)
-    {
-        uint fixedPosition = ((uint)YPosition << 16) | YSubposition;
-        uint fixedSpeed = ((uint)speed << 16) | subspeed;
-        fixedPosition = unchecked(fixedPosition + fixedSpeed);
-        YPosition = (ushort)(fixedPosition >> 16);
-        YSubposition = (ushort)fixedPosition;
-    }
-
-    private void SubtractFromY(ushort speed, ushort subspeed)
-    {
-        uint fixedPosition = ((uint)YPosition << 16) | YSubposition;
-        uint fixedSpeed = ((uint)speed << 16) | subspeed;
-        fixedPosition = unchecked(fixedPosition - fixedSpeed);
-        YPosition = (ushort)(fixedPosition >> 16);
-        YSubposition = (ushort)fixedPosition;
-    }
+    private void SetWholeY(ushort y) => Position = Position.WithY(Position.Y.WithWhole(y));
 }
-
-/// <summary>One 16.16 Samus position sample consumed by the camera routines.</summary>
-public readonly record struct SamusCameraPoint(
-    ushort XPosition,
-    ushort XSubposition,
-    ushort YPosition,
-    ushort YSubposition);
 
 /// <summary>State branches used by horizontal camera target selection at <c>$90:95B7</c>.</summary>
 public readonly record struct HorizontalCameraContext(

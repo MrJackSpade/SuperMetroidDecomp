@@ -30,12 +30,9 @@ internal sealed partial class EndingCreditsState
                 cgram,
                 tilemapBaseWord: EndingCreditsRomData.Rendering.CreditsTilemapWord,
                 characterBaseWord: EndingCreditsRomData.Rendering.CreditsCharacterWord,
-                horizontalScroll: 0,
-                verticalScroll: credits!.VerticalScroll,
-                width: 256,
-                height: 224,
-                tilemapWidthInTiles: 32,
-                tilemapHeightInTiles: 32);
+                scroll: new Position16<BgPlanePixels>(0, credits!.VerticalScroll),
+                size: SnesPpuLayout.ScreenSize,
+                tilemapSize: new Extent16<TilemapCells>(32, 32));
         }
         else if (Phase >= EndingCreditsPhase.PostCreditsBlank)
         {
@@ -69,10 +66,8 @@ internal sealed partial class EndingCreditsState
             matrixB,
             unchecked((short)-matrixB),
             matrixA,
-            centerX: CurrentMode7CenterX,
-            centerY: CurrentMode7CenterY,
-            horizontalOffset: unchecked((short)mode7X),
-            verticalOffset: unchecked((short)mode7Y), wrapOutsideMap: AtmosphericMapWraps);
+            center: new Offset16<Mode7Pixels>(CurrentMode7CenterX, CurrentMode7CenterY),
+            scroll: new Offset16<Mode7Pixels>(unchecked((short)mode7X), unchecked((short)mode7Y)), wrapOutsideMap: AtmosphericMapWraps);
     }
 
     private byte CurrentEscapeObjectSelection => Phase < EndingCreditsPhase.FadeInZebesExplosion
@@ -107,12 +102,9 @@ internal sealed partial class EndingCreditsState
             cgram,
             tilemapBaseWord: CurrentPostCreditsTilemapWord,
             characterBaseWord: CurrentPostCreditsCharacterWord,
-            horizontalScroll: 0,
-            verticalScroll: postCreditsVerticalScroll,
-            width: 256,
-            height: 224,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: postCreditsMapHeight);
+            scroll: new Position16<BgPlanePixels>(0, postCreditsVerticalScroll),
+            size: SnesPpuLayout.ScreenSize,
+            tilemapSize: new Extent16<TilemapCells>(32, checked((ushort)postCreditsMapHeight)));
     }
 
     private void RenderSprites(Span<Rgba32> pixels, byte obsel)

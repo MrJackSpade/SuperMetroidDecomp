@@ -25,8 +25,8 @@ internal static partial class Program
             Console.SetError(diagnostic);
             try
             {
-                await control.InitializeRendererAsync((_, width, height, generation) =>
-                    failedWorker = new D3D11RenderWorker(0, width, height, generation, D3D11DeviceKind.Hardware));
+                await control.InitializeRendererAsync((_, clientSize, generation) =>
+                    failedWorker = new D3D11RenderWorker(0, clientSize, generation, D3D11DeviceKind.Hardware));
             }
             catch (Exception error) { failure = error; }
             Check(failedWorker is { Completion.IsFaulted: true }, "failed startup worker was not fully drained");

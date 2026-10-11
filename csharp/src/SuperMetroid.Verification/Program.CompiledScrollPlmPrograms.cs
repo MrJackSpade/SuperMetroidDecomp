@@ -29,7 +29,7 @@ internal static partial class Program
                 () => new SamusState(), () => false),
             "retail scroll-only population loads from compiled placement");
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(guarded,
-            widthInScreens: 4, heightInScreens: 4,
+            size: new Extent16<RoomScreens>(4, 4),
             lastRowState: RoomScrollState.RedBoundary);
         scrolls.SetStorage(0, RoomScrollState.RedBoundary);
         AssertTrue(plms.TryNotifyScrollTouch(level.GetBlockIndex(8, 13)),

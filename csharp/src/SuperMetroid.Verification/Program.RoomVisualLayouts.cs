@@ -161,8 +161,7 @@ internal static partial class Program
             "edited BG1 layout changes the live renderer's first block");
 
         var bg2Request = new BackgroundUpdateRequest(BackgroundLayer.Background,
-            BackgroundUpdateAxis.Row, SourceXBlock: 0, SourceYBlock: 0,
-            VramXBlock: 0, VramYBlock: 0);
+            BackgroundUpdateAxis.Row, SourceBlock: new(0, 0), VramBlock: new(0, 0));
         TilemapStreamUpdate nativeBg2 = nativeStream.Build(bg2Request)!
             ?? throw new InvalidOperationException("Native BG2 row was suppressed.");
         TilemapStreamUpdate stockBg2 = stockStream.Build(bg2Request)!

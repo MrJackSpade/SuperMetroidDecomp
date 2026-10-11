@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Checks the current-position cell in actual published gameplay HUD pixels.</summary>
 internal static class MinimapBlinkAudit
@@ -23,7 +24,7 @@ internal static class MinimapBlinkAudit
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(room, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(room, new Position16<RoomPixels>(0, 0));
         runtime.Samus!.XPosition = 128;
         runtime.Samus.YPosition = 128;
         runtime.RunNmi(0, true);

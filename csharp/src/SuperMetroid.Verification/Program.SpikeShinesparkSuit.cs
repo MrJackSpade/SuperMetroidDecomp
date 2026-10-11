@@ -145,7 +145,7 @@ internal static partial class Program
         runtime.RunNmi(0, true);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, 0, 0);
+        runtime.LoadCartridgeRoomForDebug(runtime.ActiveRoom!.Pointer, new Position16<RoomPixels>(0, 0));
         RoomLevelData level = runtime.LevelData!;
         runtime.InitializeDebugGroundedSamus(200, 166, 16);
         foreach (RoomEnemySlot enemy in runtime.Enemies.Slots)

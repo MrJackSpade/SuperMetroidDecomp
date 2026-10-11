@@ -131,10 +131,10 @@ internal static partial class Program
             actual.BeginFrame();
             if (onScreen)
                 actual.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), (byte)offset,
-                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), 12, (ushort)origin);
+                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             else
                 actual.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), (byte)offset,
-                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), 12, (ushort)origin);
+                    SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;
             if (!onScreen) hide = !hide;

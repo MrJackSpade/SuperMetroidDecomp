@@ -87,7 +87,7 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
         samus.InputLocked = false;
-        runtime.Camera!.SetPosition(512, 0);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(512, 0));
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game, SuperMetroidGameState.MainGameplay);
         AssertEqual(RoomMainCallback.CrocomireRoomShaking, runtime.ActiveRoom!.State.MainCallback,
             "Actual Crocomire room selects native shaking callback");
@@ -130,16 +130,16 @@ internal static partial class Program
             }
             else
             {
-                ushort expected = unchecked((ushort)(runtime.BackgroundScroll.Layer1YPosition +
-                    runtime.BackgroundScroll.Bg1YOffset + death.RumbleYOffset));
-                AssertEqual(expected, runtime.BackgroundScroll.Bg1VerticalScroll,
+                ushort expected = unchecked((ushort)(runtime.BackgroundScroll.Layer1Position.Y +
+                    runtime.BackgroundScroll.Bg1Offset.Y + death.RumbleYOffset));
+                AssertEqual(expected, runtime.BackgroundScroll.Bg1Scroll.Y,
                     $"Comeback frame {frame} applies current enemy rumble to foreground scroll");
                 if (frame != 0)
                 {
-                    AssertEqual(previousScroll, runtime.DisplayedGameplayPpu.Bg1VerticalScroll,
+                    AssertEqual(previousScroll, runtime.DisplayedGameplayPpu.Bg1Scroll.Y,
                         "Rumble becomes visible at the following accepted NMI");
                     var layer = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime).Layers[0];
-                    AssertEqual(previousScroll, layer.Registers.Bg1Y,
+                    AssertEqual(previousScroll, layer.Registers.Bg1Scroll.Y,
                         "Production foreground composition receives the displayed rumble scroll");
                 }
                 previousScroll = expected;
@@ -169,25 +169,25 @@ internal static partial class Program
         {
             var roomMain = typeof(SuperMetroidRuntime).GetMethod("RunCrocomireComebackRoomMain", flags)!;
             var scroll = runtime.BackgroundScroll;
-            scroll.Layer1YPosition = 100;
-            scroll.Bg1YOffset = 3;
+            scroll.Layer1Position = scroll.Layer1Position.WithY(100);
+            scroll.Bg1Offset = scroll.Bg1Offset.WithY(3);
             scroll.CalculateScrollsAndUpdates();
-            ushort bg2 = scroll.Bg2VerticalScroll;
+            ushort bg2 = scroll.Bg2Scroll.Y;
             death.RumbleYOffset = unchecked((ushort)-4);
             roomMain.Invoke(runtime, null);
-            AssertEqual((ushort)99, scroll.Bg1VerticalScroll, "Native rumble includes BG1's ordinary Y offset");
-            AssertEqual(bg2, scroll.Bg2VerticalScroll, "Hidden-wall rumble leaves BG2 unchanged");
-            AssertEqual((ushort)100, scroll.Layer1YPosition, "Rumble does not move the camera or streaming origin");
+            AssertEqual((ushort)99, scroll.Bg1Scroll.Y, "Native rumble includes BG1's ordinary Y offset");
+            AssertEqual(bg2, scroll.Bg2Scroll.Y, "Hidden-wall rumble leaves BG2 unchanged");
+            AssertEqual((ushort)100, scroll.Layer1Position.Y, "Rumble does not move the camera or streaming origin");
             boss.Body.Properties = boss.Body.Properties.With(EnemyProperties.Invisible);
             scroll.CalculateScrollsAndUpdates();
             roomMain.Invoke(runtime, null);
-            AssertEqual((ushort)103, scroll.Bg1VerticalScroll, "Invisible body suppresses the native room callback");
+            AssertEqual((ushort)103, scroll.Bg1Scroll.Y, "Invisible body suppresses the native room callback");
             boss.Body.Properties = boss.Body.Properties.Without(EnemyProperties.Invisible);
             boss.DeathSequenceIndex = CrocomireDeathPhase.BreakSpikeWall;
             death.RumbleYOffset = 0x8080;
             scroll.CalculateScrollsAndUpdates();
             roomMain.Invoke(runtime, null);
-            AssertEqual((ushort)103, scroll.Bg1VerticalScroll, "Leaving phase 40 restores ordinary scroll and excludes the terminator word");
+            AssertEqual((ushort)103, scroll.Bg1Scroll.Y, "Leaving phase 40 restores ordinary scroll and excludes the terminator word");
         }
         Console.WriteLine(spikes ? "Crocomire spike cadence and NMI artwork verified." : "Crocomire comeback scroll and NMI ordering verified.");
         return 0;

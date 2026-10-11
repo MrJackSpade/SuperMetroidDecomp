@@ -11,7 +11,7 @@ public sealed partial class SuperMetroidRuntime
     /// </summary>
     internal readonly record struct SuspendedGameplayFrameTail(
         bool DeathOwnsSamus,
-        SamusCameraPoint PreviousCameraPoint,
+        FixedPosition<RoomPixels> PreviousCameraPoint,
         bool StationaryScriptControlLocked,
         bool SuitOwnsSamus);
 

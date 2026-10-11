@@ -530,9 +530,10 @@ public sealed partial class SamusState
         // `$90:8C1F` temporarily overwrites Samus's integer world point only while Ceres's
         // high status bit is set. Every position selector below therefore consumes the
         // rotated point, but public physics coordinates remain completely untouched.
-        SamusMode7Point renderPoint = mode7Transform is { } transform
-            ? transform.Transform(XPosition, YPosition)
-            : new SamusMode7Point(XPosition, YPosition);
+        var position = new Position16<RoomPixels>(XPosition, YPosition);
+        Position16<RoomPixels> renderPoint = mode7Transform is { } transform
+            ? transform.Transform(position)
+            : position;
         ushort renderX = renderPoint.X;
         ushort renderY = renderPoint.Y;
 
@@ -608,7 +609,7 @@ public sealed partial class SamusState
         TopSpritemapIndex = unchecked((ushort)(topBase + AnimationFrame));
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus zero-pointer spritemap requires WRAM."),
-            TopSpritemapIndex, SpritemapXPosition, SpritemapYPosition, spritemaps);
+            TopSpritemapIndex, new Position16<OamPixels>(SpritemapXPosition, SpritemapYPosition), spritemaps);
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -620,7 +621,7 @@ public sealed partial class SamusState
         {
             ushort chestX = unchecked((ushort)(XPosition - 7 - layer1X));
             ushort chestY = unchecked((ushort)(YPosition - 0x11 - layer1Y));
-            oam.AddRawSmallSprite(chestX, chestY, attributes: 0x3821);
+            oam.AddRawSmallSprite(new Position16<OamPixels>(chestX, chestY), attributes: 0x3821);
         }
 
         // $90:8686 suppresses the ordinary spin-jump bottom half for art frames 1..A;
@@ -689,7 +690,7 @@ public sealed partial class SamusState
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + AnimationFrame));
             oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus zero-pointer spritemap requires WRAM."),
-                BottomSpritemapIndex, SpritemapXPosition, SpritemapYPosition,
+                BottomSpritemapIndex, new Position16<OamPixels>(SpritemapXPosition, SpritemapYPosition),
                 spritemaps);
         }
 
@@ -867,12 +868,12 @@ public sealed partial class SamusState
         ushort screenX = unchecked((ushort)(echoX - layer1X));
         oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
             "Samus zero-pointer spritemap requires WRAM."),
-            TopSpritemapIndex, screenX, unchecked((ushort)screenY),
+            TopSpritemapIndex, new Position16<OamPixels>(screenX, unchecked((ushort)screenY)),
             spritemaps);
         if (BottomSpritemapIndex != 0)
             oam.AddSamusSpritemap(bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                 "Samus zero-pointer spritemap requires WRAM."),
-                BottomSpritemapIndex, screenX, unchecked((ushort)screenY),
+                BottomSpritemapIndex, new Position16<OamPixels>(screenX, unchecked((ushort)screenY)),
                 spritemaps);
     }
 

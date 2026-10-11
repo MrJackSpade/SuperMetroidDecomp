@@ -66,8 +66,7 @@ internal static partial class Program
             RoomScrollGrid compiled = RoomScrollDefinitions.CreateGrid(
                 new RoomScrollNoReadAddressSpace(bus),
                 scrollPointer,
-                header.WidthInScreens,
-                header.HeightInScreens);
+                new Extent16<RoomScreens>(header.WidthInScreens, header.HeightInScreens));
             AssertTrue(expected.AsSpan().SequenceEqual(compiled.Storage),
                 $"compiled scroll grid for state $8F:{header.State.Pointer:X4}");
         }
@@ -84,7 +83,7 @@ internal static partial class Program
             () => RoomScrollDefinitions.Get(0xffff),
             "compiled scroll catalog rejects arbitrary pointers");
         AssertThrows<ArgumentException>(
-            () => RoomScrollGrid.LoadCompiled(bus, [0], 1, 1),
+            () => RoomScrollGrid.LoadCompiled(bus, [0], new Extent16<RoomScreens>(1, 1)),
             "compiled scroll installation rejects incomplete storage");
 
         ushort ceresPointer = LoadStationDefinitions.Get(AreaId.Ceres, 0).RoomPointer;

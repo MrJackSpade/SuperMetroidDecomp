@@ -49,7 +49,7 @@ public sealed partial class SuperMetroidRuntime
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (ElevatorStatus == 0 && Samus is not null && Camera is not null)
             LastSamusBodyDrawn = Samus.Draw(_addressSpace, Oam,
-                Camera.XPosition, Camera.YPosition, mode7Transform: ActiveSamusMode7Transform);
+                Camera.PixelPosition.X, Camera.PixelPosition.Y, mode7Transform: ActiveSamusMode7Transform);
         Oam.FinalizeFrame();
     }
     /// <summary>
@@ -66,7 +66,7 @@ public sealed partial class SuperMetroidRuntime
         if (Samus?.Xray.AreEnemyProjectilesSuspended == true || LevelData is null || Camera is null)
             return;
         Enemies.StepEnemyProjectileInstructions(
-            LevelData, Samus, Camera.XPosition, Camera.YPosition,
+            LevelData, Samus, Camera.PixelPosition.X, Camera.PixelPosition.Y,
             NmiFrameCounter8, BombProjectiles, BackgroundScroll, NmiFrameCounter);
     }
 

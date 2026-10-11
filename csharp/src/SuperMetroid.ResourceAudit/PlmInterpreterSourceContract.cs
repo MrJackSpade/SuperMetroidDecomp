@@ -17,7 +17,8 @@ internal static class PlmInterpreterSourceContract
         ["ConvertEyeToBlueDoor/3"] = "C7280ECD02DA2D9EA7C5E36E10FBB3C2613829BE806663CA6E8DAD5E900BD929",
         // #1269 adds $84:BB25, a two-byte record with no operands (PlmInstructionFormats).
         // #627 decodes the word into RoomPlmInstruction once; handlers take the typed instruction. No program reads or operand widths change.
-        ["ExecuteInstructionStream/9"] = "59A75859D9B638CD91518A5A3A259F3DB73634744FDC069155854E995443A0A4",
+        // #628 $84:AB51 names its two scroll cells as typed screen positions; same writes, no program reads.
+        ["ExecuteInstructionStream/9"] = "FE1988C54CEA7A946FB1CC6CEC287173080D3185F8F18932F2DE3B83273723D1",
         // #1273 drops the verification-only instruction source; the remaining sources are unchanged.
         ["ReadProgramByte/2"] = "22D5078ACAA43B18D75BD7EF992352EB6F635BBC377C35E7EBDDBF42FCEB644E",
         ["ReadProgramWord/2"] = "C8D33F4B5EC309B3DBA0DC288A08F3DBF37522B91CDD00D3194ED7AE7BEF95C6",

@@ -46,7 +46,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
 
-        SamusCameraPoint before = Capture(samus);
+        FixedPosition<RoomPixels> before = Capture(samus);
         bool reachedWall = MoveHorizontallyTowardWall(samus, velocity: 0x1000);
         ushort yVelocity = 0;
         bool reachedVerticalBoundary = false;
@@ -76,7 +76,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     {
         ArgumentNullException.ThrowIfNull(samus);
 
-        SamusCameraPoint before = Capture(samus);
+        FixedPosition<RoomPixels> before = Capture(samus);
 
         // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
         // coordinate range this is exactly currentY <= $7C, but preserve the 16-bit branch
@@ -108,7 +108,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     {
         ArgumentNullException.ThrowIfNull(samus);
 
-        SamusCameraPoint before = Capture(samus);
+        FixedPosition<RoomPixels> before = Capture(samus);
 
         // Native ADC wraps to 16 bits and BMI examines the resulting sign bit. As soon as
         // the negative speed crosses into $0000..$7FFF it is clamped to exact zero.
@@ -213,14 +213,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         return unchecked((ushort)(wholePosition + wholeDelta));
     }
 
-    private static SamusCameraPoint Capture(SamusState samus) => new(
+    private static FixedPosition<RoomPixels> Capture(SamusState samus) => FixedPosition<RoomPixels>.FromWords(
         samus.XPosition,
         samus.Kinematics.XSubposition,
         samus.YPosition,
         samus.Kinematics.YSubposition);
 
     private static MotherBrainForcedSamusMovementResult CreateResult(
-        SamusCameraPoint before,
+        FixedPosition<RoomPixels> before,
         bool nativeCarry) => new(
             before,
             nativeCarry);
@@ -228,5 +228,5 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
 /// <summary>One-call witness for Mother Brain's forced Samus coordinate helpers.</summary>
 public readonly record struct MotherBrainForcedSamusMovementResult(
-    SamusCameraPoint Before,
+    FixedPosition<RoomPixels> Before,
     bool NativeCarry);

@@ -76,7 +76,7 @@ internal static partial class Program
             "up extension points one row down");
 
         RoomScrollGrid scrolls = RoomScrollGrid.CreateImplicit(
-            bus, widthInScreens: 2, heightInScreens: 2,
+            bus, size: new Extent16<RoomScreens>(2, 2),
             lastRowState: RoomScrollState.RedBoundary);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
 

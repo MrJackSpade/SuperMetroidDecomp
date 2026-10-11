@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Spatial;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -171,6 +172,7 @@ internal sealed partial class WindowsGamepadInput
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [SpatialComponents("Win32 interop: winmm's JOYCAPSW declares each axis range as separate fields.")]
     private struct JoystickCapabilities
     {
         public ushort ManufacturerId;
@@ -235,6 +237,7 @@ internal sealed partial class WindowsGamepadInput
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    [SpatialComponents("Win32 interop: winmm's JOYINFOEX declares each axis reading as separate fields.")]
     private struct JoystickPosition
     {
         public uint Size;

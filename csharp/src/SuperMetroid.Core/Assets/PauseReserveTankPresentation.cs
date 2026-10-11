@@ -46,7 +46,7 @@ public sealed class PauseReserveTankPresentation
         if (frame is not null) frame.DrawOnScreen(oam, (ushort)anchor.X, (ushort)anchor.Y, paletteBits);
         else oam.AddOnScreenSpritePart(SnesSpritemapXWord.Create(0, false), 0,
             SnesObjAttributeWord.Create(PauseReserveTankDefinitions.StockTile(nativeIdentity), 0, 3).WithPaletteBits(paletteBits),
-            (ushort)anchor.X, (ushort)anchor.Y);
+            new Position16<OamPixels>((ushort)anchor.X, (ushort)anchor.Y));
     }
     /// <summary>Loads and validates the reserve-strip palette, six anchors, and ten named sprite frames.</summary>
     /// <param name="json">The caller-owned stream containing the editable presentation document.</param>

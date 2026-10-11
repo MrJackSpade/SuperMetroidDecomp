@@ -30,19 +30,20 @@ internal static partial class Program
         runtime.System.LoadBossBytes(memory.AsSpan(NativeSnapshotMemory.BossBits, Bank80SystemState.AreaCount));
         runtime.System.LoadEventBytes(memory.AsSpan(NativeSnapshotMemory.Events, Bank80SystemState.EventByteCount));
         runtime.System.LoadOpenedDoorBytes(memory.AsSpan(NativeSnapshotMemory.OpenedDoors, Bank80SystemState.DoorBitByteCount));
-        runtime.LoadCartridgeRoomForDebug(W(NativeSnapshotMemory.Room), W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY));
-        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.XSubposition))!.SetValue(runtime.Camera, W(NativeSnapshotMemory.CameraXFraction));
-        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.YSubposition))!.SetValue(runtime.Camera, W(NativeSnapshotMemory.CameraYFraction));
-        foreach (var (property, address) in new[]
-        {
-            (nameof(ScrollBoundaryCamera.IdealXPosition), NativeSnapshotMemory.IdealCameraX),
-            (nameof(ScrollBoundaryCamera.IdealYPosition), NativeSnapshotMemory.IdealCameraY),
-            (nameof(ScrollBoundaryCamera.CameraXSpeed), NativeSnapshotMemory.CameraSpeedX),
-            (nameof(ScrollBoundaryCamera.CameraXSubspeed), NativeSnapshotMemory.CameraSpeedXFraction),
-            (nameof(ScrollBoundaryCamera.CameraYSpeed), NativeSnapshotMemory.CameraSpeedY),
-            (nameof(ScrollBoundaryCamera.CameraYSubspeed), NativeSnapshotMemory.CameraSpeedYFraction),
-        }) typeof(ScrollBoundaryCamera).GetProperty(property)!.SetValue(runtime.Camera, W(address));
-        runtime.Camera!.FinishSamusScrolling(new SamusCameraPoint(
+        runtime.LoadCartridgeRoomForDebug(W(NativeSnapshotMemory.Room), new Position16<RoomPixels>(W(NativeSnapshotMemory.CameraX), W(NativeSnapshotMemory.CameraY)));
+        ScrollBoundaryCamera camera = runtime.Camera!;
+        // The room load wrote only the integer layer-one words; import the native fractions,
+        // ideal position and speed words as whole camera values.
+        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.Position))!.SetValue(camera,
+            camera.Position.WithFractionsOf(FixedPosition<RoomPixels>.FromWords(
+                0, W(NativeSnapshotMemory.CameraXFraction), 0, W(NativeSnapshotMemory.CameraYFraction))));
+        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.IdealPosition))!.SetValue(camera,
+            new Position16<RoomPixels>(W(NativeSnapshotMemory.IdealCameraX), W(NativeSnapshotMemory.IdealCameraY)));
+        typeof(ScrollBoundaryCamera).GetProperty(nameof(ScrollBoundaryCamera.Speed))!.SetValue(camera,
+            FixedVector<RoomPixels>.FromWords(
+                W(NativeSnapshotMemory.CameraSpeedX), W(NativeSnapshotMemory.CameraSpeedXFraction),
+                W(NativeSnapshotMemory.CameraSpeedY), W(NativeSnapshotMemory.CameraSpeedYFraction)));
+        runtime.Camera!.FinishSamusScrolling(FixedPosition<RoomPixels>.FromWords(
             W(NativeSnapshotMemory.PreviousSamusX), W(NativeSnapshotMemory.PreviousSamusXFraction),
             W(NativeSnapshotMemory.PreviousSamusY), W(NativeSnapshotMemory.PreviousSamusYFraction)));
         // Preserve the native room's already-mutated doors and item blocks. Rebuilding

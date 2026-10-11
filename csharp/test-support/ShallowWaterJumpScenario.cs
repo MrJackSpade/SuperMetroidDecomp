@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>
 /// Issue #1258: an unequipped Samus standing in shallow water holds jump for 60 frames.
@@ -24,7 +25,7 @@ internal sealed class ShallowWaterJumpScenario
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShallowWaterRoom, cameraY: 256);
+        runtime.LoadCartridgeRoomForDebug(RoomHeaderPointersTooling.BrinstarShallowWaterRoom, camera: new Position16<RoomPixels>(0, 256));
         var samus = Samus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;

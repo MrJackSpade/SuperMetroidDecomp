@@ -207,10 +207,8 @@ internal sealed class IntroCeresFlightState
                 matrixB,
                 matrixC,
                 matrixD,
-                centerX: CeresFlightRenderDefinitions.CenterX,
-                centerY: CeresFlightRenderDefinitions.CenterY,
-                horizontalOffset: unchecked((short)backgroundX),
-                verticalOffset: unchecked((short)backgroundY));
+                center: new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
+                scroll: new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)));
             CompositeObjPriority(pixels, oam, 1);
             CompositeObjPriority(pixels, oam, 2);
             CompositeObjPriority(pixels, oam, 3);
@@ -243,7 +241,7 @@ internal sealed class IntroCeresFlightState
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
         {
             var caption = new Bg4BppRenderLayer(CeresFlightRomData.Layers.SpaceColonyTilemapWord,
-                CeresFlightRomData.Layers.SpaceColonyCharacterWord, 0, 0, 32, 32, false);
+                CeresFlightRomData.Layers.SpaceColonyCharacterWord, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), false);
             layers.Add(caption);
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(caption with { Priority = true });
@@ -252,8 +250,8 @@ internal sealed class IntroCeresFlightState
         {
             var (a, b, c, d) = CalculateMatrix();
             layers.Add(new Mode7RenderLayer(new(a, b, c, d,
-                CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY,
-                unchecked((short)backgroundX), unchecked((short)backgroundY))));
+                new Offset16<Mode7Pixels>(CeresFlightRenderDefinitions.CenterX, CeresFlightRenderDefinitions.CenterY),
+                new Offset16<Mode7Pixels>(unchecked((short)backgroundX), unchecked((short)backgroundY)))));
             layers.Add(new ObjPriorityRenderLayer(1));
         }
         layers.Add(new ObjPriorityRenderLayer(2));
@@ -453,12 +451,9 @@ internal sealed class IntroCeresFlightState
             cgram,
             CeresFlightRomData.Layers.SpaceColonyTilemapWord,
             CeresFlightRomData.Layers.SpaceColonyCharacterWord,
-            horizontalScroll: 0,
-            verticalScroll: 0,
-            width: 256,
-            height: 224,
-            tilemapWidthInTiles: 32,
-            tilemapHeightInTiles: 32,
+            scroll: new Position16<BgPlanePixels>(0, 0),
+            size: SnesPpuLayout.ScreenSize,
+            tilemapSize: new Extent16<TilemapCells>(32, 32),
             priority: priority);
     }
 

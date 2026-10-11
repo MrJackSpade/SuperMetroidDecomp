@@ -940,12 +940,12 @@ internal static partial class Program
         foreach (DoorSetupCode pointer in expectedDoorCallbacks)
         {
             byte[] expected = Enumerable.Repeat((byte)0x7f, RoomScrollGrid.StorageByteCount).ToArray();
-            var actual = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), expected, 10, 5);
+            var actual = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), expected, new Extent16<RoomScreens>(10, 5));
             ExecuteStream3DoorScroll(rom, (ushort)pointer, expected);
             AssertTrue(SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(pointer, actual), "stream 3 callback recognized");
             AssertTrue(actual.Storage.SequenceEqual(expected), "stream 3 native ordered door writes and all untouched cells");
         }
-        var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], 10, 5);
+        var unchangedScroll = RoomScrollGrid.LoadCompiled(new TestAddressSpace(), new byte[50], new Extent16<RoomScreens>(10, 5));
         AssertTrue(!SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(DoorSetupCode.None, unchangedScroll), "stream 3 setup without scroll writes is a no-op");
         AssertThrows<ArgumentNullException>(() => SuperMetroid.Core.Rooms.DoorScrollPrograms.TryApply(DoorSetupCode.None, null!),
             "stream 3 door callback null argument remains rejected before dispatch");
@@ -2935,7 +2935,7 @@ internal static partial class Program
             var nativeOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             DrawImportedEnemySpritemap(rom, nativeOam, frame.Bank, frame.Pointer, 128, 128, 0, 0);
-            calculatedOam.AddEnemySpritemap(parts, 128, 128, 0, 0);
+            calculatedOam.AddEnemySpritemap(parts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.LowTable.SequenceEqual(calculatedOam.LowTable) && nativeOam.HighTable.SequenceEqual(calculatedOam.HighTable),
                 "stream 3 calculated Baby view matches native OAM drawing");
             SpriteVisualPart[] original = document.Frames[frame.Name];

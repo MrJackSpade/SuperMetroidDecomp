@@ -3,6 +3,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Read-only replay of the preserved #391 state; never touches player slots.</summary>
 internal static class MaridiaPipeEntryAudit
@@ -20,8 +21,8 @@ internal static class MaridiaPipeEntryAudit
             {
                 // Diagnostic control only: a fresh room setup must not inherit an
                 // unrelated saved room's unfinished circular tilemap coordinate origin.
-                runtime.BackgroundScroll.Bg1XOffset = runtime.BackgroundScroll.Bg1YOffset = 0;
-                runtime.BackgroundScroll.Bg2XOffset = runtime.BackgroundScroll.Bg2YOffset = 0;
+                runtime.BackgroundScroll.Bg1Offset = Offset16<RoomPixels>.Zero;
+                runtime.BackgroundScroll.Bg2Offset = Offset16<Bg2Pixels>.Zero;
             }
             // Stage the preceding tube through its real incoming setup callback,
             // then let the frontend own the single tube -> Oasis room boundary.
@@ -45,8 +46,8 @@ internal static class MaridiaPipeEntryAudit
                 !runtime.Samus!.StationaryScriptControlLocked)
                 throw new InvalidDataException("#391: incoming door fade discarded elevatube command-zero movement ownership.");
             if (frame % 30 == 0)
-                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.XPosition}/{runtime.Camera.YPosition} pose={(int)runtime.Samus.Pose:X2}");
-            if (fromNorth && !incomingDoor && frame == 120 && runtime.Camera!.YPosition < 800)
+                Console.WriteLine($"frame={frame} state={game.GameState} room={runtime.ActiveRoom?.Identity} header={runtime.ActiveRoom?.Pointer:X4} main={runtime.ActiveRoom?.State.MainCodePointer:X4} Samus={runtime.Samus!.XPosition}/{runtime.Samus.YPosition} camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y} pose={(int)runtime.Samus.Pose:X2}");
+            if (fromNorth && !incomingDoor && frame == 120 && runtime.Camera!.PixelPosition.Y < 800)
                 throw new InvalidDataException("#391: elevatube carried Samus past Y=1000 while camera failed to follow the post-scroll room-main displacement.");
             game.SetAudioAcknowledgements(audio.ReadAcknowledgements());
             // Leave the small central ledge, then let gravity carry the preserved
@@ -71,7 +72,7 @@ internal static class MaridiaPipeEntryAudit
                 if (fromNorth) MaridiaPipeTerrainAudit.Observe(runtime, snapshot, frame,
                     requireAuthoredTerrain: incomingDoor && game.GameState == SuperMetroidGameState.MainGameplay);
                 SoftwareFrameSnapshotRenderer.Render(snapshot, pixels);
-                PngWriterTooling.WriteRgba($"{output}/frame-{frame:D3}.png", snapshot.Width, snapshot.Height, pixels);
+                PngWriterTooling.WriteRgba($"{output}/frame-{frame:D3}.png", snapshot.Size.X, snapshot.Size.Y, pixels);
             }
         }
         if (incomingDoor && (game.GameState != SuperMetroidGameState.MainGameplay ||

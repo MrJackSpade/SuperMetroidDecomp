@@ -17,12 +17,12 @@ internal static partial class Program
 /// This fixture preserves native padding behavior without giving Core a cartridge reader.
 /// </summary>
 private static RoomScrollGrid LoadExplicitScrollFixture(
-    TestAddressSpace bus, int source, int widthInScreens, int heightInScreens)
+    TestAddressSpace bus, int source, Extent16<RoomScreens> size)
 {
     byte[] storage = new byte[RoomScrollGrid.StorageByteCount];
     for (int index = 0; index < storage.Length; index++)
         storage[index] = bus.ReadByte(source + index);
-    return RoomScrollGrid.LoadCompiled(bus, storage, widthInScreens, heightInScreens);
+    return RoomScrollGrid.LoadCompiled(bus, storage, size);
 }
 
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
@@ -58,8 +58,8 @@ static void VerifyObjRendering()
     // art; both entries deliberately use the same one-pixel tile and screen coordinate.
     cgram.SetColor(128 + 3 * 16 + 1, Bgr555.FromWord(0x03e0));
     oam.BeginFrame();
-    oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x2400); // OAM 0: OBJ2, palette 2.
-    oam.AddRawSmallSprite(x: 10, y: 20, attributes: 0x3600); // OAM 1: OBJ3, palette 3.
+    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x2400); // OAM 0: OBJ2, palette 2.
+    oam.AddRawSmallSprite(position: new Position16<OamPixels>(10, 20), attributes: 0x3600); // OAM 1: OBJ3, palette 3.
     oam.FinalizeFrame();
     Rgba32[] obj2Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 2);
     Rgba32[] obj3Plane = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0, priority: 3);
@@ -420,7 +420,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     for (int index = 6; index < RoomScrollGrid.StorageByteCount; index++)
         bus.WriteByte(source + index, (byte)(0x80 + index));
 
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, widthInScreens: 3, heightInScreens: 2);
+    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     AssertEqual(0x86, grid.Storage[6], "scroll loader retains first nonlogical byte");
     AssertEqual(0xb1, grid.Storage[49], "scroll loader retains fiftieth byte");
     AssertEqual(0x86, bus.ReadByte(RoomScrollGrid.WorkRamAddress + 6), "scroll loader mirrors WRAM padding");
@@ -437,8 +437,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
     RoomScrollGrid shortTableGrid = LoadExplicitScrollFixture(
         shortTableBus,
         source,
-        widthInScreens: 4,
-        heightInScreens: 2);
+        new Extent16<RoomScreens>(4, 2));
     AssertEqual(0x1f, shortTableGrid.ReadStorage(4),
         "short explicit scroll table preserves following room-header byte");
     AssertEqual(0x04, shortTableGrid.ReadStorage(7),
@@ -448,41 +447,41 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
 
     // Right: the screen to the right is red, so the attempted +16 is rejected and the
     // routine's deliberate extra two-pixel retreat clamps the signed underflow to zero.
-    grid.SetLogicalState(1, 0, RoomScrollState.RedBoundary);
-    camera.SetPosition(0, 0);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.RedBoundary);
+    camera.SetPosition(new Position16<RoomPixels>(0, 0));
     camera.MoveRight(16);
-    AssertEqual(0, camera.XPosition, "$80:A641 red boundary moving right");
+    AssertEqual(0, camera.PixelPosition.X, "$80:A641 red boundary moving right");
 
     // Left: entering a red current cell from its right edge produces the symmetric +2
     // retreat described by $80:A719-$80:A72B.
-    camera.SetPosition(272, 0);
+    camera.SetPosition(new Position16<RoomPixels>(272, 0));
     camera.MoveLeft(16);
-    AssertEqual(274, camera.XPosition, "$80:A6BB red boundary moving left");
+    AssertEqual(274, camera.PixelPosition.X, "$80:A6BB red boundary moving left");
 
     // Down: a blue current cell over a red lower cell rejects the move and retreats two
     // pixels above the pre-move position (224 -> proposed 240 -> result 222).
-    grid.SetLogicalState(0, 0, RoomScrollState.Blue);
-    grid.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
-    camera.SetPosition(0, 224);
+    grid.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+    grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
+    camera.SetPosition(new Position16<RoomPixels>(0, 224));
     camera.MoveDown(16);
-    AssertEqual(222, camera.YPosition, "$80:A893 red boundary moving down");
+    AssertEqual(222, camera.PixelPosition.Y, "$80:A893 red boundary moving down");
 
     // Up: starting inside that red lower cell gives the corresponding two-pixel retreat.
-    camera.SetPosition(0, 272);
+    camera.SetPosition(new Position16<RoomPixels>(0, 272));
     camera.MoveUp(16);
-    AssertEqual(274, camera.YPosition, "$80:A936 red boundary moving up");
+    AssertEqual(274, camera.PixelPosition.Y, "$80:A936 red boundary moving up");
 
     // Physical right edge is (width-1)*$100 regardless of the scroll padding bytes.
-    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
-    camera.SetPosition(0x01f8, 0);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.Blue);
+    camera.SetPosition(new Position16<RoomPixels>(0x01f8, 0));
     camera.MoveRight(16);
-    AssertEqual(0x0200, camera.XPosition, "scroll camera physical room maximum");
+    AssertEqual(0x0200, camera.PixelPosition.X, "scroll camera physical room maximum");
 
     // Issue #12's slot-one capture is Construction Zone immediately after returning from
     // First Missile. Its room header starts `[blue, red]`; the incoming door points at
     // `$8F:BE25`, which must replace that pair with `[green, blue]` before camera tracking.
-    grid.SetLogicalState(0, 0, RoomScrollState.Blue);
-    grid.SetLogicalState(0, 1, RoomScrollState.RedBoundary);
+    grid.SetLogicalState(new(0, 0), RoomScrollState.Blue);
+    grid.SetLogicalState(new(0, 1), RoomScrollState.RedBoundary);
     DoorSetupCodeInterpreter.ApplyScrollWrites(
         DoorSetupCode.DoorASM_Scroll_0_Green_1_Blue,
         DoorPointers.ConstructionZoneFromFirstMissile,
@@ -524,82 +523,82 @@ static void VerifyMovedSamusCameraTracking()
     const int source = 0x818000;
     for (int index = 0; index < RoomScrollGrid.StorageByteCount; index++)
         bus.WriteByte(source + index, 1);
-    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, widthInScreens: 3, heightInScreens: 2);
+    RoomScrollGrid grid = LoadExplicitScrollFixture(bus, source, new Extent16<RoomScreens>(3, 2));
     var camera = new ScrollBoundaryCamera(grid);
 
     // Facing right, normal forward movement, distance slot zero targets Samus X-$60.
     // Samus moved four pixels, and $90:96C0 intentionally adds 1.0, so camera advances 5.
-    camera.SetPosition(100, 0);
-    var previous = new SamusCameraPoint(200, 0, 100, 0);
-    var current = new SamusCameraPoint(204, 0, 100, 0);
+    camera.SetPosition(new Position16<RoomPixels>(100, 0));
+    var previous = FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0);
+    var current = FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0);
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
         new HorizontalCameraContext(0, MovementType: 0, XAccelerationMode: 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual(108, camera.IdealXPosition, "camera facing-right ideal X");
-    AssertEqual(5, camera.CameraXSpeed, "camera X distance includes one pixel");
-    AssertEqual(105, camera.XPosition, "camera X follows by calculated speed");
+    AssertEqual(108, camera.IdealPosition.X, "camera facing-right ideal X");
+    AssertEqual(5, camera.Speed.X.WholeWord, "camera X distance includes one pixel");
+    AssertEqual(105, camera.PixelPosition.X, "camera X follows by calculated speed");
 
     // The complete fixed-point difference matters: 200.8000 -> 201.4000 is +0.C000;
     // adding 1.0 yields a camera delta of 1.C000.
-    camera.SetPosition(100, 0);
-    previous = previous with { XPosition = 200, XSubposition = 0x8000 };
-    current = current with { XPosition = 201, XSubposition = 0x4000 };
+    camera.SetPosition(new Position16<RoomPixels>(100, 0));
+    previous = previous.WithX(new SnesFixedPosition(200, 0x8000));
+    current = current.WithX(new SnesFixedPosition(201, 0x4000));
     camera.TrackMovedSamusHorizontally(
         previous,
         current,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual(1, camera.CameraXSpeed, "camera fixed X speed integer");
-    AssertEqual(0xc000, camera.CameraXSubspeed, "camera fixed X speed fraction");
-    AssertEqual(101, camera.XPosition, "camera fixed X position integer");
-    AssertEqual(0xc000, camera.XSubposition, "camera fixed X position fraction");
+    AssertEqual(1, camera.Speed.X.WholeWord, "camera fixed X speed integer");
+    AssertEqual(0xc000, camera.Speed.X.Fraction, "camera fixed X speed fraction");
+    AssertEqual(101, camera.PixelPosition.X, "camera fixed X position integer");
+    AssertEqual(0xc000, camera.Position.X.Fraction, "camera fixed X position fraction");
 
     // Downward Samus movement uses up_scroller. 210-$64 gives ideal 110; a two-pixel move
     // becomes camera speed three and advances layer Y from 100 to 103 without overshoot.
-    camera.SetPosition(0, 100);
-    previous = new SamusCameraPoint(0, 0, 208, 0);
-    current = new SamusCameraPoint(0, 0, 210, 0);
+    camera.SetPosition(new Position16<RoomPixels>(0, 100));
+    previous = FixedPosition<RoomPixels>.FromWords(0, 0, 208, 0);
+    current = FixedPosition<RoomPixels>.FromWords(0, 0, 210, 0);
     camera.TrackMovedSamusVertically(
         previous,
         current,
         new VerticalCameraContext(YDirection: SamusVerticalDirection.Down, UpScroller: 100, DownScroller: 112));
-    AssertEqual(110, camera.IdealYPosition, "camera downward ideal Y");
-    AssertEqual(3, camera.CameraYSpeed, "camera Y distance includes one pixel");
-    AssertEqual(103, camera.YPosition, "camera Y follows by calculated speed");
+    AssertEqual(110, camera.IdealPosition.Y, "camera downward ideal Y");
+    AssertEqual(3, camera.Speed.Y.WholeWord, "camera Y distance includes one pixel");
+    AssertEqual(103, camera.PixelPosition.Y, "camera Y follows by calculated speed");
 
     // Equal integer coordinates take $80:A528/$80:A731. With identical fixed-point
     // samples, the bank-$90 distance routine still produces speed 1; autoscroll then adds
     // its own two pixels. A red current cell with a blue neighbor therefore drifts +3.
-    grid.SetLogicalState(0, 0, RoomScrollState.RedBoundary);
-    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
-    camera.SetPosition(0x0020, 0);
-    var stationary = new SamusCameraPoint(200, 0, 200, 0);
+    grid.SetLogicalState(new(0, 0), RoomScrollState.RedBoundary);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.Blue);
+    camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
+    var stationary = FixedPosition<RoomPixels>.FromWords(200, 0, 200, 0);
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual(1, camera.CameraXSpeed, "stationary camera X speed still includes one");
-    AssertEqual(0x0023, camera.XPosition, "$80:A528 red-cell rightward drift");
+    AssertEqual(1, camera.Speed.X.WholeWord, "stationary camera X speed still includes one");
+    AssertEqual(0x0023, camera.PixelPosition.X, "$80:A528 red-cell rightward drift");
 
     // Red on both sides cancels that drift by rounding back to the current screen edge.
-    grid.SetLogicalState(1, 0, RoomScrollState.RedBoundary);
-    camera.SetPosition(0x0020, 0);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.RedBoundary);
+    camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0));
-    AssertEqual(0, camera.XPosition, "$80:A528 adjacent-red horizontal rounding");
+    AssertEqual(0, camera.PixelPosition.X, "$80:A528 adjacent-red horizontal rounding");
 
     // The time-frozen flag short-circuits autoscrolling after bank $90 has calculated the
     // speed. It is intentionally not a blanket prohibition on moved-axis handling.
-    grid.SetLogicalState(1, 0, RoomScrollState.Blue);
-    camera.SetPosition(0x0020, 0);
+    grid.SetLogicalState(new(1, 0), RoomScrollState.Blue);
+    camera.SetPosition(new Position16<RoomPixels>(0x0020, 0));
     camera.TrackMovedSamusHorizontally(
         stationary,
         stationary,
         new HorizontalCameraContext(0, 0, 0, PoseXDirection: 8, CameraDistanceIndex: 0),
         timeIsFrozen: true);
-    AssertEqual(0x0020, camera.XPosition, "$80:A528 time-frozen return");
+    AssertEqual(0x0020, camera.PixelPosition.X, "$80:A528 time-frozen return");
 
     // A 9x5 room at its padded bottom can select scroll index 50 after centered camera X
     // advances into screen five. Native WRAM continues into ExploredMapTiles at $CD52;
@@ -610,15 +609,14 @@ static void VerifyMovedSamusCameraTracking()
     RoomScrollGrid bottomEdgeGrid = LoadExplicitScrollFixture(
         bottomEdgeBus,
         source,
-        widthInScreens: 9,
-        heightInScreens: 5);
+        new Extent16<RoomScreens>(9, 5));
     var bottomEdgeCamera = new ScrollBoundaryCamera(bottomEdgeGrid);
-    bottomEdgeCamera.SetPosition(0x0492, 0x0415);
+    bottomEdgeCamera.SetPosition(new Position16<RoomPixels>(0x0492, 0x0415));
     bottomEdgeCamera.TrackMovedSamusVertically(
         stationary,
         stationary,
         new VerticalCameraContext(YDirection: SamusVerticalDirection.None, UpScroller: 0x70, DownScroller: 0xa0));
-    AssertEqual(0x0400, bottomEdgeCamera.YPosition, "$80:A731 index-$32 adjacent-WRAM bottom clamp");
+    AssertEqual(0x0400, bottomEdgeCamera.PixelPosition.Y, "$80:A731 index-$32 adjacent-WRAM bottom clamp");
 
     // Vertical autoscrolling uses the centered X cell and the same speed+2 drift. This
     // three-row grid leaves the cell below blue so the candidate remains unrounded.
@@ -628,18 +626,17 @@ static void VerifyMovedSamusCameraTracking()
     RoomScrollGrid verticalGrid = LoadExplicitScrollFixture(
         verticalBus,
         source,
-        widthInScreens: 3,
-        heightInScreens: 3);
-    verticalGrid.SetLogicalState(0, 0, RoomScrollState.RedBoundary);
-    verticalGrid.SetLogicalState(0, 1, RoomScrollState.Blue);
+        new Extent16<RoomScreens>(3, 3));
+    verticalGrid.SetLogicalState(new(0, 0), RoomScrollState.RedBoundary);
+    verticalGrid.SetLogicalState(new(0, 1), RoomScrollState.Blue);
     var verticalCamera = new ScrollBoundaryCamera(verticalGrid);
-    verticalCamera.SetPosition(0, 0x0020);
+    verticalCamera.SetPosition(new Position16<RoomPixels>(0, 0x0020));
     verticalCamera.TrackMovedSamusVertically(
         stationary,
         stationary,
         new VerticalCameraContext(YDirection: SamusVerticalDirection.None, UpScroller: 0, DownScroller: 0));
-    AssertEqual(1, verticalCamera.CameraYSpeed, "stationary camera Y speed still includes one");
-    AssertEqual(0x0023, verticalCamera.YPosition, "$80:A731 red-cell downward drift");
+    AssertEqual(1, verticalCamera.Speed.Y.WholeWord, "stationary camera Y speed still includes one");
+    AssertEqual(0x0023, verticalCamera.PixelPosition.Y, "$80:A731 red-cell downward drift");
 
     Console.WriteLine("  Camera: bank $90 tracking and bank $80 stationary autoscroll agree.");
 }
@@ -652,40 +649,35 @@ static void VerifyBackgroundScrollState()
 {
     var state = new BackgroundScrollState
     {
-        Layer1XPosition = 0x1234,
-        Layer1YPosition = 0x0200,
-        Layer2ScrollX = 0x80, // 128/256 = one-half parallax.
-        Layer2ScrollY = 0,
-        Bg1XOffset = 0x0010,
-        Bg1YOffset = 0xfff0,
-        Bg2XOffset = 3,
-        Bg2YOffset = 4,
+        Layer1Position = new(0x1234, 0x0200),
+        Layer2Scroll = new(0x80, 0), // Horizontal 128/256 = one-half parallax.
+        Bg1Offset = new(0x0010, unchecked((short)0xfff0)),
+        Bg2Offset = new(3, 4),
     };
 
     state.PrimePreviousBlocks();
     IReadOnlyList<BackgroundUpdateRequest> requests = state.StepScrolling();
-    AssertEqual(0x1244, state.Bg1HorizontalScroll, "$80:A3B7 BG1 X plus offset");
-    AssertEqual(0x01f0, state.Bg1VerticalScroll, "$80:A3C0 BG1 Y wrapping offset");
-    AssertEqual(0x091a, state.Layer2XPosition, "$80:A2F9 half-speed X parallax");
-    AssertEqual(0x0200, state.Layer2YPosition, "$80:A33A zero mode copies layer 1");
-    AssertEqual(0x091d, state.Bg2HorizontalScroll, "$80:A3CF BG2 X plus offset");
+    AssertEqual(0x1244, state.Bg1Scroll.X, "$80:A3B7 BG1 X plus offset");
+    AssertEqual(0x01f0, state.Bg1Scroll.Y, "$80:A3C0 BG1 Y wrapping offset");
+    AssertEqual(0x091a, state.Layer2Position.X, "$80:A2F9 half-speed X parallax");
+    AssertEqual(0x0200, state.Layer2Position.Y, "$80:A33A zero mode copies layer 1");
+    AssertEqual(0x091d, state.Bg2Scroll.X, "$80:A3CF BG2 X plus offset");
     AssertEqual(0, requests.Count, "primed scrolling emits no unchanged block updates");
 
     // Crossing one 16-pixel boundary right/down creates requests in native order: level
     // column, background column, level row, background row. Coordinate offsets are the
     // literal +$10 and +$0F selected by the assembly.
-    state.Layer1XPosition = 0x1244;
-    state.Layer1YPosition = 0x0210;
+    state.Layer1Position = new(0x1244, 0x0210);
     requests = state.StepScrolling();
     AssertEqual(4, requests.Count, "four scrolling update requests");
     AssertEqual(
-        new BackgroundUpdateRequest(BackgroundLayer.Level, BackgroundUpdateAxis.Column, 0x0134, 0x0021, 0x0135, 0x0020),
+        new BackgroundUpdateRequest(BackgroundLayer.Level, BackgroundUpdateAxis.Column, new(0x0134, 0x0021), new(0x0135, 0x0020)),
         requests[0],
         "rightward level column request");
     AssertEqual(BackgroundLayer.Background, requests[1].Layer, "second request is BG2 column");
     AssertEqual(BackgroundUpdateAxis.Column, requests[1].Axis, "second request axis");
     AssertEqual(
-        new BackgroundUpdateRequest(BackgroundLayer.Level, BackgroundUpdateAxis.Row, 0x0124, 0x0030, 0x0125, 0x002f),
+        new BackgroundUpdateRequest(BackgroundLayer.Level, BackgroundUpdateAxis.Row, new(0x0124, 0x0030), new(0x0125, 0x002f)),
         requests[2],
         "downward level row request");
     AssertEqual(BackgroundLayer.Background, requests[3].Layer, "fourth request is BG2 row");
@@ -693,39 +685,46 @@ static void VerifyBackgroundScrollState()
 
     // Mode one preserves both the layer-2 position and its PPU scroll mirror, and its odd
     // low bit suppresses both BG2 stream directions.
-    ushort oldLayer2X = state.Layer2XPosition;
-    ushort oldBg2X = state.Bg2HorizontalScroll;
-    state.Layer2ScrollX = 1;
-    state.Layer2ScrollY = 1;
-    state.Layer1XPosition = 0x1300;
-    state.Layer1YPosition = 0x0300;
+    ushort oldLayer2X = state.Layer2Position.X;
+    ushort oldBg2X = state.Bg2Scroll.X;
+    state.Layer2Scroll = new(1, 1);
+    state.Layer1Position = new(0x1300, 0x0300);
     requests = state.StepScrolling();
-    AssertEqual(oldLayer2X, state.Layer2XPosition, "fixed BG2 X position remains unchanged");
-    AssertEqual(oldBg2X, state.Bg2HorizontalScroll, "fixed BG2 X register remains unchanged");
+    AssertEqual(oldLayer2X, state.Layer2Position.X, "fixed BG2 X position remains unchanged");
+    AssertEqual(oldBg2X, state.Bg2Scroll.X, "fixed BG2 X register remains unchanged");
     AssertEqual(2, requests.Count, "fixed BG2 modes emit only level updates");
 
     // World coordinates are sign-extended after division by 16, whereas PPU registers are
     // always logically shifted. $FFF0 therefore means block -1 ($FFFF), not $0FFF.
-    state.Layer1XPosition = 0xfff0;
+    state.Layer1Position = state.Layer1Position.WithX(0xfff0);
     state.PrimePreviousBlocks();
-    AssertEqual(0xffff, state.Layer1XBlock, "$80:A4CD signed layer block");
+    AssertEqual(0xffff, state.Layer1Block.X, "$80:A4CD signed layer block");
 
-    ushort frozenBg1X = state.Bg1HorizontalScroll;
-    state.Layer1XPosition = 0x4444;
+    ushort frozenBg1X = state.Bg1Scroll.X;
+    state.Layer1Position = state.Layer1Position.WithX(0x4444);
     requests = state.StepScrolling(timeIsFrozen: true);
-    AssertEqual(frozenBg1X, state.Bg1HorizontalScroll, "$80:A3AB frozen scroll registers");
+    AssertEqual(frozenBg1X, state.Bg1Scroll.X, "$80:A3AB frozen scroll registers");
     AssertEqual(0, requests.Count, "$80:A3AB frozen update list");
 
     var destinationParallax = new BackgroundScrollState
     {
-        Layer2ScrollX = 0x80,
-        Layer2ScrollY = 0x40,
+        Layer2Scroll = new(0x80, 0x40),
     };
-    destinationParallax.PrepareDoorOpeningDestination(0x0400, 0x0200);
-    AssertEqual((ushort)0x0200, destinationParallax.Layer2XPosition,
+    destinationParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0200), new(0x0400, 0x0200));
+    AssertEqual((ushort)0x0200, destinationParallax.Layer2Position.X,
         "door setup calculates destination half-speed BG2 X");
-    AssertEqual((ushort)0x0080, destinationParallax.Layer2YPosition,
+    AssertEqual((ushort)0x0080, destinationParallax.Layer2Position.Y,
         "door setup calculates destination quarter-speed BG2 Y");
+    AssertEqual(new Position16<RoomPixels>(0x0400, 0x0200), destinationParallax.Layer1Position,
+        "door setup publishes the whole destination layer-one position");
+
+    // Upward doors derive BG2 from destination+$1F while layer one keeps the destination.
+    var upwardParallax = new BackgroundScrollState { Layer2Scroll = new(0x80, 0x40) };
+    upwardParallax.PrepareDoorOpeningDestination(new(0x0400, 0x0220), new(0x0400, 0x021f));
+    AssertEqual(new Position16<Bg2Pixels>(0x0200, 0x0087), upwardParallax.Layer2Position,
+        "upward door setup calculates BG2 from its separate parallax basis");
+    AssertEqual(new Position16<RoomPixels>(0x0400, 0x0220), upwardParallax.Layer1Position,
+        "upward door setup keeps the destination layer-one position");
 
     // `$80:AE29` first derives four offsets from the retained source BG1 registers, the
     // cleared BG2 registers, and the destination's staged +/-$100 coordinate. The first
@@ -733,42 +732,42 @@ static void VerifyBackgroundScrollState()
     // source image while BG2 starts four pixels from its cleared origin.
     var rightDoor = new BackgroundScrollState
     {
-        Layer1XPosition = 0xff04, // destination $0000 - $00FC
-        Layer2XPosition = 0xff04,
+        Layer1Position = new(0xff04, 0), // destination $0000 - $00FC
+        Layer2Position = new(0xff04, 0),
     };
     rightDoor.ConfigureDoorOpeningOffsets(
-        retainedBg1Horizontal: 0x0120,
-        retainedBg1Vertical: 0x0340,
-        stagedLayer1X: 0xff00,
-        stagedLayer1Y: 0x0000);
+        retainedBg1Scroll: new(0x0120, 0x0340),
+        stagedLayer1: new(0xff00, 0x0000));
+    AssertEqual(new Offset16<RoomPixels>(0x0220, 0x0340), rightDoor.Bg1Offset,
+        "$80:AE29 BG1 offsets are the retained registers minus the staged layer-one origin");
+    AssertEqual(new Offset16<Bg2Pixels>(0x0100, 0), rightDoor.Bg2Offset,
+        "$80:AE3B BG2 offsets negate the staged layer-one origin on both axes");
     rightDoor.PrimeHorizontalDoorOpeningBlocks(DoorDirection.Right);
     requests = rightDoor.CalculateScrollsAndUpdates();
-    AssertEqual((ushort)0x0124, rightDoor.Bg1HorizontalScroll,
+    AssertEqual((ushort)0x0124, rightDoor.Bg1Scroll.X,
         "$80:AE29 right-door BG1 retains source plus first step");
-    AssertEqual((ushort)0x0004, rightDoor.Bg2HorizontalScroll,
+    AssertEqual((ushort)0x0004, rightDoor.Bg2Scroll.X,
         "$80:AE29 right-door BG2 advances from cleared register");
     AssertEqual(2, requests.Count, "$80:AD4A right-door initial BG1/BG2 streams");
-    AssertEqual((ushort)0x0000, requests[0].SourceXBlock,
+    AssertEqual((ushort)0x0000, requests[0].SourceBlock.X,
         "$80:AD4A right-door initial level column");
 
     var leftDoor = new BackgroundScrollState
     {
-        Layer1XPosition = 0x00fc, // destination $0000 + $00FC
-        Layer2XPosition = 0x00fc,
+        Layer1Position = new(0x00fc, 0), // destination $0000 + $00FC
+        Layer2Position = new(0x00fc, 0),
     };
     leftDoor.ConfigureDoorOpeningOffsets(
-        retainedBg1Horizontal: 0x0120,
-        retainedBg1Vertical: 0x0340,
-        stagedLayer1X: 0x0100,
-        stagedLayer1Y: 0x0000);
+        retainedBg1Scroll: new(0x0120, 0x0340),
+        stagedLayer1: new(0x0100, 0x0000));
     leftDoor.PrimeHorizontalDoorOpeningBlocks(DoorDirection.Left);
     requests = leftDoor.CalculateScrollsAndUpdates();
-    AssertEqual((ushort)0x011c, leftDoor.Bg1HorizontalScroll,
+    AssertEqual((ushort)0x011c, leftDoor.Bg1Scroll.X,
         "$80:AE29 left-door BG1 retains source minus first step");
-    AssertEqual((ushort)0xfffc, leftDoor.Bg2HorizontalScroll,
+    AssertEqual((ushort)0xfffc, leftDoor.Bg2Scroll.X,
         "$80:AE29 left-door BG2 retreats from cleared register");
     AssertEqual(2, requests.Count, "$80:AD74 left-door initial BG1/BG2 streams");
-    AssertEqual((ushort)0x000f, requests[0].SourceXBlock,
+    AssertEqual((ushort)0x000f, requests[0].SourceBlock.X,
         "$80:AD74 left-door initial level column");
 
     // `$80:AD1D` runs against the source room before an upward destination replaces its
@@ -776,43 +775,41 @@ static void VerifyBackgroundScrollState()
     // both scrolling layers, then restores every visible coordinate/register word.
     var upwardSource = new BackgroundScrollState
     {
-        Layer1YPosition = 0x0200,
-        Layer2YPosition = 0x0200,
+        Layer1Position = new(0, 0x0200),
+        Layer2Position = new(0, 0x0200),
     };
     upwardSource.PrimePreviousBlocks();
-    ushort sourceBg1Vertical = upwardSource.Bg1VerticalScroll;
+    Position16<RoomPixels> sourceBg1Scroll = upwardSource.Bg1Scroll;
     requests = upwardSource.FixDoorsMovingUp();
     AssertEqual(2, requests.Count, "$80:AD1D upward source row count");
     AssertEqual(BackgroundUpdateAxis.Row, requests[0].Axis,
         "$80:AD1D emits a BG1 row");
-    AssertEqual((ushort)0x0020, requests[0].SourceYBlock,
+    AssertEqual((ushort)0x0020, requests[0].SourceBlock.Y,
         "$80:AD1D repairs the source viewport's current top row");
-    AssertEqual((ushort)0x0200, upwardSource.Layer1YPosition,
-        "$80:AD1D restores source layer-one Y");
-    AssertEqual(sourceBg1Vertical, upwardSource.Bg1VerticalScroll,
-        "$80:AD1D restores source BG1VOFS");
+    AssertEqual(new Position16<RoomPixels>(0, 0x0200), upwardSource.Layer1Position,
+        "$80:AD1D restores the source layer-one position");
+    AssertEqual(sourceBg1Scroll, upwardSource.Bg1Scroll,
+        "$80:AD1D restores source BG1HOFS/BG1VOFS");
 
     // Upward setup carries frame counter one from that repair. It primes previous rows at
     // destination+$100, presents destination+$FB after the built-in first moving call,
     // and intentionally emits no destination row until counter five.
     var upwardDestination = new BackgroundScrollState
     {
-        Layer1YPosition = 0x02fb,
-        Layer2YPosition = 0x01dc,
+        Layer1Position = new(0, 0x02fb),
+        Layer2Position = new(0, 0x01dc),
     };
     upwardDestination.ConfigureDoorOpeningOffsets(
-        retainedBg1Horizontal: 0x0120,
-        retainedBg1Vertical: 0x0340,
-        stagedLayer1X: 0,
-        stagedLayer1Y: 0x0300);
+        retainedBg1Scroll: new(0x0120, 0x0340),
+        stagedLayer1: new(0, 0x0300));
     requests = upwardDestination.PrimeVerticalDoorOpeningBlocks(
         DoorDirection.Up,
         stagedLayer1Y: 0x0300,
         stagedLayer2Y: 0x01e0);
     AssertEqual(0, requests.Count, "$80:ADC8 upward setup defers destination rows");
-    AssertEqual((ushort)0x0031, upwardDestination.PreviousLayer1YBlock,
+    AssertEqual((ushort)0x0031, upwardDestination.PreviousLayer1Block.Y,
         "$80:ADC8 upward previous-row bias");
-    AssertEqual((ushort)0x033b, upwardDestination.Bg1VerticalScroll,
+    AssertEqual((ushort)0x033b, upwardDestination.Bg1Scroll.Y,
         "$80:AF89 upward setup preserves source BG1 minus five pixels");
 
     Console.WriteLine("  BG scroll: parallax, signed blocks, row/column dispatch, and door setup agree.");
@@ -1018,10 +1015,7 @@ static void VerifyBackgroundTilemapStreamer()
     var columnRequest = new BackgroundUpdateRequest(
         BackgroundLayer.Level,
         BackgroundUpdateAxis.Column,
-        SourceXBlock: 2,
-        SourceYBlock: 3,
-        VramXBlock: 0x11,
-        VramYBlock: 5);
+        SourceBlock: new(2, 3), VramBlock: new(0x11, 5));
     TilemapStreamUpdate column = streamer.Build(columnRequest)!
         ?? throw new InvalidOperationException("Non-Mode-7 column was incorrectly skipped.");
     AssertEqual(32, column.Segments[0].SourceWords.Length, "column left staging words");
@@ -1044,10 +1038,7 @@ static void VerifyBackgroundTilemapStreamer()
     var rowRequest = new BackgroundUpdateRequest(
         BackgroundLayer.Level,
         BackgroundUpdateAxis.Row,
-        SourceXBlock: 2,
-        SourceYBlock: 3,
-        VramXBlock: 5,
-        VramYBlock: 6);
+        SourceBlock: new(2, 3), VramBlock: new(5, 6));
     TilemapStreamUpdate row = streamer.Build(rowRequest)!
         ?? throw new InvalidOperationException("Non-Mode-7 row was incorrectly skipped.");
     AssertEqual(34, row.Segments[0].SourceWords.Length, "row top staging words");
@@ -1080,10 +1071,7 @@ static void VerifyBackgroundTilemapStreamer()
         new BackgroundUpdateRequest(
             BackgroundLayer.Background,
             BackgroundUpdateAxis.Column,
-            SourceXBlock: 0x000c,
-            SourceYBlock: 0x0004,
-            VramXBlock: 0,
-            VramYBlock: 0))
+            SourceBlock: new(0x000c, 0x0004), VramBlock: new(0, 0)))
         ?? throw new InvalidOperationException("Ceres door BG2 column was incorrectly skipped.");
     AssertEqual(32, ceresDoorColumn.Segments[0].SourceWords.Length,
         "$83:AB7C complete off-room BG2 column allocation");
@@ -1109,14 +1097,14 @@ static void VerifyFourBitBackgroundRendering()
     ushort[] mapEntry = [0x0800]; // Character zero, palette two, no flips.
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
     Rgba32[] pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x5000, 0, 0, 0, width: 8, height: 8);
+        vram, cgram, 0x5000, 0, new Position16<BgPlanePixels>(0, 0), size: new Extent16<ScreenPixels>(8, 8));
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BG palette pixel");
     AssertEqual(0, pixels[1].A, "4-bpp BG color zero transparency");
 
     mapEntry[0] |= 0x4000;
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
     pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x5000, 0, 0, 0, width: 8, height: 1);
+        vram, cgram, 0x5000, 0, new Position16<BgPlanePixels>(0, 0), size: new Extent16<ScreenPixels>(8, 1));
     AssertEqual(0, pixels[0].A, "4-bpp H-flip old pixel becomes transparent");
     AssertEqual(new Rgba32(255, 0, 0), pixels[7], "4-bpp H-flip mirrored pixel");
 
@@ -1125,8 +1113,8 @@ static void VerifyFourBitBackgroundRendering()
     // into the first screen. Landing Site relies on this exact vertical arrangement.
     vram.ExecuteWordTransfer([0x0800], destinationWord: 0x4c00, wordIncrement: 1);
     pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x4800, 0, 0, 0x0100, width: 8, height: 1,
-        tilemapWidthInTiles: 32, tilemapHeightInTiles: 64);
+        vram, cgram, 0x4800, 0, new Position16<BgPlanePixels>(0, 0x0100), size: new Extent16<ScreenPixels>(8, 1),
+        tilemapSize: new Extent16<TilemapCells>(32, 64));
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BGSC vertical second screen");
 
     // Exercise that same BGSC geometry through the production priority compositor. Its
@@ -1153,13 +1141,10 @@ static void VerifyFourBitBackgroundRendering()
         gameplayVram,
         gameplayCgram,
         gameplayOam,
-        bg1HorizontalScroll: 0,
-        bg1VerticalScroll: 0,
-        bg2HorizontalScroll: 0,
-        bg2VerticalScroll: 0x00e0,
+        bg1Scroll: new Position16<RoomPixels>(0, 0),
+        bg2Scroll: new Position16<Bg2Pixels>(0, 0x00e0),
         bg2HorizontalScrollByLine: horizontalByLine,
-        bg2TilemapWidthInTiles: 32,
-        bg2TilemapHeightInTiles: 64);
+        bg2TilemapSize: new Extent16<TilemapCells>(32, 64));
     AssertEqual(new Rgba32(0, 0, 255),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
         "ordinary compositor consumes sky HOFS and vertical BGSC screen");
@@ -1178,12 +1163,9 @@ static void VerifyFourBitBackgroundRendering()
         gameplayVram,
         gameplayCgram,
         gameplayOam,
-        bg1HorizontalScroll: 0,
-        bg1VerticalScroll: 0,
-        bg2HorizontalScroll: 0,
-        bg2VerticalScroll: 0,
-        bg2TilemapWidthInTiles: 64,
-        bg2TilemapHeightInTiles: 64,
+        bg1Scroll: new Position16<RoomPixels>(0, 0),
+        bg2Scroll: new Position16<Bg2Pixels>(0, 0),
+        bg2TilemapSize: new Extent16<TilemapCells>(64, 64),
         bg2TilemapBaseWord: kraidBg2BaseWord);
     AssertEqual(new Rgba32(255, 0, 0),
         gameplayFrame[SnesGameplayFrameRenderer.HudHeight * SnesGameplayFrameRenderer.Width],
@@ -1192,15 +1174,13 @@ static void VerifyFourBitBackgroundRendering()
     // The force-blank room fill is exactly 17 level columns when layer-2 X mode is odd.
     var scroll = new BackgroundScrollState
     {
-        Layer1XPosition = 0x0120,
-        Layer1YPosition = 0x0230,
-        Layer2ScrollX = 0x81,
-        Layer2ScrollY = 1,
+        Layer1Position = new(0x0120, 0x0230),
+        Layer2Scroll = new(0x81, 1),
     };
     IReadOnlyList<BackgroundUpdateRequest> initial = scroll.BuildInitialViewportRequests();
     AssertEqual(17, initial.Count, "$80:A176 initial BG1 column count");
-    AssertEqual(0x0012, initial[0].SourceXBlock, "initial first source column");
-    AssertEqual(0x0022, initial[16].SourceXBlock, "initial seventeenth source column");
+    AssertEqual(0x0012, initial[0].SourceBlock.X, "initial first source column");
+    AssertEqual(0x0022, initial[16].SourceBlock.X, "initial seventeenth source column");
 
     Console.WriteLine("  BG render: 4-bpp pixels, BGSC geometry, and 17-column initial fill agree.");
 }
@@ -1234,10 +1214,8 @@ static void VerifyHostRoomViewportAlignment()
         cgram,
         oam,
         room,
-        roomWidth,
-        roomHeight,
-        cameraX,
-        cameraY);
+        new Extent16<RoomPixels>(roomWidth, roomHeight),
+        new Position16<RoomPixels>(cameraX, cameraY));
 
     AssertEqual(
         room[(cameraY + SnesGameplayFrameRenderer.HudHeight) * roomWidth + cameraX],
@@ -1290,7 +1268,7 @@ static void VerifyPowerBombColorMathWindow()
     // Spawn happens after the native HDMA pass. Even though status is already `$8000`,
     // the host must not invent an explosion table on this frame.
     Rgba32[] spawnFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, bus, explosion, 0, 0);
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(spawnFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
     AssertEqual(new Rgba32(0, 0, 0, 255),
         spawnFrame[centerY * SnesGameplayFrameRenderer.Width + centerX],
         "power-bomb spawn frame has no premature HDMA window");
@@ -1308,7 +1286,7 @@ static void VerifyPowerBombColorMathWindow()
     AssertEqual(0x3400, explosion.PreExplosionRadius,
         "power-bomb logic advances next-frame radius");
     Rgba32[] scaledFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, bus, explosion, 0, 0);
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(scaledFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
     Rgba32 fixedColor = new(8, 16, 24, 255);
     AssertEqual(fixedColor,
         scaledFrame[centerY * SnesGameplayFrameRenderer.Width + centerX + 3],
@@ -1329,7 +1307,7 @@ static void VerifyPowerBombColorMathWindow()
     AssertEqual(PowerBombExplosionPhase.PreExplosionYellow, explosion.RenderedPhase,
         "first pre-scaled yellow frame is retained for composition");
     Rgba32[] shapeFrame = CreateOpaqueBlackGameplayFrame();
-    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, bus, explosion, 0, 0);
+    SnesGameplayFrameRenderer.ApplyPowerBombColorMath(shapeFrame, bus, explosion, new Position16<RoomPixels>(0, 0));
     AssertEqual(0x9f06, explosion.RenderedShapeDefinitionPointer,
         "first yellow frame selects the native profile");
     for (int y = 0; y < SnesGameplayFrameRenderer.Height; y++)

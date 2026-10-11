@@ -221,9 +221,9 @@ public sealed class GameOverMenuState
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(ppu.Cgram, FrontendFrame.Width * FrontendFrame.Height, frameBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height]);
         SnesBgTilemapRenderer.Composite4BppViewport(
             output,
-            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, 0, 0,
-            FrontendFrame.Width, FrontendFrame.Height,
-            GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight);
+            ppu.Vram, ppu.Cgram, MenuPpuState.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0),
+            new Extent16<ScreenPixels>(FrontendFrame.Width, FrontendFrame.Height),
+            new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight));
 
         PrepareRenderOam();
         Rgba32[] objectLayer = objectLayerScratch ??= new Rgba32[SnesPpuLayout.ScreenWidthPixels * SnesPpuLayout.ScreenHeightPixels];
@@ -239,7 +239,7 @@ public sealed class GameOverMenuState
     {
         PrepareRenderOam();
         RenderLayer[] layers = [new Bg4BppRenderLayer(MenuPpuState.Bg1TilemapWord, 0,
-            0, 0, GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight, null), new ObjRenderLayer()];
+            new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(GameOverRomData.TilemapWidth, GameOverRomData.TilemapHeight), null), new ObjRenderLayer()];
         return new(PpuMemorySnapshot.Capture(ppu.Vram, ppu.Cgram, oam), layers,
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }

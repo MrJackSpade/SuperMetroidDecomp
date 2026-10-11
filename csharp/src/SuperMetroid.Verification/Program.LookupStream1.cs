@@ -1780,7 +1780,7 @@ internal static partial class Program
                     result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
                         SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? selected.Palette, part.Priority,
                             (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0)),
-                        unchecked((ushort)(timer.XPixel + anchor.X)), unchecked((ushort)(timer.YPixel + anchor.Y)));
+                        new Position16<OamPixels>(unchecked((ushort)(timer.XPixel + anchor.X)), unchecked((ushort)(timer.YPixel + anchor.Y))));
             }
         }
     }
@@ -3478,7 +3478,7 @@ internal static partial class Program
         byte[] record = [1, 0, 3, 0, 2, 0x34, 0x12];
         for (int index = 0; index < record.Length; index++) memory.WriteByte(0x920000 + index, record[index]);
         var oam = new OamBuffer(); oam.BeginFrame();
-        oam.AddSamusSpritemap(memory, 3, 127, 131, stock);
+        oam.AddSamusSpritemap(memory, 3, new Position16<OamPixels>(127, 131), stock);
         AssertTrue(oam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }), "Native zero selector still reads mutable memory through actual renderer");
         Console.WriteLine($"Samus OAM pointers:2096 native selectors, {aliases} exact aliases/{directPointers} direct calculations/{stored.Count} retained composition inputs,2096 independent edits,empty OAM,actual identity/WRAM selection and domain checks pass.");
     }

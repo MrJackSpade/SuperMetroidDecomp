@@ -55,7 +55,7 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/SamusAtmosphericArtworkDefinitions.cs", "B546C250E9B8C0FA7124E3529D927AF9A03951BB8714F8E5B4DA90E5A73C2E65"),
              new("csharp/src/SuperMetroid.Core/Assets/GameplayBasePaletteCatalog.cs", "C819FF7045379D59182A5B10BF6D902C33DF1C65F5BF140773BBED033A9C08D9"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesCgram.cs", "7484167AFD8A11931A9C036F734FFBA1CEF5EFA9D1B596177FF9C583CC5E4684"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs", "C6753DAA77F9809E6D599040E9E4F13561458352D11DAA0D7EC89B0BFBE3A6C2"),
+             new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs", "2C0B763C5F05F8D3B37F4DBE93A0514973596F99EF0D07AAD7537C616B33A6F0"),
              new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "1F0A858C191CEF505F59FBC544DA589F1481D8FE574A7795E709B9CD99204093")]),
         new("SuperMetroid.Core.Assets.SamusArmCannonArtworkCatalog", "samus-complete-cannon-placement-and-tile-membership",
             ["PoseDrawingData", "ReadDrawingByte", "SpriteAttributes", "TileSource", "TryResolveTile"],

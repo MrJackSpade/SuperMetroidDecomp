@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Spatial;
 using Microsoft.Win32.SafeHandles;
 using SuperMetroid.Core.Rendering;
 using Vortice.Direct3D11;
@@ -23,28 +24,26 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     private readonly IDXGISwapChain2 swapchain;
     private readonly LatencyWaitHandle latency;
     private ID3D11RenderTargetView? target;
-    private int width, height;
+    private Extent16<DisplayPixels> size;
     private bool disposed;
 
     /// <summary>Creates a two-buffer BGRA flip-discard swapchain for an existing HWND on its device-owner thread, with a frame-latency waitable object and maximum latency one; owns the swapchain, not the window or device.</summary>
     /// <param name="owner">Live render-owner device shared by the renderer; must outlive the presenter.</param>
     /// <param name="window">Nonzero native HWND kept alive by the host until presentation shutdown completes.</param>
-    /// <param name="width">Positive initial client width in pixels; minimized surfaces must be suspended by the host rather than created at zero.</param>
-    /// <param name="height">Positive initial client height in pixels.</param>
+    /// <param name="size">Positive initial client size in pixels; minimized surfaces must be suspended by the host rather than created at zero.</param>
     /// <exception cref="ArgumentOutOfRangeException">A client dimension is zero or negative.</exception>
     /// <exception cref="ArgumentException"><paramref name="window"/> is zero.</exception>
     /// <exception cref="InvalidOperationException">Construction is attempted off the device's owner thread.</exception>
-    public D3D11SwapchainPresenter(D3D11RenderDevice owner, nint window, int width, int height)
+    public D3D11SwapchainPresenter(D3D11RenderDevice owner, nint window, Extent16<DisplayPixels> size)
     {
         this.owner = owner;
         owner.VerifyOwner();
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        RequirePositive(size);
         if (window == 0) throw new ArgumentException("A real HWND is required.", nameof(window));
         using var factory = DXGI.CreateDXGIFactory1<IDXGIFactory2>();
         using var created = factory.CreateSwapChainForHwnd(owner.Device, window, new SwapChainDescription1
         {
-            Width = (uint)width, Height = (uint)height, Format = Format.B8G8R8A8_UNorm,
+            Width = size.X, Height = size.Y, Format = Format.B8G8R8A8_UNorm,
             SampleDescription = new(1, 0), BufferUsage = Usage.RenderTargetOutput,
             BufferCount = 2, Scaling = Scaling.Stretch, SwapEffect = SwapEffect.FlipDiscard,
             Flags = SwapChainFlags.FrameLatencyWaitableObject
@@ -54,7 +53,7 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         {
             swapchain.MaximumFrameLatency = 1;
             latency = new LatencyWaitHandle(swapchain.FrameLatencyWaitableObject);
-            this.width = width; this.height = height;
+            this.size = size;
             CreateTarget();
         }
         catch { target?.Dispose(); latency?.Dispose(); swapchain.Dispose(); throw; }
@@ -70,7 +69,7 @@ public sealed class D3D11SwapchainPresenter : IDisposable
         if (!ReferenceEquals(renderer.DeviceOwner, owner)) throw new InvalidOperationException("Renderer and swapchain must share a device owner.");
         if (target is null) throw new InvalidOperationException("Swapchain target is unavailable after failed resize.");
         if (renderer.SubmittedIdentity != identity) throw new InvalidOperationException("Presentation identity does not match the rendered frame.");
-        renderer.DrawDisplay(target!, width, height);
+        renderer.DrawDisplay(target!, size);
         // Finish GPU timing after display commands, before the CPU's blocking Present.
         // This remains one timestamp-disjoint interval for the whole rendered frame.
         timer?.End();
@@ -87,16 +86,21 @@ public sealed class D3D11SwapchainPresenter : IDisposable
     }
 
     /// <summary>Resizes positive client dimensions; minimized windows must suspend presentation in the host.</summary>
-    public void Resize(int nextWidth, int nextHeight)
+    public void Resize(Extent16<DisplayPixels> next)
     {
         Verify();
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(nextWidth);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(nextHeight);
+        RequirePositive(next);
         target?.Dispose(); target = null;
-        swapchain.ResizeBuffers(2, (uint)nextWidth, (uint)nextHeight, Format.B8G8R8A8_UNorm,
+        swapchain.ResizeBuffers(2, next.X, next.Y, Format.B8G8R8A8_UNorm,
             SwapChainFlags.FrameLatencyWaitableObject).CheckError();
-        width = nextWidth; height = nextHeight;
+        size = next;
         CreateTarget();
+    }
+
+    private static void RequirePositive(Extent16<DisplayPixels> client)
+    {
+        if (client.X == 0 || client.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(client), client, "A swapchain needs positive client dimensions.");
     }
 
     private void CreateTarget()

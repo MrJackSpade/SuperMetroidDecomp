@@ -24,12 +24,12 @@ internal static partial class Program
         samus.EquippedBeams = beams; samus.EquippedItems = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        runtime.Camera!.SetPosition(1109, 0);
+        runtime.Camera!.SetPosition(new Position16<RoomPixels>(1109, 0));
         int mismatches = 0;
         for (int frame = 0; frame < native.Length; frame++)
         {
             runtime.StepFrame((ushort)(SnesButton.X | SnesButton.Left | SnesButton.R | (dash ? SnesButton.B : 0)));
-            string actual = $"{frame},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{(int)samus.Pose:X2},{runtime.Plms.ActiveCount},{runtime.Camera.XPosition}";
+            string actual = $"{frame},{samus.XPosition},{samus.Kinematics.XSubposition},{samus.YPosition},{(int)samus.Pose:X2},{runtime.Plms.ActiveCount},{runtime.Camera.PixelPosition.X}";
             if (actual != native[frame] && mismatches++ < 8)
                 Console.WriteLine($"Speedway mismatch:\n{actual}\n{native[frame]}");
         }

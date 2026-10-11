@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Verification access to <see cref="SuperMetroidRuntime"/> members production does not use.</summary>
 internal static class SuperMetroidRuntimeAccess
@@ -80,7 +81,10 @@ internal static class SuperMetroidRuntimeAccess
                 // camera at that exact target so the first moved frame follows smoothly instead
                 // of spending several frames correcting the cutscene door's unrelated X=$400.
                 // Vertical framing remains the explicit host stimulus supplied by the caller.
-                self.Camera.SetPosition(xPosition - 0x60, restingY - desiredScreenY);
+                self.Camera.SetPosition(new Position16<RoomPixels>(
+                    // Entry placement clamps a requested origin left of or above the room to zero.
+                    (ushort)Math.Max(0, xPosition - 0x60),
+                    (ushort)Math.Max(0, restingY - desiredScreenY)));
                 self.Samus.YPosition = restingY;
                 PrivateState.SetProperty(self, "GroundedSamusMovementEnabled", true);
                 PrivateState.SetProperty(self, "LastGroundedSamusMovement", null);

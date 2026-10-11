@@ -73,8 +73,8 @@ public sealed partial class SuperMetroidRuntime
         if (!TimeIsFrozen && (NmiFrameCounter & (nonblank ? 1 : 3)) == 0)
         {
             ushort random = System.NextRandom();
-            ushort x = unchecked((ushort)(Camera.XPosition + (byte)random));
-            ushort y = unchecked((ushort)(Camera.YPosition + (random >> 8)));
+            ushort x = unchecked((ushort)(Camera.PixelPosition.X + (byte)random));
+            ushort y = unchecked((ushort)(Camera.PixelPosition.Y + (random >> 8)));
             int blockIndex = (y >> 4) * LevelData.WidthInBlocks + (x >> 4);
             if (!nonblank || new RoomLevelWord(LevelData.GetPlmCollisionBlockByIndex(blockIndex).LevelWord).VisualBlockIndex != ZebesEscapeRomData.BlankTile)
                 Enemies.SpawnEscapeExplosion(x, y, System.NextRandom(), nonblank ? unchecked((ushort)(blockIndex * 2)) : (ushort)0);

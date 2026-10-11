@@ -17,6 +17,9 @@ public static class SnesPpuLayout
     /// <summary>NTSC visible height emitted by Super Metroid.</summary>
     public const int ScreenHeightPixels = 224;
 
+    /// <summary>The visible low-resolution raster: <see cref="ScreenWidthPixels"/> by <see cref="ScreenHeightPixels"/>.</summary>
+    public static Extent16<ScreenPixels> ScreenSize => new(ScreenWidthPixels, ScreenHeightPixels);
+
     /// <summary>
     /// The first stored NTSC output row is physical PPU scanline one. Background
     /// sampling uses that physical line; OBJ evaluation uses the preceding line.

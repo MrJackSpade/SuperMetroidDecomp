@@ -1,6 +1,7 @@
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Desktop;
 
@@ -14,13 +15,13 @@ public static class RgbaBitmap
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public static unsafe void CopyTo(
         Bitmap bitmap,
-        int width,
-        int height,
+        Extent16<ScreenPixels> size,
         ReadOnlySpan<Rgba32> pixels)
     {
         ArgumentNullException.ThrowIfNull(bitmap);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
+        int width = size.X, height = size.Y;
+        ArgumentOutOfRangeException.ThrowIfZero(width, nameof(size));
+        ArgumentOutOfRangeException.ThrowIfZero(height, nameof(size));
         if (bitmap.Width != width || bitmap.Height != height ||
             bitmap.PixelFormat != PixelFormat.Format32bppArgb)
         {
@@ -28,7 +29,7 @@ public static class RgbaBitmap
                 "Destination bitmap must be a matching 32-bpp ARGB raster.",
                 nameof(bitmap));
         }
-        if (pixels.Length != checked(width * height))
+        if (pixels.Length != width * height)
             throw new ArgumentException("Pixel count does not match dimensions.", nameof(pixels));
 
         var bounds = new Rectangle(0, 0, width, height);

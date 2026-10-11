@@ -30,7 +30,7 @@ internal static partial class Program
         }
         AssertTrue(doorX >= 0, "Parlor has the retail Landing Site door");
         runtime.LoadCartridgeRoomForDebug(0x92fd,
-            cameraX: (ushort)(doorX / 16 * 256), cameraY: (ushort)(doorY / 16 * 256));
+            camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;

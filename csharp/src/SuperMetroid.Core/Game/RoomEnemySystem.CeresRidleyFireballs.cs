@@ -761,7 +761,7 @@ public sealed partial class RoomEnemySystem
             ReadOnlyMemory<EnemySpritemapPart> parts = projectile.PresentationOperandAddress != 0
                 ? artwork.GetProgramFrame(projectile.PresentationOperandAddress)
                 : artwork.Get(projectile.SpritemapPointer);
-            oam.AddEnemySpritemap(parts.Span, screenX, screenY,
+            oam.AddEnemySpritemap(parts.Span, new Position16<OamPixels>(screenX, screenY),
                 new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: (screenY >> 8) == 0);
@@ -901,7 +901,8 @@ public sealed partial class RoomEnemySystem
         switch (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(projectile.PreInstruction, "enemy-projectile pre-instruction"))
         {
             case EnemyProjectilePreInstruction.PrePhantoonRoom:
-                RequireEnemyProjectileBackgroundScroll().Bg2YOffset = 0;
+                BackgroundScrollState scroll = RequireEnemyProjectileBackgroundScroll();
+                scroll.Bg2Offset = scroll.Bg2Offset.WithY(0);
                 return;
             case EnemyProjectilePreInstruction.None:
             case EnemyProjectilePreInstruction.RTS_868170:

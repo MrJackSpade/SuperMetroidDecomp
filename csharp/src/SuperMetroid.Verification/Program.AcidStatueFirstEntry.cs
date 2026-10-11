@@ -47,8 +47,7 @@ internal static partial class Program
 
         runtime.LoadCartridgeRoomForDebug(
             sourceRoom,
-            cameraX: (ushort)(doorX / 16 * 256),
-            cameraY: (ushort)(doorY / 16 * 256));
+            camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;

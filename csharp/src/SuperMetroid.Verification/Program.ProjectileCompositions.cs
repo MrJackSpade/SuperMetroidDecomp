@@ -25,8 +25,8 @@ internal static partial class Program
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             {
-                native.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
-                authored.AddProjectileSpritePart(new(0), 0, new(0), 0, 0);
+                native.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
+                authored.AddProjectileSpritePart(new(0), 0, new(0), new Position16<OamPixels>(0, 0));
             }
             DrawImportedProjectileSpritemap(rom, native, id, origin, origin);
             content.Draw(id, authored, origin, origin);
@@ -90,7 +90,7 @@ internal static partial class Program
             oam.AddProjectileSpritePart(new SnesSpritemapXWord(ReadWord(partAddress)),
                 source.ReadByte(SnesAddressMath.AddWithinBank(partAddress, 2)),
                 new SnesObjAttributeWord(ReadWord(SnesAddressMath.AddWithinBank(partAddress, 3))),
-                originX, originY);
+                new Position16<OamPixels>(originX, originY));
             partAddress = SnesAddressMath.AddWithinBank(partAddress, 5);
         }
     }
@@ -180,15 +180,15 @@ internal static partial class Program
             {
                 var slot = runtime.BombProjectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+                slot.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100);
+                slot.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
             }
             else
             {
                 var slot = runtime.Projectiles.Slots[0];
                 slot.Type = family; slot.InstructionPointer = 1; slot.SpritemapPointer = sprite;
-                slot.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-                slot.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+                slot.XPosition = (ushort)(runtime.Camera!.PixelPosition.X + 100);
+                slot.YPosition = (ushort)(runtime.Camera.PixelPosition.Y + 100);
             }
             // Actor drawing also updates mutable visual state. Compare identical
             // captured states rather than two sequential draws of one runtime.

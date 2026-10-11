@@ -29,7 +29,7 @@ internal static partial class Program
             body.Radius = body.Radius.WithY(8);
             body.YSpeed = verticalSpeed;
             body.YSubspeed = 0xffff; // Native admission does not inspect the fractional word.
-            body.ExtraDisplacement = body.ExtraDisplacement.WithWholeX(7).WithFractionX(0x1234);
+            body.ExtraDisplacement = body.ExtraDisplacement.WithX(SuperMetroid.Core.Hardware.SnesSignedSixteenSixteen.FromParts(7, 0x1234));
             samus.HorizontalSpeed.SelectEnvironmentSpeedTable(SamusLiquidMedium.Water);
             bool admitted = behavior >= 10 || (verticalSpeed == 0 && (area != AreaId.WreckedShip || powered));
             int expected = admitted ? ((behavior & 1) == 0 ? 2 : -2) << 16 : 0x71234;

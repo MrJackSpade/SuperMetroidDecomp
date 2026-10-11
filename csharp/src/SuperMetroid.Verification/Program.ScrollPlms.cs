@@ -142,7 +142,7 @@ internal static partial class Program
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
         };
         ball.RefreshCollisionRadii(bus);
-        ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithWholeX(1).WithFractionX(0);
+        ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
         SamusMorphBallMovement.StepGrounded(
             bus,

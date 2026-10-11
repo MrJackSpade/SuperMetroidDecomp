@@ -23,7 +23,8 @@ internal static class EnemyVisualProgramRoutingContracts
         ["ProcessCommonEnemyInstruction"] = "916EF0E5A274D53A3BEF0DB168B3B2D693C51201F8EC560EC372D0EE7F0B2982",
         ["TryProcessOwnedEnemyInstruction"] = "D875D535D3C7F7BC6F6224D7A25C5EAC580C8CC96649A587C53C7B5D0FD75B03",
         // #627 decodes the word into EnemyProjectileInstruction; same cases, guards and order.
-        ["ProcessEnemyProjectileInstructions"] = "5EDA20D0F4E41D11C6AF1C3DC2242A661B60A4F808E141DB45DF2703C14367CC",
+        // #628 re-pin: Samus position/radius reads became typed values; same cases, guards and order.
+        ["ProcessEnemyProjectileInstructions"] = "A970892EAC6833B389976195835D2D82338FE89477F6261EE9F0140210688572",
     };
 
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)

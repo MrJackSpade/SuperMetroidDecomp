@@ -33,6 +33,7 @@ Add a space only when values in it must not mix with an existing space; document
 | `Extent16<TSpace>` | `ushort X, Y` | Sizes and half-extents (radii). The owning member name says which. |
 | `FixedPosition<TSpace>` | `SnesFixedPosition X, Y` (whole + subpixel word per axis) | Native 16.16 positions such as Samus and enemy positions with subpixels. |
 | `FixedVector<TSpace>` | `SnesSignedSixteenSixteen X, Y` | Native signed 16.16 displacements and per-frame velocities. |
+| `Vector88<TSpace>` | `short X, Y` (signed 8.8 words) | Native signed 8.8 per-frame velocity words, such as Samus projectile velocities and the grapple extension velocity. |
 
 The native per-axis arithmetic lives once in `SnesSignedSixteenSixteen` and `SnesFixedPosition`
 (whole/fraction assembly, carry/borrow, 32-bit wrap, half-word replacement). The two-dimensional
@@ -42,12 +43,21 @@ types delegate to it and never re-derive it.
 
 - Natural operators only where the meaning is unambiguous and lossless:
   `Position16 ± Offset16 → Position16`, `Position16 - Position16 → Offset16`,
-  `Offset16 ± Offset16`, `FixedVector ± FixedVector`, `FixedPosition.Advance(FixedVector)`.
+  `Offset16 ± Offset16`, `FixedVector ± FixedVector`, `FixedPosition.Advance(FixedVector)`,
+  `FixedPosition ± Offset16` and `FixedVector ± Offset16` (whole words only, wrapping at
+  sixteen bits; fractions unchanged), `Vector88 + Vector88`.
+- Single-axis native movement: `FixedPosition.AdvanceX/AdvanceY(SnesSignedSixteenSixteen)`.
+- Exact native construction: `FixedVector.FromWords(xWhole, xFraction, yWhole, yFraction)`,
+  `FixedVector.FromWholePixels(Offset16)`, `FixedPosition.FromWhole(Position16)`,
+  `SnesFixedPosition.FromRaw/RawValue` for one unsigned 16.16 axis.
 - Axis replacement: `WithX` / `WithY`. Half-word replacement where a cartridge routine stores only
   one word: `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
-  `SnesFixedPosition.WithWhole/WithFraction`.
+  `SnesFixedPosition.WithWhole/WithFraction`, and on the two-dimensional values
+  `WithWholeX/WithWholeY/WithFractionX/WithFractionY` (positions; vectors where a producer
+  stores one half) and `WithWhole` (both whole words).
 - Conversions between spaces (room → screen via the camera, pixels → blocks, room → OAM, ...)
-  are named methods/extensions in `SuperMetroid.Core.Spatial` next to the spaces they join.
+  are named methods/extensions in `SuperMetroid.Core.Spatial` next to the spaces they join,
+  for example `Position16<RoomPixels>.ToScreen(camera)` in `RoomScreenConversions`.
 - Never floating-point vectors in cartridge logic: preserve native width, signedness, wrap order,
   origin and truncation exactly.
 

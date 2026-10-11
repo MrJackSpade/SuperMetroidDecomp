@@ -41,9 +41,6 @@ public readonly record struct FixedVector<TSpace>(SnesSignedSixteenSixteen X, Sn
     /// <summary>Replaces only the Y whole word, as cartridge routines that store one half do.</summary>
     public FixedVector<TSpace> WithWholeY(short wholePixels) => WithY(Y.WithWholePixels(wholePixels));
 
-    /// <summary>Replaces only the X fraction word, as cartridge routines that store one half do.</summary>
-    public FixedVector<TSpace> WithFractionX(ushort fraction) => WithX(X.WithFraction(fraction));
-
     /// <summary>Replaces only the Y fraction word, as cartridge routines that store one half do.</summary>
     public FixedVector<TSpace> WithFractionY(ushort fraction) => WithY(Y.WithFraction(fraction));
 

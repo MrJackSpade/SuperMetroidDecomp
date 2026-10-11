@@ -23,9 +23,11 @@ internal static class VramDmaProducerContracts
             // #627 re-pinned: only the gunship function write became the typed GunshipFunction.FireUpEngines.
             ("SuperMetroid.Core.Game.RoomEnemySystem.QueueGunshipTakeoffTiles", "9A200AA74DB1FC9E406E752D8AD2D3EFBEFDE2038A64B9439CFC3048F147E621") => "gunship",
             ("SuperMetroid.Core.Game.RoomFxAnimatedTilesState.Step", "74D7F0380AB8B028C6809093235F87837DFD62D7794A242BEFA09C99182049CD") => "fx",
-            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "71A7789688B774B2A32EB48B793BE93363C555C6C461C1FEC7240A4D59B923D7") => "arm",
+            // #628 re-pin: the camera parameter and Samus position became typed values; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.SamusArmCannonState.Draw", "E7248109C4622FC5BBEB1E1BC8B0335EE3303A37F539C945791CE9C278181E8E") => "arm",
             ("SuperMetroid.Core.Game.SamusDeathSequenceState.QueueSegment", "2EA2B64CC751F333B40AED2D5CD4E4FB7B6261003A1882E42E0CF34234C2EB4D") => "death",
-            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "08658BA90E0B432295CA0E4C8F2F72C0BF5F3E4C6F2FC78D0931AEBBB999CE51") => "grapple-native",
+            // #628 re-pin: the camera parameter and grapple anchor/flare became typed values; sources and counts unchanged.
+            ("SuperMetroid.Core.Game.SamusGrappleMovement.DrawConnectedBeam", "95D9F734654D98178B181DF01015E2C0EECF28217AAE983CD808AEF53396062E") => "grapple-native",
             ("SuperMetroid.Core.Game.SamusProjectileSystem.QueueBeamTilesAndLoadPalette", "9400C1F1F3EB941C04621BC070CE56B89828DFFFD4A90A89DD48495304C9700B") => "beam",
             // #627 re-pin: the chunk table parameter became ScrollingSkyChunkTable with the same two tables; sources and counts unchanged.
             ("SuperMetroid.Core.Game.ScrollingSkyState.QueueTilemapRows", "A2AD8385A17B2882557B10624010100C822C3E1F6065403D06698A5C6B73C32B") => "sky",

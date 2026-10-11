@@ -27,4 +27,5 @@
   <Import Project="../../test-support/RoomHeaderImport.projitems" />
   <Import Project="../../test-support/VerificationAccess.Core.projitems" />
   <Import Project="../../test-support/VerificationImporters.projitems" />
+  <Import Project="../../test-support/CpuBusTestDoubles.projitems" />
 </Project>

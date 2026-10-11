@@ -7,6 +7,7 @@
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.Tooling/SuperMetroid.Tooling.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />
+    <Compile Include="../../test-support/CpuBusTestDoubles/SyntheticCartridge.cs" Link="TestSupport/CpuBusTestDoubles/SyntheticCartridge.cs" />
     <!-- Use the compiler shipped with the SDK, not a downloaded parser package. -->
     <Reference Include="Microsoft.CodeAnalysis">
       <HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath>

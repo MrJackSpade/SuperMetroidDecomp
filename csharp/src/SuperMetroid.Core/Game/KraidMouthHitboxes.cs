@@ -114,6 +114,7 @@ internal static class KraidMouthHitboxes
         return (ushort)(low | high << 8);
     }
 
+    [CpuBusBoundary("native emulation: a Kraid mouth hitbox pointer below $8000 reads bank $A7 low-window WRAM, SRAM or peripheral bytes")]
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         if (pointer < 0x8000)

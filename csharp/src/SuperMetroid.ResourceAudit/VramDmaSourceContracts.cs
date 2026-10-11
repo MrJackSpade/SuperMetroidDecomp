@@ -46,7 +46,7 @@ internal static class VramDmaSourceContracts
              new("csharp/src/SuperMetroid.Core/Game/SamusMovementRomData.cs", "1F0A858C191CEF505F59FBC544DA589F1481D8FE574A7795E709B9CD99204093"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusSpritemapPoseDefinitions.cs", "82D88C7F296DD00736D81FBD300F77FFA928107C72F99CE40EA0D763521AF3A0"),
         new("csharp/src/SuperMetroid.Core/Game/SamusPoseId.cs", "996DFE3E185EF497B98E86164EE3A705AFD90FD2BEC63B93DA360CBC1A8ACC38"),
-        new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "2CC603F0BD634DBE2B104CEA898831C6FBE76F32B2AD8FB8A7A1DF15E2A3C593"),
+        new("csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs", "B76A58F0FD157542808E1609A8A746D0189186A4CA9BF130E9A8925DC6642A64"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboMechanicsDefinitions.cs", "C074870129A81166C9D62B619F85B4B60A5AB1F23669E8EE7B3560C181F846D8"),
              new("csharp/src/SuperMetroid.Core/Game/SamusComboRomData.cs", "6295D69960A3E5CBF3FCBEE91701B09AF80396A952BDD71FFB83FE1E8C71FC4C"),
         new("csharp/src/SuperMetroid.Core/Assets/SamusDeathTileAtlas.cs", "2146A35A170015C988A301562FB3A63FD88ED90C84B1D8EF1D1AB8984ADFDD5C"),
@@ -64,7 +64,7 @@ internal static class VramDmaSourceContracts
         new("csharp/src/SuperMetroid.Core/Game/ScrollingSkyChunkPointerDefinitions.cs", "5225F172051E5794AAE99F0ACA578E9DD9FEE58F43F5EFD63D0767EB11341A56"),
         // #1275 re-pin: RetainSubpositions gained a word overload; no DMA source changed.
         new("csharp/src/SuperMetroid.Core/Game/ScrollBoundaryCamera.cs", "FFEDE365E186A7610A0A5507EDD9D346B2DA5603D181EC2EF869CA63AF846EA5"),
-        new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "7EA9A88B0EB66A0832CB59AAF33B45E35A30730A0748EB055921261E0E5DDF83"),
+        new("csharp/src/SuperMetroid.Core/Game/RoomFxRomData.cs", "969BF08E3363A47517C8143B4126E553974860B1D004DDFC14F687AA8F8EE8EC"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomHeaderDefinitions.cs", "CE8FD8936BC72CCEE400695CEAE8BD670D766371A3FB59BA9F13D36D68564F3B"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs", "93A78AC57BDA8AB714CA6D250C9A3CA7008EF1F254D2047BA4277ACB1A9AEFD6"),
         new("csharp/src/SuperMetroid.Core/Rooms/RoomStateSelectionDefinitions.cs", "503BDA37850F18E56E09300911C5A1E3AA1697D1F6B8CCECC1EAB63898449BF8"),

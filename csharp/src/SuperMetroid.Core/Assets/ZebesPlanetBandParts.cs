@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Assets;
 /// atlas seam, including its documented one-cell-left tile mismatch.</summary>
 internal sealed class ZebesPlanetBandParts : IReadOnlyList<CompiledSpritePart>
 {
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
-        pointer == CeresDestructionSpriteDefinitions.Planet
+    internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied) =>
+        backdrop == CeresDestructionBackdrop.Planet
             ? supplied.CalculateIfMatching(new ZebesPlanetBandParts()) : supplied;
     public int Count => 50;
     public CompiledSpritePart this[int index]

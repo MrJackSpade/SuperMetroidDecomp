@@ -2355,8 +2355,9 @@ internal static partial class Program
         for (int index = 0; index < 4; index++)
         {
             AssertEqual(unchecked((short)Word(0x86b6b1 + index * 2)), EyeDoorEnemyProjectileRomData.SweatVelocityWord(index), "eye-door native sweat velocity words");
-            var target = DraygonCannonData.FiringTarget(index);
-            AssertEqual((ushort)(0x8804 + 2 * index), target.DisabledWord, "Draygon original control-word selection");
+            var target = DraygonCannonData.FiringTarget(
+                ClosedNativeWords.Decode<DraygonFiringCannon>((byte)index, "Draygon firing cannon"));
+            AssertEqual((ushort)(0x8804 + 2 * index), (ushort)target.DisabledWord, "Draygon original control-word selection");
             AssertEqual(Word(0xa587e4 + 4 * index), target.X, "Draygon original cannon X");
             AssertEqual(Word(0xa587e6 + 4 * index), target.Y, "Draygon original cannon Y");
         }
@@ -2369,8 +2370,9 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 4, int.MaxValue })
         {
             AssertThrows<IndexOutOfRangeException>(() => EyeDoorEnemyProjectileRomData.SweatVelocityWord(invalid), "eye-door sweat word domain");
-            AssertThrows<IndexOutOfRangeException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
         }
+        foreach (DraygonFiringCannon invalid in new[] { (DraygonFiringCannon)4, (DraygonFiringCannon)byte.MaxValue })
+            AssertThrows<InvalidOperationException>(() => DraygonCannonData.FiringTarget(invalid), "Draygon cannon role domain");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => SaveRamLayout.SlotOffset(invalid), "save slot exact domain");
         foreach (ushort invalid in new ushort[] { 8, 255, ushort.MaxValue })

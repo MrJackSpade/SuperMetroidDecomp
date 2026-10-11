@@ -21,7 +21,7 @@ internal static class SamusColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/SamusChargeColorCatalog.cs", "CDB76AC830F5C819E72F6C4C69EFA092FF576E069F0153DC87A62D2E73BF8D9A"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusFullBodyCycleColorCatalog.cs", "118F6C23E61DA6D26B726CA75CE5CA3469A76FC86E6E6A0826EC08E8D3C124B9"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusPaletteFade.cs", "84583825D0B2866162DEB582F4C4972B0BE3D3F2384D8E73A4762DB0A3FB08ED"),
-             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "76825820A49F541FD09CE8B64FE43E71F4549D178752F72731B0C9B2149DC8E4"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "93565C7F96FC162C2E63A770F9457B1078D34510E58B02A3E1C81B1EC0B056A8"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "398E98A457128DB634036693BD38C41E1D670D5B0357ADE3D37012F3346343E6")]),
         new("SuperMetroid.Core.Assets.SamusHurtColorCatalog", "samus-hurt-complete-palettes", ["Resolve"],
             [PaletteDefinitions,
@@ -29,7 +29,7 @@ internal static class SamusColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Assets/SamusHurtColorDefinitions.cs", "E9D30E2FB36424EBFAE0A012E3281124E7409E0A3547322AB93794A2DB9A4F18")]),
         new("SuperMetroid.Core.Assets.SamusHyperBeamColorCatalog", "samus-hyper-beam-complete-palettes", ["Resolve"],
             [PaletteDefinitions,
-             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "76825820A49F541FD09CE8B64FE43E71F4549D178752F72731B0C9B2149DC8E4"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "93565C7F96FC162C2E63A770F9457B1078D34510E58B02A3E1C81B1EC0B056A8"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "398E98A457128DB634036693BD38C41E1D670D5B0357ADE3D37012F3346343E6")]),
         new("SuperMetroid.Core.Assets.SamusVisorColorCatalog", "samus-visor-complete-colors", ["Resolve", "TryResolveByteOffset"],
             [PaletteDefinitions,
@@ -42,8 +42,8 @@ internal static class SamusColorClosedContractDefinitions
             [PaletteDefinitions,
              new("csharp/src/SuperMetroid.Core/Assets/PowerBombFixedColorCatalog.cs", "5BCA7D4FEDE9EC3C42DE61DC9FF9D954E0C5C5CFC927F5B5903E7F500A1A6516")]),
         new("SuperMetroid.Core.Assets.HyperBeamFxColorCatalog", "hyper-beam-fx-complete-color-frames", ["Apply"],
-            [new("csharp/src/SuperMetroid.Core/Assets/HyperBeamFxColorCatalog.cs", "4F2AD51F69432A91AF8746A55D0B1E9823EAFCFCFDCE87BB5279947458ECE5B9"),
-             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "76825820A49F541FD09CE8B64FE43E71F4549D178752F72731B0C9B2149DC8E4"),
+            [new("csharp/src/SuperMetroid.Core/Assets/HyperBeamFxColorCatalog.cs", "AEBC0014422A3013317F83ACFDD2D657CD2787479E334EA13B5E481AB3A7F96A"),
+             new("csharp/src/SuperMetroid.Core/Assets/SamusHyperBeamColorCatalog.cs", "93565C7F96FC162C2E63A770F9457B1078D34510E58B02A3E1C81B1EC0B056A8"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "398E98A457128DB634036693BD38C41E1D670D5B0357ADE3D37012F3346343E6")]),
     ];
 }

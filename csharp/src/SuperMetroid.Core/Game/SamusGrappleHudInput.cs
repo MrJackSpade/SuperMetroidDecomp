@@ -11,15 +11,15 @@ internal static class SamusGrappleHudInput
             samus.SelectedHudItem != SamusHudRomData.GrappleSelectedItem)
             return false;
 
-        ushort handler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(bus));
-        if (handler is SamusHudRomData.StandardHandler or SamusHudRomData.GrappleHandler)
-            return true;
-        if (handler == SamusHudRomData.DraygonHeldHandler)
-            return samus.ReadMovementType(bus) == SamusMovementType.DraygonHeld;
-        if (handler == SamusHudRomData.TurningHandler)
-            return samus.PoseTransitionShotDirection != 0;
-        if (handler != SamusHudRomData.TransitionHandler)
-            return false;
-        return SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false);
+        SamusHudHandler handler = SamusHudDefinitions.MovementHandler(samus.ReadMovementType(bus));
+        return handler switch
+        {
+            SamusHudHandler.Standard or SamusHudHandler.Grapple => true,
+            SamusHudHandler.DraygonHeld => samus.ReadMovementType(bus) == SamusMovementType.DraygonHeld,
+            SamusHudHandler.Turning => samus.PoseTransitionShotDirection != 0,
+            SamusHudHandler.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false),
+            SamusHudHandler.MorphBall or SamusHudHandler.Jump => false,
+            _ => throw new InvalidOperationException($"Undefined {nameof(SamusHudHandler)} {(int)handler}."),
+        };
     }
 }

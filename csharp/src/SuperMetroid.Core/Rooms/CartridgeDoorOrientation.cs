@@ -73,11 +73,20 @@ public readonly record struct CartridgeDoorOrientation
     /// <summary>True for <see cref="DoorDirection.Down"/> and <see cref="DoorDirection.Up"/> (<c>$82:DE55</c> bit 1).</summary>
     public bool IsVertical => Direction.IsVertical();
 
+    /// <summary>The closing behavior of row <paramref name="row"/> of <c>Door_Closing_PLMs</c>.</summary>
+    private static DoorClosingBehavior ClosingRow(int row) => row switch
+    {
+        0 => DoorClosingBehavior.None,
+        1 => DoorClosingBehavior.BlueDoorCloses,
+        2 => DoorClosingBehavior.EscapeGateCloses,
+        _ => throw new InvalidDataException($"Door_Closing_PLMs has no row {row}."),
+    };
+
     /// <summary>Decodes the cartridge byte, rejecting values outside <c>Door_Closing_PLMs</c>.</summary>
     public static CartridgeDoorOrientation Decode(byte raw)
     {
         if (raw > 0x0b)
             throw new InvalidDataException($"Door orientation byte ${raw:X2} is outside Door_Closing_PLMs ($00-$0B).");
-        return new CartridgeDoorOrientation((DoorDirection)(raw & 3), (DoorClosingBehavior)(raw >> 2));
+        return new CartridgeDoorOrientation((DoorDirection)(raw & 3), ClosingRow(raw >> 2));
     }
 }

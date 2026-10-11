@@ -170,14 +170,14 @@ public sealed class HyperBeamFxColorCatalog
         }
 
         if (document.Version != HyperBeamFxColorFormat.Version ||
-            document.Frames is null || document.Frames.Length != HyperBeamFxColorFormat.FrameCount)
+            !HyperBeamFxColorFormat.Shape.HasRows(document.Frames))
             throw new InvalidDataException("Hyper Beam FX colors require ten frames at the supported version.");
 
         var compiled = new Bgr555[document.Frames.Length][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? colors = document.Frames[frame];
-            if (colors is null || colors.Length != HyperBeamFxColorFormat.ColorsPerFrame)
+            if (!HyperBeamFxColorFormat.Shape.HasColumns(colors))
                 throw new InvalidDataException($"Hyper Beam FX frame {frame} requires eight colors.");
             compiled[frame] = new Bgr555[colors.Length];
             for (int color = 0; color < colors.Length; color++)
@@ -301,4 +301,6 @@ public static class HyperBeamFxColorFormat
     public const int FrameCount = 10;
     /// <summary>Eight colors per native palette record, written to OBJ palette 6 colors 1..8; control words and frame duration are not included.</summary>
     public const int ColorsPerFrame = 8;
+    /// <summary>Required frame-by-color dimensions of the editable document.</summary>
+    internal static FixedGridShape Shape => new(FrameCount, ColorsPerFrame);
 }

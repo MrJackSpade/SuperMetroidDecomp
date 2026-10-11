@@ -632,8 +632,9 @@ public sealed partial class RoomEnemySystem
     {
         int pixels = projectile.Variable0 >> 8;
         bool outbound = projectile.Variable1 != 0;
-        bool thrownRight = projectile.PreInstruction ==
-            (ushort)EnemyProjectilePreInstruction.PirateClaw_Right;
+        bool thrownRight = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
+            projectile.PreInstruction, "enemy-projectile pre-instruction") ==
+            EnemyProjectilePreInstruction.PirateClaw_Right;
         int direction = thrownRight ? 1 : -1;
 
         // Outbound motion follows the throw direction while decelerating to zero; inbound

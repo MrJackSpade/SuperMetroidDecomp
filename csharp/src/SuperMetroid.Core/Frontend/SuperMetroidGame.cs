@@ -283,8 +283,8 @@ public sealed partial class SuperMetroidGame
                         SuperMetroidSaveSlot selectedSlot = saveRam.ReadSlot(selectedSaveSlot)
                             ?? throw new InvalidDataException(
                                 "The selected save became invalid before startup dispatch.");
-                        if (selectedSlot.LoadingGameState ==
-                            SaveLoadingGameStates.OpeningCinematic)
+                        if (selectedSlot.StartupRoute ==
+                            SaveLoadingGameState.OpeningCinematic)
                         {
                             // $82:EEB4 dispatches the zero word written by SpaceTime Beam
                             // to the intro while the already-loaded Samus inventory remains
@@ -304,11 +304,11 @@ public sealed partial class SuperMetroidGame
                                 PublishIntro(intro);
                             }
                         }
-                        else if (selectedSlot.LoadingGameState == SaveLoadingGameStates.CeresDestruction)
+                        else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
                         {
                             StartSavedCeresDestruction(selectedSlot);
                         }
-                        else if (selectedSlot.LoadingGameState == SaveLoadingGameStates.CeresElevatorArrival)
+                        else if (selectedSlot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
                         {
                             // The saved $1F word selects loading directly, without a map.
                             GameState = SuperMetroidGameState.SetUpNewGame;
@@ -513,8 +513,8 @@ public sealed partial class SuperMetroidGame
 
             case SuperMetroidGameState.GameOverMenu:
                 gameOver ??= new GameOverMenuState(bus, audio, mapPresentation,
-                    continueLoadsCeresArrival: saveRam.ReadSlot(selectedSaveSlot)?.LoadingGameState ==
-                        SaveLoadingGameStates.CeresElevatorArrival);
+                    continueLoadsCeresArrival: saveRam.ReadSlot(selectedSaveSlot)?.StartupRoute ==
+                        SaveLoadingGameState.CeresElevatorArrival);
                 gameOver.Step(controllerInput);
                 PublishMenu(gameOver);
                 if (gameOver.CeresArrivalRequested)
@@ -548,7 +548,7 @@ public sealed partial class SuperMetroidGame
                 loadingExistingSave = true;
                 SuperMetroidSaveSlot mapSlot = saveRam.ReadSlot(selectedSaveSlot)
                     ?? throw new InvalidDataException("The selected save became invalid before map selection.");
-                if (mapSlot.LoadingGameState == SaveLoadingGameStates.CeresDestruction)
+                if (mapSlot.StartupRoute == SaveLoadingGameState.CeresDestruction)
                 {
                     StartSavedCeresDestruction(mapSlot);
                     break;
@@ -609,7 +609,7 @@ public sealed partial class SuperMetroidGame
                     // $82:8CEA increments the state written by gameplay, including a
                     // door hit on this final fade frame ($09 becomes $0A).
                     ClearScreenFadeTiming();
-                    GameState++;
+                    GameState = GameState.Next();
                 }
                 break;
 
@@ -1689,7 +1689,7 @@ public sealed partial class SuperMetroidGame
 
             // Preserve the already-translated Ceres elevator entrance for its checkpoint.
             // Every other station uses the general cartridge-backed loader below.
-            if (slot.LoadingGameState == SaveLoadingGameStates.CeresElevatorArrival)
+            if (slot.StartupRoute == SaveLoadingGameState.CeresElevatorArrival)
             {
                 // Room selection and actors must see the restored mirror, not a
                 // fresh runtime followed by an after-the-fact progression overwrite.

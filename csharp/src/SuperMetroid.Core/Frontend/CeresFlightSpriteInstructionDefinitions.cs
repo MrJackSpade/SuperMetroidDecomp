@@ -70,9 +70,47 @@ internal static class CeresFlightSpriteInstructionDefinitions
     internal static ushort ReadWord(ushort pointer)
     {
         ushort next = unchecked((ushort)(pointer + 1));
-        if (next is RearClusterEnd or StarsEnd or LargeAsteroidEnd)
+        if (next >= EndOf(ListContaining(pointer)))
             throw new InvalidDataException(
                 $"Ceres flight word $8B:{pointer:X4} crosses a compiled-list boundary.");
         return (ushort)(ReadByte(pointer) | ReadByte(next) << 8);
+    }
+
+    /// <summary>The three separately compiled bank-$8B lists this owner serves.</summary>
+    private enum CompiledList
+    {
+        /// <summary>Under-attack, small-asteroid and vortex lists at <c>$8B:CC47-CC62</c>.</summary>
+        RearCluster,
+        /// <summary>Shared front/rear star list at <c>$8B:CDA3-CDAA</c>.</summary>
+        Stars,
+        /// <summary>Large-asteroid list at <c>$8B:CE4B-CE52</c>.</summary>
+        LargeAsteroid,
+    }
+
+    private static ushort StartOf(CompiledList list) => list switch
+    {
+        CompiledList.RearCluster => RearClusterStart,
+        CompiledList.Stars => StarsStart,
+        CompiledList.LargeAsteroid => LargeAsteroidStart,
+        _ => throw new InvalidOperationException($"Undefined {nameof(CompiledList)} {list}."),
+    };
+
+    private static ushort EndOf(CompiledList list) => list switch
+    {
+        CompiledList.RearCluster => RearClusterEnd,
+        CompiledList.Stars => StarsEnd,
+        CompiledList.LargeAsteroid => LargeAsteroidEnd,
+        _ => throw new InvalidOperationException($"Undefined {nameof(CompiledList)} {list}."),
+    };
+
+    private static CompiledList ListContaining(ushort pointer)
+    {
+        foreach (CompiledList list in Enum.GetValues<CompiledList>())
+        {
+            if (pointer >= StartOf(list) && pointer < EndOf(list))
+                return list;
+        }
+        throw new InvalidDataException(
+            $"Ceres flight instruction $8B:{pointer:X4} leaves its compiled lists.");
     }
 }

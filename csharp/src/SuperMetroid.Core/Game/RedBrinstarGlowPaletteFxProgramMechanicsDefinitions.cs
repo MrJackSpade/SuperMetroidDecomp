@@ -38,27 +38,32 @@ public static class RedBrinstarGlowPaletteFxProgramMechanicsDefinitions
     /// <summary>The byte index of the first Red Brinstar glow color in CGRAM.</summary>
     public const ushort ColorByteIndex = 0x00c8;
 
+    /// <summary>The program's four fixed control words outside its timed records, valued by address.</summary>
+    private enum ControlWord : ushort
+    {
+        /// <summary>The opening color-index instruction at $8D:EED7.</summary>
+        SetColorIndex = ProgramStart,
+        /// <summary>The color-index instruction's CGRAM byte operand.</summary>
+        ColorIndexOperand = ProgramStart + sizeof(ushort),
+        /// <summary>The terminal <c>goto</c> at $8D:EFF3.</summary>
+        Loop = LoopInstructionPointer,
+        /// <summary>The <c>goto</c> operand naming the first timed record.</summary>
+        LoopTarget = LoopInstructionPointer + sizeof(ushort),
+    }
+
     /// <summary>Reads one fixed mechanics word while excluding BGR555 presentation words.</summary>
     public static bool TryReadMechanicsWord(ushort pointer, out ushort value)
     {
-        if (pointer == ProgramStart)
+        if (Enum.IsDefined((ControlWord)pointer))
         {
-            value = (ushort)PaletteFxInstruction.SetColorIndex;
-            return true;
-        }
-        if (pointer == unchecked((ushort)(ProgramStart + sizeof(ushort))))
-        {
-            value = ColorByteIndex;
-            return true;
-        }
-        if (pointer == LoopInstructionPointer)
-        {
-            value = (ushort)PaletteFxInstruction.Goto;
-            return true;
-        }
-        if (pointer == unchecked((ushort)(LoopInstructionPointer + sizeof(ushort))))
-        {
-            value = FirstFramePointer;
+            value = (ControlWord)pointer switch
+            {
+                ControlWord.SetColorIndex => (ushort)PaletteFxInstruction.SetColorIndex,
+                ControlWord.ColorIndexOperand => ColorByteIndex,
+                ControlWord.Loop => (ushort)PaletteFxInstruction.Goto,
+                ControlWord.LoopTarget => FirstFramePointer,
+                _ => throw new InvalidOperationException($"Undefined {nameof(ControlWord)} {(int)(ControlWord)pointer}."),
+            };
             return true;
         }
 

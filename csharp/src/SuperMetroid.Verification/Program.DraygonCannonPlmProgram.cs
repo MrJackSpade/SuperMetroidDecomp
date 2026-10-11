@@ -91,7 +91,7 @@ internal static partial class Program
             level.CreateBackgroundStreamer().BuildPlmLevelBlockUpdate(
                 leftShieldBlock, 0).TopRow[0],
             "edited offscreen left shield enters later background streaming");
-        AssertTrue(disabled.Contains(DraygonCannonData.UpperLeftDisabledWord),
+        AssertTrue(disabled.Contains((ushort)DraygonCannonControlWord.UpperLeft),
             "pre-destroyed cannon executes its retail damage-list entry");
         int rightBlock = rightShieldBlock;
         AssertTrue(plms.TryNotifyResidentProjectileHit(rightBlock, 0x0200),
@@ -106,7 +106,7 @@ internal static partial class Program
         foreach (ushort word in new ushort[] { 0xa580, 0xa581, 0xa582, 0xa583 })
             AssertTrue(seenRightDamageWords.Contains(word),
                 $"right cannon damage loop draws compiled frame ${word:X4}");
-        AssertTrue(disabled.Contains(DraygonCannonData.LowerLeftDisabledWord),
+        AssertTrue(disabled.Contains((ushort)DraygonCannonControlWord.LowerLeft),
             "right cannon follows native three-hit threshold to damaged list");
         int leftBlock = leftShieldBlock;
         AssertTrue(plms.TryNotifyResidentProjectileHit(leftBlock, 0x0200),
@@ -121,7 +121,7 @@ internal static partial class Program
         foreach (ushort word in new ushort[] { 0xa180, 0xa181, 0xa182, 0xa183 })
             AssertTrue(seenLeftDamageWords.Contains(word),
                 $"left cannon damage loop draws compiled frame ${word:X4}");
-        AssertTrue(disabled.Contains(DraygonCannonData.UpperRightDisabledWord),
+        AssertTrue(disabled.Contains((ushort)DraygonCannonControlWord.UpperRight),
             "left cannon follows native threshold to damaged list");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "retail right/left cannon sequences do not reread compiled program or draw bytes");

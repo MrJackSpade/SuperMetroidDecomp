@@ -9,20 +9,28 @@ internal sealed partial class PauseMenuState
     // task or timer: only the selected reserve-transfer subdispatcher ticks it.
     private ushort reserveTransferSoundDelay;
 
+    /// <summary>The selected item while the reserve-tank category is selected.</summary>
+    private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)selectedItem)
+        ? (PauseReserveItem)selectedItem
+        : throw new InvalidDataException($"Unsupported native reserve subdispatcher {selectedItem}.");
+
     /// <summary>Runs the tank subdispatcher before its D-pad response, as at $82:AC70.</summary>
     private void HandleReserveInput(SnesButton pressed)
     {
-        if (selectedItem == PauseReserveTransferRomData.ModeItem)
+        switch (SelectedReserveItem)
         {
-            if ((pressed & SnesButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
-            audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
-            samus.ReserveTankMode = samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode
-                ? PauseReserveTransferRomData.ManualMode : PauseReserveLabelRomData.AutoMode;
-            WriteReserveLabels();
-            return;
+            case PauseReserveItem.Mode:
+                if ((pressed & SnesButton.A) == 0 || samus.MaxReserveEnergy == 0) return;
+                audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
+                samus.ReserveTankMode = samus.ReserveTankMode == PauseReserveLabelRomData.AutoMode
+                    ? PauseReserveTransferRomData.ManualMode : PauseReserveLabelRomData.AutoMode;
+                WriteReserveLabels();
+                return;
+            case PauseReserveItem.Transfer:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(PauseReserveItem)} {selectedItem}.");
         }
-        if (selectedItem != PauseReserveTransferRomData.TransferItem)
-            throw new InvalidDataException($"Unsupported native reserve subdispatcher {selectedItem}.");
 
         if (reserveTransferSoundDelay == 0)
         {

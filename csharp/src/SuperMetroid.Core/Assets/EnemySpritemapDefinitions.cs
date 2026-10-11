@@ -1618,7 +1618,7 @@ internal static class EnemySpritemapDefinitions
 
     private static IEnumerable<EnemySpritemapDefinition> NamedFrames()
     {
-        for (var frame = NamedFrameId.boyon_idle_0; frame <= NamedFrameId.draygon_breath_bubble_8; frame++)
+        foreach (NamedFrameId frame in Enum.GetValues<NamedFrameId>())
             yield return NamedFrame(frame);
     }
 

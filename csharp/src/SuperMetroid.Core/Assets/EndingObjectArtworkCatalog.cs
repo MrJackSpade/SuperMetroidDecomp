@@ -13,6 +13,33 @@ public enum EndingObjectFragmentId
     Segment7C,
 }
 
+/// <summary>The native ending and credits transfers whose exact byte lengths the catalog enforces.</summary>
+public enum EndingObjectTransfer
+{
+    /// <summary>Atmospheric-cloud OBJ character sheet.</summary>
+    Clouds,
+    /// <summary>Zebes-explosion OBJ character sheet.</summary>
+    Explosion,
+    /// <summary>Waiting-Samus character sheet, also used for suited rewards.</summary>
+    WaitingSamus,
+    /// <summary>Post-credits Samus-shooting OBJ sheet.</summary>
+    ShootingScreen,
+    /// <summary>Under-three-hour suitless reward OBJ sheet.</summary>
+    SuitlessSamus,
+    /// <summary>BG2 waiting-scene tilemap.</summary>
+    WaitingTilemap,
+    /// <summary>BG3 transformation-character transfer.</summary>
+    PostCreditsFragmentA,
+    /// <summary>BG3 transformation tilemap.</summary>
+    PostCreditsFragmentB,
+    /// <summary>Final-logo character stream.</summary>
+    PostShotLogoTiles,
+    /// <summary>Final-logo tilemap.</summary>
+    PostShotLogoMap,
+    /// <summary>Each of the four raw explosion tilemap fragments.</summary>
+    ExplosionFragment,
+}
+
 /// <summary>
 /// Editable character sheets and the waiting-scene BG2 map for the ending and credits.
 /// Actor instructions, palette selection and timing remain code; atmospheric
@@ -71,22 +98,28 @@ public sealed class EndingObjectArtworkCatalog
         RewardSprites = rewardSprites ?? throw new ArgumentNullException(nameof(rewardSprites));
         LogoSprites = logoSprites ?? throw new ArgumentNullException(nameof(logoSprites));
         ArgumentNullException.ThrowIfNull(fragments);
-        if (Clouds.Transfer.Length != EndingObjectArtworkFormat.CloudByteCount ||
-            Explosion.Transfer.Length != EndingObjectArtworkFormat.ExplosionByteCount ||
-            WaitingSamus.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
-            ShootingScreen.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
-            SuitlessSamus.Transfer.Length != EndingObjectArtworkFormat.RewardByteCount ||
-            WaitingTilemap.Transfer.Length != EndingObjectArtworkFormat.WaitingTilemapByteCount ||
-            PostCreditsFragmentA.Transfer.Length != EndingObjectArtworkFormat.PostCreditsFragmentAByteCount ||
-            PostCreditsFragmentB.Transfer.Length != EndingObjectArtworkFormat.PostCreditsFragmentBByteCount ||
-            PostShotLogoTiles.Transfer.Length != EndingObjectArtworkFormat.PostShotLogoTileByteCount ||
-            PostShotLogoMap.Transfer.Length != EndingObjectArtworkFormat.PostShotLogoMapByteCount ||
+        if (!HasNativeLength(Clouds, EndingObjectTransfer.Clouds) ||
+            !HasNativeLength(Explosion, EndingObjectTransfer.Explosion) ||
+            !HasNativeLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
+            !HasNativeLength(ShootingScreen, EndingObjectTransfer.ShootingScreen) ||
+            !HasNativeLength(SuitlessSamus, EndingObjectTransfer.SuitlessSamus) ||
+            !HasNativeLength(WaitingTilemap.Transfer, EndingObjectTransfer.WaitingTilemap) ||
+            !HasNativeLength(PostCreditsFragmentA, EndingObjectTransfer.PostCreditsFragmentA) ||
+            !HasNativeLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
+            !HasNativeLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
+            !HasNativeLength(PostShotLogoMap.Transfer, EndingObjectTransfer.PostShotLogoMap) ||
             fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
             fragments.Any(fragment => fragment is null ||
-                fragment.Transfer.Length != EndingObjectArtworkFormat.FragmentByteCount))
+                !HasNativeLength(fragment, EndingObjectTransfer.ExplosionFragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
         this.fragments = fragments.ToArray();
     }
+
+    private static bool HasNativeLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>
+        HasNativeLength(atlas.Transfer, transfer);
+
+    private static bool HasNativeLength(ReadOnlyMemory<byte> bytes, EndingObjectTransfer transfer) =>
+        bytes.Length == EndingObjectArtworkFormat.ByteCount(transfer);
 
     /// <summary>Compiled 4-bpp atmospheric-cloud OBJ sheet imported from <c>$99:A56F</c> and uploaded at VRAM byte $C000; placement is supplied separately by <see cref="CloudSprites"/>.</summary>
     public RoomCharacterAtlas Clouds { get; }
@@ -196,6 +229,23 @@ public static class EndingObjectArtworkFormat
     public const int PostShotLogoMapByteCount = 0x0800;
     /// <summary>Exact raw explosion-fragment length, $0800 bytes containing 1024 tilemap words; atlas transport preserves those bytes.</summary>
     public const int FragmentByteCount = 0x0800;
+    /// <summary>Exact native byte length of <paramref name="transfer"/>.</summary>
+    /// <param name="transfer">Transfer whose length is required.</param>
+    /// <returns>The byte count the cartridge uploads for that transfer.</returns>
+    public static int ByteCount(EndingObjectTransfer transfer) => transfer switch
+    {
+        EndingObjectTransfer.Clouds => CloudByteCount,
+        EndingObjectTransfer.Explosion => ExplosionByteCount,
+        EndingObjectTransfer.WaitingSamus or EndingObjectTransfer.ShootingScreen or
+            EndingObjectTransfer.SuitlessSamus => RewardByteCount,
+        EndingObjectTransfer.WaitingTilemap => WaitingTilemapByteCount,
+        EndingObjectTransfer.PostCreditsFragmentA => PostCreditsFragmentAByteCount,
+        EndingObjectTransfer.PostCreditsFragmentB => PostCreditsFragmentBByteCount,
+        EndingObjectTransfer.PostShotLogoTiles => PostShotLogoTileByteCount,
+        EndingObjectTransfer.PostShotLogoMap => PostShotLogoMapByteCount,
+        EndingObjectTransfer.ExplosionFragment => FragmentByteCount,
+        _ => throw new InvalidOperationException($"Undefined {nameof(EndingObjectTransfer)} {transfer}."),
+    };
     /// <summary>Number of required explosion fragments, ordered for VRAM word destinations $7000, $7400, $7800, and $7C00.</summary>
     public const int FragmentCount = 4;
     /// <summary>Published fragment keys use the VRAM word-page sequence70,74,78,7c.</summary>

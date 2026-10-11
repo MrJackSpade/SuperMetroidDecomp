@@ -8,8 +8,8 @@ namespace SuperMetroid.Core.Assets;
 /// X=-48 and Y=-8, leaving the space empty; all parts are small and unflipped.</summary>
 internal sealed class PlanetZebesTitleParts : IReadOnlyList<CompiledSpritePart>
 {
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
-        pointer == CeresDestructionSpriteDefinitions.Title
+    internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied) =>
+        backdrop == CeresDestructionBackdrop.Title
             ? supplied.CalculateIfMatching(new PlanetZebesTitleParts()) : supplied;
     public int Count => PlanetZebesTitleAtlas.Text.Length - 1;
     public CompiledSpritePart this[int index]

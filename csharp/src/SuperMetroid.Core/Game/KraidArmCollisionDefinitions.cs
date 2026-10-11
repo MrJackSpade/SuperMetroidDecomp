@@ -167,6 +167,23 @@ internal static class KraidArmCollisionDefinitions
         KraidArmComponentPosition position = positions[component < 2 ? component : component - 1];
         return new(position.X, position.Y, hitbox);
     }
+    /// <summary>The two single-component arm frames, valued by their bank-$A7 spritemap pointer.</summary>
+    private enum SingleComponentFrame : ushort
+    {
+        /// <summary>$A7:92A1, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_0.</summary>
+        First = FirstSingleComponentFrame,
+        /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
+        Second = SecondSingleComponentFrame,
+    }
+
+    /// <summary>Single-component frames follow the ten shared five-component pose ordinals.</summary>
+    private static int PoseOrdinal(SingleComponentFrame frame) => frame switch
+    {
+        SingleComponentFrame.First => 10,
+        SingleComponentFrame.Second => 11,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SingleComponentFrame)} {(int)frame}."),
+    };
+
     internal static bool TryGetComponents(ushort pointer,
         out KraidArmComponentSequence components)
     {
@@ -178,9 +195,9 @@ internal static class KraidArmCollisionDefinitions
             components = new(distance / GeneralFrameBytes % 10, 5);
             return true;
         }
-        if (pointer is FirstSingleComponentFrame or SecondSingleComponentFrame)
+        if (Enum.IsDefined((SingleComponentFrame)pointer))
         {
-            components = new(pointer == FirstSingleComponentFrame ? 10 : 11, 1);
+            components = new(PoseOrdinal((SingleComponentFrame)pointer), 1);
             return true;
         }
         components = default;

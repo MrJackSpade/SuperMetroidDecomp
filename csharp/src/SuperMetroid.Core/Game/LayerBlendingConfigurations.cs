@@ -9,23 +9,22 @@ public static class LayerBlendingConfigurations
     /// <summary>Converts an FX-record byte into a proven bank-$88 configuration.</summary>
     public static LayerBlendingConfiguration FromCartridge(byte value, string sourceContext)
     {
-        LayerBlendingConfiguration configuration = (LayerBlendingConfiguration)value;
-        ValidateDefined(configuration, sourceContext, cartridgeData: true);
-        return configuration;
+        if (!Enum.IsDefined((LayerBlendingConfiguration)value))
+            ValidateDefined((LayerBlendingConfiguration)value, sourceContext, cartridgeData: true);
+        return (LayerBlendingConfiguration)value;
     }
 
     /// <summary>Accepts exactly the even word offsets0..$34 in $88:803E..8072.</summary>
     /// <remarks>The native dispatcher indexes27 consecutive two-byte pointers; every
-    /// slot has a named identity, including unused routines and repeated targets.
-    /// A bounded alignment check replaces enum metadata lookup without accepting odd
-    /// values or extending the host ushort/cartridge byte domains. Independently
+    /// slot has a named identity, including unused routines and repeated targets, so the
+    /// enum's defined members are exactly the dispatcher's domain. Independently
     /// checked against supported NTSC J/U v1.0 and pinned bank_88.asm for #1165.</remarks>
     private static void ValidateDefined(
         LayerBlendingConfiguration configuration,
         string context,
         bool cartridgeData)
     {
-        if (((ushort)configuration & 1) == 0 && configuration <= LayerBlendingConfiguration.MotherBrainPhaseTwo)
+        if (Enum.IsDefined(configuration))
             return;
 
         if (cartridgeData)

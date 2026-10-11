@@ -196,7 +196,7 @@ public sealed partial class RoomPlmSystem
                 $"offset ${conditionOffset:X2} from room argument ${rawRoomArgument:X4}.");
         }
 
-        GreyDoorCondition condition = (GreyDoorCondition)(conditionOffset >> 1);
+        GreyDoorCondition condition = GreyDoorConditions.AtTableIndex(conditionOffset >> 1);
         slot.RoomArgument = unchecked((ushort)(rawRoomArgument & 0x83ff));
         ApplyGreyDoorSetup(level, slot.BlockIndex);
 
@@ -244,7 +244,7 @@ public sealed partial class RoomPlmSystem
             orientation = default;
             return false;
         }
-        orientation = (ColoredDoorOrientation)(byteOffset / 6);
+        orientation = ColoredDoorOrientations.AtTableIndex(byteOffset / 6);
         return true;
     }
 }
@@ -266,6 +266,23 @@ public enum GreyDoorCondition : byte
     TourianStatueFinished,
     /// <summary>Condition-table index 6: the persistent critters-escaped event must be set.</summary>
     CrittersEscaped,
+}
+
+/// <summary>Domain-owned transitions over <see cref="GreyDoorCondition"/>.</summary>
+public static class GreyDoorConditions
+{
+    /// <summary>The condition at <paramref name="index"/> of <c>$84:BE4B</c>'s seven-entry table.</summary>
+    public static GreyDoorCondition AtTableIndex(int index) => index switch
+    {
+        0 => GreyDoorCondition.AreaBossDefeated,
+        1 => GreyDoorCondition.AreaMiniBossDefeated,
+        2 => GreyDoorCondition.AreaTorizoDefeated,
+        3 => GreyDoorCondition.EnemyDeathQuota,
+        4 => GreyDoorCondition.Never,
+        5 => GreyDoorCondition.TourianStatueFinished,
+        6 => GreyDoorCondition.CrittersEscaped,
+        _ => throw new InvalidOperationException($"Grey-door condition table index {index} has no {nameof(GreyDoorCondition)}."),
+    };
 }
 
 /// <summary>Debugger-visible phase of one resident grey-door PLM.</summary>

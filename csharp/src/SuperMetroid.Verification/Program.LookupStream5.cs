@@ -852,7 +852,7 @@ internal static partial class Program
             SpriteVisualPart[] parts = frames[definition.Name];
             Check(stock, definition.Pointer, parts);
             var compiled = IntroCinematicSpriteCompiler.Compile(parts, definition.Name);
-            var calculated = ZebesStarGridParts.CalculateIfMatching(definition.Pointer, compiled);
+            var calculated = ZebesStarGridParts.CalculateIfMatching(definition.Backdrop, compiled);
             AssertTrue(typeof(SpriteComposition).GetField("parts", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(calculated) is ZebesStarGridParts, "Stock stars use calculated common fields");
             for (int index = 0; index < parts.Length; index++)

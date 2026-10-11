@@ -280,9 +280,32 @@ public sealed class SamusPowerBombExplosionState
 
         // Advancing past Sleep executes CallFar($8B32), installs pre-instruction $91A8,
         // and sleeps again during this same HDMA-object-handler pass.
-        ShapeDefinitionPointer = SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape;
+        ShapeDefinitionPointer = StartOf(ShapeSequence.Yellow);
         Phase = PowerBombExplosionPhase.PreExplosionYellow;
     }
+
+    /// <summary>The two authored shape-definition streams the window cursor walks.</summary>
+    private enum ShapeSequence
+    {
+        /// <summary>Window shapes walked during the yellow phase.</summary>
+        Yellow,
+        /// <summary>Window shapes walked during the white phase.</summary>
+        White,
+    }
+
+    private static ushort StartOf(ShapeSequence sequence) => sequence switch
+    {
+        ShapeSequence.Yellow => SamusSpecialSequenceRomData.PowerBomb.FirstYellowShape,
+        ShapeSequence.White => SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ShapeSequence)} {sequence}."),
+    };
+
+    private static ushort EndOf(ShapeSequence sequence) => sequence switch
+    {
+        ShapeSequence.Yellow => SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd,
+        ShapeSequence.White => SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ShapeSequence)} {sequence}."),
+    };
 
     private void StepPreExplosionYellow()
     {
@@ -298,7 +321,7 @@ public sealed class SamusPowerBombExplosionState
         ShapeDefinitionPointer = unchecked((ushort)(
             ShapeDefinitionPointer + SamusSpecialSequenceRomData.PowerBomb.ShapeStride));
         bool finishedShapes =
-            ShapeDefinitionPointer == SamusSpecialSequenceRomData.PowerBomb.YellowShapeEnd;
+            ShapeDefinitionPointer == EndOf(ShapeSequence.Yellow);
 
         // The carry test is performed on the sum before either state word is changed.
         // If it would exceed $FFFF, both radius and speed remain frozen for this frame.
@@ -337,7 +360,7 @@ public sealed class SamusPowerBombExplosionState
 
         // The next instruction calls $8B47, selecting the first of seventeen expanding
         // white shape tables, then installs $8EB2 and sleeps.
-        ShapeDefinitionPointer = SamusSpecialSequenceRomData.PowerBomb.FirstWhiteShape;
+        ShapeDefinitionPointer = StartOf(ShapeSequence.White);
         RenderedShapeDefinitionPointer = 0;
         Phase = PowerBombExplosionPhase.ExplosionWhite;
     }
@@ -353,7 +376,7 @@ public sealed class SamusPowerBombExplosionState
         ShapeDefinitionPointer = unchecked((ushort)(
             ShapeDefinitionPointer + SamusSpecialSequenceRomData.PowerBomb.ShapeStride));
         bool finishedShapes =
-            ShapeDefinitionPointer == SamusSpecialSequenceRomData.PowerBomb.WhiteShapeEnd;
+            ShapeDefinitionPointer == EndOf(ShapeSequence.White);
 
         int nextRadius = ExplosionRadius + RadiusSpeed;
         if (nextRadius < 0x10000)

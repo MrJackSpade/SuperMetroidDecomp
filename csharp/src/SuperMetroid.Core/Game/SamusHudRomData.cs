@@ -5,24 +5,29 @@ internal static class SamusHudRomData
 {
     /// <summary>$90:DD69 selects Grapple at HUD item four.</summary>
     public const ushort GrappleSelectedItem = 4;
-    /// <summary>$90:DD3D standard HUD handler.</summary>
-    public const ushort StandardHandler = 0xdd3d;
-    /// <summary>$90:BF9D HUDSelectionHandler_MorphBall: bomb/Power Bomb dispatch for ball movement.</summary>
-    public const ushort MorphBallHandler = 0xbf9d;
-    /// <summary>$90:DDB6 HUDSelectionHandler_SpinWallJump_Knockback_Shinespark_CF_etc: inactive Grapple preserves charge.</summary>
-    public const ushort JumpHandler = 0xddb6;
-    /// <summary>$90:DD6F Grapple HUD handler.</summary>
-    public const ushort GrappleHandler = 0xdd6f;
-    /// <summary>$90:DDD8 Draygon-held HUD handler; all held poses use normal weapons.</summary>
-    public const ushort DraygonHeldHandler = 0xddd8;
-    /// <summary>$90:DD74 turning HUD handler.</summary>
-    public const ushort TurningHandler = 0xdd74;
-    /// <summary>$90:DD8C posture-transition HUD handler.</summary>
-    public const ushort TransitionHandler = 0xdd8c;
     /// <summary>$90:DD9A subtracts pose $35 to index transition flags.</summary>
     public const SamusPoseId FirstTransitionPose = SamusPoseId.CrouchingTransitionRightPose;
     /// <summary>$90:DD94 suppresses poses $DB-$F0.</summary>
     public const SamusPoseId NonFiringTransitionStart = SamusPoseId.UnusedPoseDb;
     /// <summary>$90:DD8F admits poses at or above $F1 to the standard handler.</summary>
     public const SamusPoseId StandardTransitionStart = SamusPoseId.CrouchingTransitionAimUpRightPose;
+}
+
+/// <summary>The native bank-$90 HUD selection handlers that movement types dispatch to, valued by handler address.</summary>
+internal enum SamusHudHandler : ushort
+{
+    /// <summary>$90:DD3D standard HUD handler.</summary>
+    Standard = 0xdd3d,
+    /// <summary>$90:BF9D HUDSelectionHandler_MorphBall: bomb/Power Bomb dispatch for ball movement.</summary>
+    MorphBall = 0xbf9d,
+    /// <summary>$90:DDB6 HUDSelectionHandler_SpinWallJump_Knockback_Shinespark_CF_etc: inactive Grapple preserves charge.</summary>
+    Jump = 0xddb6,
+    /// <summary>$90:DD6F Grapple HUD handler.</summary>
+    Grapple = 0xdd6f,
+    /// <summary>$90:DDD8 Draygon-held HUD handler; all held poses use normal weapons.</summary>
+    DraygonHeld = 0xddd8,
+    /// <summary>$90:DD74 turning HUD handler.</summary>
+    Turning = 0xdd74,
+    /// <summary>$90:DD8C posture-transition HUD handler.</summary>
+    Transition = 0xdd8c,
 }

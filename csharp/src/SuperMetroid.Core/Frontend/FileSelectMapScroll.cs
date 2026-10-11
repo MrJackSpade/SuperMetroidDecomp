@@ -114,9 +114,9 @@ public sealed class FileSelectMapScroll
     public bool Step(ushort heldInput)
     {
         for (int index = 0; index < MapScrollControls.DirectionCount; index++)
-            if (Direction == MapScrollDirection.None && CanScroll((MapScrollDirection)(index + 1)) &&
-                (heldInput & MapScrollControls.ButtonFor((MapScrollDirection)(index + 1))) != 0)
-                Direction = (MapScrollDirection)(index + 1);
+            if (Direction == MapScrollDirection.None && CanScroll(MapScrollControls.ArrowAt(index)) &&
+                (heldInput & MapScrollControls.ButtonFor(MapScrollControls.ArrowAt(index))) != 0)
+                Direction = MapScrollControls.ArrowAt(index);
         // Native has this explicit cancellation only for the lower boundary.
         if (Direction == MapScrollDirection.Down && !CanScroll(Direction))
         {

@@ -22,6 +22,22 @@ internal static class EyeDoorPlmDrawDefinitions
 
     internal enum Component { Eye, Middle, Bottom, Clear }
 
+    /// <summary>The two four-block clearing frames that share one visual identity.</summary>
+    private enum ClearFrame : ushort
+    {
+        /// <summary>$84:9BF7, the mirrored clear drawn by the left eye's opening list.</summary>
+        MirroredOpening = MirroredOpeningClear,
+        /// <summary>$84:9C4F, the left-facing eye's clearing frame.</summary>
+        LeftEye = LeftEyeClear,
+    }
+
+    private static bool IsLeftOpeningClear(ClearFrame frame) => frame switch
+    {
+        ClearFrame.MirroredOpening => true,
+        ClearFrame.LeftEye => false,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ClearFrame)} {(int)frame}."),
+    };
+
     internal readonly record struct Draw(ushort Pointer, Component Part, int Frame, bool Left)
     {
         internal bool Vertical => Part is Component.Eye or Component.Clear;
@@ -87,9 +103,9 @@ internal static class EyeDoorPlmDrawDefinitions
 
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
-        if (pointer is MirroredOpeningClear or LeftEyeClear)
+        if (Enum.IsDefined((ClearFrame)pointer))
         {
-            draw = new(pointer, Component.Clear, 0, pointer == MirroredOpeningClear);
+            draw = new(pointer, Component.Clear, 0, IsLeftOpeningClear((ClearFrame)pointer));
             return true;
         }
         bool left = pointer < RightEyeFirst;

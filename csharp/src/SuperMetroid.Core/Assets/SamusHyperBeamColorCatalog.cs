@@ -152,13 +152,13 @@ public sealed class SamusHyperBeamColorCatalog
     /// <summary>Validates independently supplied rows for either native view of the Hyper Beam palette.</summary>
     internal static SamusHyperBeamColorCatalog FromFrames(PaletteRgb5[][]? frames)
     {
-        if (frames is null || frames.Length != SamusHyperBeamColorFormat.FrameCount)
+        if (!SamusHyperBeamColorFormat.Shape.HasRows(frames))
             throw new InvalidDataException("Samus Hyper Beam colors require ten frames.");
         var compiled = new Bgr555[frames.Length][];
         for (int frame = 0; frame < compiled.Length; frame++)
         {
             PaletteRgb5[]? source = frames[frame];
-            if (source is null || source.Length != SamusHyperBeamColorFormat.ColorsPerFrame)
+            if (!SamusHyperBeamColorFormat.Shape.HasColumns(source))
                 throw new InvalidDataException($"Samus Hyper Beam frame {frame} requires sixteen RGB5 colors.");
             compiled[frame] = new Bgr555[source.Length];
             for (int colorIndex = 0; colorIndex < source.Length; colorIndex++)
@@ -299,6 +299,8 @@ public static class SamusHyperBeamColorFormat
     public const int FrameCount = SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount;
     /// <summary>Sixteen colors in each complete OBJ palette, including transparent index zero and fifteen opaque ink slots.</summary>
     public const int ColorsPerFrame = SamusPaletteRomData.Common.ColorsPerObjPalette;
+    /// <summary>Required frame-by-color dimensions of the editable document.</summary>
+    internal static FixedGridShape Shape => new(FrameCount, ColorsPerFrame);
 
     /// <summary>Selects a shadow channel shared with the same frame's middle ink13.</summary>
     /// <remarks>Native frame0 ink3 red and ink11 green at9BA366/A376

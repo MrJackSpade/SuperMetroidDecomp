@@ -51,8 +51,25 @@ internal static class CeresExplosionDefinitions
                 countdown = RepeatingPeriodFrames;
             }
         }
-        return new(frame == InitialSpawnFrame, repeat, frame == SpawnerFinalFrame);
+        return new(frame == FrameOf(SpawnerMilestone.InitialWave), repeat,
+            frame == FrameOf(SpawnerMilestone.FinalWave));
     }
+
+    /// <summary>Spawner-schedule milestones that each fire a wave on exactly one host frame.</summary>
+    private enum SpawnerMilestone
+    {
+        /// <summary>Instruction <c>$8B:C404</c> spawns the initial square-and-center wave.</summary>
+        InitialWave,
+        /// <summary>Instruction <c>$8B:C50C</c> spawns the final large-burst wave.</summary>
+        FinalWave,
+    }
+
+    private static int FrameOf(SpawnerMilestone milestone) => milestone switch
+    {
+        SpawnerMilestone.InitialWave => InitialSpawnFrame,
+        SpawnerMilestone.FinalWave => SpawnerFinalFrame,
+        _ => throw new InvalidOperationException($"Undefined {nameof(SpawnerMilestone)} {milestone}."),
+    };
     /// <summary><c>$8B:CEBB</c>, first delayed small-explosion actor.</summary>
     /// <remarks>Native list $8B:CCDB..CCF4 displays six duration-3 small-explosion frames, then deletes. The stream is generated as explicit frame/loop/delete operations by CeresExplosionInstructionDefinitions.</remarks>
     public static CeresExplosionActorDefinition InitialActor =>

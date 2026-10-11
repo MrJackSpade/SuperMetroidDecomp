@@ -34,7 +34,7 @@ internal abstract class ZeroInstructionProgramDefinitions
             throw new IndexOutOfRangeException();
         int surface = index / 10;
         int word = index % 10;
-        ushort start = Entry((CrawlerSurfaceOrientation)surface);
+        ushort start = Entry(CrawlerSurfaceOrientations.AtTableIndex(surface));
         return word switch
         {
             0 => new(start, (ushort)CrawlerInstruction.FunctionInY),
@@ -50,7 +50,7 @@ internal abstract class ZeroInstructionProgramDefinitions
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
-        return (ushort)(Entry((CrawlerSurfaceOrientation)(index / 6)) + 6 + 4 * (index % 6));
+        return (ushort)(Entry(CrawlerSurfaceOrientations.AtTableIndex(index / 6)) + 6 + 4 * (index % 6));
     }
     internal static ushort ReadMechanicsWord(ushort address)
     {

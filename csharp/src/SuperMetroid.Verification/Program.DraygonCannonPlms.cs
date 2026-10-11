@@ -64,7 +64,7 @@ internal static partial class Program
 
         StepDraygonCannonPlms(plms, bus, level, streamer);
         AssertSequenceEqual(
-            new ushort[] { DraygonCannonData.UpperLeftDisabledWord },
+            new ushort[] { (ushort)DraygonCannonControlWord.UpperLeft },
             disabledWords,
             "pre-destroyed cannon immediately writes its bank-$A5 control word");
         AssertDestroyedCannon(level, preDestroyedBlock, roomWidth, "pre-destroyed cannon");
@@ -80,17 +80,17 @@ internal static partial class Program
                 $"missile hit {hit + 1} reaches right cannon");
             SettleDraygonCannonHit(plms, bus, level, streamer);
         }
-        AssertTrue(disabledWords.Contains(DraygonCannonData.LowerLeftDisabledWord),
+        AssertTrue(disabledWords.Contains((ushort)DraygonCannonControlWord.LowerLeft),
             "third missile disables the lower-left firing word");
         AssertDestroyedCannon(level, rightBlock, roomWidth, "right cannon");
 
         AssertTrue(plms.TryNotifyResidentProjectileHit(upperLeftBlock, 0x0200),
             "Super Missile collision reaches left cannon");
         SettleDraygonCannonHit(plms, bus, level, streamer);
-        AssertTrue(disabledWords.Contains(DraygonCannonData.UpperRightDisabledWord),
+        AssertTrue(disabledWords.Contains((ushort)DraygonCannonControlWord.UpperRight),
             "one Super Missile disables the upper-right firing word");
         AssertDestroyedCannon(level, upperLeftBlock, roomWidth, "upper-left cannon");
-        AssertTrue(!disabledWords.Contains(DraygonCannonData.LowerRightDisabledWord),
+        AssertTrue(!disabledWords.Contains((ushort)DraygonCannonControlWord.LowerRight),
             "untouched lower-right cannon remains enabled");
         AssertEqual((int)RoomCollisionType.ShootableBlock,
             (int)level.GetCollisionBlockByIndex(lowerLeftBlock).CollisionType,

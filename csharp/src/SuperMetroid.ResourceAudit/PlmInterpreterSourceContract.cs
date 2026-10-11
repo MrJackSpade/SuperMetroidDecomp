@@ -26,7 +26,8 @@ internal static class PlmInterpreterSourceContract
         ["SetupCollectibleSlot/8"] = "FC1B045565189F852BAD4D102346D3190B42D9B005542CC2B541AE89ABE0496A",
         // #1273 makes the door setups static; no reads or widths change.
         ["SetupColoredDoorSlot/6"] = "C878BE26BCD5544C3AC520C798FE826E3A023140B701E6E514ECADECF57B5715",
-        ["SetupGreyDoorSlot/5"] = "EBF4AA11BF6DFC350FE23A8DE13C007A4D4FFE8131C8E83E513D373BB553E8A7",
+        // #627 selects the grey-door condition through GreyDoorConditions.AtTableIndex; no program reads change.
+        ["SetupGreyDoorSlot/5"] = "A7996BE432E3613E6E5803F0CC795CE36CC6981CD909C5EF1ACD96D601854BC7",
         // Calculated scroll programs retain the same completion mutation.
         ["FinishScrollMutation/2"] = "56ED242C6D1033089B7D352FB6BD23A5F1F4425DA1C583962035AE345C819DB3",
         ["SetupScrollSlot/5"] = "90427E5947D2E103127996ADD0748C112C8F7139E365F6EF4AC20EEE7656AFDD",

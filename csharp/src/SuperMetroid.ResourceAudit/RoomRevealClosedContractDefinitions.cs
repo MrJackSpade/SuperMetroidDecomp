@@ -10,7 +10,7 @@ internal static class RoomRevealClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],
             [XrayCatalog,
              new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealTable.cs", "4D686FABDD811AAA87C100570BBC53A5E944892B08C0A89CA62619A1F9514C93"),
-             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs", "6E9316260AAED6ABE3D9E74455C7BEAEBB1AFA7FE232E7BA1D1149B9D78F9405"),
+             new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealDefinitions.cs", "784CF048E40C02B8C3D679E679381BAE870709AE71CFBEBCFC9EA73990094520"),
              new("csharp/src/SuperMetroid.Core/Rooms/XrayRevealCodePointers.cs", "DBB91BA49C7DEC14C71DFA9FE9CA740EEA4ADAA73D6FCB2A101164E7515A07B7"),
              new("csharp/src/SuperMetroid.Core/Rooms/RoomLevelWord.cs", "76E66EDE002E9700C0CBC0987C44DA5EC988A3318193A38B7ED389C601D78121")]),
         new("SuperMetroid.Core.Rooms.XrayOverlayVisualCatalog", "xray-complete-items-and-required-room-overlays", ["ItemMetatile", "RoomTiles"],

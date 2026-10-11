@@ -13,8 +13,9 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort random)
     {
-        DraygonCannonTarget target = DraygonCannonData.FiringTarget(random & 3);
-        if (state.DisabledCannonWords.Contains(target.DisabledWord))
+        DraygonCannonTarget target = DraygonCannonData.FiringTarget(
+            ClosedNativeWords.Decode<DraygonFiringCannon>((byte)(random & 3), "Draygon firing cannon"));
+        if (state.DisabledCannonWords.Contains((ushort)target.DisabledWord))
             return;
 
         RoomEnemyProjectileSlot? turret = AllocateEnemyProjectile();

@@ -18,8 +18,23 @@ public sealed class IntroCinematicPalette
             var colors = new Bgr555[IntroCinematicPaletteFormat.ColorsPerRow];
             for (int color = 0; color < colors.Length; color++)
                 colors[color] = Bgr555.FromWord(BinaryPrimitives.ReadUInt16LittleEndian(nativeBytes.AsSpan(2 * (row * colors.Length + color))));
-            rows[row] = new PaletteRow(colors, row == IntroCinematicPaletteFormat.NeutralCycleRow,
-                row == IntroCinematicPaletteFormat.CrossFadeRow ? rows[IntroCinematicPaletteFormat.SharedCrossFadeSourceRow] : null);
+            bool neutralCycle = false;
+            PaletteRow? crossFadeSource = null;
+            if (Enum.IsDefined((IntroCinematicAnimatedRow)row))
+            {
+                switch ((IntroCinematicAnimatedRow)row)
+                {
+                    case IntroCinematicAnimatedRow.NeutralCycle:
+                        neutralCycle = true;
+                        break;
+                    case IntroCinematicAnimatedRow.CrossFade:
+                        crossFadeSource = rows[IntroCinematicPaletteFormat.SharedCrossFadeSourceRow];
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Undefined {nameof(IntroCinematicAnimatedRow)} {row}.");
+                }
+            }
+            rows[row] = new PaletteRow(colors, neutralCycle, crossFadeSource);
         }
     }
 
@@ -150,6 +165,15 @@ public sealed record IntroCinematicPaletteDocument
     public required PaletteRgb5[] Colors { get; init; }
 }
 
+/// <summary>The opening-palette CGRAM rows whose colors are derived from shared paint, valued by row index.</summary>
+internal enum IntroCinematicAnimatedRow
+{
+    /// <summary>$8C:E4E9-E508: first object palette repeats a neutral ramp after its background slot.</summary>
+    NeutralCycle = 8,
+    /// <summary>$8C:E5A9-E5C8, Palettes_Intro_CrossFade; its first eight visible inks repeat palette2.</summary>
+    CrossFade = 14,
+}
+
 /// <summary>Resource identity and schema for the opening narration palette.</summary>
 public static class IntroCinematicPaletteFormat
 {
@@ -157,14 +181,10 @@ public static class IntroCinematicPaletteFormat
     public const int Version = 1;
     /// <summary>Native CGRAM palette-row width in RGB5 words.</summary>
     internal const int ColorsPerRow = 16;
-    /// <summary>$8C:E4E9-E508: first object palette repeats a neutral ramp after its background slot.</summary>
-    internal const int NeutralCycleRow = 8;
     /// <summary>$8C:E4EB-E4F2: reviewed four-shade neutral material cycle.</summary>
     internal const int NeutralCycleLength = IntroCinematicPaintDefinitions.WhiteCycleLength;
     /// <summary>$8C:E4EB-E508: reviewed unit decrement in every RGB5 channel.</summary>
     internal const int NeutralCycleStep = IntroCinematicPaintDefinitions.WhiteCycleStep;
-    /// <summary>$8C:E5A9-E5C8, Palettes_Intro_CrossFade; its first eight visible inks repeat palette2.</summary>
-    internal const int CrossFadeRow = 14;
     /// <summary>$8C:E42B-E43A supplies the eight-color gradient also copied atE5AB-E5BA.</summary>
     internal const int SharedCrossFadeSourceRow = 2;
     /// <summary>$8C:E5BB-E5C2: reviewed blue endpoints31/4 derive their equal three-interval decrement.</summary>

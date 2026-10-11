@@ -35,6 +35,12 @@ public enum LayerBlendingConfiguration : ushort
     /// <summary>Dispatcher offset <c>$04</c>, which omits Phantoon's body before its fade-in.</summary>
     PhantoonHidden = 0x0004,
 
+    /// <summary>Dispatcher offset <c>$06</c>, an unused configuration with semi-transparent sprites.</summary>
+    UnusedSemiTransparentSprites = 0x0006,
+
+    /// <summary>Dispatcher offset <c>$08</c>, Wrecked Ship with its power off.</summary>
+    WreckedShipPowerOff = 0x0008,
+
     /// <summary>Dispatcher offset <c>$0A</c>, which composites the drifting-spore BG3 atmosphere.</summary>
     Spores = 0x000a,
 
@@ -43,6 +49,12 @@ public enum LayerBlendingConfiguration : ushort
 
     /// <summary>Dispatcher offset <c>$0E</c>, which adds the full-screen rain BG3 plane.</summary>
     Rain = 0x000e,
+
+    /// <summary>Dispatcher offset <c>$10</c>, the Morph Ball eye room.</summary>
+    MorphBallEye = 0x0010,
+
+    /// <summary>Dispatcher offset <c>$12</c>, the suit-pickup rooms.</summary>
+    SuitPickup = 0x0012,
 
     /// <summary>Dispatcher offset <c>$14</c>, which subtracts the water BG3 plane from the gameplay scene.</summary>
     WaterSubtractive = 0x0014,
@@ -56,8 +68,23 @@ public enum LayerBlendingConfiguration : ushort
     /// <summary>Dispatcher offset <c>$1A</c>, which presents Phantoon through the configured translucent composition.</summary>
     PhantoonSemiTransparent = 0x001a,
 
+    /// <summary>Dispatcher offset <c>$1C</c>, an unused half-additive configuration with reversed backgrounds.</summary>
+    UnusedHalfAdditiveReversedBackgrounds = 0x001c,
+
     /// <summary>Dispatcher offset <c>$1E</c>, which adds the lava or acid BG3 plane and fixed-color effect.</summary>
     LavaAcidAdditive = 0x001e,
+
+    /// <summary>Dispatcher offset <c>$20</c>, an alternate normal-gameplay configuration.</summary>
+    NormalGameplayAlternate = 0x0020,
+
+    /// <summary>Dispatcher offset <c>$22</c>, an unused subtractive water configuration.</summary>
+    UnusedWaterSubtractive = 0x0022,
+
+    /// <summary>Dispatcher offset <c>$24</c>, Mother Brain's window configuration.</summary>
+    MotherBrainWindow = 0x0024,
+
+    /// <summary>Dispatcher offset <c>$26</c>, an unused half-additive configuration.</summary>
+    UnusedHalfAdditive = 0x0026,
 
     /// <summary>Dispatcher offset <c>$28</c>, one of two native backdrop modes that advances the visor palette animation.</summary>
     VisorBackdrop28 = 0x0028,
@@ -65,8 +92,17 @@ public enum LayerBlendingConfiguration : ushort
     /// <summary>Dispatcher offset <c>$2A</c>, the second native backdrop mode that advances the visor palette animation.</summary>
     VisorBackdrop2A = 0x002a,
 
+    /// <summary>Dispatcher offset <c>$2C</c>, haze rooms and the Torizo rooms.</summary>
+    HazeOrTorizo = 0x002c,
+
+    /// <summary>Dispatcher offset <c>$2E</c>, an unused subtractive configuration.</summary>
+    UnusedSubtractive = 0x002e,
+
     /// <summary>Dispatcher offset <c>$30</c>, which adds the full-screen fog BG3 plane.</summary>
     FogAdditive = 0x0030,
+
+    /// <summary>Dispatcher offset <c>$32</c>, an unused subtractive background configuration.</summary>
+    UnusedSubtractiveBackground = 0x0032,
 
     /// <summary>Dispatcher offset <c>$34</c>, installed during Mother Brain's second-phase room transformation.</summary>
     MotherBrainPhaseTwo = 0x0034,

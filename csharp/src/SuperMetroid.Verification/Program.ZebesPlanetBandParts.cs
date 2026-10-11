@@ -12,7 +12,7 @@ internal static partial class Program
             SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, definition.StockPartCount, definition.Name);
             CheckCeresBlastLoader(definition.Pointer, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = ZebesPlanetBandParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = ZebesPlanetBandParts.CalculateIfMatching(definition.Backdrop, source);
             AssertTrue(!ReferenceEquals(source, result), "original ZebesPlanetBand selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original ZebesPlanetBand compiled fields");
             for (int piece = 0; piece < visual.Length; piece++)
@@ -32,7 +32,7 @@ internal static partial class Program
                     edited[piece] = edit;
                     CheckCeresBlastLoader(definition.Pointer, edited);
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited ZebesPlanetBand");
-                    var selected = ZebesPlanetBandParts.CalculateIfMatching(definition.Pointer, supplied);
+                    var selected = ZebesPlanetBandParts.CalculateIfMatching(definition.Backdrop, supplied);
                     AssertEqual(Identity(supplied), Identity(selected), "edited planet identity");
                     AssertTrue(ReferenceEquals(supplied, selected),
                         "independent ZebesPlanetBand field edit stays supplied");
@@ -40,7 +40,7 @@ internal static partial class Program
             }
             CheckCeresBlastLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom ZebesPlanetBand");
-            AssertTrue(ReferenceEquals(extra, ZebesPlanetBandParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, ZebesPlanetBandParts.CalculateIfMatching(definition.Backdrop, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated ZebesPlanetBand part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })

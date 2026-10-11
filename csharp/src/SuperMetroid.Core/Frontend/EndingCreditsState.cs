@@ -948,7 +948,7 @@ internal sealed partial class EndingCreditsState
         sprites.Add(new EndingSprite(new IntroDiscoverySprite(x, y, palette, instructionPointer), role)
             { NativeSlot = slot });
         if (role == EndingSpriteRole.ExplosionStarsLeft)
-            sprites[^1].Sprite.PreInstructionPointerForDiscovery(EndingSpritePreInstructions.WaitForFlyaway);
+            sprites[^1].Sprite.PreInstructionPointerForDiscovery((ushort)EndingSpritePreInstruction.WaitForFlyaway);
     }
 
     private void SpawnSprite(EndingSpriteDefinition definition, EndingSpriteRole role) =>

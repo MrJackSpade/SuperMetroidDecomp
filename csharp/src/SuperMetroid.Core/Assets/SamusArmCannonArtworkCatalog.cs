@@ -8,6 +8,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Installed arm-cannon cover placement, OAM attributes, and indexed 8×8 tiles.</summary>
 public sealed class SamusArmCannonArtworkCatalog
 {
+    /// <summary>Tile-source slots: one row per native aim direction, each holding every cover-art frame slot.</summary>
+    private static readonly FixedGridShape TileSourceShape =
+        new(SamusRenderingRomData.ArmCannon.DirectionCount, SamusArmCannonArtworkFormat.FramesPerDirection);
     private readonly Dictionary<int, ushort> posePointers = new();
     private readonly Dictionary<int, byte> drawingData = new();
     private readonly Dictionary<int, ushort> attributes = new();
@@ -112,8 +115,7 @@ public sealed class SamusArmCannonArtworkCatalog
             document.DrawingData.Length != SamusArmCannonArtworkFormat.DrawingDataByteCount ||
             document.SpriteAttributes is null ||
             document.SpriteAttributes.Length != SamusRenderingRomData.ArmCannon.DirectionCount ||
-            document.TileSources is null ||
-            document.TileSources.Length != SamusRenderingRomData.ArmCannon.DirectionCount)
+            !TileSourceShape.HasRows(document.TileSources))
             throw new InvalidDataException("Arm-cannon artwork has an invalid version or table geometry.");
 
         ushort[] pointers = document.PosePointers.Select((value, pose) =>
@@ -131,7 +133,7 @@ public sealed class SamusArmCannonArtworkCatalog
         for (int direction = 0; direction < sources.Length; direction++)
         {
             int[]? native = document.TileSources[direction];
-            if (native is null || native.Length != SamusArmCannonArtworkFormat.FramesPerDirection)
+            if (!TileSourceShape.HasColumns(native))
                 throw new InvalidDataException(
                     $"Arm-cannon direction {direction} needs four tile-source slots.");
             sources[direction] = native.Select((value, frame) =>

@@ -23,7 +23,7 @@ internal static class PlmDoorClosedContractDefinitions
         new("SuperMetroid.Core.Rooms.RoomPlmEyeDoorVisualCatalog", "plm-eye-door-complete-mirrored-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmEyeDoorVisualCatalog.cs", "47C128195669FE1AF632049145FFEDBB50F474816E3278A23918531FA3DED0C9"),
-             new("csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlmDrawDefinitions.cs", "CBF7F022257BF462890E36DC193697C3BD4B0AE930255918BBB9397E3ADDBAC8")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/EyeDoorPlmDrawDefinitions.cs", "4E08BB5B14648F9EDE1F2F92715E3D57720495F7623B2DAFAD1F9FD1C7F275B4")]),
         new("SuperMetroid.Core.Rooms.RoomPlmEscapeGateVisualCatalog", "plm-escape-gate-complete-draws", ["GetWord"],
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/RoomPlmEscapeGateVisualCatalog.cs", "2C41BDBFC81485E25055B22DE45B2E41CCB41A3D53D691C28942397E2C399C3D"),

@@ -40,7 +40,7 @@ internal static class SequenceColorClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/SnesPpuLayout.cs", "C6753DAA77F9809E6D599040E9E4F13561458352D11DAA0D7EC89B0BFBE3A6C2")]),
         new("SuperMetroid.Core.Assets.SamusDeathPaletteArtworkCatalog", "samus-death-complete-cloned-color-sequences",
             ["SuitedColor", "SuitlessColor", "WhiteoutColor", "ExplosionPaletteIndex"],
-            [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "51DED9770397FF57E6735AEC5E567566695B5A197AAD3C21C8B9CDB6ED9323D9"),
+            [new("csharp/src/SuperMetroid.Core/Assets/SamusDeathPaletteArtworkCatalog.cs", "25A85F0AE8DA898F4FEEA6462128946DDE0A0BDC01B1F0E4D4A9DDA8C91F8DC9"),
              new("csharp/src/SuperMetroid.Core/Assets/LoadingPaletteInputView.cs", "398E98A457128DB634036693BD38C41E1D670D5B0357ADE3D37012F3346343E6"),
              new("csharp/src/SuperMetroid.Core/Assets/SamusPaletteFade.cs", "84583825D0B2866162DEB582F4C4972B0BE3D3F2384D8E73A4762DB0A3FB08ED"),
              new("csharp/src/SuperMetroid.Core/Game/SamusPaletteRomData.cs", "063EA177518DE0CF5C8EA5BD064C2C20E19E1A9D796A632384DDC7F6113EAE2E"),

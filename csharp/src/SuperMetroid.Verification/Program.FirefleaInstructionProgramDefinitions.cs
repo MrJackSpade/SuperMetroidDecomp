@@ -32,7 +32,12 @@ internal static partial class Program
                 $"Fireflea mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new FirefleaInstructionReadGuard(rom);
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
+            address => FirefleaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                (address & 0xff0000) == 0xa30000 &&
+                (FirefleaInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)address)) ||
+                 FirefleaInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)(address - 1)))),
+            address => $"Production read compiled Fireflea instruction byte ${address:X6}.");
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -114,33 +119,4 @@ internal static partial class Program
         unchecked((ushort)(
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
-
-    private sealed class FirefleaInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (FirefleaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Fireflea instruction byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        private static bool IsPresentationByte(int address) =>
-            (address & 0xff0000) == 0xa30000 &&
-            (FirefleaInstructionProgramDefinitions.IsPresentationWord(
-                unchecked((ushort)address)) ||
-             FirefleaInstructionProgramDefinitions.IsPresentationWord(
-                unchecked((ushort)(address - 1))));
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

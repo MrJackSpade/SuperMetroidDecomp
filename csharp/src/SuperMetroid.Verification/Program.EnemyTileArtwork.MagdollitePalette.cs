@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Magdollite palette cycle")]
     private static void VerifyInstalledMagdollitePaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -60,7 +61,9 @@ internal static partial class Program
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            new NoMagdollitePaletteRomReads());
+            CartridgeReadGuard.Unbacked()
+                .ForbidAll(address => $"Installed Magdollite palette hook read ROM ${address:X6}.")
+                .RejectWrites(address => $"Installed Magdollite palette hook wrote ROM ${address:X6}."));
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
         typeof(RoomEnemySystem).GetField("_magdollitePaletteAnimationInstalled", flags)!
             .SetValue(enemies, true);
@@ -126,15 +129,5 @@ internal static partial class Program
             "corrupt stock Magdollite colors fail manifest hash validation");
         File.WriteAllBytes(file, stockJson);
         Console.WriteLine("  Magdollite colors: sixteen native RGB5 words, 32 draw-hook ticks, edited CGRAM, persistent override, strict failures and no runtime ROM reads pass.");
-    }
-
-    private sealed class NoMagdollitePaletteRomReads : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException(
-            $"Installed Magdollite palette hook read ROM ${address:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed Magdollite palette hook wrote ROM ${address:X6}.");
     }
 }

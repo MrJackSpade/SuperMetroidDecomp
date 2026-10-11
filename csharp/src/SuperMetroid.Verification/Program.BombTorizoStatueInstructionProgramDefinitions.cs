@@ -32,7 +32,7 @@ internal static partial class Program
                 $"Bomb Torizo statue mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new BombTorizoStatueInstructionReadGuard(rom);
+        var guard = NewBombTorizoStatueInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         for (int index = 0;
@@ -88,7 +88,7 @@ internal static partial class Program
         }
 
         AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
+            guard.ObservedWords.Count,
             "Bomb Torizo statue fragments use installed presentation operands without ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Bomb Torizo statue mechanics byte");
@@ -231,42 +231,11 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class BombTorizoStatueInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BombTorizoStatueInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Bomb Torizo statue byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = BombTorizoStatueInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBombTorizoStatueInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(BombTorizoStatueInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Bomb Torizo statue byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount,
+                BombTorizoStatueInstructionProgramDefinitions.PresentationWordAddress);
 }

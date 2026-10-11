@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts Crystal Flash display colors; native duration words are not editable.</summary>
+[CpuBusBoundary("codec: ROM Crystal Flash display color tables → Crystal Flash colors")]
 public static class CrystalFlashColorExtractor
 {
     /// <summary>Exports Crystal Flash's ten body-color selections and six bubble-color selections in native pointer-record order.</summary>

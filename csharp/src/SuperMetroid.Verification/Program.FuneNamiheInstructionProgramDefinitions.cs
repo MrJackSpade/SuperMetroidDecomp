@@ -30,7 +30,12 @@ internal static partial class Program
         Suite(nameof(VerifyFuneNamiheMechanicsMapping), () => VerifyFuneNamiheMechanicsMapping(rom));
         Suite(nameof(VerifyFuneNamihePresentationAddresses), () => VerifyFuneNamihePresentationAddresses());
 
-        var guarded = new FuneNamiheInstructionReadGuard(rom);
+        var guarded = new CartridgeReadGuard(rom)
+            .Forbid(FuneNamiheInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Fune/Namihe mechanics byte ${address:X6}.")
+            .ObserveWords(0xa80000,
+                FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount,
+                FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress);
         FuneNamiheProgramCase[] programs =
         [
             new(FuneNamiheInstructionProgramDefinitions.FuneActiveLeft, 0x96d3, false, false, true),
@@ -69,7 +74,7 @@ internal static partial class Program
                 $"Fune/Namihe program $A8:{program.Entry:X4} returns main-AI ownership");
         }
 
-        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+        AssertEqual(0, guarded.ObservedWords.Count,
             "all Fune/Namihe visual selectors are compiled, not reread from cartridge");
         Suite(nameof(VerifyFuneNamiheVisualSelectors), () => VerifyFuneNamiheVisualSelectors(rom));
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -193,7 +198,7 @@ internal static partial class Program
                 "Fune/Namihe visual ordinal bounds");
     }
     private static (RoomEnemySystem System, RoomEnemySlot Slot) RunFuneNamiheProgram(
-        FuneNamiheInstructionReadGuard bus,
+        CartridgeReadGuard bus,
         FuneNamiheProgramCase program)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -250,45 +255,4 @@ internal static partial class Program
         bool Namihe,
         bool Right,
         bool Active);
-
-    private sealed class FuneNamiheInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (FuneNamiheInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Fune/Namihe mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

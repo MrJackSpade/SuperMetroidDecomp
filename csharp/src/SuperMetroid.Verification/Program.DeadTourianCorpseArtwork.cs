@@ -211,7 +211,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        ISnesAddressSpace source = new DeadTourianCorpseArtworkReadGuard(bus);
+        ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
         RoomEnemySlot slot = enemies.Slots[0];
         slot.Parameter1 = parameter;
@@ -225,7 +225,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
-        ISnesAddressSpace source = new DeadTourianCorpseArtworkReadGuard(bus);
+        ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, source);
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = definition;
@@ -234,17 +234,8 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
     }
 
-    private sealed class DeadTourianCorpseArtworkReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xb7c000 and < 0xb7ce00
-                ? throw new InvalidOperationException(
-                    $"Tourian corpse read installed artwork from ROM at ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDeadTourianCorpseArtworkReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xb7c000 and < 0xb7ce00,
+                address => $"Tourian corpse read installed artwork from ROM at ${address:X6}.");
 }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Draygon offscreen HDMA table")]
     private static void VerifyDraygonPrebattleXray()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

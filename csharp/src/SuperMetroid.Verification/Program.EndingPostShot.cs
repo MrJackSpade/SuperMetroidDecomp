@@ -5,10 +5,11 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the post-shot palette, font, logo tiles and map")]
     private static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));
-        var guardedBus = new PostShotUploadTableReadGuard(bus);
+        var guardedBus = NewPostShotUploadTableReadGuard(bus);
         var cgram = new SnesCgram();
         SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);
         Bgr555[] initial = cgram.Colors.ToArray();
@@ -56,26 +57,9 @@ internal static partial class Program
         Console.WriteLine("  Post-shot: 36 rotation frames, delayed palette fades, six exact uploads, 180-frame hold.");
     }
 
-    private sealed class PostShotUploadTableReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address >= EndingPostShotUploadDefinitions.TableAddress &&
-                address < EndingPostShotUploadDefinitions.TableAddress +
-                    EndingPostShotUploadDefinitions.Count * EndingPostShotUploadDefinitions.RecordBytes)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Post-shot upload reread fixed cartridge table at ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPostShotUploadTableReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .ForbidRange(EndingPostShotUploadDefinitions.TableAddress,
+                EndingPostShotUploadDefinitions.Count * EndingPostShotUploadDefinitions.RecordBytes,
+                address => $"Post-shot upload reread fixed cartridge table at ${address:X6}.");
 }

@@ -26,7 +26,7 @@ internal static partial class Program
                 $"Powamp-spike mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new PowampSpikeInstructionReadGuard(rom);
+        var guard = NewPowampSpikeInstructionReadGuard(rom);
         var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
@@ -88,7 +88,7 @@ internal static partial class Program
                 $"production execution selects Powamp-spike presentation $86:{address:X4}");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Powamp-spike frames never read presentation operands from ROM");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Powamp-spike mechanics byte");
@@ -152,44 +152,10 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class PowampSpikeInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Powamp-spike mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < PowampSpikeInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = PowampSpikeInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPowampSpikeInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Powamp-spike mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, PowampSpikeInstructionProgramDefinitions.PresentationWordCount,
+                PowampSpikeInstructionProgramDefinitions.PresentationWordAddress);
 }

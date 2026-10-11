@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid palette rows")]
     private static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -16,7 +17,7 @@ internal static partial class Program
         KraidColorCatalog catalog = stock.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guardForAllColors = new KraidPaletteSourceGuard(rom);
+        var guardForAllColors = NewKraidPaletteSourceGuard(rom);
         var colorReaderOwner = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!
             .SetValue(colorReaderOwner, guardForAllColors);
@@ -46,7 +47,7 @@ internal static partial class Program
         foreach (KraidPaletteConsumer consumer in Enum.GetValues<KraidPaletteConsumer>())
         {
             ushort[] expected = ReferenceKraidPaletteConsumer(rom, consumer);
-            var guard = new KraidPaletteSourceGuard(rom);
+            var guard = NewKraidPaletteSourceGuard(rom);
             Bgr555[] actual = CaptureKraidPaletteConsumer(guard, stock, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"installed Kraid {consumer} avoids all palette ROM sources");
@@ -88,7 +89,7 @@ internal static partial class Program
         })
         {
             ushort[] baseline = ReferenceKraidPaletteConsumer(rom, consumer);
-            var guard = new KraidPaletteSourceGuard(rom);
+            var guard = NewKraidPaletteSourceGuard(rom);
             Bgr555[] changed = CaptureKraidPaletteConsumer(guard, edited, consumer);
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"edited Kraid {consumer} avoids palette ROM reads");
@@ -96,9 +97,9 @@ internal static partial class Program
                 $"edited Kraid {consumer} changes CGRAM {cgramIndex}");
         }
         EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(directory, overrides);
-        AssertTrue(CaptureKraidPaletteConsumer(new KraidPaletteSourceGuard(rom), reloaded,
+        AssertTrue(CaptureKraidPaletteConsumer(NewKraidPaletteSourceGuard(rom), reloaded,
                 KraidPaletteConsumer.HealthNormal)
-            .SequenceEqual(CaptureKraidPaletteConsumer(new KraidPaletteSourceGuard(rom),
+            .SequenceEqual(CaptureKraidPaletteConsumer(NewKraidPaletteSourceGuard(rom),
                 edited, KraidPaletteConsumer.HealthNormal)),
             "Kraid RGB5 override survives catalog reload");
 
@@ -168,6 +169,19 @@ internal static partial class Program
         }
     }
 
+    private static CartridgeReadGuard NewKraidPaletteSourceGuard(ISnesAddressSpace rom)
+    {
+        var guard = new CartridgeReadGuard(rom);
+        foreach (KraidPaletteSource palette in Enum.GetValues<KraidPaletteSource>())
+        {
+            int start = KraidPaletteRomData.SourceAddress(palette);
+            int end = start + KraidPaletteRomData.ColorCount(palette) * sizeof(ushort);
+            guard.Forbid(address => address >= start && address < end,
+                address => $"Kraid {palette} reread palette ROM byte ${address:X6}.");
+        }
+        return guard;
+    }
+
     private static Bgr555[] CaptureKraidPaletteConsumer(
         ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
         KraidPaletteConsumer consumer)
@@ -228,29 +242,5 @@ internal static partial class Program
         HealthFlash,
         EyeUnglow,
         DeathArm,
-    }
-
-    private sealed class KraidPaletteSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            foreach (KraidPaletteSource palette in Enum.GetValues<KraidPaletteSource>())
-            {
-                int start = KraidPaletteRomData.SourceAddress(palette);
-                if (address < start || address >= start +
-                        KraidPaletteRomData.ColorCount(palette) * sizeof(ushort))
-                    continue;
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Kraid {palette} reread palette ROM byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

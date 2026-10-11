@@ -9,6 +9,7 @@ using SuperMetroid.Core.Frontend;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs native ending colors as independently replaceable RGB5 JSON files.</summary>
+[CpuBusBoundary("codec: ROM ending palettes and bank-$8C logo crossfade colors → ending palette artwork files")]
 public static class EndingPaletteArtworkFiles
 {
     private const int ManifestVersion = 2;
@@ -152,7 +153,7 @@ public static class EndingPaletteArtworkFiles
         {
             int pointer = EndingLogoPalettePointerDefinitions.Source(step, palette);
             ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                0x8c0000 | (pointer - (15 - color) * sizeof(ushort)));
+                CartridgeBankWindow.At(EndingCartridgeTables.LogoPaletteBank, pointer - (15 - color) * sizeof(ushort)));
             int index = (step * 2 + palette) * 16 + color;
             BinaryPrimitives.WriteUInt16LittleEndian(
                 native.AsSpan(index * sizeof(ushort)), word);

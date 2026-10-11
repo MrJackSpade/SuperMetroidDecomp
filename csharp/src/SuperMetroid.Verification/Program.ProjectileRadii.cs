@@ -83,7 +83,7 @@ internal static partial class Program
             0x93a199,
         ];
         ushort Word(int a) => (ushort)(rom.ReadByte(a) | rom.ReadByte(a + 1) << 8);
-        var guard = new ProjectileRadiusReadGuard(rom, addresses);
+        var guard = NewProjectileRadiusReadGuard(rom, addresses);
         foreach (int address in addresses)
         {
             AssertEqual(rom.ReadByte(address), SamusProjectileRadiusDefinitions.ReadByte(address), "Native X radius");
@@ -155,16 +155,10 @@ internal static partial class Program
         Console.WriteLine($"Projectile radii: 805 native pairs, loud non-catalog rejection, 1610 projectile frames and {bombFrames} bomb frames pass with radius reads forbidden and replaced art references.");
     }
 
-    private sealed class ProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses)
     {
-        private readonly HashSet<int> _radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (_radii.Contains(address)) throw new InvalidDataException($"Projectile collision still reads ROM ${address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        HashSet<int> radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
+        return new CartridgeReadGuard(source).Forbid(radii.Contains,
+            address => new InvalidDataException($"Projectile collision still reads ROM ${address:X6}."));
     }
 }

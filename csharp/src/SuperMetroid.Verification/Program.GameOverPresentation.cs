@@ -24,7 +24,7 @@ internal static partial class Program
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var native = new GameOverMenuState(bus, nativeAudio, original);
-        var installed = new GameOverMenuState(new ForbiddenMapBus(), installedAudio, original);
+        var installed = new GameOverMenuState(NewForbiddenMapBus(), installedAudio, original);
         bool choseNo = false;
         bool released = false;
         int comparedFrames = 0;
@@ -101,9 +101,9 @@ internal static partial class Program
         var originalEditAudio = new CartridgeAudioState();
         var editedAudio = new CartridgeAudioState();
         var originalMenu = new GameOverMenuState(
-            new ForbiddenMapBus(), originalEditAudio, original);
+            NewForbiddenMapBus(), originalEditAudio, original);
         var editedMenu = new GameOverMenuState(
-            new ForbiddenMapBus(), editedAudio, edited);
+            NewForbiddenMapBus(), editedAudio, edited);
         for (int frame = 0; frame < 40; frame++)
         {
             originalMenu.Step(0);

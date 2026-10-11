@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palettes and thresholds")]
     private static void VerifyInstalledBotwoonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -47,7 +48,7 @@ internal static partial class Program
                 .BotwoonColors!.HealthColor(7, 5),
             "Botwoon color override survives catalog reload");
 
-        var guard = new BotwoonColorReadGuard(rom);
+        var guard = NewBotwoonColorReadGuard(rom);
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -114,27 +115,9 @@ internal static partial class Program
         };
     }
 
-    private sealed class BotwoonColorReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= BotwoonHealthPaletteDefinitions.NativePaletteAddress and
-                < (BotwoonHealthPaletteDefinitions.NativePaletteAddress +
-                    BotwoonHealthPaletteDefinitions.PaletteCount *
-                    BotwoonHealthPaletteDefinitions.ColorsPerPalette * sizeof(ushort)))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Live Botwoon read migrated color ROM ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBotwoonColorReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(BotwoonHealthPaletteDefinitions.NativePaletteAddress,
+            BotwoonHealthPaletteDefinitions.PaletteCount *
+                BotwoonHealthPaletteDefinitions.ColorsPerPalette * sizeof(ushort),
+            address => $"Live Botwoon read migrated color ROM ${address:X6}.");
 }

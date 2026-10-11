@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Viola mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new ViolaInstructionReadGuard(rom);
+        var guard = NewViolaInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeCrawler", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
@@ -62,7 +62,7 @@ internal static partial class Program
                 $"Viola {orientation} enters and loops all fourteen shared frames");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Viola execution uses compiled spritemap selectors");
         for (int index = 0;
              index < ViolaInstructionProgramDefinitions.PresentationWordCount;
@@ -133,42 +133,9 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class ViolaInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ViolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Viola mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ViolaInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        ViolaInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewViolaInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(ViolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Viola mechanics byte ${address:X6}.")
+            .ObserveWords(0xa30000, ViolaInstructionProgramDefinitions.PresentationWordCount, ViolaInstructionProgramDefinitions.PresentationWordAddress);
 }

@@ -34,7 +34,7 @@ internal static partial class Program
             0x71, 0xdf, 29, 21, 0x08, 0x88,
             0, 0,
         ]);
-        var guarded = new DraygonCannonProgramReadGuard(source);
+        var guarded = NewDraygonCannonProgramReadGuard(source);
         const int width = 32;
         var blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
@@ -128,32 +128,17 @@ internal static partial class Program
         Console.WriteLine("  Draygon cannon PLM: both retail programs match ROM and execute through damage without program reads.");
     }
 
-    private sealed class DraygonCannonProgramReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((address >= 0x84dcde && address <= 0x84dd26) ||
-                (address >= 0x84ddb9 && address <= 0x84de01) ||
-                DraygonCannonPlmDrawDefinitions.All.Any(draw =>
-                {
-                    int start = 0x840000 | draw.Pointer;
-                    int size = draw.Runs.Span.ToArray().Sum(run =>
-                        4 + run.LevelWords.Length * 2);
-                    return address >= start && address < start + size;
-                }))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Draygon cannon reread compiled program byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDraygonCannonProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    (address >= 0x84dcde && address <= 0x84dd26) ||
+                    (address >= 0x84ddb9 && address <= 0x84de01) ||
+                    DraygonCannonPlmDrawDefinitions.All.Any(draw =>
+                    {
+                        int start = 0x840000 | draw.Pointer;
+                        int size = draw.Runs.Span.ToArray().Sum(run =>
+                            4 + run.LevelWords.Length * 2);
+                        return address >= start && address < start + size;
+                    }),
+                address => $"Draygon cannon reread compiled program byte ${address:X6}.");
 }

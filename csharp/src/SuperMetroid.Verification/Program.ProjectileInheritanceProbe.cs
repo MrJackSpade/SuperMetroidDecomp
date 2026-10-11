@@ -14,7 +14,16 @@ internal static partial class Program
         var initialize = typeof(SamusProjectileSystem)
             .GetMethod("InitializePowerBeamVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusProjectileSlot>>();
-        var bus = new ProjectileInheritanceProbeBus();
+        var memory = new TestAddressSpace();
+        var bus = new MutableCartridgeReadGuard(memory);
+        bus.Forbid(address => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) == SnesDmaSourceKind.SaveRam,
+            _ => "Projectile inheritance probe must not read SRAM.");
+        ushort ReadWord(int address) => (ushort)(memory.ReadByte(address) | memory.ReadByte(address + 1) << 8);
+        void WriteWord(int address, ushort value)
+        {
+            bus.WriteByte(address, (byte)value);
+            bus.WriteByte(address + 1, (byte)(value >> 8));
+        }
         int failures = 0;
         // Snapshots are CameraYSubSpeed followed by the four native integer/fraction
         // pairs at $0DAA..0DB9. Deliberately preserve the cartridge's word ordering.
@@ -29,7 +38,7 @@ internal static partial class Program
         for (int sample = 0; sample < snapshots.Length; sample++)
         {
             for (int i = 0; i < snapshots[sample].Length; i++)
-                bus.Word(0x0da8 + i * 2, snapshots[sample][i]);
+                WriteWord(0x0da8 + i * 2, snapshots[sample][i]);
             for (ushort direction = 0; direction < 10; direction++)
             {
                 int baseSpeed = direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400;
@@ -37,18 +46,18 @@ internal static partial class Program
                 initialize(bus, slot);
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
                 // Do not replace these overlapping reads with idealized fixed-point math.
-                ushort upWord = bus.Word(0x0db1);
+                ushort upWord = ReadWord(0x0db1);
                 int up = (upWord & 0xff00) == 0 ? 0 : (upWord >> 2) | 0xc000;
                 short expectedX = unchecked((short)(direction switch
                 {
-                    1 or 2 or 3 => baseSpeed + bus.Word(0x0dad),
-                    6 or 7 or 8 => -baseSpeed + bus.Word(0x0da9),
+                    1 or 2 or 3 => baseSpeed + ReadWord(0x0dad),
+                    6 or 7 or 8 => -baseSpeed + ReadWord(0x0da9),
                     _ => 0,
                 }));
                 short expectedY = unchecked((short)(direction switch
                 {
                     0 or 1 or 8 or 9 => -baseSpeed + up,
-                    3 or 4 or 5 or 6 => baseSpeed + bus.Word(0x0db5),
+                    3 or 4 or 5 or 6 => baseSpeed + ReadWord(0x0db5),
                     _ => 0,
                 }));
                 if (slot.Velocity.X.SignedRawValue == expectedX && slot.Velocity.Y.SignedRawValue == expectedY) continue;
@@ -156,23 +165,5 @@ internal static partial class Program
         runtime.StepFrame(0);
         AssertTrue(bus.WorkRam.Slice(0x0daa, 16).ToArray().All(value => value == 0),
             "Input-locked projectile alpha still clears directional movement records");
-    }
-
-    private sealed class ProjectileInheritanceProbeBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
-    {
-        private readonly Dictionary<int, byte> _bytes = new();
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => _bytes.GetValueOrDefault(address);
-        public byte ReadWorkRamByte(int address) => ReadByte(address);
-        public byte ReadSaveRamByte(int address) => throw new InvalidOperationException(
-            "Projectile inheritance probe must not read SRAM.");
-        public void WriteByte(int address, byte value) => _bytes[address] = value;
-        public ushort Word(int address) => (ushort)(ReadByte(address) | ReadByte(address + 1) << 8);
-        public void Word(int address, ushort value)
-        {
-            WriteByte(address, (byte)value);
-            WriteByte(address + 1, (byte)(value >> 8));
-        }
     }
 }

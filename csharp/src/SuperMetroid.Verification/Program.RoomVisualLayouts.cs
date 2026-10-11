@@ -13,6 +13,7 @@ internal static partial class Program
     /// Checks every stock visual reference against its native source, then proves an
     /// installed override changes both rendered planes without changing collision/BTS.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room level streams")]
     private static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CartridgeRoomHeader landing)
     {
@@ -86,7 +87,7 @@ internal static partial class Program
                 int bg2Offset = 2 + layerBytes + blockCount;
                 int availableBg2 = Math.Min(layerBytes, native.Length - bg2Offset);
                 RoomLevelData loaded = LoadFixtureRoomAssets(
-                    new RoomLevelCorpusReadGuard(bus, source), room,
+                    NewRoomLevelCorpusReadGuard(bus, source), room,
                     characterArt: characters, paletteArt: palettes,
                     metatileArt: metatiles, visualLayouts: stock).LevelData;
                 AssertEqual(blockCount, loaded.Size.X * loaded.Size.Y,
@@ -134,10 +135,10 @@ internal static partial class Program
 
         CartridgeRoomAssets nativeRoom = LoadFixtureRoomAssets(bus, landing);
         CartridgeRoomAssets stockRoom = LoadFixtureRoomAssets(
-            new RoomLevelCorpusReadGuard(bus, landingSource), landing,
+            NewRoomLevelCorpusReadGuard(bus, landingSource), landing,
             visualLayouts: stock);
         CartridgeRoomAssets editedRoom = LoadFixtureRoomAssets(
-            new RoomLevelCorpusReadGuard(bus, landingSource), landing,
+            NewRoomLevelCorpusReadGuard(bus, landingSource), landing,
             visualLayouts: installed.LoadRoomVisualLayouts());
         AssertTrue(nativeRoom.LevelData.ForegroundEntries.Span.SequenceEqual(
                 editedRoom.LevelData.ForegroundEntries.Span) &&
@@ -181,7 +182,7 @@ internal static partial class Program
             CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, pointer);
             CartridgeRoomAssets nativeOther = LoadFixtureRoomAssets(bus, room);
             CartridgeRoomAssets compiledOther = LoadFixtureRoomAssets(
-                new RoomLevelCorpusReadGuard(bus, room.State.CompressedLevelDataAddress), room,
+                NewRoomLevelCorpusReadGuard(bus, room.State.CompressedLevelDataAddress), room,
                 visualLayouts: stock);
             AssertTrue(nativeOther.LevelData.ForegroundEntries.Span.SequenceEqual(
                     compiledOther.LevelData.ForegroundEntries.Span) &&
@@ -221,28 +222,7 @@ internal static partial class Program
             "affect only rendering, survive repair, and reject collision bits.");
     }
 
-    private sealed class RoomLevelCorpusReadGuard(ISnesAddressSpace source, int levelSource)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadByte(int address)
-        {
-            RejectLevelSource(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectLevelSource(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private void RejectLevelSource(int address)
-        {
-            if (address == levelSource)
-                throw new InvalidOperationException(
-                    $"Installed room reread native level source ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRoomLevelCorpusReadGuard(ISnesAddressSpace source, int levelSource) =>
+        new CartridgeReadGuard(source).Forbid(address => address == levelSource,
+            address => $"Installed room reread native level source ${address:X6}.");
 }

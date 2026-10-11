@@ -7,6 +7,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Resolves cartridge-backed palette DMA while importing assets. Runtime CGRAM only
 /// accepts mutable memory sources; ROM colors must become installed asset bytes first.
 /// </summary>
+[CpuBusAccess]
 public static class CartridgePaletteImporter
 {
     /// <summary>Copies native little-endian color words from a cartridge, WRAM, or SRAM DMA source into a bounded CGRAM range during asset import.</summary>

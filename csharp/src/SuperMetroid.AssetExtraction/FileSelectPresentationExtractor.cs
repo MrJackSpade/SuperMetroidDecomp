@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Imports file-select page templates, dynamic slot-field artwork and menu actors.
 /// Save validation and copy/clear behavior are deliberately not asset data.
 /// </summary>
+[CpuBusBoundary("codec: ROM file-select page templates, slot-field artwork and menu actors → file-select presentation")]
 public static class FileSelectPresentationExtractor
 {
     /// <summary>Builds file-select page templates and imports dynamic slot artwork, borders, cursor frames, and helmet frames.</summary>

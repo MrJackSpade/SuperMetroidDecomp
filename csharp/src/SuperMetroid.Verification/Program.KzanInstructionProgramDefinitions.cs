@@ -25,7 +25,7 @@ internal static partial class Program
                 $"Kzan instruction mechanics word $A6:{definition.Address:X4}");
         }
 
-        var guard = new KzanInstructionProgramReadGuard(rom);
+        var guard = NewKzanInstructionProgramGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeKzanTop", flags)!
@@ -87,31 +87,10 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class KzanInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Kzan mechanics byte ${address:X6}.");
-            }
-
-            int presentation = 0xa60000 | KzanInstructionProgramDefinitionsTooling.PresentationWord;
-            if (address == presentation || address == presentation + 1)
-            {
-                throw new InvalidOperationException("Production read the compiled Kzan visual operand.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewKzanInstructionProgramGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Kzan mechanics byte ${address:X6}.")
+            .ForbidRange(0xa60000 | KzanInstructionProgramDefinitionsTooling.PresentationWord, 2,
+                _ => "Production read the compiled Kzan visual operand.");
 }

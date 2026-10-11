@@ -15,7 +15,7 @@ internal static partial class Program
             AssertEqual(reference[i],SamusBombSpreadLaunchDefinitions.ForSlot(i),"All native Bomb Spread launch words");
         var spawn=typeof(SamusBombProjectileSystem).GetMethod("SpawnBombSpread",BindingFlags.Instance|BindingFlags.NonPublic)!
             .CreateDelegate<Action<SamusBombProjectileSystem,SamusState>>();
-        var guarded=new BombSpreadLaunchReadGuard(rom);
+        var guarded=NewBombSpreadLaunchReadGuard(rom);
         var bombs=new SamusBombProjectileSystem();
         var samus=new SamusState();
         for(int hold=0;hold<=ushort.MaxValue;hold++)
@@ -44,16 +44,9 @@ internal static partial class Program
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");
     }
 
-    private sealed class BombSpreadLaunchReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if(address>=SamusBombSpreadRomData.FuseTimers && address<SamusBombSpreadRomData.YSubspeeds+SamusBombSpreadRomData.SlotCount*2)
-                throw new InvalidDataException("Bomb Spread still read its compiled launch data from ROM.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address,byte value) => source.WriteByte(address,value);
-    }
+    private static CartridgeReadGuard NewBombSpreadLaunchReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
+                address >= SamusBombSpreadRomData.FuseTimers &&
+                address < SamusBombSpreadRomData.YSubspeeds + SamusBombSpreadRomData.SlotCount * 2,
+            _ => new InvalidDataException("Bomb Spread still read its compiled launch data from ROM."));
 }

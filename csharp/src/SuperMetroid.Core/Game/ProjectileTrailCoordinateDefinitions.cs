@@ -805,6 +805,7 @@ internal static class ProjectileTrailCoordinateDefinitions
         return (ushort)(low | high << 8);
     }
 
+    [CpuBusBoundary("native emulation: an absolute-indexed trail-coordinate operand byte outside compiled bank-$9B data")]
     private static byte ReadCoordinateOperandByte(
         ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {
@@ -836,6 +837,7 @@ internal static class ProjectileTrailCoordinateDefinitions
         };
     }
 
+    [CpuBusBoundary("native emulation: a trail-direction operand byte outside compiled bank-$9B data")]
     private static byte ReadLiveDirectionByte(ISnesAddressSpace bus, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

@@ -31,6 +31,7 @@ static ushort ReferenceNextRandom(ushort seed)
 /// Sparse CPU-bus fixture. Unwritten addresses read as zero, mirroring cleared memory and
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
+[CpuBusBoundary("exact bus test: sparse synthetic CPU address space whose bytes the test seeds directly")]
 sealed class TestAddressSpace : ISnesAddressSpace, ISnesMutableMemory,
     IImportCartridgeSource,
     IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource

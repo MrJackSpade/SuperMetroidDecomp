@@ -21,7 +21,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnMaridiaElevatube(level),
             "native door setup allocates the elevatube PLM");
-        var guarded = new MaridiaElevatubeSourceGuard(new TestAddressSpace());
+        var guarded = NewMaridiaElevatubeSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         int blockIndex = level.GetBlockIndex(
             new(MaridiaElevatubePlmRomData.BlockX, MaridiaElevatubePlmRomData.BlockY));
@@ -49,29 +49,14 @@ internal static partial class Program
             "Maridia elevatube PLM: native delay, draw, sound, and delete pass with source reads forbidden.");
     }
 
-    private sealed class MaridiaElevatubeSourceGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+    private static CartridgeReadGuard NewMaridiaElevatubeSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
         {
             int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
+            return (address >> 16) == 0x84 &&
                 ((pointer >= MaridiaElevatubePlmDefinitions.InstructionList &&
                   pointer < MaridiaElevatubePlmDefinitions.InstructionList + 9) ||
                  (pointer >= MaridiaElevatubePlmDefinitions.DrawPointer &&
-                  pointer < MaridiaElevatubePlmDefinitions.DrawPointer + 6)))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Elevatube PLM reread compiled source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                  pointer < MaridiaElevatubePlmDefinitions.DrawPointer + 6));
+        }, address => $"Elevatube PLM reread compiled source ${address:X6}.");
 }

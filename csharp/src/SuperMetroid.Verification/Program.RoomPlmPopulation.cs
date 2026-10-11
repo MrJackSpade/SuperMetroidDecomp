@@ -924,7 +924,7 @@ internal static partial class Program
         WriteVerticalPlmDraw(bus, 0x9473, [0x80ff, 0x80ff, 0x80ff, 0x80ff]);
         WriteVerticalPlmDraw(bus, 0x947f, [0x830f, 0x80ff, 0x80ff, 0x830f]);
         WriteVerticalPlmDraw(bus, 0x948b, [0x830f, 0x8ae8, 0x82e8, 0x830f]);
-        var guarded = new MotherBrainEscapeGateReadGuard(bus);
+        var guarded = NewMotherBrainEscapeGateGuard(bus);
 
         RoomLevelData ordinaryLevel = CreateRoom(new(width, height),
             new ushort[width * height],
@@ -1037,28 +1037,6 @@ internal static partial class Program
             "non-closing door does not consume a PLM slot");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Mother Brain escape gate never rereads compiled programs or physical draws");
-    }
-
-    private sealed class MotherBrainEscapeGateReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84bb34 and <= 0x84bb51 or
-                >= 0x849473 and <= 0x849496)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Mother Brain escape gate reread compiled source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 
     private static void VerifyMotherBrainEscapeGateCompiledDefinitions(
@@ -1685,4 +1663,9 @@ internal static partial class Program
             WriteOneBlockDraw(bus, draw, unchecked((ushort)(0x8000 | frame)));
         }
     }
+
+    private static CartridgeReadGuard NewMotherBrainEscapeGateGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => address is >= 0x84bb34 and <= 0x84bb51 or >= 0x849473 and <= 0x849496,
+            address => $"Mother Brain escape gate reread compiled source ${address:X6}.");
 }

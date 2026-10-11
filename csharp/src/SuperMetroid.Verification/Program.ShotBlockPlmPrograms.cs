@@ -163,7 +163,7 @@ internal static partial class Program
         {
             ShotBlockFixture stock = NewShotBlockFixture(behavior);
             ShotBlockFixture compiled = NewShotBlockFixture(behavior);
-            var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+            var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
             for (int frame = 0; frame < 420; frame++)
             {
                 stock.Plms.Step(rom, stock.Level, stock.Streamer, new(0, 0), 0);
@@ -369,7 +369,7 @@ internal static partial class Program
             var plms = new RoomPlmSystem { ShotBlockVisuals = visuals };
             AssertTrue(plms.TrySpawnProjectileShotBlock(level, block, 0, 0, true),
                 "visual-only test allocates the production shot-block PLM");
-            plms.Step(new ShotBlockProgramReadGuard(rom, forbidden), level, streamer, new(0, 0), 0);
+            plms.Step(NewShotBlockProgramReadGuard(rom, forbidden), level, streamer, new(0, 0), 0);
             AssertEqual(1, plms.TilemapUpdates.Count,
                 "visual-only edit publishes one immediate PLM tilemap update");
             return (level.GetCollisionBlockByIndex(block).LevelWord,
@@ -488,25 +488,7 @@ internal static partial class Program
         return new ShotBlockFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
-    private sealed class ShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production PLM handler read compiled control byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Production PLM handler read compiled control byte ${address:X6}.");
 }

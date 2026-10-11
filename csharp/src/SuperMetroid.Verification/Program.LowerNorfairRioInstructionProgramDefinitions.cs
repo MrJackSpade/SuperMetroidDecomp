@@ -30,7 +30,7 @@ internal static partial class Program
                 $"Lower Norfair Rio mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new LowerNorfairRioInstructionReadGuard(rom);
+        var guard = NewLowerNorfairRioInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         (ushort Entry, int Calls, ushort Final, bool Visible, bool Signal, string Name)[]
             programs =
@@ -93,7 +93,7 @@ internal static partial class Program
 
         Suite(nameof(VerifyLowerNorfairRioInitializerSelections), () => VerifyLowerNorfairRioInitializerSelections(guard, flags));
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Lower Norfair Rio presentation selectors are compiled, not ROM reads");
         for (int index = 0;
              index < LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -216,47 +216,18 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class LowerNorfairRioInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewLowerNorfairRioInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (LowerNorfairRioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Lower Norfair Rio mechanics byte " +
-                    $"${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = LowerNorfairRioInstructionProgramDefinitionsTooling
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Lower Norfair Rio read visual selector " +
-                                $"$A2:{presentation:X4}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        static ushort SelectorWord(int address) => Enumerable.Range(0, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount)
+            .Select(LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress)
+            .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));
+        CartridgeReadGuard guard = new CartridgeReadGuard(source)
+            .Forbid(LowerNorfairRioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Lower Norfair Rio mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa20000, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Installed Lower Norfair Rio read visual selector $A2:{SelectorWord(address):X4}.")
+            : guard.ObserveWords(0xa20000, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 }

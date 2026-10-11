@@ -86,12 +86,7 @@ internal static partial class Program
         Suite(nameof(VerifyLiquidTilemapDomainAndStorage), () => VerifyLiquidTilemapDomainAndStorage(rom, stock));
     }
 
-    private sealed class LiquidTilemapSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadByte(int address) => address is >= 0x8a8000 and < 0x8a98c0
-            ? throw new InvalidOperationException("Liquid tilemap extraction read a converted stock page.")
-            : source.ReadByte(address);
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewLiquidTilemapSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(0x8a8000, 0x8a98c0 - 0x8a8000,
+            _ => "Liquid tilemap extraction read a converted stock page.");
 }

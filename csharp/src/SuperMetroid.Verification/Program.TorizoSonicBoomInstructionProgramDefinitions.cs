@@ -31,7 +31,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new TorizoSonicBoomInstructionReadGuard(rom);
+        var guard = NewTorizoSonicBoomInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawnBomb = typeof(RoomEnemySystem).GetMethod(
@@ -153,7 +153,7 @@ internal static partial class Program
         AssertEqual(0, impactRandom.Count,
             "Torizo sonic-boom launch and five jitter cycles consume exact RNG words");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "TorizoSonicBoom execution performs no live spritemap operand reads");
         AssertEqual(TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "TorizoSonicBoom executes every native visual operand");
@@ -226,42 +226,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class TorizoSonicBoomInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (TorizoSonicBoomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Torizo sonic-boom byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = TorizoSonicBoomInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewTorizoSonicBoomInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(TorizoSonicBoomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Torizo sonic-boom byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount, TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress);
 }

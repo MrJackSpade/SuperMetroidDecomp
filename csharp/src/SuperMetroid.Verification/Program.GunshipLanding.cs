@@ -92,7 +92,7 @@ internal static partial class Program
         samus.TileTransfers.BindArtwork(
             RepositoryInstallation.SamusBody);
         enemies.Load(
-            new GunshipMotionDefinitionReadGuard(bus),
+            new GunshipMotionFixtureGuard(bus),
             populationPointer,
             tilesetPointer,
             vram,

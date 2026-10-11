@@ -9,7 +9,7 @@ internal static partial class Program
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new GunshipDustReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewGunshipDustGuard(rom));
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnGunshipLiftoffDustCloud", flags)!
             .CreateDelegate<Action<ushort, SamusState>>(enemies);
         var samus = new SamusState();
@@ -60,12 +60,8 @@ internal static partial class Program
         Console.WriteLine("Gunship dust: 12 native words, 393216 real wrapped spawns, full-pool retention and parameter validation pass with migrated reads forbidden.");
     }
 
-    private sealed class GunshipDustReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0x86a2d6 and < 0x86a2ee
-            ? throw new InvalidOperationException("Unexpected migrated gunship dust table read.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected gunship dust bus write.");
-    }
+    private static CartridgeReadGuard NewGunshipDustGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .ForbidRange(0x86a2d6, 0x86a2ee - 0x86a2d6, _ => "Unexpected migrated gunship dust table read.")
+            .RejectWrites(_ => "Unexpected gunship dust bus write.");
 }

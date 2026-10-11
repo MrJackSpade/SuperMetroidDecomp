@@ -9,6 +9,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
     private static void VerifyInstalledKraidBackground(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -77,6 +78,7 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledKraidHeadFrames), () => VerifyInstalledKraidHeadFrames(rom, directory, stock));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid head frames")]
     private static void VerifyInstalledKraidHeadFrames(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
@@ -148,6 +150,7 @@ internal static partial class Program
         Suite(nameof(VerifyInstalledKraidBg3Restoration), () => VerifyInstalledKraidBg3Restoration(rom, directory, stock));
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid BG3 restoration")]
     private static void VerifyInstalledKraidBg3Restoration(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog enemyArtwork)
     {
@@ -285,6 +288,7 @@ internal static partial class Program
         return vram;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid room background")]
     private static void VerifyInstalledKraidRoomBackground(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {

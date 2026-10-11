@@ -8,7 +8,7 @@ internal static partial class Program
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
-        var guarded = new EnemyDeathExplosionReadGuard(rom);
+        var guarded = NewEnemyDeathExplosionReadGuard(rom);
 
         for (ushort animation = 0; animation < 5; animation++)
         {
@@ -59,17 +59,8 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class EnemyDeathExplosionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86efd5 and < 0x86efdf
-                ? throw new InvalidOperationException(
-                    $"Enemy death explosion attempted migrated selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyDeathExplosionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86efd5 and < 0x86efdf,
+                address => $"Enemy death explosion attempted migrated selector read ${address:X6}.");
 }

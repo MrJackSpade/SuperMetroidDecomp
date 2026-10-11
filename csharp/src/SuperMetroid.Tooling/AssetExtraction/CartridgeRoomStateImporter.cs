@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads one native 26-byte bank-$8F room-state payload during import.</summary>
+[CpuBusBoundary("codec: ROM bank-$8F 26-byte room-state payload → CartridgeRoomState")]
 public static class CartridgeRoomStateImporter
 {
     /// <summary>Decodes one 26-byte bank-$8F room-state payload, including its 24-bit level-data address and native graphics, audio, population, and setup fields.</summary>

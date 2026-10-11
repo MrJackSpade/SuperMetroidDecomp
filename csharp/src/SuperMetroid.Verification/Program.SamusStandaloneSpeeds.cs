@@ -16,7 +16,7 @@ internal static partial class Program
         var calculate = typeof(SamusHorizontalSpeedState).GetMethod("CalculateBaseSpeed",
             BindingFlags.Instance | BindingFlags.NonPublic, [typeof(SpeedTableEntry)])!
             .CreateDelegate<Func<SpeedTableEntry, uint>>(reference);
-        var guard = new SlopeHeightNoReadBus();
+        var guard = NewSlopeHeightNoReadBus();
         int cases = 0;
         foreach (int address in new[] { 0x909f25, 0x909f31, 0x909f3d, 0x909f49 })
         {

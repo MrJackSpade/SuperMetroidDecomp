@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)) << 8);
-        var forbidden = new SlopeHeightNoReadBus();
+        var forbidden = NewSlopeHeightNoReadBus();
         int comparisons = 0;
         var unique = new HashSet<ushort>();
         int conditionCount = 0, newMask = 0, heldMask = 0;

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for ending font characters")]
     private static void VerifyEndingTextPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -21,7 +22,7 @@ internal static partial class Program
         AssertTrue(font.Transfer.Span.SequenceEqual(
             nativeFont.AsSpan(0, EndingFontAtlasFormat.ByteCount)),
             "installed ending-font PNG compiles to exact native planar bytes");
-        ISnesAddressSpace installedBus = new EndingTextReadGuard(nativeBus);
+        ISnesAddressSpace installedBus = NewEndingTextReadGuard(nativeBus);
 
         AssertTrue(presentation.BuildResultPanel().AsSpan().SequenceEqual(
             ReadEndingWords(nativeBus, EndingTextDefinitions.Native.ResultPanel,
@@ -182,19 +183,9 @@ internal static partial class Program
         Console.WriteLine("Ending-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
-    private sealed class EndingTextReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int bank = address >> 16;
-            int offset = address & 0xffff;
-            if (bank == EndingTextDefinitions.Native.Bank &&
-                offset is >= EndingTextDefinitions.Native.ResultPanel and <= 0xe1e8)
-                throw new InvalidOperationException($"Installed ending text read cartridge address ${address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEndingTextReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address >> 16 == EndingTextDefinitions.Native.Bank &&
+                    (address & 0xffff) is >= EndingTextDefinitions.Native.ResultPanel and <= 0xe1e8,
+                address => $"Installed ending text read cartridge address ${address:X6}.");
 }

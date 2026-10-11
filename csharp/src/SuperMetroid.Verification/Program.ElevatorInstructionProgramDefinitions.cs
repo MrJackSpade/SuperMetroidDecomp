@@ -19,7 +19,7 @@ internal static partial class Program
         Suite(nameof(VerifyElevatorVisualPointers), () => VerifyElevatorVisualPointers(rom));
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new ElevatorInstructionReadGuard(rom);
+        var guard = NewElevatorInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -42,7 +42,7 @@ internal static partial class Program
         }
         AssertEqual((ushort)0x94da, elevator.CurrentInstruction,
             "elevator two-frame program loops to its second mechanics word");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "both elevator visual selectors are compiled, not reread from cartridge");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled elevator mechanics byte");
@@ -143,42 +143,10 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class ElevatorInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled elevator mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewElevatorInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(ElevatorInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled elevator mechanics byte ${address:X6}.")
+            .ObserveWords(0xa30000, ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount,
+                ElevatorInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

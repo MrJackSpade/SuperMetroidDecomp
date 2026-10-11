@@ -15,7 +15,7 @@ internal static partial class Program
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
         FieldInfo vramField = typeof(RoomEnemySystem).GetField("_vram", flags)!;
         FieldInfo cgramField = typeof(RoomEnemySystem).GetField("_cgram", flags)!;
-        var guarded = new CeresDoorInitializationReadGuard(rom);
+        var guarded = NewCeresDoorInitializationReadGuard(rom);
 
         for (ushort variant = 0; variant < 7; variant++)
         {
@@ -59,17 +59,8 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class CeresDoorInitializationReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa6f52c and < 0xa6f53a or >= 0xa6f72b and < 0xa6f739
-                ? throw new InvalidOperationException(
-                    $"Ceres door attempted migrated initialization-table read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresDoorInitializationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa6f52c and < 0xa6f53a or >= 0xa6f72b and < 0xa6f739,
+                address => $"Ceres door attempted migrated initialization-table read ${address:X6}.");
 }

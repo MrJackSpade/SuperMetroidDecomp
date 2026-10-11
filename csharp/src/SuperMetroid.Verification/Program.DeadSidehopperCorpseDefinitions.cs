@@ -72,7 +72,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new DeadSidehopperCorpseDefinitionReadGuard(rom));
+            NewDeadSidehopperCorpseDefinitionReadGuard(rom));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeDeadSidehopper", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -112,18 +112,8 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class DeadSidehopperCorpseDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa9dd68 and < 0xa9dd88 or
-            >= 0xa9e242 and < 0xa9e244
-                ? throw new InvalidOperationException(
-                    $"Dead sidehopper attempted migrated corpse metadata read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDeadSidehopperCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa9dd68 and < 0xa9dd88 or >= 0xa9e242 and < 0xa9e244,
+                address => $"Dead sidehopper attempted migrated corpse metadata read ${address:X6}.");
 }

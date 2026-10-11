@@ -36,7 +36,7 @@ internal static partial class Program
                 $"Zebetite mechanics word $A6:{definition.Address:X4}");
         }
 
-        var guard = new ZebetiteInstructionReadGuard(rom);
+        var guard = NewZebetiteInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         MethodInfo select = typeof(RoomEnemySystem).GetMethod(
             "SelectZebetiteHealthAnimation",
@@ -83,7 +83,7 @@ internal static partial class Program
                 $"Zebetite program {programIndex} terminal sleep");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Zebetite sprite selection performs zero live cartridge reads");
         AssertEqual(ZebetiteInstructionProgramDefinitions.PresentationWordCount, executedOperands.Count,
             "all Zebetite visual operands execute");
@@ -144,44 +144,9 @@ internal static partial class Program
             source.ReadByte(0xa60000 | address) |
             source.ReadByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class ZebetiteInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal ushort LastObservedPresentationWord { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ZebetiteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Zebetite mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < ZebetiteInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        ZebetiteInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        LastObservedPresentationWord = presentation;
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewZebetiteInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(ZebetiteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Zebetite mechanics byte ${address:X6}.")
+            .ObserveWords(0xa60000, ZebetiteInstructionProgramDefinitions.PresentationWordCount, ZebetiteInstructionProgramDefinitions.PresentationWordAddress);
 }

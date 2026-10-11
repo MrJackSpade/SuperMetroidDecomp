@@ -40,7 +40,7 @@ internal static partial class Program
             () => OwtchStokeVisualDefinitions.FrameAt(EnemyDefinitionId.Stoke, 0x8934),
             "Stoke timing word is not a visual selector");
 
-        var guard = new StokeInstructionProgramReadGuard(rom);
+        var guard = NewStokeInstructionProgramReadGuard(rom);
         HashSet<ushort> observedFrames = [];
         Suite(nameof(VerifyWalking), () => VerifyWalking(
             StokeInstructionProgramDefinitions.MovingLeft,
@@ -197,43 +197,10 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class StokeInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (StokeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Stoke instruction byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        private static bool IsPresentationByte(int address)
-        {
-            if ((address & 0xff0000) != 0xa20000)
-                return false;
-            ushort bankAddress = unchecked((ushort)address);
-            for (int index = 0;
-                 index < StokeInstructionProgramDefinitionsTooling.PresentationWordCount;
-                 index++)
-            {
-                ushort presentation =
-                    StokeInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                if (bankAddress == presentation ||
-                    bankAddress == unchecked((ushort)(presentation + 1)))
-                    return true;
-            }
-            return false;
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewStokeInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(StokeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Stoke instruction byte ${address:X6}.")
+            .ForbidWords(0xa20000, StokeInstructionProgramDefinitionsTooling.PresentationWordCount, StokeInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read compiled Stoke instruction byte ${address:X6}.");
 }

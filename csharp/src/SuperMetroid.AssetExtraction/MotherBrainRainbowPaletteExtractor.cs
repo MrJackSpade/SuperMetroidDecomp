@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs bank-$AD rainbow and grey-transition colors without copying native control tables.</summary>
+[CpuBusBoundary("codec: ROM bank-$AD rainbow and grey-transition colors → Mother Brain rainbow palettes")]
 internal static class MotherBrainRainbowPaletteExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)

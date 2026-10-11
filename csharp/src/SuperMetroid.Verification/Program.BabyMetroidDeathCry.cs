@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Baby Metroid death-cry palette frames")]
     private static int VerifyBabyMetroidDeathCry()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

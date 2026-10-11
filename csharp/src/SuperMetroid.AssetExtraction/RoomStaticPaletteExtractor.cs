@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts exactly the base CGRAM colors consumed by room graphics loading.</summary>
+[CpuBusBoundary("codec: ROM compressed room tileset palettes → room static palettes")]
 public static class RoomStaticPaletteExtractor
 {
     /// <summary>Imports the first 128 base BG colors from each distinct room graphics-set palette source.</summary>

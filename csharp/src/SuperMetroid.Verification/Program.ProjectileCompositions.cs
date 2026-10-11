@@ -97,7 +97,7 @@ internal static partial class Program
 
     private static void VerifyProjectileCompositionOwners(ISnesAddressSpace rom, ProjectileSpriteCatalog content)
     {
-        var forbidden = new ProjectileCompositionForbiddenBus();
+        var forbidden = NewProjectileCompositionForbiddenBus();
         int comparisons = 0;
         foreach (ushort id in ProjectileSpriteDefinitions.NativePointers)
         foreach (ushort coordinate in new ushort[] { 0, 100, 223, 255, 256, 303, 304, 0xffcf, 0xffd0 })
@@ -141,13 +141,10 @@ internal static partial class Program
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
     }
 
-    private sealed class ProjectileCompositionForbiddenBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException($"Composition draw read ROM {address:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Composition draw mutated the bus.");
-    }
+    private static CartridgeReadGuard NewProjectileCompositionForbiddenBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Composition draw read ROM {address:X6}.")
+            .RejectWrites(_ => "Composition draw mutated the bus.");
 
     private static void VerifyRuntimeProjectileCompositions(ISnesAddressSpace bus,
         ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite,

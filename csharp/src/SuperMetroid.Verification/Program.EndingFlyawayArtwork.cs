@@ -13,7 +13,7 @@ internal static partial class Program
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         var installedBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        var guard = new IntroArtworkSourceReadGuard(installedBus);
+        var guard = NewIntroArtworkSourceReadGuard(installedBus);
         var nativeAudio = new CartridgeAudioState();
         var installedAudio = new CartridgeAudioState();
         var native = CreateRetailEndingFixture(nativeBus, nativeAudio, 0, 0);
@@ -67,7 +67,7 @@ internal static partial class Program
         File.Delete(overridePath);
 
         var rebindBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
-        var rebindGuard = new IntroArtworkSourceReadGuard(rebindBus);
+        var rebindGuard = NewIntroArtworkSourceReadGuard(rebindBus);
         var rebindAudio = new CartridgeAudioState();
         var restored = CreateRetailEndingFixture(rebindGuard, rebindAudio, 0, 0);
         restored.BindFlightArtwork(installation.LoadIntroCinematicArt().CeresFlight);

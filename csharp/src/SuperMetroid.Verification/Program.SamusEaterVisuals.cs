@@ -244,7 +244,7 @@ internal static partial class Program
             new byte[width * height], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(visualWord * 4, visualWord);
         var plms = new RoomPlmSystem { SamusEaterVisuals = visuals };
-        var guard = new SamusEaterVisualSourceGuard();
+        var guard = NewSamusEaterVisualSourceGuard();
         var streamer = level.CreateBackgroundStreamer();
         MethodInfo draw = typeof(RoomPlmSystem)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
@@ -276,23 +276,12 @@ internal static partial class Program
             expectedY = 8 + unchecked((sbyte)(offset >> 8));
             nativeCursor += 4 + count * 2;
         }
-        AssertEqual(0, guard.Reads,
+        AssertEqual(0, guard.ForbiddenReadAttempts,
             "compiled Samus Eater draw never reads ROM at runtime");
     }
 
-    private sealed class SamusEaterVisualSourceGuard : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int Reads { get; private set; }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            Reads++;
-            throw new InvalidOperationException(
-                $"Samus Eater drew from native ROM ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) =>
-            throw new InvalidOperationException("Samus Eater draw wrote to CPU bus.");
-    }
+    private static CartridgeReadGuard NewSamusEaterVisualSourceGuard() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Samus Eater drew from native ROM ${address:X6}.")
+            .RejectWrites(_ => "Samus Eater draw wrote to CPU bus.");
 }

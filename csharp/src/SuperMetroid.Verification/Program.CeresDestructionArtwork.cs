@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction tilemaps, characters and actor layout")]
     private static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -59,7 +60,7 @@ internal static partial class Program
             }
         }
 
-        var guard = new IntroArtworkSourceReadGuard(bus,
+        var guard = NewIntroArtworkSourceReadGuard(bus,
             blockCeresFlightSprites: true, blockCeresDestructionSprites: true);
         var native = CreateRetailDestructionFixture(bus);
         var installed = CreateRetailDestructionFixture(guard, artwork: stock);

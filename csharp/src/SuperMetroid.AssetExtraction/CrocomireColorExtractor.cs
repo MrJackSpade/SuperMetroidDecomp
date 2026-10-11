@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts Crocomire's five native RGB5 transfer images, including boundary words.</summary>
+[CpuBusBoundary("codec: ROM Crocomire RGB5 transfer images → CrocomireColorCatalog")]
 public static class CrocomireColorExtractor
 {
     /// <summary>Exports Crocomire's fight-body restoration, initial wall/projectile transfers, skeleton-arm palette, and wall-spike palette with their exact native extents.</summary>

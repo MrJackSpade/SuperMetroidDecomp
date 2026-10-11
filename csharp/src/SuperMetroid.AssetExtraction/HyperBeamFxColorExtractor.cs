@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads only the authored Hyper Beam palette-FX color words from the validated cartridge.</summary>
+[CpuBusBoundary("codec: ROM Hyper Beam palette-FX color words → Hyper Beam FX colors")]
 public static class HyperBeamFxColorExtractor
 {
     /// <summary>Exports the ten eight-color payloads of Hyper Beam palette-FX program $8D:D900, skipping each duration and terminator word.</summary>

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     /// <summary>Independent bounded decode of the already inventoried native visual and collision records.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for native boss extended OAM and BG2 display records")]
     private static (EnemyExtendedDrawComponent[] Oam, EnemyBg2TilemapWrite[] Bg2) ReadBossDisplayOracle(
         CartridgeImportAddressSpace source, EnemyExtendedFrameDefinition frame, HashSet<int> checkedLists)
     {

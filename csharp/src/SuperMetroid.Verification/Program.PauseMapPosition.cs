@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map position tiles and spritemaps")]
     private static void VerifyPauseMapPosition()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");

@@ -15,7 +15,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new SbugMovementReadGuard(new TestAddressSpace()));
+            NewSbugMovementReadGuard(new TestAddressSpace()));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeSbug", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         var runMain = typeof(RoomEnemySystem).GetMethod("RunSbugMain", flags)!
@@ -93,7 +93,7 @@ internal static partial class Program
                 $"Sbug mechanics word $A3:{definition.Address:X4}");
         }
 
-        var programGuard = new SbugProgramReadGuard(rom);
+        var programGuard = NewSbugProgramReadGuard(rom);
         ushort[] entries =
         [
             SbugInstructionProgramDefinitions.Right,
@@ -128,7 +128,7 @@ internal static partial class Program
                 process.Invoke(programSystem, arguments);
         }
 
-        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+        AssertEqual(0, programGuard.ObservedWords.Count,
             "all Sbug presentation selectors are compiled, not reread from cartridge");
         for (int index = 0;
              index < SbugInstructionProgramDefinitions.PresentationWordCount;
@@ -184,56 +184,13 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SbugMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewSbugMovementReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3a111 and < 0xa3a12f,
+            address => $"Sbug movement attempted migrated selector read ${address:X6}.");
 
-        public byte ReadByte(int address) =>
-            address is >= 0xa3a111 and < 0xa3a12f
-                ? throw new InvalidOperationException(
-                    $"Sbug movement attempted migrated selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class SbugProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SbugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Sbug mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < SbugInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        SbugInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSbugProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(SbugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Sbug mechanics byte ${address:X6}.")
+            .ObserveWords(0xa30000, SbugInstructionProgramDefinitions.PresentationWordCount, SbugInstructionProgramDefinitions.PresentationWordAddress);
 }

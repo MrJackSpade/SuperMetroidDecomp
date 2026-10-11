@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts attribute words, not the adjacent instruction timers or control flow.</summary>
+[CpuBusBoundary("codec: ROM Grapple OBJ attribute words → Grapple sprite attributes")]
 public static class GrappleSpriteExtractor
 {
     /// <summary>Decodes the endpoint OBJ attributes and four rope-animation attribute words into editable tile, palette, priority, and flip selections.</summary>

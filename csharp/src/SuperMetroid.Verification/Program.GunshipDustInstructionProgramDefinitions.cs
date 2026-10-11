@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Gunship dust mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new GunshipDustInstructionReadGuard(rom);
+        var guard = NewGunshipDustInstructionGuard(rom);
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnGunshipLiftoffDustCloud", flags)!;
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -71,7 +71,7 @@ internal static partial class Program
                 $"gunship dust program {programIndex} exits its decrement branch and deletes");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled gunship visuals require no cartridge reads");
+        AssertEqual(0, guard.ObservedWords.Count, "compiled gunship visuals require no cartridge reads");
         for (int index = 0;
              index < GunshipDustInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -132,44 +132,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class GunshipDustInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (GunshipDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled gunship dust mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < GunshipDustInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = GunshipDustInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewGunshipDustInstructionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(GunshipDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled gunship dust mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, GunshipDustInstructionProgramDefinitions.PresentationWordCount, GunshipDustInstructionProgramDefinitions.PresentationWordAddress);
 }

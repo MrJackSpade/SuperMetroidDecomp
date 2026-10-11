@@ -22,7 +22,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(installed,
-            new FrontendCartridgeReadGuard(rom));
+            NewFrontendCartridgeReadGuard(rom));
         var walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         RoomEnemySlot installedSlot = installed.Slots[0];

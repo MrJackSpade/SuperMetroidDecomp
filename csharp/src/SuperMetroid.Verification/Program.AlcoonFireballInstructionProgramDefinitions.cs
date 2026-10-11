@@ -111,7 +111,7 @@ internal static partial class Program
         Suite(nameof(VerifyAlcoonFireballPresentationAddresses), () => VerifyAlcoonFireballPresentationAddresses());
         Suite(nameof(VerifyAlcoonFireballVisualSelectors), () => VerifyAlcoonFireballVisualSelectors(rom));
 
-        var guard = new AlcoonFireballInstructionReadGuard(rom);
+        var guard = NewAlcoonFireballInstructionReadGuard(rom);
         var observedVisualOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
@@ -236,26 +236,9 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class AlcoonFireballInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (((address & 0xff0000) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read migrated Alcoon-fireball program byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewAlcoonFireballInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
+                ((address & 0xff0000) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+            address => $"Production read migrated Alcoon-fireball program byte ${address:X6}.");
 }

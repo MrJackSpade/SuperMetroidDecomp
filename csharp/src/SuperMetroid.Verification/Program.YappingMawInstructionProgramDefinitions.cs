@@ -29,7 +29,7 @@ internal static partial class Program
                 $"Yapping Maw mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new YappingMawInstructionReadGuard(rom);
+        var guard = NewYappingMawInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         for (int direction = 0; direction < 8; direction++)
         {
@@ -222,42 +222,10 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class YappingMawInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (YappingMawInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Yapping Maw mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < YappingMawInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = YappingMawInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read compiled Yapping Maw visual byte ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewYappingMawInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(YappingMawInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Yapping Maw mechanics byte ${address:X6}.")
+            .ForbidWords(0xa80000, YappingMawInstructionProgramDefinitions.PresentationWordCount, YappingMawInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Production read compiled Yapping Maw visual byte ${address:X6}.");
 }

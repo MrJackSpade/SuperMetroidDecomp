@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
@@ -57,6 +58,7 @@ internal static class DoorCatalogManifest
     internal const string ManifestHash = "0D5DCF635B31031115C6D75BFB24DF9E8EB911C09B0D6F0E8F75D8843A6D4CE9";
     internal static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
 
+    [CpuBusBoundary("codec: ROM door lists, door headers and room level data → native door-catalog manifest")]
     internal static int Generate(string disassembly, string rom, string output)
     {
         string bank8f = ReadPinned(Path.Combine(disassembly, "src/bank_8F.asm"),

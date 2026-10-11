@@ -16,7 +16,7 @@ internal static partial class Program
                 $"Zebes escape explosion sound {index}");
         }
 
-        var guarded = new ZebesEscapeExplosionReadGuard(rom);
+        var guarded = NewZebesEscapeExplosionReadGuard(rom);
         FieldInfo busField = typeof(RoomEnemySystem).GetField(
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (ushort choice = 0; choice < 16; choice++)
@@ -63,17 +63,7 @@ internal static partial class Program
             "Zebes escape explosion definitions: sixteen native bytes and all 128 random/inherited selection handoffs pass with source tables forbidden.");
     }
 
-    private sealed class ZebesEscapeExplosionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x8fc1d6 and < 0x8fc1e6
-                ? throw new InvalidOperationException(
-                    $"Zebes escape explosion attempted migrated table read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewZebesEscapeExplosionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0x8fc1d6 and < 0x8fc1e6,
+            address => $"Zebes escape explosion attempted migrated table read ${address:X6}.");
 }

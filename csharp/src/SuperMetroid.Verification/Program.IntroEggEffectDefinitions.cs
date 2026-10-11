@@ -17,7 +17,7 @@ internal static partial class Program
             () => IntroEggEffectDefinitions.Particle(IntroEggEffectDefinitions.ParticleCount),
             "intro egg particle definition boundary");
 
-        var guarded = new IntroEggEffectDefinitionReadGuard(retail);
+        var guarded = NewIntroEggEffectDefinitionGuard(retail);
         var particles = Enumerable.Range(0, IntroEggEffectDefinitions.ParticleCount)
             .Select(index => new IntroEggParticle((byte)index))
             .ToArray();
@@ -81,26 +81,10 @@ internal static partial class Program
     private static ushort ReadIntroEggEffectWord(SuperMetroidAddressSpace bus, int address) =>
         unchecked((ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8));
 
-    private sealed class IntroEggEffectDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x8bcecd and < 0x8bcef7 or
+    private static CartridgeReadGuard NewIntroEggEffectDefinitionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => address is >= 0x8bcecd and < 0x8bcef7 or
                 >= 0x8bcd39 and < 0x8bcd83 or
-                >= 0x8bce53 and < 0x8bce55)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Intro egg effect reread compiled definition byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0x8bce53 and < 0x8bce55,
+            address => $"Intro egg effect reread compiled definition byte ${address:X6}.");
 }

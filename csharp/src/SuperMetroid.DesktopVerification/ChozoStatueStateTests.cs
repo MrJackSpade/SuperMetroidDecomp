@@ -73,6 +73,7 @@ internal static partial class Program
         Console.WriteLine($"Verified hand collision, per-frame carry alignment, slope restoration and {soundFrames} sound frames.");
     }
 
+    [SuperMetroid.Core.Hardware.CpuBusBoundary("exact bus test: retail ROM oracle for Chozo statue hand carry offset tables")]
     private static ushort ReadChozoWord(int address)
     {
         var reference = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

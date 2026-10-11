@@ -57,7 +57,7 @@ internal static partial class Program
             }
             var level = CreateRoom(new(32, 16), new ushort[512], new byte[512], blockDefinitions: new byte[0x400 * 8]);
             var plms = new RoomPlmSystem();
-            var guarded = new ChozoProgramAndDrawReadGuard(rom);
+            var guarded = NewChozoProgramAndDrawReadGuard(rom);
             if (field == 0)
             {
                 AssertTrue(plms.TrySpawnChozoStatuePlm(level,

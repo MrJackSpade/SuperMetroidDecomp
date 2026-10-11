@@ -24,7 +24,7 @@ internal static partial class Program
         var native = new GameOptionsMenuState(bus, nativeAudio,
             mapPresentation: original);
         var installed = new GameOptionsMenuState(
-            new ForbiddenMapBus(), installedAudio, mapPresentation: original);
+            NewForbiddenMapBus(), installedAudio, mapPresentation: original);
         int comparedFrames = 0;
 
         Until(GameOptionsPhase.Main);
@@ -86,9 +86,9 @@ internal static partial class Program
         AssertTrue(edited.ContentIdentity != original.ContentIdentity,
             "options override changes selected catalog identity");
 
-        var stockMenu = new GameOptionsMenuState(new ForbiddenMapBus(),
+        var stockMenu = new GameOptionsMenuState(NewForbiddenMapBus(),
             mapPresentation: original);
-        var editedMenu = new GameOptionsMenuState(new ForbiddenMapBus(),
+        var editedMenu = new GameOptionsMenuState(NewForbiddenMapBus(),
             mapPresentation: edited);
         // Native indexes zero and one, fifteen fade-in levels, then the interactive index.
         for (int frame = 0; frame < 18; frame++)

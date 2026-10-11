@@ -28,7 +28,7 @@ internal static partial class Program
         }
 
         var executedOperands = new HashSet<ushort>();
-        var guard = new CeresSteamInstructionProgramReadGuard(rom);
+        var guard = NewCeresSteamInstructionProgramReadGuard(rom);
         (CeresSteamVariant Variant, ushort Program, ushort Active)[] programs =
         [
             (CeresSteamVariant.Up,
@@ -88,9 +88,9 @@ internal static partial class Program
                 $"Ceres steam execution covers presentation $A6:{address:X4}");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled visual selectors require no runtime cartridge reads");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Ceres Steam production uses compiled visual selectors without ROM reads");
         for (int index = 0; index < CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
@@ -168,44 +168,9 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class CeresSteamInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (CeresSteamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Ceres steam mechanics ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        CeresSteamInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresSteamInstructionProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(CeresSteamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Ceres steam mechanics ${address:X6}.")
+            .ObserveWords(0xa60000, CeresSteamInstructionProgramDefinitionsTooling.PresentationWordCount, CeresSteamInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

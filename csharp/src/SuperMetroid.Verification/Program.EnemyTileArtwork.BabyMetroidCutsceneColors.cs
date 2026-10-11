@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Baby Metroid cutscene colors and fade selectors")]
     private static void VerifyInstalledBabyMetroidCutsceneColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -66,7 +67,7 @@ internal static partial class Program
                 .BabyMetroidCutsceneColors!.FadeColor(6, 5),
             "cutscene Baby color override survives catalog reload");
 
-        var guard = new BabyMetroidCutsceneColorReadGuard(rom);
+        var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -128,31 +129,15 @@ internal static partial class Program
         };
     }
 
-    private sealed class BabyMetroidCutsceneColorReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool initial = address is >= BabyMetroidCutsceneColorRomData.InitialSource and
-                < (BabyMetroidCutsceneColorRomData.InitialSource +
-                    BabyMetroidCutsceneColorRomData.InitialColorCount * sizeof(ushort));
-            bool fade = address >= BabyMetroidCutsceneColorRomData.FirstFadeSource &&
-                address < BabyMetroidCutsceneColorRomData.FadeSource(
-                    BabyMetroidCutsceneColorRomData.FadeFrameCount) +
-                    BabyMetroidCutsceneColorRomData.FadeColorCount * sizeof(ushort);
-            if (initial || fade)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Live cutscene Baby read migrated color ROM ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBabyMetroidCutsceneColorReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    address is >= BabyMetroidCutsceneColorRomData.InitialSource and
+                        < (BabyMetroidCutsceneColorRomData.InitialSource +
+                            BabyMetroidCutsceneColorRomData.InitialColorCount * sizeof(ushort)) ||
+                    address >= BabyMetroidCutsceneColorRomData.FirstFadeSource &&
+                    address < BabyMetroidCutsceneColorRomData.FadeSource(
+                        BabyMetroidCutsceneColorRomData.FadeFrameCount) +
+                        BabyMetroidCutsceneColorRomData.FadeColorCount * sizeof(ushort),
+                address => $"Live cutscene Baby read migrated color ROM ${address:X6}.");
 }

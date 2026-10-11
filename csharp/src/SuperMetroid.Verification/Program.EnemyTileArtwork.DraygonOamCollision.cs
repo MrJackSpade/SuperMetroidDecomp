@@ -25,7 +25,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            new FrontendCartridgeReadGuard(rom));
+            NewFrontendCartridgeReadGuard(rom));
         var walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
         RoomEnemySlot slot = enemies.Slots[0];

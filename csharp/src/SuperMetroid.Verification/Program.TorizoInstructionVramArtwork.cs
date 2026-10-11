@@ -16,7 +16,7 @@ internal static partial class Program
         var installedEnemies = new RoomEnemySystem { TileArtwork = stock };
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-            .SetValue(installedEnemies, new ForbiddenTorizoRomBus());
+            .SetValue(installedEnemies, NewForbiddenTorizoRomBus());
         var installedVram = new SnesVram();
         typeof(RoomEnemySystem).GetField("_vram", instanceFlags)!
             .SetValue(installedEnemies, installedVram);
@@ -127,7 +127,7 @@ internal static partial class Program
             "Golden Torizo PNG edit leaves every other tile byte intact");
         var editedEnemies = new RoomEnemySystem { TileArtwork = edited };
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
-            .SetValue(editedEnemies, new ForbiddenTorizoRomBus());
+            .SetValue(editedEnemies, NewForbiddenTorizoRomBus());
         var editedVram = new SnesVram();
         typeof(RoomEnemySystem).GetField("_vram", instanceFlags)!
             .SetValue(editedEnemies, editedVram);
@@ -156,14 +156,8 @@ internal static partial class Program
             (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
-    private sealed class ForbiddenTorizoRomBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException(
-            $"Installed Torizo transfer reread cartridge byte ${address:X6}.");
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed Torizo transfer wrote CPU bus byte ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewForbiddenTorizoRomBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed Torizo transfer reread cartridge byte ${address:X6}.")
+            .RejectWrites(address => $"Installed Torizo transfer wrote CPU bus byte ${address:X6}.");
 }

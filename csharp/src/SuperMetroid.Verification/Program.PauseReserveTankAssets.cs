@@ -16,7 +16,7 @@ internal static partial class Program
         string stockPath = Path.Combine(stock, PauseReserveTankDefinitions.FileName), path = Path.Combine(overrides, PauseReserveTankDefinitions.FileName);
         byte[] bytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
-        var guard = new ReserveTankAssetReadGuard(bus);
+        var guard = NewReserveTankAssetReadGuard(bus);
         Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(bus));
         int comparisons = 0;
         Suite(nameof(VerifyPauseReserveNativeFrames), () => VerifyPauseReserveNativeFrames(bus, catalog.PauseReserveTanks));
@@ -117,24 +117,19 @@ internal static partial class Program
             return pause;
         }
     }
-    private sealed class ReserveTankAssetReadGuard : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the reserve-tank pause spritemap and tilemap ranges")]
+    private static CartridgeReadGuard NewReserveTankAssetReadGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = [];
-        public ReserveTankAssetReadGuard(ISnesAddressSpace source)
+        var blocked = new HashSet<int>();
+        void Add(int address, int count) { for (int i = 0; i < count; i++) blocked.Add(address + i); }
+        Add(0x82c1d6, 14); Add(0x82b3d9, 32);
+        foreach (ushort id in new ushort[] { 0x1b, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27 })
         {
-            this.source = source; Add(0x82c1d6, 14); Add(0x82b3d9, 32);
-            foreach (ushort id in new ushort[] { 0x1b, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27 })
-            {
-                Add(0x82c569 + id * 2, 2);
-                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c569 + id * 2);
-                Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
-            }
+            Add(0x82c569 + id * 2, 2);
+            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c569 + id * 2);
+            Add(pointer, 2 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), pointer) * 5);
         }
-        private void Add(int address, int count) { for (int i = 0; i < count; i++) blocked.Add(address + i); }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => blocked.Contains(address) ? throw new InvalidOperationException($"Installed pause read reserve visual ROM at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => $"Installed pause read reserve visual ROM at {address:X6}.");
     }
 }

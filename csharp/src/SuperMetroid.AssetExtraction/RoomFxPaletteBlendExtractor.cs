@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the eight retail room-FX palette blends without exposing selector mechanics.</summary>
+[CpuBusBoundary("codec: ROM room-FX palette blend colors → room-FX palette blends")]
 public static class RoomFxPaletteBlendExtractor
 {
     /// <summary>Imports the eight three-color room-FX blends and supplies the compiled stock Ceres haze tints.</summary>

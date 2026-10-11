@@ -176,7 +176,7 @@ internal static partial class Program
         AssertTrue(spawned, $"{editedId} installs its real linked PLM");
 
         var streamer = level.CreateBackgroundStreamer();
-        var guarded = new ShotBlockProgramReadGuard(rom, forbidden);
+        var guarded = NewShotBlockProgramReadGuard(rom, forbidden);
         bool sawImmediate = false;
         // A PLM redraw identifies its block by the BG1 ring destination it targets.
         ushort blockDestination = streamer.BuildPlmLevelBlockUpdate(blockIndex, 0).TopRowDestination;

@@ -40,7 +40,7 @@ internal static partial class Program
             "Draygon rejects health above its authored enemy-header maximum");
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new DraygonHealthThresholdReadGuard(rom);
+        var guard = NewDraygonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(DraygonColorExtractor.Extract(rom), writable: false);
         var enemies = new RoomEnemySystem
         {
@@ -86,25 +86,8 @@ internal static partial class Program
             "runs with the threshold table and terminator forbidden.");
     }
 
-    private sealed class DraygonHealthThresholdReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address >= DraygonHealthPaletteDefinitions.NativeThresholdAddress &&
-                address < DraygonHealthPaletteDefinitions.NativeThresholdAddress + 18)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Draygon palette selection attempted threshold read ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDraygonHealthThresholdReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .ForbidRange(DraygonHealthPaletteDefinitions.NativeThresholdAddress, 18,
+                address => $"Draygon palette selection attempted threshold read ${address:X6}.");
 }

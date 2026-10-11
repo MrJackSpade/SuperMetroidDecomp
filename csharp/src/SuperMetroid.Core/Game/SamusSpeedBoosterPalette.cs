@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Game;
 
 internal static class SamusSpeedBoosterPalette
 {
+    [CpuBusBoundary("native emulation: the speed-booster palette copy LDA $0000..001E,X with an overrun pointer reads the CPU bus")]
     internal static void Apply(ISnesAddressSpace bus, SnesCgram cgram, ushort pointer,
         SamusFullBodyCycleColorCatalog? colors)
     {

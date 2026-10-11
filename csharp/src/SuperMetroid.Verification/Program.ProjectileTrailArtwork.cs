@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program and frame attribute words")]
     private static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
@@ -36,7 +37,7 @@ internal static partial class Program
                 var nativeOam = new OamBuffer(); var authoredOam = new OamBuffer();
                 bool frozenFrame = frame % 5 == 0;
                 DrawNativeTrailFrame(bus, nativeSystem.TrailSlots[0], nativeOam, frozenFrame);
-                authoredSystem.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authoredOam, Position16<RoomPixels>.Zero, frozenFrame, catalog);
+                authoredSystem.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authoredOam, Position16<RoomPixels>.Zero, frozenFrame, catalog);
                 AssertTrue(nativeOam.LowTable.SequenceEqual(authoredOam.LowTable), "Trail catalog preserves live command/termination/freeze frame output");
                 foreach (var sides in new[] { (nativeSystem.TrailSlots[0].Left, authoredSystem.TrailSlots[0].Left), (nativeSystem.TrailSlots[0].Right, authoredSystem.TrailSlots[0].Right) })
                 {
@@ -77,8 +78,8 @@ internal static partial class Program
             var native = new OamBuffer(); var authored = new OamBuffer();
             for (int i = 0; i < preceding; i++)
             { native.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); authored.AddProjectileTrailSprite(new Position16<OamPixels>(0, 0), 0); }
-            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), native, Position16<RoomPixels>.Zero, true);
-            system.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), authored, Position16<RoomPixels>.Zero, true, catalog);
+            system.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), native, Position16<RoomPixels>.Zero, true);
+            system.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), authored, Position16<RoomPixels>.Zero, true, catalog);
             AssertTrue(native.LowTable.SequenceEqual(authored.LowTable) && native.HighTable.SequenceEqual(authored.HighTable), "Trail catalog preserves native culling and complete OAM bytes");
             AssertEqual(native.NextByteOffset, authored.NextByteOffset, "Trail catalog retains OAM capacity behavior");
             AssertEqual(3, side.InstructionTimer, "Frozen draw cannot advance trail animation");
@@ -96,12 +97,12 @@ internal static partial class Program
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
         trail.InstructionPointer = first; trail.InstructionTimer = 1; trail.Position = trail.Position.WithX(100).WithY(100);
         var frozen = new OamBuffer();
-        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), frozen, Position16<RoomPixels>.Zero, true, edited);
+        animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), frozen, Position16<RoomPixels>.Zero, true, edited);
         AssertEqual(0, frozen.GetEntry(0).TileNumber, "New frozen trail retains native uninitialized tile rather than starting artwork early");
         animation.HandleTrailsAndDraw(bus, new OamBuffer(), Position16<RoomPixels>.Zero, false, catalog);
         var original = new OamBuffer(); var changed = new OamBuffer();
-        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), original, Position16<RoomPixels>.Zero, true, catalog);
-        animation.HandleTrailsAndDraw(new ProjectileCompositionForbiddenBus(), changed, Position16<RoomPixels>.Zero, true, edited);
+        animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), original, Position16<RoomPixels>.Zero, true, catalog);
+        animation.HandleTrailsAndDraw(NewProjectileCompositionForbiddenBus(), changed, Position16<RoomPixels>.Zero, true, edited);
         AssertTrue(original.GetEntry(0).FlipX != changed.GetEntry(0).FlipX, "Edited trail flip reaches production draw");
         AssertEqual(1, trail.InstructionTimer, "Rebound art retains current timer");
         document["frames"]![ProjectileTrailVisualDefinitions.Name(first)]!["duration"] = 0;
@@ -207,6 +208,7 @@ internal static partial class Program
         Console.WriteLine("Projectile trail low-bank alias: two typed WRAM reads, no generic bus read.");
     }
 
+    [CpuBusBoundary("exact bus test: witnesses that a bank-$90 low-half trail word is read as two typed WRAM mirror bytes")]
     private sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public int WorkRamReads { get; private set; }

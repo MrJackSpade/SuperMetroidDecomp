@@ -29,7 +29,7 @@ internal static partial class Program
             "direct-room fixture has no installed cartridge allocation");
         var native = CreateRetailGameFixture(nativeBus);
         var installed = new SuperMetroidGame(
-            new FrontendCartridgeReadGuard(installedMemory, nativeBus));
+            NewFrontendCartridgeReadGuard(installedMemory));
         PrepareRomFreeBindings(installation)(installed, false);
         native.InitializeDirectRoomVerification();
         installed.InitializeDirectRoomVerification();

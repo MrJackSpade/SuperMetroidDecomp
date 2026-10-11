@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts bounded post-credit labels while validating native stream mechanics.</summary>
+[CpuBusBoundary("codec: ROM post-credit label streams → ending text")]
 public static class EndingTextExtractor
 {
     /// <summary>Imports post-credit labels, item-percentage wording, Japanese subtitle cells, and the final message while checking native text-stream mechanics.</summary>

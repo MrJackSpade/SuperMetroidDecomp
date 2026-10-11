@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts safe text and placement from the two native escape typewriter streams.</summary>
+[CpuBusBoundary("codec: ROM escape typewriter text streams → escape typewriter text and placement")]
 public static class EscapeTypewriterExtractor
 {
     /// <summary>Imports the Ceres and Zebes escape-warning text and line destinations from their native typewriter streams.</summary>

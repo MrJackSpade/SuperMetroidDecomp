@@ -11,7 +11,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo selector = typeof(RoomEnemySystem).GetMethod(
             "ReadEnemyVisualSelector", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var denied = new OumNoReadBus();
+        var denied = NewOumNoReadBus();
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -37,7 +37,7 @@ internal static partial class Program
         }
         AssertTrue(seen.SetEquals(MaridiaLargeSnailCollisionDefinitions.FramePointers.ToArray()),
             "Oum's 60 operands select exactly the 30 extracted physical frames");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Oum selector path makes no ROM reads");
         Console.WriteLine("Installed Oum: 60 native visual selectors cover 30 editable " +
             "frames with no ROM reads.");
@@ -47,7 +47,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var denied = new OumNoReadBus();
+        var denied = NewOumNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
@@ -141,7 +141,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => MaridiaLargeSnailCollisionDefinitions.HitboxesAt(0x8000),
             "unknown Oum hitbox list fails loudly");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Oum touch and shot walkers never read ROM bytes");
         Console.WriteLine($"Oum collision: 30 frames, 66 rectangles, {probes} " +
             "native-equivalent touch/shot boundary probes with no ROM reads.");
@@ -160,20 +160,8 @@ internal static partial class Program
         ];
     }
 
-    private sealed class OumNoReadBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Installed Oum frame or collision read ROM byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed Oum frame or collision wrote ROM byte ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewOumNoReadBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed Oum frame or collision read ROM byte ${address:X6}.")
+            .RejectWrites(address => $"Installed Oum frame or collision wrote ROM byte ${address:X6}.");
 }

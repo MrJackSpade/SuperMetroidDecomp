@@ -42,6 +42,7 @@ internal static partial class Program
         Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for title graphics streams and the year text pointer")]
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
         for (int address = TitleSequenceInstructionDefinitions.StartAddress;
@@ -54,7 +55,7 @@ internal static partial class Program
                 TitleSequenceInstructionDefinitions.EndAddress),
             "installed title card reader rejects adjacent bank-$8B code");
         var cartridgeReads = new HashSet<int>();
-        var tracingBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
+        var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         IReadOnlyDictionary<string, byte[]> files =
             SuperMetroid.AssetExtraction.TitleGraphicsExtractor.Extract(tracingBus);
         TitleGraphicsPresentation presentation = TitleGraphicsPresentation.Load(
@@ -78,7 +79,7 @@ internal static partial class Program
         // The installed title uses compiled card timing and sprite selectors alongside
         // editable bank-$8C OAM compositions. The original source addresses are all
         // blocked while the complete natural scene is compared with independently installed stock.
-        var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
+        var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         TitleGradientPresentation gradient = TitleGradientPresentation.Load(
             new MemoryStream(TitleGradientExtractor.Extract(bus), writable: false));
         var stock = CreateTitlePresentationFixture(bus, titleGradientPresentation: gradient);
@@ -213,6 +214,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the title palette")]
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.TitlePaletteExtractor.Extract(bus);
@@ -233,7 +235,7 @@ internal static partial class Program
         var paletteAddresses = Enumerable.Range(
             TitleSequenceRomData.Assets.PaletteAddress,
             SnesCgram.ByteCount).ToHashSet();
-        var guardedBus = new TitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
+        var guardedBus = NewTitlePresentationReadBus(bus, paletteAddresses, forbidReads: true);
         var title = CreateTitlePresentationFixture(guardedBus, titlePalettePresentation: presentation);
         if (!title.PaletteColors.SequenceEqual(presentation.Colors) ||
             guardedBus.ForbiddenReadAttempts != 0)
@@ -263,6 +265,7 @@ internal static partial class Program
             "initial cartridge source bytes.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient palette color words")]
     private static void VerifyExtractedTitleAmbientPalette(
         ISnesAddressSpace bus,
         TitlePalettePresentation presentation)
@@ -294,7 +297,7 @@ internal static partial class Program
             }
         }
 
-        var guardedBus = new TitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
+        var guardedBus = NewTitlePresentationReadBus(bus, colorAddresses, forbidReads: true);
         var native = new RoomPaletteFxSystem();
         var installed = new RoomPaletteFxSystem();
         foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
@@ -383,7 +386,7 @@ internal static partial class Program
     private static void VerifyExtractedTitleGradient(ISnesAddressSpace bus)
     {
         var cartridgeReads = new HashSet<int>();
-        var tracingBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
+        var tracingBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: false);
         for (ushort variant = 0; variant < TitleGradientFormat.VariantCount; variant++)
             _ = TitleGradientDecoder.Decode(tracingBus, checked((ushort)(variant << 4)));
 
@@ -401,7 +404,7 @@ internal static partial class Program
         // The rest of title setup remains cartridge-backed presentation for later #549
         // slices. Forbid only the complete gradient source closure discovered above, then
         // drive the real title owner through Start's skip fade into a gradient frame.
-        var guardedBus = new TitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
+        var guardedBus = NewTitlePresentationReadBus(bus, cartridgeReads, forbidReads: true);
         TitlePalettePresentation palette = TitlePalettePresentation.Load(new MemoryStream(
             TitlePaletteExtractor.Extract(bus)));
         IReadOnlyDictionary<string, byte[]> graphicsFiles = TitleGraphicsExtractor.Extract(bus);
@@ -511,37 +514,9 @@ internal static partial class Program
             TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, 0xa1)), "native five-bit subtraction");
     }
 
-    private sealed class TitlePresentationReadBus(
-        ISnesAddressSpace source,
-        HashSet<int> addresses,
-        bool forbidReads) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            TrackRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            TrackRead(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        private void TrackRead(int address)
-        {
-            if (forbidReads && addresses.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production title gradient reread cartridge byte ${address >> 16:X2}:{address & 0xffff:X4}.");
-            }
-            if (!forbidReads)
-                addresses.Add(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewTitlePresentationReadBus(ISnesAddressSpace source, HashSet<int> addresses, bool forbidReads) =>
+        forbidReads
+            ? new CartridgeReadGuard(source).Forbid(addresses.Contains,
+                address => $"Production title gradient reread cartridge byte {address >> 16:X2}:{address & 0xffff:X4}.")
+            : new CartridgeReadGuard(source).Observe(_ => true, address => addresses.Add(address));
 }

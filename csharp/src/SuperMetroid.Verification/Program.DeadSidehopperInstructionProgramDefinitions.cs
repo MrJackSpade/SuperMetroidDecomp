@@ -25,7 +25,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new DeadSidehopperInstructionReadGuard(rom);
+        var guard = NewDeadSidehopperInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -79,7 +79,7 @@ internal static partial class Program
         AssertEqual(DeadSidehopperAiFunction.BeginPostLandingDelay,
             enemies.DeadSidehoppers[0]!.Function,
             "Dead sidehopper end-hop callback returns ownership to main AI");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Dead sidehopper execution uses compiled spritemap selectors");
         for (int index = 0;
              index < DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount;
@@ -151,44 +151,10 @@ internal static partial class Program
             source.ReadByte(0xa90000 | address) |
             source.ReadByte(0xa90000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class DeadSidehopperInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (DeadSidehopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Dead sidehopper mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa90000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewDeadSidehopperInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(DeadSidehopperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Dead sidehopper mechanics byte ${address:X6}.")
+            .ObserveWords(0xa90000, DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordCount,
+                DeadSidehopperInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

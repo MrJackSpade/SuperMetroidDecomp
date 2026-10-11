@@ -18,7 +18,7 @@ internal static partial class Program
                      CeresSteamVariant.Down, CeresSteamVariant.Right,
                  })
         {
-            var denied = new CeresSteamCollisionNoReadBus();
+            var denied = NewCeresSteamCollisionNoReadBus();
             var enemies = new RoomEnemySystem { TileArtwork = stock };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
             typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
@@ -43,7 +43,7 @@ internal static partial class Program
                     $"installed Ceres steam {variant} frame {frame} has editable art");
                 selected++;
             }
-            AssertEqual(0, denied.ReadAttempts,
+            AssertEqual(0, denied.ForbiddenReadAttempts,
                 $"installed Ceres steam {variant} instruction cycle reads no ROM bytes");
         }
         AssertTrue(selected >= CeresSteamCollisionDefinitions.FramePointers.Length,
@@ -56,7 +56,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var denied = new CeresSteamCollisionNoReadBus();
+        var denied = NewCeresSteamCollisionNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
@@ -153,7 +153,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => CeresSteamCollisionDefinitions.HitboxesAt(0x8000),
             "unknown Ceres steam hitbox list fails loudly");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Ceres steam touch and shot walkers never read ROM bytes");
         Console.WriteLine($"Ceres steam collision: 28 frames, 21 lists, {probes} " +
             "native-equivalent touch/shot boundary probes; installed path forbids ROM reads.");
@@ -200,20 +200,8 @@ internal static partial class Program
         ];
     }
 
-    private sealed class CeresSteamCollisionNoReadBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Installed Ceres steam collision read ROM byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed Ceres steam collision wrote ROM byte ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewCeresSteamCollisionNoReadBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed Ceres steam collision read ROM byte ${address:X6}.")
+            .RejectWrites(address => $"Installed Ceres steam collision wrote ROM byte ${address:X6}.");
 }

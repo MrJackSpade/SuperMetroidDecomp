@@ -10,6 +10,7 @@ internal static partial class Program
     /// Import-only expected image for $A7:AAC6/AB19. This deliberately does not
     /// invoke the production constructor or give its cartridge source to gameplay.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the Kraid upper and lower BG2 tilemaps")]
     private static KraidEnemyState ReadImportedKraidWorkingMap(CartridgeImportAddressSpace source)
     {
         byte[] upper = RomDataReader.Decompress(source, KraidBackgroundRomData.UpperTilemap,
@@ -32,6 +33,7 @@ internal static partial class Program
         return result;
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
     private static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)
     {
@@ -46,6 +48,7 @@ internal static partial class Program
     }
 
     /// <summary>Checks all 91 authored control words before the RAM-only clock fixture runs.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid head-program control words")]
     private static void VerifyKraidInstalledControlOracle(CartridgeImportAddressSpace source)
     {
         ushort Word(int address) => BinaryPrimitives.ReadUInt16LittleEndian(RomDataReader.ReadFixedBank(source, address, 2));

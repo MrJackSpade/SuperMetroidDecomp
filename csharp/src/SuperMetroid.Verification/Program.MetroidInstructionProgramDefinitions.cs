@@ -29,7 +29,7 @@ internal static partial class Program
                 $"Metroid mechanics word $A3:{definition.Address:X4}");
         }
 
-        var guard = new MetroidInstructionReadGuard(rom);
+        var guard = NewMetroidInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         int randomCalls = 0;
         (RoomEnemySystem chasingEnemies, RoomEnemySlot chasing) =
@@ -82,7 +82,7 @@ internal static partial class Program
 
         Suite(nameof(VerifyMetroidInstructionInitializer), () => VerifyMetroidInstructionInitializer(guard, flags));
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "both Metroid loops use compiled visual selectors, not cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Metroid mechanics byte");
@@ -184,44 +184,13 @@ internal static partial class Program
             source.ReadByte(0xa30000 | address) |
             source.ReadByte(0xa30000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class MetroidInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Metroid mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa30000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MetroidInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        ForbiddenReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read compiled Metroid presentation byte ${address:X6}.");
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMetroidInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Metroid mechanics byte ${address:X6}.")
+            .ObserveWords(0xa30000, MetroidInstructionProgramDefinitionsTooling.PresentationWordCount,
+                MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress)
+            .ForbidWords(0xa30000, MetroidInstructionProgramDefinitionsTooling.PresentationWordCount,
+                MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Production read compiled Metroid presentation byte ${address:X6}.");
 }

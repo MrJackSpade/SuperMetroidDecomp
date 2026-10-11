@@ -7,6 +7,19 @@ using System.Text.Json;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native tile bytes")]
+    private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, RoomEnemyDefinition definition, int byteCount) =>
+        RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native palette DMA")]
+    private static SnesCgram LoadNativeEnemyPalette(ISnesAddressSpace bus, RoomEnemyDefinition definition)
+    {
+        var cgram = new SnesCgram();
+        SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(cgram, bus, (definition.Bank << 16) | definition.PalettePointer,
+            EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
+        return cgram;
+    }
+
     private static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -92,7 +105,7 @@ internal static partial class Program
                     Convert.ToUInt16(Path.GetFileName(file).Substring(6, 4), 16));
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus, pointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
-                byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), definition.TileDataAddress, byteCount);
+                byte[] native = ReadNativeEnemyTiles(bus, definition, byteCount);
                 AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
                         out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
@@ -100,10 +113,8 @@ internal static partial class Program
                 stock.LoadTo(pointer, byteCount, vram, 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
-                var nativeCgram = new SnesCgram();
+                SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, definition);
                 var installedCgram = new SnesCgram();
-                SuperMetroid.AssetExtraction.CartridgePaletteImporter.LoadToCgram(nativeCgram, bus, (definition.Bank << 16) | definition.PalettePointer,
-                    EnemyPaletteSheet.ColorCount, destinationIndex: 8 * 16);
                 stock.LoadPaletteTo(pointer, installedCgram, 8 * 16);
                 AssertTrue(nativeCgram.Colors.SequenceEqual(installedCgram.Colors),
                     $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
@@ -81,7 +82,7 @@ internal static partial class Program
         Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(bus));
         Suite(nameof(VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions), () => VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(bus));
         Suite(nameof(VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions), () => VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(bus));
-        var guardedHeatBus = new PaletteFxMechanicsForbiddenBus(bus);
+        var guardedHeatBus = NewPaletteFxMechanicsForbiddenBus(bus, out _);
         Suite(nameof(VerifyNorfairHeatPaletteHandshake), () => VerifyNorfairHeatPaletteHandshake(guardedHeatBus));
         AssertEqual(0, guardedHeatBus.ForbiddenReadAttempts,
             "Norfair heat pre-instruction performs no selector-table ROM reads");
@@ -95,6 +96,7 @@ internal static partial class Program
             "and retail $F781's byte/cursor handoff agree.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled standalone palette-FX delete instruction words")]
     private static void VerifyPaletteFxDeleteProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -133,7 +135,7 @@ internal static partial class Program
                 out _),
             "standalone delete owner rejects the following statue setup command");
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -148,10 +150,11 @@ internal static partial class Program
             "empty room palette-FX definition deletes itself on its first handler pass");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "empty room palette-FX deletion performs no mechanics ROM reads");
-        AssertEqual(0, guarded.PresentationReadCount,
+        AssertEqual(0, guardedPresentationReads.Value,
             "empty room palette-FX deletion has no presentation payload");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Title Screen Ambient palette-FX program mechanics words")]
     private static void VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -194,7 +197,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step < definition.CycleFrames * 2; step++)
@@ -205,13 +208,14 @@ internal static partial class Program
                 $"{definition.Owner} avoids mechanics ROM reads");
             AssertEqual(
                 definition.FrameCount * definition.ColorsPerFrame * sizeof(ushort) * 2,
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} retains every live color across two cycles");
         }
         AssertEqual(28, mechanicsWords,
             "compiled title-screen ambient mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Nintendo Logo Fade palette-FX program mechanics words")]
     private static void VerifyNintendoLogoFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -268,7 +272,7 @@ internal static partial class Program
             "Nintendo-logo fade exposes one definition per entry");
         foreach ((string owner, ushort definitionPointer) in nintendoLogoEntries)
         {
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
             for (int step = 0;
@@ -288,11 +292,12 @@ internal static partial class Program
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount *
                 NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{owner} fade retains every live color");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Title Logo Fade palette-FX program mechanics words")]
     private static void VerifyTitleLogoFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -338,7 +343,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -362,10 +367,11 @@ internal static partial class Program
         AssertEqual(
             TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount *
             TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame * sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "title-logo fade retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Post Credits Icon Glare palette-FX program mechanics words")]
     private static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -422,7 +428,7 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorPointer(0, invalid), "glare color column bounds");
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -447,10 +453,11 @@ internal static partial class Program
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.FrameCount *
             PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
             sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "post-credits icon glare retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Samus Loading Suit palette-FX program mechanics words")]
     private static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -589,7 +596,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0;
@@ -615,7 +622,7 @@ internal static partial class Program
                 sizeof(ushort) +
                 SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} loading retains every replayed live color");
         }
         AssertEqual(99, mechanicsWords,
@@ -624,6 +631,7 @@ internal static partial class Program
             "compiled Samus-loading byte operands");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Unused Cinematic Fade palette-FX program mechanics words")]
     private static void VerifyUnusedCinematicFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -670,7 +678,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -691,10 +699,11 @@ internal static partial class Program
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.FrameCount *
             UnusedCinematicFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
             sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "unused cinematic fade retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Gunship palette-FX program mechanics words")]
     private static void VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -751,7 +760,7 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorPointer(0, invalid), "gunship reveal color column bounds");
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -776,10 +785,11 @@ internal static partial class Program
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.FrameCount *
             ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
             sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "ending gunship reveal retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Layer Fade palette-FX program mechanics words")]
     private static void VerifyZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -827,7 +837,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
@@ -840,13 +850,14 @@ internal static partial class Program
                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.FrameCount *
                 ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} explosion fade retains every live color");
         }
         AssertEqual(38, mechanicsWords,
             "compiled Zebes explosion layer-fade mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Ambient palette-FX program mechanics words")]
     private static void VerifyZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -889,7 +900,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
@@ -900,12 +911,13 @@ internal static partial class Program
                 $"{definition.Owner} explosion ambience avoids mechanics ROM reads");
             AssertEqual(
                 (definition.FrameCount + 1) * definition.ColorsPerFrame * sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} explosion ambience retains every live color");
         }
         AssertEqual(40, mechanicsWords, "compiled Zebes explosion ambient mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Whiteout palette-FX program mechanics words")]
     private static void VerifyZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -958,7 +970,7 @@ internal static partial class Program
             "Zebes explosion whiteout exposes one definition per entry");
         foreach ((string owner, ushort definitionPointer) in whiteoutEntries)
         {
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
             for (int step = 0;
@@ -975,11 +987,12 @@ internal static partial class Program
                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.FrameCount *
                 ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{owner} whiteout retains every live color");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Finale palette-FX program mechanics words")]
     private static void VerifyZebesExplosionFinalePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1027,7 +1040,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -1048,10 +1061,11 @@ internal static partial class Program
             ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount *
             ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
             sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "Zebes explosion finale retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Foreground palette-FX program mechanics words")]
     private static void VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1100,7 +1114,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -1121,10 +1135,11 @@ internal static partial class Program
             ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.FrameCount *
             ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
             sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "Zebes explosion foreground retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Exploding Zebes Fade palette-FX program mechanics words")]
     private static void VerifyExplodingZebesFadePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1169,7 +1184,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -1190,10 +1205,11 @@ internal static partial class Program
             ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount *
             ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
             sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "exploding-Zebes fade retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Cinematic Glow palette-FX program mechanics words")]
     private static void VerifyCinematicGlowPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1235,7 +1251,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
@@ -1247,12 +1263,13 @@ internal static partial class Program
             AssertEqual(
                 (CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                 definition.ColorsPerFrame * sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} glow retains every live color");
         }
         AssertEqual(64, mechanicsWords, "compiled cinematic-glow mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Planet Zebes Text palette-FX program mechanics words")]
     private static void VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1297,7 +1314,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0;
@@ -1314,13 +1331,14 @@ internal static partial class Program
                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount *
                 PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} PLANET ZEBES fade retains every live color");
         }
         AssertEqual(38, mechanicsWords,
             "compiled PLANET ZEBES text-fade mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Cinematic Light palette-FX program mechanics words")]
     private static void VerifyCeresCinematicLightPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1413,7 +1431,7 @@ internal static partial class Program
                 : CeresCinematicLightPaletteFxProgramMechanicsDefinitions
                     .NavigationLightsColorsPerFrame;
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definitionPointer, 0);
             for (int step = 0; step <= cycleFrames; step++)
@@ -1423,11 +1441,12 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{owner} avoids mechanics ROM reads");
             AssertEqual((frameCount + 1) * colorsPerFrame * sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{owner} retains every live color");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Crateria Escape Lightning palette-FX program mechanics words")]
     private static void VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1461,7 +1480,7 @@ internal static partial class Program
                         $"{definition.Owner} colors remain presentation-owned");
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, 0);
             for (int step = 0; step <= CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.CycleFrames; step++)
@@ -1471,12 +1490,13 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{definition.Owner} avoids mechanics ROM reads");
             AssertEqual((CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
-                definition.ColorsPerFrame * sizeof(ushort), guarded.PresentationReadCount,
+                definition.ColorsPerFrame * sizeof(ushort), guardedPresentationReads.Value,
                 $"{definition.Owner} retains every live color");
         }
         AssertEqual(52, mechanicsWords, "compiled late-Crateria escape mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Upper Crateria Escape Red Flash palette-FX program mechanics words")]
     private static void VerifyUpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1504,7 +1524,7 @@ internal static partial class Program
                     "upper-Crateria escape colors remain presentation-owned");
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(guarded, UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.DefinitionPointer, 0);
         for (int step = 0; step <= UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.CycleFrames; step++)
@@ -1514,9 +1534,10 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts, "upper-Crateria escape flash avoids mechanics ROM reads");
         AssertEqual((UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
             UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * sizeof(ushort),
-            guarded.PresentationReadCount, "upper-Crateria escape flash retains every live color");
+            guardedPresentationReads.Value, "upper-Crateria escape flash retains every live color");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Old Tourian Escape Accent palette-FX program mechanics words")]
     private static void VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1564,7 +1585,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
@@ -1582,7 +1603,7 @@ internal static partial class Program
                 (OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                     sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} retains every live color through its cycle");
         }
 
@@ -1590,6 +1611,7 @@ internal static partial class Program
             "compiled old-Tourian escape accent mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Old Tourian Escape Red Flash palette-FX program mechanics words")]
     private static void VerifyOldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1645,7 +1667,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         paletteFx.SpawnDefinition(
             guarded,
@@ -1667,10 +1689,11 @@ internal static partial class Program
             (OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                 OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "old-Tourian red flash retains every live color through its cycle");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Escape Shared Red Flash palette-FX program mechanics words")]
     private static void VerifyTourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1724,7 +1747,7 @@ internal static partial class Program
         foreach (TourianEscapeSharedRedFlashPaletteFxProgramDefinition definition in
                  TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitionsTooling.All)
         {
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
@@ -1742,11 +1765,12 @@ internal static partial class Program
                 (TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                     sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} retains every live color through the shared cycle");
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Escape Red Flash palette-FX program mechanics words")]
     private static void VerifyTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1792,7 +1816,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0; step <= definition.CycleFrames; step++)
@@ -1805,7 +1829,7 @@ internal static partial class Program
             AssertEqual(
                 (TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     definition.ColorsPerFrame * sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} retains every live color through its cycle");
         }
 
@@ -1813,6 +1837,7 @@ internal static partial class Program
             "compiled early Tourian escape red-flash mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Norfair Environmental palette-FX program mechanics words")]
     private static void VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1877,7 +1902,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
@@ -1892,7 +1917,7 @@ internal static partial class Program
             AssertEqual(
                 (NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * 2,
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} retains every live color through its cycle");
             if (definition.PublishesHeatPhase)
             {
@@ -1905,6 +1930,7 @@ internal static partial class Program
         AssertEqual(16, mechanicsBytes, "compiled Norfair heat-phase bytes");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Beacon palette-FX program mechanics words")]
     private static void VerifyBeaconPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -1960,7 +1986,7 @@ internal static partial class Program
             }
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
         paletteFx.SpawnDefinition(
@@ -1995,7 +2021,7 @@ internal static partial class Program
         AssertEqual(
             (BeaconPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                 BeaconPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * 2,
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "beacon retains every live color read through its complete cycle");
         AssertEqual((ushort)0x02bf, cgram.Colors[0x71],
             "beacon writes its first live color");
@@ -2007,6 +2033,7 @@ internal static partial class Program
             "beacon resumes after the native eighteen-byte skip");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Glow palette-FX program mechanics words")]
     private static void VerifyTourianGlowPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -2064,7 +2091,7 @@ internal static partial class Program
                      TourianGlowPaletteFxProgramMechanicsDefinitions.CloneDefinitionPointer,
                  })
         {
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
@@ -2082,7 +2109,7 @@ internal static partial class Program
             AssertEqual(
                 (TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * 2,
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"Tourian glow definition $8D:{definition:X4} retains all live colors");
             AssertEqual((ushort)0x5294, cgram.Colors[0x74],
                 "Tourian glow writes its isolated first color");
@@ -2108,6 +2135,7 @@ internal static partial class Program
             "Tourian glow pre-instruction deletes its owner when two later slots exist");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Maridia Environmental palette-FX program mechanics words")]
     private static void VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -2153,7 +2181,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(
                 guarded,
@@ -2176,7 +2204,7 @@ internal static partial class Program
                 $"{definition.Owner} avoids mechanics ROM reads");
             AssertEqual(
                 (definition.FrameCount + 1) * definition.ColorsPerFrame * sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} retains all live colors through its complete cycle");
             AssertTrue(!definition.TryReadMechanicsWord(
                     unchecked((ushort)(definition.ProgramStart - 2)),
@@ -2191,6 +2219,7 @@ internal static partial class Program
         AssertEqual(44, mechanicsWords, "compiled Maridia environmental mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Crateria Lightning palette-FX program mechanics words")]
     private static void VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -2250,7 +2279,7 @@ internal static partial class Program
                 }
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
@@ -2273,10 +2302,10 @@ internal static partial class Program
             int colorsPerRecord = definition.Frames[0].ColorCount;
             AssertEqual(
                 definition.DisplayedRecordsPerCycle * colorsPerRecord * sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} retains all live colors through its complete cycle");
 
-            var resetGuard = new PaletteFxMechanicsForbiddenBus(bus);
+            var resetGuard = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> resetGuardPresentationReads);
             var resetFx = new RoomPaletteFxSystem();
             resetFx.SpawnDefinition(resetGuard, definition.DefinitionPointer, equippedItems: 0);
             resetFx.Step(
@@ -2296,7 +2325,7 @@ internal static partial class Program
                 false,
                 false);
             AssertEqual(2 * colorsPerRecord * sizeof(ushort),
-                resetGuard.PresentationReadCount,
+                resetGuardPresentationReads.Value,
                 $"{definition.Owner} low-Samus pre-instruction restarts its neutral frame");
             AssertEqual(0, resetGuard.ForbiddenReadAttempts,
                 $"{definition.Owner} restart avoids mechanics ROM reads");
@@ -2306,6 +2335,7 @@ internal static partial class Program
         AssertEqual(4, mechanicsBytes, "compiled Crateria lightning mechanics bytes");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Red Brinstar Glow palette-FX program mechanics words")]
     private static void VerifyRedBrinstarGlowPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
@@ -2361,7 +2391,7 @@ internal static partial class Program
                 $"Red Brinstar glow cartridge word $8D:{pointer:X4}");
         }
 
-        var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+        var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
         var paletteFx = new RoomPaletteFxSystem();
         var cgram = new SnesCgram();
         const ushort definition =
@@ -2388,10 +2418,11 @@ internal static partial class Program
             (RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                 RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                 sizeof(ushort),
-            guarded.PresentationReadCount,
+            guardedPresentationReads.Value,
             "Red Brinstar glow program retains live colors through loop");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Brinstar Blue Spore palette-FX program mechanics words")]
     private static void VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
@@ -2461,7 +2492,7 @@ internal static partial class Program
                 mechanicsWords++;
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(
@@ -2490,7 +2521,7 @@ internal static partial class Program
                 (BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                     sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} blue-spore program retains live colors through loop");
 
             paletteFx.Step(
@@ -2508,6 +2539,7 @@ internal static partial class Program
         AssertEqual(66, mechanicsWords, "compiled Brinstar blue-spore mechanics words");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Torizo Belly palette-FX program mechanics words")]
     private static void VerifyTorizoBellyPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
@@ -2567,7 +2599,7 @@ internal static partial class Program
                 mechanicsWords++;
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
@@ -2591,7 +2623,7 @@ internal static partial class Program
                 (TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                     sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Owner} belly program retains live colors through loop");
 
             paletteFx.Step(
@@ -2616,6 +2648,7 @@ internal static partial class Program
             "Torizo belly owner rejects adjacent heat pre-instruction code");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Tourian Statue Grey palette-FX program mechanics words")]
     private static void VerifyTourianStatueGreyPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
@@ -2682,7 +2715,7 @@ internal static partial class Program
         foreach (TourianStatueGreyPaletteFxProgramDefinition definition in
                  TourianStatueGreyPaletteFxProgramMechanicsDefinitionsTooling.All)
         {
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             paletteFx.SpawnDefinition(guarded, definition.DefinitionPointer, equippedItems: 0);
             for (int step = 0;
@@ -2708,7 +2741,7 @@ internal static partial class Program
                 TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount *
                     TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                     sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"palette-FX definition $8D:{definition.DefinitionPointer:X4} retains statue " +
                 "color reads");
         }
@@ -2719,6 +2752,7 @@ internal static partial class Program
             "Tourian statue grey owner rejects adjacent pre-instruction code");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Wrecked Ship Green Light palette-FX program mechanics words")]
     private static void VerifyWreckedShipGreenLightPaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
@@ -2776,7 +2810,7 @@ internal static partial class Program
 
         foreach (ushort definition in new ushort[] { 0xf76d, 0xf771 })
         {
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(guarded, definition, equippedItems: 0);
@@ -2799,7 +2833,7 @@ internal static partial class Program
                 (WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount + 1) *
                     WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                     sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"palette-FX definition $8D:{definition:X4} retains green-light color reads");
         }
 
@@ -2808,6 +2842,7 @@ internal static partial class Program
             "Wrecked Ship green-light owner rejects adjacent code");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled suit heat palette-FX program mechanics words")]
     private static void VerifyPaletteFxHeatProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
@@ -2874,7 +2909,7 @@ internal static partial class Program
                 mechanicsWords++;
             }
 
-            var guarded = new PaletteFxMechanicsForbiddenBus(bus);
+            var guarded = NewPaletteFxMechanicsForbiddenBus(bus, out StrongBox<int> guardedPresentationReads);
             var paletteFx = new RoomPaletteFxSystem();
             var cgram = new SnesCgram();
             ushort equippedItems = definition.Suit switch
@@ -2905,7 +2940,7 @@ internal static partial class Program
             AssertEqual(
                 (definition.Frames.Count + 1) *
                     PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort),
-                guarded.PresentationReadCount,
+                guardedPresentationReads.Value,
                 $"{definition.Suit} heat program retains live BGR555 reads through loop");
         }
 
@@ -3016,649 +3051,650 @@ internal static partial class Program
             "retail Norfair heat owner publishes on frame-eight boundaries");
     }
 
-    private sealed class PaletteFxMechanicsForbiddenBus(ISnesAddressSpace inner)
-        : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewPaletteFxMechanicsForbiddenBus(
+        ISnesAddressSpace inner, out StrongBox<int> presentationReads)
     {
-        public int ForbiddenReadAttempts { get; private set; }
-        public int PresentationReadCount { get; private set; }
+        var reads = new StrongBox<int>();
+        presentationReads = reads;
+        return new CartridgeReadGuard(inner)
+            .Forbid(address => ClassifyPaletteFxRead(address).Forbidden is not null,
+                address => ClassifyPaletteFxRead(address).Forbidden!)
+            .Observe(_ => true, address => reads.Value += ClassifyPaletteFxRead(address).PresentationReads);
+    }
 
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+    /// <summary>
+    /// Classifies one palette-FX bus read: the failure message for a compiled mechanic or an
+    /// unclassified bank-$8D byte, and how many live presentation color tables the byte belongs to.
+    /// </summary>
+    private static (string? Forbidden, int PresentationReads) ClassifyPaletteFxRead(int address)
+    {
+        int presentationReads = 0;
+        int presentationReadsBefore = presentationReads;
+        int first = RoomFxRomData.Banks.PaletteFx |
+            PaletteFxHeatInstructionListDefinitions.GravitySourceTable;
+        int lastExclusive = RoomFxRomData.Banks.PaletteFx |
+            unchecked((ushort)(PaletteFxHeatInstructionListDefinitions.PowerSourceTable +
+                PaletteFxHeatInstructionListDefinitions.PhaseCount * sizeof(ushort)));
+        SnesAddress source = SnesAddress.FromBusAddress(address);
+        bool compiledProgramByte = source.Bank == 0x8d &&
+            (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                source.Offset,
+                out _) ||
+             RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
+                unchecked((ushort)(source.Offset - 1)),
+                out _) ||
+             RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
+                source.Offset,
+                out _));
+        if (address >= first && address < lastExclusive || compiledProgramByte)
         {
-            int presentationReadsBefore = PresentationReadCount;
-            int first = RoomFxRomData.Banks.PaletteFx |
-                PaletteFxHeatInstructionListDefinitions.GravitySourceTable;
-            int lastExclusive = RoomFxRomData.Banks.PaletteFx |
-                unchecked((ushort)(PaletteFxHeatInstructionListDefinitions.PowerSourceTable +
-                    PaletteFxHeatInstructionListDefinitions.PhaseCount * sizeof(ushort)));
-            SnesAddress source = SnesAddress.FromBusAddress(address);
-            bool compiledProgramByte = source.Bank == 0x8d &&
-                (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                    source.Offset,
-                    out _) ||
-                 RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
-                    unchecked((ushort)(source.Offset - 1)),
-                    out _) ||
-                 RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
-                    source.Offset,
-                    out _));
-            if (address >= first && address < lastExclusive || compiledProgramByte)
+            return ($"Production read compiled palette-FX mechanic ${address:X6}.", presentationReads);
+        }
+
+
+        if (source.Bank == 0x8d)
+        {
+            foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
+                     TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled palette-FX mechanic ${address:X6}.");
+                for (int frame = 0; frame < definition.FrameCount; frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            for (int frame = 0;
+                 frame < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                    sizeof(ushort)));
+                if ((uint)offset <
+                    NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    TitleLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                    sizeof(ushort)));
+                if ((uint)offset <
+                    TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                     .GunshipEngineFrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                        .GunshipEngineFramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                        .GunshipEngineColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                     .NavigationLightsFrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                        .NavigationLightsFramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    CeresCinematicLightPaletteFxProgramMechanicsDefinitions
+                        .NavigationLightsColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (PlanetZebesTextPaletteFxProgramDefinition definition in
+                     PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
+            {
+                for (int frame = 0;
+                     frame < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            foreach (CinematicGlowPaletteFxProgramDefinition definition in
+                     CinematicGlowPaletteFxProgramMechanicsDefinitions.All)
+            {
+                for (int frame = 0;
+                     frame < CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            for (int frame = 0;
+                 frame < ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
+                        .FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                     .FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                        .FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
+                        .ColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
+                        .FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                     .FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                        .FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
+                        .ColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
+                     ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
+            {
+                for (int frame = 0; frame < definition.FrameCount; frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
+                     ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
+            {
+                for (int frame = 0;
+                     frame < ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
+                         .FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
+                            .ColorsPerFrame * sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            for (int frame = 0;
+                 frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
+                     .FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
+                        .FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
+                        .ColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                     .FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                        .FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
+                        .ColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
+                     SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+            {
+                for (int frame = 0;
+                     frame < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
+                            .ColorsPerFrame * sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            for (int frame = 0;
+                 frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                     .FrameCount;
+                 frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                        .FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset <
+                    PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
+                        .ColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (PaletteFxHeatProgramDefinition definition in
+                     PaletteFxHeatProgramMechanicsDefinitions.All)
+            {
+                foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
+                {
+                    int colorOffset = source.Offset - frame.FirstColorPointer;
+                    if ((uint)colorOffset <
+                        PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
             }
 
 
-            if (source.Bank == 0x8d)
+            for (int frame = 0;
+                 frame < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
             {
-                foreach (TitleScreenAmbientPaletteFxProgramDefinition definition in
-                         TitleScreenAmbientPaletteFxProgramMechanicsDefinitions.All)
+                ushort firstColor = unchecked((ushort)(
+                    WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                    sizeof(ushort)));
+                int colorOffset = source.Offset - firstColor;
+                if ((uint)colorOffset <
+                    WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort))
                 {
-                    for (int frame = 0; frame < definition.FrameCount; frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
+                    presentationReads++;
+                    break;
                 }
+            }
 
+            for (int frame = 0;
+                 frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort firstColor = unchecked((ushort)(
+                    TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
+                    sizeof(ushort)));
+                int colorOffset = source.Offset - firstColor;
+                if ((uint)colorOffset <
+                    TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (TorizoBellyPaletteFxProgramDefinition definition in
+                     TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
+            {
                 for (int frame = 0;
-                     frame < NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame < TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount;
                      frame++)
                 {
-                    int offset = source.Offset - unchecked((ushort)(
-                        NintendoLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                        sizeof(ushort)));
-                    if ((uint)offset <
-                        NintendoLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    ushort firstColor = definition.ColorPointer(frame, 0);
+                    int colorOffset = source.Offset - firstColor;
+                    if ((uint)colorOffset <
+                        TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                         sizeof(ushort))
                     {
-                        PresentationReadCount++;
+                        presentationReads++;
                         break;
                     }
                 }
+            }
 
+            foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
+                     BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
+            {
                 for (int frame = 0;
-                     frame < TitleLogoFadePaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount;
                      frame++)
                 {
-                    int offset = source.Offset - unchecked((ushort)(
-                        TitleLogoFadePaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                        sizeof(ushort)));
-                    if ((uint)offset <
-                        TitleLogoFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    ushort firstColor = definition.ColorPointer(frame, 0);
+                    int colorOffset = source.Offset - firstColor;
+                    if ((uint)colorOffset <
+                        BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
                         sizeof(ushort))
                     {
-                        PresentationReadCount++;
+                        presentationReads++;
                         break;
                     }
                 }
+            }
 
-                for (int frame = 0;
-                     frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                         .GunshipEngineFrameCount;
-                     frame++)
+            for (int frame = 0;
+                 frame < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort firstColor =
+                    RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                        frame, 0);
+                int colorOffset = source.Offset - firstColor;
+                if ((uint)colorOffset <
+                    RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                    sizeof(ushort))
                 {
-                    int offset = source.Offset - unchecked((ushort)(
-                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                            .GunshipEngineFramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                            .GunshipEngineColorsPerFrame * sizeof(ushort))
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (CrateriaLightningPaletteFxProgramDefinition definition in
+                     CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
+            {
+                foreach (CrateriaLightningPaletteFrame frame in definition.Frames)
+                {
+                    int colorOffset = source.Offset - frame.FirstColorPointer;
+                    if ((uint)colorOffset < frame.ColorCount * sizeof(ushort))
                     {
-                        PresentationReadCount++;
+                        presentationReads++;
                         break;
                     }
                 }
+            }
 
+            foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
+                     MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+            {
                 for (int frame = 0;
-                     frame < CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                         .NavigationLightsFrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                            .NavigationLightsFramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        CeresCinematicLightPaletteFxProgramMechanicsDefinitions
-                            .NavigationLightsColorsPerFrame * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (PlanetZebesTextPaletteFxProgramDefinition definition in
-                         PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < PlanetZebesTextPaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset <
-                            PlanetZebesTextPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                            sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                foreach (CinematicGlowPaletteFxProgramDefinition definition in
-                         CinematicGlowPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < CinematicGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.FrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        ExplodingZebesFadePaletteFxProgramMechanicsDefinitions
-                            .FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        ExplodingZebesFadePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                        sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
-                         .FrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
-                            .FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        ZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions
-                            .ColorsPerFrame * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.FrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions
-                            .FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        ZebesExplosionFinalePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                        sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
-                         .FrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
-                            .FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        ZebesExplosionWhiteoutPaletteFxProgramMechanicsDefinitions
-                            .ColorsPerFrame * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (ZebesExplosionAmbientPaletteFxProgramDefinition definition in
-                         ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0; frame < definition.FrameCount; frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                foreach (ZebesExplosionLayerFadePaletteFxProgramDefinition definition in
-                         ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
-                             .FrameCount;
-                         frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset <
-                            ZebesExplosionLayerFadePaletteFxProgramMechanicsDefinitions
-                                .ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
-                         .FrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
-                            .FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        ZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions
-                            .ColorsPerFrame * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
-                         .FrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
-                            .FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        UnusedCinematicFadePaletteFxProgramMechanicsDefinitions
-                            .ColorsPerFrame * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (SamusLoadingSuitPaletteFxProgramDefinition definition in
-                         SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset <
-                            SamusLoadingSuitPaletteFxProgramMechanicsDefinitions
-                                .ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
-                         .FrameCount;
-                     frame++)
-                {
-                    int offset = source.Offset - unchecked((ushort)(
-                        PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
-                            .FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset <
-                        PostCreditsIconGlarePaletteFxProgramMechanicsDefinitions
-                            .ColorsPerFrame * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (PaletteFxHeatProgramDefinition definition in
-                         PaletteFxHeatProgramMechanicsDefinitions.All)
-                {
-                    foreach (PaletteFxHeatProgramFrameDefinition frame in definition.Frames)
-                    {
-                        int colorOffset = source.Offset - frame.FirstColorPointer;
-                        if ((uint)colorOffset <
-                            PaletteFxHeatProgramDefinition.ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-
-                for (int frame = 0;
-                     frame < WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame < definition.FrameCount;
                      frame++)
                 {
                     ushort firstColor = unchecked((ushort)(
-                        WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                        sizeof(ushort)));
+                        definition.FramePointer(frame) + sizeof(ushort)));
                     int colorOffset = source.Offset - firstColor;
                     if ((uint)colorOffset <
-                        WreckedShipGreenLightPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                        sizeof(ushort))
+                        definition.ColorsPerFrame * sizeof(ushort))
                     {
-                        PresentationReadCount++;
+                        presentationReads++;
                         break;
                     }
                 }
+            }
 
+            for (int frame = 0;
+                 frame < TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                bool presentationByte = false;
+                for (int color = 0;
+                     color < TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                     color++)
+                {
+                    int colorOffset = source.Offset -
+                        TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(
+                            frame, color);
+                    if ((uint)colorOffset >= sizeof(ushort))
+                        continue;
+                    presentationByte = true;
+                    presentationReads++;
+                    break;
+                }
+                if (presentationByte)
+                    break;
+            }
+
+            for (int frame = 0;
+                 frame < BeaconPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort framePointer =
+                    BeaconPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+                int leadingColorOffset = source.Offset - unchecked((ushort)(framePointer + 2));
+                if ((uint)leadingColorOffset < 3 * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+                int finalColorOffset = source.Offset - unchecked((ushort)(framePointer + 10));
+                if ((uint)finalColorOffset < sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
+                     NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
+            {
                 for (int frame = 0;
-                     frame < TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FrameCount;
-                     frame++)
-                {
-                    ushort firstColor = unchecked((ushort)(
-                        TourianStatueGreyPaletteFxProgramMechanicsDefinitions.FramePointer(frame) +
-                        sizeof(ushort)));
-                    int colorOffset = source.Offset - firstColor;
-                    if ((uint)colorOffset <
-                        TourianStatueGreyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                        sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (TorizoBellyPaletteFxProgramDefinition definition in
-                         TorizoBellyPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < TorizoBellyPaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        ushort firstColor = definition.ColorPointer(frame, 0);
-                        int colorOffset = source.Offset - firstColor;
-                        if ((uint)colorOffset <
-                            TorizoBellyPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                            sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                foreach (BrinstarBlueSporePaletteFxProgramDefinition definition in
-                         BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        ushort firstColor = definition.ColorPointer(frame, 0);
-                        int colorOffset = source.Offset - firstColor;
-                        if ((uint)colorOffset <
-                            BrinstarBlueSporePaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                            sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
-                     frame++)
-                {
-                    ushort firstColor =
-                        RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(
-                            frame, 0);
-                    int colorOffset = source.Offset - firstColor;
-                    if ((uint)colorOffset <
-                        RedBrinstarGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                        sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (CrateriaLightningPaletteFxProgramDefinition definition in
-                         CrateriaLightningPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    foreach (CrateriaLightningPaletteFrame frame in definition.Frames)
-                    {
-                        int colorOffset = source.Offset - frame.FirstColorPointer;
-                        if ((uint)colorOffset < frame.ColorCount * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                foreach (MaridiaEnvironmentalPaletteFxProgramDefinition definition in
-                         MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < definition.FrameCount;
-                         frame++)
-                    {
-                        ushort firstColor = unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        int colorOffset = source.Offset - firstColor;
-                        if ((uint)colorOffset <
-                            definition.ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < TourianGlowPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount;
                      frame++)
                 {
                     bool presentationByte = false;
                     for (int color = 0;
-                         color < TourianGlowPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
+                         color < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
                          color++)
                     {
-                        int colorOffset = source.Offset -
-                            TourianGlowPaletteFxProgramMechanicsDefinitions.ColorPointer(
-                                frame, color);
+                        int colorOffset = source.Offset - definition.ColorPointer(frame, color);
                         if ((uint)colorOffset >= sizeof(ushort))
                             continue;
                         presentationByte = true;
-                        PresentationReadCount++;
+                        presentationReads++;
                         break;
                     }
                     if (presentationByte)
                         break;
                 }
+            }
 
+            foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
+                     TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
+            {
                 for (int frame = 0;
-                     frame < BeaconPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame < TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
                      frame++)
-                {
-                    ushort framePointer =
-                        BeaconPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
-                    int leadingColorOffset = source.Offset - unchecked((ushort)(framePointer + 2));
-                    if ((uint)leadingColorOffset < 3 * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                    int finalColorOffset = source.Offset - unchecked((ushort)(framePointer + 10));
-                    if ((uint)finalColorOffset < sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (NorfairEnvironmentalPaletteFxProgramDefinition definition in
-                         NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        bool presentationByte = false;
-                        for (int color = 0;
-                             color < NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.ColorsPerFrame;
-                             color++)
-                        {
-                            int colorOffset = source.Offset - definition.ColorPointer(frame, color);
-                            if ((uint)colorOffset >= sizeof(ushort))
-                                continue;
-                            presentationByte = true;
-                            PresentationReadCount++;
-                            break;
-                        }
-                        if (presentationByte)
-                            break;
-                    }
-                }
-
-                foreach (TourianEscapeRedFlashPaletteFxProgramDefinition definition in
-                         TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
-                     frame++)
-                {
-                    ushort framePointer =
-                        TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
-                    int leadingOffset = source.Offset - unchecked((ushort)(
-                        framePointer + sizeof(ushort)));
-                    if ((uint)leadingOffset < 6 * sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                    int trailingOffset = source.Offset - unchecked((ushort)(
-                        framePointer + 16));
-                    if ((uint)trailingOffset < sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                for (int frame = 0;
-                     frame < OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
-                     frame++)
-                {
-                    ushort framePointer =
-                        OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
-                    int firstOffset = source.Offset - unchecked((ushort)(framePointer + 2));
-                    int secondOffset = source.Offset - unchecked((ushort)(framePointer + 10));
-                    int thirdOffset = source.Offset - unchecked((ushort)(framePointer + 20));
-                    if ((uint)firstOffset < 3 * sizeof(ushort) ||
-                        (uint)secondOffset < 4 * sizeof(ushort) ||
-                        (uint)thirdOffset < sizeof(ushort))
-                    {
-                        PresentationReadCount++;
-                        break;
-                    }
-                }
-
-                foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in
-                         OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0;
-                         frame < OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount;
-                         frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(
-                            definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset <
-                            OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
-                            sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                for (int frame = 0; frame < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
                 {
                     int offset = source.Offset - unchecked((ushort)(
-                        UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame) + sizeof(ushort)));
-                    if ((uint)offset < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * sizeof(ushort))
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
                     {
-                        PresentationReadCount++;
+                        presentationReads++;
                         break;
                     }
-                }
-
-                foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in
-                         CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All)
-                {
-                    for (int frame = 0; frame < CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
-                    {
-                        int offset = source.Offset - unchecked((ushort)(definition.FramePointer(frame) + sizeof(ushort)));
-                        if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
-                        {
-                            PresentationReadCount++;
-                            break;
-                        }
-                    }
-                }
-
-                bool livePayloadRead = PresentationReadCount != presentationReadsBefore;
-                if (!livePayloadRead)
-                {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Production read unclassified palette-FX byte ${address:X6}.");
                 }
             }
 
-            return inner.ReadByte(address);
+            for (int frame = 0;
+                 frame < TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort framePointer =
+                    TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+                int leadingOffset = source.Offset - unchecked((ushort)(
+                    framePointer + sizeof(ushort)));
+                if ((uint)leadingOffset < 6 * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+                int trailingOffset = source.Offset - unchecked((ushort)(
+                    framePointer + 16));
+                if ((uint)trailingOffset < sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            for (int frame = 0;
+                 frame < OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount;
+                 frame++)
+            {
+                ushort framePointer =
+                    OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame);
+                int firstOffset = source.Offset - unchecked((ushort)(framePointer + 2));
+                int secondOffset = source.Offset - unchecked((ushort)(framePointer + 10));
+                int thirdOffset = source.Offset - unchecked((ushort)(framePointer + 20));
+                if ((uint)firstOffset < 3 * sizeof(ushort) ||
+                    (uint)secondOffset < 4 * sizeof(ushort) ||
+                    (uint)thirdOffset < sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (OldTourianEscapeAccentPaletteFxProgramDefinition definition in
+                     OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
+            {
+                for (int frame = 0;
+                     frame < OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.FrameCount;
+                     frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(
+                        definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset <
+                        OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.ColorsPerFrame *
+                        sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            for (int frame = 0; frame < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
+            {
+                int offset = source.Offset - unchecked((ushort)(
+                    UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.FramePointer(frame) + sizeof(ushort)));
+                if ((uint)offset < UpperCrateriaEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorsPerFrame * sizeof(ushort))
+                {
+                    presentationReads++;
+                    break;
+                }
+            }
+
+            foreach (CrateriaEscapeLightningPaletteFxProgramDefinition definition in
+                     CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.All)
+            {
+                for (int frame = 0; frame < CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions.FrameCount; frame++)
+                {
+                    int offset = source.Offset - unchecked((ushort)(definition.FramePointer(frame) + sizeof(ushort)));
+                    if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))
+                    {
+                        presentationReads++;
+                        break;
+                    }
+                }
+            }
+
+            bool livePayloadRead = presentationReads != presentationReadsBefore;
+            if (!livePayloadRead)
+            {
+                return ($"Production read unclassified palette-FX byte ${address:X6}.", presentationReads);
+            }
         }
 
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
+        return (null, presentationReads);
     }
 
     /// <summary>

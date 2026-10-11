@@ -18,6 +18,7 @@ internal static partial class Program
     /// </summary>
     private const int CeresFrontApproachTicks = 30;
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight Mode 7 characters, maps, object characters and palette")]
     private static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
@@ -41,7 +42,7 @@ internal static partial class Program
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))),
                 stock.Palette.ColorAt(index), "installed Ceres palette preserves every native color");
 
-        var guard = new IntroArtworkSourceReadGuard(bus, blockCeresFlightSprites: true);
+        var guard = NewIntroArtworkSourceReadGuard(bus, blockCeresFlightSprites: true);
         var referenceFiles = CeresFlightArtworkExtractor.Extract(bus);
         using var referenceCharacters = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.Mode7FileName]);
         using var referenceMaps = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.MapFileName]);
@@ -148,7 +149,7 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Ceres artwork and debugger rebind never read cartridge art sources");
         Suite(nameof(VerifyCeresVisibleOverrides), () => VerifyCeresVisibleOverrides(installation, bus));
-        Suite(nameof(VerifyCeresFlightPaletteOverride), () => VerifyCeresFlightPaletteOverride(installation, new IntroArtworkSourceReadGuard(bus), stock));
+        Suite(nameof(VerifyCeresFlightPaletteOverride), () => VerifyCeresFlightPaletteOverride(installation, NewIntroArtworkSourceReadGuard(bus), stock));
 
         string invalidMap = Path.Combine(installation.IntroCinematicOverrideDirectory,
             CeresFlightArtworkFormat.MapFileName);
@@ -180,6 +181,7 @@ internal static partial class Program
         Console.WriteLine("Ceres flight art: native front/rear frames and five ROM-sourced rear actor placements, independent PNG/JSON/palette edits, rebind and strict failures pass.");
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres flight actor spritemap layout")]
     private static void VerifyCeresFlightActorLayout(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)

@@ -25,7 +25,7 @@ internal static partial class Program
                 AssertEqual(ReadWord(bus, GameplayBasePaletteFormat.CommonSpriteSourceAddress + color * 2),
                     baseline.CommonSprites[color], $"installed shared OBJ color {color}");
 
-            var guarded = new FrontendCartridgeReadGuard(
+            var guarded = NewFrontendCartridgeReadGuard(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom));
             var runtime = new SuperMetroidRuntime(guarded, initialPaletteArt: baseline);
             AssertTrue(runtime.Cgram.Colors.SequenceEqual(baseline.Initial.ToArray()),

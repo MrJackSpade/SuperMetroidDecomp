@@ -19,7 +19,7 @@ internal static partial class Program
         Suite(nameof(VerifyVerticalShutterPresentationAddresses), () => VerifyVerticalShutterPresentationAddresses());
         Suite(nameof(VerifyKamerPlatformVisualSelectors), () => VerifyKamerPlatformVisualSelectors(rom));
 
-        var guard = new VerticalShutterInstructionProgramReadGuard(rom);
+        var guard = NewVerticalShutterInstructionProgramReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
         enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -75,7 +75,7 @@ internal static partial class Program
 
         // Both Kamer and the plain shutters use compiled selectors; gameplay
         // timing still comes from their separately compiled instruction words.
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "plain vertical-shutter selector uses compiled presentation data");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled vertical-shutter mechanics bytes");
@@ -285,43 +285,20 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class VerticalShutterInstructionProgramReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewVerticalShutterInstructionProgramReadGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var guard = new CartridgeReadGuard(source).Forbid(VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled vertical-shutter mechanics byte ${address:X6}.");
+        // Every table word whose bytes are read is recorded, including repeated table entries.
+        return guard.Observe(address => (address & 0xff0000) == 0xa20000, address =>
         {
-            if (VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0; index < VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled vertical-shutter mechanics byte ${address:X6}.");
+                ushort presentation = VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
+                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                    guard.ObservedWords.Add(presentation);
             }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        });
     }
 }

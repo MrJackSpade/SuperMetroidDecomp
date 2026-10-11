@@ -68,7 +68,7 @@ internal static partial class Program
         AssertEqual(WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount, presentation,
             "Work Robot live presentation word count");
 
-        var guard = new WorkRobotInstructionReadGuard(rom);
+        var guard = NewWorkRobotInstructionReadGuard(rom);
         RoomEnemySystem enemies = CreateWorkRobotInstructionSystem(guard, out RoomEnemySlot robot);
         RoomLevelData level = CreateWorkRobotInstructionRoom();
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -89,7 +89,7 @@ internal static partial class Program
             }
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Work Robot execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Work Robot production execution avoids compiled mechanics bytes");
@@ -173,47 +173,13 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class WorkRobotInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewWorkRobotInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (WorkRobotInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Work Robot mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = WorkRobotInstructionProgramDefinitionsTooling
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Work Robot read presentation byte ${address:X6}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var guard = new CartridgeReadGuard(source).Forbid(WorkRobotInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled Work Robot mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa80000, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Installed Work Robot read presentation byte ${address:X6}.")
+            : guard.ObserveWords(0xa80000, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 }

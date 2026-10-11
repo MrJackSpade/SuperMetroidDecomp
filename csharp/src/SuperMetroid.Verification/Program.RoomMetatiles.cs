@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room metatile (block) definitions")]
     private static void VerifyRoomMetatileExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -57,7 +58,7 @@ internal static partial class Program
             int areaSource = RoomTilesetDefinitions.Get(header.State.GraphicsSet).BlockDefinitionsAddress;
             CartridgeRoomAssets native = LoadFixtureRoomAssets(bus, header);
             CartridgeRoomAssets installed = LoadFixtureRoomAssets(
-                new RoomMetatileSourceReadGuard(bus, areaSource), header,
+                NewRoomMetatileSourceReadGuard(bus, areaSource), header,
                 metatileArt: stockCatalog);
             AssertTrue(native.LevelData.BlockDefinitions.Span.SequenceEqual(
                     installed.LevelData.BlockDefinitions.Span),
@@ -94,7 +95,7 @@ internal static partial class Program
         CartridgeRoomHeader landing = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0x91f8);
         CartridgeRoomAssets nativeLanding = LoadFixtureRoomAssets(bus, landing);
         CartridgeRoomAssets editedLanding = LoadFixtureRoomAssets(
-            new RoomMetatileSourceReadGuard(bus,
+            NewRoomMetatileSourceReadGuard(bus,
                 RoomTilesetDefinitions.Get(landing.State.GraphicsSet).BlockDefinitionsAddress),
             landing, metatileArt: editedCatalog);
         AssertTrue(!nativeLanding.LevelData.BlockDefinitions.Span.SequenceEqual(
@@ -114,20 +115,8 @@ internal static partial class Program
             "byte-exactly; a visual edit changes one child without changing collision/BTS.");
     }
 
-    private sealed class RoomMetatileSourceReadGuard(ISnesAddressSpace source, int areaSource)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address == areaSource ||
-                address == RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress)
-                throw new InvalidOperationException(
-                    $"Installed room loader reread metatile source ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRoomMetatileSourceReadGuard(ISnesAddressSpace source, int areaSource) =>
+        new CartridgeReadGuard(source).Forbid(address => address == areaSource ||
+                address == RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress,
+            address => $"Installed room loader reread metatile source ${address:X6}.");
 }

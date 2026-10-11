@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
@@ -7,6 +8,7 @@ internal static partial class Program
     // compiled geometry and production overlap helper after removal of the
     // runtime ROM fallback in a15b3aea0. Arguments mirror the reflected subject,
     // including its output callback, so existing boundary assertions stay intact.
+    [CpuBusBoundary("exact bus test: retail ROM reference model of extended spritemap collision")]
     private static bool ReferenceExtendedCollision(CartridgeImportAddressSpace source, object?[] arguments)
     {
         var enemy = (RoomEnemySlot)arguments[0]!;

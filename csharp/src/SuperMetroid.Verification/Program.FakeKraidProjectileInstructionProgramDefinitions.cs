@@ -17,7 +17,13 @@ internal static partial class Program
         Suite(nameof(VerifyFakeKraidProjectileMechanicsMapping), () => VerifyFakeKraidProjectileMechanicsMapping(rom));
         Suite(nameof(VerifyFakeKraidProjectilePresentationAddresses), () => VerifyFakeKraidProjectilePresentationAddresses());
 
-        var guard = new FakeKraidProjectileInstructionReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(address => FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Fake Kraid mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount,
+                FakeKraidProjectileInstructionProgramDefinitions.PresentationWordAddress);
         var selectedPresentationWords = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
@@ -99,7 +105,7 @@ internal static partial class Program
                 $"production execution selects Fake Kraid presentation $86:{address:X4}");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Fake Kraid frames never read presentation operands from ROM");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Fake Kraid and shared-delete mechanics byte");
@@ -159,46 +165,4 @@ internal static partial class Program
             source.ReadByte(
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
-
-    private sealed class FakeKraidProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (FakeKraidProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Fake Kraid mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < FakeKraidProjectileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = FakeKraidProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

@@ -47,7 +47,8 @@ internal static partial class Program
 
             mechanicsWordCount += 2;
 
-            var guarded = new RoomFxAnimatedTileMechanicsForbiddenBus(bus, definition);
+            int presentationReadCount = 0;
+            var guarded = NewRoomFxAnimatedTileMechanicsForbiddenBus(bus, definition, () => presentationReadCount++);
             var state = new RoomFxAnimatedTilesState();
             var vram = new SnesVram();
             var writes = new VramWriteQueue();
@@ -66,7 +67,7 @@ internal static partial class Program
                 $"object $87:{(int)definition.ObjectPointer:X4} executes one complete loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"object $87:{(int)definition.ObjectPointer:X4} performs no mechanics ROM reads");
-            AssertEqual(0, guarded.PresentationReadCount,
+            AssertEqual(0, presentationReadCount,
                 $"object $87:{(int)definition.ObjectPointer:X4} reads no compiled artwork-source operands");
         }
 
@@ -79,40 +80,27 @@ internal static partial class Program
             "  Room-FX animated tiles: 65 control words and 30 artwork-source identities across 7 objects are compiled.");
     }
 
-    private sealed class RoomFxAnimatedTileMechanicsForbiddenBus(
-        ISnesAddressSpace inner,
-        RoomFxAnimatedTileObjectDefinition definition) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewRoomFxAnimatedTileMechanicsForbiddenBus(
+        ISnesAddressSpace inner, RoomFxAnimatedTileObjectDefinition definition, Action presentationRead)
     {
-        public int ForbiddenReadAttempts { get; private set; }
-        public int PresentationReadCount { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            SnesAddress source = SnesAddress.FromBusAddress(address);
-            if (source.Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16))
-            {
-                if (definition.TryReadMechanicsWord(source.Offset, out _) ||
-                    definition.TryReadMechanicsWord(
-                        unchecked((ushort)(source.Offset - 1)), out _))
+        bool InAnimatedTileBank(int address) =>
+            SnesAddress.FromBusAddress(address).Bank == (byte)(RoomFxRomData.Banks.AnimatedTiles >> 16);
+        return new CartridgeReadGuard(inner)
+            .Forbid(address =>
                 {
-                    ForbiddenReadAttempts++;
-                    throw new InvalidOperationException(
-                        $"Production read compiled room-FX mechanics byte {source}.");
-                }
-
-                if (definition.Frames.Any(frame =>
-                        source.Offset == frame.SourceOperandPointer ||
-                        source.Offset == unchecked((ushort)(frame.SourceOperandPointer + 1))))
+                    SnesAddress source = SnesAddress.FromBusAddress(address);
+                    return InAnimatedTileBank(address) &&
+                        (definition.TryReadMechanicsWord(source.Offset, out _) ||
+                         definition.TryReadMechanicsWord(unchecked((ushort)(source.Offset - 1)), out _));
+                },
+                address => $"Production read compiled room-FX mechanics byte {SnesAddress.FromBusAddress(address)}.")
+            .Observe(address =>
                 {
-                    PresentationReadCount++;
-                }
-            }
-
-            return inner.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
+                    ushort offset = SnesAddress.FromBusAddress(address).Offset;
+                    return InAnimatedTileBank(address) && definition.Frames.Any(frame =>
+                        offset == frame.SourceOperandPointer ||
+                        offset == unchecked((ushort)(frame.SourceOperandPointer + 1)));
+                },
+                _ => presentationRead());
     }
 }

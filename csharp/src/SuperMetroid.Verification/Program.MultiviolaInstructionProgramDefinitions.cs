@@ -25,7 +25,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new MultiviolaInstructionReadGuard(rom);
+        var guard = NewMultiviolaInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -55,7 +55,7 @@ internal static partial class Program
             "Multiviola program completes its native goto and first repeated frame");
         // The artwork suite compares all fourteen compiled visual selectors to
         // the cartridge. Live instruction execution must no longer read them.
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Multiviola execution uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Multiviola mechanics byte");
@@ -98,44 +98,9 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class MultiviolaInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (MultiviolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Multiviola mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MultiviolaInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        MultiviolaInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMultiviolaInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => MultiviolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Multiviola mechanics byte ${address:X6}.")
+            .ObserveWords(0xa20000, MultiviolaInstructionProgramDefinitions.PresentationWordCount, MultiviolaInstructionProgramDefinitions.PresentationWordAddress);
 }

@@ -25,7 +25,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new RioInstructionReadGuard(rom);
+        var guard = NewRioInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -94,7 +94,7 @@ internal static partial class Program
         AssertTrue(state.AnimationFinished,
             "swoop cooldown publishes animation completion");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Rio presentation selectors are compiled, not ROM reads");
         for (int index = 0;
              index < RioInstructionProgramDefinitions.PresentationWordCount;
@@ -165,47 +165,18 @@ internal static partial class Program
             source.ReadByte(0xa20000 | address) |
             source.ReadByte(0xa20000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class RioInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewRioInstructionReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (RioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Rio mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < RioInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        RioInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Rio read visual selector $A2:{presentation:X4}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        static ushort SelectorWord(int address) => Enumerable.Range(0, RioInstructionProgramDefinitions.PresentationWordCount)
+            .Select(RioInstructionProgramDefinitions.PresentationWordAddress)
+            .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));
+        CartridgeReadGuard guard = new CartridgeReadGuard(source)
+            .Forbid(RioInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Rio mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa20000, RioInstructionProgramDefinitions.PresentationWordCount, RioInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Installed Rio read visual selector $A2:{SelectorWord(address):X4}.")
+            : guard.ObserveWords(0xa20000, RioInstructionProgramDefinitions.PresentationWordCount, RioInstructionProgramDefinitions.PresentationWordAddress);
     }
 }

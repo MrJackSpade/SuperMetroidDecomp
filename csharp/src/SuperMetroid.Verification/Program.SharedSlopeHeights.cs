@@ -23,7 +23,7 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeightDefinitions.Read(shape, 16), "column cannot cross profile seam");
         for (int column = 0; column < 16; column++)
             AssertThrows<ArgumentOutOfRangeException>(() => SlopeHeightDefinitions.Read(32, column), "shape cannot exceed catalog");
-        var forbidden = new SlopeHeightNoReadBus();
+        var forbidden = NewSlopeHeightNoReadBus();
         var enemies = new RoomEnemySystem();
         var enemy = enemies.Slots[0];
         var align = typeof(RoomEnemySystem).GetMethod("AlignAgainstSlopeAtPixel", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -71,11 +71,8 @@ internal static partial class Program
         Console.WriteLine("Shared slopes: 512 native heights, 12288 Samus samples and 55296 cross-consumer collision/alignment cases pass with ROM reads forbidden.");
     }
 
-    private sealed class SlopeHeightNoReadBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public static byte ReadByte(int address) => throw new InvalidOperationException($"Unexpected slope ROM read at {address:X6}.");
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected slope bus write.");
-    }
+    private static CartridgeReadGuard NewSlopeHeightNoReadBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Unexpected slope ROM read at {address:X6}.")
+            .RejectWrites(_ => "Unexpected slope bus write.");
 }

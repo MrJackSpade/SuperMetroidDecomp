@@ -59,6 +59,7 @@ public sealed partial class SamusProjectileSystem
         return persistentMemoryCorrupted;
     }
 
+    [CpuBusBoundary("native emulation: the SpaceTime beam copy loop reads arbitrary CPU-bus source bytes")]
     private static byte ReadSpacetimeSourceByte(ISnesAddressSpace bus, int address) =>
         SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) switch
         {

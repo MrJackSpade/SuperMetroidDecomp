@@ -70,7 +70,7 @@ internal static partial class Program
         Suite(nameof(VerifyQuicksandStationaryDisplacement), () => VerifyQuicksandStationaryDisplacement(rom));
         Suite(nameof(VerifyQuicksandUpwardLimit), () => VerifyQuicksandUpwardLimit(rom));
 
-        var guarded = new QuicksandDefinitionReadGuard(rom);
+        var guarded = NewQuicksandDefinitionReadGuard(rom);
         var level = new RoomLevelData(
             new Extent16<RoomBlocks>(4, 4),
             Enumerable.Repeat((ushort)0x3000, 16).ToArray(),
@@ -229,13 +229,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class QuicksandDefinitionReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x9491d9 and < 0x9492e7 or
+    private static CartridgeReadGuard NewQuicksandDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0x9491d9 and < 0x9492e7 or
                 >= 0x949a06 and < 0x949b14 or
                 >= 0x84b48b and < 0x84b497 or
                 >= 0x84b713 and < 0x84b743 or
@@ -252,12 +247,6 @@ internal static partial class Program
                 0x84d03c or 0x84d03d or
                 0x84d040 or 0x84d041 or
                 0x84d6da or 0x84d6db or
-                0x84d6f2 or 0x84d6f3
-                ? throw new InvalidOperationException(
-                    $"Quicksand attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) =>
-            source.WriteByte(address, value);
-    }
+                0x84d6f2 or 0x84d6f3,
+            address => $"Quicksand attempted migrated definition read ${address:X6}.");
 }

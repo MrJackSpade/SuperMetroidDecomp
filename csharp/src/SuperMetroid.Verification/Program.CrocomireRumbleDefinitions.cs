@@ -55,7 +55,7 @@ internal static partial class Program
             () => CrocomireRumbleDefinitions.AtOffset(0x40),
             "Crocomire rumble offset outside table");
 
-        var guarded = new CrocomireRumbleReadGuard(rom);
+        var guarded = NewCrocomireRumbleReadGuard(rom);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         CrocomireColorCatalog colors = CrocomireColorCatalog.Load(
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
@@ -176,20 +176,11 @@ internal static partial class Program
             : unchecked((ushort)(yOffset + delta));
     }
 
-    private sealed class CrocomireRumbleReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa498ca and < 0xa4990a or
+    private static CartridgeReadGuard NewCrocomireRumbleReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa498ca and < 0xa4990a or
                 >= CrocomirePaletteRomData.FightBodySource and
                 < (CrocomirePaletteRomData.WallSpikesSource +
-                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort))
-                ? throw new InvalidOperationException(
-                    $"Crocomire rumble attempted migrated data read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
+                address => $"Crocomire rumble attempted migrated data read ${address:X6}.");
 }

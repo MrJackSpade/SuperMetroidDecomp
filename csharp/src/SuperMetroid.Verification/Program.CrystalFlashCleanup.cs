@@ -150,6 +150,7 @@ internal static partial class Program
 }
 
 /// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>
+[CpuBusBoundary("exact bus test: constructed enemy population fixture overlaying one Ripper's population and tileset bytes on a live bus")]
 internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Position16<RoomPixels> position) :
     ISnesAddressSpace, IRoomEnemyFixtureSource
 {

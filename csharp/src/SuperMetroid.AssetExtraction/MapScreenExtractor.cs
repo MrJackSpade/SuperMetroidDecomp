@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Resolves native world layers and final room-map frames into editable visual resources.</summary>
+[CpuBusBoundary("codec: ROM world map layers and room-map frames → map screen resources")]
 public static class MapScreenExtractor
 {
     /// <summary>Builds the thirteen final world-map/room-frame tilemap pages and exports their shared foreground/background character atlases.</summary>

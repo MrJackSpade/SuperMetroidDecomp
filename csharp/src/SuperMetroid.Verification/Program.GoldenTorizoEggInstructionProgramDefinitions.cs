@@ -28,7 +28,12 @@ internal static partial class Program
                 $"Golden Torizo egg mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new GoldenTorizoEggInstructionReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(GoldenTorizoEggInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Golden Torizo egg byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount,
+                GoldenTorizoEggInstructionProgramDefinitions.PresentationWordAddress);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
@@ -171,7 +176,7 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "Golden Torizo egg shot path completes shared Chozo-orb break program");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled Golden Torizo egg visuals require no cartridge reads");
         for (int index = 0; index < GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount; index++)
         {
@@ -227,44 +232,5 @@ internal static partial class Program
                     : GoldenTorizoEggInstructionProgramDefinitions.BreakRight);
         }
         return checksum;
-    }
-
-    private sealed class GoldenTorizoEggInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (GoldenTorizoEggInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Golden Torizo egg byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < GoldenTorizoEggInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = GoldenTorizoEggInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

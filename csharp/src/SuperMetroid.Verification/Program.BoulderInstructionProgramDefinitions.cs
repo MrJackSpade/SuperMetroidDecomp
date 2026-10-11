@@ -103,7 +103,7 @@ internal static partial class Program
         Suite(nameof(VerifyBoulderPresentationAddresses), () => VerifyBoulderPresentationAddresses());
         Suite(nameof(VerifyBoulderVisualSelectors), () => VerifyBoulderVisualSelectors(rom));
 
-        var guard = new BoulderInstructionProgramReadGuard(rom);
+        var guard = NewBoulderInstructionProgramReadGuard(rom);
         Suite(nameof(VerifyBoulderInstructionProgram), () => VerifyBoulderInstructionProgram(
             guard,
             parameter1: 0x0100,
@@ -132,7 +132,7 @@ internal static partial class Program
             "bytes forbidden.");
 
         static void VerifyBoulderInstructionProgram(
-            BoulderInstructionProgramReadGuard guard,
+            CartridgeReadGuard guard,
             ushort parameter1,
             ushort expectedProgram,
             string description)
@@ -181,48 +181,11 @@ internal static partial class Program
     private static ushort ReadBoulderInstructionWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class BoulderInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewBoulderInstructionProgramReadGuard(ISnesAddressSpace source)
     {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsCompiledPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Boulder instruction byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        private static bool IsCompiledPresentationByte(int address)
-        {
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BoulderInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        static string Message(int address) => $"Production read compiled Boulder instruction byte ${address:X6}.";
+        return new CartridgeReadGuard(source)
+            .Forbid(BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, Message)
+            .ForbidWords(0xa60000, BoulderInstructionProgramDefinitionsTooling.PresentationWordCount, BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
     }
 }

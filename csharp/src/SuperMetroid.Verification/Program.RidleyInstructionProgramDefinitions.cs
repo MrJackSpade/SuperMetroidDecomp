@@ -28,7 +28,7 @@ internal static partial class Program
         }
 
         var executedOperands = new HashSet<ushort>();
-        var guard = new RidleyInstructionReadGuard(rom);
+        var guard = NewRidleyInstructionReadGuard(rom);
         ushort[] programs =
         [
             RidleyInstructionProgramDefinitions.Initial,
@@ -58,7 +58,7 @@ internal static partial class Program
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Ridley execution avoids compiled mechanics bytes");
         AssertEqual(0,
-            guard.ObservedPresentationWords.Count,
+            guard.ObservedWords.Count,
             "Ridley extended-spritemap selection performs zero live cartridge reads");
         AssertEqual(RidleyInstructionProgramDefinitionsTooling.PresentationWordCount, executedOperands.Count,
             "Ridley programs execute every native visual operand");
@@ -101,7 +101,7 @@ internal static partial class Program
     private static void RunProgram(
         SuperMetroidAddressSpace rom,
         HashSet<ushort> executedOperands,
-        RidleyInstructionReadGuard guard,
+        CartridgeReadGuard guard,
         ushort program,
         RidleyFacing facingDirection,
         EnemyDefinitionId enemyDefinition)
@@ -167,43 +167,10 @@ internal static partial class Program
     private static ushort ReadRidleyWord(SuperMetroidAddressSpace source, int address) =>
         unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
 
-    private sealed class RidleyInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (RidleyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Ridley mechanics ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < RidleyInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        RidleyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRidleyInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(RidleyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Ridley mechanics ${address:X6}.")
+            .ObserveWords(0xa60000, RidleyInstructionProgramDefinitionsTooling.PresentationWordCount,
+                RidleyInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

@@ -27,7 +27,12 @@ internal static partial class Program
                 $"Eye Door projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new EyeDoorProjectileInstructionReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(EyeDoorProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Eye Door mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                EyeDoorProjectileInstructionProgramDefinitions.PresentationWordCount,
+                EyeDoorProjectileInstructionProgramDefinitions.PresentationWordAddress);
         var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
@@ -101,7 +106,7 @@ internal static partial class Program
             EyeDoorProjectileInstructionProgramDefinitions.PresentationWordCount,
             selectedPresentation.Count,
             "all Eye Door projectile native presentation operands execute");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Eye Door uses compiled presentation without ROM reads");
         for (int index = 0;
              index < EyeDoorProjectileInstructionProgramDefinitions.PresentationWordCount;
@@ -113,7 +118,7 @@ internal static partial class Program
                 $"production execution selects Eye Door presentation $86:{address:X4}");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "projectile visuals do not read cartridge bytes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Eye Door projectile mechanics byte");
@@ -184,45 +189,4 @@ internal static partial class Program
             source.ReadByte(
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
-
-    private sealed class EyeDoorProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (EyeDoorProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Eye Door mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < EyeDoorProjectileInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = EyeDoorProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

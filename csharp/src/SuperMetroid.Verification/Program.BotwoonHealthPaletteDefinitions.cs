@@ -35,7 +35,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new BotwoonHealthThresholdReadGuard(rom);
+        var guard = NewBotwoonHealthThresholdReadGuard(rom);
         using var colors = new MemoryStream(BotwoonColorExtractor.Extract(rom), writable: false);
         var enemies = new RoomEnemySystem
         {
@@ -101,25 +101,7 @@ internal static partial class Program
             "terminal, and malformed paths run with the threshold table forbidden.");
     }
 
-    private sealed class BotwoonHealthThresholdReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address >= BotwoonHealthPaletteDefinitions.NativeThresholdAddress &&
-                address < BotwoonHealthPaletteDefinitions.NativeThresholdAddress + 16)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Botwoon palette progression attempted threshold read ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBotwoonHealthThresholdReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(BotwoonHealthPaletteDefinitions.NativeThresholdAddress, 16,
+            address => $"Botwoon palette progression attempted threshold read ${address:X6}.");
 }

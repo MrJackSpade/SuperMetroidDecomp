@@ -6,7 +6,7 @@ internal static partial class Program
     private static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
-        var guard = new SlopeHeightNoReadBus();
+        var guard = NewSlopeHeightNoReadBus();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int cases = 0;
         for (int equipment = 0; equipment < 8; equipment++)

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Installs independently editable ending Mode-7 maps and character PNGs.</summary>
+[CpuBusBoundary("codec: ROM ending Mode-7 tilemaps and characters → ending Mode-7 artwork files")]
 public static class EndingMode7ArtworkFiles
 {
     private const int ManifestVersion = 2;

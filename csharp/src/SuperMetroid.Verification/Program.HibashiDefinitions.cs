@@ -13,7 +13,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new HibashiDefinitionReadGuard(new TestAddressSpace()));
+            NewHibashiDefinitionGuard(new TestAddressSpace()));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeHibashi", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         var applyFrame = typeof(RoomEnemySystem).GetMethod("ApplyHibashiActivityFrame", flags)!
@@ -68,7 +68,7 @@ internal static partial class Program
         }
 
         var executedOperands = new HashSet<ushort>();
-        var programGuard = new HibashiProgramReadGuard(rom);
+        var programGuard = NewHibashiProgramGuard(rom);
         var programSystem = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             programSystem,
@@ -124,7 +124,7 @@ internal static partial class Program
             AssertTrue(executedOperands.Contains(address),
                 $"production execution covers Hibashi presentation word $A6:{address:X4}");
         }
-        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+        AssertEqual(0, programGuard.ObservedWords.Count,
             "compiled presentation selectors require no runtime ROM reads");
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Hibashi mechanics byte");
@@ -183,55 +183,13 @@ internal static partial class Program
     private static ushort ReadHibashiWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class HibashiDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewHibashiDefinitionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(0xa68dbb, 0xa68e13 - 0xa68dbb,
+            address => $"Hibashi attempted migrated hitbox read ${address:X6}.");
 
-        public byte ReadByte(int address) => address is >= 0xa68dbb and < 0xa68e13
-            ? throw new InvalidOperationException(
-                $"Hibashi attempted migrated hitbox read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class HibashiProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Hibashi mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < HibashiInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        HibashiInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewHibashiProgramGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Hibashi mechanics byte ${address:X6}.")
+            .ObserveWords(0xa60000, HibashiInstructionProgramDefinitions.PresentationWordCount, HibashiInstructionProgramDefinitions.PresentationWordAddress);
 }

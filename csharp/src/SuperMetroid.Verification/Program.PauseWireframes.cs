@@ -10,13 +10,14 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause wireframe artwork")]
     private static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseWireframeDefinitions.FileName), path = Path.Combine(overrides, PauseWireframeDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseWireframeDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
-        var guard = new PauseWireframeReadGuard(bus);
+        var guard = NewPauseWireframeReadGuard(bus);
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
             byte[] expected = Enumerable.Repeat((byte)0x5a, 2048).ToArray();
@@ -136,24 +137,17 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseWireframeReadGuard : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause wireframe pointer table and artwork ranges")]
+    private static CartridgeReadGuard NewPauseWireframeReadGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = [];
-        public PauseWireframeReadGuard(ISnesAddressSpace source)
+        var blocked = new HashSet<int>();
+        for (int kind = 0; kind < 4; kind++)
         {
-            this.source = source;
-            for (int kind = 0; kind < 4; kind++)
-            {
-                int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82b25f + kind * 2);
-                for (int i = 0; i < 272; i++) blocked.Add(pointer + i);
-            }
-            for (int i = 0; i < 8; i++) blocked.Add(0x82b25f + i);
+            int pointer = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82b25f + kind * 2);
+            for (int i = 0; i < 272; i++) blocked.Add(pointer + i);
         }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => blocked.Contains(address)
-            ? throw new InvalidOperationException($"Installed pause read wireframe art at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        for (int i = 0; i < 8; i++) blocked.Add(0x82b25f + i);
+        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => $"Installed pause read wireframe art at {address:X6}.");
     }
 }

@@ -36,7 +36,7 @@ internal static partial class Program
                 CeresExplosionDefinitions.FinalExplosionCount),
             "final explosion definition boundary");
 
-        var guard = new CeresExplosionDefinitionReadGuard(retail);
+        var guard = NewCeresExplosionDefinitionReadGuard(retail);
         var state = CreateRetailDestructionFixture(guard);
         for (int frame = 0; frame < 5000 && !state.Finished; frame++)
             state.Step();
@@ -96,33 +96,14 @@ internal static partial class Program
             unchecked((ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8));
     }
 
-    private sealed class CeresExplosionDefinitionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (IsForbidden(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ceres explosion reread compiled definition byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static bool IsForbidden(int address) =>
-            address is >= 0x8bc46b and < 0x8bc489 or
-                >= 0x8bc4a9 and < 0x8bc4ab or
-                >= 0x8bc4eb and < 0x8bc50b or
-                >= 0x8bc56a and < 0x8bc582 or
-                >= 0x8bce35 and < 0x8bce4b or
-                >= 0x8bcebb and < 0x8bcecd or
-                >= 0x8bcf2d and < 0x8bcf39;
-    }
+    private static CartridgeReadGuard NewCeresExplosionDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x8bc46b and < 0x8bc489 or
+                    >= 0x8bc4a9 and < 0x8bc4ab or
+                    >= 0x8bc4eb and < 0x8bc50b or
+                    >= 0x8bc56a and < 0x8bc582 or
+                    >= 0x8bce35 and < 0x8bce4b or
+                    >= 0x8bcebb and < 0x8bcecd or
+                    >= 0x8bcf2d and < 0x8bcf39,
+                address => $"Ceres explosion reread compiled definition byte ${address:X6}.");
 }

@@ -5,7 +5,7 @@ internal static partial class Program
 {
     private static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
     {
-        var forbidden = new SlopeHeightNoReadBus();
+        var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {

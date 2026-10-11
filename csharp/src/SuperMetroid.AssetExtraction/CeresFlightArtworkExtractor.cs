@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the Ceres approach's consumed Mode-7 and OBJ visual streams.</summary>
+[CpuBusBoundary("codec: ROM Ceres approach Mode-7 and OBJ graphics streams → Ceres flight artwork")]
 internal static class CeresFlightArtworkExtractor
 {
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)

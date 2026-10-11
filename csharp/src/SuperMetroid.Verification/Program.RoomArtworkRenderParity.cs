@@ -15,6 +15,7 @@ internal static partial class Program
     /// overlapping full-size room-character/CRE transfers; Landing Site exercises the
     /// real door-selected sky page and ordinary room-art upload in one frame.
     /// </summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky transfer bytes compared with installed artwork")]
     private static void VerifyRoomArtworkRenderParity(
         GameInstallation installation, string sourceRom)
     {

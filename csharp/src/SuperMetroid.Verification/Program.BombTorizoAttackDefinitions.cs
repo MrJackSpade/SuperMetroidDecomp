@@ -49,7 +49,7 @@ internal static partial class Program
             () => BombTorizoAttackDefinitions.RawExplosionRow(6),
             "Bomb Torizo raw explosion outside table");
 
-        var guarded = new BombTorizoAttackReadGuard(rom);
+        var guarded = NewBombTorizoAttackReadGuard(rom);
         MethodInfo swipeSpawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnBombTorizoExplosiveSwipe",
             instanceFlags)!;
@@ -125,18 +125,8 @@ internal static partial class Program
         return (enemies, torizo);
     }
 
-    private sealed class BombTorizoAttackReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86a738 and < 0x86a764 or
-                >= 0x86a859 and < 0x86a871
-                ? throw new InvalidOperationException(
-                    $"Bomb Torizo attack attempted migrated geometry read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewBombTorizoAttackReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address =>
+                address is >= 0x86a738 and < 0x86a764 or >= 0x86a859 and < 0x86a871,
+            address => $"Bomb Torizo attack attempted migrated geometry read ${address:X6}.");
 }

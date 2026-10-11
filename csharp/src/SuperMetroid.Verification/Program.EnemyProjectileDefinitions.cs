@@ -60,7 +60,7 @@ internal static partial class Program
             new SnesVram(),
             new SnesCgram(),
             () => 0);
-        var guard = new EnemyProjectileDefinitionReadGuard(setupBus, forbidden);
+        var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
 
         foreach (RoomEnemyProjectileKind kind in kinds)
@@ -143,17 +143,8 @@ internal static partial class Program
             "all definition bytes forbidden.");
     }
 
-    private sealed class EnemyProjectileDefinitionReadGuard(
-        ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => forbidden.Contains(address)
-            ? throw new InvalidOperationException(
-                $"Enemy-projectile runtime reread compiled definition byte ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewEnemyProjectileDefinitionReadGuard(
+        ISnesAddressSpace source, HashSet<int> forbidden) =>
+        new CartridgeReadGuard(source).Forbid(forbidden.Contains,
+            address => $"Enemy-projectile runtime reread compiled definition byte ${address:X6}.");
 }

@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 /// Installs named collectible block art while checking all 24 native draw records
 /// and the eight dynamic-slot selectors against compiled physical definitions.
 /// </summary>
+[CpuBusBoundary("codec: ROM bank-$84 collectible PLM draw records and selectors → collectible visual files")]
 public static class RoomPlmCollectibleVisualFiles
 {
     /// <summary>Editable JSON filename containing the complete twenty-four-frame collectible visual set.</summary>
@@ -160,8 +161,8 @@ public static class RoomPlmCollectibleVisualFiles
     }
 
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(bus.ReadCartridgeByte(0x840000 | pointer) |
-            bus.ReadCartridgeByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
+        unchecked((ushort)(bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) |
+            bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(pointer + 1)))) << 8));
 
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);

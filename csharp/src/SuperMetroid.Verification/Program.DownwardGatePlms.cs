@@ -272,7 +272,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var plms = new RoomPlmSystem { DownwardGateVisuals = visuals };
         int parsed = plms.LoadRoomPopulation(
-            new DownwardGateHeaderReadGuard(bus),
+            NewDownwardGateHeaderReadGuard(bus),
             level,
             streamer,
             new SnesVram(),
@@ -285,21 +285,11 @@ internal static partial class Program
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
-    private sealed class DownwardGateHeaderReadGuard(ISnesAddressSpace source) : ISnesAddressSpace
-    {
-
-
-        public byte ReadByte(int address)
-        {
+    private static CartridgeReadGuard NewDownwardGateHeaderReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
             // The resident and shot-block gate headers' first-instruction words.
-            if (address is >= 0x84c82c and <= 0x84c82d or >= 0x84c838 and <= 0x84c839)
-                throw new InvalidOperationException(
-                    $"Gate population read compiled header word ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+            .Forbid(address => address is >= 0x84c82c and <= 0x84c82d or >= 0x84c838 and <= 0x84c839,
+                address => $"Gate population read compiled header word ${address:X6}.");
 
     private static void StepDownwardGatePlm(
         RoomPlmSystem plms,

@@ -12,7 +12,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new CacatacDistanceReadGuard(new TestAddressSpace()));
+            NewCacatacDistanceReadGuard(new TestAddressSpace()));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeCacatac", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -47,15 +47,8 @@ internal static partial class Program
             "Cacatac travel distances: six native words and 18 wrapped production initializers pass with table reads forbidden.");
     }
 
-    private sealed class CacatacDistanceReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa29f36 and < 0xa29f42
-            ? throw new InvalidOperationException(
-                $"Cacatac initializer attempted migrated distance read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCacatacDistanceReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa29f36 and < 0xa29f42,
+                address => $"Cacatac initializer attempted migrated distance read ${address:X6}.");
 }

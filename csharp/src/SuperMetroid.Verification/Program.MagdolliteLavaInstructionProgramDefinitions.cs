@@ -39,7 +39,7 @@ internal static partial class Program
                 $"shared projectile mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new MagdolliteLavaInstructionReadGuard(rom);
+        var guard = NewMagdolliteLavaInstructionGuard(rom);
         var observedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
@@ -108,7 +108,7 @@ internal static partial class Program
             MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount,
             observedOperands.Count,
             "both live Magdollite-lava spritemap operands are selected from installed artwork");
-        AssertEqual(0, guard.ObservedPresentationWords.Count, "compiled visual operands require no cartridge reads");
+        AssertEqual(0, guard.ObservedWords.Count, "compiled visual operands require no cartridge reads");
         for (int index = 0;
              index < MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount;
              index++)
@@ -123,7 +123,7 @@ internal static partial class Program
                 $"compiled visual selector matches native operand $86:{address:X4}");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "projectile visuals do not read cartridge bytes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids Magdollite-lava and shared-delete mechanics bytes");
@@ -203,45 +203,11 @@ internal static partial class Program
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class MagdolliteLavaInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (MagdolliteLavaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Magdollite/shared mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = MagdolliteLavaInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMagdolliteLavaInstructionGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                MagdolliteLavaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Magdollite/shared mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, MagdolliteLavaInstructionProgramDefinitions.PresentationWordCount, MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress);
 }

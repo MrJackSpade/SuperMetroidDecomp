@@ -47,7 +47,7 @@ internal static partial class Program
         Suite(nameof(VerifyPaletteFxInitialListSelection), () => VerifyPaletteFxInitialListSelection(rom));
         var forbidden = OriginalPaletteFxObjects().SelectMany(pointer =>
             Enumerable.Range(0x8d0000 | pointer, 4)).ToHashSet();
-        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(new RoomPaletteFxDefinitionReadGuard(rom, forbidden),
+        Suite(nameof(VerifyPaletteFxDispatchSpawns), () => VerifyPaletteFxDispatchSpawns(NewRoomPaletteFxDefinitionGuard(rom, forbidden),
             OriginalPaletteFxObjects()));
     }
 }

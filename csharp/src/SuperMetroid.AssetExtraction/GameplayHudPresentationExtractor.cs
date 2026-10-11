@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Imports gameplay-HUD artwork references and positions while excluding counter mechanics.</summary>
+[CpuBusBoundary("codec: ROM gameplay HUD tilemap and artwork references → HUD presentation")]
 public static class GameplayHudPresentationExtractor
 {
     /// <summary>Imports HUD tilemap templates, item icons, digit cells, energy-tank artwork, and automatic-reserve indicators.</summary>

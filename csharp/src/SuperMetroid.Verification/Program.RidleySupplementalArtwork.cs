@@ -70,7 +70,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, new RidleySupplementReadGuard(rom));
+            .SetValue(enemies, NewRidleySupplementReadGuard(rom));
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         slot.Position = slot.Position.WithWhole(new(200, 100));
@@ -106,18 +106,8 @@ internal static partial class Program
     private static ushort ReadRidleySupplementWord(ISnesAddressSpace rom, int address) =>
         unchecked((ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8));
 
-    private sealed class RidleySupplementReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa6db02 and < 0xa6db2a or
-                >= 0xa6dc90 and < 0xa6de7a
-                ? throw new InvalidOperationException(
-                    $"Installed Ridley supplement reread ROM byte ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewRidleySupplementReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6db02 and < 0xa6db2a or
+                >= 0xa6dc90 and < 0xa6de7a,
+            address => $"Installed Ridley supplement reread ROM byte ${address:X6}.");
 }

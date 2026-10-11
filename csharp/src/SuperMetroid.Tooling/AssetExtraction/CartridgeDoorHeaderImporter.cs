@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Reads one native twelve-byte bank-$83 door record during import.</summary>
+[CpuBusBoundary("codec: ROM bank-$83 twelve-byte door record → CartridgeDoorHeader")]
 public static class CartridgeDoorHeaderImporter
 {
     /// <summary>Decodes the destination, orientation, entry coordinates, distance, and setup-code pointer from one native bank-$83 door record.</summary>

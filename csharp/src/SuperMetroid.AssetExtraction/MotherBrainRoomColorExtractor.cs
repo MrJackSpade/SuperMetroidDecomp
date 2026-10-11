@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Extracts only BGR555 payloads selected by the compiled room-flash program.</summary>
+[CpuBusBoundary("codec: ROM Mother Brain room-flash BGR555 payloads → Mother Brain room colors")]
 internal static class MotherBrainRoomColorExtractor
 {
     public static byte[] Extract(ISnesAddressSpace bus)

@@ -181,6 +181,7 @@ internal static partial class Program
         for (int address = start; address < start + count; address++)
             AssertEqual(rom.ReadByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
     }
+    [CpuBusBoundary("exact bus test: live WRAM delay alias at $91:0303 plus a constructed unimplemented-hardware byte signature that witnesses running-cadence operand routing")]
     private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {

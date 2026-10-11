@@ -96,7 +96,7 @@ internal static class EndingWavySamusTests
         {
             if (age < 2) return 0;
             int offset = (-2 + (age - 1) * 16 + (line % 64) * 4) & 0x1ff;
-            short sample = unchecked((short)(rom.ReadCartridgeByte(0xa0b443 + offset) | rom.ReadCartridgeByte(0xa0b444 + offset) << 8));
+            short sample = NativeWaveSample(rom, offset);
             int displacement = Math.Abs((int)sample) * 0x4000 >> 16;
             if (sample < 0) displacement = -displacement;
             if ((line / 64 & 1) != 0) displacement = -displacement;
@@ -105,4 +105,8 @@ internal static class EndingWavySamusTests
         static byte Add(byte first, byte second) { int value = Math.Min(31, (first >> 3) + (second >> 3)); return (byte)((value << 3) | (value >> 2)); }
         static void Require(bool condition, string message) { if (!condition) throw new InvalidDataException(message); }
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the ending wave sine table at $A0:B443")]
+    private static short NativeWaveSample(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int offset) =>
+        unchecked((short)(rom.ReadCartridgeByte(0xa0b443 + offset) | rom.ReadCartridgeByte(0xa0b444 + offset) << 8));
 }

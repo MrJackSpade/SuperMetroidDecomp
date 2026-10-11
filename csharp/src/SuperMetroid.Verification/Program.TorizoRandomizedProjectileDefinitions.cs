@@ -23,7 +23,7 @@ internal static partial class Program
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
             (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-        var guarded = new TorizoRandomizedProjectileReadGuard(rom);
+        var guarded = NewTorizoRandomizedProjectileReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeTorizoRandomizedProjectile",
             instanceFlags)!;
@@ -137,20 +137,10 @@ internal static partial class Program
         }
     }
 
-    private sealed class TorizoRandomizedProjectileReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86ac08 and < 0x86ac1c or
+    private static CartridgeReadGuard NewTorizoRandomizedProjectileReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0x86ac08 and < 0x86ac1c or
                 >= 0x86ac99 and < 0x86acad or
                 >= 0x86b02f and < 0x86b043 or
-                >= 0x86b376 and < 0x86b38a
-                ? throw new InvalidOperationException(
-                    $"Torizo randomized projectile attempted migrated tuple read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0x86b376 and < 0x86b38a,
+            address => $"Torizo randomized projectile attempted migrated tuple read ${address:X6}.");
 }

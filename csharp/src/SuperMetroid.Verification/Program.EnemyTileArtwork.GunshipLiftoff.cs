@@ -8,6 +8,7 @@ using SuperMetroid.Core.Runtime;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed gunship liftoff transfers")]
     private static void VerifyInstalledGunshipLiftoffArtwork(
         SuperMetroidAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
     {

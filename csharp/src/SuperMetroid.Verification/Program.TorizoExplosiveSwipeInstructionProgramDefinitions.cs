@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Torizo explosive-swipe mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new TorizoExplosiveSwipeInstructionReadGuard(rom);
+        var guard = NewTorizoExplosiveSwipeInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
@@ -57,7 +57,7 @@ internal static partial class Program
         AssertTrue(!swipe.IsActive,
             "Torizo explosive swipe deletes on the tick after five five-frame poses");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled Torizo swipe visuals require no cartridge reads");
         for (int index = 0; index < TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount; index++)
         {
@@ -102,42 +102,9 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class TorizoExplosiveSwipeInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (TorizoExplosiveSwipeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Torizo explosive-swipe byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = TorizoExplosiveSwipeInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewTorizoExplosiveSwipeInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(TorizoExplosiveSwipeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Torizo explosive-swipe byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordCount, TorizoExplosiveSwipeInstructionProgramDefinitions.PresentationWordAddress);
 }

@@ -16,6 +16,7 @@ namespace SuperMetroid.AssetExtraction;
 /// A user's JSON override may alter only bank-$80's initial tilemap source; gameplay keeps
 /// the original decompressed room allocation and all later PLM writes.
 /// </summary>
+[CpuBusBoundary("codec: ROM compressed room level data → room visual-block layouts")]
 public static class RoomVisualLayoutFiles
 {
     /// <summary>Stock manifest filename recording version-one provenance and each retail source's address, block dimensions, filename, and JSON byte hash.</summary>

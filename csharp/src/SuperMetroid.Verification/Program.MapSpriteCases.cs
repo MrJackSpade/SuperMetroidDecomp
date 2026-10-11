@@ -76,6 +76,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native map spritemap pointers")]
     private static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
     {
         var native = new OamBuffer(); var installed = new OamBuffer();

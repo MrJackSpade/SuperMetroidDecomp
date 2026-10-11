@@ -25,7 +25,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new PowampInstructionReadGuard(rom);
+        var guard = NewPowampInstructionReadGuard(rom);
         var executedOperands = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
@@ -78,7 +78,7 @@ internal static partial class Program
             balloon.CurrentInstruction,
             "Powamp deflate program falls through to shared deflated sleep");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Enemy presentation performs zero live cartridge reads");
         AssertEqual(PowampInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "Every native visual operand executes");
@@ -145,44 +145,10 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class PowampInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Powamp mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < PowampInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        PowampInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPowampInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(PowampInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Powamp mechanics byte ${address:X6}.")
+            .ObserveWords(0xa80000, PowampInstructionProgramDefinitions.PresentationWordCount,
+                PowampInstructionProgramDefinitions.PresentationWordAddress);
 }

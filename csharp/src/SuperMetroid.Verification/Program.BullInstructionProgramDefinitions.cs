@@ -25,7 +25,7 @@ internal static partial class Program
                 $"Bull instruction mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new BullInstructionProgramReadGuard(rom, forbidPresentation: true);
+        var guard = NewBullInstructionProgramReadGuard(rom, forbidPresentation: true);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBull", flags)!
@@ -62,7 +62,7 @@ internal static partial class Program
             "Bull shot program repeats five times and returns to normal");
         AssertEqual((ushort)0, slot.Timer, "Bull shot loop exhausts its native repeat timer");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "all Bull spritemap words select compiled presentation frames");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled Bull mechanics bytes");
@@ -99,48 +99,18 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class BullInstructionProgramReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewBullInstructionProgramReadGuard(
+        ISnesAddressSpace source, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (BullInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Bull mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < BullInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        BullInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Bull read cartridge visual selector $A8:{presentation:X4}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        static ushort SelectorWord(int address) => Enumerable.Range(0, BullInstructionProgramDefinitionsTooling.PresentationWordCount)
+            .Select(BullInstructionProgramDefinitionsTooling.PresentationWordAddress)
+            .First(word => unchecked((ushort)address) == word || unchecked((ushort)address) == unchecked((ushort)(word + 1)));
+        CartridgeReadGuard guard = new CartridgeReadGuard(source)
+            .Forbid(BullInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Bull mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa80000, BullInstructionProgramDefinitionsTooling.PresentationWordCount, BullInstructionProgramDefinitionsTooling.PresentationWordAddress,
+                address => $"Installed Bull read cartridge visual selector $A8:{SelectorWord(address):X4}.")
+            : guard.ObserveWords(0xa80000, BullInstructionProgramDefinitionsTooling.PresentationWordCount, BullInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 }

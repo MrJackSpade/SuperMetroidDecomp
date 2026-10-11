@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rom;
 
 internal static class RomDecompressionVerification
 {
+    [CpuBusBoundary("exact bus test: RomDataReader fixed-bank, word, long and compressed-stream framing reads exactly the declared LoROM bytes")]
     public static int Run()
     {
         // Four maximum-length literal runs full of terminator-valued payload bytes.
@@ -84,6 +85,7 @@ internal static class RomDecompressionVerification
         throw new InvalidDataException("Fixed-bank cartridge import crossed into a mutable low window.");
     }
 
+    [CpuBusBoundary("exact bus test: witnesses LoROM traversal order and read extent of a cartridge stream")]
     private sealed class StreamBus(byte[] bytes) : ISnesAddressSpace, IImportCartridgeSource
     {
         // Deliberately cross xx:FFFF -> (xx+1):8000 inside the first literal run.

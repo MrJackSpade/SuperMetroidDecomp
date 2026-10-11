@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire palette bands")]
     private static void VerifyInstalledCrocomireColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -61,7 +62,11 @@ internal static partial class Program
         // Execute the real boss initializer and hurt-flash hook with palette ROM reads
         // forbidden. Their CGRAM writes must come from the installed resource, while the
         // native phase, instruction, and white-flash decisions remain unchanged.
-        var guarded = new CrocomirePaletteReadGuard(rom);
+        CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
+            address => address is >= CrocomirePaletteRomData.FightBodySource and
+                < (CrocomirePaletteRomData.WallSpikesSource +
+                    CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
+            address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -159,21 +164,5 @@ internal static partial class Program
                     AssertEqual(original(color), changed(color),
                         $"Crocomire {name} edit leaves color {color} unchanged");
         }
-    }
-
-    private sealed class CrocomirePaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= CrocomirePaletteRomData.FightBodySource and
-            < (CrocomirePaletteRomData.WallSpikesSource +
-                CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort))
-                ? throw new InvalidOperationException(
-                    $"Crocomire accessed migrated palette ROM ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

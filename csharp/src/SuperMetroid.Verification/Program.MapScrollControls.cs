@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the native map-arrow controller masks and direction order")]
     private static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         var buttons = new ushort[MapScrollControls.DirectionCount];
@@ -16,7 +17,7 @@ internal static partial class Program
             AssertEqual(index + 1, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8), "compiled map direction order matches native records");
             AssertEqual(buttons[index], MapScrollControls.Buttons[index], "compiled map controller mask matches native record");
         }
-        var guard = new MapScrollControlReadGuard(bus);
+        var guard = NewMapScrollControlGuard(bus);
         var system = new Bank80SystemState();
         system.MarkExploredMapTile(AreaId.Crateria, new(0, 0));
         system.MarkExploredMapTile(AreaId.Crateria, new(63, 31));
@@ -50,17 +51,9 @@ internal static partial class Program
         Console.WriteLine("Compiled map controls: four native masks/order, 16 direction combinations, trajectories/sound boundaries and guarded full menu parity pass.");
     }
 
-    private sealed class MapScrollControlReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int offset = address - FileSelectMapRomData.ScrollArrows;
-            if ((uint)offset < MapScrollControls.DirectionCount * 10 && offset % 10 >= 6)
-                throw new InvalidOperationException("Map navigation read controller bindings from the visual arrow ROM records.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMapScrollControlGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(
+            address => (uint)(address - FileSelectMapRomData.ScrollArrows) < MapScrollControls.DirectionCount * 10 &&
+                (address - FileSelectMapRomData.ScrollArrows) % 10 >= 6,
+            _ => "Map navigation read controller bindings from the visual arrow ROM records.");
 }

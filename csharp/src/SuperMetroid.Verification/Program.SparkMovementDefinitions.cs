@@ -14,7 +14,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new SparkMovementReadGuard(new TestAddressSpace()));
+            NewSparkMovementReadGuard(new TestAddressSpace()));
         typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(
             enemies,
             (Func<bool>)(() => true));
@@ -65,7 +65,7 @@ internal static partial class Program
         }
 
         var executedOperands = new HashSet<ushort>();
-        var programGuard = new SparkProgramReadGuard(rom);
+        var programGuard = NewSparkProgramReadGuard(rom);
         (ushort Entry, int Frames)[] programs =
         [
             (SparkInstructionProgramDefinitions.FlickerOn, 35),
@@ -131,7 +131,7 @@ internal static partial class Program
             AssertTrue(executedOperands.Contains(address),
                 $"production execution covers Spark presentation word $A8:{address:X4}");
         }
-        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+        AssertEqual(0, programGuard.ObservedWords.Count,
             "compiled presentation selectors require no runtime ROM reads");
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Spark mechanics byte");
@@ -175,55 +175,13 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class SparkMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewSparkMovementReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e682 and < 0xa8e690,
+            address => $"Spark initializer attempted migrated selector read ${address:X6}.");
 
-        public byte ReadByte(int address) => address is >= 0xa8e682 and < 0xa8e690
-            ? throw new InvalidOperationException(
-                $"Spark initializer attempted migrated selector read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class SparkProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (SparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Spark mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < SparkInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        SparkInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewSparkProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(SparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Spark mechanics byte ${address:X6}.")
+            .ObserveWords(0xa80000, SparkInstructionProgramDefinitions.PresentationWordCount, SparkInstructionProgramDefinitions.PresentationWordAddress);
 }

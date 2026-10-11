@@ -166,7 +166,7 @@ internal static partial class Program
                 clear ? PlmHeaderId.ClearSporeSpawnCeiling :
                     PlmHeaderId.CrumbleSporeSpawnCeiling),
             $"Spore Spawn {(clear ? "clear" : "crumble")} PLM allocates");
-        var guard = new SporeSpawnCeilingSourceGuard(new TestAddressSpace());
+        var guard = NewSporeSpawnCeilingSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         plms.Step(guard, level, streamer, new(0, 16 * 16), 0);
         int blockIndex = clear ? 31 * width + 8 : 30 * width + 7;

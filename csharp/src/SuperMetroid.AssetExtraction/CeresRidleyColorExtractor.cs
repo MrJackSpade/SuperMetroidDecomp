@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports bounded Ceres Ridley color tables without exposing AI or fade timing.</summary>
+[CpuBusBoundary("codec: ROM Ceres Ridley color tables → CeresRidleyColorCatalog")]
 public static class CeresRidleyColorExtractor
 {
     /// <summary>Reads the bounded Ceres Ridley start, eye/body fade, health, alarm, retreat, and Baby color tables and serializes them as RGB5 rows.</summary>

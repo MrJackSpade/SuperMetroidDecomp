@@ -10,6 +10,7 @@ using SuperMetroid.Core.Spatial;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Exports the native cannon-cover pose/OAM selectors and twelve character tiles.</summary>
+[CpuBusBoundary("codec: ROM arm-cannon pose/OAM selectors and character tiles → arm cannon artwork files")]
 public static class SamusArmCannonArtworkFiles
 {
     private const string ManifestFileName = "samus-arm-cannon-manifest.json";

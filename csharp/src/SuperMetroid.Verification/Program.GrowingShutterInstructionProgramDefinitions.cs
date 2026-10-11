@@ -19,7 +19,7 @@ internal static partial class Program
         Suite(nameof(VerifyGrowingShutterPresentationMapping), () => VerifyGrowingShutterPresentationMapping());
         Suite(nameof(VerifyGrowingShutterProgramEntries), () => VerifyGrowingShutterProgramEntries());
 
-        var guard = new GrowingShutterInstructionProgramReadGuard(rom);
+        var guard = NewGrowingShutterInstructionProgramGuard(rom);
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
         enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -67,7 +67,7 @@ internal static partial class Program
 
         AssertEqual((ushort)4, state.GrowthLevel,
             "growing-shutter real section transitions complete all four stages");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "growing-shutter spritemap words use compiled visual selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled growing-shutter mechanics bytes");
@@ -158,43 +158,22 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class GrowingShutterInstructionProgramReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewGrowingShutterInstructionProgramGuard(ISnesAddressSpace source)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var guard = new CartridgeReadGuard(source)
+            .Forbid(GrowingShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                    address => $"Production read compiled growing-shutter mechanics byte ${address:X6}.");
+        // Records every presentation word whose low or high byte is read.
+        guard.Observe(address => (address & 0xff0000) == 0xa20000, address =>
         {
-            if (GrowingShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
+            ushort bankAddress = unchecked((ushort)address);
+            for (int index = 0; index < GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled growing-shutter mechanics byte ${address:X6}.");
+                ushort presentation = GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
+                if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                    guard.ObservedWords.Add(presentation);
             }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        });
+        return guard;
     }
 }

@@ -1403,7 +1403,7 @@ internal static partial class Program
         for (int pattern = 0; pattern < 8; pattern++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, new PhantoonPatternReadGuard(rom));
+            busField.SetValue(enemies, NewPhantoonPatternReadGuard(rom));
             ushort random = (ushort)((high << 8) | 0xf8 | pattern);
             int calls = 0;
             randomField.SetValue(enemies, (Func<ushort>)(() => { calls++; return random; }));
@@ -1443,7 +1443,7 @@ internal static partial class Program
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem();
-        busField.SetValue(eyeEnemies, new PhantoonPatternReadGuard(rom));
+        busField.SetValue(eyeEnemies, NewPhantoonPatternReadGuard(rom));
         var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>();
         RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
@@ -1793,7 +1793,7 @@ internal static partial class Program
                 new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), spritemaps: installed),
         };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CeresDoorQuakeReadGuard(rom));
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewCeresDoorQuakeReadGuard(rom));
         typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, new RidleyEnemyState { MovementAnimationEnabled = 0 });
         enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.RidleyCeres;
         var door = enemies.Slots[1];

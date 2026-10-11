@@ -175,7 +175,7 @@ internal static partial class Program
                 nativeCgram.SetColor(225 + color, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(bus, 0x8dd906 + 20 * expectedFrame + 2 * color)))));
             int frameBefore = extracted.CurrentFrameIndex;
             extracted.Step(
-                new ProjectileCompositionForbiddenBus(), extractedCgram, catalog);
+                NewProjectileCompositionForbiddenBus(), extractedCgram, catalog);
             AssertEqual(expectedFrame, extracted.CurrentFrameIndex, "Native FX frame order including loop");
             AssertEqual((call & 1) == 0, extracted.CurrentFrameIndex != frameBefore, "Native FX paint/hold cadence");
             AssertEqual((ushort)((call & 1) == 0 ? originalDuration : originalDuration - 1), extracted.InstructionTimer, "Native FX timer");

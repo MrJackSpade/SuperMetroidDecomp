@@ -36,6 +36,7 @@ internal static class ImportedVramOracle
     public static void Drain(VramWriteQueue queue, SnesVram vram, ISnesAddressSpace source) =>
         queue.DrainTo(vram, ReferenceMutableMemory.From(source), new ImportedTransfers(source));
 
+    [CpuBusBoundary("exact bus test: reference DMA source read (cartridge, WRAM or SRAM) for installed-artwork VRAM comparisons")]
     private static byte[] ReadTransfer(ISnesAddressSpace source, int sourceAddress, int length)
     {
         SnesAddress start = SnesAddress.FromBusAddress(sourceAddress);
@@ -83,6 +84,7 @@ internal static class ReferenceMutableMemory
     public static ISnesMutableMemory From(ISnesAddressSpace source) =>
         source as ISnesMutableMemory ?? new GuardMemory(source);
 
+    [CpuBusBoundary("exact bus test: mutable-only projection of a diagnostic bus that rejects reads outside the requested WRAM/SRAM kind")]
     private sealed class GuardMemory(ISnesAddressSpace source) : ISnesMutableMemory
     {
         public byte ReadWorkRamByte(int address) => Read(address, SnesDmaSourceKind.WorkRam);

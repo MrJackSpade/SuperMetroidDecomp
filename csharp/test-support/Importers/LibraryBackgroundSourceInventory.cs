@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Enumerates visual ROM inputs named by every compiled room background command list.</summary>
+[CpuBusBoundary("codec: ROM bank-$8F library background command lists → LibraryBackgroundSource inventory")]
 internal static class LibraryBackgroundSourceInventory
 {
     public static IReadOnlyList<LibraryBackgroundSource> Scan(ISnesAddressSpace bus)

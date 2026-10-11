@@ -8,10 +8,11 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map palette cycle")]
     private static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
-        var guard = new MapDataGuard(bus, rules);
+        var guard = NewMapDataGuard(bus, rules);
         var arrows = new FileSelectMapAnimations(bus, original.Arrows);
         arrows.StepArrows(_ => true);
         var arrowOam = new OamBuffer();
@@ -22,7 +23,7 @@ internal static partial class Program
             AssertEqual((byte)(nativeArrowPalette >> 8), (byte)(arrowOam.LowTable[offset + 3] & 14), "each file-select arrow uses cartridge animated palette");
         var native = new MapPaletteAnimation(bus);
         native.Bind(original.HighlightCycle);
-        var installed = new MapPaletteAnimation(new ForbiddenMapBus());
+        var installed = new MapPaletteAnimation(NewForbiddenMapBus());
         installed.Bind(original.HighlightCycle);
         AssertEqual(MapAnimationRomData.PaletteFrameCount, original.HighlightCycle.FrameCount, "imported native highlight frame count");
         var nativeColors = new SnesCgram();

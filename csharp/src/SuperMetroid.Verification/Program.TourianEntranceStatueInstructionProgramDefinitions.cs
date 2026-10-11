@@ -36,7 +36,7 @@ internal static partial class Program
             new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
             new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             tourianStatueColors: TourianStatueColorCatalog.Load(paletteStream));
-        var guard = new TourianEntranceStatueInstructionReadGuard(rom);
+        var guard = NewTourianEntranceStatueInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeTourianEntranceStatue",
             flags)!;
@@ -104,26 +104,8 @@ internal static partial class Program
             source.ReadByte(0xaa0000 | address) |
             source.ReadByte(0xaa0000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class TourianEntranceStatueInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (TourianEntranceStatueInstructionProgramDefinitionsTooling
-                .IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Tourian entrance-statue mechanics byte " +
-                    $"${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewTourianEntranceStatueInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(TourianEntranceStatueInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled Tourian entrance-statue mechanics byte " +
+                $"${address:X6}.");
 }

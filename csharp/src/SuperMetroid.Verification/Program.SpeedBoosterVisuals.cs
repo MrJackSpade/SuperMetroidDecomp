@@ -87,7 +87,7 @@ internal static partial class Program
                     new RoomBlockBehavior(0x82), AreaId.Brinstar);
             level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
             plms.SpeedBoosterVisuals = edited;
-            var guard = new SpeedBoosterPlmReadGuard(bus);
+            var guard = NewSpeedBoosterPlmReadGuard(bus);
             AssertTrue(plms.TrySpawnBombedSpecialBlock(level, blockIndex,
                     new RoomBlockBehavior(0x82), AreaId.Brinstar, 0x0500),
                 "bomb triggers the production Speed Booster reveal PLM");

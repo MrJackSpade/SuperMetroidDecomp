@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed escape-timer characters")]
     private static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
@@ -43,7 +44,7 @@ internal static partial class Program
         AssertEqual(EscapeTimerTileAtlasFormat.SecondDestinationWord, queued.Entries[1].EncodedVramDestination,
             "timer PNG second record retains native destination");
         var timerVram = new SnesVram();
-        queued.DrainTo(timerVram, ReferenceMutableMemory.From(new ForbiddenMapBus()), original);
+        queued.DrainTo(timerVram, ReferenceMutableMemory.From(NewForbiddenMapBus()), original);
         AssertTrue(nativeFirstTiles.AsSpan().SequenceEqual(ReadVram(timerVram,
             EscapeTimerTileAtlasFormat.FirstDestinationWord * 2, nativeFirstTiles.Length)),
             "typed first timer record publishes exact stock VRAM");
@@ -171,6 +172,7 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled escape-timer digit pointers")]
     private static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
     {
         for (int digit = 0; digit < 10; digit++)
@@ -188,7 +190,10 @@ internal static partial class Program
 
         byte[] nativeExtraction = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(bus);
         byte[] guardedExtraction = SuperMetroid.AssetExtraction.EscapeTimerPresentationExtractor.Extract(
-            new EscapeTimerPointerReadGuard(bus));
+            new CartridgeReadGuard(bus).Forbid(
+                address => address >= EscapeTimerPresentationDefinitions.DigitPointerTable &&
+                    address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort),
+                address => $"Escape timer reread compiled digit pointer at ${address:X6}."));
         AssertTrue(nativeExtraction.AsSpan().SequenceEqual(guardedExtraction),
             "timer extraction selects the same visual records without rereading the pointer table");
 
@@ -237,31 +242,5 @@ internal static partial class Program
             DrawImportedSpritemap(bus, oam, fullAddress,
                 new(unchecked((ushort)(timer.PixelPosition.X + offset)), timer.PixelPosition.Y), palette);
         }
-    }
-
-    private sealed class EscapeTimerPointerReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        private static void RejectPointerTable(int address)
-        {
-            if (address >= EscapeTimerPresentationDefinitions.DigitPointerTable &&
-                address < EscapeTimerPresentationDefinitions.DigitPointerTable + 10 * sizeof(ushort))
-                throw new InvalidOperationException(
-                    $"Escape timer reread compiled digit pointer at ${address:X6}.");
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectPointerTable(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectPointerTable(address);
-            return CartridgeImportSource.Require(source).ReadCartridgeByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

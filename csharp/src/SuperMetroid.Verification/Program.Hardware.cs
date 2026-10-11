@@ -554,6 +554,7 @@ static void VerifyFrameRuntime()
 /// Checks FastROM/slow-bank LoROM mirrors, high-bank offsets, WRAM mirrors, SRAM mirrors,
 /// and deliberate failures for unimplemented hardware and ROM writes.
 /// </summary>
+[CpuBusBoundary("exact bus test: LoROM, WRAM and SRAM mapping, mirror and rejection behaviour of the address-space implementation")]
 static void VerifySuperMetroidAddressSpace()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];

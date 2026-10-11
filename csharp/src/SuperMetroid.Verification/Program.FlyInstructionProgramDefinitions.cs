@@ -24,7 +24,12 @@ internal static partial class Program
                 $"fly-family instruction mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new FlyInstructionProgramReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled fly-family mechanics byte ${address:X6}.")
+            .ObserveWords(0xa20000,
+                FlyInstructionProgramDefinitionsTooling.PresentationWordCount,
+                FlyInstructionProgramDefinitionsTooling.PresentationWordAddress);
         foreach (EnemyDefinitionId definition in new EnemyDefinitionId[]
                  {
                      EnemyDefinitionId.Mellow,
@@ -54,7 +59,7 @@ internal static partial class Program
                 $"fly ${(int)definition:X4} completes native animation loop");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "fly-family animation uses compiled spritemap selectors");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled fly-family mechanics bytes");
@@ -90,45 +95,4 @@ internal static partial class Program
     private static ushort ReadFlyInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
-
-    private sealed class FlyInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled fly-family mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < FlyInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        FlyInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

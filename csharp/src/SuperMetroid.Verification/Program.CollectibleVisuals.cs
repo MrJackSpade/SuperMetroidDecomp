@@ -48,7 +48,7 @@ internal static partial class Program
             fixture.Level.SetBlockDefinitionWord(0x053 * 4, 0x0456);
             fixture.Streamer.SetBlockDefinitionWord(0x04a * 4, 0x0123);
             fixture.Streamer.SetBlockDefinitionWord(0x053 * 4, 0x0456);
-            fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
+            fixture.Plms.Step(NewCollectibleDrawReadGuard(bus),
                 fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertTrue(fixture.Plms.TilemapUpdates.Count > 0,
                 "collectible frame publishes an immediate BG1 redraw");
@@ -57,7 +57,7 @@ internal static partial class Program
                 fixture.Streamer.BuildPlmLevelBlockUpdate(fixture.BlockIndex, 0).TopRow[0]);
             AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
                 "edited item art leaves the native touch trigger active");
-            fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
+            fixture.Plms.Step(NewCollectibleDrawReadGuard(bus),
                 fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(199, fixture.Samus.MaxHealth,
                 "edited energy-tank art leaves the pickup reward unchanged");
@@ -87,7 +87,7 @@ internal static partial class Program
                 checked((ushort)(0xeed7 + kind * 4)),
                 checked((ushort)kind), precollected: false);
             fixture.Plms.CollectibleVisuals = stock;
-            fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
+            fixture.Plms.Step(NewCollectibleDrawReadGuard(bus),
                 fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(1, fixture.Plms.Collectibles.Count,
                 $"item kind {kind} still owns its live pickup after ROM-free drawing");
@@ -102,7 +102,7 @@ internal static partial class Program
                 AssertTrue(fixture.Plms.TryNotifyCollectibleProjectileHit(
                         fixture.BlockIndex, 0x0500),
                     "shot-block collectible accepts its native trigger");
-            fixture.Plms.Step(new CollectibleDrawReadGuard(bus),
+            fixture.Plms.Step(NewCollectibleDrawReadGuard(bus),
                 fixture.Level, fixture.Streamer, new(0, 0), 0);
             AssertEqual(1, fixture.Plms.Collectibles.Count,
                 $"collectible presentation ${header:X4} survives ROM-free drawing");
@@ -180,31 +180,18 @@ internal static partial class Program
         bus.ReadByte(0x840000 | pointer) |
         bus.ReadByte(0x840000 | unchecked((ushort)(pointer + 1))) << 8));
 
-    private sealed class CollectibleDrawReadGuard : ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewCollectibleDrawReadGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = [];
-
-        internal CollectibleDrawReadGuard(ISnesAddressSpace source)
-        {
-            this.source = source;
-            foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
-                for (int offset = 0; offset < 6; offset++)
-                    blocked.Add(0x840000 | checked((ushort)(frame.Pointer + offset)));
-            foreach (ushort table in new ushort[]
-                     { RoomPlmCollectibleDrawDefinitions.DynamicFrame0Table,
-                       RoomPlmCollectibleDrawDefinitions.DynamicFrame1Table })
-                for (int offset = 0; offset < 8; offset++)
-                    blocked.Add(0x840000 | checked((ushort)(table + offset)));
-        }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => blocked.Contains(address)
-            ? throw new InvalidOperationException(
-                $"Live collectible read compiled draw or selector byte ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var blocked = new HashSet<int>();
+        foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
+            for (int offset = 0; offset < 6; offset++)
+                blocked.Add(0x840000 | checked((ushort)(frame.Pointer + offset)));
+        foreach (ushort table in new ushort[]
+                 { RoomPlmCollectibleDrawDefinitions.DynamicFrame0Table,
+                   RoomPlmCollectibleDrawDefinitions.DynamicFrame1Table })
+            for (int offset = 0; offset < 8; offset++)
+                blocked.Add(0x840000 | checked((ushort)(table + offset)));
+        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => $"Live collectible read compiled draw or selector byte ${address:X6}.");
     }
 }

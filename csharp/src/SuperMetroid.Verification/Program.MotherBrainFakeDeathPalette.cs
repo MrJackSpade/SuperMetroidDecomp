@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain fake-death palette")]
     private static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
     {
@@ -65,7 +66,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { MotherBrainRainbowColors = colors };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            new PaletteReadForbiddenBus());
+            NewPaletteReadForbiddenBus());
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
         return enemies;
     }

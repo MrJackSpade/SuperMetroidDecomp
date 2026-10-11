@@ -28,7 +28,7 @@ internal static partial class Program
     {
         LoadStationEntry station = LoadStationDefinitions.Get(AreaId.Ceres, 0);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
-        var guarded = new RoomFxRecordReadGuard(bus);
+        var guarded = NewRoomFxRecordReadGuard(bus);
         var nativeVram = new SnesVram();
         var compiledVram = new SnesVram();
         var nativeCgram = new SnesCgram();
@@ -82,33 +82,22 @@ internal static partial class Program
             "Ceres compiled treadmill animation count");
     }
 
-    private sealed class RoomFxRecordReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    private static readonly HashSet<int> ForbiddenRoomFxRecordBytes = BuildForbiddenRoomFxRecordBytes();
+
+    private static CartridgeReadGuard NewRoomFxRecordReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).Forbid(ForbiddenRoomFxRecordBytes.Contains,
+            address => $"Compiled room-FX consumer reread source record byte ${address:X6}.");
+
+    private static HashSet<int> BuildForbiddenRoomFxRecordBytes()
     {
-        private static readonly HashSet<int> Forbidden = BuildForbidden();
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        var result = new HashSet<int>();
+        foreach (RoomFxRecordDefinition record in RoomFxRecordDefinitions.All)
         {
-            if (Forbidden.Contains(address))
-                throw new InvalidOperationException(
-                    $"Compiled room-FX consumer reread source record byte ${address:X6}.");
-            return source.ReadByte(address);
+            int length = record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer
+                ? sizeof(ushort) : RoomFxRomData.Record.ByteCount;
+            for (int offset = 0; offset < length; offset++)
+                result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (record.Pointer + offset));
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-
-        private static HashSet<int> BuildForbidden()
-        {
-            var result = new HashSet<int>();
-            foreach (RoomFxRecordDefinition record in RoomFxRecordDefinitions.All)
-            {
-                int length = record.DoorPointer == RoomFxRomData.Record.TerminatorDoorPointer
-                    ? sizeof(ushort) : RoomFxRomData.Record.ByteCount;
-                for (int offset = 0; offset < length; offset++)
-                    result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (record.Pointer + offset));
-            }
-            return result;
-        }
+        return result;
     }
 }

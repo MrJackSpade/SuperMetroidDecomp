@@ -17,7 +17,7 @@ internal static partial class Program
         Suite(nameof(VerifyHorizontalShutterMechanicsMapping), () => VerifyHorizontalShutterMechanicsMapping(rom));
         Suite(nameof(VerifyHorizontalShutterPresentationMapping), () => VerifyHorizontalShutterPresentationMapping());
 
-        var guard = new HorizontalShutterInstructionProgramReadGuard(rom);
+        var guard = NewHorizontalShutterInstructionProgramGuard(rom);
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
         enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -51,7 +51,7 @@ internal static partial class Program
             slot.CurrentInstruction,
             "horizontal-shutter terminal sleep remains installed");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "horizontal-shutter spritemap word uses a compiled visual selector");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids compiled horizontal-shutter mechanics bytes");
@@ -133,39 +133,10 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class HorizontalShutterInstructionProgramReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(
-                address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled horizontal-shutter mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort presentation =
-                    HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0);
-                ushort bankAddress = unchecked((ushort)address);
-                if (bankAddress == presentation ||
-                    bankAddress == unchecked((ushort)(presentation + 1)))
-                {
-                    ObservedPresentationWords.Add(presentation);
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewHorizontalShutterInstructionProgramGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(HorizontalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled horizontal-shutter mechanics byte ${address:X6}.")
+            .ObserveWords(0xa20000, 1,
+                _ => HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordAddress(0));
 }

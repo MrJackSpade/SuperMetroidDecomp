@@ -53,7 +53,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new CrawlerAnimationReadGuard(rom));
+                enemies, NewCrawlerAnimationReadGuard(rom));
             RoomEnemySlot slot = enemies.Slots[0];
             slot.CurrentInstruction = orientation;
             if (family == CrawlerAnimationFamily.Viola)
@@ -136,21 +136,13 @@ internal static partial class Program
         int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class CrawlerAnimationReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0xa396db and < 0xa396e3 or
+    private static CartridgeReadGuard NewCrawlerAnimationReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa396db and < 0xa396e3 or
                 >= 0xa3992b and < 0xa39933 or
                 >= 0xa3b667 and < 0xa3b66f or
                 >= 0xa3e03b and < 0xa3e043 or
                 >= 0xa3e2cc and < 0xa3e2d4 or
-                >= 0xa3e630 and < 0xa3e660
-                ? throw new InvalidOperationException(
-                    $"Crawler attempted migrated animation-selector read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                >= 0xa3e630 and < 0xa3e660,
+                address => $"Crawler attempted migrated animation-selector read ${address:X6}.");
 }

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause-map boss marker coordinate lists")]
     private static void VerifyPauseBossMarkers()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

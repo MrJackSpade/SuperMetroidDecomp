@@ -35,8 +35,7 @@ internal static partial class Program
             AssertEqual(left ? unchecked((ushort)-whole) : whole, state.AirborneVelocity.X.WholeWord, "kick whole word");
             AssertEqual(left ? unchecked((ushort)-fraction) : fraction, state.AirborneVelocity.X.Fraction, "kick fraction negates independently");
             int index = Math.Min((int)whole, 15);
-            ushort expectedFraction = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D517 + index * 4);
-            ushort expectedWhole = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D519 + index * 4);
+            (ushort expectedFraction, ushort expectedWhole) = ReadNativeYardKickVerticalSpeed(bus, index);
             AssertEqual(expectedFraction, state.AirborneVelocity.Y.Fraction, "vertical kick table capped independently of horizontal speed");
             AssertEqual(expectedWhole, state.AirborneVelocity.Y.WholeWord, "vertical kick table whole word");
             AssertEqual(YardBehavior.Kicked, state.Behavior, "touch installs kicked behavior");
@@ -44,4 +43,9 @@ internal static partial class Program
         }
         Console.WriteLine($"Yard kicks: {cases} contact-dispatch cases preserve signed words, fractions and vertical-table cap.");
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the $A3:D517 Yard kick vertical-speed table")]
+    private static (ushort Fraction, ushort Whole) ReadNativeYardKickVerticalSpeed(ISnesAddressSpace bus, int index) =>
+        (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D517 + index * 4),
+            RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xA3D519 + index * 4));
 }

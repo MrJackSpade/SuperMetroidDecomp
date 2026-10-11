@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for grapple point tile pointers")]
     private static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));

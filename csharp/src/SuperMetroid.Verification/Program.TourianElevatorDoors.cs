@@ -56,7 +56,7 @@ internal static partial class Program
             {
                 Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)), Radius = new(7, 7), CollisionPose = pose,
             };
-            var bus = new DoorNoReadAddressSpace();
+            var bus = NewDoorNoReadAddressSpace();
             BlockMoveResult result = horizontal
                 ? SamusBlockCollision.MoveHorizontal(bus, level, state, 4 << 16)
                 : SamusBlockCollision.MoveVertical(bus, level, state, 4 << 16, scanLeftToRight: true);

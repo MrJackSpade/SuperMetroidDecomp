@@ -26,7 +26,7 @@ internal static partial class Program
 
         var missile = typeof(SamusProjectileSystem).GetMethod("MissileSlopePointReaction", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>>();
-        var bus = new SlopeHeightNoReadBus();
+        var bus = NewSlopeHeightNoReadBus();
         var projectile = new SamusProjectileSlot(0);
         int cases = 0;
         for (int raw = 0; raw < 256; raw++)

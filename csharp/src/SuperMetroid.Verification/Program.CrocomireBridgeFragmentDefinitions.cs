@@ -28,7 +28,7 @@ internal static partial class Program
         var state = new CrocomireEnemyState(enemies.Slots[0]);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new CrocomireBridgeFragmentReadGuard(rom));
+            NewCrocomireBridgeFragmentReadGuard(rom));
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
         typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(
             enemies,
@@ -65,16 +65,8 @@ internal static partial class Program
             "Crocomire bridge fragments: all eleven native positions, eleven real allocations and the cursor cutoff pass with the source table forbidden.");
     }
 
-    private sealed class CrocomireBridgeFragmentReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa49156 and < 0xa4916c
-            ? throw new InvalidOperationException(
-                $"Crocomire bridge fragment attempted migrated position read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCrocomireBridgeFragmentReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa49156 and < 0xa4916c,
+                address => $"Crocomire bridge fragment attempted migrated position read ${address:X6}.");
 }

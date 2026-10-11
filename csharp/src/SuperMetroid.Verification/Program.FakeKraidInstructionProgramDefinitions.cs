@@ -33,7 +33,13 @@ internal static partial class Program
         Suite(nameof(VerifyFakeKraidMechanicsMapping), () => VerifyFakeKraidMechanicsMapping(rom));
         Suite(nameof(VerifyFakeKraidPresentationAddresses), () => VerifyFakeKraidPresentationAddresses());
 
-        var guard = new FakeKraidInstructionProgramReadGuard(rom);
+        int forbiddenPresentationReadAttempts = 0;
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom)
+            .Forbid(FakeKraidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Fake Kraid mechanics byte ${address:X6}.")
+            .Observe(IsFakeKraidSelectorByte, _ => forbiddenPresentationReadAttempts++)
+            .Forbid(IsFakeKraidSelectorByte,
+                address => $"Production read installed Fake Kraid selector ${address:X6}.");
         var level = new RoomLevelData(
             new Extent16<RoomBlocks>(32, 32),
             new ushort[1024],
@@ -67,7 +73,7 @@ internal static partial class Program
             FakeKraidInstructionProgramDefinitions.FireSpitFacingRight,
             movingRight: true);
 
-        AssertEqual(0, guard.ForbiddenPresentationReadAttempts,
+        AssertEqual(0, forbiddenPresentationReadAttempts,
             "Fake Kraid programs never read installed visual selectors");
         Suite(nameof(VerifyFakeKraidVisualSelectors), () => VerifyFakeKraidVisualSelectors(rom));
         AssertThrows<InvalidDataException>(
@@ -214,45 +220,17 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class FakeKraidInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static bool IsFakeKraidSelectorByte(int address)
     {
-        internal int ForbiddenPresentationReadAttempts { get; private set; }
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
+        if ((address & 0xff0000) != 0xa60000)
+            return false;
+        ushort bankAddress = unchecked((ushort)address);
+        for (int index = 0; index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount; index++)
         {
-            if (FakeKraidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Fake Kraid mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ForbiddenPresentationReadAttempts++;
-                        throw new InvalidOperationException(
-                            $"Production read installed Fake Kraid selector ${address:X6}.");
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
+            ushort presentation = FakeKraidInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
+            if (bankAddress == presentation || bankAddress == unchecked((ushort)(presentation + 1)))
+                return true;
         }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        return false;
     }
 }

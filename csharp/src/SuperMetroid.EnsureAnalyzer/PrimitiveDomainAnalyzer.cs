@@ -81,6 +81,19 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <summary>Storage written and compared only as a small set of literals is a closed domain.</summary>
     public const string LiteralDomainId = "SME6278";
 
+    /// <summary>A masked or shifted local is compared against several values as a hand-decoded selector.</summary>
+    public const string MaskedComparisonId = "SME6279";
+
+    private static readonly DiagnosticDescriptor MaskedComparisonRule = new(
+        MaskedComparisonId,
+        "Masked primitive compared as a selector",
+        "Local '{0}' extracts a field by {1} and is then compared against several values as a selector; decode it to a domain type",
+        "Design",
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "A masked or shifted local compared for equality against two or more distinct nonzero constants is a " +
+            "selector decoded by hand. Zero tests and bit tests of positions or phases are arithmetic and are not reported.");
+
     private static readonly DiagnosticDescriptor LiteralDomainRule = new(
         LiteralDomainId,
         "Closed domain stored as literals",
@@ -133,7 +146,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics =>
         [PrimitiveSwitchRule, SilentEnumSwitchRule, MaskedSelectorRule, EnumNumericFormatRule,
-            CatalogComparisonRule, CastOnlyParameterRule, EnumArithmeticRule, PrimitiveInterludeRule, LiteralDomainRule];
+            CatalogComparisonRule, CastOnlyParameterRule, EnumArithmeticRule, PrimitiveInterludeRule, LiteralDomainRule, MaskedComparisonRule];
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -147,6 +160,7 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
         context.RegisterOperationAction(AnalyzeEnumStep, OperationKind.Increment, OperationKind.Decrement,
             OperationKind.CompoundAssignment);
         context.RegisterOperationBlockStartAction(AnalyzeCastOnlyParameters);
+        context.RegisterOperationBlockStartAction(AnalyzeMaskedComparisons);
         context.RegisterCompilationStartAction(start => new CompilationDomainFlow().Register(start));
     }
 
@@ -216,6 +230,82 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     entry.Key.Name, entry.Key.Type.ToDisplayString(), first.Name));
             }
         });
+    }
+
+    /// <summary>
+    /// A masked or shifted local compared or bit-tested against two or more distinct constants
+    /// is a selector decoded by hand: report it like a switched selector.
+    /// </summary>
+    private static void AnalyzeMaskedComparisons(OperationBlockStartAnalysisContext context)
+    {
+        var tests = new Dictionary<ILocalSymbol, HashSet<object?>>(SymbolEqualityComparer.Default);
+        var gate = new Lock();
+        context.RegisterOperationAction(operationContext =>
+        {
+            var binary = (IBinaryOperation)operationContext.Operation;
+            if (binary.OperatorKind is not (BinaryOperatorKind.Equals or BinaryOperatorKind.NotEquals))
+                return;
+            foreach ((IOperation subject, IOperation other) in new[] { (binary.LeftOperand, binary.RightOperand), (binary.RightOperand, binary.LeftOperand) })
+            {
+                // Only whole-value equality selects a member; bit tests of a masked position or
+                // phase (parity, sub-tile bits) are arithmetic on a number.
+                IOperation tested = Unwrap(subject);
+                object? key = Unwrap(other).ConstantValue is { HasValue: true } constant ? constant.Value : null;
+                // A plain zero test asks whether the field is empty, not which member it holds.
+                if (tested is not ILocalReferenceOperation { Local: var local } || key is null || IsZero(key) ||
+                    !IsIntegral(local.Type) || MaskExtraction(local) is null)
+                    continue;
+                lock (gate)
+                {
+                    if (!tests.TryGetValue(local, out HashSet<object?>? keys))
+                        tests[local] = keys = [];
+                    keys.Add(key);
+                }
+            }
+        }, OperationKind.Binary);
+        context.RegisterOperationBlockEndAction(endContext =>
+        {
+            foreach (KeyValuePair<ILocalSymbol, HashSet<object?>> entry in tests)
+            {
+                if (entry.Value.Count < 2)
+                    continue;
+                foreach (SyntaxReference reference in entry.Key.DeclaringSyntaxReferences)
+                    endContext.ReportDiagnostic(Diagnostic.Create(MaskedComparisonRule, reference.GetSyntax().GetLocation(),
+                        entry.Key.Name, MaskExtraction(entry.Key)));
+            }
+        });
+    }
+
+    private static bool IsZero(object key) => key is IConvertible convertible && !(key is bool) &&
+        convertible.ToDecimal(System.Globalization.CultureInfo.InvariantCulture) == 0;
+
+    private static string? MaskExtraction(ILocalSymbol local)
+    {
+        foreach (SyntaxReference reference in local.DeclaringSyntaxReferences)
+        {
+            if (reference.GetSyntax() is not VariableDeclaratorSyntax { Initializer.Value: var initializer })
+                continue;
+            ExpressionSyntax stripped = initializer;
+            while (stripped is ParenthesizedExpressionSyntax or CastExpressionSyntax or CheckedExpressionSyntax)
+            {
+                stripped = stripped switch
+                {
+                    ParenthesizedExpressionSyntax parenthesized => parenthesized.Expression,
+                    CastExpressionSyntax cast => cast.Expression,
+                    CheckedExpressionSyntax check => check.Expression,
+                    _ => stripped,
+                };
+            }
+            string? extraction = stripped.Kind() switch
+            {
+                SyntaxKind.BitwiseAndExpression => "mask",
+                SyntaxKind.RightShiftExpression or SyntaxKind.UnsignedRightShiftExpression => "shift",
+                _ => null,
+            };
+            if (extraction is not null)
+                return extraction;
+        }
+        return null;
     }
 
     private static bool FeedsIsDefined(IConversionOperation cast) =>

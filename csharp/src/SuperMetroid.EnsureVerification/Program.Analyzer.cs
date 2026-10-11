@@ -127,6 +127,15 @@ internal static partial class Program
         Expect("class C { void M(byte header) { int direction = header & 3; switch (direction) { case 0: break; default: throw new System.Exception(); } } }",
             PrimitiveDomainAnalyzer.MaskedSelectorId, "by mask");
 
+        // SME6279: a masked local compared against two distinct nonzero values.
+        Expect("class C { bool M(byte header) { int kind = header & 7; return kind == 1 || kind == 4; } }",
+            PrimitiveDomainAnalyzer.MaskedComparisonId, "by mask");
+        Expect("class C { int M(ushort timer) { int direction = (timer & 6) >> 1; return direction == 1 ? 2 : direction != 3 ? 1 : 0; } }",
+            PrimitiveDomainAnalyzer.MaskedComparisonId, "by shift");
+        // A zero test, or parity and bound tests of a masked position, are arithmetic.
+        Expect("class C { bool M(byte header) { int low = header & 3; return low == 0; } }");
+        Expect("class C { int M(ushort phase) { int offset = phase & 0x1ff; return (offset & 1) == 0 ? 1 : offset == 0x1ff ? 2 : 3; } }");
+
         // SME6274: a primitive compared against several named constants of one catalog.
         Expect(catalog + " class C { bool M(byte stage) => stage == Stage.Read || stage == Stage.Build; }",
             PrimitiveDomainAnalyzer.CatalogComparisonId, "2 named constants of Stage");

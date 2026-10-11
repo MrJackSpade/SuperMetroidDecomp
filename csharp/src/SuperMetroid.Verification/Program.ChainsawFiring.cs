@@ -258,8 +258,7 @@ internal static partial class Program
         var interferenceReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
-            32,
-            32,
+            new(32, 32),
             0x1000,
             interferenceReactions,
             interferencePlms,
@@ -267,8 +266,7 @@ internal static partial class Program
             (ushort)SamusProjectileFamily.PowerBomb);
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             interferenceLevel,
-            32,
-            32,
+            new(32, 32),
             0x1000,
             interferenceReactions,
             interferencePlms,
@@ -301,8 +299,7 @@ internal static partial class Program
         var breakingReactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
-            32,
-            32,
+            new(32, 32),
             0x1000,
             breakingReactions,
             breakingPlms,
@@ -310,8 +307,7 @@ internal static partial class Program
             (ushort)SamusProjectileFamily.PowerBomb);
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             breakingLevel,
-            32,
-            32,
+            new(32, 32),
             0x1000,
             breakingReactions,
             breakingPlms,

@@ -81,8 +81,7 @@ public sealed partial class SamusProjectileSystem
         var reactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectPowerBombBoundaryReactions(
             level,
-            sharedProjectiles.PowerBombExplosion.Position.X,
-            sharedProjectiles.PowerBombExplosion.Position.Y,
+            sharedProjectiles.PowerBombExplosion.Position,
             sharedProjectiles.PowerBombExplosion.ExplosionRadius,
             reactions,
             roomPlms,

@@ -97,13 +97,14 @@ public static class SamusSlopePhysics
     public static SlopeAlignmentResult AlignYPosition(
         ISnesAddressSpace bus,
         RoomLevelData level,
-        ushort xPosition,
-        ushort yPosition,
+        Position16<RoomPixels> position,
         ushort yRadius,
         bool horizontalSlopeCollisionEnabled = true)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(level);
+        ushort xPosition = position.X;
+        ushort yPosition = position.Y;
 
         if (!horizontalSlopeCollisionEnabled)
             return new SlopeAlignmentResult(yPosition, Adjusted: false);
@@ -115,7 +116,7 @@ public static class SamusSlopePhysics
         // $94:87F4 first probes the center-X block containing Samus's bottom pixel. Only
         // type 1, shapes >=5, and BTS bit $80 clear participate as floor slopes.
         ushort bottomPosition = unchecked((ushort)(yPosition + yRadius - 1));
-        if (TryGetBlockAtPixel(level, xPosition, bottomPosition, out RoomCollisionBlock bottom) &&
+        if (TryGetBlockAtPixel(level, new(xPosition, bottomPosition), out RoomCollisionBlock bottom) &&
             bottom.CollisionType == RoomCollisionType.Slope &&
             bottom.Bts.IsNonSquareSlope)
         {
@@ -136,7 +137,7 @@ public static class SamusSlopePhysics
         // Recompute the top probe after any floor correction. Ceiling slopes use BTS bit
         // $80 set and reverse the same signed correction, matching $94:887A-$94:88F3.
         ushort topPosition = unchecked((ushort)(yPosition - yRadius));
-        if (TryGetBlockAtPixel(level, xPosition, topPosition, out RoomCollisionBlock top) &&
+        if (TryGetBlockAtPixel(level, new(xPosition, topPosition), out RoomCollisionBlock top) &&
             top.CollisionType == RoomCollisionType.Slope &&
             top.Bts.IsNonSquareSlope)
         {
@@ -159,12 +160,11 @@ public static class SamusSlopePhysics
 
     private static bool TryGetBlockAtPixel(
         RoomLevelData level,
-        ushort xPosition,
-        ushort yPosition,
+        Position16<RoomPixels> pixel,
         out RoomCollisionBlock block)
     {
-        int blockX = xPosition >> 4;
-        int blockY = yPosition >> 4;
+        int blockX = pixel.X >> 4;
+        int blockY = pixel.Y >> 4;
         if ((uint)blockX >= (uint)level.WidthInBlocks ||
             (uint)blockY >= (uint)level.HeightInBlocks)
         {

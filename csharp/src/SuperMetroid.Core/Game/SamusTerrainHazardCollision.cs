@@ -35,7 +35,7 @@ public static class SamusTerrainHazardCollision
             area != AreaId.WreckedShip || areaBossDefeated;
 
         SamusInsideBlockSamplePoints.Visit(samus.Position.Y.Whole, samus.Kinematics.Radius.Y, (y, _) =>
-            VisitInsidePoint(bus, level, samus, samus.Position.X.Whole, y));
+            VisitInsidePoint(bus, level, samus, new(samus.Position.X.Whole, y)));
     }
 
     /// <summary>Applies `$94:8E83/$8ECF/$8F0A` after a solid spike block is contacted.</summary>
@@ -70,10 +70,9 @@ public static class SamusTerrainHazardCollision
         ISnesAddressSpace bus,
         RoomLevelData level,
         SamusState samus,
-        ushort x,
-        ushort y)
+        Position16<RoomPixels> point)
     {
-        RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(x >> 4, y >> 4);
+        RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(point.X >> 4, point.Y >> 4);
         if (block.Index < 0 || !SamusBlockCollision.TryResolveExtension(level, ref block))
             return;
         if (block.CollisionType != RoomCollisionType.SpikeAir ||

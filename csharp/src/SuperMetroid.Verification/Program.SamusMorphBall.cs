@@ -1895,7 +1895,7 @@ static void VerifySamusMorphBallMovement()
             new ushort[words.Length], reactionDefinitions);
         var tablePlms = new RoomPlmSystem();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(tableLevel,
-            2, 2, new(), tablePlms, AreaId.Crateria, 0x0500);
+            new(2, 2), new(), tablePlms, AreaId.Crateria, 0x0500);
         tablePlms.Step(bus, tableLevel, tableLevel.CreateBackgroundStreamer(), 0, 0, 0);
         AssertEqual(behavior is >= 0x1a and <= 0x1d ? 0xb0b6 : 0xb000,
             tableLevel.GetCollisionBlockByIndex(crumbleIndex).LevelWord,

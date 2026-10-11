@@ -161,7 +161,7 @@ public static partial class SamusBlockCollision
 
             for (int rowOffset = 0; rowOffset <= verticalSpan; rowOffset++)
             {
-                RoomCollisionBlock block = GetRequiredBlock(level, blockX, topBlockY + rowOffset);
+                RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(blockX, topBlockY + rowOffset);
                 if (!TryResolveExtension(level, ref block))
                     continue;
                 switch (block.CollisionType)
@@ -391,8 +391,7 @@ public static partial class SamusBlockCollision
         SlopeAlignmentResult alignment = SamusSlopePhysics.AlignYPosition(
             bus,
             level,
-            state.Position.X.Whole,
-            state.Position.Y.Whole,
+            state.Position.Whole,
             state.Radius.Y,
             horizontalSlopeCollisionEnabled: alignToSlopeAfterMovement &&
                 (state.HorizontalSlopeCollisionEnable & 2) != 0);
@@ -537,7 +536,7 @@ public static partial class SamusBlockCollision
         for (int offset = 0; offset <= horizontalSpan; offset++)
         {
             int blockX = scanLeftToRight ? firstBlockX + offset : firstBlockX - offset;
-            RoomCollisionBlock block = GetRequiredBlock(level, blockX, blockY);
+            RoomCollisionBlock block = level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
             if (!TryResolveExtension(level, ref block))
                 continue;
             switch (block.CollisionType)
@@ -1141,9 +1140,6 @@ public static partial class SamusBlockCollision
         alignedLeft &= 0xfff0;
         return unchecked((ushort)(state.Radius.X + state.Position.X.Whole - 1 - alignedLeft)) >> 4;
     }
-
-    private static RoomCollisionBlock GetRequiredBlock(RoomLevelData level, int blockX, int blockY)
-        => level.GetCollisionBlockOrPrefilledSolid(blockX, blockY);
 
     /// <summary>
     /// Follows collision-extension blocks exactly like the `$94:9515/$9535` redispatch

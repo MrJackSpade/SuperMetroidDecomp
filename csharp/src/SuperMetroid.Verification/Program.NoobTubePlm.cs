@@ -129,8 +129,7 @@ internal static partial class Program
         var reactions = new List<BombBlockReaction>();
         SamusBombProjectileSystem.CollectSingleBombedBlockReaction(
             level,
-            blockX,
-            blockY,
+            new(blockX, blockY),
             reactions,
             plms,
             AreaId.Maridia,

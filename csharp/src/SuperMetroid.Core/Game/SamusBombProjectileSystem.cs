@@ -658,8 +658,7 @@ public sealed class SamusBombProjectileSystem
             {
                 CollectPowerBombBoundaryReactions(
                     level,
-                    PowerBombExplosion.Position.X,
-                    PowerBombExplosion.Position.Y,
+                    PowerBombExplosion.Position,
                     PowerBombExplosion.ExplosionRadius,
                     blockReactions,
                     roomPlms,
@@ -793,8 +792,7 @@ public sealed class SamusBombProjectileSystem
     /// </summary>
     public static void CollectPowerBombBoundaryReactions(
         RoomLevelData level,
-        ushort explosionX,
-        ushort explosionY,
+        Position16<RoomPixels> explosion,
         ushort explosionRadius,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
@@ -804,27 +802,30 @@ public sealed class SamusBombProjectileSystem
         int horizontalRadius = explosionRadius >> 8;
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
-        int left = Math.Max(0, explosionX - horizontalRadius) >> 4;
+        int left = Math.Max(0, explosion.X - horizontalRadius) >> 4;
         int right = Math.Min(
             level.WidthInBlocks - 1,
-            (explosionX + horizontalRadius) >> 4);
-        int top = Math.Max(0, explosionY - verticalRadius) >> 4;
+            (explosion.X + horizontalRadius) >> 4);
+        int top = Math.Max(0, explosion.Y - verticalRadius) >> 4;
         int bottom = Math.Min(
             level.HeightInBlocks - 1,
-            (explosionY + verticalRadius) >> 4);
+            (explosion.Y + verticalRadius) >> 4);
 
         // $94:A0F4/$A11A visit all four inclusive edges in this exact order. Corners are
         // intentionally visited twice; synchronous PLM terrain mutation means the second
         // visit can observe a different collision type than the first.
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, x, top, reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, Block(x, top), reactions, roomPlms, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, left, y, reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, Block(left, y), reactions, roomPlms, areaIndex, projectileType);
         for (int x = left; x <= right; x++)
-            CollectSingleBombedBlockReaction(level, x, bottom, reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, Block(x, bottom), reactions, roomPlms, areaIndex, projectileType);
         for (int y = top; y <= bottom; y++)
-            CollectSingleBombedBlockReaction(level, right, y, reactions, roomPlms, areaIndex, projectileType);
+            CollectSingleBombedBlockReaction(level, Block(right, y), reactions, roomPlms, areaIndex, projectileType);
     }
+
+    /// <summary>A clamped in-room block coordinate pair, which always fits the native word range.</summary>
+    private static Position16<RoomBlocks> Block(int x, int y) => new(checked((ushort)x), checked((ushort)y));
 
     private static void CollectBlockExplosionReactions(
         RoomLevelData level,
@@ -858,8 +859,7 @@ public sealed class SamusBombProjectileSystem
 
             CollectSingleBombedBlockReaction(
                 level,
-                x,
-                y,
+                Block(x, y),
                 reactions,
                 roomPlms,
                 areaIndex,
@@ -869,13 +869,14 @@ public sealed class SamusBombProjectileSystem
 
     internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
-        int x,
-        int y,
+        Position16<RoomBlocks> bombedBlock,
         List<BombBlockReaction> reactions,
         RoomPlmSystem? roomPlms,
         AreaId areaIndex,
         ushort projectileType)
     {
+        int x = bombedBlock.X;
+        int y = bombedBlock.Y;
         RoomCollisionBlock visitedBlock = level.GetCollisionBlock(x, y);
         reactions.Add(new BombBlockReaction());
 

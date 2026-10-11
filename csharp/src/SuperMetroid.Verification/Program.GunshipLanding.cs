@@ -21,63 +21,7 @@ internal static partial class Program
         var cgram = new SnesCgram();
         bool zebesTimebombSet = false;
 
-        WriteEnemyDefinition(
-            bus,
-            topDefinition,
-            tileDataSize: 0,
-            palettePointer: 0x9000,
-            bank: 0xa2,
-            tileDataAddress: 0xa28000,
-            bossId: 0,
-            namePointer: 0,
-            fieldSeed: 0x2100);
-        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 8), 32);
-        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 10), 16);
-        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 18), 0xa644);
-        WriteWord(bus, 0xa00000 | ((ushort)topDefinition + 24), 0xa759);
-
-        WriteEnemyDefinition(
-            bus,
-            bottomDefinition,
-            tileDataSize: 0,
-            palettePointer: 0x9000,
-            bank: 0xa2,
-            tileDataAddress: 0xa28000,
-            bossId: 0,
-            namePointer: 0,
-            fieldSeed: 0x2200);
-        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 8), 32);
-        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 10), 16);
-        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 18), 0xa6d2);
-        WriteWord(bus, 0xa00000 | ((ushort)bottomDefinition + 24), 0x804c);
-
-        // Gunship control words are compiled engine data. This synthetic address space
-        // supplies only the interleaved spritemap operands that remain presentation-owned.
-        for (int index = 0;
-             index < GunshipInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            WriteWord(
-                bus,
-                0xa20000 |
-                    GunshipInstructionProgramDefinitions.PresentationWordAddress(index),
-                0xa700);
-        }
-
-        // Function 17 uploads five consecutive $400-byte dust-cloud chunks from bank $94.
-        for (int index = 0; index < 5; index++)
-        {
-            WriteWord(bus, 0xa2ac07 + index * 2, unchecked((ushort)(0x8000 + index * 0x0400)));
-            WriteWord(bus, 0xa2ac11 + index * 2, unchecked((ushort)(0x7600 + index * 0x0200)));
-        }
-
-        WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
-        int population = 0xa10000 | populationPointer;
-        var gunship = new Position16<RoomPixels>(0x0480, 0x0200);
-        WriteGunshipPopulationRecord(bus, population, topDefinition, gunship, parameter2: 0);
-        WriteGunshipPopulationRecord(bus, population + 16, bottomDefinition, gunship, parameter2: 0);
-        WriteGunshipPopulationRecord(bus, population + 32, bottomDefinition, gunship, parameter2: 1);
-        WriteGunshipPopulationTerminator(bus, population + 48);
+        SeedPostCeresGunshipCartridge(bus, topDefinition, bottomDefinition, populationPointer, tilesetPointer);
 
         var samus = new SamusState
         {
@@ -281,10 +225,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: seeds the constructed cartridge population's $FFFF terminator and its kill-quota byte")]
     private static void WriteGunshipPopulationTerminator(TestAddressSpace bus, int address)
     {
-        WriteWord(bus, address, 0xffff);
+        WriteTestWord(bus, address, 0xffff);
         bus.WriteByte(address + 2, 0);
     }
 
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one gunship enemy population record")]
     private static void WriteGunshipPopulationRecord(
         TestAddressSpace bus,
         int address,
@@ -292,13 +237,84 @@ internal static partial class Program
         Position16<RoomPixels> position,
         ushort parameter2)
     {
-        WriteWord(bus, address, (ushort)definition);
-        WriteWord(bus, address + 2, position.X);
-        WriteWord(bus, address + 4, position.Y);
-        WriteWord(bus, address + 6, 0);
-        WriteWord(bus, address + 8, 0);
-        WriteWord(bus, address + 10, 0);
-        WriteWord(bus, address + 12, 0);
-        WriteWord(bus, address + 14, parameter2);
+        WriteTestWord(bus, address, (ushort)definition);
+        WriteTestWord(bus, address + 2, position.X);
+        WriteTestWord(bus, address + 4, position.Y);
+        WriteTestWord(bus, address + 6, 0);
+        WriteTestWord(bus, address + 8, 0);
+        WriteTestWord(bus, address + 10, 0);
+        WriteTestWord(bus, address + 12, 0);
+        WriteTestWord(bus, address + 14, parameter2);
+    }
+
+    /// <summary>
+    /// Seeds the two gunship enemy definitions, their presentation-owned spritemap operands, the
+    /// dust-cloud upload table, an empty tileset and the three-slot gunship population.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the post-Ceres gunship landing enemies")]
+    private static void SeedPostCeresGunshipCartridge(
+        TestAddressSpace bus,
+        EnemyDefinitionId topDefinition,
+        EnemyDefinitionId bottomDefinition,
+        ushort populationPointer,
+        ushort tilesetPointer)
+    {
+        WriteEnemyDefinition(
+            bus,
+            topDefinition,
+            tileDataSize: 0,
+            palettePointer: 0x9000,
+            bank: 0xa2,
+            tileDataAddress: 0xa28000,
+            bossId: 0,
+            namePointer: 0,
+            fieldSeed: 0x2100);
+        SeedEnemyDefinitionWord(bus, topDefinition, 8, 32);
+        SeedEnemyDefinitionWord(bus, topDefinition, 10, 16);
+        SeedEnemyDefinitionWord(bus, topDefinition, 18, 0xa644);
+        SeedEnemyDefinitionWord(bus, topDefinition, 24, 0xa759);
+
+        WriteEnemyDefinition(
+            bus,
+            bottomDefinition,
+            tileDataSize: 0,
+            palettePointer: 0x9000,
+            bank: 0xa2,
+            tileDataAddress: 0xa28000,
+            bossId: 0,
+            namePointer: 0,
+            fieldSeed: 0x2200);
+        SeedEnemyDefinitionWord(bus, bottomDefinition, 8, 32);
+        SeedEnemyDefinitionWord(bus, bottomDefinition, 10, 16);
+        SeedEnemyDefinitionWord(bus, bottomDefinition, 18, 0xa6d2);
+        SeedEnemyDefinitionWord(bus, bottomDefinition, 24, 0x804c);
+
+        // Gunship control words are compiled engine data. This synthetic address space
+        // supplies only the interleaved spritemap operands that remain presentation-owned.
+        for (int index = 0;
+             index < GunshipInstructionProgramDefinitions.PresentationWordCount;
+             index++)
+        {
+            WriteTestWord(
+                bus,
+                0xa20000 |
+                    GunshipInstructionProgramDefinitions.PresentationWordAddress(index),
+                0xa700);
+        }
+
+        // Function 17 uploads five consecutive $400-byte dust-cloud chunks from bank $94.
+        for (int index = 0; index < 5; index++)
+        {
+            WriteTestWord(bus, 0xa2ac07 + index * 2, unchecked((ushort)(0x8000 + index * 0x0400)));
+            WriteTestWord(bus, 0xa2ac11 + index * 2, unchecked((ushort)(0x7600 + index * 0x0200)));
+        }
+
+        WriteTestWord(bus, 0xb40000 | tilesetPointer, 0xffff);
+        int population = 0xa10000 | populationPointer;
+        var gunship = new Position16<RoomPixels>(0x0480, 0x0200);
+        WriteGunshipPopulationRecord(bus, population, topDefinition, gunship, parameter2: 0);
+        WriteGunshipPopulationRecord(bus, population + 16, bottomDefinition, gunship, parameter2: 0);
+        WriteGunshipPopulationRecord(bus, population + 32, bottomDefinition, gunship, parameter2: 1);
+        WriteGunshipPopulationTerminator(bus, population + 48);
     }
 }

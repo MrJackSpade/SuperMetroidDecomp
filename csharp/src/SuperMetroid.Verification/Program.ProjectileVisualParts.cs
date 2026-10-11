@@ -7,7 +7,6 @@ internal static partial class Program
         var parts = new OamBuffer();
         var packed = new OamBuffer();
         var bus = new TestAddressSpace();
-        WriteTestWord(bus, 0x93f700, 1);
         int count = 0;
         for (int rawX = 0; rawX <= ushort.MaxValue; rawX++)
         foreach (ushort origin in new ushort[] { 0, 127, 255, 256, 0x7fff, 0xffff })
@@ -17,9 +16,7 @@ internal static partial class Program
             byte yOffset = (byte)rawX;
             ushort attribute = unchecked((ushort)~rawX);
             int index = count % OamBuffer.SpriteCount;
-            WriteTestWord(bus, 0x93f702, (ushort)rawX);
-            bus.WriteBytes(0x93f704, [yOffset]);
-            WriteTestWord(bus, 0x93f705, attribute);
+            SeedSinglePartProjectileSpritemap(bus, (ushort)rawX, yOffset, attribute);
             parts.AddProjectileSpritePart(new((ushort)rawX), yOffset, new(attribute), new Position16<OamPixels>(origin, origin));
             DrawImportedProjectileSpritemap(bus, packed, 0xf700, new(origin, origin));
             ushort expectedX = unchecked((ushort)(origin + rawX));
@@ -35,5 +32,18 @@ internal static partial class Program
             count++;
         }
         Console.WriteLine($"Projectile visual parts: {count} emissions preserve native wrapping, attributes and packed draw parity.");
+    }
+
+    /// <summary>
+    /// Seeds the one-part packed projectile spritemap at <c>$93:F700</c>: a part count of one,
+    /// then the X/size word, Y offset byte and attribute word of that part.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a one-part bank-$93 projectile spritemap")]
+    private static void SeedSinglePartProjectileSpritemap(TestAddressSpace bus, ushort rawX, byte yOffset, ushort attribute)
+    {
+        WriteTestWord(bus, 0x93f700, 1);
+        WriteTestWord(bus, 0x93f702, rawX);
+        bus.WriteBytes(0x93f704, [yOffset]);
+        WriteTestWord(bus, 0x93f705, attribute);
     }
 }

@@ -50,10 +50,9 @@ internal static partial class Program
         ];
         foreach (PlmHeaderId header in headers)
         {
-            var bus = new TestAddressSpace();
-            bus.WriteBytes(0x848000, bank84);
+            TestAddressSpace bus = CreateBank84Cartridge(bank84);
             const ushort population = 0x9000;
-            bus.WriteBytes(0x8f0000 | population,
+            SeedRoomPlmPopulation(bus, population,
             [
                 unchecked((byte)(ushort)header), unchecked((byte)((ushort)header >> 8)),
                 4, 4,

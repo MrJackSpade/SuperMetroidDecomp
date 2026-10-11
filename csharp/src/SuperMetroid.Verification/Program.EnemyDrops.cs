@@ -49,7 +49,7 @@ internal static partial class Program
             TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
-        fixture.Bus.WriteBytes(0xb48014, [2]);
+        SeedContactDeathVulnerability(fixture.Bus);
         enemy.Position = enemy.Position.WithWhole(samus.Position.Whole);
         enemy.Radius = new(8, 8);
         enemy.Health = 1;
@@ -321,7 +321,7 @@ internal static partial class Program
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [1]);
 
         const ushort enemyHeader = 0x9000;
-        WriteWord(fixture.Bus, 0xa00000 | enemyHeader | 58, NativeDropChancePointer);
+        SeedEnemyDropChancePointer(fixture.Bus, enemyHeader);
         RoomEnemySlot enemy = fixture.System.Slots[0];
         enemy.EnemyDefinitionPointer = (EnemyDefinitionId)enemyHeader;
         enemy.Position = enemy.Position.WithWhole(new(321, 123));
@@ -409,7 +409,7 @@ internal static partial class Program
             placeholder[i] = retail.ReadCartridgeByte(0xa00000 + (ushort)EnemyDefinitionId.Respawn + i);
         bus.WriteBytes(0xa00000 + (ushort)EnemyDefinitionId.Respawn, placeholder);
         // Empty enemy population: tests directly exercise the shared projectile subsystem.
-        bus.WriteBytes(0xa19000, [0xff, 0xff]);
+        SeedEmptyRoomEnemyPopulation(bus, 0x9000);
 
         // The five compiled pickup identities select their retail list addresses. Long
         // synthetic frames keep the focused effect fixture independent of pickup artwork
@@ -427,6 +427,19 @@ internal static partial class Program
         ]);
 
     }
+
+    /// <summary>
+    /// Points the synthetic bank-$A0 enemy definition at <paramref name="enemyHeader"/> (its
+    /// drop-chance pointer field, definition byte 58) at the native first drop-chance record.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for an enemy definition's drop-chance pointer")]
+    private static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader) =>
+        WriteTestWord(bus, 0xa00000 | enemyHeader | 58, NativeDropChancePointer);
+
+    /// <summary>Seeds the bank-$B4 vulnerability byte the contact-death fixture enemy consults.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the contact-death enemy vulnerability byte")]
+    private static void SeedContactDeathVulnerability(TestAddressSpace bus) =>
+        bus.WriteBytes(0xb48014, [2]);
 
     private readonly record struct EnemyDropFixture(
         TestAddressSpace Bus,

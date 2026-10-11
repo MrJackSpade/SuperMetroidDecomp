@@ -76,8 +76,7 @@ internal static partial class Program
                 var level = CreateRoom(new(32, 16),new ushort[512],new byte[512],blockDefinitions:new byte[0x400 * 8]);
                 var plms = new RoomPlmSystem();
                 var bus = new TestAddressSpace();
-                bus.WriteBytes(0x8f9400,[0x0b,0xb7,3,4,0,0,0,0]);
-                WriteWord(bus,0x84b70d,0xafb6);
+                SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
                 AssertEqual(1,plms.LoadRoomPopulation(bus,level,level.CreateBackgroundStreamer(),new SnesVram(),
                     SuperMetroid.AssetExtraction.RoomPlmPopulationImporter.Read(bus,0x9400),new Bank80SystemState(),
                     AreaId.Crateria,() => null,() => false),"Eye door draw dispatcher fixture");

@@ -66,12 +66,10 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         // Header dispatch remains a cartridge read; only the gate's program and
         // draw payloads are compiled and therefore guarded below.
-        WriteWord(bus, 0x84c8ca, 0xb3c1);
-        WriteWord(bus, 0x84c8cc,
-            RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed);
-        WriteWord(bus, 0x84c8ce,
+        SeedPlmProgramWords(bus, 0xc8ca, 0xb3c1,
+            RoomPlmInstructionListsTooling.MotherBrainEscapeRoomGateClosed,
             RoomPlmInstructionLists.MotherBrainEscapeRoomGateClosing);
-        bus.WriteBytes(0x8f0000 | population,
+        SeedRoomPlmPopulation(bus, population,
         [
             0xca, 0xc8, gateX, gateY, 0x00, 0x80,
             0x00, 0x00,

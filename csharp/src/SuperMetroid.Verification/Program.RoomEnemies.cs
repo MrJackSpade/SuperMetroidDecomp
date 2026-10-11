@@ -14,6 +14,28 @@ internal static partial class Program
 /// The fixture mirrors the literal $A1 population, $B4 set, and 64-byte $A0 header formats,
 /// so a convenient host-side reinterpretation cannot accidentally replace cartridge layout.
 /// </summary>
+/// <summary>
+/// Seeds the two loading-fixture enemies' palettes and planar tiles at the bank-$A2/$A3
+/// addresses their definitions name, plus seven spawn-source words at $B4:9200. Word 5 is a
+/// real retail omission (RecordEnemySpawnData copies words 0-4 and 6), so it carries a
+/// distinct sentinel that the managed snapshot must not normalize.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for room-enemy loading artwork and spawn-data words")]
+static void SeedRoomEnemyLoadingArtworkAndSpawnData(
+    TestAddressSpace bus,
+    byte[] primaryPaletteBytes,
+    byte[] specialPaletteBytes,
+    byte[] primaryTileBytes,
+    byte[] specialTileBytes)
+{
+    bus.WriteBytes(0xa29000, primaryPaletteBytes);
+    bus.WriteBytes(0xa39300, specialPaletteBytes);
+    bus.WriteBytes(0xa29100, primaryTileBytes);
+    bus.WriteBytes(0xa39320, specialTileBytes);
+    for (int word = 0; word < 7; word++)
+        WriteTestWord(bus, 0xb49200 + word * 2, unchecked((ushort)(0x3100 + word)));
+}
+
 static void VerifyRoomEnemyLoading()
 {
     const ushort populationPointer = 0x9100;
@@ -52,50 +74,29 @@ static void VerifyRoomEnemyLoading()
         namePointer: 0,
         fieldSeed: 0x2200);
 
-    for (int colorByte = 0; colorByte < 32; colorByte++)
-    {
-        WriteTestByte(bus, 0xa29000 + colorByte, unchecked((byte)(0x20 + colorByte)));
-        WriteTestByte(bus, 0xa39300 + colorByte, unchecked((byte)(0x60 + colorByte)));
-    }
-    for (int tileByte = 0; tileByte < 0x40; tileByte++)
-        WriteTestByte(bus, 0xa29100 + tileByte, unchecked((byte)(0x80 + tileByte)));
-    for (int tileByte = 0; tileByte < 0x20; tileByte++)
-        WriteTestByte(bus, 0xa39320 + tileByte, unchecked((byte)(0xc0 + tileByte)));
+    byte[] primaryPaletteBytes = Enumerable.Range(0, 32).Select(index => unchecked((byte)(0x20 + index))).ToArray();
+    byte[] specialPaletteBytes = Enumerable.Range(0, 32).Select(index => unchecked((byte)(0x60 + index))).ToArray();
+    byte[] primaryTileBytes = Enumerable.Range(0, 0x40).Select(index => unchecked((byte)(0x80 + index))).ToArray();
+    byte[] specialTileBytes = Enumerable.Range(0, 0x20).Select(index => unchecked((byte)(0xc0 + index))).ToArray();
+    SeedRoomEnemyLoadingArtworkAndSpawnData(bus, primaryPaletteBytes, specialPaletteBytes, primaryTileBytes, specialTileBytes);
 
-    // RecordEnemySpawnData copies source words 0-4 and 6. Word 5 is a real retail omission,
-    // so give it a distinct sentinel and prove the managed snapshot does not normalize it.
-    for (int word = 0; word < 7; word++)
-        WriteWord(bus, 0xb49200 + word * 2, unchecked((ushort)(0x3100 + word)));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer,
+        new(primaryDefinitionPointer, 0x0003),
+        new(specialDefinitionPointer, 0x1004));
 
-    WriteWord(bus, 0xb40000 | tilesetPointer, (ushort)primaryDefinitionPointer);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0003);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 4, (ushort)specialDefinitionPointer);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 6, 0x1004);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 8, 0xffff);
-
-    int populationAddress = 0xa10000 | populationPointer;
-    WriteWord(bus, populationAddress, (ushort)primaryDefinitionPointer);
-    WriteWord(bus, populationAddress + 2, 0x0456);
-    WriteWord(bus, populationAddress + 4, 0x0789);
-    WriteWord(bus, populationAddress + 6, 0xabcd);
-    WriteWord(bus, populationAddress + 8, 0x2000);
-    WriteWord(bus, populationAddress + 10, 0x0004);
-    WriteWord(bus, populationAddress + 12, 0x1357);
-    WriteWord(bus, populationAddress + 14, 0x2468);
-    WriteWord(bus, populationAddress + 16, 0xffff);
-    WriteTestByte(bus, populationAddress + 18, 1);
+    SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
+        new RoomEnemyPopulationRecord(primaryDefinitionPointer, new(0x0456, 0x0789), 0xabcd, 0x2000, 0x0004, 0x1357, 0x2468));
 
     // Import the explicitly seeded fixture art before exercising the installed-only loader.
     var stockSheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>();
     var stockColors = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>();
-    foreach ((EnemyDefinitionId pointer, int source, int byteCount, int paletteSource) in new[]
+    foreach ((EnemyDefinitionId pointer, byte[] planar, byte[] paletteBytes) in new[]
              {
-                 (primaryDefinitionPointer, 0xa29100, 0x40, 0xa29000),
-                 (specialDefinitionPointer, 0xa39320, 0x20, 0xa39300),
+                 (primaryDefinitionPointer, primaryTileBytes, primaryPaletteBytes),
+                 (specialDefinitionPointer, specialTileBytes, specialPaletteBytes),
              })
     {
-        byte[] planar = Enumerable.Range(0, byteCount)
-            .Select(index => bus.ReadByte(source + index)).ToArray();
+        int byteCount = planar.Length;
         int tiles = byteCount / RoomCharacterAtlasFormat.BytesPerTile;
         byte[] pixels = SnesGraphics.DecodePlanarTiles(planar, 4, tiles,
             out Extent16<ImagePixels> size);
@@ -105,8 +106,7 @@ static void VerifyRoomEnemyLoading()
         var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < palette.Length; color++)
         {
-            ushort word = (ushort)(bus.ReadByte(paletteSource + color * 2) |
-                bus.ReadByte(paletteSource + color * 2 + 1) << 8);
+            ushort word = (ushort)(paletteBytes[color * 2] | paletteBytes[color * 2 + 1] << 8);
             palette[color] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -208,9 +208,7 @@ static void VerifyRoomEnemyLoading()
     // Native $A0:8A6D skips graphics processing, and InitializeEnemies' early return leaves
     // first-free/death-quota words untouched even though current enemy counts are cleared.
     const ushort emptyPopulationPointer = 0x9400;
-    int emptyPopulationAddress = 0xa10000 | emptyPopulationPointer;
-    WriteWord(bus, emptyPopulationAddress, 0xffff);
-    WriteTestByte(bus, emptyPopulationAddress + 2, 0x7f);
+    SeedRoomEnemyPopulation(bus, emptyPopulationPointer, deathQuota: 0x7f);
     cgram.SetColor(128, Bgr555.FromWord(0x4567));
     vram.LoadBytes(0xe000, new byte[] { 0x5a });
     enemies.Load(bus, emptyPopulationPointer, 0xffff, vram, cgram, () => 0);
@@ -307,8 +305,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
 {
     const ushort populationPointer = 0x9400;
     var bus = new TestAddressSpace();
-    WriteWord(bus, 0xa10000 | populationPointer, 0xffff);
-    WriteTestByte(bus, (0xa10000 | populationPointer) + 2, 0);
+    SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0);
 
     var enemies = new RoomEnemySystem();
     enemies.Load(
@@ -324,10 +321,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
     eyeShot.CollisionOption = 0;
-    WriteWord(
-        bus,
-        0x860000 | unchecked((ushort)((ushort)eyeShot.Kind + 12)),
-        0xb5fb);
+    SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
     var shots = new SamusProjectileSystem();
     SamusProjectileSlot owner = shots.Slots[0];
@@ -404,18 +398,17 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         bossId: 0,
         namePointer: 0,
         fieldSeed: 0x5200);
-    int header = 0xa00000 | (ushort)definitionPointer;
-    WriteWord(bus, header + 4, 200);
-    WriteWord(bus, header + 6, 5);
-    WriteWord(bus, header + 8, 8);
-    WriteWord(bus, header + 10, 4);
-    WriteTestByte(bus, header + 13, 0);
-    WriteWord(bus, header + 14, 0x003e);
-    WriteWord(bus, header + 18, 0xe49f);
-    WriteWord(bus, header + 24, 0xe4da);
-    WriteWord(bus, header + 48, 0x8023);
-    WriteWord(bus, header + 50, 0x802d);
-    WriteWord(bus, header + 60, vulnerabilityPointer);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 4, 200);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 6, 5);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 8, 8);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 10, 4);
+    SeedEnemyDefinitionByte(bus, definitionPointer, 13, 0);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 14, 0x003e);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xe49f);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xe4da);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 48, 0x8023);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 50, 0x802d);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 60, vulnerabilityPointer);
 
     // Native speed parameter 16 gives +/-1.0000 pixels per frame. Keep that
     // movement fixture without inventing replacement values for the common table.
@@ -424,29 +417,15 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     // need not render their entry payloads to prove list selection and timing.
     ushort[] rightList = [8, 0xe54b, 7, 0xe557, 8, 0xe54b, 7, 0xe563, 0x80ed, 0xe477];
     ushort[] leftList = [8, 0xe527, 7, 0xe533, 8, 0xe527, 7, 0xe53f, 0x80ed, 0xe48b];
-    for (int index = 0; index < rightList.Length; index++)
-        WriteWord(bus, 0xa2e477 + index * 2, rightList[index]);
-    for (int index = 0; index < leftList.Length; index++)
-        WriteWord(bus, 0xa2e48b + index * 2, leftList[index]);
+    SeedRipperInstructionLists(bus, rightList, leftList);
 
     // The compiled native Ripper record makes Power Beam and missiles ineffective,
     // freezes on Ice, and gives Super Missiles multiplier two.
 
-    WriteWord(bus, 0xb40000 | tilesetPointer, (ushort)definitionPointer);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer, new RoomEnemyGraphicsSetHeader(definitionPointer, 0));
 
-    int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, (ushort)definitionPointer);
-    WriteWord(bus, population + 2, 80);
-    WriteWord(bus, population + 4, 64);
-    WriteWord(bus, population + 6, 0);
-    WriteWord(bus, population + 8, 0x2800);
-    WriteWord(bus, population + 10, 0);
-    WriteWord(bus, population + 12, 16);
-    WriteWord(bus, population + 14, 1);
-    WriteWord(bus, population + 16, 0xffff);
-    WriteTestByte(bus, population + 18, 1);
+    SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 1,
+        new RoomEnemyPopulationRecord(definitionPointer, new(80, 64), 0, 0x2800, 0, 16, 1));
 
     const int roomWidth = 16;
     const int roomHeight = 8;
@@ -625,8 +604,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
 
     var projectiles = CreateProjectileFixture();
     var sharedProjectiles = CreateBombFixture();
-    WriteWord(bus, 0x93867b, 0x9100);
-    WriteWord(bus, 0x93867f, 0x9200);
+    SeedRipperProjectileDataPointers(bus);
 
     static void ArmProjectile(
         SamusProjectileSlot projectile,
@@ -729,53 +707,19 @@ static void VerifyCeresElevatorPlatformAnimation()
         bossId: 0,
         namePointer: 0,
         fieldSeed: 0x4300);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xf6c5);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xf765);
-    WriteTestByte(bus, 0xa00000 | ((ushort)definitionPointer + 57), 2);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xf765);
+    SeedEnemyDefinitionByte(bus, definitionPointer, 57, 2);
 
     // Parameter one equals two, selecting main function $F850. This focused population
     // omits ProcessInstructions because only the independently executing main AI owns the
     // persistent platform transfer.
-    int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, (ushort)definitionPointer);
-    WriteWord(bus, population + 2, 0x0080);
-    WriteWord(bus, population + 4, 0x0080);
-    WriteWord(bus, population + 6, 0);
-    WriteWord(bus, population + 8, 0x0800);
-    WriteWord(bus, population + 10, 0);
-    WriteWord(bus, population + 12, 2);
-    WriteWord(bus, population + 14, 0);
-    WriteWord(bus, population + 16, 0xffff);
-    WriteTestByte(bus, population + 18, 0);
-    WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
-    WriteWord(bus, 0xa6f72f, 0xf850);
-    WriteWord(bus, 0xa6f530, 0xfac7);
-
-    // These are the literal two one-entry transfer records at $A6:F904/$F90E. Each writes
-    // four low map bytes to Mode-7 word $060E, alternating by NMI bit one.
-    WriteWord(bus, 0xa6f900, 0xf904);
-    WriteWord(bus, 0xa6f902, 0xf90e);
-    WriteTestByte(bus, 0xa6f904, 0x80);
-    WriteLong(bus, 0xa6f905, 0xa6f918);
-    WriteWord(bus, 0xa6f908, 4);
-    WriteWord(bus, 0xa6f90a, 0x060e);
-    WriteTestByte(bus, 0xa6f90c, 0);
-    WriteTestByte(bus, 0xa6f90d, 0);
-    WriteTestByte(bus, 0xa6f90e, 0x80);
-    WriteLong(bus, 0xa6f90f, 0xa6f91c);
-    WriteWord(bus, 0xa6f912, 4);
-    WriteWord(bus, 0xa6f914, 0x060e);
-    WriteTestByte(bus, 0xa6f916, 0);
-    WriteTestByte(bus, 0xa6f917, 0);
+    SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0,
+        new RoomEnemyPopulationRecord(definitionPointer, new(0x0080, 0x0080), 0, 0x0800, 0, 2, 0));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer);
     byte[] light = [0x68, 0x69, 0x69, 0x78];
     byte[] dark = [0x8d, 0x8e, 0x8e, 0x79];
-    for (int index = 0; index < 4; index++)
-    {
-        WriteTestByte(bus, 0xa6f918 + index, light[index]);
-        WriteTestByte(bus, 0xa6f91c + index, dark[index]);
-    }
-    for (int color = 0; color < 6; color++)
-        WriteWord(bus, 0xa6f871 + color * 2, unchecked((ushort)(0x4400 + color)));
+    SeedCeresElevatorPlatformTransfers(bus, light, dark);
 
     var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(bus, populationPointer, tilesetPointer, vram, cgram, () => 0);
@@ -817,24 +761,15 @@ static void VerifyCeresDoorBossBranch()
         bossId: 0,
         namePointer: 0,
         fieldSeed: 0x4380);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xf6c5);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xf765);
-    WriteTestByte(bus, 0xa00000 | ((ushort)definitionPointer + 57), 2);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xf765);
+    SeedEnemyDefinitionByte(bus, definitionPointer, 57, 2);
 
-    int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, (ushort)definitionPointer);
-    WriteWord(bus, population + 2, 0x0008);
-    WriteWord(bus, population + 4, 0x007f);
-    WriteWord(bus, population + 6, 0);
     // Property $8000 makes the focused actor solid, $2000 runs its instruction list,
     // and $0800 keeps that list processing even when the synthetic actor is offscreen.
-    WriteWord(bus, population + 8, 0xA800);
-    WriteWord(bus, population + 10, 0);
-    WriteWord(bus, population + 12, 3);
-    WriteWord(bus, population + 14, 0);
-    WriteWord(bus, population + 16, 0xffff);
-    WriteTestByte(bus, population + 18, 0);
-    WriteWord(bus, 0xb40000 | tilesetPointer, 0xffff);
+    SeedRoomEnemyPopulation(bus, populationPointer, deathQuota: 0,
+        new RoomEnemyPopulationRecord(definitionPointer, new(0x0008, 0x007f), 0, 0xA800, 0, 3, 0));
+    SeedRoomEnemyGraphicsSet(bus, tilesetPointer);
 
     // Start directly at the retail Ridley-room closed-door loop. Its mechanics deliberately
     // are absent from this synthetic bus: the compiled catalog must return `$F66A`, which
@@ -924,230 +859,19 @@ static void VerifyCeresRidleyRoomEntry()
     var vram = new SnesVram();
     var cgram = new SnesCgram();
 
-    WriteEnemyDefinition(
-        bus,
-        definitionPointer,
-        tileDataSize: 0x0020,
-        palettePointer: 0xe14f,
-        bank: 0xa6,
-        tileDataAddress: 0xa69000,
-        bossId: 1,
-        namePointer: 0,
-        fieldSeed: 0x4000);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 18), 0xa0f5);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 24), 0xa288);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 8), 8);
-    WriteWord(bus, 0xa00000 | ((ushort)definitionPointer + 10), 8);
-
-    // The native post-battle path dynamically spawns Ceres-door variants five and six as
-    // the two Mode-7 chamber walls. Keep their real header/dispatch/list boundaries in this
-    // fixture so the escape audit cannot pass by changing only Ridley's logical status.
+    SeedCeresRidleyRoomEntryCartridge(bus, definitionPointer, populationPointer, tilesetPointer);
     const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
-    WriteEnemyDefinition(
-        bus,
-        ceresDoorDefinitionPointer,
-        tileDataSize: 0,
-        palettePointer: 0xf4ec,
-        bank: 0xa6,
-        tileDataAddress: 0xa69000,
-        bossId: 0,
-        namePointer: 0,
-        fieldSeed: 0x4100);
-    WriteWord(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 18), 0xf6c5);
-    WriteWord(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 24), 0xf765);
-    WriteTestByte(bus, 0xa00000 | ((ushort)ceresDoorDefinitionPointer + 57), 2);
-    WriteWord(bus, 0xa6f735, 0xf7a5);
-    WriteWord(bus, 0xa6f737, 0xf7a5);
-    WriteWord(bus, 0xa6f536, 0xf62a);
-    WriteWord(bus, 0xa6f538, 0xf634);
-    WriteWord(bus, 0xa6f62a, 0xf68b);
-    WriteWord(bus, 0xa6f62c, 1);
-    WriteWord(bus, 0xa6f62e, 0xface);
-    WriteWord(bus, 0xa6f630, 0x80ed);
-    WriteWord(bus, 0xa6f632, 0xf62c);
-    WriteWord(bus, 0xa6f634, 0xf68b);
-    WriteWord(bus, 0xa6f636, 1);
-    WriteWord(bus, 0xa6f638, 0xfb2f);
-    WriteWord(bus, 0xa6f63a, 0x80ed);
-    WriteWord(bus, 0xa6f63c, 0xf636);
 
-    // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
-    // need not depict retail art here; the regression concerns loader and AI addresses, and
-    // the real-ROM audit covers the actual encoded graphics immediately afterward.
-    WriteWord(bus, 0xb40000 | tilesetPointer, (ushort)definitionPointer);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0001);
-    WriteWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
-    for (int color = 0; color < 16; color++)
-        WriteWord(bus, 0xa6e14f + color * 2, unchecked((ushort)(0x1000 + color)));
-
-    // The Ceres population record is deliberately the retail one: ($BA,$AB), init zero,
-    // properties $2800, no extra bits, and two zero speed/parameter words.
-    int population = 0xa10000 | populationPointer;
-    WriteWord(bus, population, (ushort)definitionPointer);
-    WriteWord(bus, population + 2, 0x00ba);
-    WriteWord(bus, population + 4, 0x00ab);
-    WriteWord(bus, population + 6, 0);
-    WriteWord(bus, population + 8, 0x2800);
-    WriteWord(bus, population + 10, 0);
-    WriteWord(bus, population + 12, 0);
-    WriteWord(bus, population + 14, 0);
-    WriteWord(bus, population + 16, 0xffff);
-    WriteTestByte(bus, population + 18, 0);
-
-    // $E538 selects the left-facing initial frame and then sleeps. Supplying the literal
-    // list catches the custom $E517 branch rather than letting a generic timed frame mask it.
-    WriteWord(bus, 0xa6e538, 0xe517);
-    WriteWord(bus, 0xa6e53a, 0xe542);
-    WriteWord(bus, 0xa6e53c, 12);
-    WriteWord(bus, 0xa6e53e, 0x9000);
-    WriteWord(bus, 0xa6e540, 0x812f);
-
-    // Active extended frame: one body component sits 32 pixels right of Ridley's origin.
-    // Its 16x16 hitbox is outside the header's deliberately tiny 8x8 fallback radius,
-    // proving that projectile collision walks cartridge hitboxes instead of a host box.
-    WriteWord(bus, 0xa69000, 1);
-    WriteWord(bus, 0xa69002, 32);
-    WriteWord(bus, 0xa69004, 0);
-    WriteWord(bus, 0xa69006, 0x9200);
-    WriteWord(bus, 0xa69008, 0x9010);
-    WriteWord(bus, 0xa69010, 1);
-    WriteWord(bus, 0xa69012, unchecked((ushort)-8));
-    WriteWord(bus, 0xa69014, unchecked((ushort)-8));
-    WriteWord(bus, 0xa69016, 8);
-    WriteWord(bus, 0xa69018, 8);
-    WriteWord(bus, 0xa6901a, 0xdf59);
-    WriteWord(bus, 0xa6901c, 0xdf8a);
-    WriteWord(bus, 0xa69200, 0);
-
-    // Initial additional palettes are copied to OBJ palettes two/three. The later eye and
-    // body tables use distinct sentinels so destination/index mistakes remain observable.
-    for (int color = 0; color < 32; color++)
-        WriteWord(bus, 0xa6e16f + color * 2, unchecked((ushort)(0x2000 + color)));
-    for (int index = 0; index < 64; index++)
-        WriteTestByte(bus, 0xa6e269 + index, index < 16 ? unchecked((byte)(15 - index)) : (byte)0);
-    WriteTestByte(bus, 0xa6e2a9, 0xff);
-    for (int word = 0; word < (0xe30a - 0xe2aa) / 2; word++)
-        WriteWord(bus, 0xa6e2aa + word * 2, unchecked((ushort)(0x3000 + word)));
-    for (int word = 0; word < 0x160 / 2; word++)
-        WriteWord(bus, 0xa6e30a + word * 2, unchecked((ushort)(0x5000 + word)));
-    for (int palette = 0; palette < 3; palette++)
-    {
-        for (int color = 0; color < 14; color++)
-            WriteWord(bus, 0xa6e46a + palette * 28 + color * 2,
-                unchecked((ushort)(0x7000 + palette * 0x0100 + color)));
-    }
-
-    // The two later animation lists are the actual dispatcher seams that make reveal-only
-    // implementations fail. The compact roar list keeps its real $E4BE opcode before a
-    // single timed map, so both the roaring flag and QueueSfx2_Max6($59) cross the actual
-    // instruction dispatcher. The liftoff list retains its real $E969 instruction so AI
-    // control changes exactly as it does in the cartridge. Movement divisors are the
-    // literal $10..$01 D712 table.
-    WriteWord(bus, 0xa6e690, 0xe4be);
-    WriteWord(bus, 0xa6e692, 1);
-    WriteWord(bus, 0xa6e694, 0x9000);
-    WriteWord(bus, 0xa6e696, 0x812f);
-    WriteWord(bus, 0xa6e548, 1);
-    WriteWord(bus, 0xa6e54a, 0x9000);
-    WriteWord(bus, 0xa6e54c, 0x812f);
-    WriteWord(bus, 0xa6e91d, 0xe969);
-    WriteWord(bus, 0xa6e91f, 1);
-    WriteWord(bus, 0xa6e921, 0x9000);
-    WriteWord(bus, 0xa6e923, 0x812f);
-    for (int divisor = 0; divisor < 16; divisor++)
-        WriteTestByte(bus, 0xa6d712 + divisor, unchecked((byte)(16 - divisor)));
-
-    // The tail position solver reads the shared signed 8.8 sine table at $A0:B443.
-    // Populate the sixteen cardinal/intercardinal samples touched by the initialized
-    // $4000,$4010... tail angles; an all-zero synthetic bus would otherwise make correct
-    // polar-to-Cartesian code appear to leave every tail piece at the same coordinate.
-    (byte Angle, short Value)[] sineSamples =
-    [
-        (0x00, 0), (0x10, 98), (0x20, 181), (0x30, 237),
-        (0x40, 256), (0x50, 237), (0x60, 181), (0x70, 98),
-        (0x80, 0), (0x90, -98), (0xa0, -181), (0xb0, -237),
-        (0xc0, -256), (0xd0, -237), (0xe0, -181), (0xf0, -98),
-    ];
-    foreach ((byte angle, short value) in sineSamples)
-        WriteWord(bus, 0xa0b443 + angle * 2, unchecked((ushort)value));
-
-    // End-of-battle palette records are deliberately unmistakable. AA11 must not publish
-    // status one without A9A0 first copying all three native destination ranges.
-    for (int color = 0; color < 15; color++)
-        WriteWord(bus, 0xa6a9e3 + color * 2, unchecked((ushort)(0x6100 + color)));
-    for (int color = 0; color < 8; color++)
-        WriteWord(bus, 0xa6aa01 + color * 2, unchecked((ushort)(0x6200 + color)));
-
-    // Keep warning transfers distinguishable after the full compiled Mode-7 curve.
-    // The later assertions cover the first-list yield and second-list handoff separately.
-    WriteWord(bus, 0xa6c4cb, EscapeTimerTileAtlasFormat.FirstByteCount);
-    WriteWord(bus, 0xa6c4cd, 0xc000);
-    WriteTestByte(bus, 0xa6c4cf, 0xb0);
-    WriteWord(bus, 0xa6c4d0, EscapeTimerTileAtlasFormat.FirstDestinationWord);
-    WriteWord(bus, 0xa6c4d2, EscapeTimerTileAtlasFormat.SecondByteCount);
-    WriteWord(bus, 0xa6c4d4, 0xc200);
-    WriteTestByte(bus, 0xa6c4d6, 0xb0);
-    WriteWord(bus, 0xa6c4d7, EscapeTimerTileAtlasFormat.SecondDestinationWord);
-    WriteWord(bus, 0xa6c4d9, 0);
-    WriteWord(bus, 0xa6c4fe, 2);
-    WriteWord(bus, 0xa6c500, 0x9204);
-    WriteTestByte(bus, 0xa6c502, 0xb0);
-    WriteWord(bus, 0xa6c503, 0x7802);
-    WriteWord(bus, 0xa6c505, 2);
-    WriteWord(bus, 0xa6c507, 0x9206);
-    WriteTestByte(bus, 0xa6c509, 0xb0);
-    WriteWord(bus, 0xa6c50a, 0x7803);
-    WriteWord(bus, 0xa6c50c, 0);
-    WriteWord(bus, 0xb09200, 0x1234);
-    WriteWord(bus, 0xb09202, 0x5678);
-    WriteWord(bus, 0xb09204, 0x9abc);
-    WriteWord(bus, 0xb09206, 0xdef0);
-    WriteCeresEnglishEscapeWarning(bus);
-    WriteZebesEscapeWarning(bus);
-    for (int paletteFrame = 0; paletteFrame < 16; paletteFrame++)
-    {
-        for (int color = 0; color < 3; color++)
-            WriteWord(bus, 0xa6c1df + paletteFrame * 6 + color * 2,
-                unchecked((ushort)(0x4000 + paletteFrame * 0x10 + color)));
-    }
-
-    // One minimal power-beam data/list pair lets this regression reach Ridley's shot AI
-    // through the public producer and explosion owner, rather than mutating HitCounter.
-    WritePoseDefinition(
-        bus,
-        (int)SamusPoseId.FacingRightNormalPose,
-        [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
-    WriteWord(bus, 0x9383c1, 0x8431);
-    WriteWord(bus, 0x938431, 20);
-    WriteWord(bus, 0x938437, 0x9000); // Direction two is data-pointer word three.
-    WriteWord(bus, 0x939000, 1);
-    WriteWord(bus, 0x939002, 0x9000);
-    WriteTestByte(bus, 0x939004, 8);
-    WriteTestByte(bus, 0x939005, 8);
-    WriteWord(bus, 0x939006, 0);
-    WriteWord(bus, 0x939008, 0x8239);
-    WriteWord(bus, 0x93900a, 0x9000);
-    WriteWord(bus, 0x93867b, 0x9100);
-    WriteWord(bus, 0x939100, 1);
-    WriteWord(bus, 0x939102, 0x9000);
-    WriteTestByte(bus, 0x939104, 8);
-    WriteTestByte(bus, 0x939105, 8);
-    WriteWord(bus, 0x939106, 0);
-    WriteWord(bus, 0x939108, 0x822f);
-    WriteWord(bus, 0x90c28f, 0x000b);
-
+    (ushort[] fixturePaletteWords, byte[] fixturePlanar) = ReadCeresRidleyFixtureArtwork(bus);
     var fixturePalette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
     for (int color = 0; color < fixturePalette.Length; color++)
     {
-        ushort word = (ushort)(bus.ReadByte(0xa6e14f + color * 2) |
-            bus.ReadByte(0xa6e150 + color * 2) << 8);
+        ushort word = fixturePaletteWords[color];
         fixturePalette[color] = new PaletteRgb5
         {
             Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31,
         };
     }
-    byte[] fixturePlanar = Enumerable.Range(0, 0x20)
-        .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
     byte[] fixturePixels = SnesGraphics.DecodePlanarTiles(fixturePlanar, 4, 1,
         out Extent16<ImagePixels> fixtureSize);
     using var fixtureTilePng = new MemoryStream();
@@ -1192,10 +916,7 @@ static void VerifyCeresRidleyRoomEntry()
     using (var escapeText = new MemoryStream(
         SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus), writable: false))
         enemies.EscapeTypewriterPresentation = EscapeTypewriterPresentation.Load(escapeText);
-    for (int address = EscapeTypewriterDefinitions.CeresSourceAddress;
-         address < 0xa6c4cb;
-         address++)
-        WriteTestByte(bus, address, 0);
+    ClearCeresEscapeTypewriterSource(bus);
     bool ceresBossDefeated = false;
     ushort generatedRandom = 0x1234;
     ushort currentRandom = 0x1234;
@@ -1224,14 +945,7 @@ static void VerifyCeresRidleyRoomEntry()
     // Ridley's private `$A6:A2F2` door overlay bypasses WriteEnemyOAM and reproduces the
     // retail byte-index bug in its word table. Earthquake timer two therefore reads byte
     // $FC and displaces the door four pixels left.
-    WriteWord(bus, 0xa6a329, 1);
-    WriteWord(bus, 0xa6a32b, 0);
-    WriteTestByte(bus, 0xa6a32d, 0);
-    WriteWord(bus, 0xa6a32e, 0);
-    WriteTestByte(bus, 0xa6a321, 0x00);
-    WriteTestByte(bus, 0xa6a322, 0x00);
-    WriteTestByte(bus, 0xa6a323, 0xfc);
-    WriteTestByte(bus, 0xa6a324, 0xff);
+    SeedCeresDoorQuakeOverlay(bus);
     RoomEnemySlot overlayDoor = enemies.Slots[1];
     overlayDoor.EnemyDefinitionPointer = ceresDoorDefinitionPointer;
     overlayDoor.VariableB = 1;
@@ -1411,7 +1125,7 @@ static void VerifyCeresRidleyRoomEntry()
     bool observedFlashRidleyPalette = false;
     int nativeExplosionFrames = NativeProjectileLifetime(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")), 0x93867b) + 1;
-    WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
+    SeedUnchargedNoWavePreInstruction(bus);
     for (int hit = 0; hit < 100; hit++)
     {
         // Hold the independently read native initial frame for each isolated shot.
@@ -1646,13 +1360,14 @@ static void VerifyCeresRidleyRoomEntry()
 /// all three destination commands in the fixture catches the former phase-six-to-twelve
 /// jump, which rendered only EMERGENCY and never touched any of these tilemap rows.
 /// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres English escape typewriter program")]
 static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
 {
     int cursor = 0xa6c450;
 
     void Word(ushort value)
     {
-        WriteWord(bus, cursor, value);
+        WriteTestWord(bus, cursor, value);
         cursor += 2;
     }
 
@@ -1676,13 +1391,14 @@ static void WriteCeresEnglishEscapeWarning(TestAddressSpace bus)
     Word(0);
 }
 
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Zebes escape typewriter program")]
 static void WriteZebesEscapeWarning(TestAddressSpace bus)
 {
     int cursor = EscapeTypewriterDefinitions.ZebesSourceAddress;
 
     void Word(ushort value)
     {
-        WriteWord(bus, cursor, value);
+        WriteTestWord(bus, cursor, value);
         cursor += 2;
     }
 
@@ -1703,7 +1419,106 @@ static void WriteZebesEscapeWarning(TestAddressSpace bus)
     Word(EscapeTypewriterRomData.End);
 }
 
+/// <summary>Seeds Ripper's literal four-frame right- and left-facing bank-$A2 instruction lists.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Ripper's bank-$A2 instruction lists")]
+static void SeedRipperInstructionLists(TestAddressSpace bus, ushort[] rightList, ushort[] leftList)
+{
+    WriteTestWords(bus, 0xa2e477, rightList);
+    WriteTestWords(bus, 0xa2e48b, leftList);
+}
+
+/// <summary>Points the two bank-$93 projectile data words Ripper's shot fixture consults at $9100/$9200.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ripper shot projectile data pointers")]
+static void SeedRipperProjectileDataPointers(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x93867b, 0x9100);
+    WriteTestWord(bus, 0x93867f, 0x9200);
+}
+
+/// <summary>
+/// Seeds the Ceres elevator platform's main-function and instruction words plus the literal
+/// two one-entry transfer records at $A6:F904/$F90E. Each writes four low map bytes
+/// (<paramref name="light"/>, then <paramref name="dark"/>) to Mode-7 word $060E, alternating
+/// by NMI bit one; six distinct palette words follow at $A6:F871.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres elevator platform Mode-7 transfers")]
+static void SeedCeresElevatorPlatformTransfers(TestAddressSpace bus, byte[] light, byte[] dark)
+{
+    WriteTestWord(bus, 0xa6f72f, 0xf850);
+    WriteTestWord(bus, 0xa6f530, 0xfac7);
+    WriteTestWord(bus, 0xa6f900, 0xf904);
+    WriteTestWord(bus, 0xa6f902, 0xf90e);
+    WriteTestByte(bus, 0xa6f904, 0x80);
+    WriteTestLong(bus, 0xa6f905, 0xa6f918);
+    WriteTestWord(bus, 0xa6f908, 4);
+    WriteTestWord(bus, 0xa6f90a, 0x060e);
+    WriteTestByte(bus, 0xa6f90c, 0);
+    WriteTestByte(bus, 0xa6f90d, 0);
+    WriteTestByte(bus, 0xa6f90e, 0x80);
+    WriteTestLong(bus, 0xa6f90f, 0xa6f91c);
+    WriteTestWord(bus, 0xa6f912, 4);
+    WriteTestWord(bus, 0xa6f914, 0x060e);
+    WriteTestByte(bus, 0xa6f916, 0);
+    WriteTestByte(bus, 0xa6f917, 0);
+    for (int index = 0; index < 4; index++)
+    {
+        WriteTestByte(bus, 0xa6f918 + index, light[index]);
+        WriteTestByte(bus, 0xa6f91c + index, dark[index]);
+    }
+    for (int color = 0; color < 6; color++)
+        WriteTestWord(bus, 0xa6f871 + color * 2, unchecked((ushort)(0x4400 + color)));
+}
+
+/// <summary>Seeds the uncharged beam pre-instruction table's first entry with the no-wave pre-instruction.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the uncharged no-wave beam pre-instruction")]
+static void SeedUnchargedNoWavePreInstruction(TestAddressSpace bus) =>
+    WriteTestWord(bus, SamusBeamPreInstructionCodes.UnchargedTable, SamusBeamPreInstructionCodes.NoWave);
+
+/// <summary>
+/// Zeroes the Ceres escape typewriter's cartridge source (up to $A6:C4CB) after its presentation
+/// has been extracted, so the runtime cannot pass by reading the text from cartridge bytes.
+/// </summary>
+[CpuBusBoundary("exact bus test: clears the synthetic Ceres escape typewriter cartridge source")]
+static void ClearCeresEscapeTypewriterSource(TestAddressSpace bus)
+{
+    for (int address = EscapeTypewriterDefinitions.CeresSourceAddress;
+         address < 0xa6c4cb;
+         address++)
+        WriteTestByte(bus, address, 0);
+}
+
+/// <summary>
+/// Seeds Ridley's private `$A6:A2F2` door overlay: a one-entry spritemap at $A6:A329 and the
+/// earthquake displacement word table at $A6:A321 whose retail byte-index bug reads $FC for timer two.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres door earthquake overlay")]
+static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0xa6a329, 1);
+    WriteTestWord(bus, 0xa6a32b, 0);
+    WriteTestByte(bus, 0xa6a32d, 0);
+    WriteTestWord(bus, 0xa6a32e, 0);
+    WriteTestByte(bus, 0xa6a321, 0x00);
+    WriteTestByte(bus, 0xa6a322, 0x00);
+    WriteTestByte(bus, 0xa6a323, 0xfc);
+    WriteTestByte(bus, 0xa6a324, 0xff);
+}
+
+/// <summary>Reads back the seeded Ceres Ridley palette words ($A6:E14F) and one planar tile ($A6:9000) as installed fixture artwork.</summary>
+[CpuBusBoundary("exact bus test: reads back the synthetic cartridge's seeded Ceres Ridley palette and tile bytes")]
+static (ushort[] PaletteWords, byte[] Planar) ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
+{
+    ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
+        .Select(color => (ushort)(bus.ReadByte(0xa6e14f + color * 2) |
+            bus.ReadByte(0xa6e150 + color * 2) << 8))
+        .ToArray();
+    byte[] planar = Enumerable.Range(0, 0x20)
+        .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();
+    return (paletteWords, planar);
+}
+
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one complete bank-$A0 enemy definition header")]
 static void WriteEnemyDefinition(
     TestAddressSpace bus,
     EnemyDefinitionId definitionPointer,
@@ -1717,32 +1532,254 @@ static void WriteEnemyDefinition(
 {
     int address = 0xa00000 | (ushort)definitionPointer;
     for (int offset = 0; offset < 64; offset += 2)
-        WriteWord(bus, address + offset, unchecked((ushort)(fieldSeed + offset)));
+        WriteTestWord(bus, address + offset, unchecked((ushort)(fieldSeed + offset)));
 
-    WriteWord(bus, address, tileDataSize);
-    WriteWord(bus, address + 2, palettePointer);
+    WriteTestWord(bus, address, tileDataSize);
+    WriteTestWord(bus, address + 2, palettePointer);
     WriteTestByte(bus, address + 12, bank);
     WriteTestByte(bus, address + 13, 0x5a);
-    WriteWord(bus, address + 16, bossId);
-    WriteWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
-    WriteWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
-    WriteWord(bus, address + 26, (ushort)GrappleAiRoutine.Cancel); // Grapple AI must be a real routine.
-    WriteLong(bus, address + 54, tileDataAddress);
+    WriteTestWord(bus, address + 16, bossId);
+    WriteTestWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
+    WriteTestWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
+    WriteTestWord(bus, address + 26, (ushort)GrappleAiRoutine.Cancel); // Grapple AI must be a real routine.
+    WriteTestLong(bus, address + 54, tileDataAddress);
     WriteTestByte(bus, address + 57, 5);
-    WriteWord(bus, address + 62, namePointer);
+    WriteTestWord(bus, address + 62, namePointer);
 }
 
-static void WriteWord(TestAddressSpace bus, int address, ushort value)
-{
-    WriteTestByte(bus, address, unchecked((byte)value));
-    WriteTestByte(bus, address + 1, unchecked((byte)(value >> 8)));
-}
-
-static void WriteLong(TestAddressSpace bus, int address, int value)
+/// <summary>Writes one native little-endian 24-bit long pointer into the sparse SNES-bus fixture.</summary>
+[CpuBusAccess]
+[CpuBusBoundary("exact bus test: sparse-fixture 24-bit long-pointer seeding primitive")]
+static void WriteTestLong(TestAddressSpace bus, int address, int value)
 {
     WriteTestByte(bus, address, unchecked((byte)value));
     WriteTestByte(bus, address + 1, unchecked((byte)(value >> 8)));
     WriteTestByte(bus, address + 2, unchecked((byte)(value >> 16)));
 }
 
+
+/// <summary>
+/// Synthetic cartridge for the Ceres Ridley room entry: Ridley's and the Ceres door's headers,
+/// door dispatch lists, graphics set, palettes, the retail population record, Ridley's literal
+/// animation lists and extended hitbox frame, additional palettes, end-of-battle palettes,
+/// escape-warning transfers and text, and a minimal power-beam data/list pair.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Ceres Ridley room entry")]
+static void SeedCeresRidleyRoomEntryCartridge(
+    TestAddressSpace bus,
+    EnemyDefinitionId definitionPointer,
+    ushort populationPointer,
+    ushort tilesetPointer)
+{
+    WriteEnemyDefinition(
+        bus,
+        definitionPointer,
+        tileDataSize: 0x0020,
+        palettePointer: 0xe14f,
+        bank: 0xa6,
+        tileDataAddress: 0xa69000,
+        bossId: 1,
+        namePointer: 0,
+        fieldSeed: 0x4000);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xa0f5);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xa288);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 8, 8);
+    SeedEnemyDefinitionWord(bus, definitionPointer, 10, 8);
+
+    // The native post-battle path dynamically spawns Ceres-door variants five and six as
+    // the two Mode-7 chamber walls. Keep their real header/dispatch/list boundaries in this
+    // fixture so the escape audit cannot pass by changing only Ridley's logical status.
+    const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
+    WriteEnemyDefinition(
+        bus,
+        ceresDoorDefinitionPointer,
+        tileDataSize: 0,
+        palettePointer: 0xf4ec,
+        bank: 0xa6,
+        tileDataAddress: 0xa69000,
+        bossId: 0,
+        namePointer: 0,
+        fieldSeed: 0x4100);
+    SeedEnemyDefinitionWord(bus, ceresDoorDefinitionPointer, 18, 0xf6c5);
+    SeedEnemyDefinitionWord(bus, ceresDoorDefinitionPointer, 24, 0xf765);
+    SeedEnemyDefinitionByte(bus, ceresDoorDefinitionPointer, 57, 2);
+    WriteTestWord(bus, 0xa6f735, 0xf7a5);
+    WriteTestWord(bus, 0xa6f737, 0xf7a5);
+    WriteTestWord(bus, 0xa6f536, 0xf62a);
+    WriteTestWord(bus, 0xa6f538, 0xf634);
+    WriteTestWord(bus, 0xa6f62a, 0xf68b);
+    WriteTestWord(bus, 0xa6f62c, 1);
+    WriteTestWord(bus, 0xa6f62e, 0xface);
+    WriteTestWord(bus, 0xa6f630, 0x80ed);
+    WriteTestWord(bus, 0xa6f632, 0xf62c);
+    WriteTestWord(bus, 0xa6f634, 0xf68b);
+    WriteTestWord(bus, 0xa6f636, 1);
+    WriteTestWord(bus, 0xa6f638, 0xfb2f);
+    WriteTestWord(bus, 0xa6f63a, 0x80ed);
+    WriteTestWord(bus, 0xa6f63c, 0xf636);
+
+    // One graphics-set entry supplies Ridley's OBJ palette/tile association. The byte data
+    // need not depict retail art here; the regression concerns loader and AI addresses, and
+    // the real-ROM audit covers the actual encoded graphics immediately afterward.
+    WriteTestWord(bus, 0xb40000 | tilesetPointer, (ushort)definitionPointer);
+    WriteTestWord(bus, (0xb40000 | tilesetPointer) + 2, 0x0001);
+    WriteTestWord(bus, (0xb40000 | tilesetPointer) + 4, 0xffff);
+    for (int color = 0; color < 16; color++)
+        WriteTestWord(bus, 0xa6e14f + color * 2, unchecked((ushort)(0x1000 + color)));
+
+    // The Ceres population record is deliberately the retail one: ($BA,$AB), init zero,
+    // properties $2800, no extra bits, and two zero speed/parameter words.
+    int population = 0xa10000 | populationPointer;
+    WriteTestWord(bus, population, (ushort)definitionPointer);
+    WriteTestWord(bus, population + 2, 0x00ba);
+    WriteTestWord(bus, population + 4, 0x00ab);
+    WriteTestWord(bus, population + 6, 0);
+    WriteTestWord(bus, population + 8, 0x2800);
+    WriteTestWord(bus, population + 10, 0);
+    WriteTestWord(bus, population + 12, 0);
+    WriteTestWord(bus, population + 14, 0);
+    WriteTestWord(bus, population + 16, 0xffff);
+    WriteTestByte(bus, population + 18, 0);
+
+    // $E538 selects the left-facing initial frame and then sleeps. Supplying the literal
+    // list catches the custom $E517 branch rather than letting a generic timed frame mask it.
+    WriteTestWord(bus, 0xa6e538, 0xe517);
+    WriteTestWord(bus, 0xa6e53a, 0xe542);
+    WriteTestWord(bus, 0xa6e53c, 12);
+    WriteTestWord(bus, 0xa6e53e, 0x9000);
+    WriteTestWord(bus, 0xa6e540, 0x812f);
+
+    // Active extended frame: one body component sits 32 pixels right of Ridley's origin.
+    // Its 16x16 hitbox is outside the header's deliberately tiny 8x8 fallback radius,
+    // proving that projectile collision walks cartridge hitboxes instead of a host box.
+    WriteTestWord(bus, 0xa69000, 1);
+    WriteTestWord(bus, 0xa69002, 32);
+    WriteTestWord(bus, 0xa69004, 0);
+    WriteTestWord(bus, 0xa69006, 0x9200);
+    WriteTestWord(bus, 0xa69008, 0x9010);
+    WriteTestWord(bus, 0xa69010, 1);
+    WriteTestWord(bus, 0xa69012, unchecked((ushort)-8));
+    WriteTestWord(bus, 0xa69014, unchecked((ushort)-8));
+    WriteTestWord(bus, 0xa69016, 8);
+    WriteTestWord(bus, 0xa69018, 8);
+    WriteTestWord(bus, 0xa6901a, 0xdf59);
+    WriteTestWord(bus, 0xa6901c, 0xdf8a);
+    WriteTestWord(bus, 0xa69200, 0);
+
+    // Initial additional palettes are copied to OBJ palettes two/three. The later eye and
+    // body tables use distinct sentinels so destination/index mistakes remain observable.
+    for (int color = 0; color < 32; color++)
+        WriteTestWord(bus, 0xa6e16f + color * 2, unchecked((ushort)(0x2000 + color)));
+    for (int index = 0; index < 64; index++)
+        WriteTestByte(bus, 0xa6e269 + index, index < 16 ? unchecked((byte)(15 - index)) : (byte)0);
+    WriteTestByte(bus, 0xa6e2a9, 0xff);
+    for (int word = 0; word < (0xe30a - 0xe2aa) / 2; word++)
+        WriteTestWord(bus, 0xa6e2aa + word * 2, unchecked((ushort)(0x3000 + word)));
+    for (int word = 0; word < 0x160 / 2; word++)
+        WriteTestWord(bus, 0xa6e30a + word * 2, unchecked((ushort)(0x5000 + word)));
+    for (int palette = 0; palette < 3; palette++)
+    {
+        for (int color = 0; color < 14; color++)
+            WriteTestWord(bus, 0xa6e46a + palette * 28 + color * 2,
+                unchecked((ushort)(0x7000 + palette * 0x0100 + color)));
+    }
+
+    // The two later animation lists are the actual dispatcher seams that make reveal-only
+    // implementations fail. The compact roar list keeps its real $E4BE opcode before a
+    // single timed map, so both the roaring flag and QueueSfx2_Max6($59) cross the actual
+    // instruction dispatcher. The liftoff list retains its real $E969 instruction so AI
+    // control changes exactly as it does in the cartridge. Movement divisors are the
+    // literal $10..$01 D712 table.
+    WriteTestWord(bus, 0xa6e690, 0xe4be);
+    WriteTestWord(bus, 0xa6e692, 1);
+    WriteTestWord(bus, 0xa6e694, 0x9000);
+    WriteTestWord(bus, 0xa6e696, 0x812f);
+    WriteTestWord(bus, 0xa6e548, 1);
+    WriteTestWord(bus, 0xa6e54a, 0x9000);
+    WriteTestWord(bus, 0xa6e54c, 0x812f);
+    WriteTestWord(bus, 0xa6e91d, 0xe969);
+    WriteTestWord(bus, 0xa6e91f, 1);
+    WriteTestWord(bus, 0xa6e921, 0x9000);
+    WriteTestWord(bus, 0xa6e923, 0x812f);
+    for (int divisor = 0; divisor < 16; divisor++)
+        WriteTestByte(bus, 0xa6d712 + divisor, unchecked((byte)(16 - divisor)));
+
+    // The tail position solver reads the shared signed 8.8 sine table at $A0:B443.
+    // Populate the sixteen cardinal/intercardinal samples touched by the initialized
+    // $4000,$4010... tail angles; an all-zero synthetic bus would otherwise make correct
+    // polar-to-Cartesian code appear to leave every tail piece at the same coordinate.
+    (byte Angle, short Value)[] sineSamples =
+    [
+        (0x00, 0), (0x10, 98), (0x20, 181), (0x30, 237),
+        (0x40, 256), (0x50, 237), (0x60, 181), (0x70, 98),
+        (0x80, 0), (0x90, -98), (0xa0, -181), (0xb0, -237),
+        (0xc0, -256), (0xd0, -237), (0xe0, -181), (0xf0, -98),
+    ];
+    SeedSignedSineTable(bus, sineSamples);
+
+    // End-of-battle palette records are deliberately unmistakable. AA11 must not publish
+    // status one without A9A0 first copying all three native destination ranges.
+    for (int color = 0; color < 15; color++)
+        WriteTestWord(bus, 0xa6a9e3 + color * 2, unchecked((ushort)(0x6100 + color)));
+    for (int color = 0; color < 8; color++)
+        WriteTestWord(bus, 0xa6aa01 + color * 2, unchecked((ushort)(0x6200 + color)));
+
+    // Keep warning transfers distinguishable after the full compiled Mode-7 curve.
+    // The later assertions cover the first-list yield and second-list handoff separately.
+    WriteTestWord(bus, 0xa6c4cb, EscapeTimerTileAtlasFormat.FirstByteCount);
+    WriteTestWord(bus, 0xa6c4cd, 0xc000);
+    WriteTestByte(bus, 0xa6c4cf, 0xb0);
+    WriteTestWord(bus, 0xa6c4d0, EscapeTimerTileAtlasFormat.FirstDestinationWord);
+    WriteTestWord(bus, 0xa6c4d2, EscapeTimerTileAtlasFormat.SecondByteCount);
+    WriteTestWord(bus, 0xa6c4d4, 0xc200);
+    WriteTestByte(bus, 0xa6c4d6, 0xb0);
+    WriteTestWord(bus, 0xa6c4d7, EscapeTimerTileAtlasFormat.SecondDestinationWord);
+    WriteTestWord(bus, 0xa6c4d9, 0);
+    WriteTestWord(bus, 0xa6c4fe, 2);
+    WriteTestWord(bus, 0xa6c500, 0x9204);
+    WriteTestByte(bus, 0xa6c502, 0xb0);
+    WriteTestWord(bus, 0xa6c503, 0x7802);
+    WriteTestWord(bus, 0xa6c505, 2);
+    WriteTestWord(bus, 0xa6c507, 0x9206);
+    WriteTestByte(bus, 0xa6c509, 0xb0);
+    WriteTestWord(bus, 0xa6c50a, 0x7803);
+    WriteTestWord(bus, 0xa6c50c, 0);
+    WriteTestWord(bus, 0xb09200, 0x1234);
+    WriteTestWord(bus, 0xb09202, 0x5678);
+    WriteTestWord(bus, 0xb09204, 0x9abc);
+    WriteTestWord(bus, 0xb09206, 0xdef0);
+    WriteCeresEnglishEscapeWarning(bus);
+    WriteZebesEscapeWarning(bus);
+    for (int paletteFrame = 0; paletteFrame < 16; paletteFrame++)
+    {
+        for (int color = 0; color < 3; color++)
+            WriteTestWord(bus, 0xa6c1df + paletteFrame * 6 + color * 2,
+                unchecked((ushort)(0x4000 + paletteFrame * 0x10 + color)));
+    }
+
+    // One minimal power-beam data/list pair lets this regression reach Ridley's shot AI
+    // through the public producer and explosion owner, rather than mutating HitCounter.
+    WritePoseDefinition(
+        bus,
+        (int)SamusPoseId.FacingRightNormalPose,
+        [0x08, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00]);
+    WriteTestWord(bus, 0x9383c1, 0x8431);
+    WriteTestWord(bus, 0x938431, 20);
+    WriteTestWord(bus, 0x938437, 0x9000); // Direction two is data-pointer word three.
+    WriteTestWord(bus, 0x939000, 1);
+    WriteTestWord(bus, 0x939002, 0x9000);
+    WriteTestByte(bus, 0x939004, 8);
+    WriteTestByte(bus, 0x939005, 8);
+    WriteTestWord(bus, 0x939006, 0);
+    WriteTestWord(bus, 0x939008, 0x8239);
+    WriteTestWord(bus, 0x93900a, 0x9000);
+    WriteTestWord(bus, 0x93867b, 0x9100);
+    WriteTestWord(bus, 0x939100, 1);
+    WriteTestWord(bus, 0x939102, 0x9000);
+    WriteTestByte(bus, 0x939104, 8);
+    WriteTestByte(bus, 0x939105, 8);
+    WriteTestWord(bus, 0x939106, 0);
+    WriteTestWord(bus, 0x939108, 0x822f);
+    WriteTestWord(bus, 0x90c28f, 0x000b);
+}
 }

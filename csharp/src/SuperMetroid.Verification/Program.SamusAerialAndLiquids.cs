@@ -14,36 +14,7 @@ internal static partial class Program
 /// <summary>Aerial, Space Jump, Screw Attack, liquid, and atmosphere verification.</summary>
 static void VerifySamusAerialMovement()
 {
-    var bus = new TestAddressSpace();
-
-    // Minimal literal pose records for the verified right-facing route. Byte one is the
-    // movement dispatcher index, byte four is the signed graphics offset, and byte six is
-    // the collision radius. All values mirror the retail definitions.
-    bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
-    bus.WriteBytes(0x91b889, [0x04, 0x02, 0xff, 0x07, 0x03, 0x00, 0x13, 0x00]); // $4C
-    bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
-    bus.WriteBytes(0x91bb49, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]); // $A4
-    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
-
-    // Animation streams are byte-indexed. $4B spends one frame as a transition then FD
-    // publishes $4D. $4D's first two frames support the rising-frame hold assertion below.
-    // $A4 reaches F8 and publishes standing-right pose $01.
-    WriteTestWord(bus, 0x91b0a6, 0xc100); // pose $4B pointer
-    WriteTestWord(bus, 0x91b0a8, 0xc108); // pose $4C pointer
-    WriteTestWord(bus, 0x91b0aa, 0xc110); // pose $4D pointer
-    WriteTestWord(bus, 0x91b158, 0xc120); // pose $A4 pointer
-    WriteTestWord(bus, 0x91b012, 0xc130); // pose $01 pointer
-    bus.WriteBytes(0x91c100, [0x01, 0xfd, 0x4d]);
-    bus.WriteBytes(0x91c108, [0x01, 0xfd, 0x4e]);
-    bus.WriteBytes(0x91c110, [0x02, 0x03, 0x03, 0x03, 0x03, 0x50, 0xfe, 0x01]);
-    bus.WriteBytes(0x91c120, [0x04, 0x02, 0xf8, 0x01]);
-    bus.WriteBytes(0x91c130, [0x0a]);
-
-    // Reference words use the pinned NTSC revision; production now compiles these definitions.
-    WriteTestWord(bus, 0x909eb9, 0x0004);
-    WriteTestWord(bus, 0x909ebf, 0xe000);
-    WriteTestWord(bus, 0x909ea1, 0x1c00);
-    WriteTestWord(bus, 0x909ea7, 0x0000);
+    TestAddressSpace bus = CreateSamusAerialMovementCartridge();
 
     // Type two resolves the compiled native $9F6D entry. With no direction input the
     // movement handler still clears its tentative acceleration after the calculation.
@@ -132,12 +103,7 @@ static void VerifySamusAerialMovement()
     // Mirror the launch through the left-facing spin-jump route. This checks that mode two
     // uses the pose direction normally, and that the type-three speed entry (not running's
     // type-one entry) supplies the in-air cap/acceleration.
-    bus.WriteBytes(0x91b6f1, [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $19
-    bus.WriteBytes(0x91b6f9, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $1A
-    WriteTestWord(bus, 0x91b042, 0xc138);
-    WriteTestWord(bus, 0x91b044, 0xc140);
-    bus.WriteBytes(0x91c138, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03]);
-    bus.WriteBytes(0x91c140, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0xfe, 0x08]);
+    SeedLeftSpinJumpPoses(bus);
     var spinLeft = new SamusState
     {
         Pose = SamusPoseId.MovingLeftNormalPose,
@@ -239,21 +205,7 @@ static void VerifySamusAerialMovement()
     // Walking off a ledge is the movement-type-six entry point. $91:E8F2 selects pose $2A
     // from the old left-facing direction and command five begins with a stationary falling
     // frame before gravity produces displacement. Landing from type six uses normal $A5.
-    bus.WriteBytes(0x91b779, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]); // $2A
-    bus.WriteBytes(0x91bb51, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]); // $A5
-    bus.WriteBytes(0x91b639, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]); // $02
-    WriteTestWord(bus, 0x91b064, 0xc150);
-    WriteTestWord(bus, 0x91b15a, 0xc160);
-    WriteTestWord(bus, 0x91b014, 0xc170);
-    bus.WriteBytes(0x91c150, [0x05, 0x04, 0x04, 0xfe, 0x01, 0x06, 0x10, 0xfe, 0x01]);
-    bus.WriteBytes(0x91c160, [0x04, 0x02, 0xf8, 0x02]);
-    bus.WriteBytes(0x91c170, [0x0a]);
-    WriteTestWord(bus, 0x909f9d, 0x0000); // type-six entry at $9F55 + 6*12
-    WriteTestWord(bus, 0x909f9f, 0x1000);
-    WriteTestWord(bus, 0x909fa1, 0x0001);
-    WriteTestWord(bus, 0x909fa3, 0x0000);
-    WriteTestWord(bus, 0x909fa5, 0x0000);
-    WriteTestWord(bus, 0x909fa7, 0x1000);
+    SeedLedgeFallPosesAndTypeSixSpeed(bus);
     var fallLeft = new SamusState
     {
         Pose = SamusPoseId.FacingLeftNormalPose,
@@ -377,63 +329,7 @@ static void VerifySamusAerialMovement()
 /// </summary>
 static void VerifySamusSpaceJumpAndScrewAttack()
 {
-    var bus = new TestAddressSpace();
-
-    // All six stable spin records share movement type three and radius twelve. The generic
-    // `$19/$1A` records are transition-table outputs; the four equipment records are the
-    // actual bodies selected by `$91:F624` after that table lookup.
-    foreach ((SamusPoseId pose, byte direction) in new (SamusPoseId, byte)[]
-    {
-        (SamusPoseId.SpinJumpRightPose, 8),
-        (SamusPoseId.SpinJumpLeftPose, 4),
-        (SamusPoseId.SpaceJumpRightPose, 8),
-        (SamusPoseId.SpaceJumpLeftPose, 4),
-        (SamusPoseId.ScrewAttackRightPose, 8),
-        (SamusPoseId.ScrewAttackLeftPose, 4),
-    })
-    {
-        WritePoseDefinition(bus, (int)pose, [direction, 3, 0xff, 0xff, 0, 0, 12, 0]);
-        ushort stream = unchecked((ushort)(0xc000 + (int)pose * 0x20));
-        WriteTestWord(bus, 0x91b010 + (int)pose * 2, stream);
-        for (int frame = 0; frame < 31; frame++)
-            WriteTestByte(bus, 0x910000 | unchecked((ushort)(stream + frame)), 4);
-    }
-
-    // Running sources and spin-landing endpoints are sufficient to prove equipment
-    // substitution and Screw palette restoration without mocking pose metadata in code.
-    WritePoseDefinition(bus, (int)SamusPoseId.MovingRightNormalPose,
-        [8, 1, 0xff, 2, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseId.MovingLeftNormalPose,
-        [4, 1, 0xff, 7, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseId.SpinLandingRightPose,
-        [8, 0, 0xff, 2, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseId.SpinLandingLeftPose,
-        [4, 0, 0xff, 7, 0, 0, 21, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseId.NormalJumpGunExtendedRightPose,
-        [8, 2, 0xff, 2, 0, 0, 19, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseId.WallJumpRightPose,
-        [8, 0x14, (byte)SamusPoseId.SpinJumpRightPose, 0xff, 8, 0, 19, 0]);
-    WritePoseDefinition(bus, (int)SamusPoseId.NormalJumpAimDownLeftPose,
-        [4, 2, 0xff, 5, 0, 0, 10, 0]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpinLandingRightPose * 2, 0xc800);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpinLandingLeftPose * 2, 0xc810);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalJumpGunExtendedRightPose * 2, 0xc820);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.WallJumpRightPose * 2, 0xc828);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalJumpAimDownLeftPose * 2, 0xc830);
-    WriteTestByte(bus, 0x91c800, 4);
-    WriteTestByte(bus, 0x91c810, 4);
-    WriteTestByte(bus, 0x91c820, 4);
-    WriteTestByte(bus, 0x91c828, 4);
-    WriteTestByte(bus, 0x91c830, 4);
-
-    // Dry-air Samus_InitJump and gravity words. The type-three horizontal record is zeroed
-    // intentionally so the assertions isolate the vertical 8.8 gate from X acceleration.
-    WriteTestWord(bus, 0x909eb9, 4);
-    WriteTestWord(bus, 0x909ebf, 0xe000);
-    WriteTestWord(bus, 0x909ea1, 0x2800);
-    WriteTestWord(bus, 0x909ea7, 0);
-    for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
-        WriteTestWord(bus, 0x909f79 + byteOffset, 0);
+    TestAddressSpace bus = CreateSpaceJumpAndScrewAttackCartridge();
 
     RoomLevelData empty = CreateEmptyRoom(new(16, 16));
 
@@ -779,14 +675,13 @@ static void VerifySamusSpaceJumpAndScrewAttack()
 
     // The compiled Power Suit Screw list visits four distinct shades in the
     // native 0,1,2,3,2,1 order before wrapping to phase zero.
-    WriteTestWord(bus, 0x9b9400, 0x0111);
+    SeedSamusPaletteWord(bus, 0x9400, 0x0111);
     for (int shade = 0; shade < 4; shade++)
     {
         AssertTrue(SamusPaletteRomData.FullBodyCycles.TryScrewAttackPalettePointer(
             0, unchecked((ushort)(shade * 2)), out ushort pointer),
             $"compiled Power Screw shade {shade} exists");
-        WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer,
-            unchecked((ushort)(0x1200 + shade)));
+        SeedSamusPaletteWord(bus, pointer, unchecked((ushort)(0x1200 + shade)));
     }
 
     var suitColors = SamusSuitColorCatalog.Load(new MemoryStream(
@@ -824,26 +719,31 @@ static void VerifySamusSpaceJumpAndScrewAttack()
 /// all three ROM jump/gravity/X-table selections, Gravity Suit bypass, submerged dash
 /// behavior, and the water-specific Space Jump velocity window.
 /// </summary>
+/// <summary>Writes one word of the bank-$9B Samus palette data at <paramref name="pointer"/>.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$9B Samus palette word")]
+static void SeedSamusPaletteWord(TestAddressSpace bus, ushort pointer, ushort color) =>
+    WriteTestWord(bus, SamusPaletteRomData.Banks.Palette | pointer, color);
+
+/// <summary>
+/// Seeds the three media's standalone grapple-release speed records ($90:9F31/$9F3D/$9F49):
+/// all zero except each record's fractional deceleration word at +10.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the grapple-release speed records")]
+static void SeedGrappleReleaseSpeedRecords(TestAddressSpace bus, ushort[] grappleReleaseDeceleration)
+{
+    int[] grappleReleaseRecords = [0x909f31, 0x909f3d, 0x909f49];
+    for (int medium = 0; medium < grappleReleaseRecords.Length; medium++)
+    {
+        int address = grappleReleaseRecords[medium];
+        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+            WriteTestWord(bus, address + byteOffset, 0);
+        WriteTestWord(bus, address + 10, grappleReleaseDeceleration[medium]);
+    }
+}
+
 static void VerifySamusLiquidPhysics()
 {
-    var bus = new TestAddressSpace();
-
-    // Seed exactly the adjacent word tables read by `$90:98BC/$90:9C5B`. Distinct values
-    // make a wrong byte offset or accidental host constant immediately observable.
-    ushort[] launchWhole = [4, 1, 2];
-    ushort[] launchFraction = [0xe000, 0xc000, 0xc000];
-    ushort[] hiWhole = [6, 2, 3];
-    ushort[] hiFraction = [0, 0x8000, 0x8000];
-    ushort[] gravityFraction = [0x1c00, 0x0800, 0x0900];
-    for (int medium = 0; medium < 3; medium++)
-    {
-        WriteTestWord(bus, 0x909eb9 + medium * 2, launchWhole[medium]);
-        WriteTestWord(bus, 0x909ebf + medium * 2, launchFraction[medium]);
-        WriteTestWord(bus, 0x909ec5 + medium * 2, hiWhole[medium]);
-        WriteTestWord(bus, 0x909ecb + medium * 2, hiFraction[medium]);
-        WriteTestWord(bus, 0x909ea1 + medium * 2, gravityFraction[medium]);
-        WriteTestWord(bus, 0x909ea7 + medium * 2, 0);
-    }
+    TestAddressSpace bus = CreateSamusLiquidPhysicsCartridge();
 
     var sample = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 100)) };
     sample.Kinematics.Radius = sample.Kinematics.Radius.WithY(12); // top 88, exclusive bottom 112, occupied bottom pixel 111
@@ -1012,15 +912,8 @@ static void VerifySamusLiquidPhysics()
 
     // All three native standalone release records are identical. Mode two subtracts
     // the pinned fractional deceleration from 2.0000 regardless of the medium.
-    int[] grappleReleaseRecords = [0x909f31, 0x909f3d, 0x909f49];
     ushort[] grappleReleaseDeceleration = [0x1000, 0x1000, 0x1000];
-    for (int medium = 0; medium < grappleReleaseRecords.Length; medium++)
-    {
-        int address = grappleReleaseRecords[medium];
-        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
-            WriteTestWord(bus, address + byteOffset, 0);
-        WriteTestWord(bus, address + 10, grappleReleaseDeceleration[medium]);
-    }
+    SeedGrappleReleaseSpeedRecords(bus, grappleReleaseDeceleration);
 
     for (int medium = 0; medium < 3; medium++)
     {
@@ -1079,17 +972,7 @@ static void VerifySamusLiquidPhysics()
 
     // Give the spin routine authentic metadata plus zero horizontal records in all three
     // tables. Water's remembered medium lowers only the inclusive minimum from $0280 to $0080.
-    WritePoseDefinition(bus, (int)SamusPoseId.SpaceJumpRightPose,
-        [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpaceJumpRightPose * 2, 0xc000);
-    for (int frame = 0; frame < 32; frame++)
-        WriteTestByte(bus, 0x91c000 + frame, 4);
-    foreach (int tableBase in new[] { 0x909f55, 0x90a08d, 0x90a1dd })
-    {
-        int spinEntry = tableBase + 3 * SpeedTableEntry.ByteCount;
-        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
-            WriteTestWord(bus, spinEntry + byteOffset, 0);
-    }
+    SeedSpaceJumpSpinPoseAndZeroSpinSpeeds(bus);
     RoomLevelData empty = CreateEmptyRoom(new(16, 16));
 
     var partialWaterSpaceJump = new SamusState
@@ -1159,25 +1042,7 @@ static void VerifySamusLiquidPhysics()
 /// </summary>
 static void VerifySamusAtmosphericEffects()
 {
-    var bus = new TestAddressSpace();
-
-    // Use native running pose `$09` for the movement type and X direction used by
-    // the producer branches. Its delay metadata also lets the footstep fixture land exactly
-    // on running frame two with timer one, matching `$90:A3EE-$A401`.
-    WritePoseDefinition(bus, (int)SamusPoseId.MovingRightNormalPose,
-        [8, 1, 0xff, 0, 0, 0, 12, 0]);
-    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.MovingRightNormalPose * 2, 0xc000);
-    bus.WriteBytes(0x91c000, [1, 1, 1, 1]);
-
-    // Seed only the bank-$90 table records exercised below. Distinct attributes and timers
-    // prove the interpreter follows ROM pointers rather than a duplicated C# animation list.
-    WriteTestWord(bus, 0x908b93 + 4 * 2, 0x9000);
-    WriteTestWord(bus, 0x909000, 2);
-    WriteTestWord(bus, 0x909002, 3);
-    WriteTestWord(bus, 0x908bef + 4 * 2, 4);
-    WriteTestWord(bus, 0x908bff + 4 * 2, 0x9100);
-    WriteTestWord(bus, 0x909100, 0x2a48);
-    WriteTestWord(bus, 0x909102, 0x2a49);
+    TestAddressSpace bus = CreateSamusAtmosphericEffectsCartridge();
     var atmosphericArt = new SamusAtmosphericArtworkCatalog(
         new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount],
         [0x2a48, 0x2a49, 0, 0]);
@@ -1421,7 +1286,7 @@ static void VerifySamusAtmosphericEffects()
 
     // Crateria reads its literal inline room byte. Landing Site flag one requires exact FX
     // type `$000A`; with a dry surface it creates type-one splashes at +4/-3 and bottom-4.
-    WriteTestByte(bus, 0x91f0f3, 1);
+    SeedLandingSiteInlineRoomByte(bus);
     landing.LiquidPhysics.RoomIdentity = RoomIdentities.LandingSite;
     landing.LiquidPhysics.FxType = RoomFxType.Rain;
     landing.LiquidPhysics.FxYPosition = ushort.MaxValue;
@@ -1445,4 +1310,210 @@ static void VerifySamusAtmosphericEffects()
 // Verifies the cartridge's complete ten-way jump/fall turn selectors and the block-only
 // wall-jump route. Every expectation below is a literal bank-$90/$91 table value; the test
 // intentionally does not calculate a mirrored target from facing.
+
+/// <summary>Synthetic cartridge with the aerial route's pose records, animation streams and dry-air jump words.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus aerial movement poses and jump words")]
+static TestAddressSpace CreateSamusAerialMovementCartridge()
+{
+    var bus = new TestAddressSpace();
+
+    // Minimal literal pose records for the verified right-facing route. Byte one is the
+    // movement dispatcher index, byte four is the signed graphics offset, and byte six is
+    // the collision radius. All values mirror the retail definitions.
+    bus.WriteBytes(0x91b881, [0x08, 0x02, 0xff, 0x02, 0x03, 0x00, 0x13, 0x00]); // $4B
+    bus.WriteBytes(0x91b889, [0x04, 0x02, 0xff, 0x07, 0x03, 0x00, 0x13, 0x00]); // $4C
+    bus.WriteBytes(0x91b891, [0x08, 0x02, 0xff, 0x02, 0x08, 0x00, 0x13, 0x00]); // $4D
+    bus.WriteBytes(0x91bb49, [0x08, 0x00, 0xff, 0x02, 0x03, 0x00, 0x15, 0x00]); // $A4
+    bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]); // $01
+
+    // Animation streams are byte-indexed. $4B spends one frame as a transition then FD
+    // publishes $4D. $4D's first two frames support the rising-frame hold assertion below.
+    // $A4 reaches F8 and publishes standing-right pose $01.
+    WriteTestWord(bus, 0x91b0a6, 0xc100); // pose $4B pointer
+    WriteTestWord(bus, 0x91b0a8, 0xc108); // pose $4C pointer
+    WriteTestWord(bus, 0x91b0aa, 0xc110); // pose $4D pointer
+    WriteTestWord(bus, 0x91b158, 0xc120); // pose $A4 pointer
+    WriteTestWord(bus, 0x91b012, 0xc130); // pose $01 pointer
+    bus.WriteBytes(0x91c100, [0x01, 0xfd, 0x4d]);
+    bus.WriteBytes(0x91c108, [0x01, 0xfd, 0x4e]);
+    bus.WriteBytes(0x91c110, [0x02, 0x03, 0x03, 0x03, 0x03, 0x50, 0xfe, 0x01]);
+    bus.WriteBytes(0x91c120, [0x04, 0x02, 0xf8, 0x01]);
+    bus.WriteBytes(0x91c130, [0x0a]);
+
+    // Reference words use the pinned NTSC revision; production now compiles these definitions.
+    WriteTestWord(bus, 0x909eb9, 0x0004);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x1c00);
+    WriteTestWord(bus, 0x909ea7, 0x0000);
+    return bus;
+}
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the spin-jump $19/$1A pose records and streams")]
+static void SeedLeftSpinJumpPoses(TestAddressSpace bus)
+{
+    bus.WriteBytes(0x91b6f1, [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $19
+    bus.WriteBytes(0x91b6f9, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]); // $1A
+    WriteTestWord(bus, 0x91b042, 0xc138);
+    WriteTestWord(bus, 0x91b044, 0xc140);
+    bus.WriteBytes(0x91c138, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03]);
+    bus.WriteBytes(0x91c140, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0xfe, 0x08]);
+}
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the ledge-fall poses, streams and type-six speed entry")]
+static void SeedLedgeFallPosesAndTypeSixSpeed(TestAddressSpace bus)
+{
+    bus.WriteBytes(0x91b779, [0x04, 0x06, 0xff, 0x07, 0x08, 0x00, 0x13, 0x00]); // $2A
+    bus.WriteBytes(0x91bb51, [0x04, 0x00, 0xff, 0x07, 0x03, 0x00, 0x15, 0x00]); // $A5
+    bus.WriteBytes(0x91b639, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]); // $02
+    WriteTestWord(bus, 0x91b064, 0xc150);
+    WriteTestWord(bus, 0x91b15a, 0xc160);
+    WriteTestWord(bus, 0x91b014, 0xc170);
+    bus.WriteBytes(0x91c150, [0x05, 0x04, 0x04, 0xfe, 0x01, 0x06, 0x10, 0xfe, 0x01]);
+    bus.WriteBytes(0x91c160, [0x04, 0x02, 0xf8, 0x02]);
+    bus.WriteBytes(0x91c170, [0x0a]);
+    WriteTestWord(bus, 0x909f9d, 0x0000); // type-six entry at $9F55 + 6*12
+    WriteTestWord(bus, 0x909f9f, 0x1000);
+    WriteTestWord(bus, 0x909fa1, 0x0001);
+    WriteTestWord(bus, 0x909fa3, 0x0000);
+    WriteTestWord(bus, 0x909fa5, 0x0000);
+    WriteTestWord(bus, 0x909fa7, 0x1000);
+}
+
+/// <summary>Synthetic cartridge with the spin, running and landing pose records, their streams, and dry-air words.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Space Jump and Screw Attack poses")]
+static TestAddressSpace CreateSpaceJumpAndScrewAttackCartridge()
+{
+    var bus = new TestAddressSpace();
+
+    // All six stable spin records share movement type three and radius twelve. The generic
+    // `$19/$1A` records are transition-table outputs; the four equipment records are the
+    // actual bodies selected by `$91:F624` after that table lookup.
+    foreach ((SamusPoseId pose, byte direction) in new (SamusPoseId, byte)[]
+    {
+        (SamusPoseId.SpinJumpRightPose, 8),
+        (SamusPoseId.SpinJumpLeftPose, 4),
+        (SamusPoseId.SpaceJumpRightPose, 8),
+        (SamusPoseId.SpaceJumpLeftPose, 4),
+        (SamusPoseId.ScrewAttackRightPose, 8),
+        (SamusPoseId.ScrewAttackLeftPose, 4),
+    })
+    {
+        WritePoseDefinition(bus, (int)pose, [direction, 3, 0xff, 0xff, 0, 0, 12, 0]);
+        ushort stream = unchecked((ushort)(0xc000 + (int)pose * 0x20));
+        WriteTestWord(bus, 0x91b010 + (int)pose * 2, stream);
+        for (int frame = 0; frame < 31; frame++)
+            WriteTestByte(bus, 0x910000 | unchecked((ushort)(stream + frame)), 4);
+    }
+
+    // Running sources and spin-landing endpoints are sufficient to prove equipment
+    // substitution and Screw palette restoration without mocking pose metadata in code.
+    WritePoseDefinition(bus, (int)SamusPoseId.MovingRightNormalPose,
+        [8, 1, 0xff, 2, 0, 0, 21, 0]);
+    WritePoseDefinition(bus, (int)SamusPoseId.MovingLeftNormalPose,
+        [4, 1, 0xff, 7, 0, 0, 21, 0]);
+    WritePoseDefinition(bus, (int)SamusPoseId.SpinLandingRightPose,
+        [8, 0, 0xff, 2, 0, 0, 21, 0]);
+    WritePoseDefinition(bus, (int)SamusPoseId.SpinLandingLeftPose,
+        [4, 0, 0xff, 7, 0, 0, 21, 0]);
+    WritePoseDefinition(bus, (int)SamusPoseId.NormalJumpGunExtendedRightPose,
+        [8, 2, 0xff, 2, 0, 0, 19, 0]);
+    WritePoseDefinition(bus, (int)SamusPoseId.WallJumpRightPose,
+        [8, 0x14, (byte)SamusPoseId.SpinJumpRightPose, 0xff, 8, 0, 19, 0]);
+    WritePoseDefinition(bus, (int)SamusPoseId.NormalJumpAimDownLeftPose,
+        [4, 2, 0xff, 5, 0, 0, 10, 0]);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpinLandingRightPose * 2, 0xc800);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpinLandingLeftPose * 2, 0xc810);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalJumpGunExtendedRightPose * 2, 0xc820);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.WallJumpRightPose * 2, 0xc828);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.NormalJumpAimDownLeftPose * 2, 0xc830);
+    WriteTestByte(bus, 0x91c800, 4);
+    WriteTestByte(bus, 0x91c810, 4);
+    WriteTestByte(bus, 0x91c820, 4);
+    WriteTestByte(bus, 0x91c828, 4);
+    WriteTestByte(bus, 0x91c830, 4);
+
+    // Dry-air Samus_InitJump and gravity words. The type-three horizontal record is zeroed
+    // intentionally so the assertions isolate the vertical 8.8 gate from X acceleration.
+    WriteTestWord(bus, 0x909eb9, 4);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0);
+    for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+        WriteTestWord(bus, 0x909f79 + byteOffset, 0);
+    return bus;
+}
+
+/// <summary>Synthetic cartridge with the three media's adjacent jump/gravity word tables read by `$90:98BC/$90:9C5B`.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus liquid jump and gravity tables")]
+static TestAddressSpace CreateSamusLiquidPhysicsCartridge()
+{
+    var bus = new TestAddressSpace();
+
+    // Seed exactly the adjacent word tables read by `$90:98BC/$90:9C5B`. Distinct values
+    // make a wrong byte offset or accidental host constant immediately observable.
+    ushort[] launchWhole = [4, 1, 2];
+    ushort[] launchFraction = [0xe000, 0xc000, 0xc000];
+    ushort[] hiWhole = [6, 2, 3];
+    ushort[] hiFraction = [0, 0x8000, 0x8000];
+    ushort[] gravityFraction = [0x1c00, 0x0800, 0x0900];
+    for (int medium = 0; medium < 3; medium++)
+    {
+        WriteTestWord(bus, 0x909eb9 + medium * 2, launchWhole[medium]);
+        WriteTestWord(bus, 0x909ebf + medium * 2, launchFraction[medium]);
+        WriteTestWord(bus, 0x909ec5 + medium * 2, hiWhole[medium]);
+        WriteTestWord(bus, 0x909ecb + medium * 2, hiFraction[medium]);
+        WriteTestWord(bus, 0x909ea1 + medium * 2, gravityFraction[medium]);
+        WriteTestWord(bus, 0x909ea7 + medium * 2, 0);
+    }
+    return bus;
+}
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Space Jump spin pose and zeroed spin speed records")]
+static void SeedSpaceJumpSpinPoseAndZeroSpinSpeeds(TestAddressSpace bus)
+{
+    WritePoseDefinition(bus, (int)SamusPoseId.SpaceJumpRightPose,
+        [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.SpaceJumpRightPose * 2, 0xc000);
+    for (int frame = 0; frame < 32; frame++)
+        WriteTestByte(bus, 0x91c000 + frame, 4);
+    foreach (int tableBase in new[] { 0x909f55, 0x90a08d, 0x90a1dd })
+    {
+        int spinEntry = tableBase + 3 * SpeedTableEntry.ByteCount;
+        for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
+            WriteTestWord(bus, spinEntry + byteOffset, 0);
+    }
+}
+
+/// <summary>Synthetic cartridge with running pose $09 and the bank-$90 atmospheric records exercised by the effects test.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for Samus atmospheric effects")]
+static TestAddressSpace CreateSamusAtmosphericEffectsCartridge()
+{
+    var bus = new TestAddressSpace();
+
+    // Use native running pose `$09` for the movement type and X direction used by
+    // the producer branches. Its delay metadata also lets the footstep fixture land exactly
+    // on running frame two with timer one, matching `$90:A3EE-$A401`.
+    WritePoseDefinition(bus, (int)SamusPoseId.MovingRightNormalPose,
+        [8, 1, 0xff, 0, 0, 0, 12, 0]);
+    WriteTestWord(bus, 0x91b010 + (int)SamusPoseId.MovingRightNormalPose * 2, 0xc000);
+    bus.WriteBytes(0x91c000, [1, 1, 1, 1]);
+
+    // Seed only the bank-$90 table records exercised below. Distinct attributes and timers
+    // prove the interpreter follows ROM pointers rather than a duplicated C# animation list.
+    WriteTestWord(bus, 0x908b93 + 4 * 2, 0x9000);
+    WriteTestWord(bus, 0x909000, 2);
+    WriteTestWord(bus, 0x909002, 3);
+    WriteTestWord(bus, 0x908bef + 4 * 2, 4);
+    WriteTestWord(bus, 0x908bff + 4 * 2, 0x9100);
+    WriteTestWord(bus, 0x909100, 0x2a48);
+    WriteTestWord(bus, 0x909102, 0x2a49);
+    return bus;
+}
+
+/// <summary>Crateria's literal inline Landing Site flag byte at $91:F0F3.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Landing Site inline room flag")]
+static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
+{
+    WriteTestByte(bus, 0x91f0f3, 1);
+}
 }

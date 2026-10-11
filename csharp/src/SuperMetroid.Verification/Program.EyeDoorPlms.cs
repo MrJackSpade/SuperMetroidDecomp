@@ -22,7 +22,7 @@ internal static partial class Program
     private static void VerifyEyeDoorEnemyProjectiles()
     {
         var bus = new TestAddressSpace();
-        bus.WriteBytes(0xa19600, [0xff, 0xff]);
+        SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         RoomLevelData level = CreateRoom(new(16, 16),
             new ushort[16 * 16],
             new byte[16 * 16],
@@ -246,17 +246,17 @@ internal static partial class Program
             convertInstruction = (ushort)RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft;
         }
 
-        bus.WriteBytes(0x8f9000, [
+        SeedRoomPlmPopulation(bus, 0x9000, [
             unchecked((byte)eyeHeader), unchecked((byte)(eyeHeader >> 8)), 7, 4, 5, 0,
             unchecked((byte)doorHeader), unchecked((byte)(doorHeader >> 8)), 7, 6, 5, 0,
             unchecked((byte)bottomHeader), unchecked((byte)(bottomHeader >> 8)), 7, 8, 5, 0,
             0, 0,
         ]);
-        WriteWord(bus, 0x840000 | eyeHeader + 2, 0x0400);
-        WriteWord(bus, 0x840000 | doorHeader + 2, 0x0500);
-        WriteWord(bus, 0x840000 | bottomHeader + 2, 0x0600);
+        SeedPlmProgramWords(bus, unchecked((ushort)(eyeHeader + 2)), 0x0400);
+        SeedPlmProgramWords(bus, unchecked((ushort)(doorHeader + 2)), 0x0500);
+        SeedPlmProgramWords(bus, unchecked((ushort)(bottomHeader + 2)), 0x0600);
 
-        bus.WriteBytes(0x840400, [
+        SeedPlmProgramBytes(bus, 0x0400, [
             0x72, 0x8a, 0x80, 0x04,
             0x24, 0x8a, 0x40, 0x04,
             0xc1, 0x86, 0x50, 0xbd,
@@ -267,12 +267,12 @@ internal static partial class Program
             0x01, 0x00, 0x00, 0xf0,
             0xb4, 0x86,
         ]);
-        bus.WriteBytes(0x840440, [
+        SeedPlmProgramBytes(bus, 0x0440, [
             0x91, 0x8a, 0x03, 0x80, 0x04,
             0x24, 0x87, 0x00, 0x04,
         ]);
-        WriteWord(bus, 0x840480, convertInstruction);
-        WriteWord(bus, 0x840482, (ushort)RoomPlmInstruction.Delete);
+        SeedPlmProgramWords(bus, 0x0480, convertInstruction);
+        SeedPlmProgramWords(bus, 0x0482, (ushort)RoomPlmInstruction.Delete);
 
         SeedPassiveEyeDoorList(bus, 0x0500, 0x0540, 0xf010);
         SeedPassiveEyeDoorList(bus, 0x0600, 0x0640, 0xf020);
@@ -281,6 +281,7 @@ internal static partial class Program
         WriteOneBlockDraw(bus, 0xf020, 0x8003);
     }
 
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one passive eye-door instruction list")]
     private static void SeedPassiveEyeDoorList(
         TestAddressSpace bus,
         ushort list,
@@ -295,7 +296,7 @@ internal static partial class Program
             0x01, 0x00, unchecked((byte)draw), unchecked((byte)(draw >> 8)),
             0xb4, 0x86,
         ]);
-        WriteWord(bus, 0x840000 | openedTarget, (ushort)RoomPlmInstruction.Delete);
+        SeedPlmProgramWords(bus, openedTarget, (ushort)RoomPlmInstruction.Delete);
     }
 
     private static void StepEyeDoorPlms(

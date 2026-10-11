@@ -22,7 +22,7 @@ internal static partial class Program
         const byte blockY = 2;
         const int roomWidth = 16;
         const int blockIndex = blockY * roomWidth + blockX;
-        bus.WriteBytes(0x8f0000 | populationPointer, [
+        SeedRoomPlmPopulation(bus, populationPointer, [
             0x0c, 0xd7, blockX, blockY, 0x00, 0x00,
             0x00, 0x00,
         ]);
@@ -248,7 +248,7 @@ internal static partial class Program
         int blockIndex,
         IReadOnlyList<NoobTubeProjectileRequest> requests)
     {
-        bus.WriteBytes(0xa19600, [0xff, 0xff]);
+        SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
         enemies.Load(
             bus,
@@ -401,6 +401,7 @@ internal static partial class Program
             controllerNewInput);
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Noob Tube PLM header, instruction list and crack projectile")]
     private static void SeedNoobTubeRom(TestAddressSpace bus)
     {
         // Three seven-word enemy-projectile definitions. Their lists do not need draw data
@@ -413,44 +414,44 @@ internal static partial class Program
             0x74, 0xd7, 0xfb, 0x84, 0x52, 0xd6, 0x00, 0x00,
             0x00, 0x30, 0x00, 0x00, 0xfc, 0x84,
         ]);
-        WriteWord(bus, 0x84d70e, RoomPlmInstructionLists.NoobTube);
-        WriteWord(bus, 0x84d4d4, (ushort)RoomPlmInstruction.GotoIfEventSet);
-        WriteWord(bus, 0x84d4d6, (ushort)NoobTubePlmRomData.BrokenEvent);
-        WriteWord(bus, 0x84d4d8, 0xd521);
-        WriteWord(bus, 0x84d4da, (ushort)RoomPlmInstruction.LinkInstruction);
-        WriteWord(bus, 0x84d4dc, 0xd4e8);
-        WriteWord(bus, 0x84d4de, (ushort)RoomPlmInstruction.InstallPreInstruction);
-        WriteWord(bus, 0x84d4e0, (ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb);
-        WriteWord(bus, 0x84d4e2, 1);
-        WriteWord(bus, 0x84d4e4, 0x98d1);
-        WriteWord(bus, 0x84d4e6, (ushort)RoomPlmInstruction.Sleep);
-        WriteWord(bus, 0x84d4e8, (ushort)RoomPlmInstruction.LinkInstruction);
-        WriteWord(bus, 0x84d4ea, 0xd4f2);
-        WriteWord(bus, 0x84d4ec, (ushort)RoomPlmInstruction.InstallPreInstruction);
-        WriteWord(bus, 0x84d4ee, (ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput);
-        WriteWord(bus, 0x84d4f0, (ushort)RoomPlmInstruction.Sleep);
-        WriteWord(bus, 0x84d4f2, (ushort)RoomPlmInstruction.ClearPreInstruction);
-        WriteWord(bus, 0x84d4f4, (ushort)RoomPlmInstruction.LockSamus);
-        WriteWord(bus, 0x84d4f6, (ushort)RoomPlmInstruction.SpawnNoobTubeCrack);
-        WriteWord(bus, 0x84d4f8, 0x0030);
-        WriteWord(bus, 0x84d4fa, 0x98d7);
-        WriteWord(bus, 0x84d4fc, 1);
-        WriteWord(bus, 0x84d4fe, 0x9991);
-        WriteWord(bus, 0x84d500, 1);
-        WriteWord(bus, 0x84d502, 0x99e5);
-        WriteWord(bus, 0x84d504, (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6);
-        bus.WriteBytes(0x84d506, [NoobTubePlmRomData.BreakSound]);
-        WriteWord(bus, 0x84d507, (ushort)RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles);
-        WriteWord(bus, 0x84d509, (ushort)RoomPlmInstruction.TriggerNoobTubeEarthquake);
-        WriteWord(bus, 0x84d50b, 0x0060);
-        WriteWord(bus, 0x84d50d, 0x98dd);
-        WriteWord(bus, 0x84d50f, (ushort)RoomPlmInstruction.SetEvent);
-        WriteWord(bus, 0x84d511, (ushort)NoobTubePlmRomData.BrokenEvent);
-        WriteWord(bus, 0x84d513, (ushort)RoomPlmInstruction.EnableNoobTubeWaterPhysics);
-        WriteWord(bus, 0x84d515, (ushort)RoomPlmInstruction.UnlockSamus);
-        WriteWord(bus, 0x84d517, (ushort)RoomPlmInstruction.Delete);
-        WriteWord(bus, 0x84d521, (ushort)RoomPlmInstruction.EnableNoobTubeWaterPhysics);
-        WriteWord(bus, 0x84d523, (ushort)RoomPlmInstruction.Delete);
+        SeedPlmProgramWords(bus, 0xd70e, RoomPlmInstructionLists.NoobTube);
+        SeedPlmProgramWords(bus, 0xd4d4, (ushort)RoomPlmInstruction.GotoIfEventSet);
+        SeedPlmProgramWords(bus, 0xd4d6, (ushort)NoobTubePlmRomData.BrokenEvent);
+        SeedPlmProgramWords(bus, 0xd4d8, 0xd521);
+        SeedPlmProgramWords(bus, 0xd4da, (ushort)RoomPlmInstruction.LinkInstruction);
+        SeedPlmProgramWords(bus, 0xd4dc, 0xd4e8);
+        SeedPlmProgramWords(bus, 0xd4de, (ushort)RoomPlmInstruction.InstallPreInstruction);
+        SeedPlmProgramWords(bus, 0xd4e0, (ushort)NoobTubePlmPreInstruction.WakeOnPowerBomb);
+        SeedPlmProgramWords(bus, 0xd4e2, 1);
+        SeedPlmProgramWords(bus, 0xd4e4, 0x98d1);
+        SeedPlmProgramWords(bus, 0xd4e6, (ushort)RoomPlmInstruction.Sleep);
+        SeedPlmProgramWords(bus, 0xd4e8, (ushort)RoomPlmInstruction.LinkInstruction);
+        SeedPlmProgramWords(bus, 0xd4ea, 0xd4f2);
+        SeedPlmProgramWords(bus, 0xd4ec, (ushort)RoomPlmInstruction.InstallPreInstruction);
+        SeedPlmProgramWords(bus, 0xd4ee, (ushort)NoobTubePlmPreInstruction.WakeOnAcceptedInput);
+        SeedPlmProgramWords(bus, 0xd4f0, (ushort)RoomPlmInstruction.Sleep);
+        SeedPlmProgramWords(bus, 0xd4f2, (ushort)RoomPlmInstruction.ClearPreInstruction);
+        SeedPlmProgramWords(bus, 0xd4f4, (ushort)RoomPlmInstruction.LockSamus);
+        SeedPlmProgramWords(bus, 0xd4f6, (ushort)RoomPlmInstruction.SpawnNoobTubeCrack);
+        SeedPlmProgramWords(bus, 0xd4f8, 0x0030);
+        SeedPlmProgramWords(bus, 0xd4fa, 0x98d7);
+        SeedPlmProgramWords(bus, 0xd4fc, 1);
+        SeedPlmProgramWords(bus, 0xd4fe, 0x9991);
+        SeedPlmProgramWords(bus, 0xd500, 1);
+        SeedPlmProgramWords(bus, 0xd502, 0x99e5);
+        SeedPlmProgramWords(bus, 0xd504, (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6);
+        SeedPlmProgramBytes(bus, 0xd506, [NoobTubePlmRomData.BreakSound]);
+        SeedPlmProgramWords(bus, 0xd507, (ushort)RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles);
+        SeedPlmProgramWords(bus, 0xd509, (ushort)RoomPlmInstruction.TriggerNoobTubeEarthquake);
+        SeedPlmProgramWords(bus, 0xd50b, 0x0060);
+        SeedPlmProgramWords(bus, 0xd50d, 0x98dd);
+        SeedPlmProgramWords(bus, 0xd50f, (ushort)RoomPlmInstruction.SetEvent);
+        SeedPlmProgramWords(bus, 0xd511, (ushort)NoobTubePlmRomData.BrokenEvent);
+        SeedPlmProgramWords(bus, 0xd513, (ushort)RoomPlmInstruction.EnableNoobTubeWaterPhysics);
+        SeedPlmProgramWords(bus, 0xd515, (ushort)RoomPlmInstruction.UnlockSamus);
+        SeedPlmProgramWords(bus, 0xd517, (ushort)RoomPlmInstruction.Delete);
+        SeedPlmProgramWords(bus, 0xd521, (ushort)RoomPlmInstruction.EnableNoobTubeWaterPhysics);
+        SeedPlmProgramWords(bus, 0xd523, (ushort)RoomPlmInstruction.Delete);
 
         WriteOneBlockDraw(bus, 0x98d1,
             unchecked((ushort)(((ushort)RoomCollisionType.ShootableBlock << 12) | 0x0001)));

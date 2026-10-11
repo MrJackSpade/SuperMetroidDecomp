@@ -499,7 +499,7 @@ static void VerifyFrameRuntime()
         "idempotent loan reconciliation preserves ammunition collected during the frame");
 
     var bus = new TestAddressSpace();
-    bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
+    SeedRuntimeNmiDmaSource(bus);
     var runtime = CreateRetailRuntimeFixture(bus);
     runtime.VramWrites.Enqueue(2, 0x7e1234, 0x0020);
     runtime.EscapeTimer.RequestCeresStart();
@@ -646,11 +646,7 @@ static void VerifyOamSpritemapPacking()
 
     // Two entries at $80:8000. Entry 0 is large, +5 X, -2 Y. Entry 1 is small,
     // -16 X, +32 Y. Attribute palettes are intentionally replaced by caller palette 5.
-    bus.WriteBytes(0x808000, [
-        0x02, 0x00,
-        0x05, 0x80, 0xfe, 0xaa, 0x64,
-        0xf0, 0x01, 0x20, 0x55, 0x21,
-    ]);
+    SeedTwoEntryCommonSpritemap(bus);
 
     oam.BeginFrame();
     DrawImportedSpritemap(bus, oam, 0x808000, origin: new(0x00fe, 0x0001), paletteBits: 0x0a00);
@@ -681,7 +677,7 @@ static void VerifyOamSpritemapPacking()
     AssertEqual(first, displayedOam.GetEntry(0), "NMI OAM copy retains split low/high record");
 
     // A positive Y offset reaching $E0 takes the explicit X=$180/Y=$E0 hide path.
-    bus.WriteBytes(0x808100, [0x01, 0x00, 0x00, 0x00, 0x20, 0x01, 0x00]);
+    SeedVerticallyClippedCommonSpritemap(bus);
     oam.BeginFrame();
     DrawImportedSpritemap(bus, oam, 0x808100, origin: new(0, 0x00c0), paletteBits: 0);
     OamEntry clipped = oam.GetEntry(0);
@@ -692,11 +688,7 @@ static void VerifyOamSpritemapPacking()
     // The first entry is large/+5 X/-2 Y; the second is small/-16 X/+2 Y. Source
     // attribute `$21FE + $04` deliberately carries from tile number into the high byte,
     // proving that the native routine uses ADC before ORing graphics-index palette bits.
-    bus.WriteBytes(0x8d9800, [
-        0x02, 0x00,
-        0x05, 0x80, 0xfe, 0x0f, 0x20,
-        0xf0, 0x01, 0x02, 0xfe, 0x21,
-    ]);
+    SeedTwoEntryEnemyProjectileSpritemap(bus);
     oam.BeginFrame();
     DrawImportedEnemyProjectileSpritemap(
         bus, oam,
@@ -736,11 +728,7 @@ static void VerifyOamSpritemapPacking()
     // performed, and the graphics-set tile base is added to the complete attribute word
     // before the selected OBJ palette is ORed. The second entry crosses tile $1FF so its
     // carry into priority is observable rather than masked away by this fixture.
-    bus.WriteBytes(0xa29000, [
-        0x02, 0x00,
-        0x05, 0x80, 0xfe, 0x10, 0x20,
-        0xf0, 0x01, 0x02, 0xfe, 0x21,
-    ]);
+    SeedTwoEntryRoomEnemySpritemap(bus);
     oam.BeginFrame();
     DrawImportedEnemySpritemap(
         bus, oam,
@@ -803,4 +791,47 @@ static void VerifyOamSpritemapPacking()
 
 // Fixes the first Samus slice to the retail pose-$01 pointer chain and independently
 // checks palette placement, split tile DMA, position math, and native OAM attributes.
+
+/// <summary>Places the two bytes the runtime's queued NMI VRAM DMA reads from the $7E:1234 A-bus source.</summary>
+[CpuBusBoundary("exact bus test: WRAM A-bus source bytes for the runtime NMI VRAM DMA drain")]
+static void SeedRuntimeNmiDmaSource(TestAddressSpace bus)
+{
+    bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
+}
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry common spritemap at $80:8000")]
+static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
+{
+    bus.WriteBytes(0x808000, [
+        0x02, 0x00,
+        0x05, 0x80, 0xfe, 0xaa, 0x64,
+        0xf0, 0x01, 0x20, 0x55, 0x21,
+    ]);
+}
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the vertically clipped common spritemap at $80:8100")]
+static void SeedVerticallyClippedCommonSpritemap(TestAddressSpace bus)
+{
+    bus.WriteBytes(0x808100, [0x01, 0x00, 0x00, 0x00, 0x20, 0x01, 0x00]);
+}
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry enemy-projectile spritemap at $8D:9800")]
+static void SeedTwoEntryEnemyProjectileSpritemap(TestAddressSpace bus)
+{
+    bus.WriteBytes(0x8d9800, [
+        0x02, 0x00,
+        0x05, 0x80, 0xfe, 0x0f, 0x20,
+        0xf0, 0x01, 0x02, 0xfe, 0x21,
+    ]);
+}
+
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry room-enemy spritemap at $A2:9000")]
+static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
+{
+    bus.WriteBytes(0xa29000, [
+        0x02, 0x00,
+        0x05, 0x80, 0xfe, 0x10, 0x20,
+        0xf0, 0x01, 0x02, 0xfe, 0x21,
+    ]);
+}
 }

@@ -114,7 +114,7 @@ internal static partial class Program
 
         // The production room loader consumes this request after Enemies.Load has cleared
         // the shared projectile pool. Recreate that exact boundary and inspect initializer E.
-        bus.WriteBytes(0xa19600, [0xff, 0xff]);
+        SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
         enemies.Load(
             bus,
@@ -256,7 +256,7 @@ internal static partial class Program
             new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.DownwardGateShotBlock),
                 new(gateX, gateY), argument),
         ]);
-        WriteWord(bus, 0x84aae3, (ushort)RoomPlmInstruction.Delete);
+        SeedPlmDeleteList(bus);
         SeedDownwardGateProjectileRom(bus);
 
         var blockDefinitions = new byte[0x400 * 8];
@@ -307,6 +307,7 @@ internal static partial class Program
             enemyDeathQuota: 0,
             controllerNewInput: 0);
 
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the downward-gate enemy projectile definitions and list")]
     private static void SeedDownwardGateProjectileRom(TestAddressSpace bus)
     {
         // Both exact fourteen-byte definitions share the same inert initial preinstruction.

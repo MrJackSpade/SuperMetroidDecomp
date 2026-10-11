@@ -29,11 +29,9 @@ internal static partial class Program
             "elevator visual catalog copies author data");
         (ushort physical, ushort rendered) Render(RoomPlmElevatorPlatformVisualCatalog visuals)
         {
-            var bus = new TestAddressSpace();
             const ushort population = 0x9400;
-            bus.WriteBytes(0x8f0000 | population,
-                [0x0b, 0xb7, 0x0c, 0x08, 0x00, 0x00, 0x00, 0x00]);
-            WriteWord(bus, 0x84b70d, ElevatorPlatformPlmDefinitions.InstructionLoop);
+            var bus = new TestAddressSpace();
+            SeedSoleElevatorPlatformPlm(bus, population, new(0x0c, 0x08), ElevatorPlatformPlmDefinitions.InstructionLoop);
             var definitions = new byte[0x400 * 8];
             for (int tile = 0; tile < 4; tile++)
             {

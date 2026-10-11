@@ -11,15 +11,9 @@ internal static partial class Program
         samus.Position = samus.Position.WithWhole(new(220, 180));
         var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = RepositoryInstallation.EnemyTiles;
-        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        foreach (int bank in new[] { 0x860000, 0x8d0000 })
-        {
-            var data = new byte[0x8000];
-            for (int i = 0; i < data.Length; i++) data[i] = GrappleEnemyDeathRomByte(retail, bank + 0x8000 + i);
-            fixture.Bus.WriteBytes(bank + 0x8000, data);
-        }
+        SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
         const ushort header = 0x9000;
-        WriteWord(fixture.Bus, 0xa00000 | header | 58, NativeDropChancePointer);
+        SeedEnemyDropChancePointer(fixture.Bus, header);
         var enemy = fixture.System.Slots[0];
         enemy.EnemyDefinitionPointer = (EnemyDefinitionId)header;
         enemy.Definition = default(RoomEnemyDefinition) with
@@ -71,6 +65,19 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple enemy death")]
     private static byte GrappleEnemyDeathRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>Copies the retail enemy-projectile ($86) and sprite-map ($8D) banks into the synthetic cartridge.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture copying retail banks $86 and $8D for grapple enemy death")]
+    private static void SeedGrappleEnemyDeathRetailBanks(TestAddressSpace bus)
+    {
+        var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        foreach (int bank in new[] { 0x860000, 0x8d0000 })
+        {
+            var data = new byte[0x8000];
+            for (int i = 0; i < data.Length; i++) data[i] = GrappleEnemyDeathRomByte(retail, bank + 0x8000 + i);
+            bus.WriteBytes(bank + 0x8000, data);
+        }
+    }
 
     private static void VerifyGrappleDeathCleanupOrdinaryPoses()
     {

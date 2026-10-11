@@ -22,12 +22,7 @@ internal static partial class Program
         Suite(nameof(VerifyFileSelectRoomMapGraphics), () => VerifyFileSelectRoomMapGraphics());
         Suite(nameof(VerifyFileSelectMapWindowComposition), () => VerifyFileSelectMapWindowComposition());
         Suite(nameof(VerifyFileSelectMapEntry), () => VerifyFileSelectMapEntry());
-        var fake = new TestAddressSpace();
-        WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 1);
-        // The lower-bound clamp must preserve .C000, or frame two will still
-        // report pixel one instead of pixel two. No rendering endpoint can hide it.
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities, 0xc000);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 8, 0xc000);
+        TestAddressSpace fake = CreateFractionalMapWindowCartridge();
         var fractional = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(1, 1)));
         // This arithmetic fixture starts below the authored label domain to exercise the lower clamp.
         var edges = (uint[])typeof(FileSelectMapWindow).GetField("edges", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(fractional)!;
@@ -73,14 +68,7 @@ internal static partial class Program
 
     private static void VerifyFileSelectMapWindowComposition()
     {
-        var fake = new TestAddressSpace();
-        WriteTestWord(fake, FileSelectMapRomData.LabelPositions, 40);
-        WriteTestWord(fake, FileSelectMapRomData.LabelPositions + 2, 30);
-        WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 2);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 2, 0xffff);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 6, 1);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 10, 0xffff);
-        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 14, 1);
+        TestAddressSpace fake = CreateComposedMapWindowCartridge();
         var window = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
         Rgba32 areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
         Rgba32[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
@@ -159,4 +147,32 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select area map graphics")]
     private static byte FileSelectAreaMapGraphicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    /// <summary>Synthetic cartridge with a one-frame map-window timer and .C000 edge velocities.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for fractional file-select map-window motion")]
+    private static TestAddressSpace CreateFractionalMapWindowCartridge()
+    {
+        var fake = new TestAddressSpace();
+        WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 1);
+        // The lower-bound clamp must preserve .C000, or frame two will still
+        // report pixel one instead of pixel two. No rendering endpoint can hide it.
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities, 0xc000);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 8, 0xc000);
+        return fake;
+    }
+
+    /// <summary>Synthetic cartridge with a label at (40, 30), a two-frame timer and one-pixel edge velocities.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for file-select map-window composition")]
+    private static TestAddressSpace CreateComposedMapWindowCartridge()
+    {
+        var fake = new TestAddressSpace();
+        WriteTestWord(fake, FileSelectMapRomData.LabelPositions, 40);
+        WriteTestWord(fake, FileSelectMapRomData.LabelPositions + 2, 30);
+        WriteTestWord(fake, FileSelectMapRomData.WindowTimers, 2);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 2, 0xffff);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 6, 1);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 10, 0xffff);
+        WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 14, 1);
+        return fake;
+    }
 }

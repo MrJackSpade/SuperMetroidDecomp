@@ -26,7 +26,12 @@ internal static partial class Program
                 $"Falling Spark mechanics word $86:{definition.Address:X4}");
         }
 
-        var guard = new FallingSparkInstructionReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Falling Spark mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                FallingSparkInstructionProgramDefinitions.PresentationWordCount,
+                FallingSparkInstructionProgramDefinitions.PresentationWordAddress);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!.SetValue(
@@ -105,7 +110,7 @@ internal static partial class Program
                 observedOperands.Contains(address),
                 $"production execution selects Falling Spark presentation $86:{address:X4}");
         }
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Falling Spark presentation does not read cartridge bytes");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Falling Spark mechanics byte");
@@ -150,45 +155,4 @@ internal static partial class Program
             source.ReadByte(
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
-
-    private sealed class FallingSparkInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Falling Spark mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < FallingSparkInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = FallingSparkInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

@@ -68,7 +68,12 @@ internal static partial class Program
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var executedOperands = new HashSet<ushort>();
-        var guard = new EtecoonInstructionReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(EtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Etecoon mechanics byte ${address:X6}.")
+            .ObserveWords(0xa70000,
+                EtecoonInstructionProgramDefinitions.PresentationWordCount,
+                EtecoonInstructionProgramDefinitions.PresentationWordAddress);
         foreach (var program in programs)
         {
             var enemies = new RoomEnemySystem();
@@ -99,7 +104,7 @@ internal static partial class Program
         for (int operandIndex = 0; operandIndex < EtecoonInstructionProgramDefinitions.PresentationWordCount; operandIndex++)
             AssertTrue(executedOperands.Contains(EtecoonInstructionProgramDefinitions.PresentationWordAddress(operandIndex)),
                 "execution covers each authored presentation operand");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production execution avoids every compiled Etecoon mechanics byte");
@@ -165,43 +170,4 @@ internal static partial class Program
         unchecked((ushort)(
             source.ReadByte(0xa70000 | address) |
             source.ReadByte(0xa70000 | unchecked((ushort)(address + 1))) << 8));
-
-    private sealed class EtecoonInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (EtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Etecoon mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa70000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < EtecoonInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        EtecoonInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

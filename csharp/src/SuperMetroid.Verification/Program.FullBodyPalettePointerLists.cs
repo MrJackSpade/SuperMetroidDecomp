@@ -8,7 +8,12 @@ internal static partial class Program
     private static void VerifyFullBodyPalettePointerLists()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var guarded = new FullBodyPalettePointerReadGuard(rom);
+        CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
+            address => (uint)(address - SamusPaletteRomData.FullBodyCycles.ScrewAttackLists) < 0x2a ||
+                (uint)(address - SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists) < 0x1e ||
+                (uint)(address - SamusPaletteRomData.FullBodyCycles.StoredShineLists) < 0x2a ||
+                (uint)(address - SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists) < 0x1e,
+            address => $"Runtime read of compiled full-body palette pointer ${address:X6}.");
         SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
             new MemoryStream(SuperMetroid.AssetExtraction.SamusFullBodyCycleColorExtractor.Extract(rom)));
         ushort[] equipment =
@@ -182,6 +187,7 @@ internal static partial class Program
     private static ushort ReadPalettePointerWord(ISnesAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for full-body cycle palette colors")]
     private static void AssertPaletteColors(
         ISnesAddressSpace rom, SnesCgram actual, int pointer, string context)
     {
@@ -191,22 +197,5 @@ internal static partial class Program
                     SamusPaletteRomData.Banks.Palette | (pointer + color * sizeof(ushort))) & 0x7fff),
                 actual.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color],
                 $"{context} CGRAM color {color} matches ROM");
-    }
-
-    private sealed class FullBodyPalettePointerReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((uint)(address - SamusPaletteRomData.FullBodyCycles.ScrewAttackLists) < 0x2a ||
-                (uint)(address - SamusPaletteRomData.FullBodyCycles.SpeedBoosterLists) < 0x1e ||
-                (uint)(address - SamusPaletteRomData.FullBodyCycles.StoredShineLists) < 0x2a ||
-                (uint)(address - SamusPaletteRomData.FullBodyCycles.ActiveShinesparkLists) < 0x1e)
-                throw new InvalidOperationException($"Runtime read of compiled full-body palette pointer ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

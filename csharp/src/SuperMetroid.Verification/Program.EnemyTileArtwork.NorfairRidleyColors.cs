@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Norfair Ridley colors and reveal pointers")]
     private static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -35,7 +36,8 @@ internal static partial class Program
             "Norfair Ridley reveal pointer table ends after fifteen color rows");
         forbidden.Add(terminatorAddress);
         forbidden.Add(terminatorAddress + 1);
-        var guard = new NorfairRidleyColorReadGuard(bus, forbidden);
+        CartridgeReadGuard guard = new CartridgeReadGuard(bus).Forbid(forbidden.Contains,
+            address => $"Installed Norfair Ridley palette read migrated ROM byte ${address:X6}.");
         (SnesCgram nativeCgram, RidleyEnemyState nativeState) = CreateReference();
         (RoomEnemySystem installed, SnesCgram installedCgram, RoomEnemySlot installedSlot,
             RidleyEnemyState installedState) = Create(guard, stock);
@@ -213,26 +215,5 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyArenaReveal", flags)!
                 .Invoke(enemy, [slot, state]);
         }
-    }
-
-    private sealed class NorfairRidleyColorReadGuard(ISnesAddressSpace source,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Installed Norfair Ridley palette read migrated ROM byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

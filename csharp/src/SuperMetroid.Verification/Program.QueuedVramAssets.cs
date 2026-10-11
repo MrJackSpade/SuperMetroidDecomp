@@ -18,7 +18,7 @@ internal static partial class Program
             var queue = new VramWriteQueue();
             queue.EnqueueAsset(VramAssetId.StandardHudTiles, (ushort)length, destination);
             AssertEqual(VramWriteQueue.EntryByteCount, queue.TailInBytes, "asset occupies the same native queue record budget");
-            queue.DrainTo(actual, ReferenceMutableMemory.From(new ForbiddenMapBus()), new TestVramAssets(data));
+            queue.DrainTo(actual, ReferenceMutableMemory.From(NewForbiddenMapBus()), new TestVramAssets(data));
             for (int i = 0; i < 65536; i++) AssertEqual(expected.ReadByte(i), actual.ReadByte(i), "asset DMA matches native byte ports, stride and wrap");
             AssertEqual(0, queue.TailInBytes, "asset queue clears at normal drain boundary");
         }
@@ -41,10 +41,10 @@ internal static partial class Program
         DebuggerObjectGraphSerializer.Serialize(state, pending);
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<VramWriteQueue>(state);
-        AssertThrows<InvalidOperationException>(() => restored.DrainTo(new SnesVram(), ReferenceMutableMemory.From(new ForbiddenMapBus())), "missing asset provider fails loudly");
-        AssertThrows<InvalidDataException>(() => restored.DrainTo(new SnesVram(), ReferenceMutableMemory.From(new ForbiddenMapBus()), new TestVramAssets([1])), "asset size mismatch fails loudly");
+        AssertThrows<InvalidOperationException>(() => restored.DrainTo(new SnesVram(), ReferenceMutableMemory.From(NewForbiddenMapBus())), "missing asset provider fails loudly");
+        AssertThrows<InvalidDataException>(() => restored.DrainTo(new SnesVram(), ReferenceMutableMemory.From(NewForbiddenMapBus()), new TestVramAssets([1])), "asset size mismatch fails loudly");
         var restoredVram = new SnesVram();
-        restored.DrainTo(restoredVram, ReferenceMutableMemory.From(new ForbiddenMapBus()), new TestVramAssets([21, 22, 23]));
+        restored.DrainTo(restoredVram, ReferenceMutableMemory.From(NewForbiddenMapBus()), new TestVramAssets([21, 22, 23]));
         AssertEqual((byte)21, restoredVram.ReadByte(0), "restored pending reference resolves current host artwork at drain");
         AssertEqual((byte)23, restoredVram.ReadByte(2), "odd final byte survives debugger round trip");
         AssertThrows<ArgumentOutOfRangeException>(() => pending.EnqueueAsset(VramAssetId.None, 1, 0), "None is not an asset source");

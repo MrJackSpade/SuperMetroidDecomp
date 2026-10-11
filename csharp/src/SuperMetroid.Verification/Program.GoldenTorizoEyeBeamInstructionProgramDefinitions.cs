@@ -31,7 +31,12 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new GoldenTorizoEyeBeamInstructionReadGuard(rom);
+        var guard = new CartridgeReadGuard(rom)
+            .Forbid(GoldenTorizoEyeBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Golden Torizo eye-beam byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase,
+                GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
+                GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordAddress);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
@@ -174,7 +179,7 @@ internal static partial class Program
         AssertTrue(!enabledBeam.IsActive,
             "enabled Golden Torizo eye-beam floor impact deletes after exact lifetime");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "GoldenTorizoEyeBeam execution performs no live spritemap operand reads");
         AssertEqual(GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "GoldenTorizoEyeBeam executes every native visual operand");
@@ -273,44 +278,5 @@ internal static partial class Program
                     : GoldenTorizoEyeBeamInstructionProgramDefinitions.Normal);
         }
         return checksum;
-    }
-
-    private sealed class GoldenTorizoEyeBeamInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (GoldenTorizoEyeBeamInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Golden Torizo eye-beam byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < GoldenTorizoEyeBeamInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = GoldenTorizoEyeBeamInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

@@ -102,7 +102,7 @@ internal static partial class Program
         Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
         Suite(nameof(VerifyMapLoadAnchorY), () => VerifyMapLoadAnchorY(bus));
         Suite(nameof(VerifyFileSelectMapAreaCases), () => VerifyFileSelectMapAreaCases(bus));
-        var guard = new ForbiddenMapBus();
+        var guard = NewForbiddenMapBus();
         int anchors = 0;
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         {
@@ -199,6 +199,7 @@ internal static partial class Program
             (value.Scroll, value.Minimum, value.Maximum, value.Direction);
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for native map load-station anchors")]
     private static Position16<MapPixels> ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
     {
         // Independent literal native layout: no production LoadStationEntry or
@@ -211,44 +212,5 @@ internal static partial class Program
         int worldY = (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8) + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 10)) & ushort.MaxValue;
         return new((ushort)((bus.ReadByte(room + 2) + (worldX >> 8)) << 3),
             (ushort)((bus.ReadByte(room + 3) + (worldY >> 8) + 1) << 3));
-    }
-
-    private sealed class MapLoadMetadataReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, ISnesMutableMemory, IImportCartridgeSource
-    {
-        public bool BlockReads { get; set; } = true;
-        public byte ReadByte(int address)
-        {
-            RejectForbiddenRead(address);
-            return source.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectForbiddenRead(address);
-            return (source as IImportCartridgeSource ?? throw new InvalidOperationException(
-                "Map metadata audit requires a cartridge import source."))
-                .ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map metadata audit requires WRAM."))
-                .ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (source as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Map metadata audit requires SRAM."))
-                .ReadSaveRamByte(address);
-
-        private void RejectForbiddenRead(int address)
-        {
-            // Bank-$8F room headers/state selection and the bank-$80 load-station
-            // lists are not presentation inputs after selecting compiled anchors.
-            if (BlockReads && ((address >> 16) == 0x8f || address is >= 0x80c4b5 and < 0x80cb00 ||
-                (uint)(address - FileSelectMapRomData.DisplayAreaIndices) < FileSelectMapRomData.AreaCount * 2))
-                throw new InvalidOperationException($"Installed map read load/display metadata from ROM at {address:X6}.");
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

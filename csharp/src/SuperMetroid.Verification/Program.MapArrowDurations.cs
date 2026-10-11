@@ -67,7 +67,7 @@ internal static partial class Program
 
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {
-        var actual = new FileSelectMapAnimations(new ForbiddenMapBus(), presentation);
+        var actual = new FileSelectMapAnimations(NewForbiddenMapBus(), presentation);
         Array arrows = (Array)typeof(FileSelectMapAnimations).GetField("arrows", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(actual)!;
         int offset = 0, timer = 0;
         for (int tick = 0; tick < 90; tick++)

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon palette bands")]
     private static void VerifyInstalledDraygonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
@@ -71,7 +72,15 @@ internal static partial class Program
 
         // Invoke the actual body initializer and hurt program with the visual source
         // windows forbidden. Only the resource may supply colors during installed play.
-        var guarded = new DraygonPaletteReadGuard(rom);
+        CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
+            address => address is >= DraygonColorRomData.HealthBandsSource and
+                    < (DraygonColorRomData.HealthBandsSource +
+                        DraygonColorRomData.HealthBandCount *
+                        DraygonColorRomData.HealthBandColorCount * sizeof(ushort))
+                    or >= DraygonColorRomData.SpriteSource and
+                    < (DraygonColorRomData.WhiteFlashSource +
+                        DraygonColorRomData.WhiteFlashCount * sizeof(ushort)),
+            address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem { TileArtwork = edited };
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -177,28 +186,5 @@ internal static partial class Program
                     AssertEqual(original(color), changed(color),
                         $"Draygon {name} edit leaves color {color} unchanged");
         }
-    }
-
-    private sealed class DraygonPaletteReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            bool healthTable = address is >= DraygonColorRomData.HealthBandsSource and
-                < (DraygonColorRomData.HealthBandsSource +
-                    DraygonColorRomData.HealthBandCount *
-                    DraygonColorRomData.HealthBandColorCount * sizeof(ushort));
-            bool palettes = address is >= DraygonColorRomData.SpriteSource and
-                < (DraygonColorRomData.WhiteFlashSource +
-                    DraygonColorRomData.WhiteFlashCount * sizeof(ushort));
-            if (healthTable || palettes)
-                throw new InvalidOperationException(
-                    $"Draygon accessed migrated palette ROM ${address:X6}.");
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

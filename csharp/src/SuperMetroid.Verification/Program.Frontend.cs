@@ -11,6 +11,7 @@ using SuperMetroid.AssetExtraction;
 
 internal static partial class Program
 {
+[CpuBusBoundary("exact bus test: LoROM cross-bank traversal of a compressed stream over a constructed cartridge")]
 static void VerifyLoRomCrossBankCompressedData()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];

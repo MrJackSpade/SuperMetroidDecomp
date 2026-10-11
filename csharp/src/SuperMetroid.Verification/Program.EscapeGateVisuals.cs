@@ -76,7 +76,7 @@ internal static partial class Program
             0xca, 0xc8, gateX, gateY, 0x00, 0x80,
             0x00, 0x00,
         ]);
-        var guarded = new MotherBrainEscapeGateReadGuard(bus);
+        var guarded = NewMotherBrainEscapeGateGuard(bus);
         byte[] blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
         blockDefinitions[0x54 * 8] = 0x54;

@@ -49,7 +49,7 @@ internal static partial class Program
                 $"Evir mechanics word $A8:{definition.Address:X4}");
         }
 
-        var guard = new EvirInstructionReadGuard(rom);
+        var guard = NewEvirInstructionGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!;
         foreach ((ushort entry, int frameCount, EnemyDefinitionId definition, string name) in loops)
         {
@@ -136,7 +136,7 @@ internal static partial class Program
                 "regeneration script publishes the native spit sound");
         }
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Evir execution uses compiled spritemap selectors");
         for (int index = 0;
              index < EvirInstructionProgramDefinitions.PresentationWordCount;
@@ -210,46 +210,16 @@ internal static partial class Program
             source.ReadByte(0xa80000 | address) |
             source.ReadByte(0xa80000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class EvirInstructionReadGuard(
-        ISnesAddressSpace source, bool forbidPresentation = false) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewEvirInstructionGuard(ISnesAddressSpace rom, bool forbidPresentation = false)
     {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (EvirInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Evir mechanics byte ${address:X6}.");
-            }
-            if ((address & 0xff0000) == 0xa80000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < EvirInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        EvirInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        if (forbidPresentation)
-                            throw new InvalidOperationException(
-                                $"Installed Evir read presentation byte ${address:X6}.");
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
+            EvirInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+            address => $"Production read compiled Evir mechanics byte ${address:X6}.");
+        return forbidPresentation
+            ? guard.ForbidWords(0xa80000, EvirInstructionProgramDefinitions.PresentationWordCount,
+                EvirInstructionProgramDefinitions.PresentationWordAddress,
+                address => $"Installed Evir read presentation byte ${address:X6}.")
+            : guard.ObserveWords(0xa80000, EvirInstructionProgramDefinitions.PresentationWordCount,
+                EvirInstructionProgramDefinitions.PresentationWordAddress);
     }
 }

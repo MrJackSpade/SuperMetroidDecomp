@@ -10,7 +10,11 @@ internal static partial class Program
     {
         var position = typeof(SamusGrappleMovement).GetMethod("PositionSamusFromPendulum", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
-        var bus = new GrappleBodyReadGuard(rom);
+        CartridgeReadGuard bus = new CartridgeReadGuard(rom)
+            .Forbid(address => address is >= 0x9bc1c2 and < 0x9bc2c2,
+                _ => "Installed swing art still reads the ROM selector.")
+            .Forbid(address => address is >= 0x9bc2c2 and < 0x9bc342,
+                address => $"Compiled Grapple body offset read ROM ${address:X6}.");
         var samus = PrepareRetailSamusFixture(new SamusState());
         byte[] json = GrappleSwingFrameExtractor.Extract(rom);
         var stock = GrappleSwingFrameCatalog.Load(new MemoryStream(json));
@@ -25,7 +29,6 @@ internal static partial class Program
         {
             var g = samus.Grapple;
             g.SwingFrames = replaceArt ? edited : installed ? RepositoryInstallation.Projectiles.GrappleTiles.SwingFrames : stock;
-            bus.ForbidArt = true;
             samus.Pose = left ? SamusPoseId.GrappleSwingLeftPose : SamusPoseId.GrappleSwingRightPose;
             g.Anchor = g.Anchor.WithX((ushort)raw); g.Anchor = g.Anchor.WithY(unchecked((ushort)~raw));
             g.RopeLength = (ushort)(raw & 127);
@@ -37,7 +40,6 @@ internal static partial class Program
             int table = left ? 0x9bc2c2 : 0x9bc302;
             sbyte x = unchecked((sbyte)rom.ReadByte(table + nativeFrame * 2));
             sbyte y = unchecked((sbyte)rom.ReadByte(table + nativeFrame * 2 + 1));
-            bus.ReplaceArt = replaceArt;
             position(bus, samus, g);
             AssertEqual(unchecked((ushort)(g.RopeStart.X + x)), samus.Position.X.Whole, "Art override cannot move Grapple collision-body X");
             AssertEqual(unchecked((ushort)(g.RopeStart.Y + y)), samus.Position.Y.Whole, "Art override cannot move Grapple collision-body Y");
@@ -57,7 +59,6 @@ internal static partial class Program
         {
             var native = PrepareRetailSamusFixture(new SamusState()); var changed = PrepareRetailSamusFixture(new SamusState());
             native.Grapple.SwingFrames = stock; changed.Grapple.SwingFrames = edited;
-            bus.ReplaceArt = false; bus.ForbidArt = true;
             SamusGrappleMovement.ConnectUnobstructedSwing(bus, native, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
             SamusGrappleMovement.ConnectUnobstructedSwing(bus, changed, new Position16<RoomPixels>(512, 512), 32, SnesAngle.FromRaw((ushort)(angle << 8)), 128, faceRight);
             for (int tick = 0; tick < 16; tick++)
@@ -73,24 +74,5 @@ internal static partial class Program
             }
         }
         Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");
-    }
-
-    private sealed class GrappleBodyReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public bool ReplaceArt;
-        public bool ForbidArt;
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (ForbidArt && address is >= 0x9bc1c2 and < 0x9bc2c2)
-                throw new InvalidOperationException("Installed swing art still reads the ROM selector.");
-            if (address is >= 0x9bc2c2 and < 0x9bc342)
-                throw new InvalidOperationException($"Compiled Grapple body offset read ROM ${address:X6}.");
-            if (ReplaceArt && address is >= 0x9bc1c2 and < 0x9bc2c2)
-                return (byte)((source.ReadByte(address) + 11) & 31);
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

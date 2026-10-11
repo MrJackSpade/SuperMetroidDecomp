@@ -19,7 +19,9 @@ internal static partial class Program
         Suite(nameof(VerifyFuneNamiheFireballPresentationAddresses), () => VerifyFuneNamiheFireballPresentationAddresses());
         Suite(nameof(VerifyFuneNamiheFireballVisualSelectors), () => VerifyFuneNamiheFireballVisualSelectors(rom));
 
-        var guard = new FuneNamiheFireballInstructionReadGuard(rom);
+        CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
+            address => (address & 0xff0000) == 0x860000 && (uint)(unchecked((ushort)address) - 0xde96) < 32,
+            address => $"Production read compiled Fune/Namihe mechanics byte ${address:X6}.");
         var observedVisuals = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
@@ -208,26 +210,4 @@ internal static partial class Program
             source.ReadByte(
                 EnemyProjectileCodePointers.BankBase |
                 unchecked((ushort)(address + 1))) << 8));
-
-    private sealed class FuneNamiheFireballInstructionReadGuard(
-        ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((address & 0xff0000) == 0x860000 && (uint)(unchecked((ushort)address) - 0xde96) < 32)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Fune/Namihe mechanics byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
 }

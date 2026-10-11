@@ -39,12 +39,7 @@ internal static partial class Program
 
         using var timerPng = new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom),
             writable: false);
-        RoomCharacterAtlas[] escapePages =
-            CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page =>
-                RoomCharacterAtlas.Load(new MemoryStream(
-                    IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
-                        page.ByteCount, page.FileName), writable: false),
-                    page.ByteCount)).ToArray();
+        RoomCharacterAtlas[] escapePages = ImportCeresEscapeTilePages(rom);
         CeresEscapeOverlayTilemapCatalog overlay =
             CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
@@ -148,4 +143,12 @@ internal static partial class Program
         new CartridgeReadGuard(source)
             .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address),
                 address => $"Installed Ceres transfer read native descriptor ${address:X6}.");
+
+    [CpuBusBoundary("exact bus test: imports the Ceres escape tile pages from their retail ROM source addresses")]
+    private static RoomCharacterAtlas[] ImportCeresEscapeTilePages(ISnesAddressSpace rom) =>
+        CeresEscapeTileArtworkDefinitions.All.ToArray().Select(page =>
+            RoomCharacterAtlas.Load(new MemoryStream(
+                IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
+                    page.ByteCount, page.FileName), writable: false),
+                page.ByteCount)).ToArray();
 }

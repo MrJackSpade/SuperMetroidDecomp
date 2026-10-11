@@ -169,7 +169,7 @@ internal static partial class Program
             var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
             var vram = new SnesVram();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-                enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+                enemies, NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
             typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
             var initialize = typeof(RoomEnemySystem).GetMethod(
@@ -243,7 +243,7 @@ internal static partial class Program
         death.MutableMeltingGraphics.Fill(0xff);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new CrocomireMeltingDefinitionReadGuard(rom));
+            NewCrocomireMeltingDefinitionReadGuard(rom));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, new SnesVram());
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         var erase = typeof(RoomEnemySystem).GetMethod(
@@ -294,7 +294,7 @@ internal static partial class Program
         var death = new CrocomireDeathState { MeltingTableOffset = pass.HeaderOffset };
         var vram = new SnesVram();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+            enemies, NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         var initialize = typeof(RoomEnemySystem).GetMethod(
@@ -336,7 +336,7 @@ internal static partial class Program
         var death = new CrocomireDeathState();
         var vram = new SnesVram();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
-            enemies, new CrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
+            enemies, NewCrocomireMeltingDefinitionReadGuard(rom, blockGraphics: true));
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         // #1269 split the loader into the two native phases ($A4:9341 and $A4:93ED).
@@ -377,41 +377,35 @@ internal static partial class Program
         return result;
     }
 
-    private sealed class CrocomireMeltingDefinitionReadGuard(
-        ISnesAddressSpace source, bool blockGraphics = false) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewCrocomireMeltingDefinitionReadGuard(
+        ISnesAddressSpace source, bool blockGraphics = false)
     {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is
-                >= 0xa49697 and < 0xa496c8 or
-                >= 0xa49bbd and < 0xa49bc5 or
-                >= CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress and
-                    < CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress +
-                        CrocomireMeltingTransferDefinitionsConstants.NativeByteCount)
-                throw new InvalidOperationException(
-                    $"Crocomire melting attempted migrated definition read ${address:X6}.");
-            if (blockGraphics)
-            {
-                if (address is >= (int)CrocomireMeltingTilemapAddress.FirstTilemap and
+        var guard = new CartridgeReadGuard(source)
+            .Forbid(address => address is
+                    >= 0xa49697 and < 0xa496c8 or
+                    >= 0xa49bbd and < 0xa49bc5 or
+                    >= CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress and
+                        < CrocomireMeltingTransferDefinitionsConstants.NativeSourceAddress +
+                            CrocomireMeltingTransferDefinitionsConstants.NativeByteCount,
+                address => $"Crocomire melting attempted migrated definition read ${address:X6}.");
+        if (!blockGraphics)
+            return guard;
+        return guard
+            .Forbid(address => address is >= (int)CrocomireMeltingTilemapAddress.FirstTilemap and
                     < ((int)CrocomireMeltingTilemapAddress.SecondTilemap +
-                        (CrocomireMeltingArtworkFormat.TilemapCellCount + 1) * 2))
-                    throw new InvalidOperationException(
-                        $"Crocomire melting attempted installed tilemap read ${address:X6}.");
-                foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
-                foreach (CrocomireMeltingCopy copy in pass.Copies)
+                        (CrocomireMeltingArtworkFormat.TilemapCellCount + 1) * 2),
+                address => $"Crocomire melting attempted installed tilemap read ${address:X6}.")
+            .Forbid(address =>
                 {
-                    int start = (pass.SourceBank << 16) | copy.SourceWord;
-                    if (address >= start && address < start + (pass.WordsToCopy + 1) * 2)
-                        throw new InvalidOperationException(
-                            $"Crocomire melting attempted installed artwork read ${address:X6}.");
-                }
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+                    foreach (CrocomireMeltingPass pass in CrocomireMeltingTransferDefinitions.Passes)
+                    foreach (CrocomireMeltingCopy copy in pass.Copies)
+                    {
+                        int start = (pass.SourceBank << 16) | copy.SourceWord;
+                        if (address >= start && address < start + (pass.WordsToCopy + 1) * 2)
+                            return true;
+                    }
+                    return false;
+                },
+                address => $"Crocomire melting attempted installed artwork read ${address:X6}.");
     }
 }

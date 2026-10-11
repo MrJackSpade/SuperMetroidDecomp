@@ -18,9 +18,9 @@ internal static partial class Program
         for (int index = 0; index < frames.Length; index++)
         {
             CrocomireSkeletonTransferDefinition frame = frames[index];
-            ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            ushort destination = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
-            ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            ushort source = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
             AssertEqual(destination, frame.DestinationOffset,
                 $"Crocomire skeleton destination {index} matches the cartridge");
@@ -34,7 +34,7 @@ internal static partial class Program
                     artwork.Chunk(index).Span[offset],
                     $"Crocomire skeleton chunk {index} byte {offset} matches cartridge art");
         }
-        AssertEqual((ushort)0xffff, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+        AssertEqual((ushort)0xffff, ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords +
                 frames.Length * 2),
             "Crocomire skeleton seventh destination is the native terminator");
@@ -46,13 +46,13 @@ internal static partial class Program
             "out-of-range Crocomire skeleton upload fails loudly");
 
         (SnesVram installedVram, CrocomireDeathState installedState,
-            CrocomireSkeletonNoReadBus denied) = RunInstalled(stock);
+            CartridgeReadGuard denied) = RunInstalled(stock);
         var nativeVram = new SnesVram();
         for (int index = 0; index < frames.Length; index++)
         {
-            int destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            int destination = ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathVramDestinationWords + index * 2);
-            int source = 0xad0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
+            int source = 0xad0000 | ReadNativeCrocomireSkeletonWord(rom,
                 EnemyRomTablePointersCrocomire.DeathGraphicsSourceWords + index * 2);
             byte[] page = Enumerable.Range(0, 0x200).Select(offset => rom.ReadByte(source + offset)).ToArray();
             nativeVram.LoadBytes((0x6000 + destination) * 2, page);
@@ -62,7 +62,7 @@ internal static partial class Program
         AssertEqual((ushort)(frames.Length * 2),
             installedState.TargetHeightOrSkeletonTileIndex,
             "terminal skeleton upload does not advance the cursor");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire skeleton upload reads no ROM bytes");
 
         string fileName = CrocomireSkeletonTransferDefinitions.FileName;
@@ -81,7 +81,7 @@ internal static partial class Program
         }
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrides);
-        (SnesVram editedVram, _, CrocomireSkeletonNoReadBus editedGuard) =
+        (SnesVram editedVram, _, CartridgeReadGuard editedGuard) =
             RunInstalled(edited);
         int firstDestination = (CrocomireSkeletonTransferDefinitions.ObselBaseWord +
             frames[0].DestinationOffset) * 2;
@@ -93,7 +93,7 @@ internal static partial class Program
             installedVram.Bytes[(firstDestination + 1)..].SequenceEqual(
                 editedVram.Bytes[(firstDestination + 1)..]),
             "Crocomire skeleton edit leaves every other VRAM byte unchanged");
-        AssertEqual(0, editedGuard.ReadAttempts,
+        AssertEqual(0, editedGuard.ForbiddenReadAttempts,
             "edited Crocomire skeleton remains ROM-free at upload time");
         AssertEqual(editedVram.ReadByte(firstDestination), RunInstalled(
                 EnemyTileArtworkFiles.Load(stockDirectory, overrides)).Vram
@@ -113,11 +113,11 @@ internal static partial class Program
             "guarded installed upload, isolated visible PNG edit, reload and strict files pass.");
 
         static (SnesVram Vram, CrocomireDeathState State,
-            CrocomireSkeletonNoReadBus Guard) RunInstalled(EnemyTileArtworkCatalog art)
+            CartridgeReadGuard Guard) RunInstalled(EnemyTileArtworkCatalog art)
         {
             var system = new RoomEnemySystem { TileArtwork = art };
             var vram = new SnesVram();
-            var guard = new CrocomireSkeletonNoReadBus();
+            var guard = NewCrocomireSkeletonNoReadBus();
             var state = new CrocomireDeathState();
             SetRuntimeFields(system, guard, vram);
             for (int index = 0;
@@ -142,20 +142,12 @@ internal static partial class Program
         }
     }
 
-    private sealed class CrocomireSkeletonNoReadBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
+    private static CartridgeReadGuard NewCrocomireSkeletonNoReadBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed Crocomire skeleton read cartridge byte ${address:X6}.")
+            .RejectWrites(address => $"Installed Crocomire skeleton wrote cartridge byte ${address:X6}.");
 
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Installed Crocomire skeleton read cartridge byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed Crocomire skeleton wrote cartridge byte ${address:X6}.");
-    }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire's native skeleton destination and source tables")]
+    private static ushort ReadNativeCrocomireSkeletonWord(ISnesAddressSpace rom, int address) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

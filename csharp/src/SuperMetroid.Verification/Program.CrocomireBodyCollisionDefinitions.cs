@@ -15,7 +15,7 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        var denied = new CrocomireTongueNoReadBus();
+        var denied = NewCrocomireTongueNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
@@ -115,7 +115,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => CrocomireBodyCollisionDefinitions.HitboxesAt(0x8000),
             "unknown Crocomire body hitbox list fails loudly");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire body collision never reads ROM bytes");
         Console.WriteLine($"Crocomire body collision: {frames.Length} frames, " +
             $"{seenLists.Count} hitbox lists, {probes} native-equivalent probes; " +

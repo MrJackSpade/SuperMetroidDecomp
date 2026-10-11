@@ -27,7 +27,7 @@ internal static partial class Program
                 $"Cacatac instruction mechanics word $A2:{definition.Address:X4}");
         }
 
-        var guard = new CacatacInstructionProgramReadGuard(rom);
+        var guard = NewCacatacInstructionProgramReadGuard(rom);
         Suite(nameof(VerifyIdle), () => VerifyIdle(upsideUp: true, CacatacInstructionProgramDefinitions.UpsideUpIdle));
         Suite(nameof(VerifyIdle), () => VerifyIdle(upsideUp: false, CacatacInstructionProgramDefinitions.UpsideDownIdle));
         Suite(nameof(VerifyAttack), () => VerifyAttack(
@@ -174,48 +174,11 @@ internal static partial class Program
         SuperMetroidAddressSpace bus,
         int address) => (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class CacatacInstructionProgramReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
+    private static CartridgeReadGuard NewCacatacInstructionProgramReadGuard(ISnesAddressSpace source)
     {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (CacatacInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                IsCompiledPresentationByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Cacatac instruction ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        private static bool IsCompiledPresentationByte(int address)
-        {
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < CacatacInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        CacatacInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        static string Message(int address) => $"Production read compiled Cacatac instruction ${address:X6}.";
+        return new CartridgeReadGuard(source)
+            .Forbid(CacatacInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, Message)
+            .ForbidWords(0xa20000, CacatacInstructionProgramDefinitionsTooling.PresentationWordCount, CacatacInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
     }
 }

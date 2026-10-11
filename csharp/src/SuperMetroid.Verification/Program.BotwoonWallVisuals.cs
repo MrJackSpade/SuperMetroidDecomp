@@ -146,7 +146,7 @@ internal static partial class Program
         AssertTrue(plms.TrySpawnBotwoonWall(level,
                 PlmHeaderId.ClearBotwoonWall),
             "edited Botwoon wall-clear PLM allocates");
-        var guard = new BotwoonWallSourceGuard(new TestAddressSpace());
+        var guard = NewBotwoonWallSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         plms.Step(guard, level, streamer, new(0, 0), 0);
         int blockIndex = 7 * width + 15;

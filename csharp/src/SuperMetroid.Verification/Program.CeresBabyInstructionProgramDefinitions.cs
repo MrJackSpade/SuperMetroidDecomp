@@ -55,7 +55,7 @@ internal static partial class Program
         }
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new CeresBabyInstructionReadGuard(rom);
+        var guard = NewCeresBabyInstructionReadGuard(rom);
         byte[] colorJson = CeresRidleyColorExtractor.Extract(rom);
         var enemies = new RoomEnemySystem
         {
@@ -163,7 +163,7 @@ internal static partial class Program
             new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
             spritemaps: installed);
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
-            new CeresBabyInstructionReadGuard(rom, blockBabyFrames: true));
+            NewCeresBabyInstructionReadGuard(rom, blockBabyFrames: true));
         var baby = new RidleyEnemyState
         {
             MovementAnimationEnabled = 0,
@@ -263,33 +263,17 @@ internal static partial class Program
             source.ReadByte(0xa60000 | address) |
             source.ReadByte(0xa60000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class CeresBabyInstructionReadGuard(
-        ISnesAddressSpace source, bool blockBabyFrames = false) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (CeresBabyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CeresBabyInstructionProgramDefinitions.IsCompiledSpritemapByte(address) ||
-                CeresBabyInstructionProgramDefinitions.IsCompiledPaletteByte(address) ||
-                address is >= CeresRidleyPaletteRomData.BabyColors and <
-                    CeresRidleyPaletteRomData.BabyColors +
-                    CeresRidleyPaletteRomData.BabyRowCount *
-                    CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort) ||
-                (blockBabyFrames && address is >= 0xa6bffd and < 0xa6c04e))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Ceres Baby control/selector byte ${address:X6}.");
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresBabyInstructionReadGuard(
+        ISnesAddressSpace source, bool blockBabyFrames = false) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
+                    CeresBabyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CeresBabyInstructionProgramDefinitions.IsCompiledSpritemapByte(address) ||
+                    CeresBabyInstructionProgramDefinitions.IsCompiledPaletteByte(address) ||
+                    address is >= CeresRidleyPaletteRomData.BabyColors and <
+                        CeresRidleyPaletteRomData.BabyColors +
+                        CeresRidleyPaletteRomData.BabyRowCount *
+                        CeresRidleyPaletteRomData.BabyColorCount * sizeof(ushort) ||
+                    (blockBabyFrames && address is >= 0xa6bffd and < 0xa6c04e),
+                address => $"Production read compiled Ceres Baby control/selector byte ${address:X6}.");
 }

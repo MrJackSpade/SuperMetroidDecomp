@@ -11,7 +11,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo selector = typeof(RoomEnemySystem).GetMethod(
             "ReadEnemyVisualSelector", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var denied = new CrocomireTongueNoReadBus();
+        var denied = NewCrocomireTongueNoReadBus();
         var enemies = new RoomEnemySystem { TileArtwork = stock };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -37,7 +37,7 @@ internal static partial class Program
         }
         AssertTrue(seen.SetEquals(Enumerable.Range(0, CrocomireTongueCollisionDefinitions.FrameCount).Select(CrocomireTongueCollisionDefinitions.FramePointer)),
             "Crocomire tongue's nine operands select the nine extracted frames");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire tongue selectors never read ROM bytes");
         Console.WriteLine("Installed Crocomire tongue: nine native visual selectors and " +
             "editable frames, no ROM reads.");
@@ -83,7 +83,7 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCrocomireTongueFramePositions), () => VerifyCrocomireTongueFramePositions(rom));
         Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(rom));
-        var denied = new CrocomireTongueNoReadBus();
+        var denied = NewCrocomireTongueNoReadBus();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
             "TryFindExtendedHitboxCallback", flags)!;
@@ -150,7 +150,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(0x8000, "compiled Crocomire tongue hitbox list")),
             "unknown Crocomire tongue hitbox list fails loudly");
-        AssertEqual(0, denied.ReadAttempts,
+        AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire tongue collision never reads ROM bytes");
         Console.WriteLine($"Crocomire tongue collision: nine frames, two empty lists, " +
             $"{probes} native-equivalent touch/shot probes; installed path reads no ROM.");
@@ -159,20 +159,8 @@ internal static partial class Program
             rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
     }
 
-    private sealed class CrocomireTongueNoReadBus : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            ReadAttempts++;
-            throw new InvalidOperationException(
-                $"Installed Crocomire tongue read ROM byte ${address:X6}.");
-        }
-
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException(
-            $"Installed Crocomire tongue wrote ROM byte ${address:X6}.");
-    }
+    private static CartridgeReadGuard NewCrocomireTongueNoReadBus() =>
+        CartridgeReadGuard.Unbacked()
+            .ForbidAll(address => $"Installed Crocomire tongue read ROM byte ${address:X6}.")
+            .RejectWrites(address => $"Installed Crocomire tongue wrote ROM byte ${address:X6}.");
 }

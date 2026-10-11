@@ -31,7 +31,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new CeresRidleyProjectileInstructionReadGuard(rom);
+        var guard = NewCeresRidleyProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", instanceFlags)!;
         MethodInfo spawnFireball = typeof(RoomEnemySystem).GetMethod(
@@ -174,7 +174,7 @@ internal static partial class Program
         AssertTrue(!sharedDelete.IsActive,
             "Ceres Ridley projectile shot reaction reaches shared compiled deletion");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "CeresRidleyProjectile execution performs no live spritemap operand reads");
         AssertEqual(CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "CeresRidleyProjectile executes every native visual operand");
@@ -248,48 +248,10 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class CeresRidleyProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (CeresRidleyProjectileInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling
-                    .IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Ceres Ridley mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < CeresRidleyProjectileInstructionProgramDefinitions
-                         .PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = CeresRidleyProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCeresRidleyProjectileInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Ceres Ridley mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

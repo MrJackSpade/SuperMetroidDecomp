@@ -29,7 +29,7 @@ internal static partial class Program
                 int address = rowAddress + color * sizeof(ushort);
                 forbidden.Add(address);
                 forbidden.Add(address + 1);
-                AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address), native.Resolve(row, color),
+                AssertEqual(ReadNativeCeresRidleyMode7Color(rom, address), native.Resolve(row, color),
                     $"Ceres Ridley Mode-7 zoom row {row}, color {color} matches cartridge");
             }
         }
@@ -62,7 +62,7 @@ internal static partial class Program
             runtime.Enemies.CeresRidleyMode7Colors),
             "runtime rebind drops old Ceres Mode-7 colors");
 
-        var guard = new CeresRidleyMode7ColorReadGuard(rom, forbidden);
+        var guard = NewCeresRidleyMode7ColorReadGuard(rom, forbidden);
         var enemies = new RoomEnemySystem { CeresRidleyMode7Colors = edited.CeresRidleyMode7Colors };
         var cgram = new SnesCgram();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -112,40 +112,11 @@ internal static partial class Program
         Console.WriteLine("Ceres Mode-7 colors: 135 stock words and all 112 getaway frames match, with every source color guarded and override repair preserved.");
     }
 
-    private sealed class CeresRidleyMode7ColorReadGuard(ISnesAddressSpace inner,
-        HashSet<int> forbidden) : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
-    {
-        public int ForbiddenReadAttempts { get; private set; }
+    private static CartridgeReadGuard NewCeresRidleyMode7ColorReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+        new MutableCartridgeReadGuard(source)
+            .Forbid(forbidden.Contains, address => $"Ceres Mode-7 color reread ${address:X6}.");
 
-        private void RejectColorSource(int address)
-        {
-            if (forbidden.Contains(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException($"Ceres Mode-7 color reread ${address:X6}.");
-            }
-        }
-
-        public byte ReadByte(int address)
-        {
-            RejectColorSource(address);
-            return inner.ReadByte(address);
-        }
-
-        public byte ReadCartridgeByte(int address)
-        {
-            RejectColorSource(address);
-            return CartridgeImportSource.Require(inner).ReadCartridgeByte(address);
-        }
-
-        public byte ReadWorkRamByte(int address) =>
-            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ceres Mode-7 color guard source does not expose WRAM.")).ReadWorkRamByte(address);
-
-        public byte ReadSaveRamByte(int address) =>
-            (inner as ISnesMutableMemory ?? throw new InvalidOperationException(
-                "Ceres Mode-7 color guard source does not expose SRAM.")).ReadSaveRamByte(address);
-
-        public void WriteByte(int address, byte value) => inner.WriteByte(address, value);
-    }
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley's native Mode-7 zoom colors")]
+    private static ushort ReadNativeCeresRidleyMode7Color(ISnesAddressSpace rom, int address) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), address);
 }

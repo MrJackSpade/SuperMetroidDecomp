@@ -28,7 +28,7 @@ internal static partial class Program
                 $"Crocomire mechanics word $A4:{definition.Address:X4}");
         }
 
-        var guard = new CrocomireInstructionReadGuard(rom);
+        var guard = NewCrocomireInstructionReadGuard(rom);
         CartridgeRoomHeader room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(
             rom,
             CrocomireInstructionAuditRoom);
@@ -95,7 +95,7 @@ internal static partial class Program
 
         AssertEqual(236, executedOperands.Count,
             "all executed Crocomire body/skeleton selectors match cartridge operands");
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "compiled Crocomire visual selectors require no runtime ROM reads");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "production avoids every compiled Crocomire mechanics byte");
@@ -145,44 +145,9 @@ internal static partial class Program
             source.ReadByte(0xa40000 | address) |
             source.ReadByte(0xa40000 | unchecked((ushort)(address + 1))) << 8));
 
-    private sealed class CrocomireInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (CrocomireInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Crocomire mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa40000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = CrocomireInstructionProgramDefinitionsTooling
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewCrocomireInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(CrocomireInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
+                address => $"Production read compiled Crocomire mechanics byte ${address:X6}.")
+            .ObserveWords(0xa40000, CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount, CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

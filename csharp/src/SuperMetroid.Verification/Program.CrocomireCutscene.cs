@@ -11,7 +11,7 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CrocomireTongueNoReadBus());
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewCrocomireTongueNoReadBus());
         var slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Crocomire;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa4 };
@@ -89,7 +89,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, new CrocomireDeathState());
         typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, new CrocomireTongueNoReadBus());
+        typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewCrocomireTongueNoReadBus());
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => 1));
         var run = typeof(RoomEnemySystem).GetMethod("RunCrocomireMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);

@@ -54,7 +54,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnCrocomireArenaMutation(level, new(5, 3), header),
             $"Crocomire header ${(int)header:X4} allocates");
-        var guard = new CrocomireSourceGuard(new TestAddressSpace());
+        var guard = NewCrocomireSourceGuard(new TestAddressSpace());
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         plms.Step(guard, level, streamer, new(0, 0), 0);
         AssertEqual(1, plms.ActiveCount,
@@ -71,29 +71,15 @@ internal static partial class Program
             $"Crocomire header ${(int)header:X4} reads no migrated ROM records");
     }
 
-    private sealed class CrocomireSourceGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            int pointer = address & 0xffff;
-            if ((address >> 16) == 0x84 &&
-                ((pointer >= CrocomireArenaPlmProgramDefinitions.ClearBridge &&
-                  pointer < CrocomireArenaPlmProgramDefinitions.EndExclusive) ||
-                 (pointer >= (ushort)CrocomireArenaDraw.ClearBridge &&
-                  pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive)))
+    private static CartridgeReadGuard NewCrocomireSourceGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address =>
             {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Crocomire PLM reread compiled source ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                int pointer = address & 0xffff;
+                return (address >> 16) == 0x84 &&
+                    ((pointer >= CrocomireArenaPlmProgramDefinitions.ClearBridge &&
+                      pointer < CrocomireArenaPlmProgramDefinitions.EndExclusive) ||
+                     (pointer >= (ushort)CrocomireArenaDraw.ClearBridge &&
+                      pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive));
+            }, address => $"Crocomire PLM reread compiled source ${address:X6}.");
 }

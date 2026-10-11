@@ -26,7 +26,7 @@ internal static partial class Program
         for (int pattern = 0; pattern < 8; pattern++)
         {
             var enemies = new RoomEnemySystem();
-            busField.SetValue(enemies, new PhantoonPatternReadGuard(rom));
+            busField.SetValue(enemies, NewPhantoonPatternReadGuard(rom));
             ushort random = (ushort)((high << 8) | 0xf8 | pattern);
             int calls = 0;
             randomField.SetValue(enemies, (Func<ushort>)(() => { calls++; return random; }));
@@ -65,7 +65,7 @@ internal static partial class Program
                 $"native Phantoon eye direction {direction}");
         }
         var eyeEnemies = new RoomEnemySystem();
-        busField.SetValue(eyeEnemies, new PhantoonPatternReadGuard(rom));
+        busField.SetValue(eyeEnemies, NewPhantoonPatternReadGuard(rom));
         var pointEye = typeof(RoomEnemySystem).GetMethod("PointPhantoonEyeAtSamus", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, SamusState>>();
         RoomEnemySlot eyeBody = eyeEnemies.Slots[0];
@@ -109,18 +109,11 @@ internal static partial class Program
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");
     }
 
-    private sealed class PhantoonPatternReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0xa7cda5 and < 0xa7cded or
+    private static CartridgeReadGuard NewPhantoonPatternReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa7cda5 and < 0xa7cded or
                 >= 0xa7cfc2 and < 0xa7cfca or
-                >= 0xa7d40d and < 0xa7d41f)
-                throw new InvalidOperationException($"Migrated Phantoon pattern ROM read at {address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => throw new InvalidOperationException("Unexpected rain initialization bus write.");
-    }
+                >= 0xa7d40d and < 0xa7d41f,
+                address => $"Migrated Phantoon pattern ROM read at {address:X6}.")
+            .RejectWrites(_ => "Unexpected rain initialization bus write.");
 }

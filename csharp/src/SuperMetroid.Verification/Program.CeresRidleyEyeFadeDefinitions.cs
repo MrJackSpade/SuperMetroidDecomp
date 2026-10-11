@@ -33,7 +33,7 @@ internal static partial class Program
             "Ceres Ridley eye fade rejects restored offsets beyond the authored schedule");
 
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        var guard = new CeresRidleyEyeFadeReadGuard(rom);
+        var guard = NewCeresRidleyEyeFadeReadGuard(rom);
         var enemies = new RoomEnemySystem { CeresRidleyColors = RetailPresentationFixture().CeresRidleyColors };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         var cgram = new SnesCgram();
@@ -88,26 +88,10 @@ internal static partial class Program
             "the complete production schedule pass with selector ROM reads forbidden.");
     }
 
-    private sealed class CeresRidleyEyeFadeReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address >= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress &&
+    private static CartridgeReadGuard NewCeresRidleyEyeFadeReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address >= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress &&
                 address <= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress +
-                    CeresRidleyEyeFadeDefinitions.PaletteStepCount)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Ceres Ridley eye fade attempted schedule read ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    CeresRidleyEyeFadeDefinitions.PaletteStepCount,
+                address => $"Ceres Ridley eye fade attempted schedule read ${address:X6}.");
 }

@@ -126,14 +126,12 @@ public sealed partial class RoomEnemySystem
         // her here. The clamp changes only the whole word; retain the fractional borrow.
         if (samus is not null && IsEnemyTouchingSamusFromBelow(lint, samus))
         {
-            uint carry = ((uint)samus.Kinematics.ExtraXDisplacement << 16) |
-                samus.Kinematics.ExtraXSubdisplacement;
-            carry = unchecked(carry + (uint)KraidPlatformMovement.FiringDisplacement);
-            short whole = unchecked((short)(carry >> 16));
-            samus.Kinematics.ExtraXDisplacement = unchecked((ushort)(
+            SnesSignedSixteenSixteen carry = samus.Kinematics.ExtraDisplacement.X +
+                SnesSignedSixteenSixteen.FromRaw(KraidPlatformMovement.FiringDisplacement);
+            short whole = carry.WholePixels;
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(carry.WithWholePixels(
                 unchecked((short)(whole - KraidPlatformMovement.MinimumCarryWholePixels)) < 0
-                    ? KraidPlatformMovement.MinimumCarryWholePixels : whole));
-            samus.Kinematics.ExtraXSubdisplacement = unchecked((ushort)carry);
+                    ? (short)KraidPlatformMovement.MinimumCarryWholePixels : whole));
         }
     }
 

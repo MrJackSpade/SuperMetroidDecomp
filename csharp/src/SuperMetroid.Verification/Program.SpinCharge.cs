@@ -14,7 +14,7 @@ internal static partial class Program
             SamusMovementType movement = pose is SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose
                 ? SamusMovementType.SpinJumping : SamusMovementType.WallJumping;
             WritePoseDefinition(bus, (int)pose, [8, (byte)movement, 0, 2, 0, 0, 0, 0]);
-            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 96,
+            var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
                 EquippedBeams = (ushort)SamusBeamFlags.Charge };
             var projectiles = new SamusProjectileSystem { FrameBindings = frames };
             var bombs = new SamusBombProjectileSystem { FrameBindings = frames };

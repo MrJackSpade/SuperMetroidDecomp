@@ -25,7 +25,7 @@ internal static partial class Program
             var system = new Bank80SystemState();
             system.MarkExploredMapTile(area, roomX + (samusX >> 8), roomY + (samusY >> 8) + 1);
             var pause = CreateRetailPauseFixture(bus,
-                new SamusState { XPosition = (ushort)samusX, YPosition = (ushort)samusY },
+                new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)samusX, (ushort)samusY)) },
                 system, area, (byte)roomX, (byte)roomY);
             int nativeFrame = 0, nativeTimer = 0;
             for (int frame = 0; frame < 48; frame++)

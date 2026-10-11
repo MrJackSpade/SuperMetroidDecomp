@@ -24,8 +24,8 @@ internal static partial class Program
             var level = runtime.LevelData!;
             bool left = setup.Room == RoomHeaderPointers.GreenBrinstarMainShaft;
             var samus = runtime.Samus!;
-            samus.XPosition = (ushort)setup.X; samus.YPosition = (ushort)setup.Y;
-            samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+            samus.Position = samus.Position.WithWholeX((ushort)setup.X); samus.Position = samus.Position.WithWholeY((ushort)setup.Y);
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
             samus.PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose;
             samus.EquippedBeams = (ushort)beams;
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlockByIndex(setup.Target).CollisionType, "Retail remote cap begins closed");

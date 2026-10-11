@@ -29,8 +29,7 @@ internal static partial class Program
         samus.InputLocked = false;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
         samus.Pose = SamusPoseId.SpringBallFallingRightPose;
-        samus.XPosition = 512;
-        samus.YPosition = 400;
+        samus.Position = samus.Position.WithWhole(new(512, 400));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -40,11 +39,11 @@ internal static partial class Program
         samus.HorizontalSpeed.ExtraRunSpeed = 1;
         samus.HorizontalSpeed.ExtraRunSubspeed = 0xe000;
         samus.HorizontalSpeed.AccelerationMode = 2;
-        ushort x0 = samus.XPosition;
+        ushort x0 = samus.Position.X.Whole;
 
         runtime.StepFrame((ushort)SnesButton.A);
         AssertEqual(SamusPoseId.SpringBallFallingRightPose, samus.Pose, "Jump alone keeps the falling Spring Ball pose");
-        AssertEqual((ushort)(x0 + 2), samus.XPosition, "the frame's movement still uses the carried speed");
+        AssertEqual((ushort)(x0 + 2), samus.Position.X.Whole, "the frame's movement still uses the carried speed");
         AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed, "command six clears base speed");
         AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSubspeed, "command six clears base subspeed");
         AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSpeed, "command eight clears extra run speed");

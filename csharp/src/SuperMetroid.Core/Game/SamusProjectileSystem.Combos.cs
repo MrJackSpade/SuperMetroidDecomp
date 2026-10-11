@@ -62,8 +62,8 @@ public sealed partial class SamusProjectileSystem
                     : kind == SamusComboKind.Spazer ? (short)((i & 1) == 0 ? 4 : -4) : (short)0;
                 if (kind == SamusComboKind.Wave)
                 {
-                    slot.XPosition = unchecked((ushort)(samus.XPosition + (i < 2 ? 128 : -128)));
-                    slot.YPosition = unchecked((ushort)(samus.YPosition + (i is 0 or 3 ? 128 : -128)));
+                    slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + (i < 2 ? 128 : -128)));
+                    slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128)));
                 }
                 if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = SamusComboRomData.SpazerTrailType;
                 InitializeComboData(slot, kind == SamusComboKind.Ice, kind == SamusComboKind.Spazer && i >= 2);

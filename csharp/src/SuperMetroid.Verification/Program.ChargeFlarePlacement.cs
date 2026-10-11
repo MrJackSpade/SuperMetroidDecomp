@@ -37,7 +37,7 @@ internal static partial class Program
         {
             // Exercise all original low-nibble operands at the renderer's metadata
             // boundary; compiled pose rules cannot be overridden by fake ROM bytes.
-            var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
             int record = SamusMovementRomData.Poses.Definitions + (int)pose * 8;
             bool running = bus.ReadByte(record + 1) == (byte)SamusMovementType.Running;
             bool facingLeft = bus.ReadByte(record) == 4;
@@ -56,7 +56,7 @@ internal static partial class Program
             AssertEqual(native.NextByteOffset, actual.NextByteOffset, "Flare placement preserves OAM admission");
             cases++;
         }
-        var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
+        var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
         PrepareRetailSamusFixture(subject);
         byte[] beforeSamus = GraphDigest(subject), beforeSystem = GraphDigest(system);
         var original = new OamBuffer(); var changed = new OamBuffer();
@@ -129,8 +129,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-        runtime.Samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        runtime.Samus.Position = runtime.Samus.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
         runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);
         typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles, (ushort)30);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -41,8 +41,8 @@ internal static partial class Program
             int dx = Decay(unchecked((short)state.GrabXOffset));
             int dy = Decay(unchecked((short)state.GrabYOffset));
             carry(slot, state, samus);
-            AssertEqual(unchecked((ushort)(raw + x[(int)facing] + dx)), samus.XPosition, "Actual carry X includes claw, signed decay and word wrap");
-            AssertEqual(unchecked((ushort)(ushort.MaxValue - raw + y[feet >> 1] + dy)), samus.YPosition, "Actual carry Y includes animated claw, signed decay and word wrap");
+            AssertEqual(unchecked((ushort)(raw + x[(int)facing] + dx)), samus.Position.X.Whole, "Actual carry X includes claw, signed decay and word wrap");
+            AssertEqual(unchecked((ushort)(ushort.MaxValue - raw + y[feet >> 1] + dy)), samus.Position.Y.Whole, "Actual carry Y includes animated claw, signed decay and word wrap");
             AssertEqual(unchecked((ushort)dx), state.GrabXOffset, "Carry X offset decays four pixels");
             AssertEqual(unchecked((ushort)dy), state.GrabYOffset, "Carry Y offset decays four pixels");
         }
@@ -55,9 +55,8 @@ internal static partial class Program
             slot.XPosition = slot.YPosition = world;
             state.FacingDirection = facing;
             state.FeetDistanceIndex = feet;
-            samus.XPosition = unchecked((ushort)(world + x[(int)facing] + dx));
-            samus.YPosition = unchecked((ushort)(world + y[feet >> 1] + dy));
-            bool expected = Math.Abs(dx) < samus.Kinematics.XRadius + 8 && Math.Abs(dy) < samus.Kinematics.YRadius + 12;
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(world + x[(int)facing] + dx)), unchecked((ushort)(world + y[feet >> 1] + dy))));
+            bool expected = Math.Abs(dx) < samus.Kinematics.Radius.X + 8 && Math.Abs(dy) < samus.Kinematics.Radius.Y + 12;
             AssertEqual(expected, overlaps(slot, state, samus, 8, 12), "Actual claw collision boundaries including world wrap");
         }
         Console.WriteLine("Ridley claws: exact native read windows, all index words, 1179648 carry placements and 228150 collision probes pass through bus-free consumers.");

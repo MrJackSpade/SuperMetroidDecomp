@@ -960,12 +960,12 @@ internal static partial class Program
             AssertTrue(stock.TryDrainedYOffset(frame, out sbyte offset), "Entire native drained byte window admitted");
             AssertEqual(native[frame], offset, "Installed native byte including command slots");
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
-            var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
+            var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.TileTransfers.BindArtwork(stock);
             samus.Draw(rom, new OamBuffer(), 0, 0);
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.SpritemapYPosition,
                 "Actual drained drawing uses exact signed native correction");
-            AssertEqual((ushort)128, samus.YPosition, "Drawing preserves physical center");
+            AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
             draws++;
         }
         AssertEqual(22, draws, "Every nonempty source phase drawn");
@@ -1034,12 +1034,12 @@ internal static partial class Program
             int count = pose is SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose ? 1 : 2;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128 };
+                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.TileTransfers.BindArtwork(stock);
                 samus.Draw(rom, new OamBuffer(), 0, 0);
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.SpritemapYPosition,
                     "Actual transition rendering preserves native support correction");
-                AssertEqual((ushort)128, samus.YPosition, "Posture art never mutates physical center");
+                AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
             }
         }
         var emptyMaps = new SamusSpritemapArtworkCatalog(stock.Spritemaps.TopBases.ToArray(), stock.Spritemaps.BottomBases.ToArray(),
@@ -1116,13 +1116,13 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = (SamusPoseId)(0xa4 + index / 4), AnimationFrame = (ushort)(index % 4),
-                XPosition = 128, YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.TileTransfers.BindArtwork(stock);
             samus.Draw(rom, new OamBuffer(), layer1X: 0, layer1Y: 0);
             ushort nativeWord = (ushort)(landing[index] | landing[index + 1] << 8);
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.SpritemapYPosition, "Actual rendering preserves every bounded native landing word");
-            AssertEqual((ushort)128, samus.YPosition, "Visual landing correction does not change physical position");
+            AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");
         }
         string identity = stock.ContentIdentity;
         for (int edit = 0; edit < 41; edit++)
@@ -1859,7 +1859,7 @@ internal static partial class Program
             SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose
         })
         {
-            var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100 };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             samus.TileTransfers.BindArtwork(body);
             int direction = rom.ReadByte(0x91b629 + (int)pose * 8 + 3);
             bool running = pose is SamusPoseId.MovingRightNormalPose or SamusPoseId.MovingLeftNormalPose;
@@ -3392,7 +3392,7 @@ internal static partial class Program
             int count = pose == SamusPoseId.NormalLandingRightPose ? 2 : pose == SamusPoseId.SpinLandingRightPose ? 3 : pose is SamusPoseId.StandingAimUpRightPose or SamusPoseId.NormalJumpAimUpRightPose or SamusPoseId.NormalJumpAimUpLeftPose or SamusPoseId.NormalJumpAimDownRightPose or SamusPoseId.NormalJumpAimDownLeftPose or SamusPoseId.FallingAimUpRightPose or SamusPoseId.FallingAimUpLeftPose or SamusPoseId.FallingAimDownRightPose or SamusPoseId.FallingAimDownLeftPose ? 2 : 1;
             for (ushort frame = 0; frame < count; frame++)
             {
-                var samus = new SamusState { Pose = pose, AnimationFrame = frame, XPosition = 128, YPosition = 128, SelectedHudItem = 1 };
+                var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1 };
                 samus.TileTransfers.BindArtwork(body);
                 var cannon = new SamusArmCannonState { Artwork = stock };
                 cannon.Update(rom, samus); cannon.Update(rom, samus);

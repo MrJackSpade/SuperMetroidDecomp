@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyDamageBoostJumpInitializer()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseId.DamageBoostLeftPose, XPosition = 0x00b6, YPosition = 0x0082 };
+        var samus = new SamusState { Pose = SamusPoseId.DamageBoostLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00b6, 0x0082)) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.HorizontalSpeed.BaseSpeed = 5;

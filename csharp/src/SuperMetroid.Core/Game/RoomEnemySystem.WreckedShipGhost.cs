@@ -230,8 +230,8 @@ public sealed partial class RoomEnemySystem
         WreckedShipGhostEnemyState state,
         SamusState samus)
     {
-        ushort samusX = samus.XPosition;
-        ushort samusY = samus.YPosition;
+        ushort samusX = samus.Position.X.Whole;
+        ushort samusY = samus.Position.Y.Whole;
 
         bool withinPreviousBox =
             unchecked((short)(samusX - state.SamusXLowerBound)) >= 0 &&
@@ -378,13 +378,13 @@ public sealed partial class RoomEnemySystem
         state.VerticalVelocityFraction = 0;
         state.VerticalVelocityWhole = WreckedShipGhostInitialVerticalVelocityWhole;
         state.HorizontalMovementClass = 4;
-        state.PreviousSamusX = samus.XPosition;
-        state.SamusXLowerBound = samus.XPosition;
-        state.SamusXUpperBound = samus.XPosition;
+        state.PreviousSamusX = samus.Position.X.Whole;
+        state.SamusXLowerBound = samus.Position.X.Whole;
+        state.SamusXUpperBound = samus.Position.X.Whole;
         state.VerticalMovementClass = 12;
-        state.PreviousSamusY = samus.YPosition;
-        state.SamusYLowerBound = samus.YPosition;
-        state.SamusYUpperBound = samus.YPosition;
+        state.PreviousSamusY = samus.Position.Y.Whole;
+        state.SamusYLowerBound = samus.Position.Y.Whole;
+        state.SamusYUpperBound = samus.Position.Y.Whole;
         state.StablePositionTimer = WreckedShipGhostStablePositionDuration;
         state.StableDirectionTimer = WreckedShipGhostStableDirectionDuration;
     }

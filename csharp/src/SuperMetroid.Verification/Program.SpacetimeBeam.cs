@@ -61,8 +61,7 @@ internal static partial class Program
         Suite(nameof(VerifySpacetimeBeamGraphics), () => VerifySpacetimeBeamGraphics());
 
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 128;
-        samus.YPosition = 128;
+        samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.SelectedHudItem = 0;
         samus.Missiles = 20;
         samus.MaxMissiles = 50;

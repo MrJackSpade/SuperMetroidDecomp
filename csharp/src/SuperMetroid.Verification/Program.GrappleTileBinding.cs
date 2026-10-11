@@ -14,11 +14,11 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.RunNmi(0, true);
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100); samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWholeX((ushort)(runtime.Camera!.XPosition + 100)); samus.Position = samus.Position.WithWholeY((ushort)(runtime.Camera.YPosition + 100));
         samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = 4;
-        samus.Grapple.BeamStartX = samus.XPosition; samus.Grapple.BeamStartY = samus.YPosition;
+        samus.Grapple.BeamStartX = samus.Position.X.Whole; samus.Grapple.BeamStartY = samus.Position.Y.Whole;
         samus.Grapple.Angle = SnesAngle.FromRaw(0x6000);
         var game = CreateRetailGameFixture(bus);
         var runtimeField = typeof(SuperMetroidGame).GetField("runtime", flags)!;

@@ -17,7 +17,7 @@ internal static partial class Program
         {
             if (frame % 60 == 0)
             {
-                Console.WriteLine($"frame={frame} Samus={runtime.Samus!.XPosition},{runtime.Samus.YPosition}");
+                Console.WriteLine($"frame={frame} Samus={runtime.Samus!.Position.X.Whole},{runtime.Samus.Position.Y.Whole}");
                 int index = 0;
                 foreach (var entry in runtime.Enemies.NinjaSpacePirateStates)
                 {

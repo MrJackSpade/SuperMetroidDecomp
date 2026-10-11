@@ -40,10 +40,8 @@ internal static partial class Program
                 new byte[8]);
             var plms = new RoomPlmSystem();
             var samus = new SamusState();
-            samus.XPosition = 24;
-            samus.YPosition = definition.Ceiling ? (ushort)16 : (ushort)0;
-            samus.Kinematics.XRadius = 8;
-            samus.Kinematics.YRadius = 16;
+            samus.Position = samus.Position.WithWhole(new(24, definition.Ceiling ? (ushort)16 : (ushort)0));
+            samus.Kinematics.Radius = new(8, 16);
 
             RoomCollisionBlock block = level.GetCollisionBlock(1, 1);
             plms.TrySpawnSamusEater(level, block, headerPointer, samus);

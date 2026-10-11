@@ -47,8 +47,7 @@ internal static partial class Program
         var system = new IntroRinkaSystem();
         var samus = new SamusState
         {
-            XPosition = 0x0200,
-            YPosition = 0x0100,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)),
         };
         for (int frame = 0; frame < 220; frame++)
         {

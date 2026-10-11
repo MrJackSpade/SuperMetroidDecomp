@@ -18,7 +18,7 @@ internal static partial class Program
             var eye = runtime.Enemies.Draygon!.Eye!;
             typeof(RoomEnemySlot).GetProperty(nameof(eye.XPosition))!.SetValue(eye, (ushort)128);
             typeof(RoomEnemySlot).GetProperty(nameof(eye.YPosition))!.SetValue(eye, (ushort)128);
-            var samus = new SamusState { XPosition = 128, YPosition = 256 };
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 256)) };
             var track = typeof(RoomEnemySystem).GetMethod("TrackSamusWithDraygonEye",
                 BindingFlags.Instance | BindingFlags.NonPublic)!;
             foreach (ushort frame in new ushort[] { 127, 128, 129 })

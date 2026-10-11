@@ -258,8 +258,8 @@ public sealed partial class RoomEnemySystem
         MorphBallEyeEnemyState state,
         SamusState samus)
     {
-        if (!IsWithinStrictModularDistance(samus.YPosition, eye.YPosition, EyeActivateYDistance) ||
-            !IsWithinStrictModularDistance(samus.XPosition, eye.XPosition, EyeActivateXDistance))
+        if (!IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.YPosition, EyeActivateYDistance) ||
+            !IsWithinStrictModularDistance(samus.Position.X.Whole, eye.XPosition, EyeActivateXDistance))
         {
             return;
         }
@@ -296,8 +296,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         bool inProximity =
-            IsWithinStrictModularDistance(samus.YPosition, eye.YPosition, EyeDeactivateYDistance) &&
-            IsWithinStrictModularDistance(samus.XPosition, eye.XPosition, EyeDeactivateXDistance);
+            IsWithinStrictModularDistance(samus.Position.Y.Whole, eye.YPosition, EyeDeactivateYDistance) &&
+            IsWithinStrictModularDistance(samus.Position.X.Whole, eye.XPosition, EyeDeactivateXDistance);
         if (!inProximity)
         {
             LastMorphBallEyeSoundEffect = EyeDeactivationSound;
@@ -331,8 +331,8 @@ public sealed partial class RoomEnemySystem
 
     private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         SnesAngle.FromTableIndex(CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - eye.XPosition)),
-            unchecked((short)(samus.YPosition - eye.YPosition))));
+            unchecked((short)(samus.Position.X.Whole - eye.XPosition)),
+            unchecked((short)(samus.Position.Y.Whole - eye.YPosition))));
 
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {

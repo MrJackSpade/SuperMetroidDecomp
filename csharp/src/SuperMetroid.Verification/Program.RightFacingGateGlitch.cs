@@ -77,8 +77,7 @@ internal static partial class Program
             AssertTrue(InstanceStateEquals(level, pristine), "Restored gate-glitch level matches a freshly built level");
             var samus = new SamusState
             {
-                XPosition = unchecked((ushort)x),
-                YPosition = unchecked((ushort)y),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)x), unchecked((ushort)y))),
                 PoseId = SamusPoseId.FacingRightNormalPose,
                 SelectedHudItem = 2,
                 SuperMissiles = 10,
@@ -192,9 +191,9 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 238;
-        samus.Kinematics.XSubposition = 8191;
-        samus.YPosition = 139;
+        samus.Position = samus.Position.WithWholeX(238);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(8191);
+        samus.Position = samus.Position.WithWholeY(139);
         samus.EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots;
         samus.EquippedBeams = (ushort)(SamusBeamFlags.Ice | SamusBeamFlags.Wave);
         samus.SelectedHudItem = 2;
@@ -249,9 +248,9 @@ internal static partial class Program
             shootFrame,
             openFrame >= 0,
             openFrame,
-            samus.XPosition,
-            samus.Kinematics.XSubposition,
-            samus.YPosition,
+            samus.Position.X.Whole,
+            samus.Kinematics.Position.X.Fraction,
+            samus.Position.Y.Whole,
             (int)samus.Pose,
             shotX,
             shotY);

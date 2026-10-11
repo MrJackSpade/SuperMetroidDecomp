@@ -183,7 +183,7 @@ internal static partial class Program
             slot.Parameter2 = 0x0080;
             typeof(RoomEnemySystem).GetMethod("InitializeNinjaSpacePirate", flags)!
                 .Invoke(enemies, [slot]);
-            return (enemies, slot, new SamusState { XPosition = 0x0080, YPosition = 0x0100 });
+            return (enemies, slot, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0100)) });
         }
 
         static void RunFrames(

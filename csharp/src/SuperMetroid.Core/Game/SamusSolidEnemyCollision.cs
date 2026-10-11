@@ -61,8 +61,8 @@ public static class SamusSolidEnemyCollision
             // `$A0:A9EB-$A0:AA30`: the rounded future center must overlap on both axes.
             // Tangency is not overlap here; the native CMP/BCC sequence requires the
             // center distance to be strictly less than the sum of both radii.
-            if (!StrictlyOverlaps(targetX, state.XRadius, enemy.XPosition, enemy.XRadius) ||
-                !StrictlyOverlaps(targetY, state.YRadius, enemy.YPosition, enemy.YRadius))
+            if (!StrictlyOverlaps(targetX, state.Radius.X, enemy.XPosition, enemy.XRadius) ||
+                !StrictlyOverlaps(targetY, state.Radius.Y, enemy.YPosition, enemy.YRadius))
             {
                 continue;
             }
@@ -73,13 +73,13 @@ public static class SamusSolidEnemyCollision
             ushort gap = direction switch
             {
                 SamusCollisionDirection.Left => unchecked((ushort)(
-                    state.XPosition - state.XRadius - enemy.XPosition - enemy.XRadius)),
+                    state.Position.X.Whole - state.Radius.X - enemy.XPosition - enemy.XRadius)),
                 SamusCollisionDirection.Right => unchecked((ushort)(
-                    enemy.XPosition - enemy.XRadius - state.XPosition - state.XRadius)),
+                    enemy.XPosition - enemy.XRadius - state.Position.X.Whole - state.Radius.X)),
                 SamusCollisionDirection.Up => unchecked((ushort)(
-                    state.YPosition - state.YRadius - enemy.YPosition - enemy.YRadius)),
+                    state.Position.Y.Whole - state.Radius.Y - enemy.YPosition - enemy.YRadius)),
                 SamusCollisionDirection.Down => unchecked((ushort)(
-                    enemy.YPosition - enemy.YRadius - state.YPosition - state.YRadius)),
+                    enemy.YPosition - enemy.YRadius - state.Position.Y.Whole - state.Radius.Y)),
                 // Probe rejected values outside zero through three above. Keep a throwing
                 // arm anyway so this switch stays honest if the public enum later grows.
                 _ => throw new InvalidOperationException("Unreachable collision direction."),
@@ -95,7 +95,7 @@ public static class SamusSolidEnemyCollision
                 // Samus's *Y* subposition even for a left/right touch. The disassembly calls
                 // this out as an original-game bug; preserving it prevents one-pixel drift
                 // differences when repeatedly pressing into a solid or frozen enemy.
-                state.YSubposition = 0;
+                state.Position = state.Position.WithFractionY(0);
             }
 
             // Native success returns A=$FFFF, publishes the whole gap in $12, clears $14,
@@ -122,25 +122,25 @@ public static class SamusSolidEnemyCollision
         ushort distance,
         ushort distanceSubposition)
     {
-        ushort targetX = state.XPosition;
-        ushort targetY = state.YPosition;
+        ushort targetX = state.Position.X.Whole;
+        ushort targetY = state.Position.Y.Whole;
 
         switch (direction)
         {
             case SamusCollisionDirection.Left:
-                targetX = RoundNegative(state.XPosition, state.XSubposition, distance, distanceSubposition);
+                targetX = RoundNegative(state.Position.X.Whole, state.Position.X.Fraction, distance, distanceSubposition);
                 break;
 
             case SamusCollisionDirection.Right:
-                targetX = RoundPositive(state.XPosition, state.XSubposition, distance, distanceSubposition);
+                targetX = RoundPositive(state.Position.X.Whole, state.Position.X.Fraction, distance, distanceSubposition);
                 break;
 
             case SamusCollisionDirection.Up:
-                targetY = RoundNegative(state.YPosition, state.YSubposition, distance, distanceSubposition);
+                targetY = RoundNegative(state.Position.Y.Whole, state.Position.Y.Fraction, distance, distanceSubposition);
                 break;
 
             case SamusCollisionDirection.Down:
-                targetY = RoundPositive(state.YPosition, state.YSubposition, distance, distanceSubposition);
+                targetY = RoundPositive(state.Position.Y.Whole, state.Position.Y.Fraction, distance, distanceSubposition);
                 break;
             // The pose-observation probe targets Samus's current position.
             case SamusCollisionDirection.NonDirectionalProbe:

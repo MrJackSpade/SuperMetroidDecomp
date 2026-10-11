@@ -18,7 +18,7 @@ internal static class RetailKraidCaptureTests
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), 0, 256);
         var samus = runtime.Samus!;
         // Match the existing Kraid rise audit's stationary approach position.
-        samus.XPosition = 128; samus.YPosition = 456;
+        samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         var boss = runtime.Enemies.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");

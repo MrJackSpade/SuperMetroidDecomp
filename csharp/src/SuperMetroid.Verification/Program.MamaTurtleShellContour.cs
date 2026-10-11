@@ -39,7 +39,7 @@ internal static partial class Program
 
         var mama = new RoomEnemySlot(0) { XPosition = 0x0200, YPosition = 0x0200 };
         var state = new MamaTurtleEnemyState(mama) { AsleepFlag = 1 };
-        var samus = new SamusState { YPosition = 0 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
         var runAsleep = typeof(RoomEnemySystem).GetMethod(
                 "RunMamaTurtleAsleep", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemySlot, MamaTurtleEnemyState, SamusState>>();
@@ -49,7 +49,7 @@ internal static partial class Program
         {
             mama.YRadius = 0xffff;
             mama.Properties = 0;
-            samus.XPosition = unchecked((ushort)(mama.XPosition - difference));
+            samus.Position = samus.Position.WithWholeX(unchecked((ushort)(mama.XPosition - difference)));
             runAsleep(mama, state, samus);
 
             if (Math.Abs((int)difference) >= MamaTurtleShellContourDefinitions.HalfWidth)

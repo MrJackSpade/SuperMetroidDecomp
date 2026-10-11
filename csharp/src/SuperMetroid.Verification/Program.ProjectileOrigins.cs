@@ -15,7 +15,7 @@ internal static partial class Program
 
         void Check(SamusPoseId pose, ushort direction, ushort x, ushort y)
         {
-            samus.Pose = pose; samus.XPosition = x; samus.YPosition = y; slot.Direction = direction;
+            samus.Pose = pose; samus.Position = samus.Position.WithWhole(new(x, y)); slot.Direction = direction;
             bool running = rom.ReadByte(0x91b629 + (int)pose * 8 + 1) == 1 || pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
             int offset = (direction & 15) * 2;
             short dx = Word((running ? 0x90c22c : 0x90c204) + offset);
@@ -25,8 +25,8 @@ internal static partial class Program
             AssertEqual(unchecked((ushort)(x + dx)), slot.XPosition, "Physical muzzle X follows native direction/table selection");
             AssertEqual(unchecked((ushort)(y + dy - correction)), slot.YPosition, "Physical muzzle Y follows native signed origin and unsigned pose correction");
             AssertEqual(direction, slot.Direction, "Origin lookup does not rewrite lifecycle/direction bits");
-            AssertEqual(x, samus.XPosition, "Origin setup leaves Samus X unchanged");
-            AssertEqual(y, samus.YPosition, "Origin setup leaves Samus Y unchanged");
+            AssertEqual(x, samus.Position.X.Whole, "Origin setup leaves Samus X unchanged");
+            AssertEqual(y, samus.Position.Y.Whole, "Origin setup leaves Samus Y unchanged");
         }
 
         // All direction words, including lifecycle high bits and low-nibble overreads,

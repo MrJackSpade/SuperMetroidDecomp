@@ -284,8 +284,8 @@ public sealed partial class RoomEnemySystem
                     .With(EnemyProperties.ProcessOffScreen);
 
                 byte sourceAngle = CalculateCartridgeAngle(
-                    unchecked((short)(samus.XPosition - slot.XPosition)),
-                    unchecked((short)(samus.YPosition - slot.YPosition)));
+                    unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
+                    unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
                 byte velocityAngle = unchecked((byte)-(sourceAngle + 0x80));
                 state.XVelocity = MultiplyCartridgeSinCos(RinkaSpeed, velocityAngle);
                 state.YVelocity = MultiplyCartridgeSinCos(

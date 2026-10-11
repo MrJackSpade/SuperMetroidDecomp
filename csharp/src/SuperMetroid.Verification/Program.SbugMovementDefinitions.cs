@@ -56,11 +56,10 @@ internal static partial class Program
 
         var samus = new SamusState
         {
-            XPosition = 0x1234,
-            YPosition = 0x5678,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)),
         };
-        slot.XPosition = samus.XPosition;
-        slot.YPosition = samus.YPosition;
+        slot.XPosition = samus.Position.X.Whole;
+        slot.YPosition = samus.Position.Y.Whole;
         for (byte behavior = 0; behavior <= (byte)SbugActivationBehavior.MoveAwayFromSamus; behavior++)
         {
             SbugEnemyState state = enemies.SbugStates[0]!;

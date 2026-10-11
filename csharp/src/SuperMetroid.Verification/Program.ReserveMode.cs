@@ -112,8 +112,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Health = reserveEnergy == 0 ? (ushort)99 : (ushort)0,
             MaxHealth = 99,
             ReserveEnergy = reserveEnergy,

@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyMoonwalkRanIntoWall()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseId.MoonwalkAimUpLeftPose, XPosition = 0x00eb, YPosition = 0x00c3 };
+        var samus = new SamusState { Pose = SamusPoseId.MoonwalkAimUpLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x00c3)) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         AssertTrue(!samus.IsFacingLeft(bus), "moonwalk pose $75 faces right");

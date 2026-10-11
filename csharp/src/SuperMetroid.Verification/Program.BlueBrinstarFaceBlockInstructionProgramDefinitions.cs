@@ -113,8 +113,7 @@ internal static partial class Program
                 var samus = new SamusState
                 {
                     CollectedItems = 0x0004,
-                    XPosition = x,
-                    YPosition = slot.YPosition,
+                    Position = FixedPosition<RoomPixels>.FromWhole(new(x, slot.YPosition)),
                 };
                 runMain(slot, enemies.BlueBrinstarFaceBlockStates[0]!, samus);
                 AssertTrue(enemies.BlueBrinstarFaceBlockStates[0]!.Activated,

@@ -23,8 +23,8 @@ internal static partial class Program
         ridley.HorizontalVelocity = unchecked((ushort)-768);
         body.XPosition = 41;
         body.YPosition = 100;
-        runtime.Samus!.XPosition = 20;
-        runtime.Samus.YPosition = 168;
+        runtime.Samus!.Position = runtime.Samus!.Position.WithWholeX(20);
+        runtime.Samus.Position = runtime.Samus.Position.WithWholeY(168);
         runtime.StepFrame(0);
         runtime.RunNmi(0, true);
         AssertEqual(40, body.XPosition, "Ceres lunge clips at native left bound");

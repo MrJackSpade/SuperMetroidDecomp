@@ -31,7 +31,7 @@ internal static partial class Program
 
         var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
         MethodInfo Method(string name) => typeof(SamusProjectileSystem).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!;
-        SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128, Missiles = 10, SuperMissiles = 10 };
+        SamusState Samus() => new() { Pose = SamusPoseId.FacingRightNormalPose, Position = new(new(128, 0), new(128, 0)), Missiles = 10, SuperMissiles = 10 };
         void Check(SamusProjectileSlot slot, int table, int index, int direction)
         {
             int data = 0x930000 | Word(table + index * 2);
@@ -175,8 +175,7 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
-                XPosition = 128,
-                YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = beam,
                 SelectedHudItem = 3,
                 PowerBombs = 10,
@@ -206,9 +205,9 @@ internal static partial class Program
                 projectiles.StepSpazerCombo(guarded, samus, first, shared, 0);
             else
                 projectiles.StepPlasmaCombo(samus, first, shared, 0, 0);
-            AssertEqual(unchecked((ushort)(samus.XPosition + offset.X)), first.XPosition,
+            AssertEqual(unchecked((ushort)(samus.Position.X.Whole + offset.X)), first.XPosition,
                 $"beam {beam:X} production X consumes compiled sine offset");
-            AssertEqual(unchecked((ushort)(samus.YPosition + offset.Y)), first.YPosition,
+            AssertEqual(unchecked((ushort)(samus.Position.Y.Whole + offset.Y)), first.YPosition,
                 $"beam {beam:X} production Y consumes compiled sine offset");
         }
 

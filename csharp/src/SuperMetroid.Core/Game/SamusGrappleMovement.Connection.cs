@@ -24,18 +24,18 @@ public static partial class SamusGrappleMovement
         // Whole endpoint offsets are the signed upper words of the two 16.16 accumulators.
         // Arithmetic shift is intentional: a left/up beam must retain sign after fractional
         // accumulation, exactly like reading `$0DCE/$0DD2` as signed displacement words.
-        grapple.RopeStartX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
-        grapple.RopeStartY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
+        grapple.RopeStartX = unchecked((ushort)(samus.Position.X.Whole + grapple.OriginXOffset));
+        grapple.RopeStartY = unchecked((ushort)(samus.Position.Y.Whole + grapple.OriginYOffset));
         // $94:A8C6-A8F1 adds the offset to Samus's subpixel-inclusive position, so the
         // fractional carry reaches the endpoint before the whole origin offset is added.
         grapple.AnchorX = unchecked((ushort)(
-            AddFixed(samus.XPosition, samus.Kinematics.XSubposition, grapple.EndpointXOffsetFixed) +
+            AddFixed(samus.Position.X.Whole, samus.Kinematics.Position.X.Fraction, grapple.EndpointXOffsetFixed) +
             grapple.OriginXOffset));
         grapple.AnchorY = unchecked((ushort)(
-            AddFixed(samus.YPosition, samus.Kinematics.YSubposition, grapple.EndpointYOffsetFixed) +
+            AddFixed(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction, grapple.EndpointYOffsetFixed) +
             grapple.OriginYOffset));
-        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.FlareXOffset));
-        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.FlareYOffset));
+        grapple.BeamStartX = unchecked((ushort)(samus.Position.X.Whole + grapple.FlareXOffset));
+        grapple.BeamStartY = unchecked((ushort)(samus.Position.Y.Whole + grapple.FlareYOffset));
     }
 
     /// <summary>Whole word of a 16.16 position plus a signed 16.16 offset.</summary>
@@ -304,8 +304,8 @@ public static partial class SamusGrappleMovement
         // BA61 and BA9B both derive the angle from the body position that fired the beam,
         // before command 9/10 changes pose and snaps Samus to the rope. The angle is stored
         // as an integer byte in the high half of the native word; its fraction becomes zero.
-        int deltaX = unchecked((short)(samus.XPosition - grapple.AnchorX));
-        int deltaY = unchecked((short)(samus.YPosition - grapple.AnchorY));
+        int deltaX = unchecked((short)(samus.Position.X.Whole - grapple.AnchorX));
+        int deltaY = unchecked((short)(samus.Position.Y.Whole - grapple.AnchorY));
         SnesAngle angle = CalculateAngleFromXY(deltaX, deltaY);
         grapple.Angle = angle;
         grapple.MirroredAngle = grapple.Angle;
@@ -408,10 +408,9 @@ public static partial class SamusGrappleMovement
             // from the raw no-run flare table. Graphics-Y correction does not participate.
             var origin = GrappleFiringDefinitions.Origin(grapple.FireDirection, running: false);
             var flare = ReadFlareOrigin(grapple, grapple.FireDirection, running: false);
-            samus.XPosition = unchecked((ushort)(grapple.RopeStartX - origin.X));
-            samus.YPosition = unchecked((ushort)(grapple.RopeStartY - origin.Y));
-            grapple.BeamStartX = unchecked((ushort)(samus.XPosition + flare.X));
-            grapple.BeamStartY = unchecked((ushort)(samus.YPosition + flare.Y));
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(grapple.RopeStartX - origin.X)), unchecked((ushort)(grapple.RopeStartY - origin.Y))));
+            grapple.BeamStartX = unchecked((ushort)(samus.Position.X.Whole + flare.X));
+            grapple.BeamStartY = unchecked((ushort)(samus.Position.Y.Whole + flare.Y));
             grapple.Phase = GrapplePhase.ConnectedLocked;
         }
 
@@ -426,8 +425,8 @@ public static partial class SamusGrappleMovement
         samus.Kinematics.YSubspeed = 0;
 
         return (
-            ClampPreviousPosition(samus.XPosition, pending.PreviousX),
-            ClampPreviousPosition(samus.YPosition, pending.PreviousY));
+            ClampPreviousPosition(samus.Position.X.Whole, pending.PreviousX),
+            ClampPreviousPosition(samus.Position.Y.Whole, pending.PreviousY));
     }
 
     /// <summary>
@@ -506,13 +505,13 @@ public static partial class SamusGrappleMovement
         // Recompute from the final pose/position, not cached launch offsets. Physical
         // Start and presentation Flare remain separate coordinate pairs.
         grapple.RopeStartX = unchecked((ushort)(
-            samus.XPosition + origin.X));
+            samus.Position.X.Whole + origin.X));
         grapple.RopeStartY = unchecked((ushort)(
-            samus.YPosition + origin.Y - physicalYOffset));
+            samus.Position.Y.Whole + origin.Y - physicalYOffset));
         grapple.BeamStartX = unchecked((ushort)(
-            samus.XPosition + flare.X));
+            samus.Position.X.Whole + flare.X));
         grapple.BeamStartY = unchecked((ushort)(
-            samus.YPosition + flare.Y -
+            samus.Position.Y.Whole + flare.Y -
             graphicsYOffset));
     }
 

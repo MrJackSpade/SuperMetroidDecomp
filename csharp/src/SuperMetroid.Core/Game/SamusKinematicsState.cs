@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Spatial;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -5,9 +7,9 @@ namespace SuperMetroid.Core.Game;
 /// room collision.
 /// </summary>
 /// <remarks>
-/// Positions are split high/low words because collision intentionally overwrites individual
-/// halves (for example, a right wall sets X subposition to $FFFF). Collapsing this state to
-/// floats would erase those observable edge semantics.
+/// Positions keep their native whole and subpixel words because collision intentionally
+/// overwrites individual halves (for example, a right wall sets X subposition to $FFFF).
+/// Collapsing this state to floats would erase those observable edge semantics.
 /// </remarks>
 public sealed class SamusKinematicsState
 {
@@ -56,12 +58,8 @@ public sealed class SamusKinematicsState
             ? new SamusKinematicsState { ProbeContactDamageIndex = CollisionContactDamageIndex }
             : new SamusKinematicsState(SamusOwner);
         probe.CollisionPose = CollisionPose;
-        probe.XPosition = XPosition;
-        probe.XSubposition = XSubposition;
-        probe.YPosition = YPosition;
-        probe.YSubposition = YSubposition;
-        probe.XRadius = XRadius;
-        probe.YRadius = YRadius;
+        probe.Position = Position;
+        probe.Radius = Radius;
         probe.YSpeed = YSpeed;
         probe.YSubspeed = YSubspeed;
         probe.YDirection = YDirection;
@@ -105,41 +103,25 @@ public sealed class SamusKinematicsState
     /// </summary>
     public IReadOnlyList<ushort> SolidEnemyCollisionIndexes => _solidEnemyCollisionIndexes;
 
-    /// <summary>Whole-pixel world X at WRAM <c>$0AF6</c>.</summary>
-    public ushort XPosition { get; set; }
-
-    /// <summary>Fractional world X at WRAM <c>$0AF8</c>.</summary>
-    public ushort XSubposition { get; set; }
-
-    /// <summary>Whole-pixel world Y at WRAM <c>$0AFA</c>.</summary>
-    public ushort YPosition { get; set; }
-
-    /// <summary>Fractional world Y at WRAM <c>$0AFC</c>.</summary>
-    public ushort YSubposition { get; set; }
+    /// <summary>
+    /// Room-pixel 16.16 position: X at WRAM <c>$0AF6.$0AF8</c>, Y at <c>$0AFA.$0AFC</c>.
+    /// Collision deliberately overwrites individual halves (a right wall sets the X
+    /// subposition to <c>$FFFF</c>), which the half-word operations preserve.
+    /// </summary>
+    public FixedPosition<RoomPixels> Position { get; set; }
 
     /// <summary>
-    /// Whole signed X displacement at WRAM <c>$0B58</c>. Enemy/PLM producers write this
-    /// independently of Samus's own base and extra-run speeds.
+    /// External signed 16.16 displacement: X at WRAM <c>$0B58.$0B56</c>, Y at
+    /// <c>$0B5C.$0B5A</c>. Enemy/PLM producers write it independently of Samus's own speeds;
+    /// it persists until its producer clears it, and bank `$90` neither consumes nor zeroes it.
     /// </summary>
-    public ushort ExtraXDisplacement { get; set; }
-
-    /// <summary>Fractional X displacement at WRAM <c>$0B56</c>.</summary>
-    public ushort ExtraXSubdisplacement { get; set; }
+    public FixedVector<RoomPixels> ExtraDisplacement { get; set; }
 
     /// <summary>
-    /// Whole signed Y displacement at WRAM <c>$0B5C</c>. The word persists until its
-    /// producer clears it; bank `$90` does not consume or automatically zero it.
+    /// Collision half-extents: X is always five (<c>Samus_SetRadius</c>); Y is the
+    /// pose-defined radius at WRAM <c>$0B00</c>.
     /// </summary>
-    public ushort ExtraYDisplacement { get; set; }
-
-    /// <summary>Fractional Y displacement at WRAM <c>$0B5A</c>.</summary>
-    public ushort ExtraYSubdisplacement { get; set; }
-
-    /// <summary>Horizontal collision radius; <c>Samus_SetRadius</c> always writes five.</summary>
-    public ushort XRadius { get; set; } = 5;
-
-    /// <summary>Pose-defined vertical collision radius at WRAM <c>$0B00</c>.</summary>
-    public ushort YRadius { get; set; }
+    public Extent16<RoomPixels> Radius { get; set; } = new(5, 0);
 
     /// <summary>Whole vertical speed used to suppress grounded horizontal slope scaling.</summary>
     public ushort YSpeed { get; set; }
@@ -170,38 +152,20 @@ public sealed class SamusKinematicsState
     /// <summary>Native flag set when square collision or non-square alignment changes Y.</summary>
     public bool PositionAdjustedBySlope { get; set; }
 
-    /// <summary>Current position as an unsigned native 16.16 pair.</summary>
-    public uint XFixed => ((uint)XPosition << 16) | XSubposition;
-
-    /// <summary>Current position as an unsigned native 16.16 pair.</summary>
-    public uint YFixed => ((uint)YPosition << 16) | YSubposition;
-
     /// <summary>Current vertical speed as an unsigned native high/low pair.</summary>
     public uint VerticalSpeedFixed => ((uint)YSpeed << 16) | YSubspeed;
-
-    /// <summary>
-    /// Current extra X pair interpreted exactly as signed two's-complement 16.16. Keeping
-    /// the component words public preserves producer-level WRAM semantics while this view
-    /// prevents every movement consumer from reimplementing the cast/wrap operation.
-    /// </summary>
-    public int ExtraXFixed => unchecked((int)(((uint)ExtraXDisplacement << 16) |
-        ExtraXSubdisplacement));
-
-    /// <summary>Current extra Y pair interpreted as signed two's-complement 16.16.</summary>
-    public int ExtraYFixed => unchecked((int)(((uint)ExtraYDisplacement << 16) |
-        ExtraYSubdisplacement));
 
     /// <summary>
     /// Whole-pixel top collision boundary returned by <c>Get_Samus_Top_Boundary</c>.
     /// Liquid and wall-jump code deliberately samples this separately from Samus's feet.
     /// </summary>
-    public ushort TopBoundary => unchecked((ushort)(YPosition - YRadius));
+    public ushort TopBoundary => unchecked((ushort)(Position.Y.Whole - Radius.Y));
 
     /// <summary>
     /// Exclusive bottom collision boundary. Unlike the occupied bottom pixel returned by
     /// <c>$90:EC3E</c>, this does not subtract one. The native addition wraps at 16 bits.
     /// </summary>
-    public ushort BottomBoundary => unchecked((ushort)(YPosition + YRadius));
+    public ushort BottomBoundary => unchecked((ushort)(Position.Y.Whole + Radius.Y));
 
     /// <summary>Inclusive bottom pixel, matching $90:EC3E when radius reflects the current pose.</summary>
     public ushort BottomPixel => unchecked((ushort)(BottomBoundary - 1));
@@ -230,16 +194,4 @@ public sealed class SamusKinematicsState
     /// <summary>Ports EnemyMain's end-of-frame clear of <c>$182C-$1833</c>.</summary>
     internal void ClearSolidEnemyCollisionIndexes() =>
         Array.Fill(_solidEnemyCollisionIndexes, ushort.MaxValue);
-
-    internal void SetXFixed(uint value)
-    {
-        XPosition = unchecked((ushort)(value >> 16));
-        XSubposition = unchecked((ushort)value);
-    }
-
-    internal void SetYFixed(uint value)
-    {
-        YPosition = unchecked((ushort)(value >> 16));
-        YSubposition = unchecked((ushort)value);
-    }
 }

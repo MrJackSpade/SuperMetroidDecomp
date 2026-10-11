@@ -108,8 +108,8 @@ public sealed partial class RoomEnemySystem
         state.HandBeamNextYPosition = beam.YPosition;
         state.HandBeamNextYSubposition = 0;
 
-        short deltaX = unchecked((short)(samus.XPosition - beam.XPosition));
-        short deltaY = unchecked((short)(samus.YPosition - beam.YPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - beam.XPosition));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - beam.YPosition));
         byte angle = unchecked((byte)(
             0x80 - CalculateCartridgeAngle(deltaX, deltaY)));
         state.HandBeamNextAngle = angle;

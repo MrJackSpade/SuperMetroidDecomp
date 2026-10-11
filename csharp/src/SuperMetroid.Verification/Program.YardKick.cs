@@ -19,7 +19,7 @@ internal static partial class Program
             var actor = enemies.Slots[0];
             var state = enemies.YardStates[0]!;
             var samus = new SamusState { Pose = pose, Health = 999, MaxHealth = 999,
-                XPosition = actor.XPosition, YPosition = actor.YPosition };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(actor.XPosition, actor.YPosition)) };
             samus.RefreshCollisionRadii(bus);
             enemies.StepFrame((ushort)(actor.XPosition - 128), (ushort)(actor.YPosition - 112),
                 false, samus, level: assets.LevelData);
@@ -27,8 +27,7 @@ internal static partial class Program
             // must install the kick and consume the published distance words.
             state.MovementFunction = YardMovementFunction.Airborne;
             state.Behavior = YardBehavior.NormalCrawling;
-            samus.XPosition = actor.XPosition;
-            samus.YPosition = actor.YPosition;
+            samus.Position = samus.Position.WithWhole(new(actor.XPosition, actor.YPosition));
             samus.InvincibilityTimer = 0;
             samus.AbsoluteMovedLastFrameXFixed = ((uint)whole << 16) | fraction;
             AssertTrue(enemies.ResolveOrdinarySamusContact(samus, 0, assets.LevelData, actor.NativeIndex),

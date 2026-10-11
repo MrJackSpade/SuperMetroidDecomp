@@ -24,7 +24,7 @@ internal static partial class Program
             var samus = new SamusState
             {
                 PoseId = left != 0 ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
-                XPosition = (ushort)(left != 0 ? 32 : 992), YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left != 0 ? 32 : 992), 128)),
                 EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : 5),
             };
             var projectiles = CreateProjectileFixture();

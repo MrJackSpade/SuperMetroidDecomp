@@ -65,7 +65,7 @@ internal static partial class Program
 
         var guarded = new IntroArtworkSourceReadGuard(bus, blockIntroRinkas: true);
         var rinkas = new IntroRinkaSystem();
-        var samus = new SamusState { XPosition = 0x0200, YPosition = 0x0100 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0100)) };
         for (int frame = 0; frame <= 75; frame++)
             rinkas.Step(guarded, samus, motherBrainExploding: false, explosionsAllocated: false);
         AssertEqual(2, rinkas.LiveRinkas.Count,

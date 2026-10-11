@@ -28,8 +28,7 @@ internal static partial class Program
             int hitIndex = gateIndex + (trigger == DownwardGateTriggerBehavior.GreenLeft ? -1 : 1);
             var samus = new SamusState
             {
-                XPosition = (ushort)(hitIndex % level.WidthInBlocks * 16 + 8),
-                YPosition = (ushort)(hitIndex / level.WidthInBlocks * 16 + 8),
+                Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(hitIndex % level.WidthInBlocks * 16 + 8), (ushort)(hitIndex / level.WidthInBlocks * 16 + 8))),
             };
             for (int frame = 0; frame < 12; frame++)
             {

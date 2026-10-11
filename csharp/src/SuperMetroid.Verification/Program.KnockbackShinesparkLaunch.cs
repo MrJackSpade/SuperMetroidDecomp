@@ -11,7 +11,7 @@ internal static partial class Program
     private static void VerifyKnockbackShinesparkLaunch()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseId.ShinesparkWindupLeftPose, XPosition = 0x6c, YPosition = 0x98 };
+        var samus = new SamusState { Pose = SamusPoseId.ShinesparkWindupLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x6c, 0x98)) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(0x0400), "a shine is stored");

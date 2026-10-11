@@ -67,6 +67,13 @@ public readonly record struct SnesSignedSixteenSixteen
 /// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
 public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction)
 {
+    /// <summary>Splits an unsigned native 16.16 position into its whole and fractional words.</summary>
+    public static SnesFixedPosition FromRaw(uint rawValue) =>
+        new(unchecked((ushort)(rawValue >> 16)), unchecked((ushort)rawValue));
+
+    /// <summary>The unsigned native 16.16 position: whole word high, fractional word low.</summary>
+    public uint RawValue => ((uint)Whole << 16) | Fraction;
+
     /// <summary>Replaces only the whole word, as cartridge routines that store one half do.</summary>
     public SnesFixedPosition WithWhole(ushort whole) => this with { Whole = whole };
 

@@ -50,8 +50,8 @@ internal static partial class Program
             VulnerabilityPointer = EnemyVulnerabilityDefinitions.DefaultPointer,
         };
         fixture.Bus.WriteBytes(0xb48014, [2]);
-        enemy.XPosition = samus.XPosition;
-        enemy.YPosition = samus.YPosition;
+        enemy.XPosition = samus.Position.X.Whole;
+        enemy.YPosition = samus.Position.Y.Whole;
         enemy.XRadius = enemy.YRadius = 8;
         enemy.Health = 1;
         enemy.SpritemapPointer = 0x8000;
@@ -155,8 +155,8 @@ internal static partial class Program
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);
         RoomEnemyProjectileSlot pickup = fixture.System.SpawnEnemyDropFromChanceTable(
-            samus.XPosition,
-            samus.YPosition,
+            samus.Position.X.Whole,
+            samus.Position.Y.Whole,
             NativeDropChancePointer) ??
             throw new InvalidOperationException($"Could not allocate {kind} test pickup.");
 
@@ -245,14 +245,14 @@ internal static partial class Program
 
         RoomEnemyProjectileSlot boundary =
             fixture.System.SpawnEnemyDropFromChanceTable(100, 100, NativeDropChancePointer)!;
-        samus.XPosition = unchecked((ushort)(
-            boundary.XPosition + boundary.XRadius + samus.Kinematics.XRadius));
-        samus.YPosition = boundary.YPosition;
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(
+            boundary.XPosition + boundary.XRadius + samus.Kinematics.Radius.X)));
+        samus.Position = samus.Position.WithWholeY(boundary.YPosition);
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual<EnemyPickupKind?>(null, fixture.System.LastCollectedEnemyPickup,
             "radius equality is not Samus/pickup contact");
 
-        samus.XPosition--;
+        samus.Position -= new Offset16<RoomPixels>(1, 0);
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
         AssertEqual(EnemyPickupKind.SmallEnergy, fixture.System.LastCollectedEnemyPickup,
             "one pixel inside strict radius sum collects pickup");
@@ -262,7 +262,7 @@ internal static partial class Program
     {
         SamusState samus = CreateDropTestSamus();
         samus.Health = 50;
-        samus.XPosition = samus.YPosition = 500;
+        samus.Position = samus.Position.WithWhole(new(500, 500));
         samus.Grapple.Phase = GrapplePhase.Firing;
         samus.Grapple.AnchorX = 100;
         samus.Grapple.AnchorY = 100;
@@ -374,8 +374,7 @@ internal static partial class Program
 
     private static SamusState CreateDropTestSamus() => new()
     {
-        XPosition = 100,
-        YPosition = 100,
+        Position = new(new(100, 0), new(100, 0)),
         Health = 99,
         MaxHealth = 99,
     };

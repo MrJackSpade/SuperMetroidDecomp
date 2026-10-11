@@ -177,8 +177,8 @@ public sealed partial class RoomPlmSystem
             throw new InvalidOperationException("Downward gate has no active room width.");
         int gateX = slot.BlockIndex % _downwardGateRoomWidth;
         int gateY = slot.BlockIndex / _downwardGateRoomWidth;
-        return (samus.XPosition >> 4) == gateX &&
-            unchecked((ushort)((samus.YPosition >> 4) - gateY)) <
+        return (samus.Position.X.Whole >> 4) == gateX &&
+            unchecked((ushort)((samus.Position.Y.Whole >> 4) - gateY)) <
                 DownwardGatePlmRomData.GateHeightInBlocks;
     }
 

@@ -271,14 +271,14 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         SamusProjectileSystem? samusProjectiles)
     {
-        if (Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) >=
+        if (Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) >=
             NinjaPirateActivationDistance)
         {
             _ = TryNinjaPirateProjectileFlinch(slot, samus, samusProjectiles);
             return;
         }
 
-        ushort active = unchecked((short)(slot.XPosition - samus.XPosition)) < 0
+        ushort active = unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
             ? NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight
             : NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft;
         state.ActiveInstruction = active;
@@ -333,7 +333,7 @@ public sealed partial class RoomEnemySystem
 
         InstallNinjaPirateInstruction(
             slot,
-            unchecked((short)(slot.XPosition - samus.XPosition)) < 0
+            unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
                 ? NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingRight
                 : NinjaSpacePirateInstructionProgramDefinitions.FlinchFacingLeft);
         return true;
@@ -341,9 +341,9 @@ public sealed partial class RoomEnemySystem
 
     private static bool TryNinjaPirateStandingKick(RoomEnemySlot slot, SamusState samus)
     {
-        if (Math.Abs(unchecked((short)(samus.XPosition - slot.XPosition))) >=
+        if (Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.XPosition))) >=
                 NinjaPirateKickDistance ||
-            Math.Abs(unchecked((short)(samus.YPosition - slot.YPosition))) >=
+            Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.YPosition))) >=
                 NinjaPirateKickDistance)
         {
             return false;
@@ -351,7 +351,7 @@ public sealed partial class RoomEnemySystem
 
         InstallNinjaPirateInstruction(
             slot,
-            unchecked((short)(slot.XPosition - samus.XPosition)) < 0
+            unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
                 ? NinjaSpacePirateInstructionProgramDefinitions.KickFacingRight
                 : NinjaSpacePirateInstructionProgramDefinitions.KickFacingLeft);
         return true;
@@ -362,7 +362,7 @@ public sealed partial class RoomEnemySystem
         NinjaSpacePirateEnemyState state,
         SamusState samus)
     {
-        if (Math.Abs(unchecked((short)(state.PostsMidpointX - samus.XPosition))) >=
+        if (Math.Abs(unchecked((short)(state.PostsMidpointX - samus.Position.X.Whole))) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return false;
@@ -386,7 +386,7 @@ public sealed partial class RoomEnemySystem
 
         if (slot.XPosition == state.LeftPostX)
         {
-            if (unchecked((short)(slot.XPosition - samus.XPosition)) < 0)
+            if (unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0)
                 return;
             InstallNinjaPirateInstruction(
                 slot,
@@ -394,7 +394,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (unchecked((short)(slot.XPosition - samus.XPosition)) >= 0)
+        if (unchecked((short)(slot.XPosition - samus.Position.X.Whole)) >= 0)
             return;
         InstallNinjaPirateInstruction(
             slot,
@@ -413,7 +413,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if (Math.Abs(unchecked((short)(state.PostsMidpointX - samus.XPosition))) >=
+        if (Math.Abs(unchecked((short)(state.PostsMidpointX - samus.Position.X.Whole))) >=
             NinjaPirateMidpointTriggerDistance)
         {
             return;
@@ -717,7 +717,7 @@ public sealed partial class RoomEnemySystem
                     throw new InvalidOperationException(
                         "Ninja Space Pirate facing selection requires the active Samus actor.");
                 }
-                state.ActiveInstruction = unchecked((short)(slot.XPosition - samus.XPosition)) < 0
+                state.ActiveInstruction = unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
                     ? NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingRight
                     : NinjaSpacePirateInstructionProgramDefinitions.ActiveFacingLeft;
                 slot.InstructionTimer = 1;

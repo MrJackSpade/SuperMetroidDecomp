@@ -539,8 +539,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
-            XPosition = ripper.XPosition,
-            YPosition = ripper.YPosition,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(ripper.XPosition, ripper.YPosition)),
         };
         enemies.StepFrame(0, 0, false, touchingSamus, level: level, resolveSamusContactBeforeAi: true);
         AssertEqual(0, ripper.InvincibilityTimer, "ordinary frame expires the last invincibility tick");
@@ -604,8 +603,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Health = 99,
-        XPosition = ripper.XPosition,
-        YPosition = ripper.YPosition,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(ripper.XPosition, ripper.YPosition)),
     };
     AssertTrue(enemies.ResolveOrdinarySamusContact(samus, controllerInput: 0),
         "Ripper radius contact reaches common touch AI");
@@ -846,7 +844,7 @@ static void VerifyCeresDoorBossBranch()
 
     bool areaBossDefeated = false;
     int areaBossReads = 0;
-    var samus = new SamusState { XPosition = 0x0008, YPosition = 0x007f };
+    var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0008, 0x007f)) };
     var enemies = new RoomEnemySystem { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
     enemies.Load(
         bus,
@@ -1365,8 +1363,7 @@ static void VerifyCeresRidleyRoomEntry()
     state.TailWhipTargetClockwiseAngle = 0xffff;
     state.TailWhipTargetCounterClockwiseAngle = 0xffff;
     state.Function = RidleyAiFunction.CeresLungeSetup;
-    samus.XPosition = unchecked((ushort)(ridley.XPosition - 64));
-    samus.YPosition = unchecked((ushort)(ridley.YPosition + 68));
+    samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.XPosition - 64)), unchecked((ushort)(ridley.YPosition + 68))));
     enemies.StepFrame(0, 0, timeIsFrozen: false, samus);
     AssertEqual((ushort)RidleyAiFunction.CeresLungeMain, (ushort)state.Function,
         "Ceres Ridley enters lunge main");
@@ -1402,8 +1399,7 @@ static void VerifyCeresRidleyRoomEntry()
         // Place Samus relative to the active component, then retain native muzzle offset
         // and first-frame motion. The public producer exercises allocation/type/radii
         // before this focused extended-hitbox/shot-AI test resolves the impact.
-        samus.XPosition = unchecked((ushort)(ridley.XPosition + 8));
-        samus.YPosition = ridley.YPosition;
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ridley.XPosition + 8)), ridley.YPosition));
         sharedProjectiles.StepFrame(bus, air, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
         projectiles.StepFrame(

@@ -141,9 +141,8 @@ internal static partial class Program
         {
             Pose = SamusPoseId.FacingRightNormalPose,
             Health = 99,
-            XPosition = 100,
-            YPosition = 100,
-            Kinematics = { XRadius = 5, YRadius = 12 },
+            Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+            Kinematics = { Radius = new(5, 12) },
         };
         samus.LiquidPhysics.ConfigureLavaAcid(
             surfaceY: 100,

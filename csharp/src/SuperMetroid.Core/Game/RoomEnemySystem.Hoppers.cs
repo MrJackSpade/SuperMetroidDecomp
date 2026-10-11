@@ -286,7 +286,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Hopper direction selection requires Samus.");
 
-        bool samusIsLeft = unchecked((short)(samus.XPosition - slot.XPosition)) < 0;
+        bool samusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
         state.Function = (upsideDown, samusIsLeft) switch
         {
             (false, true) => HopperEnemyFunction.StartBackwardHopUpsideUp,

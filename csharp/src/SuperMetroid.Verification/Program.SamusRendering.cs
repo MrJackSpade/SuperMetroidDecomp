@@ -21,8 +21,7 @@ static void VerifySamusRenderingSlice()
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         AnimationFrame = 0,
-        XPosition = 0x0480,
-        YPosition = 0x0086,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
     };
     var cgram = new SnesCgram();
     var vram = new SnesVram();
@@ -152,7 +151,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "standing-right transition applies running-right pose");
     AssertEqual(0, samus.AnimationFrame, "running transition resets animation frame");
     AssertEqual(2, samus.AnimationFrameTimer, "running pose first delay byte");
-    AssertEqual(21, samus.Kinematics.YRadius, "running pose refreshes collision radius");
+    AssertEqual(21, samus.Kinematics.Radius.Y, "running pose refreshes collision radius");
 
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -180,8 +179,8 @@ static void VerifySamusRenderingSlice()
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x1404;
     // A $18 live radius takes MakeSamusFaceForward's no-lift branch, so the drawing
     // checks below keep Samus at the seeded Y.
-    samus.Kinematics.YRadius = 0x18;
-    ushort radiusBeforeForwardSetup = samus.Kinematics.YRadius;
+    samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(0x18);
+    ushort radiusBeforeForwardSetup = samus.Kinematics.Radius.Y;
     samus.ApplyForwardFacingPoseSetup(bus);
     AssertEqual(SamusPoseId.SpinJumpRightPose, samus.PoseHistory.LastDifferentPose,
         "forward setup shifts previous pose, not stale older walljump history");
@@ -198,7 +197,7 @@ static void VerifySamusRenderingSlice()
     AssertEqual(SamusPoseId.ForwardFacingPowerSuitPose, samus.Pose, "no suit selects power forward pose");
     // MakeSamusFaceForward ($91:E3F6) only compares the live radius with $18; the next
     // frame's SetSamusRadius installs the pose's own radius.
-    AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.YRadius, "forward setup leaves the live radius");
+    AssertEqual(radiusBeforeForwardSetup, samus.Kinematics.Radius.Y, "forward setup leaves the live radius");
     AssertEqual(8, samus.AnimationFrameTimer, "power forward setup reads delay eight");
     AssertEqual(0, samus.HorizontalSpeed.BaseSpeed, "forward setup clears base X speed");
     AssertEqual(0, samus.Kinematics.YSpeed, "forward setup clears Y speed");
@@ -331,7 +330,7 @@ static void VerifySamusRenderingSlice()
         samus.AnimationFrame = frame;
         oam.BeginFrame();
         BindSyntheticSamusRendering(bus, samus);
-        samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: samus.YPosition);
+        samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: samus.Position.Y.Whole);
         oam.FinalizeFrame();
         AssertEqual(expectedSprites, oam.LastFinalizedSpriteCount, name);
     }
@@ -347,25 +346,25 @@ static void VerifySamusRenderingSlice()
         "movement-type API rejects a discriminator outside the complete retail domain");
     oam.BeginFrame();
     AssertThrows<InvalidDataException>(
-        () => samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: samus.YPosition),
+        () => samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: samus.Position.Y.Whole),
         "movement type beyond complete bottom-half table is rejected as malformed pose data");
 
     // Positioning must consume those same ROM bytes instead of duplicating a convenient
     // host switch. `$37` proves signed -4/-2 values; unused `$39` proves that the native
     // zero record remains admitted and does not fall through to its nonzero pose offset.
     samus.Pose = SamusPoseId.MorphingTransitionRightPose;
-    samus.YPosition = 0x0086;
+    samus.Position = samus.Position.WithWholeY(0x0086);
     samus.AnimationFrame = 0;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
+    samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0082, samus.SpritemapYPosition,
         "morph transition frame zero reads signed minus-four table byte");
     samus.AnimationFrame = 1;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
+    samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0084, samus.SpritemapYPosition,
         "morph transition frame one reads signed minus-two table byte");
@@ -380,7 +379,7 @@ static void VerifySamusRenderingSlice()
     samus.AnimationFrame = 0;
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
-    samus.Draw(bus, oam, layer1X: samus.XPosition, layer1Y: 0);
+    samus.Draw(bus, oam, layer1X: samus.Position.X.Whole, layer1Y: 0);
     oam.FinalizeFrame();
     AssertEqual(0x0086, samus.SpritemapYPosition,
         "unused transition pose reads native zero instead of generic graphics offset");
@@ -393,7 +392,7 @@ static void VerifySamusRenderingSlice()
         SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + (int)samus.Pose * 2,
         0xe100);
     samus.AnimationFrame = 2;
-    samus.YPosition = 0x0086;
+    samus.Position = samus.Position.WithWholeY(0x0086);
     oam.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Draw(bus, oam, layer1X: 0x0400, layer1Y: 0);
@@ -443,8 +442,7 @@ static void VerifySamusRenderingSlice()
     // collision-visible Samus coordinates remain byte-for-byte unchanged afterward.
     samus.Pose = SamusPoseId.FacingRightNormalPose;
     samus.AnimationFrame = 0;
-    samus.XPosition = 0x0488;
-    samus.YPosition = 0x0086;
+    samus.Position = samus.Position.WithWhole(new(0x0488, 0x0086));
     var quarterTurn = new SamusMode7Transform(
         MatrixA: 0x0000,
         MatrixB: 0x0100,
@@ -464,9 +462,9 @@ static void VerifySamusRenderingSlice()
         "Mode 7 quarter-turn rotates Samus render X around M7X");
     AssertEqual(0x0082, samus.SpritemapYPosition,
         "Mode 7 quarter-turn applies pose graphics offset after rotated Y");
-    AssertEqual(0x0488, samus.XPosition,
+    AssertEqual(0x0488, samus.Position.X.Whole,
         "Mode 7 body calculation restores physical Samus X");
-    AssertEqual(0x0086, samus.YPosition,
+    AssertEqual(0x0086, samus.Position.Y.Whole,
         "Mode 7 body calculation restores physical Samus Y");
 
     // Exercise negative products and a coordinate wrap independently of the convenient
@@ -515,8 +513,7 @@ static void VerifySamusArmCannon()
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         AnimationFrame = 0,
-        XPosition = 0x0480,
-        YPosition = 0x0086,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0086)),
         SelectedHudItem = 0,
     };
 

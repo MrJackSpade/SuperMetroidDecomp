@@ -2,3 +2,4 @@
 // audit. Keeping the namespace import here prevents audit fixtures from reverting to
 // unlabelled integer library arguments.
 global using SuperMetroid.Core.Audio;
+global using SuperMetroid.Core.Spatial;

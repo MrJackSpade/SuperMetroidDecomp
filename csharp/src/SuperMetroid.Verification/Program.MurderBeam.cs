@@ -25,8 +25,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             CollectedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             EquippedItems = (ushort)SamusEquipmentFlags.HiJumpBoots,
             CollectedBeams = 0x100f,
@@ -206,8 +205,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x1007,
             SelectedHudItem = 0,
         };
@@ -229,8 +227,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x100f,
             Missiles = 5,
         };
@@ -281,8 +278,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x100f,
         };
         AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(

@@ -78,7 +78,7 @@ public sealed partial class RoomPlmSystem
 
         SamusState samus = _collectibleSamus?.Invoke()
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
-        samus.XPosition = unchecked((ushort)((samus.XPosition + 8) & 0xfff0));
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)((samus.Position.X.Whole + 8) & 0xfff0)));
         samus.ApplyForwardFacingPoseSetup(bus);
         samus.InputLocked = true;
 
@@ -390,7 +390,7 @@ public sealed partial class RoomPlmSystem
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
         SamusState samus = _collectibleSamus?.Invoke()
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
-        ushort probeX = unchecked((ushort)(samus.XPosition - SaveStationTriggerGeometry.HorizontalProbeOffset));
+        ushort probeX = unchecked((ushort)(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset));
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
     }
 

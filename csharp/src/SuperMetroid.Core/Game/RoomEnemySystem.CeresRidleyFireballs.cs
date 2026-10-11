@@ -502,8 +502,8 @@ public sealed partial class RoomEnemySystem
             projectile,
             RoomEnemyProjectileKind.GunshipLiftoffDustCloud,
             graphicsIndex: 0);
-        projectile.XPosition = unchecked((ushort)(samus.XPosition + definition.XOffset));
-        projectile.YPosition = unchecked((ushort)(samus.YPosition + GunshipDustDefinitions.YOffset));
+        projectile.XPosition = unchecked((ushort)(samus.Position.X.Whole + definition.XOffset));
+        projectile.YPosition = unchecked((ushort)(samus.Position.Y.Whole + GunshipDustDefinitions.YOffset));
         projectile.XVelocity = 0;
         projectile.YVelocity = 0;
         projectile.Variable0 = parameter;
@@ -775,8 +775,8 @@ public sealed partial class RoomEnemySystem
         int muzzleX = ridley.XPosition + (state.FacingDirection == RidleyFacing.Left ? -25 : 25);
         int muzzleY = ridley.YPosition - 43;
         byte cartridgeAngle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - muzzleX)),
-            unchecked((short)(samus.YPosition - muzzleY)));
+            unchecked((short)(samus.Position.X.Whole - muzzleX)),
+            unchecked((short)(samus.Position.Y.Whole - muzzleY)));
         byte angle = unchecked((byte)-(cartridgeAngle + 0x80));
 
         if (state.FacingDirection == RidleyFacing.Left)
@@ -1549,10 +1549,10 @@ public sealed partial class RoomEnemySystem
         if (!projectile.CanDamageSamus || projectile.XRadius == 0 || projectile.YRadius == 0)
             return null;
 
-        int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - samus.XPosition)));
-        int yDistance = Math.Abs(unchecked((short)(projectile.YPosition - samus.YPosition)));
-        if (xDistance >= projectile.XRadius + samus.Kinematics.XRadius ||
-            yDistance >= projectile.YRadius + samus.Kinematics.YRadius)
+        int xDistance = Math.Abs(unchecked((short)(projectile.XPosition - samus.Position.X.Whole)));
+        int yDistance = Math.Abs(unchecked((short)(projectile.YPosition - samus.Position.Y.Whole)));
+        if (xDistance >= projectile.XRadius + samus.Kinematics.Radius.X ||
+            yDistance >= projectile.YRadius + samus.Kinematics.Radius.Y)
         {
             return null;
         }
@@ -1563,7 +1563,7 @@ public sealed partial class RoomEnemySystem
             : unchecked((ushort)(samus.Health - damage));
         samus.InvincibilityTimer = projectile.InvincibilityFrames;
         ushort knockbackXDirection = unchecked((short)(
-            samus.XPosition - projectile.XPosition)) >= 0
+            samus.Position.X.Whole - projectile.XPosition)) >= 0
             ? (ushort)1
             : (ushort)0;
 
@@ -1756,8 +1756,8 @@ public sealed partial class RoomEnemySystem
                             "Enemy-projectile direction bytecode requires Samus.");
                     }
                     projectile.Variable0 = unchecked((ushort)(2 * CalculateCartridgeAngle(
-                        unchecked((short)(samus.XPosition - projectile.XPosition)),
-                        unchecked((short)(samus.YPosition - projectile.YPosition)))));
+                        unchecked((short)(samus.Position.X.Whole - projectile.XPosition)),
+                        unchecked((short)(samus.Position.Y.Whole - projectile.YPosition)))));
                     int eyeDoorAngle = projectile.Variable0 >> 1;
                     projectile.XVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)eyeDoorAngle));
                     projectile.YVelocity = unchecked((ushort)EnemyTrigonometryTables.SignedSine((byte)(eyeDoorAngle - 64)));

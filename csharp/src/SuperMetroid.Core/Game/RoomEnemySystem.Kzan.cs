@@ -334,20 +334,20 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState samus)
     {
-        int xDistance = Math.Abs(unchecked((short)(samus.XPosition - slot.XPosition)));
-        if (xDistance >= samus.Kinematics.XRadius + slot.XRadius)
+        int xDistance = Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.XPosition)));
+        if (xDistance >= samus.Kinematics.Radius.X + slot.XRadius)
             return false;
 
         short shiftedYDelta = unchecked((short)(
-            unchecked((ushort)(samus.YPosition + 5 - slot.YPosition))));
+            unchecked((ushort)(samus.Position.Y.Whole + 5 - slot.YPosition))));
         if (shiftedYDelta >= 0)
             return false;
 
         int yDistance = Math.Abs((int)shiftedYDelta);
-        if (yDistance < samus.Kinematics.YRadius)
+        if (yDistance < samus.Kinematics.Radius.Y)
             return true;
 
-        return yDistance - samus.Kinematics.YRadius <= slot.YRadius;
+        return yDistance - samus.Kinematics.Radius.Y <= slot.YRadius;
     }
 
     /// <summary>
@@ -363,8 +363,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         ushort yDelta = unchecked((ushort)(slot.YPosition - state.PreviousYPosition));
-        samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-            samus.Kinematics.ExtraYDisplacement + yDelta));
+        samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
     private KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>

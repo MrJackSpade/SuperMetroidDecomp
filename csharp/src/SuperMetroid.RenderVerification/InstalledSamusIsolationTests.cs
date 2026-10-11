@@ -73,13 +73,13 @@ internal sealed partial class InstalledSamusIsolationTests
             Suits = edited ? tests.suits.Edited : tests.suits.Stock;
             Cycles = edited ? tests.cycles.Edited : tests.cycles.Stock;
             Crystal = edited ? tests.crystal.Edited : tests.crystal.Stock;
-            Samus = new() { Pose = pose, XPosition = 128, YPosition = 363,
+            Samus = new() { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 363)),
                 EquippedItems = equipment, Health = 99, MaxHealth = 299,
                 SuitColors = Suits, FullBodyCycleColors = Cycles };
             Samus.TileTransfers.BindArtwork(Body);
             Samus.ArmCannon.Artwork = Body.ArmCannon;
             Samus.RefreshCollisionRadii(Memory);
-            Samus.YPosition = (ushort)(FloorY - Samus.Kinematics.YRadius);
+            Samus.Position = Samus.Position.WithWholeY((ushort)(FloorY - Samus.Kinematics.Radius.Y));
             Samus.InitializeAnimation(Memory);
             Samus.CommitPoseHistory(Memory);
             if (medium == SamusLiquidMedium.Water) Samus.LiquidPhysics.ConfigureWater(0);
@@ -143,8 +143,8 @@ internal sealed partial class InstalledSamusIsolationTests
             var beforeEdited = new SamusMechanicsSnapshot(Edited.Samus);
             var a = new OamBuffer(); var b = new OamBuffer();
             a.BeginFrame(); b.BeginFrame();
-            ushort cameraX = (ushort)Math.Max(0, Stock.Samus.XPosition - 128);
-            ushort cameraY = (ushort)Math.Max(0, Stock.Samus.YPosition - 128);
+            ushort cameraX = (ushort)Math.Max(0, Stock.Samus.Position.X.Whole - 128);
+            ushort cameraY = (ushort)Math.Max(0, Stock.Samus.Position.Y.Whole - 128);
             bool visible = Stock.Samus.Draw(Stock.Memory, a, cameraX, cameraY, frame);
             Require(visible == Edited.Samus.Draw(Edited.Memory, b, cameraX, cameraY, frame),
                 context + ": visibility changed");
@@ -166,13 +166,13 @@ internal sealed partial class InstalledSamusIsolationTests
     {
         var samus = RepositoryInstallation.CreateSamus();
         var baseline = new SamusMechanicsSnapshot(samus);
-        MustDiffer(() => samus.XPosition++, "whole position");
+        MustDiffer(() => samus.Position += new Offset16<RoomPixels>(1, 0), "whole position");
         samus = new(); baseline = new(samus);
-        MustDiffer(() => samus.Kinematics.XSubposition++, "fractional position");
+        MustDiffer(() => samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(unchecked((ushort)(samus.Kinematics.Position.X.Fraction + 1))), "fractional position");
         samus = new(); baseline = new(samus);
         MustDiffer(() => samus.AnimationFrame++, "animation frame");
         samus = new(); baseline = new(samus);
-        MustDiffer(() => samus.Kinematics.YRadius++, "collision radius");
+        MustDiffer(() => samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(unchecked((ushort)(samus.Kinematics.Radius.Y + 1))), "collision radius");
         samus = PrepareFlash(new());
         var sequence = new SamusMechanicsSnapshot(samus.CrystalFlash);
         Require(samus.CrystalFlash.TryBegin(SuperMetroidAddressSpace.CreateWithoutCartridge(), samus, FlashChord),

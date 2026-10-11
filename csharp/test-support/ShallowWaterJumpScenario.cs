@@ -28,8 +28,8 @@ internal sealed class ShallowWaterJumpScenario
         var samus = Samus;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 104; samus.YPosition = 427;
-        samus.Kinematics.YSubposition = 0xffff;
+        samus.Position = samus.Position.WithWhole(new(104, 427));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
         samus.EquippedItems = 0;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
@@ -39,18 +39,18 @@ internal sealed class ShallowWaterJumpScenario
 
     /// <summary>Native WRAM seed words for the takeoff state, in the capture tool's order.</summary>
     internal string TakeoffSeed() =>
-        $"{Samus.XPosition:X4} {Samus.Kinematics.XSubposition:X4} {Samus.YPosition:X4} {Samus.Kinematics.YSubposition:X4} {(int)Samus.Pose:X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
+        $"{Samus.Position.X.Whole:X4} {Samus.Kinematics.Position.X.Fraction:X4} {Samus.Position.Y.Whole:X4} {Samus.Kinematics.Position.Y.Fraction:X4} {(int)Samus.Pose:X4} {Samus.AnimationFrame:X4} {Samus.AnimationFrameTimer:X4} {Samus.AnimationFrameBuffer:X4} {Samus.LiquidPhysics.FxYPosition:X4} {Samus.LiquidPhysics.LiquidOptions:X4} {(int)Samus.LiquidPhysics.LiquidPhysicsType:X4}\n";
 
     /// <summary>Holds jump for <see cref="JumpFrameCount"/> frames; returns the header and one row per frame, and the apex.</summary>
     internal (List<string> Rows, uint Apex) Jump()
     {
         var rows = new List<string> { TraceHeader };
-        uint apex = Samus.Kinematics.YFixed;
+        uint apex = Samus.Kinematics.Position.Y.RawValue;
         for (int frame = 0; frame < JumpFrameCount; frame++)
         {
             Runtime.StepFrame((ushort)SnesButton.A);
-            apex = Math.Min(apex, Samus.Kinematics.YFixed);
-            rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.YFixed:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.YRadius},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
+            apex = Math.Min(apex, Samus.Kinematics.Position.Y.RawValue);
+            rows.Add($"{frame},{(int)Samus.Pose:X2},{Samus.Kinematics.Position.Y.RawValue:X8},{Samus.Kinematics.VerticalSpeedFixed:X8},{(int)Samus.Kinematics.YDirection},{Samus.Kinematics.Radius.Y},{(int)Samus.LiquidPhysics.LiquidPhysicsType}");
         }
         return (rows, apex);
     }

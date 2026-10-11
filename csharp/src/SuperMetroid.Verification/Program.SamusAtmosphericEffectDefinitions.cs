@@ -69,9 +69,8 @@ internal static partial class Program
         {
             var samus = new SamusState
             {
-                XPosition = 100,
-                YPosition = 100,
-                Kinematics = { XRadius = 5, YRadius = 12 },
+                Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+                Kinematics = { Radius = new(5, 12) },
             };
             spawn.Invoke(samus.LiquidPhysics,
                 [samus, (SamusMovementType)movement, samus.Kinematics.BottomPixel]);
@@ -96,9 +95,8 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = pose,
-                XPosition = 100,
-                YPosition = 100,
-                Kinematics = { XRadius = 5, YRadius = 12 },
+                Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)),
+                Kinematics = { Radius = new(5, 12) },
             };
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
             samus.InitializeAnimation(guarded, frame);
@@ -127,9 +125,8 @@ internal static partial class Program
             var runner = new SamusState
             {
                 Pose = pose,
-                XPosition = 100,
-                YPosition = 0x03b0,
-                Kinematics = { XRadius = 5, YRadius = 12 },
+                Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
+                Kinematics = { Radius = new(5, 12) },
             };
             runner.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Crateria, room);
             if ((policy & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
@@ -144,9 +141,8 @@ internal static partial class Program
             var landing = new SamusState
             {
                 Pose = pose,
-                XPosition = 100,
-                YPosition = 0x03b0,
-                Kinematics = { XRadius = 5, YRadius = 12 },
+                Position = FixedPosition<RoomPixels>.FromWhole(new(100, 0x03b0)),
+                Kinematics = { Radius = new(5, 12) },
             };
             landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Crateria, room);
             if ((policy & CrateriaAtmosphericEffectFlags.LandingSite) != 0)

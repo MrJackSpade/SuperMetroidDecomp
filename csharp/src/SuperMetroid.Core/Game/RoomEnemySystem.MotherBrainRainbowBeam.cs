@@ -264,8 +264,8 @@ public sealed partial class RoomEnemySystem
             // captures that pre-move point in its typed movement result, so use it for the
             // initializer and let `$C94C` attach to the current position on the later bank-
             // $86 pass. Finish-firing has no movement and therefore uses the unchanged actor.
-            ushort baseX = current.Movement?.Before.XPosition ?? samus.XPosition;
-            ushort baseY = current.Movement?.Before.YPosition ?? samus.YPosition;
+            ushort baseX = current.Movement?.Before.XPosition ?? samus.Position.X.Whole;
+            ushort baseY = current.Movement?.Before.YPosition ?? samus.Position.Y.Whole;
             SpawnMotherBrainRainbowExplosion(baseX, baseY, explosion);
         }
     }
@@ -325,8 +325,8 @@ public sealed partial class RoomEnemySystem
     {
         SamusState target = samus ?? throw new InvalidOperationException(
             "Mother Brain rainbow explosion requires the live Samus actor.");
-        projectile.XPosition = unchecked((ushort)(target.XPosition + projectile.XVelocity));
-        projectile.YPosition = unchecked((ushort)(target.YPosition + projectile.YVelocity));
+        projectile.XPosition = unchecked((ushort)(target.Position.X.Whole + projectile.XVelocity));
+        projectile.YPosition = unchecked((ushort)(target.Position.Y.Whole + projectile.YVelocity));
     }
 
     private void ApplyMotherBrainRainbowTileTransfer(

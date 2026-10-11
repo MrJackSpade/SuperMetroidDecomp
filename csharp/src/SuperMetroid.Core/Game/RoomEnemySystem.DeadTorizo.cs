@@ -171,46 +171,43 @@ public sealed partial class RoomEnemySystem
         {
             ushort verticalDistance;
             ushort verticalRadius;
-            if (unchecked((short)(kinematics.YPosition - slot.YPosition)) >= 0)
+            if (unchecked((short)(kinematics.Position.Y.Whole - slot.YPosition)) >= 0)
             {
-                verticalDistance = unchecked((ushort)(kinematics.YPosition - slot.YPosition));
+                verticalDistance = unchecked((ushort)(kinematics.Position.Y.Whole - slot.YPosition));
                 verticalRadius = hitbox.Bottom;
             }
             else
             {
-                verticalDistance = unchecked((ushort)(slot.YPosition - kinematics.YPosition));
+                verticalDistance = unchecked((ushort)(slot.YPosition - kinematics.Position.Y.Whole));
                 verticalRadius = hitbox.Top;
             }
 
             ushort verticalOverlap = unchecked((ushort)(
-                kinematics.YRadius + NativeAbsolute(verticalRadius) - verticalDistance));
+                kinematics.Radius.Y + NativeAbsolute(verticalRadius) - verticalDistance));
             if (unchecked((short)verticalOverlap) < 0)
                 continue;
 
             ushort horizontalDistance;
             ushort horizontalRadius;
-            if (unchecked((short)(kinematics.XPosition - slot.XPosition)) >= 0)
+            if (unchecked((short)(kinematics.Position.X.Whole - slot.XPosition)) >= 0)
             {
-                horizontalDistance = unchecked((ushort)(kinematics.XPosition - slot.XPosition));
+                horizontalDistance = unchecked((ushort)(kinematics.Position.X.Whole - slot.XPosition));
                 horizontalRadius = hitbox.Right;
             }
             else
             {
-                horizontalDistance = unchecked((ushort)(slot.XPosition - kinematics.XPosition));
+                horizontalDistance = unchecked((ushort)(slot.XPosition - kinematics.Position.X.Whole));
                 horizontalRadius = hitbox.Left;
             }
 
             short overlap = unchecked((short)(
-                kinematics.XRadius + NativeAbsolute(horizontalRadius) - horizontalDistance));
+                kinematics.Radius.X + NativeAbsolute(horizontalRadius) - horizontalDistance));
             if (overlap < 0)
                 continue;
             if (overlap < 4)
                 overlap = 4;
 
-            kinematics.ExtraXDisplacement = unchecked((ushort)overlap);
-            kinematics.ExtraYDisplacement = 4;
-            kinematics.ExtraXSubdisplacement = 0;
-            kinematics.ExtraYSubdisplacement = 0;
+            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked((short)overlap), 4));
             return true;
         }
 

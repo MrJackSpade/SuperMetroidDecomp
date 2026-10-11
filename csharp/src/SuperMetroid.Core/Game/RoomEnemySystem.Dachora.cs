@@ -213,8 +213,8 @@ public sealed partial class RoomEnemySystem
         RoomLevelData level)
     {
         MoveEnemyVertically(level, slot, 1 << 16);
-        if (!DachoraWithinAxis(slot.YPosition, samus.YPosition, DachoraActivationYDistance) ||
-            !DachoraWithinAxis(slot.XPosition, samus.XPosition, DachoraActivationXDistance))
+        if (!DachoraWithinAxis(slot.YPosition, samus.Position.Y.Whole, DachoraActivationYDistance) ||
+            !DachoraWithinAxis(slot.XPosition, samus.Position.X.Whole, DachoraActivationXDistance))
         {
             return;
         }

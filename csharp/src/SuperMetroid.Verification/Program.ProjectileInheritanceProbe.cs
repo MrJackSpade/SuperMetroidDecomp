@@ -65,9 +65,8 @@ internal static partial class Program
     private static void VerifyProjectileInheritanceMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { XPosition = 64, YPosition = 64 };
-        samus.Kinematics.XRadius = 5;
-        samus.Kinematics.YRadius = 5;
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)) };
+        samus.Kinematics.Radius = new(5, 5);
         var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
         SamusProjectileInheritance.ClearMovement(bus);
         SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0x00031234);
@@ -122,8 +121,7 @@ internal static partial class Program
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 512;
-        samus.YPosition = 490;
+        samus.Position = samus.Position.WithWhole(new(512, 490));
         runtime.Camera!.SetPosition(400, 350);
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

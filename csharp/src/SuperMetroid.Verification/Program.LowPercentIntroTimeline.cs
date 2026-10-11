@@ -147,8 +147,8 @@ internal static partial class Program
                 break;
             case 3990:
                 // $91:8682 pointed both state handlers at an RTL during update 3943.
-                AssertEqual((ushort)0x0028, discovery!.XPosition, "update 3990 stopped Samus X");
-                AssertEqual((ushort)0x5000, discovery.Kinematics.XSubposition, "update 3990 stopped Samus X fraction");
+                AssertEqual((ushort)0x0028, discovery!.Position.X.Whole, "update 3990 stopped Samus X");
+                AssertEqual((ushort)0x5000, discovery.Kinematics.Position.X.Fraction, "update 3990 stopped Samus X fraction");
                 break;
         }
     }

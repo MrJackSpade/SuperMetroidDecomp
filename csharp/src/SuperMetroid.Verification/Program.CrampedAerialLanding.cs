@@ -53,8 +53,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.SpinJumpRightPose,
-            XPosition = 0x0094,
-            YPosition = 0x0034,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0094, 0x0034)),
         };
         samus.RefreshCollisionRadii(bus);
         samus.HorizontalSpeed.AccelerationMode = 2;
@@ -73,16 +72,16 @@ internal static partial class Program
             "cramped spin landing rejects the 42-pixel landing body");
         AssertEqual(SamusPoseId.CrouchingRightPose, samus.Pose,
             "two-sided non-Morph landing collision selects native crouch fallback");
-        AssertEqual(0x0030, samus.YPosition,
+        AssertEqual(0x0030, samus.Position.Y.Whole,
             "crouch fallback preserves the captured floor boundary");
-        AssertEqual(12, samus.Kinematics.YRadius,
+        AssertEqual(12, samus.Kinematics.Radius.Y,
             "collision-selected crouch retains the live spin radius until next alpha");
         samus.RefreshCollisionRadii(bus);
-        AssertEqual(16, samus.Kinematics.YRadius,
+        AssertEqual(16, samus.Kinematics.Radius.Y,
             "crouch fallback fits the 32-pixel retail barrier opening");
-        AssertEqual(0x0020, samus.YPosition - samus.Kinematics.YRadius,
+        AssertEqual(0x0020, samus.Position.Y.Whole - samus.Kinematics.Radius.Y,
             "crouch top meets the barrier ceiling without overlap");
-        AssertEqual(0x0040, samus.YPosition + samus.Kinematics.YRadius,
+        AssertEqual(0x0040, samus.Position.Y.Whole + samus.Kinematics.Radius.Y,
             "crouch bottom remains on the barrier floor");
         // Original F404 returns changed-pose carry for this substitution. The caller
         // skips command five; #461's original-CPU trajectory proves this retained state.
@@ -98,7 +97,7 @@ internal static partial class Program
         WritePoseDefinition(bus, (int)SamusPoseId.ScrewAttackRightPose,
             [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
-        samus.YPosition = 0x0034;
+        samus.Position = samus.Position.WithWholeY(0x0034);
         samus.RefreshCollisionRadii(bus);
         samus.TryApplyAerialLanding(bus, level, true, 0, 39440);
         AssertTrue(samus.HorizontalSpeed.NormalSuitPaletteRestoreRequested,

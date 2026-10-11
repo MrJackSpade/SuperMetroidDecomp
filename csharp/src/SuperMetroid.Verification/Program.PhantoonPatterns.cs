@@ -76,8 +76,7 @@ internal static partial class Program
         {
             pointEye(eyeBody, trackingEye, new SamusState
             {
-                XPosition = unchecked((ushort)(eyeBody.XPosition + x)),
-                YPosition = unchecked((ushort)(eyeBody.YPosition + y)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.XPosition + x)), unchecked((ushort)(eyeBody.YPosition + y)))),
             });
             AssertEqual(PhantoonPatternDefinitions.EyeInstruction(direction),
                 trackingEye.CurrentInstruction,

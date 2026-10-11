@@ -35,8 +35,7 @@ internal static partial class Program
             samus.InputLocked = false;
             samus.EquippedItems = (ushort)items;
             samus.Pose = SamusPoseId.WallJumpRightPose;
-            samus.XPosition = 512;
-            samus.YPosition = 400;
+            samus.Position = samus.Position.WithWhole(new(512, 400));
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;

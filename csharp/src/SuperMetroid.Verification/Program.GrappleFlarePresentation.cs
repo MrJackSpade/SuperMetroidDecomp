@@ -29,7 +29,7 @@ internal static partial class Program
             Check(native, actual, changed);
             SamusState Seed()
             {
-                var samus = new SamusState { Pose = pose, XPosition = coordinate, YPosition = coordinate };
+                var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(coordinate, coordinate)) };
                 samus.Grapple.Phase = phase;
                 samus.Grapple.FireDirection = (byte)(pose is SamusPoseId.FacingLeftNormalPose or SamusPoseId.MovingLeftNormalPose ? 7 : 2);
                 samus.Grapple.FlareCounter = counter;
@@ -44,14 +44,17 @@ internal static partial class Program
         }
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
-            var native = new SamusState { Pose = pose, YPosition = 100 };
+            var native = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
             native.Grapple.Phase = GrapplePhase.Firing;
             native.Grapple.FireDirection = (byte)(pose == SamusPoseId.MovingLeftNormalPose ? 7 : 2);
             native.Grapple.FlareCounter = 1;
             var actual = Clone(native); var changed = Clone(native);
             for (int tick = 0; tick < 512; tick++)
             {
-                native.XPosition = actual.XPosition = changed.XPosition = (ushort)(tick % 256);
+                ushort tickX = (ushort)(tick % 256);
+                changed.Position = changed.Position.WithWholeX(tickX);
+                actual.Position = actual.Position.WithWholeX(tickX);
+                native.Position = native.Position.WithWholeX(tickX);
                 Check(native, actual, changed);
                 // Native post-Samus tile upload owns this counter, not the flare.
                 native.Grapple.FlareCounter = actual.Grapple.FlareCounter = changed.Grapple.FlareCounter = (ushort)Math.Min(120, native.Grapple.FlareCounter + 1);
@@ -134,10 +137,10 @@ internal static partial class Program
         runtime.ChargeFlareCompositions = stock;
         runtime.InitializeHud(HudSnapshot.CeresDebug); runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         var samus = runtime.Samus!;
-        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100); samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWholeX((ushort)(runtime.Camera!.XPosition + 100)); samus.Position = samus.Position.WithWholeY((ushort)(runtime.Camera.YPosition + 100));
         samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
-        samus.Grapple.BeamStartX = samus.XPosition; samus.Grapple.BeamStartY = samus.YPosition;
+        samus.Grapple.BeamStartX = samus.Position.X.Whole; samus.Grapple.BeamStartY = samus.Position.Y.Whole;
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = 100;
         var game = new SuperMetroidGame(bus);
         var field = typeof(SuperMetroidGame).GetField("runtime", flags)!;

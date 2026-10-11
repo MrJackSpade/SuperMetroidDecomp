@@ -18,7 +18,7 @@ internal static partial class Program
             var samus = scenario.Samus;
             for (int frame = 0; frame < scenario.FrameCount; frame++)
             {
-                uint previousY = ((uint)samus.YPosition << 16) | samus.Kinematics.YSubposition;
+                uint previousY = ((uint)samus.Position.Y.Whole << 16) | samus.Kinematics.Position.Y.Fraction;
                 runtime.StepFrame(scenario.Input(frame));
                 AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.FlareCounter, "aerial charge mirror");
                 if (wallRoute)
@@ -73,7 +73,7 @@ internal static partial class Program
             if (frame >= releaseFrame)
                 AssertEqual((ushort)0, samus.ProjectileFlareCounter, "walljump spread consumes charge");
             if (delay == 41 && frame == 134)
-                AssertTrue((((uint)samus.YPosition << 16) | samus.Kinematics.YSubposition) > previousY,
+                AssertTrue((((uint)samus.Position.Y.Whole << 16) | samus.Kinematics.Position.Y.Fraction) > previousY,
                     "late success starts morph after descent has already begun, as native permits");
         }
         else

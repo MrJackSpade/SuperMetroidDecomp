@@ -37,16 +37,16 @@ internal static partial class CoreAccess
             runtime.Controller1.Latch(runtime.ControllerBindings.Normalize(controllerInput));
         }
         internal SamusPoseId GameplaySamusPose => game.RuntimeForVerification?.Samus?.Pose ?? 0;
-        internal ushort GameplaySamusX => game.RuntimeForVerification?.Samus?.XPosition ?? 0;
-        internal ushort GameplaySamusY => game.RuntimeForVerification?.Samus?.YPosition ?? 0;
+        internal ushort GameplaySamusX => game.RuntimeForVerification?.Samus?.Position.X.Whole ?? 0;
+        internal ushort GameplaySamusY => game.RuntimeForVerification?.Samus?.Position.Y.Whole ?? 0;
     }
 
     extension(IntroCinematicState intro)
     {
         internal ushort ActiveFlashbackProjectileCount =>
             PrivateState.Field<SamusProjectileSystem>(intro, "flashbackProjectiles").ProjectileCounter;
-        internal ushort FlashbackSamusX => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.XPosition ?? 0;
-        internal ushort FlashbackSamusY => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.YPosition ?? 0;
+        internal ushort FlashbackSamusX => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.Position.X.Whole ?? 0;
+        internal ushort FlashbackSamusY => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.Position.Y.Whole ?? 0;
         internal ushort MotherBrainHitCount =>
             PrivateState.Field<IntroMotherBrainSpriteState?>(intro, "flashbackMotherBrain")?.HitCount ?? 0;
     }

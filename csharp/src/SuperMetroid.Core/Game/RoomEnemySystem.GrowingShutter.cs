@@ -166,8 +166,7 @@ public sealed partial class RoomEnemySystem
         short wholeDelta = unchecked((short)(slot.YPosition - state.PreviousYPosition));
         if (wholeDelta < 0)
         {
-            samus.Kinematics.ExtraYDisplacement = unchecked((ushort)(
-                samus.Kinematics.ExtraYDisplacement + wholeDelta));
+            samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(wholeDelta)));
         }
     }
 

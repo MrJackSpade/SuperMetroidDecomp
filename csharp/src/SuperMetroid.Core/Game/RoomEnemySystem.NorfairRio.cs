@@ -135,7 +135,7 @@ public sealed partial class RoomEnemySystem
                 // animation signal and restores the idle list without starting an attack.
                 bool canAttack = samus is not null && (random & 0x0101) != 0 &&
                     IsWithinStrictModularDistance(
-                        samus.XPosition,
+                        samus.Position.X.Whole,
                         slot.XPosition,
                         NorfairRioHorizontalTriggerDistance);
                 if (!canAttack)
@@ -155,7 +155,7 @@ public sealed partial class RoomEnemySystem
                 // expression is already the byte offset into the word table.
                 state.YVelocity = RioLaunchDefinitions.NorfairYVelocity(random);
                 state.XVelocity = RioLaunchDefinitions.NorfairXVelocity;
-                if (unchecked((short)(samus!.XPosition - slot.XPosition)) < 0)
+                if (unchecked((short)(samus!.Position.X.Whole - slot.XPosition)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallNorfairRioInstructionList(
                     slot,

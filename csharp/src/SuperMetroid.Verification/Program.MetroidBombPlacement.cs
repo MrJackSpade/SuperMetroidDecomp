@@ -17,14 +17,14 @@ internal static partial class Program
         var random = new Bank80SystemState();
         enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
             new SnesVram(), new SnesCgram(), random.NextRandom, random.SetRandomNumber);
-        var samus = new SamusState { Health = 999, MaxHealth = 999, XPosition = 128, YPosition = 128,
+        var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var target = enemies.Slots[0];
-        target.XPosition = samus.XPosition;
-        target.YPosition = (ushort)(samus.YPosition - 8);
+        target.XPosition = samus.Position.X.Whole;
+        target.YPosition = (ushort)(samus.Position.Y.Whole - 8);
         enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
         enemies.ResolveOrdinarySamusContact(samus, 0);
         var state = enemies.MetroidStates[0]!;
@@ -55,7 +55,7 @@ internal static partial class Program
             ushort expectedY = unchecked((ushort)(target.YPosition + SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3ea3f + (index + 4) * 2)));
             // Move Samus away to prevent touch from immediately changing the returned
             // Homing state. The escape routine itself ignores her new position.
-            samus.XPosition = 32;
+            samus.Position = samus.Position.WithWholeX(32);
             enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);
             AssertEqual(expectedX, target.XPosition, "native post-bomb escape X");
             AssertEqual(expectedY, target.YPosition, "native post-bomb escape Y");
@@ -88,8 +88,8 @@ internal static partial class Program
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.Health = samus.MaxHealth = 999;
-        samus.XPosition = 128; samus.YPosition = 153;
-        samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+        samus.Position = samus.Position.WithWhole(new(128, 153));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(0, 1);
@@ -125,8 +125,8 @@ internal static partial class Program
             AssertEqual(expected[frame - 61],
                 (target.XPosition, target.YPosition, state.Function, state.EscapeTimer, samus.Health),
                 $"native bomb/EnemyMain detach trajectory at frame {frame}");
-            AssertEqual(0x00950000u, samus.Kinematics.XFixed, "Samus remains at native release X");
-            AssertEqual(0x0099ffffu, samus.Kinematics.YFixed, "Samus stays on the floor during detach");
+            AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
+            AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");
         }
     }
 }

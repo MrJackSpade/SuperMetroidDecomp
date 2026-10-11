@@ -433,8 +433,8 @@ false);
         // post-motion producer while this special handler owns the frame.
         samus.HorizontalSpeed.CaptureSpeedEchoPosition(
             gameTimeFrames,
-            samus.XPosition,
-            samus.YPosition);
+            samus.Position.X.Whole,
+            samus.Position.Y.Whole);
 
         BlockMoveResult? horizontal = null;
         BlockMoveResult? vertical = null;
@@ -554,10 +554,10 @@ false);
         // word. A preceding echo or crash can therefore shorten this orbit.
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex: 0,
-            samus.XPosition,
-            samus.XPosition,
-            samus.YPosition,
-            samus.YPosition);
+            samus.Position.X.Whole,
+            samus.Position.X.Whole,
+            samus.Position.Y.Whole,
+            samus.Position.Y.Whole);
         Phase = ShinesparkPhase.Crash;
         CrashSoundRequested = true;
         CrashSoundSuppressed = _audioPowerBomb?.IsActive == true;
@@ -625,10 +625,10 @@ false);
         ushort encodedIndex = unchecked((ushort)((CrashSubphase << 8) | CrashRadius));
         samus.HorizontalSpeed.SetShinesparkCrashEchoState(
             encodedIndex,
-            unchecked((ushort)(samus.XPosition + firstOffsetX)),
-            unchecked((ushort)(samus.XPosition + secondOffsetX)),
-            unchecked((ushort)(samus.YPosition + firstOffsetY)),
-            unchecked((ushort)(samus.YPosition + secondOffsetY)));
+            unchecked((ushort)(samus.Position.X.Whole + firstOffsetX)),
+            unchecked((ushort)(samus.Position.X.Whole + secondOffsetX)),
+            unchecked((ushort)(samus.Position.Y.Whole + firstOffsetY)),
+            unchecked((ushort)(samus.Position.Y.Whole + secondOffsetY)));
 
         return new ShinesparkMovementResult(
 false);
@@ -671,15 +671,15 @@ false);
             {
                 _firstReleasedCrashEcho.Initialize(
                     departureAngles.First,
-                    samus.XPosition,
-                    samus.YPosition);
+                    samus.Position.X.Whole,
+                    samus.Position.Y.Whole);
                 projectiles?.InitializeShinesparkEcho(3, departureAngles.First);
             }
 
             _secondReleasedCrashEcho.Initialize(
                 departureAngles.Second,
-                samus.XPosition,
-                samus.YPosition);
+                samus.Position.X.Whole,
+                samus.Position.Y.Whole);
             projectiles?.InitializeShinesparkEcho(4, departureAngles.Second);
         }
 
@@ -701,7 +701,7 @@ false,             CrashSequenceFinished: true);
         SamusPoseId standingPose = samus.IsFacingLeft(bus)
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
-        ushort previousRadius = samus.Kinematics.YRadius;
+        ushort previousRadius = samus.Kinematics.Radius.Y;
         samus.Pose = standingPose;
         // The native transitional-pose handler restores normal movement and
         // aligns the standing body's bottom with the old crash body. Alpha alone
@@ -749,7 +749,7 @@ false,             CrashSequenceFinished: true);
         slot.Radius = unchecked((ushort)(slot.Radius + 8));
         (ushort offsetX, ushort offsetY) =
             ProjectileSinLookup(slot.Angle, unchecked((byte)slot.Radius));
-        slot.XPosition = unchecked((ushort)(samus.XPosition + offsetX));
+        slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + offsetX));
 
         // Native performs the X viewport rejection before calculating/publishing Y. The
         // cleared result is identical either way, but retaining the branch order makes a
@@ -762,7 +762,7 @@ false,             CrashSequenceFinished: true);
             return false;
         }
 
-        slot.YPosition = unchecked((ushort)(samus.YPosition + offsetY));
+        slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + offsetY));
         short screenY = unchecked((short)(slot.YPosition - layer1Y));
         if (screenY is < 0 or >= 256)
         {
@@ -800,15 +800,15 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private static void CapPreviousX(SamusState samus, SamusCameraPoint checkpoint)
     {
-        short delta = unchecked((short)(samus.XPosition - samus.PeekPreviousPositionWords(checkpoint).X));
+        short delta = unchecked((short)(samus.Position.X.Whole - samus.PeekPreviousPositionWords(checkpoint).X));
         if (delta >= 0)
         {
             if (delta >= 0x10)
-                samus.WritePreviousXPosition(unchecked((ushort)(samus.XPosition - 0x0f)));
+                samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole - 0x0f)));
         }
         else if (delta < unchecked((short)0xfff1))
         {
-            samus.WritePreviousXPosition(unchecked((ushort)(samus.XPosition + 0x0f)));
+            samus.WritePreviousXPosition(unchecked((ushort)(samus.Position.X.Whole + 0x0f)));
         }
     }
 
@@ -818,10 +818,10 @@ false,             CrashSequenceFinished: true);
     /// </summary>
     private static void CapPreviousY(SamusState samus, SamusCameraPoint checkpoint)
     {
-        ushort delta = unchecked((ushort)(samus.YPosition - samus.PeekPreviousPositionWords(checkpoint).Y));
+        ushort delta = unchecked((ushort)(samus.Position.Y.Whole - samus.PeekPreviousPositionWords(checkpoint).Y));
         // CMP #$FFF2 / BPL: the sign of delta - $FFF2.
         if (unchecked((short)(delta - 0xfff2)) < 0)
-            samus.WritePreviousYPosition(unchecked((ushort)(samus.YPosition + 0x0e)));
+            samus.WritePreviousYPosition(unchecked((ushort)(samus.Position.Y.Whole + 0x0e)));
     }
 
     private BlockMoveResult MoveX(

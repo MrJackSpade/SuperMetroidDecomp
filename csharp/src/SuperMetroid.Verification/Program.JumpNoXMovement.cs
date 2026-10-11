@@ -20,12 +20,10 @@ internal static partial class Program
         var samus = runtime.Samus!;
         // Native state after update 366219's ceiling hit.
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
-        samus.XPosition = 0x0225;
-        samus.YPosition = 0x004a;
+        samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        samus.Kinematics.XSubposition = 0;
-        samus.Kinematics.YSubposition = 0;
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 0;
         samus.Kinematics.YSubspeed = 0;
@@ -34,8 +32,8 @@ internal static partial class Program
 
         SamusAerialMovement.StepNormalJump(bus, runtime.LevelData!, samus,
             (ushort)(SnesButton.A | SnesButton.B), nmiFrameCounter: 0);
-        AssertEqual((ushort)0x004a, samus.YPosition, "no horizontal move means no slope alignment");
-        AssertEqual((ushort)0x0225, samus.XPosition, "X is unchanged");
+        AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
+        AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");
         Console.WriteLine("Jump without X movement: Samus_Jumping_Movement skips the horizontal mover and its slope alignment.");
     }
 }

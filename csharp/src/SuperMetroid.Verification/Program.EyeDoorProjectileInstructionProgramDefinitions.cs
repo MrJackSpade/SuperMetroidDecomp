@@ -46,8 +46,7 @@ internal static partial class Program
             blockDefinitions: new byte[0x400 * 8]);
         var samus = new SamusState
         {
-            XPosition = 220,
-            YPosition = 80,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(220, 80)),
         };
         var system = new Bank80SystemState();
         var request = new EyeDoorProjectileRequest(

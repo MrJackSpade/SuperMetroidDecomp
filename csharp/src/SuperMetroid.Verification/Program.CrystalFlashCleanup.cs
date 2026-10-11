@@ -44,12 +44,12 @@ internal static partial class Program
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.PowerBombs = samus.MaxPowerBombs = capacity;
         samus.SelectedHudItem = 3;
-        samus.XPosition = 512;
+        samus.Position = samus.Position.WithWholeX(512);
         samus.RefreshCollisionRadii(bus);
-        samus.YPosition = (ushort)(511 - samus.Kinematics.YRadius);
+        samus.Position = samus.Position.WithWholeY((ushort)(511 - samus.Kinematics.Radius.Y));
         samus.InitializeAnimation(bus);
         runtime.StepFrame(0);
-        ushort startingY = samus.YPosition;
+        ushort startingY = samus.Position.Y.Whole;
         runtime.StepFrame(runtime.ControllerBindings.Shoot);
         AssertEqual(capacity - 1, samus.PowerBombs, "normal placement consumes one Power Bomb");
         ushort chord = (ushort)(SnesButton.Down | SnesButton.L | SnesButton.R | SnesButton.X);
@@ -77,7 +77,7 @@ internal static partial class Program
                 // Replace the population at the contact boundary; retain retail AI,
                 // header damage and the runtime's ordinary collision ordering. A
                 // zero-only RNG would hang native-style drop selection on death.
-                var contactBus = new CrystalFlashContactPopulation(bus, samus.XPosition, samus.YPosition);
+                var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.X.Whole, samus.Position.Y.Whole);
                 runtime.Enemies.Load(contactBus, CrystalFlashContactDefinitions.Pointer,
                     CrystalFlashContactDefinitions.Pointer, runtime.Vram, runtime.Cgram, () => 1);
                 contactEnemy = runtime.Enemies.Slots[0];
@@ -115,8 +115,8 @@ internal static partial class Program
                 var visible = VerifyCrystalFlashVisualFrame(runtime, frame - started);
                 if (visible.Body) visibleBodyFrames++;
                 if (visible.Window) visibleWindowFrames++;
-                AssertEqual(512, samus.XPosition, "Crystal Flash owns horizontal movement");
-                AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.YPosition,
+                AssertEqual(512, samus.Position.X.Whole, "Crystal Flash owns horizontal movement");
+                AssertEqual(startingY - Math.Min(frame - started + 1, 10) * 2, samus.Position.Y.Whole,
                     "held Jump cannot replace the native Crystal Flash vertical trajectory");
                 if (samus.CrystalFlash.Phase == CrystalFlashPhase.Inactive) { finished = frame; break; }
             }
@@ -143,7 +143,7 @@ internal static partial class Program
         AssertEqual(249, visibleBodyFrames, "complete observed Crystal Flash body visibility duration");
         AssertEqual(34, visibleWindowFrames, "native Crystal Flash color window visibility duration");
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame((ushort)SnesButton.Right);
-        AssertTrue(samus.XPosition > 512, "normal movement resumes after Crystal Flash");
+        AssertTrue(samus.Position.X.Whole > 512, "normal movement resumes after Crystal Flash");
         Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");
     }
 

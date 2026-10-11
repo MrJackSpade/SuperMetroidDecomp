@@ -168,10 +168,8 @@ internal static partial class Program
         samus.MaxReserveEnergy = W(NativeSnapshotMemory.MaxReserve);
         samus.ReserveEnergy = W(NativeSnapshotMemory.Reserve);
         samus.Pose = (SamusPoseId)W(NativeSnapshotMemory.Pose);
-        samus.XPosition = W(NativeSnapshotMemory.X);
-        samus.YPosition = W(NativeSnapshotMemory.Y);
-        samus.Kinematics.XSubposition = W(NativeSnapshotMemory.XFraction);
-        samus.Kinematics.YSubposition = W(NativeSnapshotMemory.YFraction);
+        samus.Position = samus.Position.WithWhole(new(W(NativeSnapshotMemory.X), W(NativeSnapshotMemory.Y)));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.SetAnimationFrameFromSpecialHandler(W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
@@ -190,14 +188,10 @@ internal static partial class Program
         samus.Kinematics.YSubspeed = W(NativeSnapshotMemory.VerticalFraction);
         samus.Kinematics.YDirection = ClosedNativeWords.Decode<SamusVerticalDirection>(
             W(NativeSnapshotMemory.VerticalDirection), "Samus vertical direction");
-        samus.Kinematics.XRadius = W(NativeSnapshotMemory.SamusXRadius);
-        samus.Kinematics.YRadius = W(NativeSnapshotMemory.SamusYRadius);
+        samus.Kinematics.Radius = new(W(NativeSnapshotMemory.SamusXRadius), W(NativeSnapshotMemory.SamusYRadius));
         samus.Kinematics.YAcceleration = W(NativeSnapshotMemory.Gravity);
         samus.Kinematics.YSubacceleration = W(NativeSnapshotMemory.GravityFraction);
-        samus.Kinematics.ExtraXDisplacement = W(NativeSnapshotMemory.ExtraXDisplacement);
-        samus.Kinematics.ExtraXSubdisplacement = W(NativeSnapshotMemory.ExtraXDisplacementFraction);
-        samus.Kinematics.ExtraYDisplacement = W(NativeSnapshotMemory.ExtraYDisplacement);
-        samus.Kinematics.ExtraYSubdisplacement = W(NativeSnapshotMemory.ExtraYDisplacementFraction);
+        samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(W(NativeSnapshotMemory.ExtraXDisplacement), W(NativeSnapshotMemory.ExtraXDisplacementFraction), W(NativeSnapshotMemory.ExtraYDisplacement), W(NativeSnapshotMemory.ExtraYDisplacementFraction));
         samus.Kinematics.HorizontalSlopeCollisionEnable = W(NativeSnapshotMemory.SlopeCollisionEnable);
         samus.HorizontalSpeed.SpeedDivisor = W(NativeSnapshotMemory.SpeedDivisor);
         samus.HorizontalSpeed.ContactDamageIndex = ClosedNativeWords.Decode<SamusContactDamageIndex>(

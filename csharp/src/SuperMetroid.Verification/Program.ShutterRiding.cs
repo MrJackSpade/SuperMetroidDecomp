@@ -24,8 +24,7 @@ internal static partial class Program
             samus.EquippedItems |= (ushort)SamusEquipmentFlags.Bombs;
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
-            samus.XPosition = platform.XPosition;
-            samus.YPosition = (ushort)(platform.YPosition - platform.YRadius - samus.Kinematics.YRadius);
+            samus.Position = samus.Position.WithWhole(new(platform.XPosition, (ushort)(platform.YPosition - platform.YRadius - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             // A real Shoot edge plants the bomb. Its explosion activates the shutter
             // and launches Samus; no diagnostic phase write substitutes for that path.
@@ -34,12 +33,12 @@ internal static partial class Program
             AssertEqual(VerticalShutterFunction.PermanentNoOp, state.Function,
                 "bomb-raised shutter remains at native permanent upper stop without a second hit");
             AssertEqual(state.MinimumYPosition, platform.YPosition, "shutter reaches the authored upper Y");
-            AssertEqual(0, platform.YPosition - platform.YRadius - samus.YPosition - samus.Kinematics.YRadius,
+            AssertEqual(0, platform.YPosition - platform.YRadius - samus.Position.Y.Whole - samus.Kinematics.Radius.Y,
                 "Morph Ball remains on the stopped shutter, not inside it");
             for (int frame = 0; frame < 30; frame++)
                 runtime.StepFrame((ushort)(slot == 0 ? SnesButton.Left : SnesButton.Right));
-            AssertTrue(Math.Abs(samus.XPosition - platform.XPosition) > platform.XRadius + samus.Kinematics.XRadius,
-                $"Morph Ball rolls completely clear of shutter {slot} through its upper opening (X={samus.XPosition})");
+            AssertTrue(Math.Abs(samus.Position.X.Whole - platform.XPosition) > platform.XRadius + samus.Kinematics.Radius.X,
+                $"Morph Ball rolls completely clear of shutter {slot} through its upper opening (X={samus.Position.X.Whole})");
             AssertEqual(VerticalShutterFunction.PermanentNoOp, state.Function,
                 "rolling off does not spuriously reactivate the shutter");
         }

@@ -61,15 +61,14 @@ internal static partial class Program
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose })
         {
             samus.Pose = pose;
-            samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-            samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+            samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
             samus.InitializeAnimation(bus); samus.PrimeGraphics(bus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
-            samus.Grapple.AnchorX = samus.XPosition;
+            samus.Grapple.AnchorX = samus.Position.X.Whole;
             samus.Grapple.AnchorY = unchecked((ushort)(runtime.Camera.YPosition - 1));
-            samus.Grapple.BeamStartX = samus.XPosition;
-            samus.Grapple.BeamStartY = samus.YPosition;
+            samus.Grapple.BeamStartX = samus.Position.X.Whole;
+            samus.Grapple.BeamStartY = samus.Position.Y.Whole;
             samus.Grapple.SegmentAnimationTimers[15] = 1;
             runtime.Oam.BeginFrame();
             typeof(SuperMetroidRuntime).GetMethod("DrawGameplayActors", BindingFlags.Instance | BindingFlags.NonPublic)!

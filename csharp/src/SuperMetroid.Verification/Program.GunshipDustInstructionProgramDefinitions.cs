@@ -41,7 +41,7 @@ internal static partial class Program
             GunshipDustInstructionProgramDefinition program =
                 GunshipDustInstructionProgramDefinitions.Program(programIndex);
             RoomEnemySystem enemies = NewSystem();
-            var samus = new SamusState { XPosition = 0x1234, YPosition = 0x5678 };
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x1234, 0x5678)) };
             spawn.Invoke(enemies, [parameter, samus]);
             RoomEnemyProjectileSlot dust = enemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind ==

@@ -528,8 +528,8 @@ public sealed partial class SamusProjectileSystem
         bool runningOrigin = movementType == SamusMovementType.Running ||
             samus.Pose is SamusPoseId.MoonwalkAimUpLeftPose or SamusPoseId.MoonwalkAimUpRightPose;
         var origin = SamusProjectileOriginDefinitions.Read(runningOrigin, slot.Direction);
-        slot.XPosition = unchecked((ushort)(samus.XPosition + origin.X));
-        slot.YPosition = unchecked((ushort)(samus.YPosition + origin.Y - poseYOffset));
+        slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + origin.X));
+        slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + origin.Y - poseYOffset));
     }
 
     private static void InitializePowerBeamVelocity(

@@ -220,7 +220,7 @@ public sealed partial class RoomEnemySystem
         SetBeetomInstructionList(
             slot,
             state,
-            unchecked((short)(samus.XPosition - slot.XPosition)) < 0
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0
                 ? BeetomInstructionProgramDefinitions.CrawlingLeft
                 : BeetomInstructionProgramDefinitions.CrawlingRight);
         state.Function = BeetomEnemyFunction.DecideAction;
@@ -238,7 +238,7 @@ public sealed partial class RoomEnemySystem
         {
             case BeetomEnemyFunction.DecideAction:
                 RequireBeetomSamus(samus);
-                state.Function = WrappedMagnitude(unchecked((ushort)(samus!.XPosition - slot.XPosition))) < BeetomProximityDistance
+                state.Function = WrappedMagnitude(unchecked((ushort)(samus!.Position.X.Whole - slot.XPosition))) < BeetomProximityDistance
                     ? BeetomEnemyFunction.DecideActionSamusInProximity
                     : BeetomEnemyFunction.DecideActionSamusNotInProximity;
                 return;
@@ -396,7 +396,7 @@ public sealed partial class RoomEnemySystem
 
     private static void StartBeetomLunge(RoomEnemySlot slot, BeetomEnemyState state, SamusState samus)
     {
-        bool left = unchecked((short)(samus.XPosition - slot.XPosition)) < 0;
+        bool left = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0;
         state.YSpeedTableIndex = state.InitialLungeYSpeedIndex;
         state.Direction = left ? (ushort)0 : (ushort)1;
         state.Function = left ? BeetomEnemyFunction.LungeLeft : BeetomEnemyFunction.LungeRight;
@@ -530,8 +530,8 @@ public sealed partial class RoomEnemySystem
     {
         if (state.ButtonCounter != 0)
         {
-            slot.XPosition = samus.XPosition;
-            slot.YPosition = unchecked((ushort)(samus.YPosition - 4));
+            slot.XPosition = samus.Position.X.Whole;
+            slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole - 4));
             if (controllerInput != state.PreviousController1Input)
             {
                 state.PreviousController1Input = controllerInput;
@@ -610,8 +610,8 @@ public sealed partial class RoomEnemySystem
             state.AttachedToSamus = true;
             state.ButtonCounter = BeetomMashCount;
             slot.Layer = 2;
-            state.InitialAttachmentXOffset = unchecked((ushort)(samus.XPosition - slot.XPosition));
-            state.InitialAttachmentYOffset = unchecked((ushort)(samus.YPosition - slot.YPosition));
+            state.InitialAttachmentXOffset = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
+            state.InitialAttachmentYOffset = unchecked((ushort)(samus.Position.Y.Whole - slot.YPosition));
         }
 
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)

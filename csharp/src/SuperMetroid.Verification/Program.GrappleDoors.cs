@@ -29,8 +29,7 @@ internal static partial class Program
             int hitBlock = origin + hitOffset * stride;
             var samus = new SamusState
             {
-                XPosition = (ushort)(hitBlock % width * 16 + 8),
-                YPosition = (ushort)(hitBlock / width * 16 + 8),
+                Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(hitBlock % width * 16 + 8), (ushort)(hitBlock / width * 16 + 8))),
             };
             // Seed an extending beam exactly at each cap tile. Collision still traverses
             // the real StepFiring substeps and extension-chain resolver, not a PLM shortcut.

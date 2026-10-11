@@ -43,7 +43,7 @@ internal static partial class Program
                 words[row * 64 + (left ? 0 : 63)] = 0x8000;
             }
             var level = CreateRoom(64, 128, words, new byte[words.Length]);
-            var samus = new SamusState { XPosition = (ushort)(left ? 32 : 992), YPosition = 128,
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(left ? 32 : 992), 128)),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = (ushort)SamusBeamFlags.Wave };
             var shots = CreateProjectileFixture();

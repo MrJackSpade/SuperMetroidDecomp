@@ -23,8 +23,7 @@ internal static partial class Program
             var samus = runtime.Samus!;
             samus.InputLocked = false;
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
-            samus.XPosition = 116;
-            samus.YPosition = 587;
+            samus.Position = samus.Position.WithWhole(new(116, 587));
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus);
 
@@ -40,7 +39,7 @@ internal static partial class Program
             for (int frame = 0; frame < 120; frame++) runtime.StepFrame((ushort)SnesButton.Up);
             AssertEqual(RoomCollisionType.ShootableBlock, level.GetCollisionBlock(7, 10).CollisionType,
                 "Red Tower top target is still intact before firing");
-            AssertEqual(587, samus.YPosition, "Retail platform supports the launch position");
+            AssertEqual(587, samus.Position.Y.Whole, "Retail platform supports the launch position");
             int impact = -1, deleted = -1;
             for (int frame = 0; frame < 100; frame++)
             {

@@ -7,7 +7,7 @@ internal static partial class Program
     {
         ushort Word(int address) => (ushort)(rom.ReadByte(address) | rom.ReadByte(address + 1) << 8);
         var guard = new SlopeHeightNoReadBus();
-        var samus = new SamusState { XPosition = 128, YPosition = 128 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int cases = 0;
         for (int equipment = 0; equipment < 8; equipment++)
         for (int environment = 0; environment < 4; environment++)

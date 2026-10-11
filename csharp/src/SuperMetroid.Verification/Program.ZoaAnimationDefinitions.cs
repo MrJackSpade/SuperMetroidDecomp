@@ -76,8 +76,7 @@ internal static partial class Program
 
         var samus = new SamusState
         {
-            XPosition = unchecked((ushort)(slot.XPosition + (facingRight ? 0x10 : -0x10))),
-            YPosition = slot.YPosition,
+            Position = new(new(unchecked((ushort)(slot.XPosition + (facingRight ? 0x10 : -0x10))), 0), new(slot.YPosition, 0)),
         };
         wait.Invoke(null, [slot, state, samus]);
         ZoaAnimationSelector direction = facingRight

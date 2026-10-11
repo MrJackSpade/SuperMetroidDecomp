@@ -542,7 +542,7 @@ public sealed partial class RoomEnemySystem
         }
 
         ushort verticalDistance = WrappedMagnitude(unchecked((ushort)(
-            state.Head!.YPosition + 4 - samus.YPosition)));
+            state.Head!.YPosition + 4 - samus.Position.Y.Whole)));
         ReadOnlySpan<byte> thresholds = verticalDistance < 0x20
             ? [0x10, 0x20, 0xd0]
             : [0x40, 0x80, 0xc0];
@@ -756,7 +756,7 @@ public sealed partial class RoomEnemySystem
         // CMP/BPL tests the sign bit of the wrapped 16-bit subtraction. Normal arena
         // coordinates cannot overflow signed range, but expressing the native flag test
         // explicitly keeps debugger-edited/wrapped coordinates cartridge-faithful too.
-        ushort headMinusSamus = unchecked((ushort)(head.YPosition - samus.YPosition));
+        ushort headMinusSamus = unchecked((ushort)(head.YPosition - samus.Position.Y.Whole));
         MotherBrainNeckMovement targetIndex = (headMinusSamus & 0x8000) == 0
             ? MotherBrainNeckMovement.Raise
             : MotherBrainNeckMovement.Lower;

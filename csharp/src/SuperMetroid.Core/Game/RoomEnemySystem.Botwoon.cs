@@ -762,8 +762,8 @@ public sealed partial class RoomEnemySystem
     {
         head.Layer = 2;
         byte angle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - head.XPosition)),
-            unchecked((short)(samus.YPosition - head.YPosition)));
+            unchecked((short)(samus.Position.X.Whole - head.XPosition)),
+            unchecked((short)(samus.Position.Y.Whole - head.YPosition)));
         ushort instruction = BotwoonInstructionDefinitions.HeadSpitInstruction(angle);
         InstallBotwoonHeadInstruction(head, state, instruction);
         state.SpitAngle = unchecked((byte)(64 - angle));

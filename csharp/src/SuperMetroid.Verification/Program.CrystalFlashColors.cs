@@ -135,8 +135,7 @@ internal static partial class Program
             var started = new SamusState
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
-                XPosition = 128,
-                YPosition = 128,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 Health = 1,
                 MaxHealth = 99,
                 Missiles = 10,

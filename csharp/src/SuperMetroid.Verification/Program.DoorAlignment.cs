@@ -134,8 +134,7 @@ internal static partial class Program
             cameraX: (ushort)(doorX / 16 * 256),
             cameraY: (ushort)(doorY / 16 * 256));
         SamusState samus = runtime.Samus!;
-        samus.XPosition = (ushort)(doorX * 16 + 8);
-        samus.YPosition = (ushort)(doorY * 16 + 8);
+        samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.HorizontalSpeed.BaseSpeed = 1;
         samus.HorizontalSpeed.BaseSubspeed = 0x8000;

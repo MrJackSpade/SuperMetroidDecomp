@@ -94,19 +94,19 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => 1));
         var run = typeof(RoomEnemySystem).GetMethod("RunCrocomireMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
-        var samus = new SamusState { XPosition = 1312, YPosition = 128 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
         run(body, samus, 1280);
         camera.SetPosition(1280, 0);
         camera.MoveLeft(1);
         AssertEqual((ushort)1280, camera.XPosition, "melting cutscene camera cannot show left of screen five");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(4), "bridge threshold locks screen four");
         AssertEqual(RoomScrollState.Blue, scrolls.ReadNativeState(5), "screen five remains visible");
-        samus.XPosition = 1311;
+        samus.Position = samus.Position.WithWholeX(1311);
         run(body, samus, 1280);
         camera.SetPosition(1280, 0);
         camera.MoveLeft(1);
         AssertEqual((ushort)1279, camera.XPosition, "before threshold camera remains free to move left");
-        samus.XPosition = 1312;
+        samus.Position = samus.Position.WithWholeX(1312);
         body.XPosition = 1600;
         run(body, samus, 1280);
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex, "real bridge collapse begins");
@@ -122,7 +122,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
         state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
         body.XPosition = 480;
-        samus.XPosition = 639;
+        samus.Position = samus.Position.WithWholeX(639);
         run(body, samus, 544);
         AssertEqual(CrocomireDeathPhase.RumbleHiddenWall, state.DeathSequenceIndex, "left cutscene starts at native Samus threshold");
         AssertEqual(RoomScrollState.RedBoundary, scrolls.ReadNativeState(1), "left cutscene retains red screen one");

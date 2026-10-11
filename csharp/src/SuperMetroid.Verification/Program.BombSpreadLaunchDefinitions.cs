@@ -22,7 +22,7 @@ internal static partial class Program
         {
             samus.BombSpreadChargeTimeoutCounter=(ushort)hold;
             samus.ProjectileFlareCounter=SamusBombSpreadRomData.RequiredChargeFrames;
-            samus.XPosition=(ushort)hold; samus.YPosition=unchecked((ushort)~hold);
+            samus.Position = samus.Position.WithWholeX((ushort)hold); samus.Position = samus.Position.WithWholeY(unchecked((ushort)~hold));
             spawn(bombs,samus);
             for(int i=0;i<reference.Length;i++)
             {
@@ -34,8 +34,8 @@ internal static partial class Program
                 AssertEqual(expected.YSubspeed,slot.BombSpreadYSubvelocity,"Spread live subvelocity");
                 AssertEqual(y,slot.BombSpreadYVelocity,"Spread hold modifier and negated whole velocity");
                 AssertEqual(y,slot.BombSpreadBounceYVelocity,"Spread bounce retains launch velocity");
-                AssertEqual(samus.XPosition,slot.XPosition,"Spread launch X wraps with Samus");
-                AssertEqual(samus.YPosition,slot.YPosition,"Spread launch Y wraps with Samus");
+                AssertEqual(samus.Position.X.Whole,slot.XPosition,"Spread launch X wraps with Samus");
+                AssertEqual(samus.Position.Y.Whole,slot.YPosition,"Spread launch Y wraps with Samus");
             }
             AssertEqual(SamusBombSpreadRomData.SlotCount,bombs.BombCounter,"Spread allocates all five slots");
             AssertEqual((ushort)0,samus.ProjectileFlareCounter,"Spread consumes charge");

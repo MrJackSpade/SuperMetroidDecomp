@@ -213,10 +213,10 @@ public sealed partial class RoomEnemySystem
             {
                 overlapsSamus = TryFindExtendedHitboxCallback(
                     slot,
-                    samus.XPosition,
-                    samus.YPosition,
-                    samus.Kinematics.XRadius,
-                    samus.Kinematics.YRadius,
+                    samus.Position.X.Whole,
+                    samus.Position.Y.Whole,
+                    samus.Kinematics.Radius.X,
+                    samus.Kinematics.Radius.Y,
                     selectShotCallback: false,
                     out hitboxTouchAiPointer);
             }
@@ -227,10 +227,10 @@ public sealed partial class RoomEnemySystem
                     slot.YPosition,
                     slot.XRadius,
                     slot.YRadius,
-                    samus.XPosition,
-                    samus.YPosition,
-                    samus.Kinematics.XRadius,
-                    samus.Kinematics.YRadius);
+                    samus.Position.X.Whole,
+                    samus.Position.Y.Whole,
+                    samus.Kinematics.Radius.X,
+                    samus.Kinematics.Radius.Y);
             }
 
             EnemyInteractionCallback? hitboxTouchAi = HitboxCallback(slot, hitboxTouchAiPointer);
@@ -266,8 +266,7 @@ public sealed partial class RoomEnemySystem
                 // Native writes only the whole displacement words, so preserve both
                 // fractional words exactly as they were before contact.
                 _ = RequireKraidState(slot);
-                samus.Kinematics.ExtraXDisplacement = 4;
-                samus.Kinematics.ExtraYDisplacement = unchecked((ushort)-8);
+                samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(4).WithWholeY(-8);
                 _slots[4].VariableA = (ushort)KraidAiFunction.LintFire;
                 ResolveNormalEnemyTouch(
                     slot,
@@ -454,7 +453,7 @@ public sealed partial class RoomEnemySystem
                     CrocomireEnemyState crocomire = Crocomire ??
                         throw new InvalidOperationException("Crocomire claw has no body owner.");
                     crocomire.FightFlags |= 0x4000;
-                    samus.Kinematics.ExtraXDisplacement = unchecked((ushort)-4);
+                    samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(-4);
                 }
                 return true;
             }

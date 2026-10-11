@@ -39,7 +39,7 @@ internal static class SuperMetroidRuntimeAccess
             // Radius is pose data, so construct/refresh pose $01 before deriving the surface
             // center. The temporary Y=0 is never rendered or stepped.
             self.InitializeDebugSamus(xPosition, yPosition: 0);
-            ushort yRadius = self.Samus!.Kinematics.YRadius;
+            ushort yRadius = self.Samus!.Kinematics.Radius.Y;
 
             if ((uint)minimumFloorBlockY >= (uint)self.LevelData.HeightInBlocks)
                 throw new ArgumentOutOfRangeException(nameof(minimumFloorBlockY));
@@ -81,7 +81,7 @@ internal static class SuperMetroidRuntimeAccess
                 // of spending several frames correcting the cutscene door's unrelated X=$400.
                 // Vertical framing remains the explicit host stimulus supplied by the caller.
                 self.Camera.SetPosition(xPosition - 0x60, restingY - desiredScreenY);
-                self.Samus.YPosition = restingY;
+                self.Samus.Position = self.Samus.Position.WithWholeY(restingY);
                 PrivateState.SetProperty(self, "GroundedSamusMovementEnabled", true);
                 PrivateState.SetProperty(self, "LastGroundedSamusMovement", null);
                 PrivateState.SetProperty(self, "LastAerialSamusMovement", null);
@@ -114,8 +114,7 @@ internal static class SuperMetroidRuntimeAccess
             {
                 Pose = SamusPoseId.FacingRightNormalPose,
                 AnimationFrame = 0,
-                XPosition = xPosition,
-                YPosition = yPosition,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(xPosition, yPosition)),
             });
             PrivateState.Invoke(self, "BindSamusPalettePresentation");
 

@@ -15,7 +15,7 @@ internal static partial class Program
         {
             var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
-                XPosition = 512, YPosition = 512, ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames };
             samus.RefreshCollisionRadii(bus);
             samus.Kinematics.YAcceleration = 0;
             samus.Kinematics.YSubacceleration = 0x1c00;

@@ -89,14 +89,14 @@ internal static partial class Program
 
         SamusState samus = runtime.Samus!;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = FrozenGateStartX;
-        samus.Kinematics.XSubposition = 0;
-        samus.YPosition = FrozenGateY;
-        samus.Kinematics.YSubposition = 0;
+        samus.Position = samus.Position.WithWholeX(FrozenGateStartX);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
+        samus.Position = samus.Position.WithWholeY(FrozenGateY);
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
         samus.RefreshCollisionRadii(bus);
-        AssertEqual((ushort)5, samus.Kinematics.XRadius,
+        AssertEqual((ushort)5, samus.Kinematics.Radius.X,
             "standing Samus horizontal collision radius");
-        AssertEqual((ushort)21, samus.Kinematics.YRadius,
+        AssertEqual((ushort)21, samus.Kinematics.Radius.Y,
             "standing Samus vertical collision radius");
 
         samus.Kinematics.InteractiveEnemies =
@@ -121,7 +121,7 @@ internal static partial class Program
             $"{expected.Distance}-pixel native case collides with enemy or terrain");
         AssertEqual(expected.EnemyCollision, movement.EnemyCollision.HasValue,
             $"{expected.Distance}-pixel case preserves native collision owner");
-        AssertEqual(expected.FinalX, samus.XPosition,
+        AssertEqual(expected.FinalX, samus.Position.X.Whole,
             $"{expected.Distance}-pixel case preserves native final X");
 
         plms.Step(

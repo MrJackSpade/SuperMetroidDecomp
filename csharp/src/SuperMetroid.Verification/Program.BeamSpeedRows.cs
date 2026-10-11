@@ -17,7 +17,7 @@ internal static partial class Program
         {
             // Mechanics now use compiled native rows, not editable presentation data.
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState { Pose = AimPose(direction), XPosition = 128, YPosition = 128,
+            var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 EquippedBeams = combination };
             var projectiles = CreateProjectileFixture();
             projectiles.StepFrame(bus, room, samus, (ushort)SnesButton.X,
@@ -67,7 +67,7 @@ internal static partial class Program
         for (byte direction = 0; direction < 10; direction++)
         {
             var bus = new BeamSpeedRowAddressSpace(retail);
-            var samus = new SamusState { Pose = AimPose(direction), XPosition = 128, YPosition = 128,
+            var samus = new SamusState { Pose = AimPose(direction), Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
                 SelectedHudItem = weapon, Missiles = 10, SuperMissiles = 10 };
             var projectiles = CreateProjectileFixture();
             var bombs = CreateBombFixture();

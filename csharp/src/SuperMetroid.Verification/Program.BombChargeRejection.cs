@@ -23,7 +23,7 @@ internal static partial class Program
                     (bombsEquipped ? SamusEquipmentFlags.Bombs : 0)),
                 SelectedHudItem = powerBombSelected ? (ushort)3 : (ushort)0,
                 PowerBombs = 2,
-                XPosition = 80, YPosition = 80,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)),
                 ProjectileFlareCounter = charge,
             };
             samus.RefreshCollisionRadii(bus);
@@ -55,7 +55,7 @@ internal static partial class Program
             var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 SelectedHudItem = selection, PowerBombs = 2, ProjectileFlareCounter = charge,
-                XPosition = 80, YPosition = 80 };
+                Position = FixedPosition<RoomPixels>.FromWhole(new(80, 80)) };
             var bombs = CreateBombFixture();
             var result = bombs.StepFrame(bus, level, samus, (ushort)SnesButton.Down, 0);
             string context = $"Shoot released, charge {charge}, HUD selection {selection}";

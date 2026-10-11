@@ -81,11 +81,10 @@ internal static partial class Program
 
         var samus = new SamusState
         {
-            XPosition = 0x0480,
             // Load station eighteen places Samus at $007C before the initializer moves
             // the top to SamusY-17. The ordinary station-zero deck coordinate $0440 is
             // produced only after the complete descent and lift sequence.
-            YPosition = 0x0080,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0080)),
             InputLocked = true,
         };
         var enemies = new RoomEnemySystem();
@@ -121,8 +120,8 @@ internal static partial class Program
             ushort previousTopY = top.YPosition;
             ushort previousTopSubY = top.YSubposition;
             ushort previousFunction = top.VariableF;
-            ushort cameraY = samus.YPosition > 120
-                ? unchecked((ushort)(samus.YPosition - 120))
+            ushort cameraY = samus.Position.Y.Whole > 120
+                ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
             enemies.StepFrame(cameraX: 0x0400, cameraY, timeIsFrozen: false, samus);
             frames++;
@@ -133,9 +132,9 @@ internal static partial class Program
             {
                 AssertEqual(
                     unchecked((ushort)(top.YPosition + 17)),
-                    samus.YPosition,
+                    samus.Position.Y.Whole,
                     $"gunship descent rigid Samus whole Y frame {frames}");
-                AssertEqual(top.YSubposition, samus.Kinematics.YSubposition,
+                AssertEqual(top.YSubposition, samus.Kinematics.Position.Y.Fraction,
                     $"gunship descent rigid Samus sub-Y frame {frames}");
                 if (previousTopY >= 0x0300)
                 {
@@ -163,8 +162,8 @@ internal static partial class Program
             {
                 // $A2:A91E-$A925 place Samus beside the hatch in both X words, so the
                 // following MainScrollingRoutine measures no horizontal movement.
-                var checkpoint = new SamusCameraPoint(0x0480, 0x1234, samus.YPosition, 0);
-                AssertEqual(checkpoint with { XPosition = samus.XPosition },
+                var checkpoint = new SamusCameraPoint(0x0480, 0x1234, samus.Position.Y.Whole, 0);
+                AssertEqual(checkpoint with { XPosition = samus.Position.X.Whole },
                     samus.ApplyPreviousPositionWrites(checkpoint),
                     "landing writes SamusPreviousXPosition with Samus X");
                 AssertTrue(enemies.SoundRequests.Contains(new EnemySoundRequest(
@@ -200,20 +199,20 @@ internal static partial class Program
         AssertEqual(641, frames, "gunship full landing frame count");
         AssertEqual(0xa9bd, top.VariableF, "gunship installs ordinary idle function");
         AssertTrue(!samus.InputLocked, "gunship completion restores Samus input handler");
-        AssertEqual(0x0440, samus.YPosition, "gunship raises Samus to deck standing Y");
+        AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 
         var openingSound = new EnemySoundRequest(
             SoundEffectLibrary3Sounds.GunshipEntrancePad, MaximumQueued: 6);
         enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus);
         AssertTrue(!enemies.SoundRequests.Contains(openingSound),
             "idle ship does not publish an entrance sound without Down");
-        ushort deckX = samus.XPosition;
-        samus.XPosition = unchecked((ushort)(top.XPosition + 16));
+        ushort deckX = samus.Position.X.Whole;
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(top.XPosition + 16)));
         enemies.StepFrame(0x0400, 0x0400, timeIsFrozen: false, samus,
             newlyPressedControllerInput: 0x0400);
         AssertTrue(!enemies.SoundRequests.Contains(openingSound),
             "Down outside entrance does not publish an opening sound");
-        samus.XPosition = deckX;
+        samus.Position = samus.Position.WithWholeX(deckX);
 
         // Re-entering after Mother Brain's event takes the native function-17 branch at
         // RestoreSamusInGunship: there is no refill wait, save prompt, or ordinary exit.
@@ -246,8 +245,8 @@ internal static partial class Program
         while (enemies.LastGunshipEvent != GunshipFrameEvent.EscapeTakeoffCompleted &&
                takeoffFrames < 900)
         {
-            ushort takeoffCameraY = samus.YPosition > 120
-                ? unchecked((ushort)(samus.YPosition - 120))
+            ushort takeoffCameraY = samus.Position.Y.Whole > 120
+                ? unchecked((ushort)(samus.Position.Y.Whole - 120))
                 : (ushort)0;
             enemies.StepFrame(
                 cameraX: 0x0400,

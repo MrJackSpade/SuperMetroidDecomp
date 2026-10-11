@@ -24,24 +24,22 @@ internal static partial class Program
             Require(slot.Properties.HasAny(EnemyProperties.SolidToSamus),
                 "Native initial solidity must be retained.");
             var samus = new SamusState();
-            samus.Kinematics.XPosition = 90;
-            samus.Kinematics.YPosition = 100;
-            samus.Kinematics.XRadius = 8;
-            samus.Kinematics.YRadius = 16;
+            samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(90, 100));
+            samus.Kinematics.Radius = new(8, 16);
             Require(Probe().Collided, "Approaching the intact corpse must initially collide.");
             switch (trigger)
             {
                 case "contact":
-                    samus.Kinematics.XPosition = 120;
+                    samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(120);
                     Call("RunDeadTorizoMain", slot, samus);
-                    Require(samus.Kinematics.ExtraXDisplacement >= 4 &&
-                        samus.Kinematics.ExtraYDisplacement == 4,
+                    Require(samus.Kinematics.ExtraDisplacement.X.WholePixels >= 4 &&
+                        samus.Kinematics.ExtraDisplacement.Y.WholePixels == 4,
                         "The custom touch rectangles must publish native displacement.");
                     break;
                 case "shot": Call("TriggerDeadTorizoRotting", slot); break;
                 case "power bomb": Call("TriggerDeadTorizoPowerBomb", slot); break;
                 default:
-                    samus.Kinematics.XPosition = 500; // Exercise solid-contact delay independently of custom overlap.
+                    samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(500); // Exercise solid-contact delay independently of custom overlap.
                     samus.Kinematics.RecordSolidEnemyCollision(SamusCollisionDirection.Right, slot.NativeIndex);
                     // The wait handler reads Samus's collision indexes.
                     Call("RunDeadTorizoMain", slot, samus);
@@ -53,7 +51,7 @@ internal static partial class Program
             Require(slot.Properties.HasAny(EnemyProperties.IgnoreSamusCollision),
                 $"{trigger}: rotting must set the native ignore-collision bit.");
             Require(!IsInteractive(), $"{trigger}: rotting corpse must leave the interaction list.");
-            samus.Kinematics.XPosition = 90;
+            samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(90);
             Require(!Probe().Collided, $"{trigger}: the same movement must pass the rotting corpse.");
             ushort phase = slot.VariableA;
             slot.VariableA = 0xd3c7; // Native completed/no-operation phase.

@@ -19,7 +19,7 @@ internal static partial class Program
         runtime.InitializeCeresStartSamus();
         var maps = RetailPresentationFixture();
         var samus = runtime.Samus!;
-        samus.XPosition = 0x200; samus.YPosition = 0x300;
+        samus.Position = samus.Position.WithWhole(new(0x200, 0x300));
         var expectedColors = new SnesCgram();
         for (int i = 0; i < 256; i++)
             expectedColors.SetColor(i, Bgr555.FromWord(checked((ushort)(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + i * 2)))));
@@ -27,7 +27,7 @@ internal static partial class Program
         foreach (byte phase in new byte[] { 0, 8 })
         {
             runtime.Hud.UpdateMinimap(bus, runtime.System, AreaId.Crateria, 28, 1,
-                0x90, 0x50, samus.XPosition, samus.YPosition, phase,
+                0x90, 0x50, samus.Position.X.Whole, samus.Position.Y.Whole, phase,
                 presentationMap: maps.Get(AreaId.Crateria));
             ushort center = runtime.Hud.Tiles[60];
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");

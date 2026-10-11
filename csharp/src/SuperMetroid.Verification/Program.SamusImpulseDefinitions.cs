@@ -10,7 +10,7 @@ internal static partial class Program
         var noReads = new SlopeHeightNoReadBus();
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
         // native collision radius, so the liquid threshold is that pose's bottom edge.
-        var bomb = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, XPosition = 128, YPosition = 128 };
+        var bomb = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         int bombBottom = 128 + SamusPoseCollisionDefinitions.ReadVerticalRadius(bomb.Pose) - 1;
         int bombCases = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -36,7 +36,7 @@ internal static partial class Program
             AssertEqual(SamusVerticalDirection.Up, bomb.Kinematics.YDirection, "Bomb upward launch");
             AssertEqual((ushort)7, bomb.Kinematics.YAcceleration, "Bomb launch retains live whole gravity");
             AssertEqual((ushort)123, bomb.Kinematics.YSubacceleration, "Bomb launch retains live fractional gravity");
-            AssertEqual((ushort)128, bomb.YPosition, "Bomb setup does not move Samus");
+            AssertEqual((ushort)128, bomb.Position.Y.Whole, "Bomb setup does not move Samus");
             AssertTrue(bomb.BombJumpActive && !bomb.BombJumpStarting, "Bomb mover handoff");
             bombCases++;
         }
@@ -51,7 +51,7 @@ internal static partial class Program
         for (ushort side = 0; side <= 1; side++)
         foreach (ushort input in new ushort[] { 0, (ushort)SnesButton.Left, (ushort)SnesButton.Right })
         {
-            var hurt = new SamusState { Pose = pose, XPosition = 128, YPosition = 128 };
+            var hurt = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             hurt.RefreshCollisionRadii(poseOnly);
             hurt.EquippedItems = (ushort)(((equipment & 1) != 0 ? SamusEquipmentFlags.HiJumpBoots : 0) |
                 ((equipment & 2) != 0 ? SamusEquipmentFlags.SpeedBooster : 0) |

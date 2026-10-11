@@ -130,12 +130,12 @@ public static partial class SamusGrappleMovement
         // Native WRAM has two easily conflated coordinate pairs. Start is the hand/rope
         // origin used by connection positioning; Flare is the small-OBJ draw origin used
         // by $94:AFBA. They coincide while swinging but can differ while firing or locked.
-        grapple.RopeStartX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
-        grapple.RopeStartY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
-        grapple.BeamStartX = unchecked((ushort)(samus.XPosition + grapple.FlareXOffset));
-        grapple.BeamStartY = unchecked((ushort)(samus.YPosition + grapple.FlareYOffset));
-        grapple.AnchorX = unchecked((ushort)(samus.XPosition + grapple.OriginXOffset));
-        grapple.AnchorY = unchecked((ushort)(samus.YPosition + grapple.OriginYOffset));
+        grapple.RopeStartX = unchecked((ushort)(samus.Position.X.Whole + grapple.OriginXOffset));
+        grapple.RopeStartY = unchecked((ushort)(samus.Position.Y.Whole + grapple.OriginYOffset));
+        grapple.BeamStartX = unchecked((ushort)(samus.Position.X.Whole + grapple.FlareXOffset));
+        grapple.BeamStartY = unchecked((ushort)(samus.Position.Y.Whole + grapple.FlareYOffset));
+        grapple.AnchorX = unchecked((ushort)(samus.Position.X.Whole + grapple.OriginXOffset));
+        grapple.AnchorY = unchecked((ushort)(samus.Position.Y.Whole + grapple.OriginYOffset));
     }
 
     /// <summary>
@@ -286,8 +286,8 @@ public static partial class SamusGrappleMovement
         // The common pose-command tail clamps the camera's previous-position words after
         // command 9/10 snaps Samus to the accepted rope geometry. Retain the pre-snap body
         // position even though most firing frames return without consuming this sample.
-        ushort previousXPosition = samus.XPosition;
-        ushort previousYPosition = samus.YPosition;
+        ushort previousXPosition = samus.Position.X.Whole;
+        ushort previousYPosition = samus.Position.Y.Whole;
 
         // $9B:C703 treats release of Shoot as cancellation before length or collision work.
         if ((controllerInput & (ushort)SnesButton.X) == 0)
@@ -466,8 +466,8 @@ public static partial class SamusGrappleMovement
         // `$9B:BAD5` clamps the camera's previous-position words against the position from
         // the start of this frame after a special-angle snap. Retain that exact sample now;
         // the host runtime consumes the optional corrected values returned below.
-        ushort previousXPosition = samus.XPosition;
-        ushort previousYPosition = samus.YPosition;
+        ushort previousXPosition = samus.Position.X.Whole;
+        ushort previousYPosition = samus.Position.Y.Whole;
 
         // $9B:C79D first checks Shoot. Releasing it does not immediately install jumping
         // art: it computes velocity and queues the release function for the following frame.
@@ -786,12 +786,12 @@ public static partial class SamusGrappleMovement
             // `$9B:C8DB/$C93C` use the pose direction when the direction byte is a command
             // sentinel. Standing selects `$01/$02`; compact bodies select `$27/$28`.
             bool facingLeft = samus.IsFacingLeft(bus);
-            return samus.Kinematics.YRadius >= 17
+            return samus.Kinematics.Radius.Y >= 17
                 ? facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose
                 : facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose;
         }
 
-        return GrappleConnectionDefinitions.DroppedPose(shotDirection, compact: samus.Kinematics.YRadius < 17);
+        return GrappleConnectionDefinitions.DroppedPose(shotDirection, compact: samus.Kinematics.Radius.Y < 17);
     }
 
     private static bool TryHandleSpecialAngle(
@@ -821,16 +821,15 @@ public static partial class SamusGrappleMovement
             };
 
             samus.Pose = special.Pose;
-            samus.XPosition = unchecked((ushort)(grapple.AnchorX + special.X));
-            samus.YPosition = unchecked((ushort)(grapple.AnchorY + special.Y));
+            samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(grapple.AnchorX + special.X)), unchecked((ushort)(grapple.AnchorY + special.Y))));
             samus.RefreshCollisionRadii(bus);
             samus.InitializeAnimation(bus, initialFrame: 0);
             grapple.Phase = phase;
             grapple.WallJumpTimer = 0;
             grapple.SlowScrolling = false; // $9B:BB0D
 
-            ushort cameraPreviousX = ClampPreviousPosition(samus.XPosition, previousXPosition);
-            ushort cameraPreviousY = ClampPreviousPosition(samus.YPosition, previousYPosition);
+            ushort cameraPreviousX = ClampPreviousPosition(samus.Position.X.Whole, previousXPosition);
+            ushort cameraPreviousY = ClampPreviousPosition(samus.Position.Y.Whole, previousYPosition);
             result = new GrappleMovementResult(
                 phase,
                 CameraPreviousX: cameraPreviousX,

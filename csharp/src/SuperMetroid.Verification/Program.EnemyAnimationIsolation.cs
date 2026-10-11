@@ -23,7 +23,8 @@ internal static partial class Program
         for (int frame = 0; frame < frames; frame++)
         {
             ushort samusX = (ushort)(frame is >= 32 and < 160 ? 128 : 384);
-            stock.Samus.XPosition = edited.Samus.XPosition = samusX;
+            stock.Samus.Position = stock.Samus.Position.WithWholeX(samusX);
+            edited.Samus.Position = edited.Samus.Position.WithWholeX(samusX);
             stock.Step(frame); edited.Step(frame);
             AssertEnemyAnimationMechanics(stock, edited, frame);
             AssertAnimationValues(stock.Enemies.BoyonStates[0]!, edited.Enemies.BoyonStates[0]!, $"Boyon frame {frame}");

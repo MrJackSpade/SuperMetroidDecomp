@@ -25,7 +25,7 @@ internal static partial class Program
         Check(closed ? "Uncharged Spazer closed-head impact" : "Uncharged Spazer open-head impact", () =>
         {
             runtime.Projectiles.Reset();
-            samus.XPosition = 120; samus.YPosition = 491;
+            samus.Position = samus.Position.WithWhole(new(120, 491));
             body.XPosition = 176; body.YPosition = 592;
             body.VariableA = (ushort)KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = 100;
@@ -51,12 +51,12 @@ internal static partial class Program
         runtime.Projectiles.Reset();
         void ResetSamus(ushort x, ushort y)
         {
-            samus.XPosition = x; samus.YPosition = y;
+            samus.Position = samus.Position.WithWhole(new(x, y));
             samus.Health = 999; samus.EquippedItems = 0;
             samus.InvincibilityTimer = samus.KnockbackTimer = 0;
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
-            samus.Kinematics.ExtraXDisplacement = samus.Kinematics.ExtraYDisplacement = 0;
-            samus.Kinematics.XRadius = 8; samus.Kinematics.YRadius = 16;
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeX(0).WithWholeY(0);
+            samus.Kinematics.Radius = samus.Kinematics.Radius.WithX(8); samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(16);
         }
         foreach (int index in new[] { 6, 7 })
         {
@@ -84,7 +84,7 @@ internal static partial class Program
             ResetSamus(100, 400);
             typeof(RoomEnemySystem).GetMethod("RunKraidLintMain", flags)!.Invoke(runtime.Enemies, new object?[] { lint, samus });
             AssertEqual((ushort)(999 - lint.Definition.Damage), samus.Health, "Lint leading edge damages Samus");
-            AssertEqual(unchecked((ushort)-25), samus.Kinematics.ExtraXDisplacement, "Native complement-based lint push");
+            AssertEqual((short)-25, samus.Kinematics.ExtraDisplacement.X.WholePixels, "Native complement-based lint push");
             AssertEqual(true, lint.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Lint becomes intangible after contact");
         });
         Check("First closed head after rising", () =>
@@ -114,8 +114,8 @@ internal static partial class Program
             ResetSamus(180, 500);
             typeof(RoomEnemySystem).GetMethod("RunKraidBodyMain", flags)!.Invoke(runtime.Enemies,
                 new object?[] { body, samus, (ushort)0, (ushort)384, null, null, null });
-            AssertEqual((ushort)172, samus.XPosition, "Kraid ejects Samus eight pixels left");
-            AssertEqual((ushort)492, samus.YPosition, "Kraid ejects Samus eight pixels up");
+            AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
+            AssertEqual((ushort)492, samus.Position.Y.Whole, "Kraid ejects Samus eight pixels up");
             AssertEqual((ushort)(999 - body.Definition.Damage), samus.Health, "Kraid body touch damage");
         });
         if (failures.Count != 0) throw new AggregateException("Kraid reported collisions", failures);

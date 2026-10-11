@@ -16,12 +16,11 @@ internal static partial class Program
             var samus = new SamusState
             {
                 Pose = SamusPoseId.SpringBallJumpRightPose,
-                XPosition = 0x80,
-                YPosition = 0x169,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x169)),
                 MorphBallBounceState = bounceState,
             };
             samus.RefreshCollisionRadii(bus);
-            samus.Kinematics.YSubposition = 0xffff;
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = 1;
             samus.Kinematics.YSubspeed = 0;
@@ -31,8 +30,8 @@ internal static partial class Program
             string context = $"Spring Ball in air with bounce state ${(int)bounceState:X4}";
             if (bounceState != SamusBallBounceState.None)
             {
-                AssertEqual((ushort)0x168, samus.YPosition, $"{context} rises by the rebound speed");
-                AssertEqual((ushort)0xffff, samus.Kinematics.YSubposition, $"{context} Y fraction");
+                AssertEqual((ushort)0x168, samus.Position.Y.Whole, $"{context} rises by the rebound speed");
+                AssertEqual((ushort)0xffff, samus.Kinematics.Position.Y.Fraction, $"{context} Y fraction");
                 AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, $"{context} keeps rising");
                 AssertEqual((ushort)0, samus.Kinematics.YSpeed, $"{context} Y speed");
                 AssertEqual((ushort)0xe400, samus.Kinematics.YSubspeed, $"{context} Y subspeed after gravity");

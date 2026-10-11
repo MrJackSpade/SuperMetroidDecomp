@@ -233,7 +233,7 @@ public sealed partial class RoomEnemySystem
         // $E666-$E672 rotates the sign of (Samus X - body X) into bit 15 of variable A,
         // preserving its other fifteen bits. The following byte-sized list edits use that
         // sign to select even/odd left/right table entries for both physical records.
-        bool facingLeft = unchecked((short)(samus.XPosition - body.XPosition)) < 0;
+        bool facingLeft = unchecked((short)(samus.Position.X.Whole - body.XPosition)) < 0;
         bodyState.DirectionWord = unchecked((ushort)(
             (bodyState.DirectionWord & 0x7fff) | (facingLeft ? 0x8000 : 0)));
         bodyState.RequestedInstructionListIndex = DragonAnimationDefinitions.WithFacing(

@@ -322,10 +322,8 @@ internal static partial class Program
                     {
                         // Enter the authored lower-right wake rectangle on both
                         // independently stepped games, without crossing a door.
-                        nativeRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
-                        nativeRoom.RuntimeForVerification!.Samus!.YPosition = 0x0150;
-                        installedRoom.RuntimeForVerification!.Samus!.XPosition = 0x0180;
-                        installedRoom.RuntimeForVerification!.Samus!.YPosition = 0x0150;
+                        nativeRoom.RuntimeForVerification!.Samus!.Position = nativeRoom.RuntimeForVerification!.Samus!.Position.WithWhole(new(0x0180, 0x0150));
+                        installedRoom.RuntimeForVerification!.Samus!.Position = installedRoom.RuntimeForVerification!.Samus!.Position.WithWhole(new(0x0180, 0x0150));
                         // The attack choices are random. Pin the seed this scenario was authored
                         // against so earlier frontend timing cannot change which attacks occur.
                         nativeRoom.RuntimeForVerification!.System.SetRandomNumber(0x23fc);

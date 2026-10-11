@@ -86,8 +86,8 @@ internal static partial class Program
             { ((ushort)40, (ushort)21, false), ((ushort)72, (ushort)21, false),
               ((ushort)56, (ushort)7, false), ((ushort)56, (ushort)21, true) })
         {
-            var insideSamus = new SamusState { XPosition = 72, YPosition = centerY };
-            insideSamus.Kinematics.YRadius = radius;
+            var insideSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(72, centerY)) };
+            insideSamus.Kinematics.Radius = insideSamus.Kinematics.Radius.WithY(radius);
             SamusInsideBlockReactions.PrepareFrame(level, insideSamus, AreaId.Crateria, plms: plms);
             AssertEqual(shouldWake, plms.ScrollPlmTriggered(origin),
                 "inside scroll reaction admits only a separately visited center, not feet/head");
@@ -112,10 +112,8 @@ internal static partial class Program
         scrolls.SetStorage(1, RoomScrollState.RedBoundary);
         var body = new SamusKinematicsState
         {
-            XPosition = 56,
-            YPosition = 56,
-            XRadius = 8,
-            YRadius = 7,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
+            Radius = new(8, 7),
         };
         BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(
             bus,
@@ -141,20 +139,18 @@ internal static partial class Program
         var ball = new SamusState
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
-            XPosition = 56,
-            YPosition = 56,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
         };
         ball.RefreshCollisionRadii(bus);
-        ball.Kinematics.ExtraXDisplacement = 1;
-        ball.Kinematics.ExtraXSubdisplacement = 0;
-        ushort ballStartX = ball.XPosition;
+        ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithWholeX(1).WithFractionX(0);
+        ushort ballStartX = ball.Position.X.Whole;
         SamusMorphBallMovement.StepGrounded(
             bus,
             level,
             ball,
             nmiFrameCounter: 0,
             plms: plms);
-        AssertTrue(ball.XPosition > ballStartX,
+        AssertTrue(ball.Position.X.Whole > ballStartX,
             "Morph Ball traverses scroll extension as special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
             "Morph Ball wrapper forwards live PLM owner to block collision");
@@ -172,8 +168,7 @@ internal static partial class Program
         {
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (ushort)SamusEquipmentFlags.Bombs,
-            XPosition = 56,
-            YPosition = 40,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
         };
         bombJump.RefreshCollisionRadii(bus);
         bombJump.Kinematics.YAcceleration = 0;

@@ -27,7 +27,7 @@ internal static partial class Program
             AssertEqual(population[i].Delay, enemies.PuyoStates[i]!.HopCooldownTimer, "native full-word initial cooldown");
         }
         var firstHop = Enumerable.Repeat(-1, population.Length).ToArray();
-        var samus = new SamusState { XPosition = 220, YPosition = 128, Health = 999, MaxHealth = 999 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(220, 128)), Health = 999, MaxHealth = 999 };
         for (int frame = 1; frame <= 3841; frame++)
         {
             enemies.StepFrame(0, 0, false, samus, level: assets.LevelData);

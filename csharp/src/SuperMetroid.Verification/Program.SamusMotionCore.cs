@@ -529,15 +529,10 @@ static void VerifySamusExtraDisplacement()
     var standing = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    standing.Kinematics.XRadius = 5;
-    standing.Kinematics.YRadius = 21;
-    standing.Kinematics.ExtraXDisplacement = 1;
-    standing.Kinematics.ExtraXSubdisplacement = 0x8000;
-    standing.Kinematics.ExtraYDisplacement = 2;
-    standing.Kinematics.ExtraYSubdisplacement = 0x4000;
+    standing.Kinematics.Radius = new(5, 21);
+    standing.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(1, 0x8000, 2, 0x4000);
     GroundedMovementResult positive = SamusGroundedMovement.StepStandingRight(
         bus,
         level,
@@ -548,21 +543,18 @@ static void VerifySamusExtraDisplacement()
         "standing external +X bypasses zero base speed");
     AssertEqual(0x00034000, positive.Vertical.AcceptedDisplacement,
         "positive no-speed external Y gains one whole pixel");
-    AssertEqual(1, standing.Kinematics.ExtraXDisplacement,
+    AssertEqual(1, standing.Kinematics.ExtraDisplacement.X.WholePixels,
         "movement does not consume persistent external X producer word");
-    AssertEqual(2, standing.Kinematics.ExtraYDisplacement,
+    AssertEqual(2, standing.Kinematics.ExtraDisplacement.Y.WholePixels,
         "movement does not consume persistent external Y producer word");
 
     var negative = new SamusState
     {
         Pose = SamusPoseId.FacingRightNormalPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    negative.Kinematics.XRadius = 5;
-    negative.Kinematics.YRadius = 21;
-    negative.Kinematics.ExtraYDisplacement = 0xfffe;
-    negative.Kinematics.ExtraYSubdisplacement = 0x8000;
+    negative.Kinematics.Radius = new(5, 21);
+    negative.Kinematics.ExtraDisplacement = negative.Kinematics.ExtraDisplacement.WithWholeY(-2).WithFractionY(0x8000);
     GroundedMovementResult upward = SamusGroundedMovement.StepStandingRight(
         bus,
         level,
@@ -575,49 +567,41 @@ static void VerifySamusExtraDisplacement()
     var transition = new SamusState
     {
         Pose = SamusPoseId.NeutralJumpTransitionRightPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    transition.Kinematics.XRadius = 5;
-    transition.Kinematics.YRadius = 19;
-    transition.Kinematics.ExtraXDisplacement = 0xffff;
-    transition.Kinematics.ExtraXSubdisplacement = 0x8000; // -0.8000
-    transition.Kinematics.ExtraYDisplacement = 0;
-    transition.Kinematics.ExtraYSubdisplacement = 0x4000; // +0.4000
-    uint transitionXBefore = transition.Kinematics.XFixed;
-    uint transitionYBefore = transition.Kinematics.YFixed;
+    transition.Kinematics.Radius = new(5, 19);
+    transition.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0xffff, 0x8000, 0, 0x4000); // -0.8000 // +0.4000
+    uint transitionXBefore = transition.Kinematics.Position.X.RawValue;
+    uint transitionYBefore = transition.Kinematics.Position.Y.RawValue;
     AerialMovementResult transitionResult = SamusAerialMovement.StepNormalJump(
         bus,
         level,
         transition,
         (ushort)SnesButton.A,
         nmiFrameCounter: 0);
-    AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.XFixed - transitionXBefore)),
+    AssertEqual(unchecked((int)0xffff8000), unchecked((int)(transition.Kinematics.Position.X.RawValue - transitionXBefore)),
         "jump transition applies signed external X with zero base speed");
-    AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.YFixed - transitionYBefore)),
+    AssertEqual(0x00014000, unchecked((int)(transition.Kinematics.Position.Y.RawValue - transitionYBefore)),
         "jump transition applies extra-only Y with positive bias");
 
     var rising = new SamusState
     {
         Pose = SamusPoseId.NeutralJumpRightPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
     };
-    rising.Kinematics.XRadius = 5;
-    rising.Kinematics.YRadius = 19;
+    rising.Kinematics.Radius = new(5, 19);
     rising.Kinematics.YDirection = SamusVerticalDirection.Up;
     rising.Kinematics.YSpeed = 1;
     rising.Kinematics.YSubspeed = 0;
-    rising.Kinematics.ExtraYDisplacement = 1;
-    rising.Kinematics.ExtraYSubdisplacement = 0x8000;
-    uint risingYBefore = rising.Kinematics.YFixed;
+    rising.Kinematics.ExtraDisplacement = rising.Kinematics.ExtraDisplacement.WithWholeY(1).WithFractionY(0x8000);
+    uint risingYBefore = rising.Kinematics.Position.Y.RawValue;
     AerialMovementResult reversed = SamusAerialMovement.StepNormalJump(
         bus,
         level,
         rising,
         (ushort)SnesButton.A,
         nmiFrameCounter: 0);
-    AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.YFixed - risingYBefore)),
+    AssertEqual(0x00008000, unchecked((int)(rising.Kinematics.Position.Y.RawValue - risingYBefore)),
         "gravity path adds external Y directly and may reverse actual direction");
     AssertEqual(SamusVerticalDirection.Up, rising.Kinematics.YDirection,
         "external reversal does not rewrite native velocity-direction word");
@@ -625,18 +609,15 @@ static void VerifySamusExtraDisplacement()
     var bouncingBall = new SamusState
     {
         Pose = SamusPoseId.MorphBallFallingRightPose,
-        XPosition = 64,
-        YPosition = 64,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)),
         MorphBallBounceState = SamusBallBounceState.FirstRebound,
         KnockbackDirection = 0,
     };
-    bouncingBall.Kinematics.XRadius = 5;
-    bouncingBall.Kinematics.YRadius = 7;
+    bouncingBall.Kinematics.Radius = new(5, 7);
     bouncingBall.Kinematics.YDirection = SamusVerticalDirection.Up;
     bouncingBall.Kinematics.YSpeed = 3;
     bouncingBall.Kinematics.YSubspeed = 0x4000;
-    bouncingBall.Kinematics.ExtraYDisplacement = 0xffff;
-    bouncingBall.Kinematics.ExtraYSubdisplacement = 0x8000; // -0.8000
+    bouncingBall.Kinematics.ExtraDisplacement = bouncingBall.Kinematics.ExtraDisplacement.WithWholeY(-1).WithFractionY(0x8000); // -0.8000
     MorphBallMovementResult displacedBounce = SamusMorphBallMovement.StepFalling(
         bus,
         level,

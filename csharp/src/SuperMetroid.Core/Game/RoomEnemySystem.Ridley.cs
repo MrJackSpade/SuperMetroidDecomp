@@ -602,7 +602,7 @@ public sealed partial class RoomEnemySystem
         {
             situation = RidleyAttackSituation.BelowHalfHealth;
         }
-        else if (samus is not null && samus.YPosition >= 352)
+        else if (samus is not null && samus.Position.Y.Whole >= 352)
         {
             situation = RidleyAttackSituation.PogoZone;
         }
@@ -687,7 +687,7 @@ public sealed partial class RoomEnemySystem
         RidleyFacing facing = state.FacingDirection;
         ushort targetX = descending ? RidleyMovementTargets.DescendingPogoX(facing)
             : RidleyMovementTargets.AscendingPogoX(facing);
-        ushort targetY = samus is null ? (ushort)352 : Math.Min(samus.YPosition, (ushort)352);
+        ushort targetY = samus is null ? (ushort)352 : Math.Min(samus.Position.Y.Whole, (ushort)352);
         MoveNorfairRidleyToward(
             slot,
             state,
@@ -810,7 +810,7 @@ public sealed partial class RoomEnemySystem
         RidleyEnemyState state,
         SamusState? samus)
     {
-        if (samus is null || samus.YPosition < 352 || TickRidleyFunctionTimer(state))
+        if (samus is null || samus.Position.Y.Whole < 352 || TickRidleyFunctionTimer(state))
         {
             state.TailFunctionIndex = RidleyTailFunction.Neutral;
             state.TailAngleDelta = 1;
@@ -885,23 +885,23 @@ public sealed partial class RoomEnemySystem
 
         // The native lunge is a passing attack, not indefinite pursuit. Test the
         // previous movement's boundary result before applying another acceleration.
-        short deltaX = unchecked((short)(slot.XPosition - samus.XPosition));
+        short deltaX = unchecked((short)(slot.XPosition - samus.Position.X.Whole));
         bool passedSamus = state.FacingDirection == RidleyFacing.Right ? deltaX >= 0 : deltaX < 0;
         if (state.HitRoomBoundary ||
             (passedSamus && unchecked((short)(Math.Abs((int)deltaX) - RidleyLungeDefinitions.PassDistance)) >= 0) ||
-            unchecked((short)(slot.YPosition + RidleyLungeDefinitions.ClawHeight - samus.YPosition)) >= 0)
+            unchecked((short)(slot.YPosition + RidleyLungeDefinitions.ClawHeight - samus.Position.Y.Whole)) >= 0)
         {
             HandleNorfairRidleyMissedLunge(slot, state);
             return;
         }
 
         int sideOffset = state.FacingDirection != RidleyFacing.Left ? 16 : -16;
-        ushort targetY = unchecked((ushort)(samus.YPosition - 4));
+        ushort targetY = unchecked((ushort)(samus.Position.Y.Whole - 4));
         int divisorIndex = RidleyMovementTargets.GrabDivisorIndexes(Math.Min(state.HealthStage, (ushort)3));
         MoveNorfairRidleyToward(
             slot,
             state,
-            unchecked((ushort)(samus.XPosition + sideOffset)),
+            unchecked((ushort)(samus.Position.X.Whole + sideOffset)),
             targetY,
             divisorIndex);
 
@@ -920,8 +920,8 @@ public sealed partial class RoomEnemySystem
     {
         ushort clawX = GetNorfairRidleyClawX(slot, state);
         ushort clawY = GetNorfairRidleyClawY(slot, state);
-        state.GrabXOffset = unchecked((ushort)(samus.XPosition - clawX));
-        state.GrabYOffset = unchecked((ushort)(samus.YPosition - clawY));
+        state.GrabXOffset = unchecked((ushort)(samus.Position.X.Whole - clawX));
+        state.GrabYOffset = unchecked((ushort)(samus.Position.Y.Whole - clawY));
         state.GrabState = 1;
         samus.SetStationaryScriptControlLock(true);
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -969,10 +969,10 @@ public sealed partial class RoomEnemySystem
     {
         state.GrabXOffset = DecayRidleyGrabOffset(state.GrabXOffset);
         state.GrabYOffset = DecayRidleyGrabOffset(state.GrabYOffset);
-        samus.XPosition = unchecked((ushort)(
-            GetNorfairRidleyClawX(slot, state) + unchecked((short)state.GrabXOffset)));
-        samus.YPosition = unchecked((ushort)(
-            GetNorfairRidleyClawY(slot, state) + unchecked((short)state.GrabYOffset)));
+        samus.Position = samus.Position.WithWholeX(unchecked((ushort)(
+            GetNorfairRidleyClawX(slot, state) + unchecked((short)state.GrabXOffset))));
+        samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
+            GetNorfairRidleyClawY(slot, state) + unchecked((short)state.GrabYOffset))));
     }
 
     private static ushort DecayRidleyGrabOffset(ushort offsetWord)
@@ -991,10 +991,10 @@ public sealed partial class RoomEnemySystem
         SamusState samus,
         ushort radiusX,
         ushort radiusY) =>
-        Math.Abs(unchecked((short)(samus.XPosition - GetNorfairRidleyClawX(slot, state)))) <
-            samus.Kinematics.XRadius + radiusX &&
-        Math.Abs(unchecked((short)(samus.YPosition - GetNorfairRidleyClawY(slot, state)))) <
-            samus.Kinematics.YRadius + radiusY;
+        Math.Abs(unchecked((short)(samus.Position.X.Whole - GetNorfairRidleyClawX(slot, state)))) <
+            samus.Kinematics.Radius.X + radiusX &&
+        Math.Abs(unchecked((short)(samus.Position.Y.Whole - GetNorfairRidleyClawY(slot, state)))) <
+            samus.Kinematics.Radius.Y + radiusY;
 
     private static ushort GetNorfairRidleyClawX(RoomEnemySlot slot, RidleyEnemyState state) =>
         unchecked((ushort)(slot.XPosition + RidleyClawOffsets.ReadX(state.FacingDirection)));

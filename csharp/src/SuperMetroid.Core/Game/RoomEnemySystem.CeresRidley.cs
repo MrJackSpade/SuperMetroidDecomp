@@ -595,11 +595,11 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Ceres Ridley lunge requires the active Samus actor.");
 
-        ushort targetY = unchecked((short)(samus.YPosition - 132)) < 0
+        ushort targetY = unchecked((short)(samus.Position.Y.Whole - 132)) < 0
             ? (ushort)64
-            : unchecked((ushort)(samus.YPosition - 68));
-        AccelerateRidleyToward(slot, state, samus.XPosition, targetY, 13);
-        bool reached = IsWithinRidleyRectangle(slot, samus.XPosition, targetY, 2, 2);
+            : unchecked((ushort)(samus.Position.Y.Whole - 68));
+        AccelerateRidleyToward(slot, state, samus.Position.X.Whole, targetY, 13);
+        bool reached = IsWithinRidleyRectangle(slot, samus.Position.X.Whole, targetY, 2, 2);
         state.FunctionTimer = unchecked((ushort)(state.FunctionTimer - 1));
         if (reached || (short)state.FunctionTimer < 0)
         {

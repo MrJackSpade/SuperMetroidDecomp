@@ -10,7 +10,7 @@ internal static partial class Program
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose, XPosition = 128, YPosition = 235 };
+        var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 235)) };
         var entries = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) entries[16 * 16 + x] = 0x8000;
         var room = CreateRoom(16, 32, entries, new byte[entries.Length]);
@@ -88,12 +88,12 @@ internal static partial class Program
             if (after is null) continue;
             if (oldPose == SamusPoseId.MovingLeftNormalPose && after.Pose == SamusPoseId.SpinJumpLeftPose)
             {
-                AssertEqual(21, after.Kinematics.YRadius, "intro jump commit retains running collision radius");
+                AssertEqual(21, after.Kinematics.Radius.Y, "intro jump commit retains running collision radius");
                 jumpRadiusRetained = true;
             }
             else if (jumpRadiusRetained && !jumpRadiusPublished && oldPose == SamusPoseId.SpinJumpLeftPose)
             {
-                AssertEqual(12, after.Kinematics.YRadius, "intro next alpha publishes spin collision radius");
+                AssertEqual(12, after.Kinematics.Radius.Y, "intro next alpha publishes spin collision radius");
                 jumpRadiusPublished = true;
             }
             if (context is null)

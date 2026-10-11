@@ -55,7 +55,7 @@ internal static partial class Program
             SamusPoseId pose = (SamusPoseId)poseIndex;
             byte movement = rom.ReadByte(SamusMovementRomData.Poses.Definitions + (int)pose * 8 + 1);
             metadata.SourcePose = SamusPoseId.FacingRightNormalPose; metadata.Direction = 2;
-            samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 512, YPosition = 512, EquippedBeams = (ushort)SamusBeamFlags.Charge };
+            samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), EquippedBeams = (ushort)SamusBeamFlags.Charge };
             var shots = new SamusProjectileSystem();
             var bombs = new SamusBombProjectileSystem();
             for (int frame = 0; frame < 10; frame++)

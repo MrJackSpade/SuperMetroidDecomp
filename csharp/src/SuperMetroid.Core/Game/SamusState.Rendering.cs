@@ -531,8 +531,8 @@ public sealed partial class SamusState
         // high status bit is set. Every position selector below therefore consumes the
         // rotated point, but public physics coordinates remain completely untouched.
         SamusMode7Point renderPoint = mode7Transform is { } transform
-            ? transform.Transform(XPosition, YPosition)
-            : new SamusMode7Point(XPosition, YPosition);
+            ? transform.Transform(Position.X.Whole, Position.Y.Whole)
+            : new SamusMode7Point(Position.X.Whole, Position.Y.Whole);
         ushort renderX = renderPoint.X;
         ushort renderY = renderPoint.Y;
 
@@ -618,8 +618,8 @@ public sealed partial class SamusState
         // not SpritemapYPosition (which has already applied pose graphics offset `$08`).
         if (Pose == SamusPoseId.ForwardFacingPowerSuitPose)
         {
-            ushort chestX = unchecked((ushort)(XPosition - 7 - layer1X));
-            ushort chestY = unchecked((ushort)(YPosition - 0x11 - layer1Y));
+            ushort chestX = unchecked((ushort)(Position.X.Whole - 7 - layer1X));
+            ushort chestY = unchecked((ushort)(Position.Y.Whole - 0x11 - layer1Y));
             oam.AddRawSmallSprite(chestX, chestY, attributes: 0x3821);
         }
 
@@ -726,8 +726,8 @@ public sealed partial class SamusState
             // whose Samus draw handler is suppressed must also freeze these copies.
             if (HorizontalSpeed.AdvanceDepartingSpeedEcho(
                     slot: 1,
-                    XPosition,
-                    YPosition))
+                    Position.X.Whole,
+                    Position.Y.Whole))
             {
                 DrawActiveSpeedBoosterEcho(
                     bus,
@@ -740,8 +740,8 @@ public sealed partial class SamusState
 
             if (HorizontalSpeed.AdvanceDepartingSpeedEcho(
                     slot: 0,
-                    XPosition,
-                    YPosition))
+                    Position.X.Whole,
+                    Position.Y.Whole))
             {
                 DrawActiveSpeedBoosterEcho(
                     bus,

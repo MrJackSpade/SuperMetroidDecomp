@@ -75,7 +75,7 @@ internal static partial class Program
         state.TailSegments[0].XPosition = state.TailSegments[0].YPosition = 128;
         state.TailSegments[0].Angle = 0x4000;
         state.TailSegments[6].XPosition = state.TailSegments[6].YPosition = 128;
-        var samus = new SamusState { XPosition = 128, YPosition = 200 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
         aim(state, samus, 0);
         ushort samusTarget = state.TailWhipTargetClockwiseAngle;
         var projectiles = new SamusProjectileSystem();
@@ -88,7 +88,7 @@ internal static partial class Program
         ushort missileTarget = state.TailWhipTargetClockwiseAngle;
         AssertTrue(missileTarget != samusTarget, "nearby missile changes tail target");
         typeof(RoomEnemySystem).GetField("_samusProjectilesForEnemyFrame", flags)!.SetValue(enemies, null);
-        aim(state, new SamusState { XPosition = 96, YPosition = 104 }, 0);
+        aim(state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(96, 104)) }, 0);
         AssertEqual(missileTarget, state.TailWhipTargetClockwiseAngle, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;
         int advances = 0;
@@ -100,7 +100,7 @@ internal static partial class Program
         state.TailSegments[0].Angle = 0x5000;
         foreach (var segment in state.TailSegments) segment.Active = true;
         state.TailWhipTargetClockwiseAngle = state.TailWhipTargetCounterClockwiseAngle = ushort.MaxValue;
-        neutral(slot, state, new SamusState { XPosition = 512, YPosition = 128 });
+        neutral(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(512, 128)) });
         AssertTrue(state.TailWhipTargetClockwiseAngle != ushort.MaxValue, "native random fling admission works outside proximity range");
         AssertEqual(0, advances, "tail controller never advances RNG");
         var direction = typeof(RoomEnemySystem).GetMethod("SetRidleyPogoHorizontalDirection", flags)!
@@ -110,7 +110,7 @@ internal static partial class Program
         slot.XPosition = 128;
         state.HorizontalVelocity = 0x100;
         seed = 0x1000;
-        direction(slot, state, new SamusState { XPosition = 64 });
+        direction(slot, state, new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 0)) });
         AssertEqual(unchecked((ushort)-0x100), state.HorizontalVelocity, "pogo bounce turns toward Samus for ordinary seed");
         slot.XPosition = 32;
         direction(slot, state, samus);

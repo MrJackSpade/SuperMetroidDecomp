@@ -18,7 +18,7 @@ internal static partial class Program
             (SuperMetroidAddressSpace bus, SuperMetroidRuntime runtime, SamusState samus) =
                 CreateCinematicFlashRuntime(movementCalls);
             CrystalFlashPhase phaseBefore = samus.CrystalFlash.Phase;
-            ushort yBefore = samus.YPosition;
+            ushort yBefore = samus.Position.Y.Whole;
 
             var rainbow = new MotherBrainRainbowBeamAttackSequence();
             rainbow.StartActiveBeam(bus, samus);
@@ -32,7 +32,7 @@ internal static partial class Program
                 $"Mother Brain's locked beta suspends retained Flash after {movementCalls} calls");
             AssertEqual(phaseBefore, samus.CrystalFlash.Phase,
                 "locked beta does not discard the suspended movement pointer");
-            AssertEqual(yBefore, samus.YPosition,
+            AssertEqual(yBefore, samus.Position.Y.Whole,
                 "locked beta does not execute Crystal Flash movement");
         }
 
@@ -254,8 +254,7 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 128;
-        samus.YPosition = 128;
+        samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.Health = 49;
         samus.MaxHealth = 99;
         samus.ReserveEnergy = 0;

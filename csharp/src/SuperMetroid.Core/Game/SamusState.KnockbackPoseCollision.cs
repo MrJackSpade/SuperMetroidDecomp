@@ -22,7 +22,7 @@ public sealed partial class SamusState
                 ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
             return false;
         }
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + adjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)adjustment));
         return true;
     }
 }

@@ -84,8 +84,7 @@ internal static partial class Program
         SamusState samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.PoseId = SamusPoseId.MovingLeftGunExtendedPose;
-        samus.Kinematics.XSubposition = 0;
-        samus.Kinematics.YSubposition = 0;
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.EquippedItems = (ushort)(
             SamusEquipmentFlags.GrappleBeam |
             SamusEquipmentFlags.SpeedBooster);
@@ -121,9 +120,9 @@ internal static partial class Program
             baseSpeed,
             openFrame >= 0,
             openFrame,
-            samus.XPosition,
-            samus.Kinematics.XSubposition,
-            samus.YPosition,
+            samus.Position.X.Whole,
+            samus.Kinematics.Position.X.Fraction,
+            samus.Position.Y.Whole,
             (int)samus.Pose,
             samus.Grapple.AnchorX,
             samus.Grapple.AnchorY,

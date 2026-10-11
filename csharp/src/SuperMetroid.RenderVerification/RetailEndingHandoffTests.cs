@@ -49,7 +49,7 @@ internal static class RetailEndingHandoffTests
             // its AI active; this is handoff coverage, not full departure validation.
             top.Properties = top.Properties.With(EnemyProperties.ProcessOffScreen);
             runtime.Samus!.InputLocked = true;
-            runtime.Samus.YPosition = EndingHandoffFixtureDefinitions.TakeoffBoundaryY;
+            runtime.Samus.Position = runtime.Samus.Position.WithWholeY(EndingHandoffFixtureDefinitions.TakeoffBoundaryY);
             runtime.RunNmi(0, true);
         }
         bool sawFade = false;

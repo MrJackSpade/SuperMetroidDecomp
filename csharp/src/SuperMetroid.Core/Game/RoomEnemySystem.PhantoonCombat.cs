@@ -372,7 +372,7 @@ public sealed partial class RoomEnemySystem
         else if (unchecked((short)(body.XPosition - 0x01c0)) >= 0)
             body.XPosition = 0x01c0;
 
-        ushort targetY = fatal ? (ushort)112 : unchecked((ushort)(samus.YPosition - 48));
+        ushort targetY = fatal ? (ushort)112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
         if (unchecked((short)(targetY - body.YPosition)) < 0)
         {
             if (unchecked((short)(tentacles.VariableD - PhantoonMotionDefinitions.SwoopNegativeYThreshold)) >= 0)
@@ -397,8 +397,8 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot eye,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.XPosition - body.XPosition));
-        short deltaY = unchecked((short)(samus.YPosition - body.YPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - body.XPosition));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - body.YPosition));
         ushort direction;
         if (Math.Abs((int)deltaY) < 32)
             direction = deltaX < 0 ? (ushort)7 : (ushort)2;

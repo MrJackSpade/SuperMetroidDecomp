@@ -250,7 +250,7 @@ public sealed partial class RoomEnemySystem
         // GetSignedYMinusX treats the wrapped word as signed before taking its magnitude.
         // In particular, $8000 remains $8000 after negation; ordinary Math.Abs(short) would
         // throw and a wider subtraction would disagree near the world-coordinate seam.
-        ushort distance = unchecked((ushort)(samus.XPosition - slot.XPosition));
+        ushort distance = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
         if ((distance & 0x8000) != 0)
             distance = unchecked((ushort)-distance);
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)

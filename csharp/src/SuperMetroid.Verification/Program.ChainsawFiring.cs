@@ -35,8 +35,7 @@ internal static partial class Program
         AssertEqual((ushort)0x000d, samus.EquippedBeams,
             "same-frame Boots Left+A equips Wave, Spazer, and Plasma without Ice");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 128;
-        samus.YPosition = 128;
+        samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.SelectedHudItem = 0;
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
@@ -65,8 +64,7 @@ internal static partial class Program
         var reactiveSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x000d,
             SelectedHudItem = 0,
         };
@@ -99,8 +97,7 @@ internal static partial class Program
         var doorSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x000d,
             SelectedHudItem = 0,
         };
@@ -348,8 +345,7 @@ internal static partial class Program
         var chargedSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             EquippedBeams = 0x100d,
         };
         var chargedShared = CreateBombFixture();

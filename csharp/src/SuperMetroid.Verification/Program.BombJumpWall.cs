@@ -10,25 +10,25 @@ internal static partial class Program
         var words = new ushort[16 * 16];
         for (int row = 0; row < 10; row++) words[row * 16 + 4] = 0x8000;
         var level = new RoomLevelData(16, 16, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, XPosition = 59, YPosition = 80 };
+        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(59, 80)) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        samus.Kinematics.XSubposition = 0xF000;
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0xF000);
         samus.Kinematics.YSubacceleration = 0x4000;
         samus.RequestMorphedBombJump(3);
         SamusBombJumpMovement.Start(bus, samus);
         var result = SamusBombJumpMovement.Step(bus, level, samus, 0, new RoomPlmSystem());
         // Only the X mover's wall hit clears the base speed the bomb-jump calculator just accelerated.
-        AssertTrue(samus.HorizontalSpeed.BaseFixed == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.XFixed:X8}, radius={samus.Kinematics.XRadius})");
+        AssertTrue(samus.HorizontalSpeed.BaseFixed == 0, $"diagonal bomb jump hits the shaft wall (X={samus.Kinematics.Position.X.RawValue:X8}, radius={samus.Kinematics.Radius.X})");
         AssertTrue(result.Vertical is { Collided: false }, "shaft wall leaves vertical travel clear");
         // Original $90:E032 bytes: GrapplePoseAudit bomb-wall. A horizontal collision
         // must not end the special handler; the native branch tests the later Y result.
         AssertTrue(samus.BombJumpActive, "wall-only collision retains native bomb-jump handler");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "bomb-jump wall hit clears horizontal momentum without cancelling ascent");
         AssertEqual(0x0803, samus.BombJumpDirection, "native bomb-wall direction remains armed");
-        AssertEqual(59, samus.XPosition, "native bomb-wall X endpoint");
-        AssertEqual(77, samus.YPosition, "native bomb-wall Y endpoint");
-        AssertEqual(0x4000, samus.Kinematics.YSubposition, "native bomb-wall Y fraction");
+        AssertEqual(59, samus.Position.X.Whole, "native bomb-wall X endpoint");
+        AssertEqual(77, samus.Position.Y.Whole, "native bomb-wall Y endpoint");
+        AssertEqual(0x4000, samus.Kinematics.Position.Y.Fraction, "native bomb-wall Y fraction");
         AssertEqual(2, samus.Kinematics.YSpeed, "native bomb-wall next speed");
         AssertEqual(0x8000, samus.Kinematics.YSubspeed, "native bomb-wall next subspeed");
         Console.WriteLine("  Bomb jump: wall-only collision preserves native ascent and handler lifetime.");
@@ -40,25 +40,25 @@ internal static partial class Program
         var words = new ushort[32 * 16];
         words[3 * 32 + 23] = 0x8000;
         var level = new RoomLevelData(32, 16, words, new byte[words.Length], new ushort[words.Length], new byte[8]);
-        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, XPosition = 371, YPosition = 71 };
+        var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(371, 71)) };
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        samus.Kinematics.ExtraYDisplacement = 0xFFFF;
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(-1);
         var hit = SamusMorphBallMovement.StepGrounded(bus, level, samus, 0, new RoomPlmSystem());
         AssertTrue(hit.Vertical.Collided && hit.HitCeiling, "upward platform carry publishes a ceiling collision, not a floor contact");
         AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "movement leaves ceiling response deferred until pose priority is resolved");
         samus.ApplySolidCeilingCollision();
         AssertEqual(SamusVerticalDirection.Down, samus.Kinematics.YDirection, "native ceiling pose command selects down even from grounded carry");
-        AssertEqual(71, samus.YPosition, "carried Morph Ball remains at the ceiling boundary");
-        samus.Kinematics.ExtraYDisplacement = 0;
+        AssertEqual(71, samus.Position.Y.Whole, "carried Morph Ball remains at the ceiling boundary");
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0);
         samus.Kinematics.YSubacceleration = 0x1C00;
         SamusMorphBallMovement.StepGrounded(bus, level, samus, 1, new RoomPlmSystem());
-        AssertEqual(71, samus.YPosition, "following frame moves by old zero speed, not a one-pixel grounding probe");
+        AssertEqual(71, samus.Position.Y.Whole, "following frame moves by old zero speed, not a one-pixel grounding probe");
         AssertEqual(0x1C00, samus.Kinematics.YSubspeed, "following frame stores normal gravity for its successor");
 
         // The native rising helper restores pose input below one whole pixel/frame,
         // using the speed BEFORE this frame's gravity subtraction, not at the apex.
-        var hurt = new SamusState { Pose = SamusPoseId.KnockbackRightPose, XPosition = 32, YPosition = 120 };
+        var hurt = new SamusState { Pose = SamusPoseId.KnockbackRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 120)) };
         hurt.RefreshCollisionRadii(bus);
         hurt.InitializeAnimation(bus);
         hurt.PublishBombJumpDirection(2);

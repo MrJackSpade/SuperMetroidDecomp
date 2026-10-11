@@ -100,8 +100,7 @@ internal static partial class Program
             projectile.PersistsOnSamusContact = true;
             var samus = new SamusState
             {
-                XPosition = 0x0100,
-                YPosition = 0x0100,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0x0100)),
                 Health = ushort.MaxValue,
             };
             ushort initialList = projectile.InstructionPointer;

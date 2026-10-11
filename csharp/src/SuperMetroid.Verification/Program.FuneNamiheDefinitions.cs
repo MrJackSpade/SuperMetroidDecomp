@@ -33,7 +33,7 @@ internal static partial class Program
             AssertEqual(FuneNamiheDefinitions.InstructionList(idleCursor), slot.CurrentInstruction,
                 $"Fune/Namihe production idle list {variant}");
 
-            runMain(slot, state, namihe ? new SamusState { YPosition = slot.YPosition } : null);
+            runMain(slot, state, namihe ? new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, slot.YPosition)) } : null);
             ushort activeCursor = (ushort)(idleCursor - FuneNamiheDefinitions.ActiveCursorDelta);
             AssertEqual(FuneNamiheDefinitions.InstructionList(activeCursor), slot.CurrentInstruction,
                 $"Fune/Namihe production active list {variant}");

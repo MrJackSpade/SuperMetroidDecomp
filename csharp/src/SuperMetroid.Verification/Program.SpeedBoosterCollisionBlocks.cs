@@ -99,8 +99,7 @@ internal static partial class Program
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
             CreateSpeedBoosterBlockFixture(new RoomBlockBehavior(0x0f), AreaId.Crateria);
         SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-        samus.XPosition = 34;
-        samus.YPosition = 72;
+        samus.Position = samus.Position.WithWhole(new(34, 72));
 
         BlockMoveResult result = SamusBlockCollision.MoveHorizontal(
             bus,
@@ -204,11 +203,9 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 40,
-            YPosition = 54,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),
         };
-        samus.Kinematics.XRadius = 5;
-        samus.Kinematics.YRadius = 8;
+        samus.Kinematics.Radius = new(5, 8);
         samus.HorizontalSpeed.SpeedBoostCounter = active
             ? SamusMovementRomData.HorizontalMotion.ActiveSpeedBoostStage
             : (ushort)0;

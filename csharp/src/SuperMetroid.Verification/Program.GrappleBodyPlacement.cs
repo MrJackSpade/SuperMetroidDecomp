@@ -39,8 +39,8 @@ internal static partial class Program
             sbyte y = unchecked((sbyte)rom.ReadByte(table + nativeFrame * 2 + 1));
             bus.ReplaceArt = replaceArt;
             position(bus, samus, g);
-            AssertEqual(unchecked((ushort)(g.RopeStartX + x)), samus.XPosition, "Art override cannot move Grapple collision-body X");
-            AssertEqual(unchecked((ushort)(g.RopeStartY + y)), samus.YPosition, "Art override cannot move Grapple collision-body Y");
+            AssertEqual(unchecked((ushort)(g.RopeStartX + x)), samus.Position.X.Whole, "Art override cannot move Grapple collision-body X");
+            AssertEqual(unchecked((ushort)(g.RopeStartY + y)), samus.Position.Y.Whole, "Art override cannot move Grapple collision-body Y");
             AssertEqual(replaceArt ? (nativeFrame + 11) & 31 : nativeFrame, samus.AnimationFrame, "Visual frame override still applies");
             AssertEqual(15, samus.AnimationFrameTimer, "Native swing animation timer");
             AssertEqual(g.RopeStartX, g.BeamStartX, "Swing Flare follows physical Start X");

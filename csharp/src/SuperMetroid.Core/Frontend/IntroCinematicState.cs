@@ -650,8 +650,7 @@ public sealed partial class IntroCinematicState
         flashbackSamus = new SamusState
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
-            XPosition = 155,
-            YPosition = 115,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(155, 115)),
             SelectedHudItem = 1,
             Missiles = 900,
             MaxMissiles = 900,

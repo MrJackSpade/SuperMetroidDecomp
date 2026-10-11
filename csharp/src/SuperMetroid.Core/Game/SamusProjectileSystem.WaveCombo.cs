@@ -31,10 +31,10 @@ public sealed partial class SamusProjectileSystem
             slot.TrailTimer = 4;
             SpawnTrail(bus, slot);
         }
-        slot.XVelocity = AccelerateWaveAxis(slot.XVelocity, unchecked((short)(samus.XPosition - slot.XPosition)));
+        slot.XVelocity = AccelerateWaveAxis(slot.XVelocity, unchecked((short)(samus.Position.X.Whole - slot.XPosition)));
         uint x = unchecked(((uint)slot.XPosition << 16) + slot.XSubposition + (uint)(slot.XVelocity << 8));
         slot.XPosition = (ushort)(x >> 16); slot.XSubposition = unchecked((ushort)x);
-        short ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.YPosition - slot.YPosition)));
+        short ySpeed = AccelerateWaveAxis(unchecked((short)slot.Variable), unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
         slot.Variable = unchecked((ushort)ySpeed);
         uint y = unchecked(((uint)slot.YPosition << 16) + slot.YSubposition + (uint)(ySpeed << 8));
         slot.YPosition = (ushort)(y >> 16); slot.YSubposition = unchecked((ushort)y);

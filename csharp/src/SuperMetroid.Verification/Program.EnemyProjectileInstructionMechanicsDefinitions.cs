@@ -66,7 +66,7 @@ internal static partial class Program
         }
 
         var guarded = new EnemyProjectileMechanicsReadGuard(rom);
-        var samus = new SamusState { XPosition = 0x4000, YPosition = 0x4000 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x4000, 0x4000)) };
 
         Suite(nameof(VerifyCompiledRoomSharedPrograms), () => VerifyCompiledRoomSharedPrograms(guarded, samus, rom));
 
@@ -311,8 +311,7 @@ internal static partial class Program
             .SetValue(handBeamEnemies, handBeamState);
         var handBeamTarget = new SamusState
         {
-            XPosition = 0x00c0,
-            YPosition = 0x0060,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x00c0, 0x0060)),
         };
         MethodInfo spawnHandBeamMethod = typeof(RoomEnemySystem).GetMethod(
             "SpawnMotherBrainHandBeamCharging",

@@ -84,7 +84,7 @@ internal static partial class Program
         var samus=runtime.Samus!;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=2;
         samus.RefreshCollisionRadii(bus);samus.InitializeAnimation(bus);samus.CommitPoseHistory(bus);
-        samus.XPosition=120;samus.YPosition=(ushort)(512-samus.Kinematics.YRadius);samus.InputLocked=false;
+        samus.Position = samus.Position.WithWholeX(120);samus.Position = samus.Position.WithWholeY((ushort)(512-samus.Kinematics.Radius.Y));samus.InputLocked=false;
         runtime.Camera!.SetPosition(0,384);
         typeof(SuperMetroidGame).GetProperty("GameState")!.SetValue(game,SuperMetroidGameState.MainGameplay);
         if (collisionReport) return VerifyKraidReportedCollisions(bus, game, runtime, body, state);
@@ -96,7 +96,7 @@ internal static partial class Program
             renderer.RenderFrame(result.AudioCommands);game.SetAudioAcknowledgements(renderer.ReadAcknowledgements());
             if(body.Health!=oldHealth || frame%8==0)
             {
-                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.XPosition},{samus.YPosition} mouth={state.InvulnerableMouthHitbox:X4}");
+                Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} mouth={state.InvulnerableMouthHitbox:X4}");
                 foreach(var shot in runtime.Projectiles.Slots.Where(p=>p.IsActive))Console.WriteLine($" shot={shot.SlotIndex} type={shot.Type:X4} damage={shot.Damage} x={shot.XPosition} y={shot.YPosition} r={shot.XRadius},{shot.YRadius} pre={shot.PreInstruction}");
             }
             if (frame is 8 or 32)

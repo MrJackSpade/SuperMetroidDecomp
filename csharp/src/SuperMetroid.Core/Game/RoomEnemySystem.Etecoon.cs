@@ -292,7 +292,7 @@ public sealed partial class RoomEnemySystem
         slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
         slot.InstructionTimer = 1;
         state.Function = EtecoonAiFunction.InitialJump;
-        if (unchecked((short)(samus.XPosition - 256)) >= 0)
+        if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
@@ -413,7 +413,7 @@ public sealed partial class RoomEnemySystem
             }
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = 8;
-            if (unchecked((short)(samus.XPosition - 256)) >= 0)
+            if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
                 LastEtecoonSoundEffect = EtecoonWallSound;
             return;
         }
@@ -628,7 +628,7 @@ public sealed partial class RoomEnemySystem
         }
         SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
         slot.InstructionTimer = 1;
-        if (unchecked((short)(samus.XPosition - 256)) >= 0)
+        if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
             LastEtecoonSoundEffect = EtecoonJumpSound;
     }
 
@@ -652,7 +652,7 @@ public sealed partial class RoomEnemySystem
             SetEtecoonVerticalVelocity(state, EtecoonJumpYVelocity, EtecoonJumpYSubvelocity);
             slot.CurrentInstruction = unchecked((ushort)(slot.CurrentInstruction + 2));
             state.Function = EtecoonAiFunction.TeachingJump;
-            if (unchecked((short)(samus.XPosition - 256)) >= 0)
+            if (unchecked((short)(samus.Position.X.Whole - 256)) >= 0)
                 LastEtecoonSoundEffect = EtecoonJumpSound;
         }
         slot.InstructionTimer = 1;
@@ -771,21 +771,21 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
-        Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) < distance;
+        Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) < distance;
 
     private static bool EtecoonIsWithinY(
         RoomEnemySlot slot,
         SamusState samus,
         int distance) =>
-        Math.Abs(unchecked((short)(slot.YPosition - samus.YPosition))) < distance;
+        Math.Abs(unchecked((short)(slot.YPosition - samus.Position.Y.Whole))) < distance;
 
     /// <summary>Ports <c>DetermineDirectionOfSamusFromEnemy</c> for the facing branch.</summary>
     private static ushort DetermineEtecoonDirectionToSamus(
         RoomEnemySlot slot,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.XPosition - slot.XPosition));
-        short deltaY = unchecked((short)(samus.YPosition - slot.YPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.XPosition));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.YPosition));
         if (Math.Abs(deltaY) < EtecoonDirectionBand)
             return deltaX < 0 ? (ushort)7 : (ushort)2;
         if (Math.Abs(deltaX) < EtecoonDirectionBand)

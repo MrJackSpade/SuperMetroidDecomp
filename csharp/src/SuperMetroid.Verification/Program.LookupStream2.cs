@@ -1335,7 +1335,7 @@ internal static partial class Program
                 slot.InstructionTimer = (ushort)(member + 4);
                 slot.Timer = (ushort)(member + 8);
             }
-            var samus = new SamusState { XPosition = samusX, YPosition = 112 };
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             wait.Invoke(enemies, [enemies.Slots[0], enemies.PipeBugStates[0]!, samus]);
             for (int member = 0; member < 5; member++)
             {

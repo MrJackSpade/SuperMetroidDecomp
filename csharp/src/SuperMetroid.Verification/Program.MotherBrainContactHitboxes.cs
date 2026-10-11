@@ -62,22 +62,20 @@ internal static partial class Program
                 {
                     var samus = new SamusState
                     {
-                        XPosition = unchecked((ushort)(originX + xDelta)),
-                        YPosition = unchecked((ushort)(originY + yDelta)),
+                        Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(originX + xDelta)), unchecked((ushort)(originY + yDelta)))),
                         Health = 999,
                     };
-                    samus.Kinematics.XRadius = 5;
-                    samus.Kinematics.YRadius = 19;
+                    samus.Kinematics.Radius = new(5, 19);
 
                     (bool expected, ushort expectedXDisplacement) =
                         ExpectedMotherBrainContact(part, xDelta, yDelta, 5, 19);
                     AssertEqual(expected,
                         resolve(state, samus, part, originX, originY),
                         $"Mother Brain {part} contact at ({xDelta},{yDelta})");
-                    AssertEqual(expectedXDisplacement, samus.Kinematics.ExtraXDisplacement,
+                    AssertEqual(expectedXDisplacement, samus.Kinematics.ExtraDisplacement.X.WholePixels,
                         $"Mother Brain {part} X displacement at ({xDelta},{yDelta})");
                     AssertEqual(expected ? (ushort)4 : (ushort)0,
-                        samus.Kinematics.ExtraYDisplacement,
+                        samus.Kinematics.ExtraDisplacement.Y.WholePixels,
                         $"Mother Brain {part} Y displacement at ({xDelta},{yDelta})");
                     collisionCases++;
                 }

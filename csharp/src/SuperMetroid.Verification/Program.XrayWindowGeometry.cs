@@ -15,7 +15,7 @@ internal static partial class Program
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
             SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
-            var samus = new SamusState { Pose = pose, XPosition = 184, YPosition = 171 };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(184, 171)) };
             AssertTrue(samus.Xray.TryBegin(bus, samus, samus.ReadMovementType(bus)), "geometry fixture enters native X-ray posture");
             for (int frame = 0; frame < 330; frame++)
             {

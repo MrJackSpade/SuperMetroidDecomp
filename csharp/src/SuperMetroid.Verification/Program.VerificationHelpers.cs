@@ -52,8 +52,8 @@ internal static partial class Program
         string context)
     {
         ArgumentNullException.ThrowIfNull(actual);
-        AssertEqual(expectedX, actual.XPosition, $"{context} X");
-        AssertEqual(expectedY, actual.YPosition, $"{context} Y");
+        AssertEqual(expectedX, actual.Position.X.Whole, $"{context} X");
+        AssertEqual(expectedY, actual.Position.Y.Whole, $"{context} Y");
     }
 
     /// <summary>
@@ -203,8 +203,7 @@ internal static partial class Program
     static SamusState CreateSamus(SamusPoseId pose, ushort xPosition, ushort yPosition) => new()
     {
         Pose = pose,
-        XPosition = xPosition,
-        YPosition = yPosition,
+        Position = new(new(xPosition, 0), new(yPosition, 0)),
     };
 
     /// <summary>

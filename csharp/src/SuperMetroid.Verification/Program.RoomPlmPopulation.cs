@@ -778,7 +778,7 @@ internal static partial class Program
         var activeSamus = new SamusState
         {
             CollectedItems = (ushort)SamusEquipmentFlags.SpeedBooster,
-            XPosition = 0x0ae1,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(0x0ae1, 0)),
         };
         RoomLayer3FxState activeFx = CreateFx(0x0300, 0x0100, 0, 0);
         RoomLevelData activeLevel = CreateLevel();
@@ -797,26 +797,26 @@ internal static partial class Program
         active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
         AssertEqual(0, activeFx.Timer,
             "Samus right of $0AE0 leaves FX motion sleeping");
-        activeSamus.XPosition = SpeedBoosterEscapePlmRomData.StartFxMotionSamusX;
+        activeSamus.Position = activeSamus.Position.WithWholeX(SpeedBoosterEscapePlmRomData.StartFxMotionSamusX);
         active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
         AssertEqual(1, activeFx.Timer,
             "Samus reaching $0AE0 starts FX motion");
 
-        activeSamus.XPosition = 0x072c;
+        activeSamus.Position = activeSamus.Position.WithWholeX(0x072c);
         active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
         AssertEqual(0x0300, activeFx.BaseYPosition,
             "first lava stage waits while Samus remains right of its threshold");
-        activeSamus.XPosition = 0x072b;
+        activeSamus.Position = activeSamus.Position.WithWholeX(0x072b);
         active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
         AssertEqual(0x01bf, activeFx.BaseYPosition,
             "first lava stage clamps maximum FX Y");
         AssertEqual(0xff50, activeFx.PackedYVelocity,
             "first lava stage installs ROM velocity");
-        activeSamus.XPosition = 0x050a;
+        activeSamus.Position = activeSamus.Position.WithWholeX(0x050a);
         active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
         AssertEqual(0x0167, activeFx.BaseYPosition,
             "second lava stage clamps maximum FX Y");
-        activeSamus.XPosition = 0x0244;
+        activeSamus.Position = activeSamus.Position.WithWholeX(0x0244);
         active.Step(bus, activeLevel, activeStreamer, 0, 0, 0);
         AssertEqual(0x0100, activeFx.BaseYPosition,
             "third lava stage clamps maximum FX Y");
@@ -1297,7 +1297,7 @@ internal static partial class Program
         AssertEqual(1, plms.ActiveCount,
             "Shaktool controller remains resident until Samus passes the threshold");
 
-        samus.XPosition = checked((ushort)(ShaktoolRoomPlmRomData.ClearedPathXBoundary + 1));
+        samus.Position = samus.Position.WithWholeX(checked((ushort)(ShaktoolRoomPlmRomData.ClearedPathXBoundary + 1)));
         plms.Step(bus, level, streamer, 0, 0, 0,
             scrolls: scrolls, enemyDeaths: 0, enemyDeathQuota: 0,
             controllerNewInput: 0);
@@ -1400,7 +1400,7 @@ internal static partial class Program
             "save request preserves native room argument/station index");
 
         StationActivationEvent saveRequest = plms.StationActivationEvents.Single();
-        samus.XPosition = 0x0127;
+        samus.Position = samus.Position.WithWholeX(0x0127);
         ushort[] levelBeforeSave = Enumerable.Range(0, level.WidthInBlocks * level.HeightInBlocks)
             .Select(block => level.GetCollisionBlock(block % level.WidthInBlocks, block / level.WidthInBlocks).LevelWord)
             .ToArray();
@@ -1413,7 +1413,7 @@ internal static partial class Program
         AssertTrue(Enumerable.Range(0, levelBeforeSave.Length).Any(block => levelBeforeSave[block] !=
                 level.GetCollisionBlock(block % level.WidthInBlocks, block / level.WidthInBlocks).LevelWord),
             "the confirming pass draws the first electricity frame");
-        AssertEqual(0x0120, samus.XPosition,
+        AssertEqual(0x0120, samus.Position.X.Whole,
             "save animation centers Samus on the station's 16-pixel boundary");
         AssertTrue(SamusState.IsForwardFacingPose(samus.Pose),
             "save animation applies shared MakeSamusFaceForward setup");

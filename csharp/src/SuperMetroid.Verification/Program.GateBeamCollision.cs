@@ -16,7 +16,7 @@ internal static partial class Program
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderPointers.KronicBoost);
-        var samus = new SamusState { XPosition = 140, YPosition = 360,
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(140, 360)),
             PoseId = SamusPoseId.NormalJumpAimDiagonalUpLeftPose };
         var level = runtime.LevelData!;
         var plms = runtime.Plms;

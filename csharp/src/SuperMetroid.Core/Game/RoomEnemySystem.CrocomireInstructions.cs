@@ -189,7 +189,7 @@ public sealed partial class RoomEnemySystem
 
             case CrocomireFightFunction.Sleeping:
                 if (samus is not null && WrappedMagnitude(unchecked((ushort)(
-                        state.Body.XPosition - samus.XPosition))) < 224)
+                        state.Body.XPosition - samus.Position.X.Whole))) < 224)
                 {
                     state.FightFlags |= 0x8000;
                     state.FightFunction = CrocomireFightFunction.WaitingForFirstDamage;

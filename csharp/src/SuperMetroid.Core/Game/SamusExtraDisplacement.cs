@@ -21,7 +21,7 @@ internal static class SamusExtraDisplacement
         int ownDisplacement)
     {
         ArgumentNullException.ThrowIfNull(kinematics);
-        return unchecked(ownDisplacement + kinematics.ExtraYFixed);
+        return unchecked(ownDisplacement + kinematics.ExtraDisplacement.Y.RawValue);
     }
 
     /// <summary>
@@ -40,7 +40,7 @@ internal static class SamusExtraDisplacement
         ArgumentNullException.ThrowIfNull(kinematics);
         ArgumentNullException.ThrowIfNull(horizontalSpeed);
 
-        int extra = kinematics.ExtraYFixed;
+        int extra = kinematics.ExtraDisplacement.Y.RawValue;
         if (extra != 0)
             return AddPositiveDownwardBias(extra);
 
@@ -61,7 +61,7 @@ internal static class SamusExtraDisplacement
         SamusKinematicsState kinematics)
     {
         ArgumentNullException.ThrowIfNull(kinematics);
-        int extra = kinematics.ExtraYFixed;
+        int extra = kinematics.ExtraDisplacement.Y.RawValue;
         return extra == 0 ? null : AddPositiveDownwardBias(extra);
     }
 

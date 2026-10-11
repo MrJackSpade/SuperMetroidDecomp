@@ -82,12 +82,12 @@ public sealed class SamusCeresRidleyEjectionState
             // The gamma initialization owns this shift. Request/BeginFrame must
             // not publish it early, and subsequent shove frames must not repeat it.
             samus.CommitPoseHistory(bus);
-            samus.YPosition = unchecked((ushort)(
-                samus.YPosition - (21 - samus.Kinematics.YRadius)));
+            samus.Position = samus.Position.WithWholeY(unchecked((ushort)(
+                samus.Position.Y.Whole - (21 - samus.Kinematics.Radius.Y))));
 
             // The side is selected from screen X, not world X. Exact center belongs to the
             // rightward branch because the native BMI tests a signed `(screenX - 128)`.
-            ushort screenX = unchecked((ushort)(samus.XPosition - layer1X));
+            ushort screenX = unchecked((ushort)(samus.Position.X.Whole - layer1X));
             PushDirection = unchecked((short)(screenX - 128)) < 0
                 ? (ushort)1
                 : (ushort)2;

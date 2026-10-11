@@ -115,7 +115,7 @@ public sealed partial class SamusState
         Pose = targetPose;
         // F404/F543 keep the source collision radius for the rest of this update.
         // Alpha's SetRadius publishes the new pose radius on the next update.
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
 
         // Aim may cancel the spin into a pose that consumes stored shine. Run that
         // branch of the common normal-jump initializer before ordinary acceleration.
@@ -237,7 +237,7 @@ public sealed partial class SamusState
         FoldExtraRunSpeedIntoBaseAndStartTurn();
         Pose = selectedTurnPose;
         // The changed-pose handler preserves the source radius until next alpha.
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
         InitializeAnimation(bus, initialFrame: 0);
         return true;
     }
@@ -325,7 +325,7 @@ public sealed partial class SamusState
                 ApplyPoseChangeCollisionCrouchFallback(bus, Pose);
                 return;
             }
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+            Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
         }
 
         // `$91:F433` observes previous movement type three plus equipped Screw Attack and
@@ -453,7 +453,7 @@ public sealed partial class SamusState
         {
             Pose = targetPose;
             RefreshCollisionRadii(bus);
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+            Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
             if (Pose != PoseHistory.PreviousPose)
                 InitializeAnimation(bus, initialFrame: 0);
         }
@@ -586,8 +586,8 @@ public sealed partial class SamusState
         // stores the result in both Y words, so this frame's vertical scroll sees no motion.
         if (previousMovementType == SamusMovementType.NormalJumping)
         {
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 1));
-            WritePreviousYPosition(Kinematics.YPosition);
+            Kinematics.Position -= new Offset16<RoomPixels>(0, 1);
+            WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
 
         InitializeAnimation(bus, initialFrame: 0);

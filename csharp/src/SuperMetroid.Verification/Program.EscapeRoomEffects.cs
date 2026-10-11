@@ -39,7 +39,7 @@ internal static partial class Program
                     foreach (var sprite in runtime.Enemies.RoomSpriteObjects.Where(s => s.IsActive))
                     {
                         int x = sprite.XPosition - runtime.Camera!.XPosition, y = sprite.YPosition - runtime.Camera.YPosition;
-                        if (Math.Abs(sprite.XPosition - runtime.Samus.XPosition) < 40 && Math.Abs(sprite.YPosition - runtime.Samus.YPosition) < 40) continue;
+                        if (Math.Abs(sprite.XPosition - runtime.Samus.Position.X.Whole) < 40 && Math.Abs(sprite.YPosition - runtime.Samus.Position.Y.Whole) < 40) continue;
                         int changed = 0;
                         for (int py = Math.Max(32, y - 8); py < Math.Min(224, y + 8); py++)
                             for (int px = Math.Max(0, x - 8); px < Math.Min(256, x + 8); px++)
@@ -80,10 +80,8 @@ internal static partial class Program
                 for (int frame = 0; frame < 32; frame++) runtime.StepFrame(0);
                 AssertEqual(0, runtime.Plms.GreyDoors.Count, "exit door finishes opening");
                 var samus = runtime.Samus!;
-                samus.Kinematics.XPosition = 48;
-                samus.Kinematics.YPosition = 112;
-                samus.Kinematics.XRadius = 5;
-                samus.Kinematics.YRadius = 16;
+                samus.Kinematics.Position = samus.Kinematics.Position.WithWhole(new(48, 112));
+                samus.Kinematics.Radius = new(5, 16);
                 for (int frame = 0; frame < 32 && !runtime.HasPendingDoorTransition; frame++)
                     SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, -(1 << 16), plms: runtime.Plms);
                 AssertTrue(runtime.HasPendingDoorTransition, "Samus can cross opened rescue exit and trigger room transition");

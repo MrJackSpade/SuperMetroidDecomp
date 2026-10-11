@@ -25,7 +25,7 @@ internal static partial class Program
         })
         foreach (ushort hyper in new ushort[] { 0, 1 })
         {
-            var samus = new SamusState { Pose = pose, XPosition = 100, YPosition = 100, HyperBeam = hyper };
+            var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)), HyperBeam = hyper };
             samus.TileTransfers.BindArtwork(body);
             SamusProjectileSystem native = Create(), compiled = Create(), changed = Create();
             for (int tick = 0; tick < 160 && native.FlareCounter != 0; tick++)
@@ -55,7 +55,7 @@ internal static partial class Program
             var invalidSelector = Create();
             Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareFrames", flags)!
                 .GetValue(invalidSelector)!, outOfTableFrame);
-            var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 100, YPosition = 100 };
+            var subject = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
             subject.TileTransfers.BindArtwork(body);
             var outOfTableOam = new OamBuffer();
             invalidSelector.HandleChargeFlareAndDraw(
@@ -72,8 +72,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom(); runtime.InitializeCeresStartSamus();
         runtime.Samus!.Pose = SamusPoseId.FacingRightNormalPose;
-        runtime.Samus.XPosition = (ushort)(runtime.Camera!.XPosition + 100);
-        runtime.Samus.YPosition = (ushort)(runtime.Camera.YPosition + 100);
+        runtime.Samus.Position = runtime.Samus.Position.WithWhole(new((ushort)(runtime.Camera!.XPosition + 100), (ushort)(runtime.Camera.YPosition + 100)));
         runtime.Samus.InitializeAnimation(bus); runtime.Samus.PrimeGraphics(bus);
         typeof(SamusProjectileSystem).GetProperty("FlareCounter")!.SetValue(runtime.Projectiles, (ushort)30);
         Array.Fill((ushort[])typeof(SamusProjectileSystem).GetField("_flareTimers", flags)!.GetValue(runtime.Projectiles)!, (ushort)100);

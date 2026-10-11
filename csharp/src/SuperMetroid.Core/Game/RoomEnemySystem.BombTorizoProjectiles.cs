@@ -548,8 +548,8 @@ public sealed partial class RoomEnemySystem
         bool awayFromSamus)
     {
         byte angle = CalculateCartridgeAngle(
-            unchecked((short)(samus.XPosition - projectile.XPosition)),
-            unchecked((short)(samus.YPosition - projectile.YPosition)));
+            unchecked((short)(samus.Position.X.Whole - projectile.XPosition)),
+            unchecked((short)(samus.Position.Y.Whole - projectile.YPosition)));
         angle = awayFromSamus
             ? unchecked((byte)(angle | 0x80))
             : unchecked((byte)(angle & 0x7f));

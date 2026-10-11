@@ -155,8 +155,7 @@ internal static partial class Program
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState
         {
-            XPosition = eyeX * 16 + 8,
-            YPosition = eyeY * 16 + 8,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(eyeX * 16 + 8, eyeY * 16 + 8)),
         };
         var requests = new List<EyeDoorProjectileRequest>();
         var system = new Bank80SystemState();

@@ -14,8 +14,7 @@ internal static partial class Program
     {
         foreach (SuperMetroidGame game in new[] { native, installed })
         {
-            game.RuntimeForVerification!.Samus!.XPosition = 0x0180;
-            game.RuntimeForVerification!.Samus!.YPosition = 0x0150;
+            game.RuntimeForVerification!.Samus!.Position = game.RuntimeForVerification!.Samus!.Position.WithWhole(new(0x0180, 0x0150));
         }
         for (int frame = 0; frame < 450; frame++)
         {

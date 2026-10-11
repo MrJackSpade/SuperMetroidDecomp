@@ -163,10 +163,10 @@ public sealed partial class RoomEnemySystem
         // The cartridge treats equality as the positive direction: down for Y and right for
         // X. Compare the wrapped 16-bit subtraction as signed, matching BMI rather than a host
         // integer comparison that would disagree across the $0000/$FFFF coordinate boundary.
-        state.VerticalMovement = unchecked((short)(samus.YPosition - slot.YPosition)) < 0
+        state.VerticalMovement = unchecked((short)(samus.Position.Y.Whole - slot.YPosition)) < 0
             ? AtomicVerticalMovement.MoveUp
             : AtomicVerticalMovement.MoveDown;
-        state.HorizontalMovement = unchecked((short)(samus.XPosition - slot.XPosition)) < 0
+        state.HorizontalMovement = unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0
             ? AtomicHorizontalMovement.MoveLeft
             : AtomicHorizontalMovement.MoveRight;
 

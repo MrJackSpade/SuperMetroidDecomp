@@ -73,14 +73,14 @@ internal static partial class AssetTools
             for (int frame = 0; frame < ShutterBombArcScenario.FrameCount; frame++)
             {
                 scenario.Runtime.StepFrame(scenario.Input(frame));
-                int gap = platform.YPosition - platform.YRadius - samus.YPosition - samus.Kinematics.YRadius;
-                if (Math.Abs(samus.XPosition - platform.XPosition) < platform.XRadius + samus.Kinematics.XRadius &&
-                    samus.YPosition < platform.YPosition && gap < worstGap)
+                int gap = platform.YPosition - platform.YRadius - samus.Position.Y.Whole - samus.Kinematics.Radius.Y;
+                if (Math.Abs(samus.Position.X.Whole - platform.XPosition) < platform.XRadius + samus.Kinematics.Radius.X &&
+                    samus.Position.Y.Whole < platform.YPosition && gap < worstGap)
                 {
                     worstGap = gap;
-                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.XPosition},{samus.YPosition}/{(int)samus.Pose:X2} platformY={platform.YPosition}");
+                    Console.WriteLine($"Morph approach: slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame} gap={gap} Samus={samus.Position.X.Whole},{samus.Position.Y.Whole}/{(int)samus.Pose:X2} platformY={platform.YPosition}");
                 }
-                if (samus.Kinematics.YRadius != 7)
+                if (samus.Kinematics.Radius.Y != 7)
                     throw new InvalidOperationException(
                         $"slot={slotIndex} approach={approach} interval={interval} roll={rollAt}/{duration} frame={frame}: morph-only approach entered a standing/unmorph posture");
             }
@@ -106,9 +106,9 @@ internal static partial class AssetTools
             Word(0x10002 + i * 2, block.LevelWord);
             ram[0x16402 + i] = block.Behavior;
         }
-        Word(0xAF6, k.XPosition); Word(0xAF8, k.XSubposition);
-        Word(0xAFA, k.YPosition); Word(0xAFC, k.YSubposition);
-        Word(0xAFE, k.XRadius); Word(0xB00, k.YRadius);
+        Word(0xAF6, k.Position.X.Whole); Word(0xAF8, k.Position.X.Fraction);
+        Word(0xAFA, k.Position.Y.Whole); Word(0xAFC, k.Position.Y.Fraction);
+        Word(0xAFE, k.Radius.X); Word(0xB00, k.Radius.Y);
         Word(0xA1C, (int)samus.Pose);
         // Native pose record carries direction/movement type in its first two bytes.
         int pose = 0x91B629 + (int)samus.Pose * 8;

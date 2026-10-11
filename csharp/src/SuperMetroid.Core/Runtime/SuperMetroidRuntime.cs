@@ -1250,10 +1250,10 @@ public sealed partial class SuperMetroidRuntime
         SamusCameraPoint? samusCameraPointAtFrameStart = Samus is null
             ? null
             : new SamusCameraPoint(
-                Samus.XPosition,
-                Samus.Kinematics.XSubposition,
-                Samus.YPosition,
-                Samus.Kinematics.YSubposition);
+                Samus.Position.X.Whole,
+                Samus.Kinematics.Position.X.Fraction,
+                Samus.Position.Y.Whole,
+                Samus.Kinematics.Position.Y.Fraction);
 
         // `GameState_8_MainGameplay` begins with Determine_Which_Enemies_to_Process
         // ($82:8B47), before palette FX and Samus. The grapple scan uses this list.
@@ -1280,7 +1280,7 @@ public sealed partial class SuperMetroidRuntime
                 Cgram,
                 MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."),
-                Samus?.YPosition ?? 0,
+                Samus?.Position.Y.Whole ?? 0,
                 Samus?.EquippedItems ?? 0,
                 enemyZeroIsDead: Enemies.Slots.Count == 0 || Enemies.Slots[0].Health == 0,
                 areaMiniBossDefeated: ActiveRoom is { } paletteRoom &&
@@ -1804,8 +1804,8 @@ public sealed partial class SuperMetroidRuntime
                         // pass occurs after bomb alpha, so the retained type-`$0300` slot
                         // observes the released flag and deletes on the following frame.
                         BombProjectiles.PowerBombExplosion.BeginCrystalFlash(
-                            Samus.XPosition,
-                            Samus.YPosition);
+                            Samus.Position.X.Whole,
+                            Samus.Position.Y.Whole);
                     }
                 }
                 // Drained controller functions install movement-type-$1B poses whose normal
@@ -2333,8 +2333,8 @@ Landed: true, HitCeiling: false);
             {
                 Samus.HorizontalSpeed.CaptureSpeedEchoPosition(
                     GameTime.Frames,
-                    Samus.XPosition,
-                    Samus.YPosition);
+                    Samus.Position.X.Whole,
+                    Samus.Position.Y.Whole);
             }
 
             // Every ordinary downward collision calls `$91:F046` inside movement, before
@@ -3708,10 +3708,10 @@ Landed: true, HitCeiling: false);
 
                 previousCameraPoint = Samus.ApplyPreviousPositionWrites(previousCameraPoint);
                 var currentCameraPoint = new SamusCameraPoint(
-                    Samus.XPosition,
-                    Samus.Kinematics.XSubposition,
-                    Samus.YPosition,
-                    Samus.Kinematics.YSubposition);
+                    Samus.Position.X.Whole,
+                    Samus.Kinematics.Position.X.Fraction,
+                    Samus.Position.Y.Whole,
+                    Samus.Kinematics.Position.Y.Fraction);
 
                 // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
                 // DrawSamusEnemiesAndProjectiles regardless of which Samus input handler is
@@ -3722,7 +3722,7 @@ Landed: true, HitCeiling: false);
                 {
                     // $90:94F2: a fast grapple swing takes the slow branch, which leaves
                     // the camera speed words from the last normal frame in place.
-                    Camera.TrackGrappleSlowScrolling(Samus.XPosition, Samus.YPosition);
+                    Camera.TrackGrappleSlowScrolling(Samus.Position.X.Whole, Samus.Position.Y.Whole);
                 }
                 else
                 {
@@ -3782,8 +3782,8 @@ Landed: true, HitCeiling: false);
                     roomGeometry.MapY,
                     LevelData.WidthInBlocks,
                     LevelData.HeightInBlocks,
-                    Samus.XPosition,
-                    Samus.YPosition,
+                    Samus.Position.X.Whole,
+                    Samus.Position.Y.Whole,
                     NmiFrameCounter8,
                     MapRevealMode,
                     MapPresentation?.Get(roomGeometry.AreaIndex));

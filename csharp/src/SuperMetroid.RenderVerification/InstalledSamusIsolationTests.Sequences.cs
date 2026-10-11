@@ -38,7 +38,7 @@ internal sealed partial class InstalledSamusIsolationTests
         pair.Apply(context + " setup", actor => { PrepareFlash(actor.Samus); });
         Require(!pair.Apply(context + " rejected chord", actor => actor.Samus.CrystalFlash.TryBegin(
             actor.Memory, actor.Samus, (ushort)(FlashChord | (ushort)SnesButton.A))), "Extra Flash input must be rejected");
-        ushort initialY = pair.Stock.Samus.YPosition;
+        ushort initialY = pair.Stock.Samus.Position.Y.Whole;
         Require(pair.Apply(context + " admission", actor => actor.Samus.CrystalFlash.TryBegin(
             actor.Memory, actor.Samus, FlashChord)), "Flash was not admitted");
         int frames = 0;
@@ -52,7 +52,7 @@ internal sealed partial class InstalledSamusIsolationTests
                 actor.Samus.CrystalFlash.UpdatePalette(actor.Memory, actor.Colors, actor.Samus, beams, actor.Crystal);
                 return result;
             });
-            if (frames == 10) Require(pair.Stock.Samus.YPosition == initialY - 20,
+            if (frames == 10) Require(pair.Stock.Samus.Position.Y.Whole == initialY - 20,
                 "Flash must complete its ten-call, twenty-pixel raise");
             if (frames == 1)
             {

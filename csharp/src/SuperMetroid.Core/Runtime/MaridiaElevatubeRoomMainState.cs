@@ -88,8 +88,7 @@ public sealed class MaridiaElevatubeRoomMainState
             "Maridia elevatube room main requires an active Samus state.");
 
         // Native stores the whole and fractional X words separately every frame.
-        activeSamus.Kinematics.SetXFixed(
-            (uint)MaridiaElevatubeRomData.SamusCenterX << 16);
+        activeSamus.Kinematics.Position = activeSamus.Kinematics.Position.WithX(new SnesFixedPosition(MaridiaElevatubeRomData.SamusCenterX, 0));
 
         int displacement = unchecked((short)Velocity) << 8;
         uint trackedPosition = ((uint)Position << 16) | scratch.Var1;

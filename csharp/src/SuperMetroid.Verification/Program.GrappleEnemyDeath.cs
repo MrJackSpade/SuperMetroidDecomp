@@ -8,8 +8,7 @@ internal static partial class Program
         Suite(nameof(VerifyGrappleDeathCleanupOrdinaryPoses), () => VerifyGrappleDeathCleanupOrdinaryPoses());
         var samus = CreateDropTestSamus();
         samus.Health = 50;
-        samus.XPosition = 220;
-        samus.YPosition = 180;
+        samus.Position = samus.Position.WithWhole(new(220, 180));
         var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = RepositoryInstallation.EnemyTiles;
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -82,9 +81,8 @@ internal static partial class Program
             samus.RefreshCollisionRadii(retail);
             // The logged 51->01 request used the standing-size live radius, retained
             // across a pose handoff; C8C5 branches on that word, not pose metadata.
-            samus.Kinematics.YRadius = 17;
-            samus.XPosition = 220;
-            samus.YPosition = 100;
+            samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(17);
+            samus.Position = samus.Position.WithWhole(new(220, 100));
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = RepositoryInstallation.EnemyTiles;
             var enemy = fixture.System.Slots[0];

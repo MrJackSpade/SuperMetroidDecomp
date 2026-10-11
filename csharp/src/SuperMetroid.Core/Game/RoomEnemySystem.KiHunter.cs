@@ -374,11 +374,11 @@ public sealed partial class RoomEnemySystem
         }
         AlignEnemyYWithNonSquareSlope(level, body);
 
-        ushort signedXDistance = unchecked((ushort)(samus.XPosition - body.XPosition));
+        ushort signedXDistance = unchecked((ushort)(samus.Position.X.Whole - body.XPosition));
         ushort absoluteXDistance = WrappedMagnitude(signedXDistance);
         ushort triggerDistance = KiHunterMotionDefinitions.SwoopTriggerDistance;
         if (unchecked((short)(absoluteXDistance - triggerDistance)) >= 0 ||
-            unchecked((short)(samus.YPosition - body.YPosition - 32)) < 0)
+            unchecked((short)(samus.Position.Y.Whole - body.YPosition - 32)) < 0)
         {
             return;
         }
@@ -387,8 +387,8 @@ public sealed partial class RoomEnemySystem
         state.AngularVelocityFraction = 0;
         state.SwoopAnimationChanged = false;
         state.SwoopHorizontalRadius = absoluteXDistance;
-        state.SwoopVerticalRadius = unchecked((ushort)(samus.YPosition - body.YPosition));
-        state.TargetXOrSpeedIndex = samus.XPosition;
+        state.SwoopVerticalRadius = unchecked((ushort)(samus.Position.Y.Whole - body.YPosition));
+        state.TargetXOrSpeedIndex = samus.Position.X.Whole;
         state.SwoopOriginY = body.YPosition;
         state.Function = KiHunterEnemyFunction.Swooping;
 
@@ -543,7 +543,7 @@ public sealed partial class RoomEnemySystem
         state.VerticalSubvelocity = 0;
         ushort random = RequireRandomNumber();
         state.VerticalVelocity = unchecked((ushort)((random & 1) - 8));
-        bool jumpLeft = unchecked((short)(body.XPosition - samus.XPosition)) >= 0;
+        bool jumpLeft = unchecked((short)(body.XPosition - samus.Position.X.Whole)) >= 0;
         state.HorizontalSubvelocity = 0;
         state.HorizontalVelocity = jumpLeft ? unchecked((ushort)-2) : (ushort)2;
         InstallKiHunterInstruction(
@@ -610,7 +610,7 @@ public sealed partial class RoomEnemySystem
         if (state.WaitTimer != 0)
             return;
 
-        ushort distance = WrappedMagnitude(unchecked((ushort)(body.XPosition - samus.XPosition)));
+        ushort distance = WrappedMagnitude(unchecked((ushort)(body.XPosition - samus.Position.X.Whole)));
         state.Function = distance < KiHunterGroundAttackDistance
             ? KiHunterEnemyFunction.SelectAcidSpit
             : KiHunterEnemyFunction.StartGroundJump;
@@ -622,7 +622,7 @@ public sealed partial class RoomEnemySystem
         KiHunterEnemyState state,
         SamusState samus)
     {
-        bool samusRight = unchecked((short)(body.XPosition - samus.XPosition)) < 0;
+        bool samusRight = unchecked((short)(body.XPosition - samus.Position.X.Whole)) < 0;
         InstallKiHunterInstruction(
             body,
             samusRight

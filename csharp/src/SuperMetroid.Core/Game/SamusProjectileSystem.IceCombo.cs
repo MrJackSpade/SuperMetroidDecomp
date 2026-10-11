@@ -25,14 +25,14 @@ public sealed partial class SamusProjectileSystem
         }
         ushort distance = outward ? unchecked((ushort)slot.XVelocity) : (ushort)32;
         var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(slot.Variable, distance);
-        slot.XPosition = unchecked((ushort)(samus.XPosition + x));
+        slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + x));
         if (outward && (unchecked((short)(slot.XPosition - cameraX + 32)) < 0 ||
                         unchecked((short)(slot.XPosition - cameraX - 288)) >= 0))
         {
             ClearProjectile(slot);
             return 0;
         }
-        slot.YPosition = unchecked((ushort)(samus.YPosition + y));
+        slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + y));
         if (outward && (unchecked((short)(slot.YPosition - cameraY - 16)) < 0 ||
                         unchecked((short)(slot.YPosition - cameraY - 256)) >= 0))
         {

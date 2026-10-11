@@ -19,8 +19,8 @@ public sealed partial class SamusProjectileSystem
         FlareCounter = 0;
         var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
             slot.Variable, unchecked((ushort)slot.XVelocity));
-        slot.XPosition = unchecked((ushort)(x + samus.XPosition));
-        slot.YPosition = unchecked((ushort)(y + samus.YPosition));
+        slot.XPosition = unchecked((ushort)(x + samus.Position.X.Whole));
+        slot.YPosition = unchecked((ushort)(y + samus.Position.Y.Whole));
         slot.Variable = unchecked((byte)(slot.Variable + ComboState));
         switch (slot.YVelocity)
         {

@@ -202,7 +202,7 @@ internal static partial class Program
             "atmospheric type two retains its retail pointer-zero address-space path");
         var deathSamus = new SamusState
         {
-            Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
         deathSamus.DeathSequence.Begin(bus, deathSamus, layer1X: 0, layer1Y: 0);
         var deathCgram = new SnesCgram();
@@ -289,13 +289,11 @@ internal static partial class Program
             };
             var nativeSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128,
-                YPosition = 128, EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
             };
             var installedSamus = new SamusState
             {
-                Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128,
-                YPosition = 128, EquippedItems = equipment,
+                Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), EquippedItems = equipment,
             };
             nativeSamus.DeathSequence.Begin(bus, nativeSamus, 0, 0);
             installedSamus.DeathSequence.Begin(bus, installedSamus, 0, 0);
@@ -460,12 +458,11 @@ internal static partial class Program
         var originalArmSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 128, YPosition = 128, SelectedHudItem = 1,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
         };
         var editedArmSamus = new SamusState
         {
-            Pose = originalArmSamus.Pose, XPosition = originalArmSamus.XPosition,
-            YPosition = originalArmSamus.YPosition, SelectedHudItem = originalArmSamus.SelectedHudItem,
+            Pose = originalArmSamus.Pose, Position = FixedPosition<RoomPixels>.FromWhole(new(originalArmSamus.Position.X.Whole, originalArmSamus.Position.Y.Whole)), SelectedHudItem = originalArmSamus.SelectedHudItem,
         };
         originalArmSamus.TileTransfers.BindArtwork(stock);
         editedArmSamus.TileTransfers.BindArtwork(replacement);
@@ -545,7 +542,7 @@ internal static partial class Program
             "edited atmospheric small-OBJ attribute reaches the production OAM byte");
         var editedDeathSamus = new SamusState
         {
-            Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
         editedDeathSamus.DeathSequence.Begin(bus, editedDeathSamus, 0, 0);
         var editedDeathColors = new SnesCgram();
@@ -586,11 +583,11 @@ internal static partial class Program
             "edited death explosion spritemap reaches the production sequence owner");
         var stockLandingSamus = new SamusState
         {
-            Pose = SamusPoseId.NormalLandingRightPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
         var editedLandingSamus = new SamusState
         {
-            Pose = SamusPoseId.NormalLandingRightPose, XPosition = 128, YPosition = 128,
+            Pose = SamusPoseId.NormalLandingRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
         stockLandingSamus.TileTransfers.BindArtwork(stock);
         editedLandingSamus.TileTransfers.BindArtwork(replacement);
@@ -604,10 +601,9 @@ internal static partial class Program
         AssertEqual((sbyte)(originalYOffset + 1),
             editedSamus.ReadGraphicsYOffset(guardedBus),
             "edited Samus visual Y offset is used without a cartridge read");
-        var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, XPosition = 128, YPosition = 128 };
+        var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         stockSamus.TileTransfers.BindArtwork(stock);
-        editedSamus.XPosition = stockSamus.XPosition;
-        editedSamus.YPosition = stockSamus.YPosition;
+        editedSamus.Position = editedSamus.Position.WithWhole(new(stockSamus.Position.X.Whole, stockSamus.Position.Y.Whole));
         var stockOam = new OamBuffer();
         var editedOam = new OamBuffer();
         stockOam.BeginFrame();
@@ -711,12 +707,12 @@ internal static partial class Program
         var nativeSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            AnimationFrame = 0, XPosition = 128, YPosition = 128, SelectedHudItem = 1,
+            AnimationFrame = 0, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), SelectedHudItem = 1,
         };
         var installedSamus = new SamusState
         {
             Pose = nativeSamus.Pose, AnimationFrame = nativeSamus.AnimationFrame,
-            XPosition = nativeSamus.XPosition, YPosition = nativeSamus.YPosition,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(nativeSamus.Position.X.Whole, nativeSamus.Position.Y.Whole)),
             SelectedHudItem = nativeSamus.SelectedHudItem,
         };
         // The imported bytes above are the independent stock oracle. Both runtime

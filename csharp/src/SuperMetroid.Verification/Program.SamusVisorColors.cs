@@ -135,8 +135,7 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 100,
-            YPosition = 200,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
         };
         samus.RefreshCollisionRadii(rom);
         samus.InitializeAnimation(rom);

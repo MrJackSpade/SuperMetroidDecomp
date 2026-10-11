@@ -68,14 +68,9 @@ internal static partial class Program
 
         SamusState samus = runtime.Samus ??
             throw new InvalidDataException("Botwoon Hallway did not initialize Samus.");
-        samus.XPosition = expected.SamusX;
-        samus.YPosition = expected.SamusY;
-        samus.Kinematics.XSubposition = 0;
-        samus.Kinematics.YSubposition = 0;
-        samus.Kinematics.ExtraXDisplacement = 0;
-        samus.Kinematics.ExtraXSubdisplacement = 0;
-        samus.Kinematics.ExtraYDisplacement = 0;
-        samus.Kinematics.ExtraYSubdisplacement = 0;
+        samus.Position = samus.Position.WithWhole(new(expected.SamusX, expected.SamusY));
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
+        samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWords(0, 0, 0, 0);
         samus.HorizontalSpeed.BaseSpeed = 0;
         samus.HorizontalSpeed.BaseSubspeed = 0;
         samus.HorizontalSpeed.ExtraRunSpeed = 0;
@@ -109,7 +104,7 @@ internal static partial class Program
         mochtroid.FrozenTimer = 1000;
         mochtroid.AiHandlerBits = 4;
 
-        ushort minimumY = samus.YPosition;
+        ushort minimumY = samus.Position.Y.Whole;
         for (int frame = 0; frame < 120; frame++)
         {
             ushort input = 0;
@@ -124,11 +119,11 @@ internal static partial class Program
                 input |= (ushort)SnesButton.Up;
 
             runtime.StepFrame(input);
-            minimumY = Math.Min(minimumY, samus.YPosition);
+            minimumY = Math.Min(minimumY, samus.Position.Y.Whole);
 
             if (frame == expected.LandingFrame)
             {
-                AssertEqual(expected.LandingY, samus.YPosition,
+                AssertEqual(expected.LandingY, samus.Position.Y.Whole,
                     $"{expected.Case} frozen-Mochtroid landing Y");
                 AssertEqual(expected.EnemyNativeIndex,
                     samus.Kinematics.SolidEnemyCollisionIndexes[(int)SamusCollisionDirection.Down],
@@ -138,14 +133,14 @@ internal static partial class Program
             {
                 AssertEqual(expected.Frame30Pose, samus.Pose,
                     $"{expected.Case} stand-input pose");
-                AssertEqual(expected.Frame30Radius, samus.Kinematics.YRadius,
+                AssertEqual(expected.Frame30Radius, samus.Kinematics.Radius.Y,
                     $"{expected.Case} stand commit retains native live radius");
-                AssertEqual(expected.Frame30Y, samus.YPosition,
+                AssertEqual(expected.Frame30Y, samus.Position.Y.Whole,
                     $"{expected.Case} stand-input center Y");
             }
             if (frame == expected.StandFrame + 1)
             {
-                AssertEqual(expected.Frame31Radius, samus.Kinematics.YRadius,
+                AssertEqual(expected.Frame31Radius, samus.Kinematics.Radius.Y,
                     $"{expected.Case} next alpha radius");
             }
             if (frame == expected.FinalJumpFrame)
@@ -156,7 +151,7 @@ internal static partial class Program
         }
 
         AssertEqual(expected.MinimumY, minimumY, $"{expected.Case} minimum Y");
-        AssertEqual(expected.FinalY, samus.YPosition, $"{expected.Case} final Y");
+        AssertEqual(expected.FinalY, samus.Position.Y.Whole, $"{expected.Case} final Y");
         AssertEqual(expected.FinalPose, samus.Pose, $"{expected.Case} final pose");
     }
 

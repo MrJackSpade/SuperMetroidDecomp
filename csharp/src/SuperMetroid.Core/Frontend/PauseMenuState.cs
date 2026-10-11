@@ -610,7 +610,7 @@ internal sealed partial class PauseMenuState
         // behaves like the 65C816 rather than like unbounded host integer arithmetic.
         mapHorizontalScroll = unchecked((ushort)(
             minimumX + unchecked((ushort)(maximumX - minimumX)) / 2 - 128));
-        ushort playerMapX = unchecked((ushort)(8 * (roomMapX + (samus.XPosition >> 8))));
+        ushort playerMapX = unchecked((ushort)(8 * (roomMapX + (samus.Position.X.Whole >> 8))));
         ushort horizontalScreenPosition = unchecked((ushort)(playerMapX - mapHorizontalScroll));
         short distanceFromRightClamp = unchecked((short)(224 - horizontalScreenPosition));
         if (distanceFromRightClamp >= 0)
@@ -629,7 +629,7 @@ internal sealed partial class PauseMenuState
         ushort verticalCenterOffset = unchecked((ushort)((0x80 - verticalMiddle) & 0xfff8));
         mapVerticalScroll = unchecked((ushort)-verticalCenterOffset);
         ushort playerMapY = unchecked((ushort)(
-            8 * (roomMapY + (samus.YPosition >> 8) + 1) + verticalCenterOffset));
+            8 * (roomMapY + (samus.Position.Y.Whole >> 8) + 1) + verticalCenterOffset));
         short distanceFromTopClamp = unchecked((short)(64 - playerMapY));
         if (distanceFromTopClamp >= 0)
         {
@@ -642,9 +642,9 @@ internal sealed partial class PauseMenuState
     private void DrawMapPositionIndicator()
     {
         ushort x = unchecked((ushort)(
-            8 * (roomMapX + (samus.XPosition >> 8)) - mapHorizontalScroll));
+            8 * (roomMapX + (samus.Position.X.Whole >> 8)) - mapHorizontalScroll));
         ushort y = unchecked((ushort)(
-            8 * (roomMapY + (samus.YPosition >> 8) + 1) - mapVerticalScroll));
+            8 * (roomMapY + (samus.Position.Y.Whole >> 8) + 1) - mapVerticalScroll));
         lastIndicatorOriginX = x;
         lastIndicatorOriginY = y;
         MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);

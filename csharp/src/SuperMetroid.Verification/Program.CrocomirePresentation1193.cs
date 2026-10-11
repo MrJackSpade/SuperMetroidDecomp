@@ -81,8 +81,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Health = samus.MaxHealth = 999;
-        samus.XPosition = 600;
-        samus.YPosition = 120;
+        samus.Position = samus.Position.WithWhole(new(600, 120));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);

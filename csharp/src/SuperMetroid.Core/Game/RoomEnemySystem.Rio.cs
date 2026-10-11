@@ -128,7 +128,7 @@ public sealed partial class RoomEnemySystem
         {
             case RioEnemyFunction.WaitingForSamus:
                 if (samus is null || !IsWithinStrictModularDistance(
-                        samus.XPosition,
+                        samus.Position.X.Whole,
                         slot.XPosition,
                         RioTriggerDistance))
                 {
@@ -137,7 +137,7 @@ public sealed partial class RoomEnemySystem
 
                 state.YVelocity = RioLaunchDefinitions.RioYVelocity;
                 state.XVelocity = RioLaunchDefinitions.RioXVelocity;
-                if (unchecked((short)(samus.XPosition - slot.XPosition)) < 0)
+                if (unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0)
                     state.XVelocity = unchecked((ushort)-(short)state.XVelocity);
                 InstallRioInstructionList(
                     slot,
@@ -233,7 +233,7 @@ public sealed partial class RoomEnemySystem
 
                 // Once Rio reaches Samus's Y coordinate from above, it restores the saved
                 // horizontal dive speed and starts the upward/bounce phase at -1/256 px.
-                if (unchecked((short)(slot.YPosition - samus.YPosition)) >= 0)
+                if (unchecked((short)(slot.YPosition - samus.Position.Y.Whole)) >= 0)
                 {
                     state.XVelocity = state.SavedHorizontalVelocity;
                     state.YVelocity = 0xffff;
@@ -242,8 +242,8 @@ public sealed partial class RoomEnemySystem
                 }
 
                 byte angle = CalculateCartridgeAngle(
-                    unchecked((short)(samus.XPosition - slot.XPosition)),
-                    unchecked((short)(samus.YPosition - slot.YPosition)));
+                    unchecked((short)(samus.Position.X.Whole - slot.XPosition)),
+                    unchecked((short)(samus.Position.Y.Whole - slot.YPosition)));
                 state.XVelocity = ReadRioSignedSineCosineSample(
                     unchecked((byte)(angle + 0x40)));
                 state.YVelocity = ReadRioSignedSineCosineSample(angle);

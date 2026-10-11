@@ -24,7 +24,7 @@ internal static partial class Program
         var samus = runtime.Samus!;
         samus.InputLocked = false;
         samus.Health = 99;
-        samus.Kinematics.XSubposition = samus.Kinematics.YSubposition = 0;
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         var projectile = runtime.Enemies.EnemyProjectiles[^1];
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
@@ -46,9 +46,9 @@ internal static partial class Program
         for (int frame = 0; frame < expected.Length; frame++)
         {
             runtime.StepFrame(0);
-            var actual = (samus.Kinematics.XFixed, samus.Kinematics.YFixed, samus.Pose,
+            var actual = (samus.Kinematics.Position.X.RawValue, samus.Kinematics.Position.Y.RawValue, samus.Pose,
                 samus.KnockbackTimer, samus.KnockbackDirection);
-            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.XFixed:X8} y={samus.Kinematics.YFixed:X8} pose={(int)samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
+            Console.WriteLine($"CONTACT_FRAME {frame} x={samus.Kinematics.Position.X.RawValue:X8} y={samus.Kinematics.Position.Y.RawValue:X8} pose={(int)samus.Pose:X2} health={samus.Health} timer={samus.KnockbackTimer} direction={samus.KnockbackDirection}");
             if (actual != expected[frame] || samus.Health != 79)
                 failures.Add($"frame {frame}: {actual} != {expected[frame]}");
         }
@@ -67,7 +67,7 @@ internal static partial class Program
             runtime.InitializeCeresStartSamus();
             var samus = runtime.Samus!;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.XPosition = samus.YPosition = 120;
+            samus.Position = samus.Position.WithWhole(new(120, 120));
             samus.Health = 99;
             samus.EquippedItems = suit;
             samus.RefreshCollisionRadii(bus);

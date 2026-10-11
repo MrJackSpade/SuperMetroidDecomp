@@ -290,7 +290,7 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         _ = state; // Retains a symmetric family-helper signature for debugger inspection.
-        int distance = Math.Abs((int)unchecked((short)(samus.XPosition - slot.XPosition)));
+        int distance = Math.Abs((int)unchecked((short)(samus.Position.X.Whole - slot.XPosition)));
         return IsNegative16(distance - slot.Parameter2);
     }
 

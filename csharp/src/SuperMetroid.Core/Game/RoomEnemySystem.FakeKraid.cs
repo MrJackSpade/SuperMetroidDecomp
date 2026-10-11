@@ -160,7 +160,7 @@ public sealed partial class RoomEnemySystem
         state.FacingDelta = -4;
         slot.CurrentInstruction =
             FakeKraidInstructionProgramDefinitions.StepForwardsFacingLeft;
-        if (unchecked((short)(slot.XPosition - samus.XPosition)) < 0)
+        if (unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0)
         {
             state.WalkDelta = 4;
             state.FacingDelta = 4;
@@ -243,7 +243,7 @@ public sealed partial class RoomEnemySystem
         if (reverse)
             state.WalkDelta = unchecked((short)-state.WalkDelta);
 
-        state.FacingDelta = unchecked((short)(slot.XPosition - samus.XPosition)) < 0
+        state.FacingDelta = unchecked((short)(slot.XPosition - samus.Position.X.Whole)) < 0
             ? (short)4
             : (short)-4;
     }

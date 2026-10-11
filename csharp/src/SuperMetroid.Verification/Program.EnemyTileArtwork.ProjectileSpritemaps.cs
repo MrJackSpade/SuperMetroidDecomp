@@ -283,7 +283,7 @@ internal static partial class Program
             nativeShard.HighTable.SequenceEqual(installedShard.HighTable),
             "n00b-tube flicker instruction uses installed OAM without visual ROM reads");
 
-        var installedSamus = new SamusState { XPosition = 0x0080, YPosition = 0 };
+        var installedSamus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0)) };
         var installedArrival = new CeresElevatorArrivalState(
             new EnemyProjectileVisualReadGuard(bus), installedSamus, installed);
         for (int frame = 0; frame < 3; frame++)

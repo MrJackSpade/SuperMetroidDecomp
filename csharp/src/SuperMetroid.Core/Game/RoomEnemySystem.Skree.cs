@@ -111,7 +111,7 @@ public sealed partial class RoomEnemySystem
         switch (state.Function)
         {
             case SkreeEnemyFunction.Idling:
-                if (Math.Abs(unchecked((short)(slot.XPosition - samus.XPosition))) < 0x30)
+                if (Math.Abs(unchecked((short)(slot.XPosition - samus.Position.X.Whole))) < 0x30)
                 {
                     state.RequestedInstructionIndex =
                         SkreeMetareeAnimationPhase.PreparingAttack;
@@ -173,7 +173,7 @@ public sealed partial class RoomEnemySystem
 
         slot.YPosition = unchecked((ushort)(slot.YPosition + 6));
         slot.XPosition = unchecked((ushort)(slot.XPosition +
-            (unchecked((short)(slot.XPosition - samus.XPosition)) >= 0 ? -1 : 1)));
+            (unchecked((short)(slot.XPosition - samus.Position.X.Whole)) >= 0 ? -1 : 1)));
     }
 
     private void RunSkreeBurrow(RoomEnemySlot slot, SkreeEnemyState state)

@@ -81,8 +81,7 @@ internal static partial class Program
         AssertEqual(true, runtime.RoomLayer3Fx.IsRenderable, "Statue special FX must supply its water plane");
         var samus = runtime.Samus!;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = 64;
-        samus.YPosition = 120;
+        samus.Position = samus.Position.WithWhole(new(64, 120));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         samus.CommitPoseHistory(bus);
@@ -92,7 +91,7 @@ internal static partial class Program
         for (int frame = 0; frame < 3; frame++) game.Step(0);
         AssertEqual(RoomFxType.TourianEntranceStatue, samus.LiquidPhysics.FxType, "Samus retains native special FX identity");
         AssertEqual((ushort)0xb0, samus.LiquidPhysics.FxYPosition, "Water physics receives the visible surface");
-        samus.YPosition = 190;
+        samus.Position = samus.Position.WithWholeY(190);
         samus.LiquidPhysics.InitializeRememberedMedium(samus);
         AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.LiquidPhysicsType,
             "Native low-nibble FX dispatch selects water below the statue surface");

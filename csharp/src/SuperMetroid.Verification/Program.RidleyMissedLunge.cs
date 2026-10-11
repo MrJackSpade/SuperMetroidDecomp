@@ -17,7 +17,7 @@ internal static partial class Program
         slot.Health = 1000;
         slot.XPosition = 160;
         slot.YPosition = 400;
-        var samus = new SamusState { XPosition = 100, YPosition = 420 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(100, 420)) };
         var state = new RidleyEnemyState
         {
             Function = RidleyAiFunction.NorfairGrabApproach,
@@ -60,10 +60,10 @@ internal static partial class Program
         foreach (RidleyFacing facing in new[] { RidleyFacing.Left, RidleyFacing.Right })
         {
             int direction = facing == RidleyFacing.Left ? -1 : 1;
-            ResetLunge((ushort)(samus.XPosition + direction * 31), 300, facing);
+            ResetLunge((ushort)(samus.Position.X.Whole + direction * 31), 300, facing);
             run(slot, state, samus, 0, null);
             AssertEqual(RidleyAiFunction.NorfairGrabApproach, state.Function, "31 pixels past Samus remains within native pass allowance");
-            ResetLunge((ushort)(samus.XPosition + direction * 32), 300, facing);
+            ResetLunge((ushort)(samus.Position.X.Whole + direction * 32), 300, facing);
             run(slot, state, samus, 0, null);
             AssertEqual(RidleyAiFunction.NorfairHoverSetup, state.Function, "32 pixels past Samus abandons lunge for either facing");
         }

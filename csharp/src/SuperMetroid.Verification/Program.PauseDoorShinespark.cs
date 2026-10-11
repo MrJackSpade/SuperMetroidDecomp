@@ -96,8 +96,7 @@ internal static partial class Program
             samus.Shinespark.BeginWindup(samus);
             samus.Shinespark.BeginDirectionalLaunch(bus, samus, SamusPoseId.ShinesparkHorizontalRightPose);
             samus.CommitPoseHistory(bus);
-            samus.XPosition = 128;
-            samus.YPosition = 128;
+            samus.Position = samus.Position.WithWhole(new(128, 128));
             typeof(SuperMetroidGame).GetProperty(nameof(SuperMetroidGame.GameState))!.SetValue(game, SuperMetroidGameState.MainGameplay);
             game.Step((ushort)SnesButton.Start);
             AssertEqual(SuperMetroidGameState.PausingDarkening, game.GameState, "Start begins darkening before reaching the open door");
@@ -108,7 +107,7 @@ internal static partial class Program
                 (byte)(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15)));
             typeof(SuperMetroidGame).GetField("pauseFadeCounter", flags)!.SetValue(game, 0);
             // Put the leading edge immediately before the door for the next real mover call.
-            samus.XPosition = (ushort)(160 - samus.Kinematics.XRadius - 1);
+            samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));
             game.Step(0);
             AssertTrue(runtime.HasPendingDoorTransition, "horizontal shinespark actually touches the open door during the fade");
             AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "door contact does not crash the shinespark");
@@ -118,10 +117,10 @@ internal static partial class Program
             AssertEqual(expected, game.GameState, "door publication retains native fade completion ordering");
             if (!scenario.Brightening || !scenario.Terminal)
             {
-                ushort contactX = samus.XPosition;
+                ushort contactX = samus.Position.X.Whole;
                 game.Step(0);
                 AssertEqual(SuperMetroidGameState.LoadingNextRoomB, game.GameState, "published door state starts the transition coroutine");
-                AssertEqual(contactX, samus.XPosition, "no additional source-room shinespark movement before transition");
+                AssertEqual(contactX, samus.Position.X.Whole, "no additional source-room shinespark movement before transition");
             }
         }
         Console.WriteLine("Pause-door shinespark: door hits during both fades preserve native normal/terminal state ordering and start transitions without extra source movement.");

@@ -70,8 +70,7 @@ internal static partial class Program
 
         SamusState samus = runtime.Samus!;
         EnterDirectGMode(bus, samus);
-        samus.XPosition = 140;
-        samus.YPosition = 360;
+        samus.Position = samus.Position.WithWhole(new(140, 360));
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.EquippedBeams = (ushort)SamusBeamFlags.Wave;
         samus.SelectedHudItem = 0;
@@ -164,11 +163,9 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
-            XPosition = 24,
-            YPosition = 24,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(24, 24)),
         };
-        samus.Kinematics.XRadius = 5;
-        samus.Kinematics.YRadius = 8;
+        samus.Kinematics.Radius = new(5, 8);
         EnterDirectGMode(bus, samus);
 
         ushort[] words = Enumerable.Repeat((ushort)0x3000, 16).ToArray();
@@ -181,8 +178,7 @@ internal static partial class Program
         {
             contact++;
             int before = plms.ActiveCount;
-            samus.Kinematics.ExtraYDisplacement = 0;
-            samus.Kinematics.ExtraYSubdisplacement = 0;
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0).WithFractionY(0);
             samus.HorizontalSpeed.BaseSpeed = 4;
             samus.HorizontalSpeed.HasRunningMomentum = true;
             SamusInsideBlockReactions.PrepareFrame(
@@ -192,14 +188,13 @@ internal static partial class Program
                 plms: plms);
             AssertTrue(plms.ActiveCount > before && plms.ActiveCount <= before + 3,
                 $"G-Mode sand contact {contact} consumes its bottom/center/top suspended PLM slots");
-            AssertTrue(samus.Kinematics.ExtraYFixed != 0,
+            AssertTrue(samus.Kinematics.ExtraDisplacement.Y.RawValue != 0,
                 $"G-Mode sand contact {contact} runs setup while a slot remains");
         }
         AssertEqual(14, contact,
             "standing Samus overloads forty PLM slots after fourteen three-point sand samples");
 
-        samus.Kinematics.ExtraYDisplacement = 0;
-        samus.Kinematics.ExtraYSubdisplacement = 0;
+        samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWholeY(0).WithFractionY(0);
         samus.HorizontalSpeed.BaseSpeed = 4;
         samus.HorizontalSpeed.HasRunningMomentum = true;
         SamusInsideBlockReactions.PrepareFrame(
@@ -209,7 +204,7 @@ internal static partial class Program
             plms: plms);
         AssertEqual(40, plms.ActiveCount,
             "forty-first G-Mode sand contact cannot exceed the cartridge PLM pool");
-        AssertEqual(0, samus.Kinematics.ExtraYFixed,
+        AssertEqual(0, samus.Kinematics.ExtraDisplacement.Y.RawValue,
             "overloaded G-Mode sand runs no setup and contributes no sinking displacement");
         AssertEqual((ushort)4, samus.HorizontalSpeed.BaseSpeed,
             "overloaded G-Mode sand no longer cancels horizontal momentum");
@@ -317,11 +312,9 @@ internal static partial class Program
                 var result = new SamusState
                 {
                     Pose = SamusPoseId.FacingRightNormalPose,
-                    XPosition = 40,
-                    YPosition = 54,
+                    Position = FixedPosition<RoomPixels>.FromWhole(new(40, 54)),
                 };
-                result.Kinematics.XRadius = 5;
-                result.Kinematics.YRadius = 8;
+                result.Kinematics.Radius = new(5, 8);
                 return result;
             }
 
@@ -427,8 +420,7 @@ internal static partial class Program
         AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
             "direct G-Mode contact records the visible item's native trigger");
 
-        fixture.Samus.XPosition = 0x0200;
-        fixture.Samus.YPosition = 0x0200;
+        fixture.Samus.Position = fixture.Samus.Position.WithWhole(new(0x0200, 0x0200));
         AssertTrue(!fixture.System.HasCollectedItemBit(17),
             "suspended item PLM remains uncollected after Samus leaves its block");
         AssertEqual(0, fixture.Plms.CollectiblePickupEvents.Count,
@@ -464,7 +456,7 @@ internal static partial class Program
             new byte[width * 16],
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
-        var samus = new SamusState { YPosition = 0x0100 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0100)) };
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
         bool brokenEvent = false;
         var projectiles = new List<NoobTubeProjectileRequest>();

@@ -1112,7 +1112,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
                     ref upperIndex,
                     self.NeckAngleDelta,
                     self.BrainYPosition,
-                    samus.YPosition);
+                    samus.Position.Y.Whole);
                 PrivateState.SetProperty(self, "LowerNeckAngle", lowerAngle);
                 PrivateState.SetProperty(self, "UpperNeckAngle", upperAngle);
                 PrivateState.SetProperty(self, "LowerNeckMovementIndex", lowerIndex);

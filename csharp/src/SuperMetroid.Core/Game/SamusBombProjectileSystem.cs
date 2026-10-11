@@ -98,8 +98,8 @@ public sealed class SamusBombProjectileSystem
             // $88:8B4E offers Crystal Flash only if Samus has remained on the exact bomb
             // origin. Failure (including moving one pixel) releases $0CEA immediately.
             bool crystalFlashStarted =
-                samus.XPosition == PowerBombExplosion.XPosition &&
-                samus.YPosition == PowerBombExplosion.YPosition &&
+                samus.Position.X.Whole == PowerBombExplosion.XPosition &&
+                samus.Position.Y.Whole == PowerBombExplosion.YPosition &&
                 samus.CrystalFlash.TryBegin(
                     bus,
                     samus,
@@ -417,8 +417,8 @@ public sealed class SamusBombProjectileSystem
         slot.ClearFields();
         slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         slot.Direction = 0;
-        slot.XPosition = samus.XPosition;
-        slot.YPosition = samus.YPosition;
+        slot.XPosition = samus.Position.X.Whole;
+        slot.YPosition = samus.Position.Y.Whole;
         slot.BombTimer = SamusBombSpreadRomData.InitialBombTimer;
         InitializeBombFromRom(slot);
         CooldownTimer = placingPowerBomb
@@ -493,8 +493,8 @@ public sealed class SamusBombProjectileSystem
             slot.ClearFields();
             slot.Type = SamusBombSpreadRomData.BombSpreadType;
             slot.IsBombSpread = true;
-            slot.XPosition = samus.XPosition;
-            slot.YPosition = samus.YPosition;
+            slot.XPosition = samus.Position.X.Whole;
+            slot.YPosition = samus.Position.Y.Whole;
             InitializeBombFromRom(slot);
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
@@ -1160,10 +1160,10 @@ public sealed class SamusBombProjectileSystem
                 continue;
             }
 
-            int xDistance = Math.Abs((short)(slot.XPosition - samus.XPosition));
-            int yDistance = Math.Abs((short)(slot.YPosition - samus.YPosition));
-            if (xDistance >= slot.XRadius + samus.Kinematics.XRadius ||
-                yDistance >= slot.YRadius + samus.Kinematics.YRadius)
+            int xDistance = Math.Abs((short)(slot.XPosition - samus.Position.X.Whole));
+            int yDistance = Math.Abs((short)(slot.YPosition - samus.Position.Y.Whole));
+            if (xDistance >= slot.XRadius + samus.Kinematics.Radius.X ||
+                yDistance >= slot.YRadius + samus.Kinematics.Radius.Y)
             {
                 continue;
             }
@@ -1177,9 +1177,9 @@ public sealed class SamusBombProjectileSystem
             // CMP SamusX,bombX: equal is straight; Samus left of the bomb launches left;
             // Samus right of the bomb launches right. Later overlapping slots overwrite
             // earlier ones exactly as the ascending assembly loop does.
-            publishedDirection = samus.XPosition == slot.XPosition
+            publishedDirection = samus.Position.X.Whole == slot.XPosition
                 ? (byte)2
-                : unchecked((short)(samus.XPosition - slot.XPosition)) < 0
+                : unchecked((short)(samus.Position.X.Whole - slot.XPosition)) < 0
                     ? (byte)1
                     : (byte)3;
             samus.PublishBombJumpDirection(publishedDirection);

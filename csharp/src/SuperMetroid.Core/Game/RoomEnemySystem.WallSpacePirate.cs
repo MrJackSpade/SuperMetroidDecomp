@@ -266,7 +266,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static bool WallSpacePirateCanAttack(RoomEnemySlot slot, SamusState samus) =>
-        Math.Abs(unchecked((short)(samus.YPosition - slot.YPosition))) <
+        Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.YPosition))) <
             WallPirateSamusDetectionBand;
 
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)

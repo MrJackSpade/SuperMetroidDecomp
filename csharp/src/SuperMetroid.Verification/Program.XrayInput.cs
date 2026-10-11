@@ -24,8 +24,7 @@ internal static partial class Program
         // The platform's lowest position is a Morph-only tunnel. Standing there
         // embeds the torso in terrain and cannot validate a visible X-ray beam.
         // Use the open floor in the Scope chamber instead.
-        samus.XPosition = 128;
-        samus.YPosition = 139;
+        samus.Position = samus.Position.WithWhole(new(128, 139));
         samus.EquippedItems = (ushort)SamusEquipmentFlags.XrayScope;
         samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
         runtime.StepFrame(0);

@@ -22,7 +22,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(FixtureRoomHeaders.RinkaShaft);
         var samus = runtime.Samus!;
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
-        samus.XPosition = 0x14; samus.YPosition = 0x028b;
+        samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.InputLocked = true;
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);

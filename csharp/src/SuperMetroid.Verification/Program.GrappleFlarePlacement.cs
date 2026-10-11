@@ -80,7 +80,7 @@ internal static partial class Program
 
             SamusState Seed(ChargeFlarePlacementCatalog? placement)
             {
-                var samus = new SamusState { Pose = pose, XPosition = 512, YPosition = 512 };
+                var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
                 PrepareRetailSamusFixture(samus);
                 samus.Grapple.FlarePlacement = placement;
                 return samus;

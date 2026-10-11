@@ -470,6 +470,16 @@ internal static class DebuggerStateFieldMigrations
                 fade.SetTiming(1, 1);
                 Set(fileSelect, "screenFade", fade);
             }),
+
+        // #628: Samus kinematics' spatial values, rebuilt from the retired component words.
+        new(typeof(SamusKinematicsState).FullName!, ["<Position>k__BackingField"], null,
+            body => Set(body, "<Position>k__BackingField", DebuggerSpatialFieldMerges.FixedPosition<RoomPixels>(
+                body, "XPosition", "XSubposition", "YPosition", "YSubposition"))),
+        new(typeof(SamusKinematicsState).FullName!, ["<ExtraDisplacement>k__BackingField"], null,
+            body => Set(body, "<ExtraDisplacement>k__BackingField", DebuggerSpatialFieldMerges.FixedVector<RoomPixels>(
+                body, "ExtraXDisplacement", "ExtraXSubdisplacement", "ExtraYDisplacement", "ExtraYSubdisplacement"))),
+        new(typeof(SamusKinematicsState).FullName!, ["<Radius>k__BackingField"], null,
+            body => Set(body, "<Radius>k__BackingField", DebuggerSpatialFieldMerges.Extent<RoomPixels>(body, "XRadius", "YRadius"))),
     ];
 
     private static readonly Dictionary<string, DebuggerFieldIntroduction[]> introductionsByType =

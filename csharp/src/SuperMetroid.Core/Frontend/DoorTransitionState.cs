@@ -49,8 +49,8 @@ public sealed class DoorTransitionState
         sourceCreBitset = runtime.ActiveRoom?.CreBitset
             ?? throw new InvalidOperationException("Door transition requires a source room header.");
         destinationCreBitset = runtime.PendingDoorDestinationCreBitset;
-        sourceSamusXFixed = runtime.Samus.Kinematics.XFixed;
-        sourceSamusYFixed = runtime.Samus.Kinematics.YFixed;
+        sourceSamusXFixed = runtime.Samus.Kinematics.Position.X.RawValue;
+        sourceSamusYFixed = runtime.Samus.Kinematics.Position.Y.RawValue;
         paletteTransition = new CartridgePaletteTransition(
             BuildSourceFadeTarget(runtime),
             denominator: 12,
@@ -144,8 +144,8 @@ public sealed class DoorTransitionState
                 // during the fade. The atomic loader must not apply this step twice.
                 var setupSamus = runtime.Samus
                     ?? throw new InvalidOperationException("Door scrolling requires Samus.");
-                sourceSamusXFixed = setupSamus.Kinematics.XFixed;
-                sourceSamusYFixed = setupSamus.Kinematics.YFixed;
+                sourceSamusXFixed = setupSamus.Kinematics.Position.X.RawValue;
+                sourceSamusYFixed = setupSamus.Kinematics.Position.Y.RawValue;
                 runtime.ApplyDoorScrollingSetupMovement();
                 Phase = DoorTransitionPhase.PlaceSamusAndLoadTiles;
                 break;

@@ -10,9 +10,9 @@ public static partial class SnesGameplayFrameRenderer
         ushort layer1X, ushort layer1Y)
     {
         bool leftFacing = samus.IsFacingLeft(bus);
-        int originX = unchecked((short)(samus.XPosition - layer1X)) +
+        int originX = unchecked((short)(samus.Position.X.Whole - layer1X)) +
             (leftFacing ? -XrayWindowRenderDefinitions.EyeHorizontalOffset : XrayWindowRenderDefinitions.EyeHorizontalOffset);
-        int originY = unchecked((short)(samus.YPosition - layer1Y)) -
+        int originY = unchecked((short)(samus.Position.Y.Whole - layer1Y)) -
             (samus.ReadMovementType(bus) == SamusMovementType.Crouching
                 ? XrayWindowRenderDefinitions.CrouchingEyeHeight : XrayWindowRenderDefinitions.StandingEyeHeight);
         int angle = samus.Xray.Angle.TableIndex;

@@ -34,8 +34,8 @@ public static class SamusTerrainHazardCollision
         samus.OrdinarySpikeBlockBtsZeroDamageEnabled =
             area != AreaId.WreckedShip || areaBossDefeated;
 
-        SamusInsideBlockSamplePoints.Visit(samus.YPosition, samus.Kinematics.YRadius, (y, _) =>
-            VisitInsidePoint(bus, level, samus, samus.XPosition, y));
+        SamusInsideBlockSamplePoints.Visit(samus.Position.Y.Whole, samus.Kinematics.Radius.Y, (y, _) =>
+            VisitInsidePoint(bus, level, samus, samus.Position.X.Whole, y));
     }
 
     /// <summary>Applies `$94:8E83/$8ECF/$8F0A` after a solid spike block is contacted.</summary>

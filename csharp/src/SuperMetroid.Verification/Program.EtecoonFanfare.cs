@@ -27,7 +27,7 @@ internal static partial class Program
             slot.Parameter2 = (ushort)index;
             typeof(RoomEnemySystem).GetMethod("InitializeEtecoon", flags)!.Invoke(enemies, [slot]);
         }
-        var samus = new SamusState { XPosition = 0x240, YPosition = 0xb98, Health = 999, MaxHealth = 999 };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x240, 0xb98)), Health = 999, MaxHealth = 999 };
         var level = new RoomLevelData(48, 192, new ushort[48 * 192], new byte[48 * 192], new ushort[48 * 192], new byte[8]);
         enemies.ElevatorDoorTransitionActive = true;
         for (int frame = 0; frame < 3; frame++)

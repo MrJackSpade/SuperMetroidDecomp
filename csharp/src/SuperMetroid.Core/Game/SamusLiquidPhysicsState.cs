@@ -160,7 +160,7 @@ public sealed partial class SamusLiquidPhysicsState
             return SamusLiquidMedium.Air;
         // Samus_GetBottom_R18 samples the current pose definition, even before the next
         // movement pass publishes its radius to the live collision state.
-        ushort bottom = unchecked((ushort)(samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
+        ushort bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
         return DetermineRawMediumAtBoundary(bottom);
     }
 
@@ -224,7 +224,7 @@ public sealed partial class SamusLiquidPhysicsState
             return samus.XSpeedDivisor;
 
         ushort bottomMinusOne = unchecked((ushort)(
-            samus.YPosition + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
+            samus.Position.Y.Whole + SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
         SamusLiquidMedium medium = DetermineRawMediumAtBoundary(bottomMinusOne);
         return medium switch
         {
@@ -490,7 +490,7 @@ public sealed partial class SamusLiquidPhysicsState
         if ((roomFlags & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
         {
             // Above Y=$03B0 the entrance is dry and deletes; at/below it, use wet splashes.
-            if (samus.YPosition >= 0x03b0)
+            if (samus.Position.Y.Whole >= 0x03b0)
                 SpawnLandingPairUnlessSubmerged(samus, type: 1);
             else
                 DeleteLandingPair();
@@ -510,7 +510,7 @@ public sealed partial class SamusLiquidPhysicsState
     {
         // GetBottom_R18 uses the current pose definition and includes the last
         // occupied pixel; the live collision radius can still belong to the old pose.
-        ushort bottom = unchecked((ushort)(samus.YPosition +
+        ushort bottom = unchecked((ushort)(samus.Position.Y.Whole +
             SamusPoseCollisionDefinitions.ReadVerticalRadius(samus.Pose) - 1));
 
         // Both `$91:F116` and `$91:F166` suppress their particles when Samus's current
@@ -522,7 +522,7 @@ public sealed partial class SamusLiquidPhysicsState
 
         ushort rightOffset = type == 1 ? (ushort)4 : (ushort)8;
         ushort leftSeparation = type == 1 ? (ushort)7 : (ushort)16;
-        ushort firstX = unchecked((ushort)(samus.XPosition + rightOffset));
+        ushort firstX = unchecked((ushort)(samus.Position.X.Whole + rightOffset));
         ushort secondX = unchecked((ushort)(firstX - leftSeparation));
         ushort y = type == 1 ? unchecked((ushort)(bottom - 4)) : bottom;
 
@@ -624,17 +624,17 @@ public sealed partial class SamusLiquidPhysicsState
         {
             AtmosphericEffects.SetSlot(
                 0, type: 3, animationFrame: 0, animationTimer: 2,
-                samus.XPosition, FxYPosition);
+                samus.Position.X.Whole, FxYPosition);
             return;
         }
 
         AtmosphericEffects.SetSlot(
             0, type: 1, animationFrame: 0, animationTimer: 3,
-            unchecked((ushort)(samus.XPosition + 4)),
+            unchecked((ushort)(samus.Position.X.Whole + 4)),
             unchecked((ushort)(bottom - 4)));
         AtmosphericEffects.SetSlot(
             1, type: 1, animationFrame: 0, animationTimer: 3,
-            unchecked((ushort)(samus.XPosition - 3)),
+            unchecked((ushort)(samus.Position.X.Whole - 3)),
             unchecked((ushort)(bottom - 4)));
     }
 
@@ -654,7 +654,7 @@ public sealed partial class SamusLiquidPhysicsState
 
         AtmosphericEffects.SetSlot(
             2, type: 5, animationFrame: 0, animationTimer: 3,
-            samus.XPosition,
+            samus.Position.X.Whole,
             unchecked((ushort)(top + 6)));
         ushort random = system.NextRandom();
         QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, (byte)((random & 1) != 0 ? 0x0f : 0x11)), maximumQueued: 6);
@@ -673,10 +673,10 @@ public sealed partial class SamusLiquidPhysicsState
 
         ushort[] xPositions =
         [
-            unchecked((ushort)(samus.XPosition + 6)),
-            samus.XPosition,
-            samus.XPosition,
-            unchecked((ushort)(samus.XPosition - 6)),
+            unchecked((ushort)(samus.Position.X.Whole + 6)),
+            samus.Position.X.Whole,
+            samus.Position.X.Whole,
+            unchecked((ushort)(samus.Position.X.Whole - 6)),
         ];
         ushort[] timers = [3, 0x8002, 0x8002, 3];
         for (int slot = 0; slot < SamusAtmosphericEffectsState.SlotCount; slot++)
@@ -718,7 +718,7 @@ public sealed partial class SamusLiquidPhysicsState
                 if ((specialType & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                     useWetFootsteps = FxType == RoomFxType.Rain;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WreckedShipEntrance) != 0)
-                    useWetFootsteps = samus.YPosition >= 0x03b0;
+                    useWetFootsteps = samus.Position.Y.Whole >= 0x03b0;
                 else if ((specialType & CrateriaAtmosphericEffectFlags.WetFootsteps) != 0)
                     useWetFootsteps = true;
             }
@@ -746,12 +746,12 @@ public sealed partial class SamusLiquidPhysicsState
     {
         bool directionIsFour = samus.IsFacingLeft(bus);
         ushort firstX = directionIsFour
-            ? unchecked((ushort)(samus.XPosition - 12))
-            : unchecked((ushort)(samus.XPosition + 12));
+            ? unchecked((ushort)(samus.Position.X.Whole - 12))
+            : unchecked((ushort)(samus.Position.X.Whole + 12));
         ushort secondX = directionIsFour
-            ? unchecked((ushort)(samus.XPosition + 8))
-            : unchecked((ushort)(samus.XPosition - 8));
-        ushort y = unchecked((ushort)(samus.YPosition + 16));
+            ? unchecked((ushort)(samus.Position.X.Whole + 8))
+            : unchecked((ushort)(samus.Position.X.Whole - 8));
+        ushort y = unchecked((ushort)(samus.Position.Y.Whole + 16));
         AtmosphericEffects.SetSlot(0, type, 0, 0x8002, firstX, y);
         AtmosphericEffects.SetSlot(1, type, 0, 3, secondX, y);
     }

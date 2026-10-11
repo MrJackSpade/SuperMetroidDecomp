@@ -15,7 +15,7 @@ internal static partial class Program
         {
             var samus = new SamusState {
                 Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
-                XPosition = 512, YPosition = 512,
+                Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)),
             };
             PrepareRetailSamusFixture(samus);
             SamusGrappleMovement.BeginFiring(bus, samus);
@@ -38,10 +38,10 @@ internal static partial class Program
             AssertEqual(0, grapple.RopeLength, "restart does not extend in same call");
             AssertEqual(0, grapple.EndpointXOffsetFixed, "restart clears old X endpoint displacement");
             AssertEqual(0, grapple.EndpointYOffsetFixed, "restart clears old Y endpoint displacement");
-            AssertEqual(samus.XPosition + grapple.OriginXOffset, grapple.AnchorX, "restart hand origin X");
-            AssertEqual(samus.YPosition + grapple.OriginYOffset, grapple.AnchorY, "restart hand origin Y");
+            AssertEqual(samus.Position.X.Whole + grapple.OriginXOffset, grapple.AnchorX, "restart hand origin X");
+            AssertEqual(samus.Position.Y.Whole + grapple.OriginYOffset, grapple.AnchorY, "restart hand origin Y");
             SamusGrappleMovement.StepFiring(bus, level, samus, (ushort)SnesButton.X);
-            AssertTrue(grapple.AnchorY < samus.YPosition + grapple.OriginYOffset, "restarted beam actually travels up");
+            AssertTrue(grapple.AnchorY < samus.Position.Y.Whole + grapple.OriginYOffset, "restarted beam actually travels up");
             AssertTrue(left ? grapple.EndpointXOffsetFixed < 0 : grapple.EndpointXOffsetFixed > 0, "restarted beam travels toward aimed side");
         }
         var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };

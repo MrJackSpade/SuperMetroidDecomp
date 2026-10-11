@@ -48,7 +48,7 @@ public sealed partial class SamusState
     internal void AlignBottomAfterPoseChange(ushort previousRadius, ushort targetRadius)
     {
         int delta = previousRadius - targetRadius;
-        YPosition = unchecked((ushort)(YPosition + delta));
+        Position += new Offset16<RoomPixels>(0, unchecked((short)delta));
         _poseAlignmentPreviousYDelta += delta;
     }
 

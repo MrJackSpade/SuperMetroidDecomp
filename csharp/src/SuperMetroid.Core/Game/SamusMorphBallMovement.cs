@@ -200,7 +200,7 @@ public static class SamusMorphBallMovement
         bool hitCeiling;
         if (samus.MorphBallBounceState != SamusBallBounceState.None &&
             samus.KnockbackDirection == 0 &&
-            samus.Kinematics.ExtraYFixed != 0)
+            samus.Kinematics.ExtraDisplacement.Y != SnesSignedSixteenSixteen.Zero)
         {
             // `$90:91E5-$921D` gives an external producer priority over the rebound arc.
             // It cancels the stored bounce velocity, forces direction down, and executes

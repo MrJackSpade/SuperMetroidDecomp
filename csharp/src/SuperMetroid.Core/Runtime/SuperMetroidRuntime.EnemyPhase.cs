@@ -32,10 +32,7 @@ public sealed partial class SuperMetroidRuntime
                 // EnemyMain. Rideable enemies then accumulate accepted platform deltas and
                 // bank `$90` consumes those live values during Samus movement below. They
                 // are producer-owned words, so movement deliberately does not clear them.
-                Samus.Kinematics.ExtraXSubdisplacement = 0;
-                Samus.Kinematics.ExtraXDisplacement = 0;
-                Samus.Kinematics.ExtraYSubdisplacement = 0;
-                Samus.Kinematics.ExtraYDisplacement = 0;
+                Samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.Zero;
             }
         }
     }

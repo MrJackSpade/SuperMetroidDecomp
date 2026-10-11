@@ -41,10 +41,9 @@ internal static partial class Program
         samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = (ushort)SamusBeamFlags.Charge;
-        samus.XPosition = 512;
-        samus.YPosition = 490;
-        AssertEqual((ushort)0, samus.Kinematics.XSubposition, "fixture initial X fraction matches native cleared RAM");
-        AssertEqual((ushort)0, samus.Kinematics.YSubposition, "fixture initial Y fraction matches native cleared RAM");
+        samus.Position = samus.Position.WithWhole(new(512, 490));
+        AssertEqual((ushort)0, samus.Kinematics.Position.X.Fraction, "fixture initial X fraction matches native cleared RAM");
+        AssertEqual((ushort)0, samus.Kinematics.Position.Y.Fraction, "fixture initial Y fraction matches native cleared RAM");
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         for (int frame = 0; frame < 120; frame++)
@@ -59,7 +58,7 @@ internal static partial class Program
             }
             runtime.StepFrame(input);
             if (trace is not null)
-                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{input:X4},{(int)samus.Pose:X4},{samus.YPosition:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
+                AssertEqual(trace.ReadLine(), $"{(left ? 1 : 0)},{scenario},{frame},{input:X4},{(int)samus.Pose:X4},{samus.Position.Y.Whole:X4},{samus.ProjectileFlareCounter:X4},{samus.BombSpreadChargeTimeoutCounter:X4},{runtime.BombProjectiles.BombCounter:X4}",
                     $"native/runtime charge-preserving unmorph frame {frame}");
             AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.FlareCounter, "runtime charge mirror stays synchronized");
             if (frame == 99)
@@ -78,7 +77,7 @@ internal static partial class Program
             if (frame == 106 && scenario != 3)
             {
                 AssertEqual(left ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose, samus.Pose, "unmorph finishes in crouch rather than falling");
-                AssertEqual((ushort)496, samus.YPosition, "unmorph maintains flat-floor alignment");
+                AssertEqual((ushort)496, samus.Position.Y.Whole, "unmorph maintains flat-floor alignment");
             }
         }
     }

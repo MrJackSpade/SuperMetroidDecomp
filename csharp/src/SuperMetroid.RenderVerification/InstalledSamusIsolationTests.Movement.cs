@@ -17,7 +17,7 @@ internal sealed partial class InstalledSamusIsolationTests
                 if (left) actor.Samus.ApplyStandingLeftToRunningLeft(actor.Memory);
                 else actor.Samus.ApplyStandingRightToRunningRight(actor.Memory);
             });
-            ushort initialX = pair.Stock.Samus.XPosition;
+            ushort initialX = pair.Stock.Samus.Position.X.Whole;
             for (ushort frame = 0; frame < 24; frame++)
                 pair.Apply(label + $" run {frame}", actor =>
                 {
@@ -30,7 +30,7 @@ internal sealed partial class InstalledSamusIsolationTests
                     Animate(actor, frame);
                     return result;
                 });
-            Require(pair.Stock.Samus.XPosition != initialX, label + ": run fixture never moved");
+            Require(pair.Stock.Samus.Position.X.Whole != initialX, label + ": run fixture never moved");
             pair.Apply(label + " turn admission", actor => actor.Samus.ApplyGroundedTurn(actor.Memory,
                 left ? SamusPoseId.TurningLeftToRightPose : SamusPoseId.TurningRightToLeftPose));
             int turnFrames = 0;
@@ -68,7 +68,7 @@ internal sealed partial class InstalledSamusIsolationTests
         Pair pair = Create(left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose,
             equipment: highJump ? (ushort)SamusEquipmentFlags.HiJumpBoots : (ushort)0, medium: medium);
         string label = $"jump medium {medium}, left={left}, high={highJump}";
-        ushort startY = pair.Stock.Samus.YPosition, minimumY = startY;
+        ushort startY = pair.Stock.Samus.Position.Y.Whole, minimumY = startY;
         pair.Apply(label + " admission", actor => actor.Samus.ApplyOrdinaryJumpTransition(actor.Memory,
             left ? SamusPoseId.NeutralJumpTransitionLeftPose : SamusPoseId.NeutralJumpTransitionRightPose));
         bool landed = false;
@@ -85,7 +85,7 @@ internal sealed partial class InstalledSamusIsolationTests
                     nmiFrameCounter: frame), label + ": landing rejected");
                 return movement;
             });
-            minimumY = Math.Min(minimumY, pair.Stock.Samus.YPosition);
+            minimumY = Math.Min(minimumY, pair.Stock.Samus.Position.Y.Whole);
             landed = result.Landed;
         }
         Require(landed && minimumY < startY, label + ": must rise and collide with the floor, not merely stay equal");

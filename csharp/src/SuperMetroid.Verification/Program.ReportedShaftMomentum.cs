@@ -15,11 +15,9 @@ internal static partial class Program
         var samus = new SamusState
         {
             Pose = SamusPoseId.SpinJumpLeftPose,
-            XPosition = 128,
-            YPosition = 128,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
         };
-        samus.Kinematics.XRadius = 5;
-        samus.Kinematics.YRadius = 12;
+        samus.Kinematics.Radius = new(5, 12);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = 2;
         samus.HorizontalSpeed.BaseSpeed = 1;
@@ -29,15 +27,15 @@ internal static partial class Program
         {
             // Whole and fractional X as one 16.16 position, so the accepted displacement
             // is the exact difference across the movement step.
-            int xBefore = samus.XPosition << 16 | samus.Kinematics.XSubposition;
+            int xBefore = samus.Position.X.Whole << 16 | samus.Kinematics.Position.X.Fraction;
             SamusAerialMovement.StepSpinJump(memory, level, samus, 0, frame);
-            int xAfter = samus.XPosition << 16 | samus.Kinematics.XSubposition;
+            int xAfter = samus.Position.X.Whole << 16 | samus.Kinematics.Position.X.Fraction;
             AssertEqual(-0x00016000, xAfter - xBefore,
                 $"recorded neutral spin carry at frame {frame} matches cartridge carry-set branch");
             AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed, "retained spin whole speed");
             AssertEqual((ushort)0x6000, samus.HorizontalSpeed.BaseSubspeed, "retained spin fractional speed");
         }
-        AssertEqual((ushort)117, samus.XPosition, "eight recorded neutral frames carry eleven pixels left");
+        AssertEqual((ushort)117, samus.Position.X.Whole, "eight recorded neutral frames carry eleven pixels left");
         Console.WriteLine("#1158: recorded no-Left drift matches native spin momentum; no movement alteration required.");
     }
 }

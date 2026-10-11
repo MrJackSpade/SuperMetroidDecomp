@@ -372,7 +372,7 @@ public sealed partial class RoomEnemySystem
             case TorizoFunction.GoldenWaitForSamus:
                 // $AA:D5C2 advances the list operand only after Samus has entered the
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
-                if (samus is not null && samus.YPosition > 0x0140 && samus.XPosition > 0x0170)
+                if (samus is not null && samus.Position.Y.Whole > 0x0140 && samus.Position.X.Whole > 0x0170)
                 {
                     torizo.CurrentInstruction = unchecked((ushort)(torizo.CurrentInstruction + 2));
                     torizo.InstructionTimer = 1;

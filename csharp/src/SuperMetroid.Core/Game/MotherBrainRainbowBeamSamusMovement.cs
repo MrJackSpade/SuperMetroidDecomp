@@ -81,7 +81,7 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         // `CPY SamusYPosition / BPL` tests signed(YTarget-currentY). For the fight's normal
         // coordinate range this is exactly currentY <= $7C, but preserve the 16-bit branch
         // semantics instead of introducing a host integer comparison with different wraps.
-        ushort difference = unchecked((ushort)(0x007c - samus.YPosition));
+        ushort difference = unchecked((ushort)(0x007c - samus.Position.Y.Whole));
         ushort yVelocity = unchecked((short)difference >= 0 ? (ushort)0x0040 : (ushort)0xffc0);
         bool reachedVerticalBoundary = MoveVerticallyTowardCeilingOrFloor(samus, yVelocity);
 
@@ -142,11 +142,11 @@ public sealed class MotherBrainRainbowBeamSamusMovement
         ushort velocity)
     {
         ushort candidate = AddNativeEightEightVelocity(
-            samus.YPosition,
-            samus.Kinematics.YSubposition,
+            samus.Position.Y.Whole,
+            samus.Kinematics.Position.Y.Fraction,
             velocity,
             out ushort newSubposition);
-        samus.Kinematics.YSubposition = newSubposition;
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(newSubposition);
         // `$A9:BC06` stores the same fraction byte into SamusPreviousYSubPosition+1, and every
         // exit stores the new Y into SamusPreviousYPosition: the camera sees no movement.
         samus.WritePreviousYSubposition(0xff00, newSubposition);
@@ -158,14 +158,14 @@ public sealed class MotherBrainRainbowBeamSamusMovement
             : null;
         if (boundary is ushort clamped)
         {
-            samus.YPosition = clamped;
-            samus.Kinematics.YSubposition = 0;
+            samus.Position = samus.Position.WithWholeY(clamped);
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.WritePreviousYPosition(clamped);
             samus.WritePreviousYSubposition(0xffff, 0);
             return true;
         }
 
-        samus.YPosition = candidate;
+        samus.Position = samus.Position.WithWholeY(candidate);
         samus.WritePreviousYPosition(candidate);
         return false;
     }
@@ -173,24 +173,24 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     private static bool MoveHorizontallyTowardWall(SamusState samus, ushort velocity)
     {
         ushort candidate = AddNativeEightEightVelocity(
-            samus.XPosition,
-            samus.Kinematics.XSubposition,
+            samus.Position.X.Whole,
+            samus.Kinematics.Position.X.Fraction,
             velocity,
             out ushort newSubposition);
-        samus.Kinematics.XSubposition = newSubposition;
+        samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(newSubposition);
         // `$A9:BC48/$BC61/$BC6B/$BC71` mirror every store into the previous-X words.
         samus.WritePreviousXSubposition(0xff00, newSubposition);
 
         if (unchecked((short)(candidate - 0x00eb)) >= 0)
         {
-            samus.XPosition = 0x00eb;
-            samus.Kinematics.XSubposition = 0;
+            samus.Position = samus.Position.WithWholeX(0x00eb);
+            samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
             samus.WritePreviousXPosition(0x00eb);
             samus.WritePreviousXSubposition(0xffff, 0);
             return true;
         }
 
-        samus.XPosition = candidate;
+        samus.Position = samus.Position.WithWholeX(candidate);
         samus.WritePreviousXPosition(candidate);
         return false;
     }
@@ -214,10 +214,10 @@ public sealed class MotherBrainRainbowBeamSamusMovement
     }
 
     private static SamusCameraPoint Capture(SamusState samus) => new(
-        samus.XPosition,
-        samus.Kinematics.XSubposition,
-        samus.YPosition,
-        samus.Kinematics.YSubposition);
+        samus.Position.X.Whole,
+        samus.Kinematics.Position.X.Fraction,
+        samus.Position.Y.Whole,
+        samus.Kinematics.Position.Y.Fraction);
 
     private static MotherBrainForcedSamusMovementResult CreateResult(
         SamusCameraPoint before,

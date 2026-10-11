@@ -56,10 +56,10 @@ internal static partial class Program
         loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
         loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
         Check(runtime.LastGrappleMovement is { WallJumpStarted: true }, "Retry did not perform the wall jump.");
-        ushort startX = samus.XPosition;
-        ushort startY = samus.YPosition;
+        ushort startX = samus.Position.X.Whole;
+        ushort startY = samus.Position.Y.Whole;
         for (int frame = 0; frame < 13; frame++) loaded.Game.Step((ushort)(SnesButton.A | SnesButton.Left));
-        Check(samus.XPosition < startX && samus.YPosition < startY - 50,
+        Check(samus.Position.X.Whole < startX && samus.Position.Y.Whole < startY - 50,
             "Successful retry must move away from the wall and upward, not merely queue a pose.");
         Console.WriteLine("PASS re-press Up -> ready sprite -> missed simultaneous-release jump -> reattach -> ready -> delayed Jump -> upward/away movement.");
     }

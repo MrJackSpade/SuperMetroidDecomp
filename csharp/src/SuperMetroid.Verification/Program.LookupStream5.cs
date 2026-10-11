@@ -355,7 +355,7 @@ internal static partial class Program
             AssertTrue((body.Properties & (ushort)EnemyProperties.IgnoreSamusCollision) == 0, "Eye opening enables collision");
             tentacles.VariableA = (ushort)(shot ? 1 : 0);
             tentacles.VariableB = 37;
-            var samus = new SamusState { XPosition = 192, YPosition = 96 };
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(192, 96)) };
             for (int elapsed = 1; elapsed <= duration; elapsed++)
             {
                 tick(body, state, samus); ticks++;
@@ -1453,8 +1453,7 @@ internal static partial class Program
         {
             pointEye(eyeBody, trackingEye, new SamusState
             {
-                XPosition = unchecked((ushort)(eyeBody.XPosition + x)),
-                YPosition = unchecked((ushort)(eyeBody.YPosition + y)),
+                Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(eyeBody.XPosition + x)), unchecked((ushort)(eyeBody.YPosition + y)))),
             });
             AssertEqual(PhantoonPatternDefinitions.EyeInstruction(direction),
                 trackingEye.CurrentInstruction,

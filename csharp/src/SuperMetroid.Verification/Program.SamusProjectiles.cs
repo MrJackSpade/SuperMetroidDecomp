@@ -308,8 +308,7 @@ static void VerifySamusPowerBeamProjectiles()
         var samus = new SamusState
         {
             Pose = pose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = 0,
             SelectedHudItem = 0,
         };
@@ -366,8 +365,7 @@ static void VerifySamusPowerBeamProjectiles()
         var combinedSamus = new SamusState
         {
             Pose = rightPose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = beamType,
         };
         var combinedBombs = CreateSyntheticBombs();
@@ -415,8 +413,7 @@ static void VerifySamusPowerBeamProjectiles()
     var spazerFlickerSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 4,
     };
     var spazerFlickerBombs = CreateSyntheticBombs();
@@ -456,8 +453,7 @@ static void VerifySamusPowerBeamProjectiles()
         var cadenceSamus = new SamusState
         {
             Pose = rightPose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = beamType,
         };
         var cadenceBombs = CreateSyntheticBombs();
@@ -477,8 +473,7 @@ static void VerifySamusPowerBeamProjectiles()
     var chargeSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     BindSyntheticSamusRendering(bus, chargeSamus);
@@ -537,8 +532,7 @@ static void VerifySamusPowerBeamProjectiles()
     var rejectedReleaseSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = (ushort)SamusBeamFlags.Charge,
     };
     var rejectedReleaseBombs = CreateSyntheticBombs();
@@ -577,16 +571,14 @@ static void VerifySamusPowerBeamProjectiles()
     var baselineMode7Samus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     BindSyntheticSamusRendering(bus, baselineMode7Samus);
     var rotatedMode7Samus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     BindSyntheticSamusRendering(bus, rotatedMode7Samus);
@@ -771,8 +763,7 @@ static void VerifySamusPowerBeamProjectiles()
     var bridgeSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1000,
     };
     var bridgeBombs = CreateSyntheticBombs();
@@ -827,8 +818,7 @@ static void VerifySamusPowerBeamProjectiles()
         var combinedChargeSamus = new SamusState
         {
             Pose = rightPose,
-            XPosition = 128,
-            YPosition = 96,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
             EquippedBeams = unchecked((ushort)(0x1000 | beamType)),
         };
         var combinedChargeBombs = CreateSyntheticBombs();
@@ -882,8 +872,7 @@ static void VerifySamusPowerBeamProjectiles()
     var hyperSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 128,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)),
         EquippedBeams = 0x1009,
         HyperBeam = 0x8000,
     };
@@ -1101,8 +1090,7 @@ static void VerifySamusPowerBeamProjectiles()
     var waveWallSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         EquippedBeams = 1,
     };
     var waveWallBombs = CreateSyntheticBombs();
@@ -1137,8 +1125,7 @@ static void VerifySamusPowerBeamProjectiles()
     var wallSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
     };
     var wallBombs = CreateSyntheticBombs();
     var wallProjectiles = CreateSyntheticProjectiles();
@@ -1205,8 +1192,7 @@ static void VerifySamusPowerBeamProjectiles()
     var solidShotSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
     };
     var solidShotBombs = CreateSyntheticBombs();
     var solidShotProjectiles = CreateSyntheticProjectiles();
@@ -1259,8 +1245,7 @@ static void VerifySamusPowerBeamProjectiles()
     var waveShotSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         EquippedBeams = 1,
     };
     var waveShotBombs = CreateSyntheticBombs();
@@ -1305,8 +1290,7 @@ static void VerifySamusPowerBeamProjectiles()
     var missileSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 1,
         Missiles = 3,
     };
@@ -1467,8 +1451,7 @@ static void VerifySamusPowerBeamProjectiles()
             Pose = rightPose,
             // Request muzzle (64,yPosition): default Right adds (11,1), then
             // standing-pose mechanics subtract six from Y, regardless of artwork.
-            XPosition = 53,
-            YPosition = unchecked((ushort)(yPosition + 5)),
+            Position = FixedPosition<RoomPixels>.FromWhole(new(53, unchecked((ushort)(yPosition + 5)))),
             SelectedHudItem = 1,
             Missiles = 1,
         };
@@ -1943,8 +1926,7 @@ static void VerifySamusPowerBeamProjectiles()
     var contactDoorSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 0x005a,
-        YPosition = 0x0060,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(0x005a, 0x0060)),
     };
     var contactDoorBombs = CreateSyntheticBombs();
     var contactDoorProjectiles = CreateSyntheticProjectiles();
@@ -1974,8 +1956,7 @@ static void VerifySamusPowerBeamProjectiles()
     var blueDoorSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
     };
     var blueDoorBombs = CreateSyntheticBombs();
     var blueDoorProjectiles = CreateSyntheticProjectiles();
@@ -2028,8 +2009,7 @@ static void VerifySamusPowerBeamProjectiles()
     var superSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 2,
         SuperMissiles = 3,
     };
@@ -2125,7 +2105,7 @@ static void VerifySamusPowerBeamProjectiles()
     var pillarRoom = CreateRoom(64, 16, pillarWords, new byte[pillarWords.Length]);
     var pillarSamus = new SamusState
     {
-        Pose = rightPose, XPosition = 64, YPosition = 96,
+        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 2, SuperMissiles = 3,
     };
     var pillarBombs = CreateSyntheticBombs();
@@ -2179,8 +2159,7 @@ static void VerifySamusPowerBeamProjectiles()
     var integratedSuperSamus = new SamusState
     {
         Pose = rightPose,
-        XPosition = 64,
-        YPosition = 96,
+        Position = FixedPosition<RoomPixels>.FromWhole(new(64, 96)),
         SelectedHudItem = 2,
         SuperMissiles = 1,
     };
@@ -2234,7 +2213,7 @@ static void VerifySamusPowerBeamProjectiles()
         new ushort[skippedWords.Length], new byte[8]);
     var skippedSamus = new SamusState
     {
-        Pose = rightPose, XPosition = 32, YPosition = 96, SelectedHudItem = 2, SuperMissiles = 1,
+        Pose = rightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 96)), SelectedHudItem = 2, SuperMissiles = 1,
     };
     var skippedBombs = CreateSyntheticBombs();
     var skippedProjectiles = CreateSyntheticProjectiles();

@@ -352,13 +352,13 @@ public sealed partial class RoomEnemySystem
         PipeBugEnemyState state,
         SamusState samus)
     {
-        short deltaY = unchecked((short)(samus.YPosition - slot.YPosition));
+        short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.YPosition));
         if (deltaY >= 0 || unchecked((short)(deltaY + BrinstarPipeBugTriggerTop)) < 0)
             return;
 
-        ushort deltaX = unchecked((ushort)(samus.XPosition - slot.XPosition));
+        ushort deltaX = unchecked((ushort)(samus.Position.X.Whole - slot.XPosition));
         state.VariableA = (ushort)(state.VariableA & 0x7fff | (deltaX & 0x8000));
-        if (WrappedMagnitude(unchecked((ushort)(slot.XPosition - samus.XPosition))) >=
+        if (WrappedMagnitude(unchecked((ushort)(slot.XPosition - samus.Position.X.Whole))) >=
             BrinstarPipeBugTriggerWidth)
         {
             return;
@@ -385,7 +385,7 @@ public sealed partial class RoomEnemySystem
         slot.YPosition = unchecked((ushort)(
             slot.YPosition + (oldSubpositionWasNonzero ? -1 : -2)));
         if (unchecked((short)(state.EmergenceTopY - slot.YPosition)) < 0 ||
-            slot.YPosition >= samus.YPosition)
+            slot.YPosition >= samus.Position.Y.Whole)
         {
             return;
         }
@@ -454,8 +454,8 @@ public sealed partial class RoomEnemySystem
         SamusState samus)
     {
         ushort triggerWidth = unchecked((byte)leader.Parameter2);
-        if (!IsWithinStrictModularDistance(leader.XPosition, samus.XPosition, triggerWidth) ||
-            unchecked((short)(leader.YPosition - samus.YPosition)) < 0)
+        if (!IsWithinStrictModularDistance(leader.XPosition, samus.Position.X.Whole, triggerWidth) ||
+            unchecked((short)(leader.YPosition - samus.Position.Y.Whole)) < 0)
         {
             return;
         }
@@ -466,7 +466,7 @@ public sealed partial class RoomEnemySystem
         // timers intact, including zero timers in cleared respawn placeholders.
         leader.InstructionTimer = 1;
         leader.Timer = 0;
-        bool samusIsRight = unchecked((short)(samus.XPosition - leader.XPosition)) >= 0;
+        bool samusIsRight = unchecked((short)(samus.Position.X.Whole - leader.XPosition)) >= 0;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
         foreach (RoomEnemySlot member in formation)
         {
@@ -491,14 +491,14 @@ public sealed partial class RoomEnemySystem
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
         AddPipeBugLinearVelocity(slot, horizontal: false, byteOffset: 132);
-        if (unchecked((short)(slot.YPosition - samus.YPosition)) >= 0)
+        if (unchecked((short)(slot.YPosition - samus.Position.Y.Whole)) >= 0)
             return;
 
         state.Function = state.NorfairPostRiseFunction;
         state.EmergenceY = slot.YPosition;
         InstallPipeBugInstruction(
             slot,
-            unchecked((short)(samus.XPosition - slot.XPosition)) >= 0
+            unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0
                 ? NorfairPipeBugInstructionProgramDefinitions.RisingRight
                 : NorfairPipeBugInstructionProgramDefinitions.RisingLeft);
     }
@@ -538,7 +538,7 @@ public sealed partial class RoomEnemySystem
         state.DelayOrCounter = 0;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
-        if (unchecked((short)(samus.XPosition - slot.XPosition)) >= 0)
+        if (unchecked((short)(samus.Position.X.Whole - slot.XPosition)) >= 0)
         {
             state.Function = PipeBugEnemyFunction.NorfairFlyRight;
             slot.CurrentInstruction = NorfairPipeBugInstructionProgramDefinitions.FlyingRight;
@@ -598,12 +598,12 @@ public sealed partial class RoomEnemySystem
         PipeBugEnemyState state,
         SamusState samus)
     {
-        short deltaX = unchecked((short)(samus.XPosition - slot.XPosition));
+        short deltaX = unchecked((short)(samus.Position.X.Whole - slot.XPosition));
         bool inFront = slot.Parameter1 != 0
             ? deltaX < 0 && unchecked((short)(deltaX + YellowPipeBugTriggerDistance)) >= 0
             : deltaX >= 0 && unchecked((short)(deltaX - YellowPipeBugTriggerDistance)) < 0;
         if (!inFront ||
-            !IsWithinStrictModularDistance(slot.YPosition, samus.YPosition, YellowPipeBugTriggerHeight))
+            !IsWithinStrictModularDistance(slot.YPosition, samus.Position.Y.Whole, YellowPipeBugTriggerHeight))
         {
             return;
         }
@@ -647,8 +647,8 @@ public sealed partial class RoomEnemySystem
             return;
 
         bool passedSamus = movingLeft
-            ? unchecked((short)(slot.XPosition - samus.XPosition - YellowPipeBugArcTriggerDistance)) < 0
-            : unchecked((short)(samus.XPosition - slot.XPosition - YellowPipeBugArcTriggerDistance)) < 0;
+            ? unchecked((short)(slot.XPosition - samus.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0
+            : unchecked((short)(samus.Position.X.Whole - slot.XPosition - YellowPipeBugArcTriggerDistance)) < 0;
         if (!passedSamus)
             return;
 

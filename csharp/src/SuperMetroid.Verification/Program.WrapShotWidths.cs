@@ -25,7 +25,7 @@ internal static partial class Program
             words[target] = 0xc40c; bts[target] = 0x41;
             for (int row = 1; row < 4; row++) { words[target + row * width] = 0xd40c; bts[target + row * width] = 0xff; }
             var level = CreateRoom(width, height, words, bts);
-            var samus = new SamusState { XPosition = (ushort)(originsX[room] + offset), YPosition = (ushort)originsY[room],
+            var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new((ushort)(originsX[room] + offset), (ushort)originsY[room])),
                 PoseId = left ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,
                 EquippedBeams = (ushort)(beam == 0 ? 0 : beam == 1 ? 1 : left ? 5 : 9) };
             var shots = CreateProjectileFixture();

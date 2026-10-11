@@ -35,7 +35,7 @@ internal static partial class Program
             blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         var samus = new SamusState();
-        samus.YPosition = 0x0100;
+        samus.Position = samus.Position.WithWholeY(0x0100);
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = new NoobTubeProgramReadGuard(bus);
@@ -90,8 +90,7 @@ internal static partial class Program
         // the missing caller dispatch with TryNotifyResidentProjectileHit directly.
         var grappleSamus = new SamusState
         {
-            XPosition = blockX * 16 + 8,
-            YPosition = blockY * 16 + 8,
+            Position = FixedPosition<RoomPixels>.FromWhole(new(blockX * 16 + 8, blockY * 16 + 8)),
         };
         SeedStationaryGrappleCollisionProbe(bus, grappleSamus);
         var grappleHit = SamusGrappleMovement.StepFiring(bus, level, grappleSamus,

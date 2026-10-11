@@ -425,6 +425,17 @@ internal static class DebuggerRetiredFieldDefinitions
         [("SuperMetroid.Core.Frontend.IntroCinematicState", "fadeDelay")] = Discard,
         [("SuperMetroid.Core.Frontend.IntroRinkaSystem", "rinkas")] = Remember,
         [("SuperMetroid.Core.Frontend.IntroCeresFlightState", "musicQueueTimer")] = Discard,
+        // #628: Samus position, external displacement and radius words became spatial values.
+        [(typeof(SamusKinematicsState).FullName!, "<XPosition>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<XSubposition>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<YPosition>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<YSubposition>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<ExtraXDisplacement>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<ExtraXSubdisplacement>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<ExtraYDisplacement>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<ExtraYSubdisplacement>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<XRadius>k__BackingField")] = Remember,
+        [(typeof(SamusKinematicsState).FullName!, "<YRadius>k__BackingField")] = Remember,
     };
 
     /// <summary>Returns the migration of a retired serialized field.</summary>

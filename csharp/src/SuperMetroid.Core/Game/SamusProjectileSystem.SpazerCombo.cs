@@ -38,8 +38,8 @@ public sealed partial class SamusProjectileSystem
         {
             var (x, y) = SamusComboMechanicsDefinitions.GetSineOffset(
                 slot.Variable, unchecked((ushort)slot.XVelocity));
-            slot.XPosition = unchecked((ushort)(samus.XPosition + x));
-            slot.YPosition = unchecked((ushort)(samus.YPosition + y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)));
+            slot.XPosition = unchecked((ushort)(samus.Position.X.Whole + x));
+            slot.YPosition = unchecked((ushort)(samus.Position.Y.Whole + y - (slot.AuxiliaryPhase == SpazerComboPhase.Circling ? 0 : 114)));
             switch (slot.AuxiliaryPhase)
             {
                 case SpazerComboPhase.Circling:

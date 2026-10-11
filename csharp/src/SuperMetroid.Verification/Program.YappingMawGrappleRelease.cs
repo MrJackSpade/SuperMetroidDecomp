@@ -15,8 +15,7 @@ internal static partial class Program
         runtime.LoadCartridgeRoomForDebug(0xa293, cameraX: 768);
         var samus = runtime.Samus!;
         samus.PoseId = SamusPoseId.GrappleSwingLeftPose;
-        samus.XPosition = 936;
-        samus.YPosition = 172;
+        samus.Position = samus.Position.WithWhole(new(936, 172));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus, initialFrame: 24);
         samus.SetPoseAndAnimationFromScriptedController(bus, samus.Pose, 24, 3, refreshRadius: false);
@@ -51,7 +50,7 @@ internal static partial class Program
         AssertTrue(samus.ReadMovementType(bus) != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         runtime.StepFrame(0x0250);
         AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
-        AssertEqual((ushort)936, samus.XPosition, "Maw release retains native held X");
-        Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)samus.Pose:X2}, position={samus.XPosition}/{samus.YPosition}, input unlocked.");
+        AssertEqual((ushort)936, samus.Position.X.Whole, "Maw release retains native held X");
+        Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)samus.Pose:X2}, position={samus.Position.X.Whole}/{samus.Position.Y.Whole}, input unlocked.");
     }
 }

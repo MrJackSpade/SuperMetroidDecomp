@@ -17,7 +17,7 @@ internal static partial class Program
             if (frame >= ShutterBombArcScenario.FirstArcFrame)
                 AssertEqual(nativeArc[frame - ShutterBombArcScenario.FirstArcFrame], scenario.ArcRow(frame),
                     $"native-checked shutter ascent/landing/contact trajectory frame {frame}");
-            AssertTrue(scenario.Samus.Kinematics.YRadius == 7, "morph-only approach never enters a standing/unmorph posture");
+            AssertTrue(scenario.Samus.Kinematics.Radius.Y == 7, "morph-only approach never enters a standing/unmorph posture");
         }
         Console.WriteLine("143 native-checked shutter trajectory frames agree, including cartridge-permitted ceiling overlap.");
     }

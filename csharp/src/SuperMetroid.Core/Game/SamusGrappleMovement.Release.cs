@@ -48,8 +48,7 @@ public static partial class SamusGrappleMovement
             SamusState.IsFacingLeft(bus, samus.Pose));
 
         samus.SetGrappleSwingAnimationFrame(artFrame);
-        samus.XPosition = unchecked((ushort)(ropeStart.X + offset.X));
-        samus.YPosition = unchecked((ushort)(ropeStart.Y + offset.Y));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ropeStart.X + offset.X)), unchecked((ushort)(ropeStart.Y + offset.Y))));
     }
 
     private static void PropelSamusFromSwing(

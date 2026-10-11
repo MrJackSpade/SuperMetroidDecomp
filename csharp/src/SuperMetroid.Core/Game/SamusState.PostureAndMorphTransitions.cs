@@ -62,7 +62,7 @@ public sealed partial class SamusState
         // `$91:FDAE` explicitly publishes the previous pose's radius while probing the
         // enlargement, and this direct transition does not call Samus_SetRadius afterward.
         // Ordinary alpha publishes the standing radius at the start of the next frame.
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
         InitializeAnimation(bus, initialFrame: 0);
         return true;
     }
@@ -119,7 +119,7 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
 
         // Alpha owns the new radius next frame; collision correction and jump setup
         // below must not publish it during this frame's pose-commit stage.
@@ -127,7 +127,7 @@ public sealed partial class SamusState
         // initialization/collision but before Make_Samus_Jump. It writes only current Y;
         // the desktop state has no separately exposed PreviousYPosition word to mirror.
         if (sourcePose is SamusPoseId.CrouchingRightPose or SamusPoseId.CrouchingLeftPose)
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - 10));
+            Kinematics.Position -= new Offset16<RoomPixels>(0, 10);
 
         InitializeAnimation(bus, initialFrame: 0);
         SamusAerialMovement.InitializeJump(bus, this);
@@ -217,11 +217,11 @@ public sealed partial class SamusState
             BlockMoveResult alignment = ProbeChangedPoseVertical(
                 bus, level, SamusPostureDefinitions.CrouchEntryDownwardPixels << 16,
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
-            Kinematics.YPosition = unchecked((ushort)(
-                Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
+            Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
+                Kinematics.Position.Y.Whole + (alignment.AcceptedDisplacement >> 16))));
             // Command seven publishes the aligned whole Y before scrolling; the
             // posture change itself must not become camera movement.
-            WritePreviousYPosition(Kinematics.YPosition);
+            WritePreviousYPosition(Kinematics.Position.Y.Whole);
             InitializeAnimation(bus, initialFrame: 0);
             return true;
         }
@@ -250,7 +250,7 @@ public sealed partial class SamusState
         // ordinary alpha publishes the target radius at the start of the next frame.
         // Keeping that one-frame handoff is observable when the crouched body is resting
         // on a frozen enemy inside a ceiling, as in the Botwoon-pipe Mochtroid clip.
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
         InitializeAnimation(bus, initialFrame: 0);
         return true;
     }
@@ -317,22 +317,22 @@ public sealed partial class SamusState
                 return false;
 
             SamusMovementType previousMovementType = ReadMovementType(bus);
-            ushort previousRadius = Kinematics.YRadius;
+            ushort previousRadius = Kinematics.Radius.Y;
             Pose = targetPose;
             RefreshCollisionRadii(bus);
-            if (Kinematics.YRadius > previousRadius)
+            if (Kinematics.Radius.Y > previousRadius)
             {
                 throw new InvalidDataException(
-                    $"Morph entry ${(int)targetPose:X2} expanded radius {previousRadius} -> {Kinematics.YRadius}.");
+                    $"Morph entry ${(int)targetPose:X2} expanded radius {previousRadius} -> {Kinematics.Radius.Y}.");
             }
             BlockMoveResult alignment = ProbeChangedPoseVertical(
                 bus, level, SamusPostureDefinitions.MorphEntryDownwardPixels << 16,
                 (nmiFrameCounter & 1) == 0, targetPose, plms);
-            Kinematics.YPosition = unchecked((ushort)(
-                Kinematics.YPosition + (alignment.AcceptedDisplacement >> 16)));
+            Kinematics.Position = Kinematics.Position.WithWholeY(unchecked((ushort)(
+                Kinematics.Position.Y.Whole + (alignment.AcceptedDisplacement >> 16))));
             // Command seven ($91:ED0E) replaces the previous whole-Y checkpoint
             // after alignment, so the camera does not count pose displacement as motion.
-            WritePreviousYPosition(Kinematics.YPosition);
+            WritePreviousYPosition(Kinematics.Position.Y.Whole);
 
             // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.
@@ -369,8 +369,8 @@ public sealed partial class SamusState
         }
 
         Pose = targetPose;
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
-        WritePreviousYPosition(Kinematics.YPosition);
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
+        WritePreviousYPosition(Kinematics.Position.Y.Whole);
         // Unmorph uses the same prospective command seven as morph. Its zero
         // alignment-table entry does not bypass the subsequent bounce cancellation.
         // The prospective collision probes used the target radius, but the live
@@ -448,7 +448,7 @@ public sealed partial class SamusState
 
         Pose = targetPose;
         RefreshCollisionRadii(bus);
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
 
         // InitializeAnimation resets only the target art stream. In particular, do not call
         // Make_Samus_Jump or clear YDirection/YSpeed/YSubspeed: the input record can occur
@@ -728,7 +728,7 @@ public sealed partial class SamusState
                 ApplyPoseChangeCollisionCrouchFallback(bus, sourcePose);
             return;
         }
-        Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+        Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
         // Command five's no-floor branch ($91:EFEF) preserves an ascending
         // velocity, even if a special handler left it on a standing pose. Crystal
         // Flash can do exactly that; unconditional reset shortens its return arc.
@@ -784,13 +784,13 @@ public sealed partial class SamusState
         bool leavingScrewAttack = IsScrewAttackPose(sourcePose);
         SamusPoseId targetPose = SelectAerialLandingPose(bus, wasSpinning, controllerInput);
 
-        ushort oldRadius = Kinematics.YRadius;
+        ushort oldRadius = Kinematics.Radius.Y;
         Pose = targetPose;
         RefreshCollisionRadii(bus);
-        if (Kinematics.YRadius > oldRadius)
+        if (Kinematics.Radius.Y > oldRadius)
         {
-            ushort difference = unchecked((ushort)(Kinematics.YRadius - oldRadius));
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition - difference));
+            ushort difference = unchecked((ushort)(Kinematics.Radius.Y - oldRadius));
+            Kinematics.Position -= new Offset16<RoomPixels>(0, unchecked((short)difference));
         }
 
         ApplyAerialLandingCollisionCommand(leavingScrewAttack);
@@ -831,7 +831,7 @@ public sealed partial class SamusState
             Pose = targetPose;
             // Correct the center now, but retain the movement frame's live radius
             // until alpha, including when landing on a frozen enemy.
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+            Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
             InitializeAnimation(bus, initialFrame: StandingPoseInitialFrame(bus, sourcePose, targetPose));
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)
@@ -958,7 +958,7 @@ public sealed partial class SamusState
             // $91:FDAE leaves $0B00 at the compact body's radius: this frame's enemy and
             // projectile collision still use it, and alpha's SetSamusRadius takes the
             // landing body only next frame, as for an ordinary landing.
-            Kinematics.YPosition = unchecked((ushort)(Kinematics.YPosition + centerAdjustment));
+            Kinematics.Position += new Offset16<RoomPixels>(0, unchecked((short)centerAdjustment));
             InitializeAnimation(bus, initialFrame: 0);
         }
         else if (collision == LargerPoseCollisionOutcome.CrouchFallback)

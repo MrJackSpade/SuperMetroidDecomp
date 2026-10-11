@@ -360,7 +360,7 @@ public sealed partial class RoomEnemySystem
 
     private void RunCrocomireWaitBehindWall(CrocomireEnemyState state, SamusState? samus)
     {
-        if (samus is null || unchecked((short)(samus.XPosition - 640)) >= 0)
+        if (samus is null || unchecked((short)(samus.Position.X.Whole - 640)) >= 0)
             return;
 
         LastCrocomireMusicRequest = new CrocomireMusicRequest(

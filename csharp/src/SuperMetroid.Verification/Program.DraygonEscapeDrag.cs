@@ -14,7 +14,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        var samus = new SamusState { XPosition = 0x0135, YPosition = 0x019d };
+        var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0135, 0x019d)) };
         samus.DraygonGrabbed.Begin(bus, samus, draygonFacingRight: false);
         samus.DraygonGrabbed.Release(bus, samus);
 
@@ -23,8 +23,8 @@ internal static partial class Program
         state.Body.YPosition = 0x0176;
         typeof(RoomEnemySystem).GetMethod("MoveSamusWithDraygon", flags)!.Invoke(enemies, [state, samus]);
 
-        AssertEqual((ushort)(0x013b - 8), samus.XPosition, "the escaped Samus is placed eight pixels left of Draygon");
-        AssertEqual((ushort)(0x0176 + 0x28), samus.YPosition, "the escaped Samus is placed 40 pixels below Draygon");
+        AssertEqual((ushort)(0x013b - 8), samus.Position.X.Whole, "the escaped Samus is placed eight pixels left of Draygon");
+        AssertEqual((ushort)(0x0176 + 0x28), samus.Position.Y.Whole, "the escaped Samus is placed 40 pixels below Draygon");
         AssertEqual(DraygonAiFunction.FlyStraightUp, state.Function, "Draygon then sees the escape and flies up");
         AssertTrue(!samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(), "the placement consumed the escape bit");
         Console.WriteLine("  Draygon escape drag: the first carry call after an escape still places Samus.");

@@ -82,8 +82,7 @@ internal static partial class Program
         var top = runtime.Enemies.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);
         samus.InputLocked = false;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.XPosition = top.XPosition;
-        samus.YPosition = (ushort)(top.YPosition - 30);
+        samus.Position = samus.Position.WithWhole(new(top.XPosition, (ushort)(top.YPosition - 30)));
         samus.InitializeAnimation(bus);
         samus.PrimeGraphics(bus);
         typeof(EscapeTimer).GetProperty(nameof(EscapeTimer.RawStatus))!.SetValue(runtime.EscapeTimer, (ushort)0x8006);
@@ -94,7 +93,7 @@ internal static partial class Program
         AssertTrue(!runtime.Enemies.HasGunshipHealthHandler, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.YPosition = 0x0440;
+        samus.Position = samus.Position.WithWholeY(0x0440);
         samus.InitializeAnimation(bus);
         var timeBeforeBoarding = Time();
         runtime.StepFrame(0x0400);

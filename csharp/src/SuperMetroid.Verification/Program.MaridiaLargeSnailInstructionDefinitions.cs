@@ -13,7 +13,7 @@ internal static partial class Program
             BindingFlags.Static | BindingFlags.NonPublic)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
         var executedOperands = new HashSet<ushort>();
-        var guarded = new MaridiaLargeSnailInstructionReadGuard(rom);
+        var guarded = NewMaridiaLargeSnailInstructionReadGuard(rom);
 
         for (ushort animationIndex = 0; animationIndex < 8; animationIndex++)
         {
@@ -149,7 +149,7 @@ internal static partial class Program
         for (int operandIndex = 0; operandIndex < MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount; operandIndex++)
             AssertTrue(executedOperands.Contains(MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress(operandIndex)),
                 "execution covers each authored presentation operand");
-        AssertEqual(0, guarded.ObservedPresentationWords.Count,
+        AssertEqual(0, guarded.ObservedWords.Count,
             "compiled visual selectors require no runtime cartridge reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "production execution avoids compiled Maridia Large Snail mechanics bytes");
@@ -215,45 +215,12 @@ internal static partial class Program
         int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MaridiaLargeSnailInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0xa2cb77 and < 0xa2cb87 ||
-                MaridiaLargeSnailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Maridia Large Snail attempted migrated mechanics read ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa20000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMaridiaLargeSnailInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa2cb77 and < 0xa2cb87 ||
+                    MaridiaLargeSnailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Maridia Large Snail attempted migrated mechanics read ${address:X6}.")
+            .ObserveWords(0xa20000,
+                MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount,
+                MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress);
 }

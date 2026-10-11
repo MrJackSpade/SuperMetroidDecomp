@@ -92,23 +92,15 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!
-            .SetValue(enemies, new MiscDustDefinitionReadGuard(source));
+            .SetValue(enemies, NewMiscDustDefinitionReadGuard(source));
         return enemies;
     }
 
     private static ushort ReadMiscDustWord(SuperMetroidAddressSpace source, int address) =>
         (ushort)(source.ReadByte(address) | source.ReadByte(address + 1) << 8);
 
-    private sealed class MiscDustDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) =>
-            address is >= 0x86e42c and < 0x86e468 or >= 0x86e47e and < 0x86e4a6
-                ? throw new InvalidOperationException(
-                    $"Misc dust attempted migrated definition read ${address:X6}.")
-                : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMiscDustDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x86e42c and < 0x86e468 or >= 0x86e47e and < 0x86e4a6,
+                address => $"Misc dust attempted migrated definition read ${address:X6}.");
 }

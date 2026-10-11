@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rom;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment base tilemap")]
     private static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
     {
@@ -22,7 +23,7 @@ internal static partial class Program
         AssertTrue(nativeBase.AsSpan().SequenceEqual(original.PauseEquipmentBase.CreateTilemap()),
             "all 1024 equipment base cells match native words");
 
-        var guard = new PauseEquipmentBaseReadGuard(bus);
+        var guard = NewPauseEquipmentBaseReadGuard(bus);
         var native = new PauseMenuState(bus, Samus(), new Bank80SystemState(),
             AreaId.Norfair, new(0, 0), mapPresentation: original);
         var installed = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, new(0, 0),
@@ -134,13 +135,8 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseEquipmentBaseReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= PauseEquipmentBaseDefinitions.Source and
-            < (PauseEquipmentBaseDefinitions.Source + PauseEquipmentBaseDefinitions.Cells * sizeof(ushort))
-            ? throw new InvalidOperationException($"Installed pause read equipment base at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPauseEquipmentBaseReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source).ForbidRange(PauseEquipmentBaseDefinitions.Source,
+            PauseEquipmentBaseDefinitions.Cells * sizeof(ushort),
+            address => $"Installed pause read equipment base at {address:X6}.");
 }

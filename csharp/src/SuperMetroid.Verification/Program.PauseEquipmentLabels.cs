@@ -16,7 +16,7 @@ internal static partial class Program
         string overridePath = Path.Combine(overrides, PauseEquipmentLabelDefinitions.FileName);
         var document = JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(
             File.ReadAllBytes(stockPath), MapPresentationFormat.JsonOptions)!;
-        var guard = new PauseEquipmentLabelReadGuard(bus);
+        var guard = NewPauseEquipmentLabelReadGuard(bus);
 
         SamusState[] inventories =
         [
@@ -124,13 +124,8 @@ internal static partial class Program
         };
     }
 
-    private sealed class PauseEquipmentLabelReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0x82bf32 and < 0x82c0b2
-            ? throw new InvalidOperationException($"Installed pause equipment label read native source ${address:X6}.")
-            : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewPauseEquipmentLabelReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x82bf32 and < 0x82c0b2,
+                address => $"Installed pause equipment label read native source ${address:X6}.");
 }

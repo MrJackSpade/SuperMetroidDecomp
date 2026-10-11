@@ -34,7 +34,7 @@ internal static partial class Program
         var spriteArtwork = RepositoryInstallation.EnemyTiles.ProjectileSpritemaps
             ?? throw new InvalidDataException("Projectile fixture requires installed sprites.");
         var executedOperands = new HashSet<ushort>();
-        var guard = new NoobTubeProjectileInstructionReadGuard(rom);
+        var guard = NewNoobTubeProjectileInstructionReadGuard(rom);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         FieldInfo projectileFrame = typeof(RoomEnemySystem).GetField(
@@ -92,7 +92,7 @@ internal static partial class Program
         AssertTrue(!shot.IsActive,
             "n00b-tube shot reaction reaches shared compiled deletion");
 
-        AssertEqual(0, guard.ObservedPresentationWords.Count,
+        AssertEqual(0, guard.ObservedWords.Count,
             "Projectile presentation performs zero live cartridge reads");
         AssertEqual(NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount,
             executedOperands.Count, "Every native visual operand executes");
@@ -212,46 +212,10 @@ internal static partial class Program
         return checksum;
     }
 
-    private sealed class NoobTubeProjectileInstructionReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (NoobTubeProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled n00b-tube mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == EnemyProjectileCodePointers.BankBase)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < NoobTubeProjectileInstructionProgramDefinitions
-                         .PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation = NoobTubeProjectileInstructionProgramDefinitions
-                        .PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewNoobTubeProjectileInstructionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => NoobTubeProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
+                    CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled n00b-tube mechanics byte ${address:X6}.")
+            .ObserveWords(EnemyProjectileCodePointers.BankBase, NoobTubeProjectileInstructionProgramDefinitions.PresentationWordCount, NoobTubeProjectileInstructionProgramDefinitions.PresentationWordAddress);
 }

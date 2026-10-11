@@ -33,7 +33,7 @@ internal static partial class Program
             unchecked((byte)((ushort)PlmHeaderId.MotherBrainGlass >> 8)),
             9, 5, 0, 0x80, 0, 0,
         ]);
-        var guarded = new MotherBrainGlassProgramReadGuard(source);
+        var guarded = NewMotherBrainGlassProgramReadGuard(source);
         const int width = 32;
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, 16),
             new ushort[width * 16], new byte[width * 16],
@@ -89,24 +89,8 @@ internal static partial class Program
         Console.WriteLine("  Mother Brain glass PLM: all program bytes match ROM; full shatter runs without ROM instruction reads.");
     }
 
-    private sealed class MotherBrainGlassProgramReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84d202 and <= 0x84d2f8)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Mother Brain glass reread compiled program byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMotherBrainGlassProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x84d202 and <= 0x84d2f8,
+                address => $"Mother Brain glass reread compiled program byte ${address:X6}.");
 }

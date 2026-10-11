@@ -9,6 +9,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve-tank tilemaps and spritemaps")]
     private static void VerifyPauseReserveTanks()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

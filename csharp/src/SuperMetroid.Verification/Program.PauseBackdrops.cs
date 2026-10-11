@@ -11,6 +11,7 @@ using SuperMetroid.Desktop;
 
 internal static partial class Program
 {
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause backdrop, button and area-label tilemaps")]
     private static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
@@ -18,7 +19,7 @@ internal static partial class Program
         string path = Path.Combine(overrides, PauseBackdropDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseBackdropDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
-        var guard = new PauseBackdropReadGuard(bus);
+        var guard = NewPauseBackdropReadGuard(bus);
         var editedAreas = document.Areas.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
         foreach (var cells in editedAreas.Values)
         {
@@ -158,21 +159,14 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseBackdropReadGuard : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause backdrop, button and area-label source ranges")]
+    private static CartridgeReadGuard NewPauseBackdropReadGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = [];
-        public PauseBackdropReadGuard(ISnesAddressSpace source)
-        {
-            this.source = source;
-            Add(0xb6e000, 0x800); Add(0x82965f, 14);
-            for (int area = 0; area < 7; area++) Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82965f + area * 2), 24);
-        }
-        private void Add(int address, int size) { for (int i = 0; i < size; i++) blocked.Add(address + i); }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => blocked.Contains(address)
-            ? throw new InvalidOperationException($"Installed pause read backdrop/button/label at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        var blocked = new HashSet<int>();
+        void Add(int address, int size) { for (int i = 0; i < size; i++) blocked.Add(address + i); }
+        Add(0xb6e000, 0x800); Add(0x82965f, 14);
+        for (int area = 0; area < 7; area++) Add(0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82965f + area * 2), 24);
+        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => $"Installed pause read backdrop/button/label at {address:X6}.");
     }
 }

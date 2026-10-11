@@ -36,7 +36,7 @@ internal static partial class Program
         samus.Position = samus.Position.WithWholeY(0x0100);
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-        var guarded = new NoobTubeProgramReadGuard(bus);
+        var guarded = NewNoobTubeProgramReadGuard(bus);
         var projectiles = new List<NoobTubeProjectileRequest>();
         var earthquakes = new List<ushort>();
         bool brokenEvent = false;
@@ -326,7 +326,7 @@ internal static partial class Program
         samus.InputLocked = false;
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx(bus);
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
-        var guarded = new NoobTubeProgramReadGuard(bus);
+        var guarded = NewNoobTubeProgramReadGuard(bus);
         var plms = new RoomPlmSystem();
         plms.LoadRoomPopulation(
             guarded,
@@ -362,27 +362,11 @@ internal static partial class Program
             "already-broken n00b-tube branch never rereads program bytes");
     }
 
-    private sealed class NoobTubeProgramReadGuard(ISnesAddressSpace source)
-        : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0x84d4d4 and <= 0x84d518 or
-                >= 0x84d521 and <= 0x84d524)
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"N00b-tube PLM reread compiled program byte ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewNoobTubeProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0x84d4d4 and <= 0x84d518 or
+                >= 0x84d521 and <= 0x84d524,
+                address => $"N00b-tube PLM reread compiled program byte ${address:X6}.");
 
     /// <summary>
     /// Loads the Glass Tunnel's relevant FX words: water at Y $0010 with the small-tide

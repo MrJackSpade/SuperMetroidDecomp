@@ -14,7 +14,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
-            new OwtchMovementReadGuard(new TestAddressSpace()));
+            NewOwtchMovementReadGuard(new TestAddressSpace()));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeOwtch", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];
@@ -44,7 +44,6 @@ internal static partial class Program
             }
         }
 
-
         Console.WriteLine(
             "Owtch movement definitions: fourteen native words and 144 wrapped production initializers pass with table reads forbidden.");
     }
@@ -73,18 +72,10 @@ internal static partial class Program
             AssertEqual(native, OwtchMovementDefinitions.UndergroundTimer(index),
                 $"compiled Owtch underground timer {index}");
         }
-
     }
 
-    private sealed class OwtchMovementReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => address is >= 0xa2a3dd and < 0xa2a3f9
-            ? throw new InvalidOperationException(
-                $"Owtch movement attempted migrated definition read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewOwtchMovementReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa2a3dd and < 0xa2a3f9,
+                address => $"Owtch movement attempted migrated definition read ${address:X6}.");
 }

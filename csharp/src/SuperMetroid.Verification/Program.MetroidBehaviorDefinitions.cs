@@ -36,7 +36,7 @@ internal static partial class Program
             BindingFlags.Static | BindingFlags.NonPublic)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField(
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var guarded = new MetroidBehaviorReadGuard(rom);
+        var guarded = NewMetroidBehaviorReadGuard(rom);
         // One system serves every timer: the escape step is static and keeps no per-call state.
         var enemies = new RoomEnemySystem();
         busField.SetValue(enemies, guarded);
@@ -87,7 +87,7 @@ internal static partial class Program
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
         FieldInfo randomField = typeof(RoomEnemySystem).GetField(
             "_nextRandom", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var guarded = new MetroidBehaviorReadGuard(rom);
+        var guarded = NewMetroidBehaviorReadGuard(rom);
 
         for (ushort random = 0; random < 8; random++)
         {
@@ -121,22 +121,8 @@ internal static partial class Program
     private static ushort ReadMetroidBehaviorWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class MetroidBehaviorReadGuard(ISnesAddressSpace source) :
-        ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (address is >= 0xa3ea3f and < 0xa3ea4f or
-                >= 0xa3ead6 and < 0xa3eae6)
-            {
-                throw new InvalidOperationException(
-                    $"Metroid behavior attempted migrated table read ${address:X6}.");
-            }
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewMetroidBehaviorReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa3ea3f and < 0xa3ea4f or >= 0xa3ead6 and < 0xa3eae6,
+                address => $"Metroid behavior attempted migrated table read ${address:X6}.");
 }

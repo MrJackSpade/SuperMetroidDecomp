@@ -35,7 +35,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies,
-                new NuclearWaffleDefinitionReadGuard(rom));
+                NewNuclearWaffleDefinitionReadGuard(rom));
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeNuclearWaffle", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
             RoomEnemySlot slot = enemies.Slots[0];
@@ -85,7 +85,7 @@ internal static partial class Program
         }
 
         var executedOperands = new HashSet<ushort>();
-        var programGuard = new NuclearWaffleProgramReadGuard(rom);
+        var programGuard = NewNuclearWaffleProgramReadGuard(rom);
         var programSystem = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             programSystem,
@@ -125,7 +125,7 @@ internal static partial class Program
             AssertTrue(executedOperands.Contains(address),
                 $"production execution covers Nuclear Waffle presentation word $A6:{address:X4}");
         }
-        AssertEqual(0, programGuard.ObservedPresentationWords.Count,
+        AssertEqual(0, programGuard.ObservedWords.Count,
             "compiled presentation selectors require no runtime ROM reads");
         AssertEqual(0, programGuard.ForbiddenReadAttempts,
             "production execution avoids every compiled Nuclear Waffle mechanics byte");
@@ -165,55 +165,14 @@ internal static partial class Program
     private static ushort ReadNuclearWaffleWord(SuperMetroidAddressSpace bus, int address) =>
         (ushort)(bus.ReadByte(address) | bus.ReadByte(address + 1) << 8);
 
-    private sealed class NuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
+    private static CartridgeReadGuard NewNuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => address is >= 0xa695f6 and < 0xa6960e,
+                address => $"Nuclear Waffle attempted migrated geometry read ${address:X6}.");
 
-        public byte ReadByte(int address) => address is >= 0xa695f6 and < 0xa6960e
-            ? throw new InvalidOperationException(
-                $"Nuclear Waffle attempted migrated geometry read ${address:X6}.")
-            : source.ReadByte(address);
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
-
-    private sealed class NuclearWaffleProgramReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        internal HashSet<ushort> ObservedPresentationWords { get; } = [];
-        internal int ForbiddenReadAttempts { get; private set; }
-
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if (NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address))
-            {
-                ForbiddenReadAttempts++;
-                throw new InvalidOperationException(
-                    $"Production read compiled Nuclear Waffle mechanics byte ${address:X6}.");
-            }
-
-            if ((address & 0xff0000) == 0xa60000)
-            {
-                ushort bankAddress = unchecked((ushort)address);
-                for (int index = 0;
-                     index < NuclearWaffleInstructionProgramDefinitions.PresentationWordCount;
-                     index++)
-                {
-                    ushort presentation =
-                        NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress(index);
-                    if (bankAddress == presentation ||
-                        bankAddress == unchecked((ushort)(presentation + 1)))
-                    {
-                        ObservedPresentationWords.Add(presentation);
-                        break;
-                    }
-                }
-            }
-
-            return source.ReadByte(address);
-        }
-
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+    private static CartridgeReadGuard NewNuclearWaffleProgramReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
+                address => $"Production read compiled Nuclear Waffle mechanics byte ${address:X6}.")
+            .ObserveWords(0xa60000, NuclearWaffleInstructionProgramDefinitions.PresentationWordCount, NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
 }

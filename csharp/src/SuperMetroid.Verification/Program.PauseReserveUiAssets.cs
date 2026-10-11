@@ -16,7 +16,7 @@ internal static partial class Program
         string path = Path.Combine(overrides, PauseReserveUiDefinitions.FileName);
         byte[] stockBytes = File.ReadAllBytes(stockPath);
         var document = JsonSerializer.Deserialize<PauseReserveUiDocument>(stockBytes, MapPresentationFormat.JsonOptions)!;
-        var guard = new PauseReserveUiReadGuard(bus);
+        var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
         var native = new PauseMenuState(bus, nativeSamus, new Bank80SystemState(),
@@ -114,26 +114,19 @@ internal static partial class Program
         }
     }
 
-    private sealed class PauseReserveUiReadGuard : ISnesAddressSpace, IImportCartridgeSource
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve UI tilemap ranges")]
+    private static CartridgeReadGuard NewPauseReserveUiReadGuard(ISnesAddressSpace source)
     {
-        private readonly ISnesAddressSpace source;
-        private readonly HashSet<int> blocked = [];
-        public PauseReserveUiReadGuard(ISnesAddressSpace source)
+        var blocked = new HashSet<int>();
+        void Block(int start, int count) { for (int i = 0; i < count; i++) blocked.Add(start + i); }
+        Block(0x82c068, 4); Block(0x82c088, 4); Block(0x82bf22, 16);
+        Block(0x82ad5d, 64); Block(0x82ad9d, 64);
+        for (int index = 0; index < 2; index++)
         {
-            this.source = source;
-            Block(0x82c068, 4); Block(0x82c088, 4); Block(0x82bf22, 16);
-            Block(0x82ad5d, 64); Block(0x82ad9d, 64);
-            for (int index = 0; index < 2; index++)
-            {
-                int sourceAddress = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c088 + index * 2);
-                Block(sourceAddress, 14);
-            }
+            int sourceAddress = 0x820000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), 0x82c088 + index * 2);
+            Block(sourceAddress, 14);
         }
-        private void Block(int start, int count) { for (int i = 0; i < count; i++) blocked.Add(start + i); }
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address) => blocked.Contains(address)
-            ? throw new InvalidOperationException($"Installed pause read reserve UI at {address:X6}.") : source.ReadByte(address);
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
+            address => $"Installed pause read reserve UI at {address:X6}.");
     }
 }

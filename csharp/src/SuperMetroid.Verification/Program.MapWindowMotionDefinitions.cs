@@ -90,6 +90,7 @@ internal static partial class Program
     }
 
     /// <summary>Independent cartridge-data control, deliberately outside the production catalog.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the file-select map window timer and velocity tables")]
     private static FileSelectMapWindowMotion ReadCartridgeMapWindowMotion(ISnesAddressSpace bus, int area)
     {
         uint ReadVelocity(int edge)

@@ -112,7 +112,7 @@ internal static partial class Program
         var plms = new RoomPlmSystem { MotherBrainFakeDeathVisuals = visuals };
         AssertTrue(plms.TrySpawnMotherBrainMutation(level, new(5, 3), header),
             $"Mother Brain visual header ${(int)header:X4} allocates");
-        var guard = new MotherBrainFakeDeathSourceGuard(new TestAddressSpace());
+        var guard = NewMotherBrainFakeDeathSourceGuard(new TestAddressSpace());
         plms.Step(guard, level, level.CreateBackgroundStreamer(), new(cameraX, 0), 0);
         int blockIndex = (3 + blockOffset.Y) * width + 5 + blockOffset.X;
         AssertEqual(physicalWord,

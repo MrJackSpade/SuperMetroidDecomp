@@ -64,12 +64,13 @@ internal static partial class Program
         }
     }
 
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment set, mask and reserve-transfer tables")]
     private static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(bus));
         Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(bus));
         Suite(nameof(VerifyPauseBootMasks), () => VerifyPauseBootMasks(bus));
-        var guard = new PauseRulesReadGuard(bus);
+        var guard = NewPauseRulesReadGuard(bus);
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
         {
             var definition = PauseEquipmentCategories.Get(category);
@@ -147,21 +148,13 @@ internal static partial class Program
             : new SamusState { CollectedItems = owned, EquippedItems = owned };
     }
 
-    private sealed class PauseRulesReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
-    {
-        public byte ReadCartridgeByte(int address) => ReadByte(address);
-
-        public byte ReadByte(int address)
-        {
-            if ((uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||
+    private static CartridgeReadGuard NewPauseRulesReadGuard(ISnesAddressSpace source) =>
+        new CartridgeReadGuard(source)
+            .Forbid(address => (uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||
                 (uint)(address - PauseReserveTransferRomData.TransferAmount) < 2 ||
                 Enum.GetValues<PauseEquipmentCategory>().Select(PauseEquipmentCategories.Get).Any(category => category.ItemCount != 0 &&
-                    (uint)(address - PauseMaskTableAddress(category.Category)) < category.ItemCount * 2))
-                throw new InvalidOperationException($"Pause read compiled inventory/transfer rule at {address:X6}.");
-            return source.ReadByte(address);
-        }
-        public void WriteByte(int address, byte value) => source.WriteByte(address, value);
-    }
+                    (uint)(address - PauseMaskTableAddress(category.Category)) < category.ItemCount * 2),
+                address => $"Pause read compiled inventory/transfer rule at {address:X6}.");
 
     /// <summary>
     /// Native page-change length since #1266: fifteen fade-out steps, one load step, then

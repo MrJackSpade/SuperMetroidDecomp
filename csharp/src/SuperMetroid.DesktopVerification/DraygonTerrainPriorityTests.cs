@@ -122,6 +122,10 @@ internal static partial class Program
             color |= ((memory.Vram[(start + plane / 2 * 16 + plane % 2) & 65535] >> (7 - px)) & 1) << plane;
         return (color != 0, (entry & 0x2000) != 0, (entry >> 10 & 7) * 16 + color);
     }
+
+    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon extended spritemap BG2 tilemap streams")]
+    private static int NativeDraygonMapWord(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int bank, int pointer) =>
+        rom.ReadCartridgeByte(bank | (pointer & 65535)) | rom.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
 }
 
 internal static class DraygonTilemapAuditDefinitions
@@ -132,8 +136,4 @@ internal static class DraygonTilemapAuditDefinitions
     internal const int ExtendedTilemapMarker = 0xfffe;
     /// <summary>Native destination sentinel terminating ProcessExtendedTilemap.</summary>
     internal const int StreamEnd = 0xffff;
-
-    [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon extended spritemap BG2 tilemap streams")]
-    private static int NativeDraygonMapWord(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, int bank, int pointer) =>
-        rom.ReadCartridgeByte(bank | (pointer & 65535)) | rom.ReadCartridgeByte(bank | ((pointer + 1) & 65535)) << 8;
 }

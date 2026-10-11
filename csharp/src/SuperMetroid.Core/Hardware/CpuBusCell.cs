@@ -54,7 +54,7 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
         new(name, CpuBusRegion.Cartridge, address, length, encoding, aliasOf);
 
     /// <summary>The 24-bit CPU address of the first byte.</summary>
-    public int Address { get; } = Address is >= 0 and <= 0xffffff
+    public int Address { get; } = ((uint)Address & ~(uint)SnesCpuAddressLayout.AddressMask) == 0
         ? Address
         : throw new ArgumentOutOfRangeException(nameof(Address), Address, "SNES CPU address must fit in 24 bits.");
 

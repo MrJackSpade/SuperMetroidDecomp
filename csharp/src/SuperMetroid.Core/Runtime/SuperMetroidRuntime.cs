@@ -3743,12 +3743,9 @@ Landed: true, HitCeiling: false);
                     _addressSpace,
                     System,
                     roomGeometry.AreaIndex,
-                    checked((byte)roomGeometry.MapPosition.X),
-                    checked((byte)roomGeometry.MapPosition.Y),
-                    LevelData.Size.X,
-                    LevelData.Size.Y,
-                    Samus.Position.X.Whole,
-                    Samus.Position.Y.Whole,
+                    roomGeometry.MapPosition,
+                    LevelData.Size,
+                    Samus.Position.Whole,
                     NmiFrameCounter8,
                     MapRevealMode,
                     MapPresentation?.Get(roomGeometry.AreaIndex));
@@ -3993,8 +3990,7 @@ Landed: true, HitCeiling: false);
         RoomEnemySlot body = Enemies.Slots[bodyIndex];
         return new MorphBallEyeBeamRenderSnapshot(
             beam.Phase,
-            body.Position.X.Whole,
-            body.Position.Y.Whole,
+            body.Position.Whole,
             eyeState.Angle,
             beam.AngularWidth,
             beam.Red,

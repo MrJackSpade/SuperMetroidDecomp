@@ -20,7 +20,7 @@ internal static partial class Program
             var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             var blocks = new ushort[64 * 16];
             for (int row = 0; row < 16; row++) blocks[vertical ? 16 * 16 + row : row * 64 + 32] = 0x8000;
-            var room = CreateRoom(vertical ? 16 : 64, vertical ? 64 : 16, blocks, new byte[blocks.Length]);
+            var room = CreateRoom(vertical ? new(16, 64) : new(64, 16), blocks, new byte[blocks.Length]);
             var samus = new SamusState { Pose = vertical ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, (ushort)(vertical ? 640 : 128))) };
             var projectiles = CreateProjectileFixture();
             var shared = CreateBombFixture();

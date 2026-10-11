@@ -7,7 +7,7 @@ internal static partial class Program
     private static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
         var ceres = typeof(RoomEnemySystem).GetMethod("AccelerateRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
-            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, ushort, ushort, int>>();
+            .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int>>();
         var norfair = typeof(RoomEnemySystem).GetMethod("MoveNorfairRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, ushort, ushort, int, ushort>>();
         var slot = new RoomEnemySystem().Slots[0];
@@ -26,7 +26,7 @@ internal static partial class Program
                 ushort velocity = unchecked((ushort)((raw % 7) switch { 0 => -1280, 1 => -1, 2 => 0, 3 => 1, 4 => 1280, 5 => short.MinValue, _ => short.MaxValue }));
                 slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0xff00 + distance)), unchecked((ushort)(0x100 - distance))));
                 state.HorizontalVelocity = state.VerticalVelocity = velocity;
-                ceres(slot, state, 0xff00, 0x100, index);
+                ceres(slot, state, new(0xff00, 0x100), index);
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.X.Whole, 0xff00, ceresDivisor), state.HorizontalVelocity, "Ceres actual X acceleration");
                 AssertEqual(ExpectedCeresNativeAcceleration(velocity, slot.Position.Y.Whole, 0x100, ceresDivisor), state.VerticalVelocity, "Ceres actual wrapped Y acceleration");
                 state.HorizontalVelocity = state.VerticalVelocity = velocity;

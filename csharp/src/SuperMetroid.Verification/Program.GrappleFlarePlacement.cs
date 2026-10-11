@@ -31,7 +31,7 @@ internal static partial class Program
         var refresh = typeof(SamusGrappleMovement).GetMethod("RefreshFiringDrawOrigins", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<ISnesAddressSpace, SamusState, SamusGrappleState>>();
         Func<ISnesAddressSpace, SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
-        var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
+        var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         int locked = 0;
         var authoredPoses = Enumerable.Range(0, 253)
             .Select(pose => new

@@ -301,28 +301,28 @@ static void VerifyEscapeTimerStateMachine()
     AssertTrue(!timer.Process(0), "Ceres initialization does not report expiration");
     AssertEqual(EscapeTimerState.InitialDelay, timer.State, "Ceres enters initial delay");
     AssertEqual(0x01, timer.MinutesBcd, "Ceres starts at one minute");
-    AssertEqual(0x8000, timer.XPositionFixed, "timer starts at X $80.00");
-    AssertEqual(0x8000, timer.YPositionFixed, "timer starts at Y $80.00");
+    AssertEqual(0x8000, timer.Position.X, "timer starts at X $80.00");
+    AssertEqual(0x8000, timer.Position.Y, "timer starts at Y $80.00");
 
     // State 3 increments the low X byte from $00 through $10 without decrementing time.
     for (ushort frame = 1; frame <= 16; frame++)
         AssertTrue(!timer.Process(frame), $"initial-delay frame {frame}");
     AssertEqual(EscapeTimerState.RunningMovementDelayed, timer.State, "initial delay advances at counter $10");
-    AssertEqual(0x8010, timer.XPositionFixed, "X subpixel byte contains delay counter $10");
+    AssertEqual(0x8010, timer.Position.X, "X subpixel byte contains delay counter $10");
     AssertEqual(0x00, timer.SecondsBcd, "initial delay did not decrement seconds");
 
     // State 4 continues the same aliased counter to $60, then zeroes only its low byte.
     for (ushort frame = 17; frame <= 96; frame++)
         timer.Process(frame);
     AssertEqual(EscapeTimerState.RunningMovingIntoPlace, timer.State, "movement delay advances at counter $60");
-    AssertEqual(0x8000, timer.XPositionFixed, "movement transition clears X fraction only");
+    AssertEqual(0x8000, timer.Position.X, "movement transition clears X fraction only");
 
     // X reaches its clamp in 106 frames; Y requires 107, so the state advances on 107.
     for (ushort frame = 97; frame <= 203; frame++)
         timer.Process(frame);
     AssertEqual(EscapeTimerState.RunningInPlace, timer.State, "timer reaches stationary running state");
-    AssertEqual(0xdc00, timer.XPositionFixed, "timer X clamps at pixel 220");
-    AssertEqual(0x3000, timer.YPositionFixed, "timer Y clamps at pixel 48");
+    AssertEqual(0xdc00, timer.Position.X, "timer X clamps at pixel 220");
+    AssertEqual(0x3000, timer.Position.Y, "timer Y clamps at pixel 48");
 
     var borrowSecond = CreateRunningTimer(0x00, 0x01, 0x00);
     AssertTrue(!borrowSecond.Process(1), "00:01.00 remains nonzero after decrement");
@@ -647,7 +647,7 @@ static void VerifyOamSpritemapPacking()
     ]);
 
     oam.BeginFrame();
-    DrawImportedSpritemap(bus, oam, 0x808000, originX: 0x00fe, originY: 0x0001, paletteBits: 0x0a00);
+    DrawImportedSpritemap(bus, oam, 0x808000, origin: new(0x00fe, 0x0001), paletteBits: 0x0a00);
 
     OamEntry first = oam.GetEntry(0);
     AssertEqual(0x103, first.X, "OAM first 9-bit X");
@@ -677,7 +677,7 @@ static void VerifyOamSpritemapPacking()
     // A positive Y offset reaching $E0 takes the explicit X=$180/Y=$E0 hide path.
     bus.WriteBytes(0x808100, [0x01, 0x00, 0x00, 0x00, 0x20, 0x01, 0x00]);
     oam.BeginFrame();
-    DrawImportedSpritemap(bus, oam, 0x808100, originX: 0, originY: 0x00c0, paletteBits: 0);
+    DrawImportedSpritemap(bus, oam, 0x808100, origin: new(0, 0x00c0), paletteBits: 0);
     OamEntry clipped = oam.GetEntry(0);
     AssertEqual(0x180, clipped.X, "vertically clipped OAM X park position");
     AssertEqual(0xe0, clipped.Y, "vertically clipped OAM Y park position");

@@ -54,8 +54,7 @@ public sealed partial class RoomEnemySystem
             // Decapitation transfers position ownership from the articulated neck to the
             // death sequence. Otherwise the next head AI call overwrites falling Y again.
             state.BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn;
-            state.Head!.Position = state.Head!.Position.WithWholeX(sequence.BrainXPosition);
-            state.Head.Position = state.Head.Position.WithWholeY(sequence.BrainYPosition);
+            state.Head!.Position = state.Head!.Position.WithWhole(sequence.BrainPosition);
         }
         if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey && step.PaletteRequested)
             LoadMotherBrainDeathCorpseFade(sequence.GreyTransitionCounter - 1);

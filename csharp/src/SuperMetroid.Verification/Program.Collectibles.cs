@@ -24,7 +24,7 @@ internal static partial class Program
         for (int bts = 0x11; bts <= 0x4e; bts++)
         {
             if (bts is > 0x3f and not 0x4e) continue;
-            var emptyLevel = CreateRoom(16, 16, new ushort[256], new byte[256], blockDefinitions: new byte[0x400 * 8]);
+            var emptyLevel = CreateRoom(new(16, 16), new ushort[256], new byte[256], blockDefinitions: new byte[0x400 * 8]);
             var unusedPlms = new RoomPlmSystem();
             AssertTrue(unusedPlms.TrySpawnProjectileShotBlock(emptyLevel, 0, (byte)bts, 0, true),
                 "unused shootable entry allocates native nothing PLM");
@@ -231,7 +231,7 @@ internal static partial class Program
         // Retail room $9E9F/$9EB1 places Morph Ball at ($45,$29): block 5317.
         var fixture = LoadCollectible(bus,
             (ushort)(PlmHeaderId.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4),
-            26, precollected: false, width: 128, blockX: 69, blockY: 41, height: 48);
+            26, precollected: false, roomSize: new(128, 48), block: new(69, 41));
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new(1024, 512), 0);
         var movement = new SamusKinematicsState
         {
@@ -273,26 +273,24 @@ internal static partial class Program
         bool precollected,
         bool preopenedChozo = false,
         RoomLayer3FxState? roomFx = null,
-        int width = 8,
-        int blockX = 3,
-        int blockY = 3,
-        int height = 8)
+        Extent16<RoomBlocks>? roomSize = null,
+        Position16<RoomBlocks>? block = null)
     {
         const ushort population = 0x9000;
-        int blockIndex = blockY * width + blockX;
+        Extent16<RoomBlocks> size = roomSize ?? new(8, 8);
+        Position16<RoomBlocks> itemBlock = block ?? new(3, 3);
+        int blockIndex = size.RowMajorIndex(itemBlock);
         bus.WriteBytes(0x8f0000 | population, [
             unchecked((byte)header), unchecked((byte)(header >> 8)),
-            unchecked((byte)blockX), unchecked((byte)blockY),
+            unchecked((byte)itemBlock.X), unchecked((byte)itemBlock.Y),
             unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
             0x00, 0x00,
         ]);
 
-        var foreground = new ushort[width * height];
+        var foreground = new ushort[size.Area];
         foreground[blockIndex] = 0x0123;
         var definitions = new byte[0x400 * 8];
-        RoomLevelData level = CreateRoom(
-            width,
-            height,
+        RoomLevelData level = CreateRoom(size,
             foreground,
             new byte[foreground.Length],
             blockDefinitions: definitions);

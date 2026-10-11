@@ -31,10 +31,15 @@ public sealed partial class BabyMetroidCutsceneState
     public const ushort DrainingMotherBrainInstructionList =
         MotherBrainBabyInstructionProgramDefinitions.DrainingMotherBrain;
     // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
-    // `Enemy.frameCounter & 6` is a byte offset into these four 16-bit entries. The jitter
+    // `Enemy.frameCounter & 6` is a byte offset into these four X/Y entries. The jitter
     // is authored: X steps 0,-1,0,1 but Y does not mirror it (see residualScalarInputsReview).
-    private static ReadOnlySpan<short> ShakingXOffsets => [0, -1, 0, 1];
-    private static ReadOnlySpan<short> ShakingYOffsets => [0, 1, -1, 1];
+    private static readonly Offset16<RoomPixels>[] ShakingOffsets =
+        [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
+
+    // The Baby's latch points hang below their anchors: 24 pixels above Mother Brain's
+    // brain and 20 above Samus's centre.
+    private static readonly Offset16<RoomPixels> BrainLatchOffset = new(0, -0x0018);
+    private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -0x0014);
 
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
     // friendly names, `$A0:8AFF/$8B05` copy those words directly into the enemy slot's
@@ -69,26 +74,14 @@ public sealed partial class BabyMetroidCutsceneState
     /// <summary>Enemy instruction loop counter.</summary>
     public ushort InstructionLoopCounter { get; private set; }
 
-    /// <summary>Whole-pixel world X coordinate.</summary>
-    public ushort XPosition { get; private set; }
-
-    /// <summary>Whole-pixel world Y coordinate.</summary>
-    public ushort YPosition { get; private set; }
-
     /// <summary>
-    /// Native enemy X subposition. Only its high byte participates in this actor's mover;
-    /// the low byte is deliberately retained and untouched.
+    /// Native 16.16 room position. Only the high byte of each subposition participates in
+    /// this actor's 8.8 mover; the low bytes are deliberately retained and untouched.
     /// </summary>
-    public ushort XSubposition { get; private set; }
+    public FixedPosition<RoomPixels> Position { get; private set; }
 
-    /// <summary>Native enemy Y subposition, with the same byte-<c>+1</c> behavior.</summary>
-    public ushort YSubposition { get; private set; }
-
-    /// <summary>Signed 8.8 horizontal velocity.</summary>
-    public ushort XVelocity { get; private set; }
-
-    /// <summary>Signed 8.8 vertical velocity.</summary>
-    public ushort YVelocity { get; private set; }
+    /// <summary>Signed 8.8 velocity.</summary>
+    public EightEightVector<RoomPixels> Velocity { get; private set; }
 
     /// <summary>Unsigned 8.8 magnitude used by the curved entrance.</summary>
     public ushort Speed { get; private set; }
@@ -133,11 +126,8 @@ public sealed partial class BabyMetroidCutsceneState
     /// </summary>
     public ushort LowHealthPaletteTimer { get; private set; }
 
-    /// <summary>Saved origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
-    public ushort FatalBlowOriginX { get; private set; }
-
-    /// <summary>Saved origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
-    public ushort FatalBlowOriginY { get; private set; }
+    /// <summary>Saved whole-pixel origin used by the fatal-blow shake at <c>$A9:CC3E</c>.</summary>
+    public Position16<RoomPixels> FatalBlowOrigin { get; private set; }
 
     /// <summary>Reload-eight timer producing the native nine-call black-palette cadence.</summary>
     public ushort FadeToBlackPaletteTimer { get; private set; }
@@ -177,8 +167,7 @@ public sealed partial class BabyMetroidCutsceneState
     /// occupant and moves from them.
     /// </summary>
     public void Initialize(
-        ushort inheritedXSubposition,
-        ushort inheritedYSubposition,
+        FixedPosition<RoomPixels> previousOccupant,
         ushort populationProperties =
             (ushort)(EnemyProperties.ProcessInstructions |
                 EnemyProperties.ProcessOffScreen))
@@ -196,8 +185,7 @@ public sealed partial class BabyMetroidCutsceneState
         Health = 3200;
         OnionRingHitFlashTimer = 0;
         LowHealthPaletteTimer = 0;
-        FatalBlowOriginX = 0;
-        FatalBlowOriginY = 0;
+        FatalBlowOrigin = Position16<RoomPixels>.Zero;
         FadeToBlackPaletteTimer = 0;
         FadeToBlackPaletteIndex = 0;
         DeathExplosionTimer = 0;
@@ -206,12 +194,8 @@ public sealed partial class BabyMetroidCutsceneState
         RoomLightsTransitionCounter = 0;
         SamusRainbowPaletteAnimationCounter = 0;
         SamusRainbowPhase = BabyMetroidSamusRainbowPhase.Inactive;
-        XPosition = 0x0140;
-        YPosition = 0x0060;
-        XSubposition = inheritedXSubposition;
-        YSubposition = inheritedYSubposition;
-        XVelocity = 0;
-        YVelocity = 0;
+        Position = FixedPosition<RoomPixels>.FromWhole(new(0x0140, 0x0060)).WithFractionsOf(previousOccupant);
+        Velocity = default;
         Speed = 0;
         Angle = 0;
         Phase = BabyMetroidCutscenePhase.DashOntoScreen;
@@ -229,9 +213,8 @@ public sealed partial class BabyMetroidCutsceneState
         ISnesAddressSpace bus,
         SamusState samus,
         MotherBrainRainbowBeamAttackSequence motherBrain,
-        MotherBrainHeadPosition head,
-        ushort layer1X = 0,
-        ushort layer1Y = 0,
+        Position16<RoomPixels> head,
+        Position16<RoomPixels> layer1 = default,
         ushort enemyFrameCounter = 0,
         ushort randomNumber = 0)
     {
@@ -270,8 +253,7 @@ public sealed partial class BabyMetroidCutsceneState
                 acceleration: 0x0010);
             if (reachedLatchPoint)
             {
-                XVelocity = 0;
-                YVelocity = 0;
+                Velocity = default;
                 Phase = BabyMetroidCutscenePhase.HealSamusToFullHealth;
             }
         }
@@ -334,8 +316,8 @@ public sealed partial class BabyMetroidCutsceneState
                     targetY,
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 brainCollision = CollidesWithRectangle(
                     head.X,
                     targetY,
@@ -362,10 +344,8 @@ public sealed partial class BabyMetroidCutsceneState
                 {
                     // The helper predicts whole-pixel overshoot but does not itself store
                     // its returned target coordinate. `$C8A4-$C8B7` performs the exact pin.
-                    XVelocity = 0;
-                    YVelocity = 0;
-                    XPosition = targetX;
-                    YPosition = targetY;
+                    Velocity = default;
+                    Position = Position.WithWhole(new(targetX, targetY));
                     SetInstructionList(DrainingMotherBrainInstructionList);
                     Phase = BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse;
                     PaletteHandlerDelay = 1;
@@ -378,10 +358,7 @@ public sealed partial class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.WaitForMotherBrainToTurnToCorpse:
             {
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
-                XPosition = unchecked((ushort)(
-                    head.X + ShakingXOffsets[shakingIndex]));
-                YPosition = unchecked((ushort)(
-                    head.Y + ShakingYOffsets[shakingIndex] - 0x0018));
+                Position = Position.WithWhole(head + ShakingOffsets[shakingIndex] + BrainLatchOffset);
                 if (motherBrain.Phase2CorpseState != 0)
                 {
                     Phase = BabyMetroidCutscenePhase.StopDraining;
@@ -393,8 +370,7 @@ public sealed partial class BabyMetroidCutsceneState
             case BabyMetroidCutscenePhase.StopDraining:
                 // Shaking ceases immediately: every wait call pins to the unoffset brain
                 // coordinate before decrementing `$40`. BMI expires only after 65 calls.
-                XPosition = head.X;
-                YPosition = unchecked((ushort)(head.Y - 0x0018));
+                Position = Position.WithWhole(head + BrainLatchOffset);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
@@ -402,8 +378,7 @@ public sealed partial class BabyMetroidCutsceneState
                     PaletteHandlerDelay = 0x000a;
                     Phase = BabyMetroidCutscenePhase.LetGoAndSpawnDustClouds;
                     FunctionTimer = 0x0020;
-                    XVelocity = 0;
-                    YVelocity = 0;
+                    Velocity = default;
                 }
                 break;
 
@@ -418,15 +393,14 @@ public sealed partial class BabyMetroidCutsceneState
                     // exact order. Each helper adds its signed word offsets to the brain
                     // enemy's current room coordinate and passes animation parameter nine
                     // to the ordinary highest-free-slot allocator.
-                    var headPosition = new Position16<RoomPixels>(head.X, head.Y);
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        headPosition + new Offset16<RoomPixels>(-0x0010, -0x0008),
+                        head + new Offset16<RoomPixels>(-0x0010, -0x0008),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        headPosition + new Offset16<RoomPixels>(0, -0x0010),
+                        head + new Offset16<RoomPixels>(0, -0x0010),
                         ProjectileParameter: 0x0009));
                     releaseDustClouds.Add(new BabyMetroidReleaseDustRequest(
-                        headPosition + new Offset16<RoomPixels>(0x0010, -0x0008),
+                        head + new Offset16<RoomPixels>(0x0010, -0x0008),
                         ProjectileParameter: 0x0009));
                     Phase = BabyMetroidCutscenePhase.MoveToTheCeiling;
                 }
@@ -441,8 +415,8 @@ public sealed partial class BabyMetroidCutsceneState
                     targetY,
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 bool ceilingCollision = CollidesWithRectangle(
                     targetX,
                     targetY,
@@ -493,8 +467,8 @@ public sealed partial class BabyMetroidCutsceneState
                     targetY,
                     accelerationDivisor,
                     wrongWayExtra,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
 
                 // The route's 4x4 rectangle test occurs before the common velocity mover.
                 // On ordinary records, +8 is merely the next record's target X and the
@@ -529,8 +503,8 @@ public sealed partial class BabyMetroidCutsceneState
                     unchecked((ushort)(samus.Position.Y.Whole - 0x0014)),
                     accelerationDivisor: 0x10,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 break;
 
             case BabyMetroidCutscenePhase.HealSamusToFullHealth:
@@ -540,9 +514,7 @@ public sealed partial class BabyMetroidCutsceneState
                 // both velocities when it installed this function.
                 CrySoundEnabled = false;
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
-                XPosition = unchecked((ushort)(samus.Position.X.Whole + ShakingXOffsets[shakingIndex]));
-                YPosition = unchecked((ushort)(
-                    samus.Position.Y.Whole + ShakingYOffsets[shakingIndex] - 0x0014));
+                Position = Position.WithWhole(samus.Position.Whole + ShakingOffsets[shakingIndex] + SamusLatchOffset);
 
                 // `$C59F` adds exactly one energy per enemy-processing call. CMP/BMI is a
                 // signed 16-bit comparison; normal game maxima stay in its positive range.
@@ -567,10 +539,8 @@ public sealed partial class BabyMetroidCutsceneState
                 if (OnionRingHitFlashTimer != 0)
                 {
                     int shakingIndex = (OnionRingHitFlashTimer & 6) >> 1;
-                    XPosition = unchecked((ushort)(
-                        samus.Position.X.Whole + 2 * ShakingXOffsets[shakingIndex]));
-                    YPosition = unchecked((ushort)(
-                        samus.Position.Y.Whole + 2 * ShakingYOffsets[shakingIndex] - 0x0014));
+                    Offset16<RoomPixels> shake = ShakingOffsets[shakingIndex];
+                    Position = Position.WithWhole(samus.Position.Whole + shake + shake + SamusLatchOffset);
                 }
 
                 if (Health == 0)
@@ -609,8 +579,8 @@ public sealed partial class BabyMetroidCutsceneState
                     0x0060,
                     accelerationDivisor: 0x0010,
                     wrongWayOffScreenXSpeed: 0x0010,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 if (CollidesWithRectangle(
                     unchecked((ushort)(samus.Position.X.Whole - 4)), 0x0060, 4, 4))
                 {
@@ -626,8 +596,8 @@ public sealed partial class BabyMetroidCutsceneState
                     0x0040,
                     accelerationDivisor: 0x0010,
                     wrongWayOffScreenXSpeed: 0x0010,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 if (CollidesWithRectangle(0x0110, 0x0040, 4, 4))
                     Phase = BabyMetroidCutscenePhase.MoveToFinalChargeStart;
                 break;
@@ -641,8 +611,8 @@ public sealed partial class BabyMetroidCutsceneState
                     0x00a0,
                     accelerationDivisor: 0x0010,
                     wrongWayOffScreenXSpeed: 0x0010,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 if (CollidesWithRectangle(0x0131, 0x00a0, 4, 4))
                 {
                     Health = 0x004f;
@@ -659,8 +629,8 @@ public sealed partial class BabyMetroidCutsceneState
                     0x0080,
                     accelerationDivisor: 0x0006,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 if (CollidesWithRectangle(0x0122, 0x0080, 4, 4))
                     Phase = BabyMetroidCutscenePhase.FinalCharge;
                 break;
@@ -674,8 +644,8 @@ public sealed partial class BabyMetroidCutsceneState
                     unchecked((ushort)(head.Y - 0x0020)),
                     accelerationDivisor: 0x0004,
                     wrongWayOffScreenXSpeed: 0x0400,
-                    layer1X,
-                    layer1Y);
+                    layer1.X,
+                    layer1.Y);
                 if (Health == 0)
                 {
                     // `$A9:CBF2-$CC3D` changes graphics/list state, freezes the body AI,
@@ -684,12 +654,10 @@ public sealed partial class BabyMetroidCutsceneState
                     GraphicsOffset = 0x10a0;
                     SetInstructionList(
                         MotherBrainBabyInstructionProgramDefinitions.TakingFatalBlow);
-                    XVelocity = 0;
-                    YVelocity = 0;
+                    Velocity = default;
                     Phase = BabyMetroidCutscenePhase.TakeFinalBlow;
                     FunctionTimer = 0x0010;
-                    FatalBlowOriginX = XPosition;
-                    FatalBlowOriginY = YPosition;
+                    FatalBlowOrigin = Position.Whole;
                     goto case BabyMetroidCutscenePhase.TakeFinalBlow;
                 }
                 break;
@@ -699,15 +667,13 @@ public sealed partial class BabyMetroidCutsceneState
                 // `ShakeBabyMetroidCutscene` ($A9:CEDB) first adds `$FFFF` to the Y velocity,
                 // which the common mover then applies, and places the Baby at the saved origin
                 // plus the undoubled shaking offsets.
-                YVelocity = unchecked((ushort)(YVelocity + 0xffff));
+                Velocity = Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 0xffff))));
                 int shakingIndex = (enemyFrameCounter & 6) >> 1;
-                XPosition = unchecked((ushort)(FatalBlowOriginX + ShakingXOffsets[shakingIndex]));
-                YPosition = unchecked((ushort)(FatalBlowOriginY + ShakingYOffsets[shakingIndex]));
+                Position = Position.WithWhole(FatalBlowOrigin + ShakingOffsets[shakingIndex]);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
-                    XPosition = FatalBlowOriginX;
-                    YPosition = FatalBlowOriginY;
+                    Position = Position.WithWhole(FatalBlowOrigin);
                     Phase = BabyMetroidCutscenePhase.PlaySamusTheme;
                     FunctionTimer = 0x0038;
                     goto case BabyMetroidCutscenePhase.PlaySamusTheme;
@@ -868,8 +834,3 @@ public sealed partial class BabyMetroidCutsceneState
     // health subtraction.
 }
 
-/// <summary>
-/// Mother Brain's head enemy coordinates (<c>Enemy[1]</c> X/Y at <c>$0FBA/$0FBE</c>) as the
-/// Baby's routines read them.
-/// </summary>
-public readonly record struct MotherBrainHeadPosition(ushort X, ushort Y);

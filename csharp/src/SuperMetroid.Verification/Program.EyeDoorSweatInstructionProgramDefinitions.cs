@@ -43,9 +43,7 @@ internal static partial class Program
         var foreground = new ushort[roomWidth * 16];
         foreground[5 * roomWidth + 6] =
             (ushort)((int)RoomCollisionType.SolidBlock << 12);
-        RoomLevelData level = CreateRoom(
-            roomWidth,
-            16,
+        RoomLevelData level = CreateRoom(new(roomWidth, 16),
             foreground,
             new byte[foreground.Length],
             blockDefinitions: new byte[0x400 * 8]);

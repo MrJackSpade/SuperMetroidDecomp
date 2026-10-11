@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Game;
 internal static class FakeKraidProjectileDefinitions
 {
     /// <summary>Computes the signed8.8 near/far launches from $A6:9A48-9A57, mirrored by facing.</summary>
-    internal static FakeKraidSpitLaunch SpitLaunch(bool movingRight, int projectile)
+    internal static EightEightVector<RoomPixels> SpitLaunch(bool movingRight, int projectile)
     {
         if ((uint)projectile >= 2)
         {
@@ -15,8 +15,7 @@ internal static class FakeKraidProjectileDefinitions
         // Near/far shots travel at two/four pixels per frame,
         // mirrored with facing; both start upward at five pixels per frame.
         int horizontal = (projectile + 1) * 2 * 256;
-        return new(unchecked((ushort)(movingRight ? horizontal : -horizontal)),
-            unchecked((ushort)(-5 * 256)));
+        return new((short)(movingRight ? horizontal : -horizontal), -5 * 256);
     }
 
     /// <summary>Selects a fixed body launch position from $86:9E7D..9E82.
@@ -44,8 +43,3 @@ internal enum FakeKraidSpikeRow
     /// <summary>Bottom timer at native byte offset4; launch offset word at86:9E81.</summary>
     Bottom = 2,
 }
-
-/// <summary>One signed 8.8 Fake Kraid spit launch-velocity pair.</summary>
-internal readonly record struct FakeKraidSpitLaunch(
-    ushort XVelocity,
-    ushort YVelocity);

@@ -98,7 +98,7 @@ internal static partial class Program
             samus.Grapple.Phase = GrapplePhase.Firing;
             fixture.System.StepFrame(new(0, 0), timeIsFrozen: false, samus, level: fixture.Level);
             AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "enemy death queues drop while ordinary pose remains active");
-            var movementRoom = CreateRoom(32, 32, new ushort[32 * 32], new byte[32 * 32]);
+            var movementRoom = CreateRoom(new(32, 32), new ushort[32 * 32], new byte[32 * 32]);
             var result = SamusGrappleMovement.Step(retail, movementRoom, samus, 0, 0);
             AssertEqual(GrapplePhase.Inactive, result.Phase, $"reported ordinary pose {(int)pose:X2} completes grapple cleanup");
             AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "cleanup releases grapple ownership");

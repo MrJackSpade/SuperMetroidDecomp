@@ -37,14 +37,14 @@ internal static partial class Program
             Check(x, y, angle, width);
         foreach (MorphBallEyeBeamPhase phase in new[] { MorphBallEyeBeamPhase.Inactive, MorphBallEyeBeamPhase.PendingInitialization })
             AssertTrue(SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus,
-                new(phase, 0, 0, SnesAngle.Zero, 0, 0, 0, 0), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
+                new(phase, Position16<RoomPixels>.Zero, SnesAngle.Zero, 0, 0, 0, 0), new Position16<RoomPixels>(0, 0)) is null, "unpublished eye beam emits no operation");
         Console.WriteLine($"  Eye window snapshots: {samples} backend/codec cases agree; cartridge endpoint assertions also pass.");
 
         void Check(int x, int y, int angle, ushort width)
         {
             // Nonzero camera coordinates also exercise signed world-to-screen wrapping.
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
-                unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768)),
+                new(unchecked((ushort)(x + 512)), unchecked((ushort)(y + 768))),
                 SnesAngle.FromTableIndex((byte)angle), width, 0x3f, 0x4c, 0x81);
             Rgba32[] expected = baseline.ToArray();
             SnesGameplayFrameRenderer.ApplyMorphBallEyeBeamColorMath(expected, bus, beam, new Position16<RoomPixels>(512, 768));
@@ -73,7 +73,7 @@ internal static partial class Program
         foreach (var sample in expected)
         {
             var beam = new MorphBallEyeBeamRenderSnapshot(MorphBallEyeBeamPhase.Full,
-                552, 616, SnesAngle.FromTableIndex(sample.Angle), sample.Width, 31, 31, 0);
+                new(552, 616), SnesAngle.FromTableIndex(sample.Angle), sample.Width, 31, 31, 0);
             ColorAddWindow row = SnesGameplayFrameRenderer.CaptureMorphBallEyeBeam(bus, beam, new Position16<RoomPixels>(384, 512))!.Windows[sample.Y];
             for (int x = 0; x < 256; x++)
                 AssertEqual(x >= sample.Left && x <= sample.Right, x >= row.Left && x <= row.Right,

@@ -35,13 +35,10 @@ public sealed class EscapeTimer
     public byte MinutesBcd { get; private set; }
 
     /// <summary>
-    /// Raw unsigned 8.8 X position at WRAM <c>$0948</c>. Its low byte is also the status
-    /// counter used by states 3 and 4.
+    /// Raw unsigned 8.8 on-screen position words at WRAM <c>$0948</c> (X) and <c>$094A</c> (Y).
+    /// The low byte of X is also the status counter used by states 3 and 4.
     /// </summary>
-    public ushort XPositionFixed { get; private set; }
-
-    /// <summary>Raw unsigned 8.8 Y position at WRAM <c>$094A</c>.</summary>
-    public ushort YPositionFixed { get; private set; }
+    public Position16<ScreenSubpixels> Position { get; private set; }
 
     /// <summary>
     /// Whether the countdown has expired and Samus's timer hack handler only draws it:
@@ -50,11 +47,8 @@ public sealed class EscapeTimer
     /// </summary>
     public bool CountdownExpired { get; private set; }
 
-    /// <summary>Integer X coordinate consumed by <c>$80:9FB3</c>'s spritemap drawing.</summary>
-    public byte XPixel => (byte)(XPositionFixed >> 8);
-
-    /// <summary>Integer Y coordinate consumed by <c>$80:9FB3</c>'s spritemap drawing.</summary>
-    public byte YPixel => (byte)(YPositionFixed >> 8);
+    /// <summary>Whole-pixel on-screen position consumed by <c>$80:9FB3</c>'s spritemap drawing.</summary>
+    public Position16<ScreenPixels> PixelPosition => Position.WholePixels();
 
     /// <summary>
     /// Requests the one-minute Ceres sequence by selecting dispatch state 1. The next call
@@ -137,8 +131,7 @@ public sealed class EscapeTimer
     {
         // $8000 corresponds to pixel coordinate $80 with zero subpixel fraction. During
         // startup that low fraction byte is immediately repurposed as a delay counter.
-        XPositionFixed = 0x8000;
-        YPositionFixed = 0x8000;
+        Position = new(0x8000, 0x8000);
         CentisecondsBcd = 0;
         SecondsBcd = 0;
         MinutesBcd = 0;
@@ -185,7 +178,7 @@ public sealed class EscapeTimer
     private bool ProcessInitialDelay()
     {
         IncrementXLowByte();
-        if ((byte)XPositionFixed >= 0x10)
+        if ((byte)Position.X >= 0x10)
             IncrementStatusLowByte();
 
         // State 3 never decrements time, even on the update that advances to state 4.
@@ -195,11 +188,11 @@ public sealed class EscapeTimer
     private bool ProcessMovementDelay(ushort nmiFrameCounter)
     {
         IncrementXLowByte();
-        if ((byte)XPositionFixed >= 0x60)
+        if ((byte)Position.X >= 0x60)
         {
             // STZ TimerXPosition-1 clears only the aliased counter/subpixel byte. The
             // visible high-byte X coordinate remains $80 until movement begins.
-            XPositionFixed &= 0xff00;
+            Position = Position.WithX((ushort)(Position.X & 0xff00));
             IncrementStatusLowByte();
         }
 
@@ -211,23 +204,23 @@ public sealed class EscapeTimer
         int axesInPosition = 0;
 
         // X advances by $00E0 (0.875 pixels) and clamps at $DC00 (pixel 220).
-        ushort nextX = unchecked((ushort)(XPositionFixed + 0x00e0));
+        ushort nextX = unchecked((ushort)(Position.X + 0x00e0));
         if (nextX >= 0xdc00)
         {
             axesInPosition++;
             nextX = 0xdc00;
         }
-        XPositionFixed = nextX;
+        Position = Position.WithX(nextX);
 
         // Y moves upward by $00C1 (193/256 pixel) and clamps at $3000 (pixel 48).
         // The unsigned comparison reproduces CMP/BCS after 16-bit wrapped subtraction.
-        ushort nextY = unchecked((ushort)(YPositionFixed - 0x00c1));
+        ushort nextY = unchecked((ushort)(Position.Y - 0x00c1));
         if (nextY < 0x3000)
         {
             axesInPosition++;
             nextY = 0x3000;
         }
-        YPositionFixed = nextY;
+        Position = Position.WithY(nextY);
 
         if (axesInPosition == 2)
         {
@@ -274,8 +267,8 @@ public sealed class EscapeTimer
 
     private void IncrementXLowByte()
     {
-        byte nextCounter = unchecked((byte)((byte)XPositionFixed + 1));
-        XPositionFixed = (ushort)((XPositionFixed & 0xff00) | nextCounter);
+        byte nextCounter = unchecked((byte)((byte)Position.X + 1));
+        Position = Position.WithX((ushort)((Position.X & 0xff00) | nextCounter));
     }
 
     private void IncrementStatusLowByte()

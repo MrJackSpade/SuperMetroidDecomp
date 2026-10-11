@@ -73,7 +73,7 @@ internal static partial class Program
             }
             if (field == 0)
             {
-                var level = CreateRoom(32,16,new ushort[512],new byte[512],blockDefinitions:new byte[0x400 * 8]);
+                var level = CreateRoom(new(32, 16),new ushort[512],new byte[512],blockDefinitions:new byte[0x400 * 8]);
                 var plms = new RoomPlmSystem();
                 var bus = new TestAddressSpace();
                 bus.WriteBytes(0x8f9400,[0x0b,0xb7,3,4,0,0,0,0]);

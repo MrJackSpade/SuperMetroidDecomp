@@ -43,7 +43,7 @@ public sealed partial class RoomEnemySystem
     {
         ReadOnlySpan<ushort> tilemap = RequireCrocomireMeltingTilemap(
             CrocomireMeltingTilemapAddress.SecondTilemap);
-        FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
+        FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
         StartCrocomireMeltingTilemap(state, CrocomireInstructionProgramDefinitions.MeltingTwoTopRow);
         // $A4:940E-941D clears the first $800 bytes.
         WriteCrocomireMeltingTilemap(tilemap, clearedWords: 0x400);
@@ -89,7 +89,7 @@ public sealed partial class RoomEnemySystem
         // CopyPassTo checks scratch capacity before its first write. Only then publish the
         // new phase and distortion state; no cartridge reader is available as a fallback.
         artwork.CopyPassTo(pass.HeaderOffset, death.MutableMeltingGraphics);
-        FillCrocomireBg2ScrollTable(CrocomireBg2VerticalScroll);
+        FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.DistortionStep = 0x0100;
         death.MeltingColumnCursor = 0;
@@ -145,9 +145,9 @@ public sealed partial class RoomEnemySystem
         death.MeltingHdmaActive = true;
         int lineCount = Math.Clamp((state.Tongue?.Position.Y.Whole ?? state.Body.Position.Y.Whole) - 72, 0, 256);
         Span<ushort> scrolls = death.MutableBg2ScrollByScanline;
-        scrolls.Slice(0, lineCount).Fill(CrocomireBg2VerticalScroll);
+        scrolls.Slice(0, lineCount).Fill(CrocomireBg2Scroll.Y);
         if (lineCount < scrolls.Length)
-            scrolls.Slice(lineCount).Fill(CrocomireBg2VerticalScroll);
+            scrolls.Slice(lineCount).Fill(CrocomireBg2Scroll.Y);
 
         state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
         death.BodyXBeforeMelting = state.Body.Position.X.Whole;
@@ -261,7 +261,7 @@ public sealed partial class RoomEnemySystem
                unchecked((short)(adjustedY - death.MaximumAdjustedDestinationY)) < 0)
         {
             output[line++] = unchecked((ushort)(
-                CrocomireBg2VerticalScroll + adjustedY - currentY));
+                CrocomireBg2Scroll.Y + adjustedY - currentY));
             uint sum = fraction + death.DistortionStep;
             bool carry = sum > 0xffff;
             fraction = sum & 0xffff;
@@ -270,7 +270,7 @@ public sealed partial class RoomEnemySystem
             currentY++;
         }
         if (line < output.Length)
-            output.Slice(line).Fill(CrocomireBg2VerticalScroll);
+            output.Slice(line).Fill(CrocomireBg2Scroll.Y);
     }
 
     private void CompleteCrocomireMeltingDissolve(CrocomireEnemyState state)

@@ -9,34 +9,34 @@ internal static class KraidArmCollisionDefinitions
 {
     internal const byte Bank = 0xa7;
 
-    private static readonly KraidArmComponentPosition[] Phase0 =
+    private static readonly Offset16<RoomPixels>[] Phase0 =
         [new(-36, -33), new(-28, -24),
          new(-36, -40), new(-28, -31)];
-    private static readonly KraidArmComponentPosition[] Phase1 =
+    private static readonly Offset16<RoomPixels>[] Phase1 =
         [new(-38, -33), new(-30, -26),
          new(-36, -40), new(-28, -31)];
-    private static readonly KraidArmComponentPosition[] Phase2 =
+    private static readonly Offset16<RoomPixels>[] Phase2 =
         [new(-48, -13), new(-38, -13),
          new(-45, -27), new(-37, -19)];
-    private static readonly KraidArmComponentPosition[] Phase3 =
+    private static readonly Offset16<RoomPixels>[] Phase3 =
         [new(-46, -13), new(-37, -13),
          new(-45, -19), new(-36, -18)];
-    private static readonly KraidArmComponentPosition[] Phase4 =
+    private static readonly Offset16<RoomPixels>[] Phase4 =
         [new(-45, 8), new(-38, 2),
          new(-46, 3), new(-39, -3)];
-    private static readonly KraidArmComponentPosition[] Phase5 =
+    private static readonly Offset16<RoomPixels>[] Phase5 =
         [new(-44, 8), new(-37, 2),
          new(-46, 4), new(-39, -2)];
-    private static readonly KraidArmComponentPosition[] Phase6 =
+    private static readonly Offset16<RoomPixels>[] Phase6 =
         [new(-39, 10), new(-38, 0),
          new(-43, 10), new(-41, -2)];
-    private static readonly KraidArmComponentPosition[] Phase7 =
+    private static readonly Offset16<RoomPixels>[] Phase7 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
-    private static readonly KraidArmComponentPosition[] Phase8 =
+    private static readonly Offset16<RoomPixels>[] Phase8 =
         [new(-39, 10), new(-38, 0),
          new(-43, 9), new(-41, -2)];
-    private static readonly KraidArmComponentPosition[] Phase9 =
+    private static readonly Offset16<RoomPixels>[] Phase9 =
         [new(-39, 10), new(-38, 0),
          new(-42, 9), new(-42, -2)];
 
@@ -158,14 +158,13 @@ internal static class KraidArmCollisionDefinitions
         ushort hitbox = ComponentHitbox(pose, component);
         // The central body component and both single-component poses are anchored
         // at the enemy origin. Only the four articulated positions are stored.
-        if (pose >= 10 || component == 2) return new(0, 0, hitbox);
-        KraidArmComponentPosition[] positions = pose switch
+        if (pose >= 10 || component == 2) return new(Offset16<RoomPixels>.Zero, hitbox);
+        Offset16<RoomPixels>[] positions = pose switch
         {
             0 => Phase0, 1 => Phase1, 2 => Phase2, 3 => Phase3, 4 => Phase4,
             5 => Phase5, 6 => Phase6, 7 => Phase7, 8 => Phase8, _ => Phase9,
         };
-        KraidArmComponentPosition position = positions[component < 2 ? component : component - 1];
-        return new(position.X, position.Y, hitbox);
+        return new(positions[component < 2 ? component : component - 1], hitbox);
     }
     /// <summary>The two single-component arm frames, valued by their bank-$A7 spritemap pointer.</summary>
     private enum SingleComponentFrame : ushort
@@ -239,7 +238,10 @@ internal static class KraidArmCollisionDefinitions
         };
 }
 
-internal readonly record struct KraidArmCollisionComponent(short X, short Y, ushort HitboxPointer);
+/// <summary>One physical arm component of an extended spritemap.</summary>
+/// <param name="Offset">The component origin relative to Kraid's arm enemy, in room pixels.</param>
+/// <param name="HitboxPointer">The component's bank-$A7 hitbox list.</param>
+internal readonly record struct KraidArmCollisionComponent(Offset16<RoomPixels> Offset, ushort HitboxPointer);
 internal readonly record struct KraidArmCollisionHitbox(
     short Left, short Top, short Right, short Bottom, ushort TouchAi, ushort ShotAi);
 
@@ -264,8 +266,6 @@ internal readonly record struct KraidArmHitboxSequence(int Start, int Length)
 }
 
 internal readonly record struct KraidArmCollisionGeometry(short Left, short Top, short Right, short Bottom);
-
-internal readonly record struct KraidArmComponentPosition(short X, short Y);
 
 /// <summary>Ordered physical component view with calculated hitbox selectors.</summary>
 internal readonly record struct KraidArmComponentSequence(int Pose, int Length)

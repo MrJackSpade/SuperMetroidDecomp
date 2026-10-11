@@ -51,7 +51,7 @@ internal static partial class Program
         foreach (int invalid in new[] { -1, 32 })
             AssertThrows<InvalidDataException>(() => GrappleSwingFrameCatalog.Write(new() { Version = 1, Frames = Enumerable.Repeat(invalid, 256).ToArray() }), "Invalid swing-frame index rejected");
         AssertThrows<InvalidDataException>(() => GrappleSwingFrameCatalog.Write(new() { Version = 1, Frames = new int[255] }), "Incomplete swing-frame table rejected");
-        var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
+        var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         foreach (bool faceRight in new[] { false, true })
         for (int angle = 0; angle < 256; angle += 32)
         {

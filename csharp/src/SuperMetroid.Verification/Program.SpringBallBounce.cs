@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifySpringBallBounce()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
+        var room = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
         foreach (SamusBallBounceState bounceState in new[] { SamusBallBounceState.SpringBallFirstRebound, SamusBallBounceState.None })
         {
             var samus = new SamusState

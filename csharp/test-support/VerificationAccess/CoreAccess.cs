@@ -66,10 +66,10 @@ internal static partial class CoreAccess
         internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
         internal Position16<MapPixels> MapScroll => PrivateState.Field<Position16<MapPixels>>(pause, "mapScrollPosition");
 
-        internal MapTileWord ReadDisplayedMapTile(int mapX, int mapY)
+        internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
         {
             var vram = PrivateState.Field<SnesVram>(pause, "vram");
-            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(new(checked((ushort)mapX), checked((ushort)mapY)))) * 2;
+            int byteAddress = (PauseMenuLayout.Bg1TilemapWord + AreaMapLayout.GetTilemapWordIndex(cell)) * 2;
             return new MapTileWord(unchecked((ushort)(vram.ReadByte(byteAddress) | (vram.ReadByte(byteAddress + 1) << 8))));
         }
     }

@@ -97,7 +97,7 @@ internal static partial class Program
     {
         const int width = 32;
         ushort[] words = Enumerable.Repeat((ushort)0x8123, width * 16).ToArray();
-        RoomLevelData level = CreateRoom(width, 16, words,
+        RoomLevelData level = CreateRoom(new(width, 16), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
         level.SetBlockDefinitionWord(0x0059 * 4, 0x0059);

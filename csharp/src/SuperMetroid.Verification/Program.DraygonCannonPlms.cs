@@ -17,9 +17,7 @@ internal static partial class Program
         const int roomHeight = 32;
         var bus = new TestAddressSpace();
         SeedDraygonCannonFixture(bus);
-        RoomLevelData level = CreateRoom(
-            roomWidth,
-            roomHeight,
+        RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             new ushort[roomWidth * roomHeight],
             new byte[roomWidth * roomHeight],
             blockDefinitions: new byte[0x400 * 8]);

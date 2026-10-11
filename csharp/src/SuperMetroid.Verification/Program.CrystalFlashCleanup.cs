@@ -77,7 +77,7 @@ internal static partial class Program
                 // Replace the population at the contact boundary; retain retail AI,
                 // header damage and the runtime's ordinary collision ordering. A
                 // zero-only RNG would hang native-style drop selection on death.
-                var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.X.Whole, samus.Position.Y.Whole);
+                var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.Whole);
                 runtime.Enemies.Load(contactBus, CrystalFlashContactDefinitions.Pointer,
                     CrystalFlashContactDefinitions.Pointer, runtime.Vram, runtime.Cgram, () => 1);
                 contactEnemy = runtime.Enemies.Slots[0];
@@ -150,7 +150,7 @@ internal static partial class Program
 }
 
 /// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>
-internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ushort x, ushort y) :
+internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, Position16<RoomPixels> position) :
     ISnesAddressSpace, IRoomEnemyFixtureSource
 {
     public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
@@ -162,7 +162,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ush
             throw new ArgumentOutOfRangeException(nameof(pointer));
         return new RoomEnemyPopulationDefinition(pointer,
         [
-            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, new(x, y), 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),
+            new RoomEnemyPopulationRecord(CrystalFlashContactDefinitions.RipperHeader, position, 0, CrystalFlashContactDefinitions.Properties, 0, 0, 0),
         ], 0);
     }
 
@@ -178,7 +178,7 @@ internal sealed class CrystalFlashContactPopulation(ISnesAddressSpace inner, ush
 
     public byte ReadByte(int address)
     {
-        ReadOnlySpan<ushort> population = [(ushort)CrystalFlashContactDefinitions.RipperHeader, x, y, 0,
+        ReadOnlySpan<ushort> population = [(ushort)CrystalFlashContactDefinitions.RipperHeader, position.X, position.Y, 0,
             CrystalFlashContactDefinitions.Properties, 0, 0, 0, 0xffff, 0];
         ReadOnlySpan<ushort> tileset = [(ushort)CrystalFlashContactDefinitions.RipperHeader, 0, 0xffff];
         int offset = address - CrystalFlashContactDefinitions.PopulationAddress;

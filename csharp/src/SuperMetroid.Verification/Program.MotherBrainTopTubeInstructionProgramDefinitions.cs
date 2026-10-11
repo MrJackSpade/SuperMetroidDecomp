@@ -53,7 +53,7 @@ internal static partial class Program
                  })
         {
             RoomEnemySystem enemies = NewSystem();
-            spawn.Invoke(enemies, [item.Kind, item.X, item.Y]);
+            spawn.Invoke(enemies, [item.Kind, new Position16<RoomPixels>(item.X, item.Y)]);
             RoomEnemyProjectileSlot tube = enemies.EnemyProjectiles.Single(
                 projectile => projectile.Kind == item.Kind);
             AssertEqual(item.Program, tube.InstructionPointer,
@@ -70,7 +70,7 @@ internal static partial class Program
 
         RoomEnemySystem shotSystem = NewSystem();
         spawn.Invoke(shotSystem,
-            [RoomEnemyProjectileKind.MotherBrainTopRightTube, (ushort)152, (ushort)47]);
+            [RoomEnemyProjectileKind.MotherBrainTopRightTube, new Position16<RoomPixels>(152, 47)]);
         RoomEnemyProjectileSlot shot = shotSystem.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.MotherBrainTopRightTube);
         shot.InstructionPointer = CommonEnemyProjectileInstructionProgramDefinitions.Delete;

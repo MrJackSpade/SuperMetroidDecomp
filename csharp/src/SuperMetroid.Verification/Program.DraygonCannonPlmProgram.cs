@@ -39,7 +39,7 @@ internal static partial class Program
         var blockDefinitions = new byte[0x400 * 8];
         blockDefinitions[0x53 * 8] = 0x53;
         blockDefinitions[0x54 * 8] = 0x54;
-        var level = CreateRoom(width, 32,
+        var level = CreateRoom(new(width, 32),
             new ushort[width * 32], new byte[width * 32],
             blockDefinitions: blockDefinitions);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();

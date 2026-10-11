@@ -87,14 +87,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException(
             "Mother Brain's rainbow beam requires the physical head slot.");
         sequence.SynchronizeLiveActor(
-            state.Body.Position.X.Whole,
-            state.Body.Position.Y.Whole,
+            state.Body.Position.Whole,
             state.Pose,
             state.Form,
             state.Body.Properties,
             state.Body.ExtraProperties,
-            head.Position.X.Whole,
-            head.Position.Y.Whole,
+            head.Position.Whole,
             head.Health,
             head.Properties,
             head.ExtraProperties,

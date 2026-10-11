@@ -1,18 +1,15 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One world-space joint produced by Mother Brain's articulated neck solver.</summary>
-public readonly record struct MotherBrainNeckPoint(ushort X, ushort Y);
-
 /// <summary>
-/// The five positions written by <c>$A9:91B8-$92AA</c>. Segment four is the brain's
-/// attachment point; segments one through three also own the encounter's neck hitboxes.
+/// The five room-pixel joint positions written by <c>$A9:91B8-$92AA</c>. Segment four is the
+/// brain's attachment point; segments one through three also own the encounter's neck hitboxes.
 /// </summary>
 internal readonly record struct MotherBrainNeckGeometry(
-    MotherBrainNeckPoint Segment0,
-    MotherBrainNeckPoint Segment1,
-    MotherBrainNeckPoint Segment2,
-    MotherBrainNeckPoint Segment3,
-    MotherBrainNeckPoint Segment4);
+    Position16<RoomPixels> Segment0,
+    Position16<RoomPixels> Segment1,
+    Position16<RoomPixels> Segment2,
+    Position16<RoomPixels> Segment3,
+    Position16<RoomPixels> Segment4);
 
 /// <summary>
 /// Shared translation of Mother Brain's bank-$A9 neck math. Both the live room-enemy actor
@@ -155,8 +152,7 @@ internal static class MotherBrainNeckKinematics
 
     /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA.</summary>
     internal static MotherBrainNeckGeometry CalculateGeometry(
-        ushort bodyX,
-        ushort bodyY,
+        Position16<RoomPixels> body,
         ushort lowerAngle,
         ushort upperAngle,
         ushort segment0Distance = 2,
@@ -168,43 +164,31 @@ internal static class MotherBrainNeckKinematics
         // `$7E:7814/16` is a deliberately offset body reference point. Adding $70/$FFA0
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
         // individual segment equations auditable against the disassembly.
-        ushort referenceX = unchecked((ushort)(bodyX - 0x0050));
-        ushort referenceY = unchecked((ushort)(bodyY + 0x002e));
+        Position16<RoomPixels> reference = body + new Offset16<RoomPixels>(-0x0050, 0x002e);
         byte lower = unchecked((byte)(lowerAngle >> 8));
         byte upper = unchecked((byte)(upperAngle >> 8));
 
-        MotherBrainNeckPoint segment0 = CalculateLowerSegment(
-            referenceX, referenceY, lower, segment0Distance);
-        MotherBrainNeckPoint segment1 = CalculateLowerSegment(
-            referenceX, referenceY, lower, segment1Distance);
-        MotherBrainNeckPoint segment2 = CalculateLowerSegment(
-            referenceX, referenceY, lower, segment2Distance);
-        MotherBrainNeckPoint segment3 = CalculateUpperSegment(
-            segment2, upper, segment3Distance);
-        MotherBrainNeckPoint segment4 = CalculateUpperSegment(
-            segment2, upper, segment4Distance);
+        Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, lower, segment0Distance);
+        Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, lower, segment1Distance);
+        Position16<RoomPixels> segment2 = CalculateLowerSegment(reference, lower, segment2Distance);
+        Position16<RoomPixels> segment3 = segment2 + CalculatePolarOffset(upper, segment3Distance);
+        Position16<RoomPixels> segment4 = segment2 + CalculatePolarOffset(upper, segment4Distance);
         return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
     }
 
-    private static MotherBrainNeckPoint CalculateLowerSegment(
-        ushort referenceX,
-        ushort referenceY,
+    private static Position16<RoomPixels> CalculateLowerSegment(
+        Position16<RoomPixels> reference,
         byte angle,
         ushort distance) =>
-        new(
-            unchecked((ushort)(referenceX + 0x0070 +
-                CalculateSignedComponent(angle, distance))),
-            unchecked((ushort)(referenceY - 0x0060 +
-                CalculateSignedComponent(unchecked((byte)(angle + 0x40)), distance))));
+        reference + new Offset16<RoomPixels>(0x0070, -0x0060) + CalculatePolarOffset(angle, distance);
 
-    private static MotherBrainNeckPoint CalculateUpperSegment(
-        MotherBrainNeckPoint segment2,
-        byte angle,
-        ushort distance) =>
-        new(
-            unchecked((ushort)(segment2.X + CalculateSignedComponent(angle, distance))),
-            unchecked((ushort)(segment2.Y +
-                CalculateSignedComponent(unchecked((byte)(angle + 0x40)), distance))));
+    /// <summary>
+    /// One joint's displacement: <c>$A9:C46C</c> for the angle (X) and the angle plus a
+    /// quarter turn (Y), each added to the anchor with 16-bit wrap.
+    /// </summary>
+    private static Offset16<RoomPixels> CalculatePolarOffset(byte angle, ushort distance) =>
+        new(CalculateSignedComponent(angle, distance),
+            CalculateSignedComponent(unchecked((byte)(angle + 0x40)), distance));
 
     /// <summary>Exact signed multiply/high-word behavior of <c>$A9:C46C</c>.</summary>
     internal static short CalculateSignedComponent(

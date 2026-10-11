@@ -33,18 +33,18 @@ public sealed class WorkRobotEnemyState
         internal set => _slot.VariableB = value;
     }
 
-    /// <summary>Gets or sets variable C, the whole-pixel X coordinate saved during a temporary ledge probe.</summary>
-    public ushort BackupXPosition
+    /// <summary>
+    /// Gets or sets the whole-pixel room position saved during a temporary ledge probe: X in
+    /// variable C, Y in variable D.
+    /// </summary>
+    public Position16<RoomPixels> BackupPosition
     {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
-    }
-
-    /// <summary>Gets or sets variable D, the whole-pixel Y coordinate saved during a temporary ledge probe.</summary>
-    public ushort BackupYPosition
-    {
-        get => _slot.VariableD;
-        internal set => _slot.VariableD = value;
+        get => new(_slot.VariableC, _slot.VariableD);
+        internal set
+        {
+            _slot.VariableC = value.X;
+            _slot.VariableD = value.Y;
+        }
     }
 
     /// <summary>Gets or sets variable E, the fractional low word of the robot's signed 16.16 falling velocity.</summary>
@@ -353,12 +353,11 @@ public sealed partial class RoomEnemySystem
 
         // The ROM moves only whole X/Y words for this temporary foot probe. In particular,
         // MoveEnemyDown's collision-produced Y subposition survives after Y is restored.
-        state.BackupYPosition = slot.Position.Y.Whole;
-        state.BackupXPosition = slot.Position.X.Whole;
+        state.BackupPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
             slot.Position.X.Whole + ledgeProbeDirection * slot.Radius.X * 2)));
         bool floorFound = MoveEnemyVertically(level, slot, 1 << 16);
-        slot.Position = slot.Position.WithWhole(new(state.BackupXPosition, state.BackupYPosition));
+        slot.Position = slot.Position.WithWhole(state.BackupPosition);
         if (floorFound)
             return nextCursor;
 

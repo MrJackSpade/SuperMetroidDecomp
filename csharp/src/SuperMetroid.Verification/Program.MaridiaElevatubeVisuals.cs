@@ -48,7 +48,7 @@ internal static partial class Program
                 edited.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 0, 0),
                 "elevatube override replaces only the visible block");
 
-            RoomLevelData level = CreateRoom(4, 4, new ushort[16], new byte[16],
+            RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
                 blockDefinitions: new byte[0x400 * 8]);
             level.SetBlockDefinitionWord(0x0058 * 4, 0x0058);
             var plms = new RoomPlmSystem { MaridiaElevatubeVisuals = edited };

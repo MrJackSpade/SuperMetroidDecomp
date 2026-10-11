@@ -36,14 +36,16 @@ public sealed class SporeSpawnEnemyState
     public RoomEnemySlot Body { get; }
     /// <summary>Current bank-$A5 main-AI pointer, corresponding to native variable A at WRAM $0FA8.</summary>
     public SporeSpawnFunction Function { get; internal set; }
-    /// <summary>Fixed stalk interpolation anchor X in room pixels, captured from the spawn body; native <c>stalkXOrigin</c> at $7E:7808.</summary>
-    public ushort StalkAnchorX { get; internal set; }
-    /// <summary>Fixed stalk interpolation anchor Y in room pixels, initialized 72 pixels above the spawn body; native <c>stalkYOrigin</c> at $7E:780A.</summary>
-    public ushort StalkAnchorY { get; internal set; }
-    /// <summary>Original body X in room pixels, used as the horizontal sway center; native <c>XOrigin</c> at WRAM $0FAC.</summary>
-    public ushort MovementCenterX { get; internal set; }
-    /// <summary>Original body Y in room pixels, retained before the live spawn is raised 128 pixels; native <c>YOrigin</c> at WRAM $0FAE.</summary>
-    public ushort MovementCenterY { get; internal set; }
+    /// <summary>
+    /// Fixed stalk interpolation anchor in room pixels: the spawn body's X and a Y 72 pixels
+    /// above it; native <c>stalkXOrigin</c>/<c>stalkYOrigin</c> at $7E:7808/$7E:780A.
+    /// </summary>
+    public Position16<RoomPixels> StalkAnchor { get; internal set; }
+    /// <summary>
+    /// Original body position in room pixels, the sway centre, retained before the live spawn
+    /// is raised 128 pixels; native <c>XOrigin</c>/<c>YOrigin</c> at WRAM $0FAC/$0FAE.
+    /// </summary>
+    public Position16<RoomPixels> MovementCenter { get; internal set; }
     /// <summary>Byte-wrapped sway phase stored in a word at $7E:7814, with 256 units per cycle; X samples cosine and Y samples the doubled, shifted phase.</summary>
     public ushort Angle { get; internal set; }
     /// <summary>Horizontal sway amplitude in room pixels, native $7E:7816; vertical amplitude is this value minus sixteen.</summary>
@@ -58,10 +60,12 @@ public sealed class SporeSpawnEnemyState
     public ushort PreviousHealth { get; internal set; }
     /// <summary>Fixed byte-sized death-drift direction toward (128,624), stored at $7E:8806; zero is right, $40 up, $80 left, and $C0 down.</summary>
     public ushort DeathAngle { get; internal set; }
-    /// <summary>Unsigned horizontal 16.16 pixels-per-update magnitude combining native death speed/subspeed words $7E:8010/$8012; <see cref="DeathAngle"/> supplies the movement sign.</summary>
-    public int DeathXVelocityMagnitude { get; internal set; }
-    /// <summary>Unsigned vertical 16.16 pixels-per-update magnitude combining native death speed/subspeed words $7E:8014/$8016; <see cref="DeathAngle"/> supplies the movement sign.</summary>
-    public int DeathYVelocityMagnitude { get; internal set; }
+    /// <summary>
+    /// Unsigned 16.16 pixels-per-update death-drift magnitude per axis, combining native death
+    /// speed/subspeed words $7E:8010/$8012 (X) and $7E:8014/$8016 (Y); <see cref="DeathAngle"/>
+    /// supplies each axis's movement sign.
+    /// </summary>
+    public FixedVector<RoomPixels> DeathVelocityMagnitude { get; internal set; }
     /// <summary>Whether the live fight's scrolling-finished hook still enforces the arena's minimum camera Y; cleared at death and never installed for an already defeated load.</summary>
     public bool ScrollClampHookActive { get; internal set; }
     /// <summary>Host guard recording that zero health has already triggered projectile cleanup, the defeated flag, death instructions, and the ceiling-crumble request.</summary>
@@ -89,10 +93,9 @@ public sealed class SporeSpawnEnemyState
 }
 
 /// <summary>One hardcoded bank-$84 ceiling mutation published by Spore Spawn.</summary>
-/// <param name="BlockX">Zero-based room block column in 16-pixel units; the native ceiling request uses seven.</param>
-/// <param name="BlockY">Zero-based room block row in 16-pixel units; the native ceiling request uses thirty.</param>
+/// <param name="Block">Zero-based room block; the native ceiling request uses column seven, row thirty.</param>
 /// <param name="Header">Bank-relative PLM header offset in bank $84, selecting the ceiling clear or crumble operation.</param>
-public readonly record struct SporeSpawnPlmRequest(byte BlockX, byte BlockY, PlmHeaderId Header);
+public readonly record struct SporeSpawnPlmRequest(Position16<RoomBlocks> Block, PlmHeaderId Header);
 
 /// <summary>Frame-local marker for one item-drop attempt from a destroyed spore or the boss's death instruction.</summary>
 /// <remarks>Contains no position or table selector: the publisher also invokes drop spawning immediately, using stalk header $DF7F for a spore or body header $DF3F for one of the sixteen death drops.</remarks>
@@ -169,10 +172,8 @@ public sealed partial class RoomEnemySystem
         var state = new SporeSpawnEnemyState(body)
         {
             Function = SporeSpawnFunction.Idle,
-            StalkAnchorX = body.Position.X.Whole,
-            StalkAnchorY = unchecked((ushort)(body.Position.Y.Whole - 72)),
-            MovementCenterX = body.Position.X.Whole,
-            MovementCenterY = body.Position.Y.Whole,
+            StalkAnchor = body.Position.Whole + new Offset16<RoomPixels>(0, -72),
+            MovementCenter = body.Position.Whole,
         };
         _sporeSpawn = state;
 
@@ -267,10 +268,10 @@ public sealed partial class RoomEnemySystem
     {
         UpdateSporeSpawnStalks(state);
         body.Position = body.Position.WithWholeX(unchecked((ushort)(
-            state.MovementCenterX +
+            state.MovementCenter.X +
             ReadEightBitCosineProduct(state.Angle, state.MaximumXRadius))));
         body.Position = body.Position.WithWholeY(unchecked((ushort)(
-            state.MovementCenterY +
+            state.MovementCenter.Y +
             ReadEightBitNegativeSineProduct(
                 unchecked((ushort)(2 * (state.Angle - 64))),
                 unchecked((ushort)(state.MaximumXRadius - 16))))));
@@ -286,8 +287,9 @@ public sealed partial class RoomEnemySystem
         byte direction = unchecked((byte)(64 - CalculateCartridgeAngle(
             new(unchecked((short)(SporeSpawnDeathCenterX - body.Position.X.Whole)), unchecked((short)(SporeSpawnDeathCenterY - body.Position.Y.Whole))))));
         state.DeathAngle = direction;
-        state.DeathXVelocityMagnitude = ReadUnsignedSineMagnitudeProduct(direction, 1, 0x40);
-        state.DeathYVelocityMagnitude = ReadUnsignedSineMagnitudeProduct(direction, 1, 0x80);
+        state.DeathVelocityMagnitude = new(
+            SnesSignedSixteenSixteen.FromRaw(ReadUnsignedSineMagnitudeProduct(direction, 1, 0x40)),
+            SnesSignedSixteenSixteen.FromRaw(ReadUnsignedSineMagnitudeProduct(direction, 1, 0x80)));
     }
 
     /// <summary>Ports <c>SporeSpawn_Func_4</c> at $A5:EBEE.</summary>
@@ -296,11 +298,11 @@ public sealed partial class RoomEnemySystem
         SporeSpawnEnemyState state)
     {
         int xDisplacement = ((state.DeathAngle + 64) & 0x80) != 0
-            ? -state.DeathXVelocityMagnitude
-            : state.DeathXVelocityMagnitude;
+            ? -state.DeathVelocityMagnitude.X.RawValue
+            : state.DeathVelocityMagnitude.X.RawValue;
         int yDisplacement = ((state.DeathAngle + 128) & 0x80) != 0
-            ? -state.DeathYVelocityMagnitude
-            : state.DeathYVelocityMagnitude;
+            ? -state.DeathVelocityMagnitude.Y.RawValue
+            : state.DeathVelocityMagnitude.Y.RawValue;
         body.Position = body.Position.AdvanceX(SnesSignedSixteenSixteen.FromRaw(xDisplacement));
         body.Position = body.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
 
@@ -328,12 +330,12 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = state.Body;
         WriteSporeSpawnStalkAxis(
             firstPosition: SporeSpawnDeathCenterX,
-            anchor: state.StalkAnchorX,
+            anchor: state.StalkAnchor.X,
             end: body.Position.X.Whole,
             horizontal: true);
         WriteSporeSpawnStalkAxis(
             firstPosition: SporeSpawnCeilingY,
-            anchor: state.StalkAnchorY,
+            anchor: state.StalkAnchor.Y,
             end: unchecked((ushort)(body.Position.Y.Whole - 40)),
             horizontal: false);
     }
@@ -373,6 +375,6 @@ public sealed partial class RoomEnemySystem
     }
 
     private void PublishSporeSpawnPlm(PlmHeaderId header) =>
-        LastSporeSpawnPlm = new SporeSpawnPlmRequest(7, 30, header);
+        LastSporeSpawnPlm = new SporeSpawnPlmRequest(new(7, 30), header);
 
 }

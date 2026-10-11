@@ -30,10 +30,10 @@ internal static partial class Program
                     definition.FallingPatternPointer,
                     frameIndex);
                 AssertEqual(ReadChootPatternWord(rom, pathAddress + frameIndex * 4),
-                    point.XOffset,
+                    unchecked((ushort)point.Offset.X),
                     $"Choot path X {patternIndex}/{frameIndex}");
                 AssertEqual(ReadChootPatternWord(rom, pathAddress + frameIndex * 4 + 2),
-                    point.YOffset,
+                    unchecked((ushort)point.Offset.Y),
                     $"Choot path Y {patternIndex}/{frameIndex}");
             }
 
@@ -87,10 +87,10 @@ internal static partial class Program
                     definition.FallingPatternPointer,
                     frameIndex);
                 runFall(fallSlot, fallState);
-                AssertEqual(unchecked((ushort)(0x4000 + unchecked((short)point.XOffset))),
+                AssertEqual(unchecked((ushort)(0x4000 + point.Offset.X)),
                     fallSlot.Position.X.Whole,
                     $"Choot production fall X {patternIndex}/{frameIndex}");
-                AssertEqual(unchecked((ushort)(0x5000 + unchecked((short)point.YOffset))),
+                AssertEqual(unchecked((ushort)(0x5000 + point.Offset.Y)),
                     fallSlot.Position.Y.Whole,
                     $"Choot production fall Y {patternIndex}/{frameIndex}");
                 AssertEqual(unchecked((ushort)((frameIndex + 1) << 8)),

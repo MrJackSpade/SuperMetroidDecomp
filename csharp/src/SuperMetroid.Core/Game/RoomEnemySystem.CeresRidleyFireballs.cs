@@ -1076,8 +1076,7 @@ public sealed partial class RoomEnemySystem
                     MoveProjectileAxis(projectile, level, horizontal: false);
                 if (horizontalCollision || verticalCollision)
                 {
-                    ushort x = projectile.Position.X.Whole;
-                    ushort y = projectile.Position.Y.Whole;
+                    Position16<RoomPixels> impact = projectile.Position.Whole;
                     ushort count = projectile.RemainingAfterburns;
                     projectile.Clear();
                     if (count != 0)
@@ -1086,8 +1085,7 @@ public sealed partial class RoomEnemySystem
                             horizontalCollision
                                 ? RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter
                                 : RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter,
-                            x,
-                            y,
+                            impact,
                             count);
                     }
                 }
@@ -2440,15 +2438,14 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnAfterburnCenter(
         RoomEnemyProjectileKind kind,
-        ushort x,
-        ushort y,
+        Position16<RoomPixels> position,
         ushort remaining)
     {
         RoomEnemyProjectileSlot? center = AllocateEnemyProjectile();
         if (center is null)
             return;
         InitializeEnemyProjectileFromDefinition(center, kind, FireballGraphicsIndex);
-        center.Position = center.Position.WithWhole(new(x, y));
+        center.Position = center.Position.WithWhole(position);
         // $86:9499/$949C explicitly stop the center; allocation retains prior velocities.
         center.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         center.RemainingAfterburns = remaining;
@@ -2458,21 +2455,20 @@ public sealed partial class RoomEnemySystem
     {
         if (horizontal)
         {
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, 0x0e00, 0);
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft, 0xf200, 0);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, CeresRidleyAfterburnDefinitions.Right);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft, CeresRidleyAfterburnDefinitions.Left);
         }
         else
         {
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp, 0, 0xf200);
-            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown, 0, 0x0e00);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp, CeresRidleyAfterburnDefinitions.Up);
+            SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown, CeresRidleyAfterburnDefinitions.Down);
         }
     }
 
     private void SpawnDirectionalAfterburn(
         RoomEnemyProjectileSlot source,
         RoomEnemyProjectileKind kind,
-        ushort xVelocity,
-        ushort yVelocity)
+        EightEightVector<RoomPixels> velocity)
     {
         RoomEnemyProjectileSlot? afterburn = AllocateEnemyProjectile();
         if (afterburn is null)
@@ -2480,7 +2476,7 @@ public sealed partial class RoomEnemySystem
         InitializeEnemyProjectileFromDefinition(afterburn, kind, FireballGraphicsIndex);
         ApplyRidleyProjectileAreaDamage(afterburn);
         afterburn.Position = afterburn.Position.WithWhole(source.Position.Whole);
-        afterburn.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(yVelocity));
+        afterburn.Velocity = velocity;
         afterburn.RemainingAfterburns = source.RemainingAfterburns;
         afterburn.NextAfterburnKind = (ushort)kind;
     }
@@ -2494,8 +2490,7 @@ public sealed partial class RoomEnemySystem
         SpawnDirectionalAfterburn(
             source,
             (RoomEnemyProjectileKind)source.NextAfterburnKind,
-            source.Velocity.X.RawValue,
-            source.Velocity.Y.RawValue);
+            source.Velocity);
     }
 
     private static void BeginAfterburnFinalAnimation(RoomEnemyProjectileSlot projectile)
@@ -2515,26 +2510,22 @@ public sealed partial class RoomEnemySystem
             skree,
             RoomEnemyProjectileKind.SkreeParticleDownRight,
             6,
-            0x0140,
-            0xfcff);
+            new(0x0140, -0x0301));
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleUpRight,
             6,
-            0x0060,
-            0xfbff);
+            new(0x0060, -0x0401));
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleDownLeft,
             -6,
-            0xfec0,
-            0xfcff);
+            new(-0x0140, -0x0301));
         SpawnSkreeOrMetareeParticle(
             skree,
             RoomEnemyProjectileKind.SkreeParticleUpLeft,
             -6,
-            0xffa0,
-            0xfbff);
+            new(-0x0060, -0x0401));
     }
 
     /// <summary>
@@ -2548,26 +2539,22 @@ public sealed partial class RoomEnemySystem
             metaree,
             RoomEnemyProjectileKind.MetareeParticleDownRight,
             6,
-            0x0140,
-            0xfcff);
+            new(0x0140, -0x0301));
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleUpRight,
             6,
-            0x0060,
-            0xfbff);
+            new(0x0060, -0x0401));
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleDownLeft,
             -6,
-            0xfec0,
-            0xfcff);
+            new(-0x0140, -0x0301));
         SpawnSkreeOrMetareeParticle(
             metaree,
             RoomEnemyProjectileKind.MetareeParticleUpLeft,
             -6,
-            0xffa0,
-            0xfbff);
+            new(-0x0060, -0x0401));
     }
 
     /// <summary>
@@ -2579,8 +2566,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot source,
         RoomEnemyProjectileKind kind,
         int xOffset,
-        ushort xVelocity,
-        ushort yVelocity)
+        EightEightVector<RoomPixels> velocity)
     {
         RoomEnemyProjectileSlot? particle = AllocateEnemyProjectile();
         if (particle is null)
@@ -2591,7 +2577,7 @@ public sealed partial class RoomEnemySystem
             kind,
             unchecked((ushort)(source.VramTilesIndex | source.PaletteIndex)));
         particle.Position = particle.Position.WithWhole(new(unchecked((ushort)(source.Position.X.Whole + xOffset)), source.Position.Y.Whole));
-        particle.Velocity = new(new SnesSignedEightEight(xVelocity), new SnesSignedEightEight(yVelocity));
+        particle.Velocity = velocity;
     }
 
 }

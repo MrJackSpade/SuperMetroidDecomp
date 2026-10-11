@@ -54,7 +54,7 @@ public sealed class EscapeTimerPresentation
 
         void DrawFrame(string name, Offset16<OamPixels> anchor)
         {
-            Position16<OamPixels> origin = new Position16<OamPixels>(timer.XPixel, timer.YPixel) + anchor;
+            Position16<OamPixels> origin = timer.PixelPosition.ToOam() + anchor;
             (frames.TryGetValue(name, out var supplied) ? supplied : EscapeTimerPresentationDefinitions.DefaultFrame(name))
                 .DrawOnScreen(oam, origin, PaletteBits);
         }

@@ -25,13 +25,11 @@ internal static partial class Program
             ushort upperAngle = unchecked((ushort)((byte)(255 - angle) << 8));
             MotherBrainNeckGeometry expectedGeometry = ReferenceMotherBrainNeckGeometry(
                 rom,
-                bodyX: 0x0038,
-                bodyY: 0x00b6,
+                body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
             MotherBrainNeckGeometry actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(
-                bodyX: 0x0038,
-                bodyY: 0x00b6,
+                body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
             AssertEqual(expectedGeometry, actualGeometry,
@@ -44,17 +42,16 @@ internal static partial class Program
 
     private static MotherBrainNeckGeometry ReferenceMotherBrainNeckGeometry(
         SuperMetroidAddressSpace rom,
-        ushort bodyX,
-        ushort bodyY,
+        Position16<RoomPixels> body,
         ushort lowerAngle,
         ushort upperAngle)
     {
-        ushort referenceX = unchecked((ushort)(bodyX - 0x0050));
-        ushort referenceY = unchecked((ushort)(bodyY + 0x002e));
+        ushort referenceX = unchecked((ushort)(body.X - 0x0050));
+        ushort referenceY = unchecked((ushort)(body.Y + 0x002e));
         byte lower = unchecked((byte)(lowerAngle >> 8));
         byte upper = unchecked((byte)(upperAngle >> 8));
 
-        MotherBrainNeckPoint Lower(ushort distance) => new(
+        Position16<RoomPixels> Lower(ushort distance) => new(
             unchecked((ushort)(referenceX + 0x0070 +
                 ReferenceMotherBrainNeckComponent(rom, lower, distance))),
             unchecked((ushort)(referenceY - 0x0060 +
@@ -63,10 +60,10 @@ internal static partial class Program
                     unchecked((byte)(lower + 0x40)),
                     distance))));
 
-        MotherBrainNeckPoint segment0 = Lower(2);
-        MotherBrainNeckPoint segment1 = Lower(10);
-        MotherBrainNeckPoint segment2 = Lower(20);
-        MotherBrainNeckPoint Upper(ushort distance) => new(
+        Position16<RoomPixels> segment0 = Lower(2);
+        Position16<RoomPixels> segment1 = Lower(10);
+        Position16<RoomPixels> segment2 = Lower(20);
+        Position16<RoomPixels> Upper(ushort distance) => new(
             unchecked((ushort)(segment2.X +
                 ReferenceMotherBrainNeckComponent(rom, upper, distance))),
             unchecked((ushort)(segment2.Y +

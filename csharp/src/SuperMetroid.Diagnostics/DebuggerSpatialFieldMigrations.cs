@@ -313,6 +313,54 @@ internal static class DebuggerSpatialFieldMigrations
             BackingField("XPosition"), BackingField("YPosition")),
         Radius(typeof(RoomEnemyDefinition).FullName!, BackingField("Radius"), BackingField("XRadius"), BackingField("YRadius")),
 
+        // Boss and family state held beside the enemy slots: camera checkpoints sampled by
+        // Rinka, Shitroid and the shutters, Crocomire's and Phantoon's BG2 scroll words, the
+        // Boulder's spawn point, Spore Spawn's anchors and unsigned 16.16 death drift, the
+        // cutscene Baby's 16.16 position, 8.8 velocity and fatal-blow origin, and Mother
+        // Brain's body and brain positions in the rainbow-beam sequence.
+        Whole<RoomPixels>(typeof(RoomEnemySystem).FullName!, "_rinkaCamera", "_rinkaCameraX", "_rinkaCameraY"),
+        Whole<RoomPixels>(typeof(RoomEnemySystem).FullName!, "_shitroidCamera", "_shitroidCameraX", "_shitroidCameraY"),
+        Whole<RoomPixels>(typeof(RoomEnemySystem).FullName!, "_shutterCamera", "_shutterCameraX", "_shutterCameraY"),
+        Whole<Bg2Pixels>(typeof(RoomEnemySystem).FullName!, BackingField("CrocomireBg2Scroll"),
+            BackingField("CrocomireBg2HorizontalScroll"), BackingField("CrocomireBg2VerticalScroll")),
+        Whole<Bg2Pixels>(typeof(PhantoonEnemyState).FullName!, BackingField("Bg2Scroll"),
+            BackingField("Bg2HorizontalScroll"), BackingField("Bg2VerticalScroll")),
+        Whole<RoomPixels>(typeof(BoulderEnemyState).FullName!, BackingField("InitialPosition"),
+            BackingField("InitialXPosition"), BackingField("InitialYPosition")),
+        Whole<RoomPixels>(typeof(SporeSpawnEnemyState).FullName!, BackingField("StalkAnchor"),
+            BackingField("StalkAnchorX"), BackingField("StalkAnchorY")),
+        Whole<RoomPixels>(typeof(SporeSpawnEnemyState).FullName!, BackingField("MovementCenter"),
+            BackingField("MovementCenterX"), BackingField("MovementCenterY")),
+        // The death drift kept each axis's speed/subspeed words as one int magnitude.
+        new(typeof(SporeSpawnEnemyState).FullName!, BackingField("DeathVelocityMagnitude"),
+            [BackingField("DeathXVelocityMagnitude"), BackingField("DeathYVelocityMagnitude")], Types<int>(2),
+            (_, v) => new FixedVector<RoomPixels>(SnesSignedSixteenSixteen.FromRaw(Int(v[0])), SnesSignedSixteenSixteen.FromRaw(Int(v[1])))),
+        FixedWords<RoomPixels>(typeof(BabyMetroidCutsceneState).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("XSubposition"), BackingField("YPosition"), BackingField("YSubposition")),
+        new(typeof(BabyMetroidCutsceneState).FullName!, BackingField("Velocity"),
+            [BackingField("XVelocity"), BackingField("YVelocity")], Types<ushort>(2), (_, v) => EightEight<RoomPixels>(v)),
+        Whole<RoomPixels>(typeof(BabyMetroidCutsceneState).FullName!, BackingField("FatalBlowOrigin"),
+            BackingField("FatalBlowOriginX"), BackingField("FatalBlowOriginY")),
+        Whole<RoomPixels>(typeof(MotherBrainBodyAnimationState).FullName!, BackingField("Position"),
+            BackingField("XPosition"), BackingField("YPosition")),
+        Whole<RoomPixels>(typeof(MotherBrainRainbowBeamAttackSequence).FullName!, BackingField("BrainPosition"),
+            BackingField("BrainXPosition"), BackingField("BrainYPosition")),
+        // The Morph Ball eye beam image latched with an accepted NMI.
+        Whole<RoomPixels>(typeof(MorphBallEyeBeamRenderSnapshot).FullName!, BackingField("WorldPosition"),
+            BackingField("WorldX"), BackingField("WorldY")),
+
+        // Frame-local hardcoded PLM requests published by Kraid, Crocomire, Shitroid and
+        // Spore Spawn: the inline block bytes.
+        BytePair<RoomBlocks>(typeof(KraidPlmRequest).FullName!, BackingField("Block"), BackingField("BlockX"), BackingField("BlockY")),
+        BytePair<RoomBlocks>(typeof(CrocomirePlmRequest).FullName!, BackingField("Block"), BackingField("BlockX"), BackingField("BlockY")),
+        BytePair<RoomBlocks>(typeof(ShitroidPlmRequest).FullName!, BackingField("Block"), BackingField("BlockX"), BackingField("BlockY")),
+        BytePair<RoomBlocks>(typeof(SporeSpawnPlmRequest).FullName!, BackingField("Block"), BackingField("BlockX"), BackingField("BlockY")),
+
+        // The HUD minimap's centre tile and the escape timer's unsigned 8.8 screen position.
+        BytePair<MapTiles>(typeof(HudState).FullName!, BackingField("MinimapCenter"),
+            BackingField("MinimapCenterX"), BackingField("MinimapCenterY")),
+        Whole<ScreenSubpixels>(typeof(EscapeTimer).FullName!, BackingField("Position"),
+            BackingField("XPositionFixed"), BackingField("YPositionFixed")),
         // Enemy family state. Views over common slot words keep their native words and need no
         // migration; host-stored words and extra-WRAM arrays are rebuilt here.
         new(typeof(DeadSidehopperEnemyState).FullName!, BackingField("Velocity"),

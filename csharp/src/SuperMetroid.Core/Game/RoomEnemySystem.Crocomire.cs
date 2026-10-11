@@ -132,10 +132,7 @@ public sealed partial class RoomEnemySystem
     public CrocomireDropRequest? LastCrocomireDropRequest { get; private set; }
 
     /// <summary>Literal BG2 scroll owned by Crocomire while its extended tilemap is active.</summary>
-    public ushort CrocomireBg2HorizontalScroll { get; private set; }
-
-    /// <summary>Literal BG2 vertical scroll owned by Crocomire while its extended tilemap is active.</summary>
-    public ushort CrocomireBg2VerticalScroll { get; private set; }
+    public Position16<Bg2Pixels> CrocomireBg2Scroll { get; private set; }
 
     /// <summary>Most recent bank-$A4 library-two sound publication.</summary>
     public ushort? LastCrocomireSoundEffect { get; private set; }
@@ -152,8 +149,7 @@ public sealed partial class RoomEnemySystem
         LastCrocomireSoundEffect = null;
         LastCrocomireMusicRequest = null;
         LastCrocomireDropRequest = null;
-        CrocomireBg2HorizontalScroll = 0;
-        CrocomireBg2VerticalScroll = 0;
+        CrocomireBg2Scroll = Position16<Bg2Pixels>.Zero;
         CrocomireBridgeCollapseStarted = false;
     }
 

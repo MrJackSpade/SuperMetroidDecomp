@@ -240,7 +240,7 @@ internal static partial class Program
     {
         const int width = 16;
         const int height = 16;
-        var level = CreateRoom(width, height, new ushort[width * height],
+        var level = CreateRoom(new(width, height), new ushort[width * height],
             new byte[width * height], blockDefinitions: new byte[0x400 * 8]);
         level.SetBlockDefinitionWord(visualWord * 4, visualWord);
         var plms = new RoomPlmSystem { SamusEaterVisuals = visuals };

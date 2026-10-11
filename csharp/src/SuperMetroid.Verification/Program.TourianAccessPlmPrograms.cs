@@ -143,7 +143,7 @@ internal static partial class Program
         for (int y = 12; y < 18; y++)
         for (int x = 6; x < 10; x++)
             words[y * width + x] = 0x0123;
-        RoomLevelData level = CreateRoom(width, height, words,
+        RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnTourianAccess(level, clear),

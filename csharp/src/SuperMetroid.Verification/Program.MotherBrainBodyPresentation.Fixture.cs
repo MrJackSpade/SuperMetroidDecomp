@@ -13,7 +13,7 @@ internal static partial class Program
         internal EnemyAnimationFixture Inner { get; }
         internal RoomEnemySlot Body => Inner.Actor;
         internal MotherBrainEnemyState State { get; }
-        internal List<(ushort X, ushort Y)> ScrollCalls { get; } = [];
+        internal List<Position16<Bg2Pixels>> ScrollCalls { get; } = [];
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, ushort> instructions;
 
         internal MotherBrainPresentationFixture(EnemyTileArtworkCatalog artwork)
@@ -28,7 +28,7 @@ internal static partial class Program
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.Slots[1], Form = 3 };
             typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", Private)!.SetValue(Inner.Enemies, State);
             typeof(RoomEnemySystem).GetField("_setMotherBrainBg2Scroll", Private)!.SetValue(Inner.Enemies,
-                (Action<ushort, ushort>)((x, y) => ScrollCalls.Add((x, y))));
+                (Action<Position16<Bg2Pixels>>)ScrollCalls.Add);
             var queues = (List<ushort>[])typeof(RoomEnemySystem).GetField("_drawQueues", Private)!.GetValue(Inner.Enemies)!;
             queues[0].Add(Body.NativeIndex);
             instructions = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", Private)!

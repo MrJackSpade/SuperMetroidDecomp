@@ -105,7 +105,8 @@ internal static partial class Program
             int address = 0x9bc43e + i * 10;
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
             return new GrappleConnectionDefinitions.SpecialConnection(Word(address), (SamusPoseId)Word(address + 2),
-                unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6)), (GrappleConnectionFunction)Word(address + 8));
+                new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
+                (GrappleConnectionFunction)Word(address + 8));
         }).ToArray();
         AssertEqual(native.Length, GrappleConnectionDefinitions.SpecialAngleCount, "Native special-angle record count");
         for (int record = 0; record < native.Length; record++)
@@ -136,7 +137,7 @@ internal static partial class Program
             g.Anchor = g.Anchor.WithX((ushort)coordinate); g.Anchor = g.Anchor.WithY(unchecked((ushort)~coordinate));
             g.Angle = SnesAngle.FromRaw(row.Angle); g.WallJumpTimer = 77;
             AssertTrue(special(guard, samus, g, new(0, ushort.MaxValue), out var result), "Native special record dispatch");
-            ushort x = unchecked((ushort)(g.Anchor.X + row.X)), y = unchecked((ushort)(g.Anchor.Y + row.Y));
+            ushort x = unchecked((ushort)(g.Anchor.X + row.SamusOffset.X)), y = unchecked((ushort)(g.Anchor.Y + row.SamusOffset.Y));
             AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");
             AssertEqual(y, samus.Position.Y.Whole, "Special wrapped body Y");
             AssertEqual(row.Pose, samus.Pose, "Special body pose");
@@ -162,7 +163,7 @@ internal static partial class Program
         // invented movement/aim pairs through pose $FD and rewrote the adjacent executable
         // bytes in a fake bus; that did not represent a cartridge-reachable state.
         var guard = new GrappleConnectionReadGuard(rom);
-        var empty = CreateRoom(64, 64, new ushort[4096], new byte[4096]);
+        var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)) };
         using var artworkDirectory = new TestTempDirectory("map-catalog");
         SuperMetroid.AssetExtraction.SamusBodyArtworkFiles.Extract(rom, artworkDirectory.Root,

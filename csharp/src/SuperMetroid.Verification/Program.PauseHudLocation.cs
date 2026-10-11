@@ -26,8 +26,8 @@ internal static partial class Program
         Directory.CreateDirectory("csharp/test-temp/issue-1253-hud");
         foreach (byte phase in new byte[] { 0, 8 })
         {
-            runtime.Hud.UpdateMinimap(bus, runtime.System, AreaId.Crateria, 28, 1,
-                0x90, 0x50, samus.Position.X.Whole, samus.Position.Y.Whole, phase,
+            runtime.Hud.UpdateMinimap(bus, runtime.System, AreaId.Crateria, new(28, 1),
+                new(0x90, 0x50), samus.Position.Whole, phase,
                 presentationMap: maps.Get(AreaId.Crateria));
             ushort center = runtime.Hud.Tiles[60];
             AssertEqual(phase == 0 ? 0xbc26 : 0xa826, center, "independent native minimap capture");

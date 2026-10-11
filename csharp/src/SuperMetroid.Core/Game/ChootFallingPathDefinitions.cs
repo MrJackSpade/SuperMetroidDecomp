@@ -1,10 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One physical X/Y sample in an authored Choot falling path.</summary>
-internal readonly record struct ChootFallingPathPoint(ushort XOffset, ushort YOffset)
+/// <summary>One physical sample in an authored Choot falling path.</summary>
+/// <param name="Offset">The signed room-pixel offset from the falling origin.</param>
+internal readonly record struct ChootFallingPathPoint(Offset16<RoomPixels> Offset)
 {
     /// <summary>The native <c>$8000</c> X sentinel that ends one path loop.</summary>
-    internal bool IsTerminator => XOffset == 0x8000;
+    internal bool IsTerminator => Offset.X == short.MinValue;
 }
 
 /// <summary>The five bank-$A2 Choot falling-path streams, valued by native address.</summary>
@@ -179,7 +180,8 @@ internal static class ChootFallingPathDefinitions
                 $"Choot falling-pattern frame {frameIndex} exceeds stream ${(int)pointer:X4}.");
         }
 
-        return new ChootFallingPathPoint(path[wordIndex], path[wordIndex + 1]);
+        return new ChootFallingPathPoint(new(
+            unchecked((short)path[wordIndex]), unchecked((short)path[wordIndex + 1])));
     }
 
     private static int CollapseExpandedPlateaus(int frameIndex, int expandedFrames)

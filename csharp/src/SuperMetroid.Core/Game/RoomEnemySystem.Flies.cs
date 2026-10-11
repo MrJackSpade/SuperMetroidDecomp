@@ -30,18 +30,19 @@ public sealed class FlyEnemyState
         internal set => _slot.VariableA = value;
     }
 
-    /// <summary>Raw signed 8.8 horizontal attack/retreat velocity in variable B at <c>$0FAA,x</c>, in room pixels per actor update; sampled from Samus's attack-start angle and retained during retreat.</summary>
-    public ushort XVelocity
+    /// <summary>
+    /// Raw signed 8.8 attack/retreat velocity in room pixels per actor update: X in variable B
+    /// at <c>$0FAA,x</c>, sampled from Samus's attack-start angle and retained during retreat;
+    /// Y in variable C at <c>$0FAC,x</c>, whose sign reverses when the saved target Y is crossed.
+    /// </summary>
+    public EightEightVector<RoomPixels> Velocity
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>Raw signed 8.8 vertical attack/retreat velocity in variable C at <c>$0FAC,x</c>, in room pixels per actor update; its sign reverses when the saved target Y is crossed.</summary>
-    public ushort YVelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => new(new SnesSignedEightEight(_slot.VariableB), new SnesSignedEightEight(_slot.VariableC));
+        internal set
+        {
+            _slot.VariableB = value.X.RawValue;
+            _slot.VariableC = value.Y.RawValue;
+        }
     }
 
     /// <summary>Samus's whole room-pixel Y coordinate captured when the attack begins, in variable D at <c>$0FAE,x</c>; determines the turnaround rather than tracking Samus's later movement.</summary>
@@ -158,8 +159,9 @@ public sealed partial class RoomEnemySystem
     {
         byte angle = CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
-        state.XVelocity = unchecked((ushort)(ReadSignedSineCosine(angle + 64) * 2));
-        state.YVelocity = unchecked((ushort)(ReadSignedSineCosine(angle) * 4));
+        state.Velocity = new(
+            unchecked((short)(ReadSignedSineCosine(angle + 64) * 2)),
+            unchecked((short)(ReadSignedSineCosine(angle) * 4)));
         state.TargetYPosition = samus.Position.Y.Whole;
         state.Function = FlyEnemyFunction.AttackSamus;
     }
@@ -169,13 +171,13 @@ public sealed partial class RoomEnemySystem
         MoveFlyAccordingToVelocities(slot, state);
         state.RetreatTimer = unchecked((ushort)(state.RetreatTimer + 1));
 
-        bool crossedTarget = (short)state.YVelocity < 0
+        bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole < state.TargetYPosition
             : slot.Position.Y.Whole >= state.TargetYPosition;
         if (!crossedTarget)
             return;
 
-        state.YVelocity = unchecked((ushort)-state.YVelocity);
+        state.Velocity = state.Velocity.ReversedY();
         state.Function = FlyEnemyFunction.Retreat;
     }
 
@@ -188,7 +190,7 @@ public sealed partial class RoomEnemySystem
 
     private static void MoveFlyAccordingToVelocities(RoomEnemySlot slot, FlyEnemyState state)
     {
-        slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(state.XVelocity).ToSixteenSixteenDelta(), new SnesSignedEightEight(state.YVelocity).ToSixteenSixteenDelta()));
+        slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
     }
 
     private static short ReadSignedSineCosine(int index)

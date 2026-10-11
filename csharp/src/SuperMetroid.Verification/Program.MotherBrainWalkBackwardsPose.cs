@@ -21,7 +21,7 @@ internal static partial class Program
             typeof(MotherBrainRainbowBeamAttackSequence).GetProperty(
                     nameof(MotherBrainRainbowBeamAttackSequence.PainfulWalkingAnimationDelay))!
                 .SetValue(sequence, (ushort)0x0002);
-            sequence.Body.XPosition = x;
+            sequence.Body.Position = sequence.Body.Position.WithX(x);
             sequence.Body.Pose = pose;
             return sequence;
         }

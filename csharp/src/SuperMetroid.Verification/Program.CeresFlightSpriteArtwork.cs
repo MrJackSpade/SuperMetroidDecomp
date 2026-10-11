@@ -23,9 +23,9 @@ internal static partial class Program
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
-                    DrawImportedSpritemap(bus, native, source, 120, y, 0x0800);
+                    DrawImportedSpritemap(bus, native, source, new(120, y), 0x0800);
                 else
-                    DrawImportedSpritemap(bus, native, source, 120, y, 0x0800, originIsOnScreen: false);
+                    DrawImportedSpritemap(bus, native, source, new(120, y), 0x0800, originIsOnScreen: false);
                 native.FinalizeFrame();
                 var installed = new OamBuffer();
                 installed.BeginFrame();

@@ -68,26 +68,23 @@ static void VerifyBabyMetroidCutsceneEntrance()
     samus.RefreshCollisionRadii(bus);
     var motherBrain = new MotherBrainRainbowBeamAttackSequence
     {
-        BrainXPosition = 0x0040,
-        BrainYPosition = 0x0060,
+        BrainPosition = new(0x0040, 0x0060),
     };
-    motherBrain.Body.XPosition = 0x0040;
-    motherBrain.Body.YPosition = 0x0064;
+    motherBrain.Body.Position = new(0x0040, 0x0064);
     motherBrain.StartAttackCycle(); // Establishes the pre-existing enabled neck flag.
 
     var baby = new BabyMetroidCutsceneState();
-    baby.Initialize(inheritedXSubposition: 0, inheritedYSubposition: 0);
+    baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
     AssertEqual(0x3800, baby.Properties, "Baby population/init property OR");
     AssertEqual(0x0e00, baby.Palette, "Baby cutscene palette");
     AssertEqual(0x00a0, baby.GraphicsOffset, "Baby transferred-tile offset");
     AssertEqual(BabyMetroidCutsceneState.InitialInstructionList, baby.InstructionList,
         "Baby initial instruction list");
     // Whole/subpixel coordinates in native `$0F7A/$0F7C/$0F7E/$0F80` order.
-    (ushort, ushort, ushort, ushort) BabyPoint() =>
-        (baby.XPosition, baby.XSubposition, baby.YPosition, baby.YSubposition);
-    static (ushort, ushort, ushort, ushort) ExpectedBabyPoint(
+    FixedPosition<RoomPixels> BabyPoint() => baby.Position;
+    static FixedPosition<RoomPixels> ExpectedBabyPoint(
         ushort xPosition, ushort xSubposition, ushort yPosition, ushort ySubposition) =>
-        (xPosition, xSubposition, yPosition, ySubposition);
+        FixedPosition<RoomPixels>.FromWords(xPosition, xSubposition, yPosition, ySubposition);
 
     AssertEqual(ExpectedBabyPoint(0x0140, 0, 0x0060, 0),
         BabyPoint(),
@@ -100,16 +97,15 @@ static void VerifyBabyMetroidCutsceneEntrance()
     AssertEqual(BabyMetroidCutscenePhase.DashOntoScreen, baby.Phase,
         "Baby dash delay retains function at timer zero");
     AssertEqual(0, baby.FunctionTimer, "Baby dash delay exact zero boundary");
-    AssertEqual(0x0140, baby.XPosition, "Baby remains still through call 248");
-    AssertEqual(0x0060, baby.YPosition, "Baby Y remains still through call 248");
+    AssertEqual(new Position16<RoomPixels>(0x0140, 0x0060), baby.Position.Whole, "Baby remains still through call 248");
 
     baby.Step(bus, samus, motherBrain, HeadOf(motherBrain));
     AssertEqual(BabyMetroidCutscenePhase.CurveTowardMotherBrainHead, baby.Phase,
         "Baby call 249 falls through into curve function");
     AssertEqual(0xd680, baby.Angle, "Baby first curve angle");
     AssertEqual(0x0a00, baby.Speed, "Baby first curve speed");
-    AssertEqual(0xf772, baby.XVelocity, "Baby first ROM sine X velocity");
-    AssertEqual(0x051e, baby.YVelocity, "Baby first ROM cosine Y velocity");
+    AssertEqual(0xf772, baby.Velocity.X.RawValue, "Baby first ROM sine X velocity");
+    AssertEqual(0x051e, baby.Velocity.Y.RawValue, "Baby first ROM cosine Y velocity");
     AssertEqual(ExpectedBabyPoint(0x0137, 0x7200, 0x0065, 0x1e00),
         BabyPoint(),
         "Baby first curve fixed-point displacement");

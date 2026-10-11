@@ -122,7 +122,7 @@ internal static partial class Program
                 AssertTrue(stopped, "native Spore Spawn instruction tick terminates");
             }
             trace.Add(new SporeSpawnProgramFrame(instruction, timer, visual,
-                128, 624, 960, properties, extra, function, 0, radius, false, drops));
+                new(128, 624), 960, properties, extra, function, 0, radius, false, drops));
         }
         return trace;
     }
@@ -132,7 +132,7 @@ internal static partial class Program
         SporeSpawnEnemyState state = system.SporeSpawn!;
         return new SporeSpawnProgramFrame(
             slot.CurrentInstruction, slot.InstructionTimer,
-            slot.SpritemapPointer, slot.Position.X.Whole, slot.Position.Y.Whole,
+            slot.SpritemapPointer, slot.Position.Whole,
             slot.Health, slot.Properties, slot.ExtraProperties,
             state.Function, state.Angle, state.MaximumXRadius,
             state.DeathStarted, state.DeathDropRequested);
@@ -140,7 +140,7 @@ internal static partial class Program
 
     private readonly record struct SporeSpawnProgramFrame(
         ushort Instruction, ushort Timer, ushort VisualFrame,
-        ushort X, ushort Y, ushort Health,
+        Position16<RoomPixels> Position, ushort Health,
         ushort Properties, ushort ExtraProperties,
         SporeSpawnFunction Function, ushort Angle, ushort MaximumXRadius,
         bool DeathStarted, bool DeathDropRequested);

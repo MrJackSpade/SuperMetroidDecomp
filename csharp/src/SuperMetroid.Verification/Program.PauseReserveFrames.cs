@@ -31,7 +31,7 @@ internal static partial class Program
                 if (frame.Id != changed.Id)
                 {
                     int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
-                    DrawImportedSpritemap(rom, expected, pointer, 24, 95, 0x600);
+                    DrawImportedSpritemap(rom, expected, pointer, new(24, 95), 0x600);
                 }
                 edited.Draw(actual, (PauseReserveTankVisual)frame.Id, 0);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
@@ -102,7 +102,7 @@ internal static partial class Program
             ushort x = ReadVerificationWord(rom, 0x82c1d6 + index * 2);
             ushort y = (ushort)(ReadVerificationWord(rom, 0x82c1e2) - 1);
             int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + frame.Id * 2);
-            DrawImportedSpritemap(rom, expected, pointer, x, y, 0x600);
+            DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
             presentation.Draw(actual, (PauseReserveTankVisual)frame.Id, index);
             expected.FinalizeFrame(); actual.FinalizeFrame();
             AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),

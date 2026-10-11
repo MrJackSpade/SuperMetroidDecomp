@@ -93,7 +93,7 @@ public sealed partial class SuperMetroidRuntime
             {
                 rainbowBrain.RainbowBeamHdma.PresentationColors = Enemies.MotherBrainRainbowColors;
                 rainbowBrain.RainbowBeamHdma.Step(_addressSpace, rainbowBrain.RainbowBeamHdmaActive,
-                    rainbowHead.Position.X.Whole, rainbowHead.Position.Y.Whole,
+                    rainbowHead.Position.Whole,
                     rainbowBrain.RainbowBeamAngle, rainbowBrain.RainbowBeamAngularWidth);
             }
             if (Enemies.Phantoon is { } phantoon)
@@ -102,8 +102,7 @@ public sealed partial class SuperMetroidRuntime
                 // while eye/tentacle collision follows enemy positions. Publish those
                 // writes before the next accepted NMI latches the matching OAM frame.
                 // The room's fixed layer-two axes preserve them during camera scrolling.
-                BackgroundScroll.SetBg2ScrollRegisters(new Position16<Bg2Pixels>(
-                    phantoon.Bg2HorizontalScroll, phantoon.Bg2VerticalScroll));
+                BackgroundScroll.SetBg2ScrollRegisters(phantoon.Bg2Scroll);
             }
             if (Enemies.CeresEscapeStartedThisFrame)
             {

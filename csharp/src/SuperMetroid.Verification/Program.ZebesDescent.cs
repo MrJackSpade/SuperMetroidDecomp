@@ -45,14 +45,12 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         // One small, zero-X-offset component. Exhaust the ADC operands rather than
         // testing only the negative origins present in one planet animation.
-        WriteTestWord(bus, 0x8c8000, 1);
-        WriteTestWord(bus, 0x8c8002, 0);
-        WriteTestWord(bus, 0x8c8005, 0);
+        SeedOffScreenCinematicSpritemap(bus);
         var oam = new OamBuffer();
         for (int origin = 0; origin < 256; origin++)
         for (int offset = 0; offset < 256; offset++)
         {
-            WriteTestByte(bus, 0x8c8004, (byte)offset);
+            WriteOffScreenCinematicSpritemapYOffset(bus, (byte)offset);
             oam.BeginFrame();
             DrawImportedSpritemap(bus, oam, 0x8c8000, new(5, (ushort)origin), 0, originIsOnScreen: false);
             int sum = origin + offset;
@@ -66,4 +64,18 @@ internal static partial class Program
         }
         Console.WriteLine("  Cinematic off-screen OAM: all 65,536 origin/offset byte pairs match native branches.");
     }
+
+    /// <summary>Seeds a one-component, zero-X-offset cinematic spritemap at `$8C:8000`.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the off-screen cinematic spritemap")]
+    private static void SeedOffScreenCinematicSpritemap(TestAddressSpace bus)
+    {
+        WriteTestWord(bus, 0x8c8000, 1);
+        WriteTestWord(bus, 0x8c8002, 0);
+        WriteTestWord(bus, 0x8c8005, 0);
+    }
+
+    /// <summary>Replaces the signed Y offset byte of the off-screen cinematic spritemap's component.</summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the off-screen cinematic spritemap")]
+    private static void WriteOffScreenCinematicSpritemapYOffset(TestAddressSpace bus, byte offset) =>
+        WriteTestByte(bus, 0x8c8004, offset);
 }

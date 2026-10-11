@@ -357,11 +357,7 @@ static void VerifySamusBlockCollision()
     // Unlike the ownerless topology fixtures above, a live Samus-owned kinematics child
     // must publish the exact `$94:8E83/$8ECF/$8F0A` spike damage before clipping. Exercise
     // every damaging table entry plus the harmless entry two with an identical floor hit.
-    WriteTestByte(bus,
-        SamusMovementRomData.Poses.Definitions +
-            (int)SamusPoseId.FacingRightNormalPose *
-            SamusMovementRomData.Poses.DefinitionByteCount,
-        (byte)SamusFacingDirection.Right);
+    WritePoseDefinitionByte(bus, (int)SamusPoseId.FacingRightNormalPose, 0, (byte)SamusFacingDirection.Right);
     foreach ((byte spikeBehavior, ushort expectedDamage) in new (byte, ushort)[]
     {
         ((byte)SpikeBlockBehavior.Heavy,
@@ -513,14 +509,7 @@ static void VerifySamusGroundedMovement()
 {
     var bus = new TestAddressSpace();
 
-    // Running movement type one reads the normal-air entry at $90:9F61. These are the real
-    // retail words already asserted independently by VerifySamusHorizontalSpeed.
-    WriteTestWord(bus, 0x909f61, 0x0000); // acceleration whole
-    WriteTestWord(bus, 0x909f63, 0x3000); // acceleration fraction
-    WriteTestWord(bus, 0x909f65, 0x0002); // maximum whole
-    WriteTestWord(bus, 0x909f67, 0xc000); // maximum fraction
-    WriteTestWord(bus, 0x909f69, 0x0000); // deceleration whole
-    WriteTestWord(bus, 0x909f6b, 0x8000); // deceleration fraction
+    SeedRunningNormalAirSpeedRecord(bus);
 
     // Shape $12 scales grounded horizontal displacement by $00C0/256 = 3/4 and exposes an
     // eight-pixel surface at X nibble eight. Row one is an uninterrupted two-block floor so
@@ -739,8 +728,8 @@ static void VerifySamusGroundedReversal()
 
     // The production movement port now also validates the pose's literal dispatcher byte,
     // so seed the two ordinary turn definitions before isolating their displacement.
-    bus.WriteBytes(0x91b751, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b759, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.TurningLeftToRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
 
     // Pose $25 is already facing left ($04), but mode one makes $90:8EA9 choose the
     // opposite/right helper while its $0E speed record decelerates old momentum.
@@ -790,21 +779,16 @@ static void VerifySamusGroundedReversal()
     // Seed the exact retail pose metadata and delay bytecode needed by $09->$25->$02.
     // The compact standing/running streams only provide valid frame-zero delays because
     // this test's subject is the turn stream itself.
-    bus.WriteBytes(0x91b639, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b671, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b679, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b751, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b759, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b014, 0xc100); // pose $02
-    WriteTestWord(bus, 0x91b022, 0xc110); // pose $09
-    WriteTestWord(bus, 0x91b024, 0xc120); // pose $0A
-    WriteTestWord(bus, 0x91b05a, 0xc130); // pose $25
-    WriteTestWord(bus, 0x91b05c, 0xc140); // pose $26
-    bus.WriteBytes(0x91c100, [0x0a]);
-    bus.WriteBytes(0x91c110, [0x02]);
-    bus.WriteBytes(0x91c120, [0x02]);
-    bus.WriteBytes(0x91c130, [0x02, 0x02, 0x02, 0xf8, 0x02]);
-    bus.WriteBytes(0x91c140, [0x02, 0x02, 0x02, 0xf8, 0x01]);
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose, [0x04, 0x00, 0xff, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.MovingRightNormalPose, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.MovingLeftNormalPose, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.TurningLeftToRightPose, [0x08, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseAnimationDelays(bus, SamusPoseId.FacingLeftNormalPose, 0xc100, [0x0a]);
+    WritePoseAnimationDelays(bus, SamusPoseId.MovingRightNormalPose, 0xc110, [0x02]);
+    WritePoseAnimationDelays(bus, SamusPoseId.MovingLeftNormalPose, 0xc120, [0x02]);
+    WritePoseAnimationDelays(bus, SamusPoseId.TurningRightToLeftPose, 0xc130, [0x02, 0x02, 0x02, 0xf8, 0x02]);
+    WritePoseAnimationDelays(bus, SamusPoseId.TurningLeftToRightPose, 0xc140, [0x02, 0x02, 0x02, 0xf8, 0x01]);
 
     // `$91:F8D3` explicitly compares the OLD pose against `$00/$9B` before it reads any
     // shot-direction metadata. Both front-view bodies must therefore retain the generic
@@ -928,9 +912,7 @@ static void VerifySamusGroundedReversal()
         // Give every turn its own bytecode location. This catches swapped destinations
         // independently rather than allowing two cases to share a forgiving stream.
         ushort turnStreamAddress = (ushort)(0xc300 + caseIndex * 0x10);
-        WriteTestWord(bus, 0x91b010 + (int)testCase.SelectedTurn * 2, turnStreamAddress);
-        bus.WriteBytes(
-            0x910000 + turnStreamAddress,
+        WritePoseAnimationDelays(bus, testCase.SelectedTurn, turnStreamAddress,
             [0x02, 0x02, 0x02, 0xf8, (byte)testCase.Destination]);
 
         var aimedTurn = new SamusState { Pose = testCase.SourcePose };
@@ -972,15 +954,7 @@ static void VerifySamusGroundedReversal()
             $"aimed turn uses the native standing-aim delay case {caseIndex}");
     }
 
-    // Crouched aim turns are the deliberate type-$17 oddity in this family. Give that
-    // movement type the same conspicuous synthetic speed record as type `$0E`; selecting
-    // the wrong table address would otherwise read zero-filled fixture memory and stop.
-    WriteTestWord(bus, 0x90a069, 0x0000);
-    WriteTestWord(bus, 0x90a06b, 0x3000);
-    WriteTestWord(bus, 0x90a06d, 0x0002);
-    WriteTestWord(bus, 0x90a06f, 0xc000);
-    WriteTestWord(bus, 0x90a071, 0x0000);
-    WriteTestWord(bus, 0x90a073, 0x4000);
+    SeedCrouchedAimTurnSpeedRecord(bus);
 
     (SamusPoseId SourcePose, byte[] Definition)[] crouchedSources =
     [
@@ -996,9 +970,7 @@ static void VerifySamusGroundedReversal()
     foreach ((SamusPoseId sourcePose, byte[] definition) in crouchedSources)
     {
         WritePoseDefinition(bus, (int)sourcePose, definition);
-        ushort streamAddress = (ushort)(0xc600 + (int)sourcePose * 2);
-        WriteTestWord(bus, 0x91b010 + (int)sourcePose * 2, streamAddress);
-        WriteTestByte(bus, 0x910000 + streamAddress, 0x0a);
+        WritePoseAnimationDelays(bus, sourcePose, (ushort)(0xc600 + (int)sourcePose * 2), [0x0a]);
     }
 
     // `$43/$44` really are movement type `$0E`; the six aimed records really are `$17`.
@@ -1041,9 +1013,7 @@ static void VerifySamusGroundedReversal()
     {
         var testCase = crouchedTurnCases[caseIndex];
         ushort turnStreamAddress = (ushort)(0xc800 + caseIndex * 0x10);
-        WriteTestWord(bus, 0x91b010 + (int)testCase.SelectedTurn * 2, turnStreamAddress);
-        bus.WriteBytes(
-            0x910000 + turnStreamAddress,
+        WritePoseAnimationDelays(bus, testCase.SelectedTurn, turnStreamAddress,
             [0x02, 0x02, 0x02, 0xf8, (byte)testCase.Destination]);
 
         var crouchedTurn = new SamusState { Pose = testCase.SourcePose };
@@ -1147,17 +1117,14 @@ static void VerifySamusMoonwalking()
     foreach ((SamusPoseId pose, byte[] definition) in standing)
     {
         WritePoseDefinition(bus, (int)pose, definition);
-        ushort stream = (ushort)(0xc000 + (int)pose);
-        WriteTestWord(bus, 0x91b010 + (int)pose * 2, stream);
-        WriteTestByte(bus, 0x910000 + stream, 10);
+        WritePoseAnimationDelays(bus, pose, (ushort)(0xc000 + (int)pose), [10]);
     }
 
     // The disabled-option substitution enters ordinary right-to-left `$25`, including the
     // initializer's momentum fold and mode-one selection. `$25`'s short stream need not
     // complete here; merely initializing it proves the candidate was not retained.
-    bus.WriteBytes(0x91b751, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
-    WriteTestWord(bus, 0x91b05a, 0xc100);
-    bus.WriteBytes(0x91c100, [0x02, 0x02, 0x02, 0xf8, 0x02]);
+    WritePoseDefinition(bus, (int)SamusPoseId.TurningRightToLeftPose, [0x04, 0x0e, 0xff, 0xfb, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseAnimationDelays(bus, SamusPoseId.TurningRightToLeftPose, 0xc100, [0x02, 0x02, 0x02, 0xf8, 0x02]);
     var disabled = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
     disabled.HorizontalSpeed.BaseSubspeed = 0x4000;
     disabled.HorizontalSpeed.ExtraRunSubspeed = 0x2000;
@@ -1249,9 +1216,7 @@ static void VerifySamusMoonwalking()
     foreach ((SamusPoseId target, _, SamusPoseId fallback, _) in stable)
     {
         var candidate = new SamusState { Pose = fallback };
-        ushort stream = (ushort)(0xc200 + (int)target);
-        WriteTestWord(bus, 0x91b010 + (int)target * 2, stream);
-        WriteTestByte(bus, 0x910000 + stream, 2);
+        WritePoseAnimationDelays(bus, target, (ushort)(0xc200 + (int)target), [2]);
         candidate.ApplyMoonwalkPoseChange(bus, target, moonwalkEnabled: true);
         AssertEqual(target, candidate.Pose, $"enabled Moonwalk retains candidate ${(int)target:X2}");
 
@@ -1329,22 +1294,16 @@ static void VerifySamusMoonwalking()
     foreach ((_, SamusPoseId target, byte[] definition, SamusPoseId spinTarget) in turns)
     {
         WritePoseDefinition(bus, (int)target, definition);
-        ushort stream = (ushort)(0xc300 + ((int)target - 0xbf) * 8);
-        WriteTestWord(bus, 0x91b010 + (int)target * 2, stream);
-        bus.WriteBytes(0x910000 + stream, [0x02, 0x02, 0x02, 0xf8, (byte)spinTarget]);
+        WritePoseAnimationDelays(bus, target, (ushort)(0xc300 + ((int)target - 0xbf) * 8),
+            [0x02, 0x02, 0x02, 0xf8, (byte)spinTarget]);
     }
 
     // Spin endpoints and dry-air constants are read through production code after `$F8`.
-    bus.WriteBytes(0x91b6f1, [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
-    bus.WriteBytes(0x91b6f9, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
-    WriteTestWord(bus, 0x91b042, 0xc400);
-    WriteTestWord(bus, 0x91b044, 0xc401);
-    WriteTestByte(bus, 0x91c400, 2);
-    WriteTestByte(bus, 0x91c401, 2);
-    WriteTestWord(bus, 0x909eb9, 0x0004);
-    WriteTestWord(bus, 0x909ebf, 0xe000);
-    WriteTestWord(bus, 0x909ea1, 0x2800);
-    WriteTestWord(bus, 0x909ea7, 0x0000);
+    WritePoseDefinition(bus, (int)SamusPoseId.SpinJumpRightPose, [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.SpinJumpLeftPose, [0x04, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
+    WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpRightPose, 0xc400, [2]);
+    WritePoseAnimationDelays(bus, SamusPoseId.SpinJumpLeftPose, 0xc401, [2]);
+    SeedMoonwalkTurnJumpDryVerticalRows(bus);
 
     foreach ((SamusPoseId source, SamusPoseId target, _, _) in turns)
     {
@@ -1413,16 +1372,16 @@ static void VerifySamusRanIntoWall()
     foreach ((SamusPoseId pose, byte[] definition) in wallPoses)
     {
         WritePoseDefinition(bus, (int)pose, definition);
-        WriteTestWord(bus, 0x91b010 + (int)pose * 2, 0xc500);
+        WritePoseAnimationDelayPointer(bus, pose, 0xc500);
     }
-    bus.WriteBytes(0x91c500, [0x10, 0xff]);
+    WriteAnimationDelayStream(bus, 0xc500, [0x10, 0xff]);
 
     // Minimal current/prospective definitions make direction and movement-type selection
     // auditable without copying unrelated animation data into this focused fixture.
-    bus.WriteBytes(0x91b631, [0x08, 0x00, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b639, [0x04, 0x00, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b671, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
-    bus.WriteBytes(0x91b679, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingRightNormalPose, [0x08, 0x00, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.FacingLeftNormalPose, [0x04, 0x00, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.MovingRightNormalPose, [0x08, 0x01, 0x01, 0x02, 0x06, 0x00, 0x15, 0x00]);
+    WritePoseDefinition(bus, (int)SamusPoseId.MovingLeftNormalPose, [0x04, 0x01, 0x02, 0x07, 0x06, 0x00, 0x15, 0x00]);
 
     SamusPoseId[] selectedByShotDirection =
     [
@@ -1571,6 +1530,47 @@ static void VerifySamusRanIntoWall()
     }
 
     Console.WriteLine("  Ran into wall: ten-way selector, arm-pump pixel, six stable poses, grounding, and cleanup agree.");
+}
+
+/// <summary>
+/// Running movement type one reads the normal-air entry at $90:9F61. These are the real
+/// retail words already asserted independently by VerifySamusHorizontalSpeed.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the normal-air running speed record")]
+static void SeedRunningNormalAirSpeedRecord(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x909f61, 0x0000); // acceleration whole
+    WriteTestWord(bus, 0x909f63, 0x3000); // acceleration fraction
+    WriteTestWord(bus, 0x909f65, 0x0002); // maximum whole
+    WriteTestWord(bus, 0x909f67, 0xc000); // maximum fraction
+    WriteTestWord(bus, 0x909f69, 0x0000); // deceleration whole
+    WriteTestWord(bus, 0x909f6b, 0x8000); // deceleration fraction
+}
+
+/// <summary>
+/// Crouched aim turns are the deliberate type-$17 oddity in their family. Gives that movement
+/// type the same conspicuous synthetic speed record as type `$0E`; selecting the wrong table
+/// address would otherwise read zero-filled fixture memory and stop.
+/// </summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the type-$17 crouched aim-turn speed record")]
+static void SeedCrouchedAimTurnSpeedRecord(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x90a069, 0x0000);
+    WriteTestWord(bus, 0x90a06b, 0x3000);
+    WriteTestWord(bus, 0x90a06d, 0x0002);
+    WriteTestWord(bus, 0x90a06f, 0xc000);
+    WriteTestWord(bus, 0x90a071, 0x0000);
+    WriteTestWord(bus, 0x90a073, 0x4000);
+}
+
+/// <summary>Seeds the dry-air normal-jump launch and gravity words read after a Moonwalk turn-jump's `$F8`.</summary>
+[CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Moonwalk turn-jump dry launch and gravity rows")]
+static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
+{
+    WriteTestWord(bus, 0x909eb9, 0x0004);
+    WriteTestWord(bus, 0x909ebf, 0xe000);
+    WriteTestWord(bus, 0x909ea1, 0x2800);
+    WriteTestWord(bus, 0x909ea7, 0x0000);
 }
 
 // Sends a synthetic planar tile through DMA, OAM, OBSEL, and CGRAM so this tests the

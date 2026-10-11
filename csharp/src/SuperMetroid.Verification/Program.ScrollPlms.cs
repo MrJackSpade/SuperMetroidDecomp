@@ -18,19 +18,7 @@ internal static partial class Program
         const ushort population = 0x9000;
         const ushort scrollProgram = 0x9100;
 
-        // Six-byte room records are copied in their native order: one resident trigger,
-        // then right/left/down/up extensions. Extension setup mutates terrain immediately
-        // and deletes its temporary slot; only `$B703` remains active afterward.
-        bus.WriteBytes(0x8f0000 | population, [
-            0x03, 0xb7, 0x03, 0x03, 0x00, 0x91,
-            0x3b, 0xb6, 0x04, 0x03, 0x00, 0x80,
-            0x3f, 0xb6, 0x02, 0x03, 0x00, 0x80,
-            0x43, 0xb6, 0x03, 0x04, 0x00, 0x80,
-            0x47, 0xb6, 0x03, 0x02, 0x00, 0x80,
-            0x00, 0x00,
-        ]);
-        // `$84:8B55` consumes `(scroll index,value)` byte pairs until a negative index.
-        bus.WriteBytes(0x8f0000 | scrollProgram, [0x01, 0x01, 0x80]);
+        SeedRoomScrollPlmCartridge(bus, population, scrollProgram);
 
         var level = new RoomLevelData(
             new Extent16<RoomBlocks>(width, height),
@@ -190,5 +178,26 @@ internal static partial class Program
 
         Console.WriteLine(
             "  Scroll PLMs: population setup, four extensions, collision wakeup, and bank-$8F programs agree.");
+    }
+
+    /// <summary>
+    /// Seeds the room-scroll PLM population and its scroll program. Six-byte room records are
+    /// copied in their native order: one resident `$B703` trigger whose argument selects
+    /// <paramref name="scrollProgram"/>, then right/left/down/up extensions. Extension setup
+    /// mutates terrain immediately and deletes its temporary slot; only `$B703` remains active.
+    /// `$84:8B55` consumes `(scroll index,value)` byte pairs until a negative index.
+    /// </summary>
+    [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the room-scroll PLM population and scroll program")]
+    static void SeedRoomScrollPlmCartridge(TestAddressSpace bus, ushort population, ushort scrollProgram)
+    {
+        bus.WriteBytes(0x8f0000 | population, [
+            0x03, 0xb7, 0x03, 0x03, 0x00, 0x91,
+            0x3b, 0xb6, 0x04, 0x03, 0x00, 0x80,
+            0x3f, 0xb6, 0x02, 0x03, 0x00, 0x80,
+            0x43, 0xb6, 0x03, 0x04, 0x00, 0x80,
+            0x47, 0xb6, 0x03, 0x02, 0x00, 0x80,
+            0x00, 0x00,
+        ]);
+        bus.WriteBytes(0x8f0000 | scrollProgram, [0x01, 0x01, 0x80]);
     }
 }

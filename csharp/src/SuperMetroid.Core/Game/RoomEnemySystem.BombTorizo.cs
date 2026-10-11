@@ -98,10 +98,6 @@ public readonly record struct TorizoOrbDropRequest();
 /// </summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort BombTorizoTouchAi = EnemyAiCodePointers.BankAA.BombTorizoTouch;
-    internal const ushort BombTorizoShotAi = EnemyAiCodePointers.BankAA.BombTorizoShot;
-    internal const ushort TorizoStandUpSitDownShotAi = EnemyAiCodePointers.BankAA.TorizoStandUpSitDownShot;
-    internal const ushort GoldenTorizoShotAi = EnemyAiCodePointers.BankAA.GoldenTorizoShot;
     private const ushort BombTorizoLowHealthInterruptInstruction = 0xb0e5;
     private const ushort BombTorizoLowHealthRecoveryInstruction = 0xb155;
     private const ushort BombTorizoDeathInstruction = 0xb1c8;
@@ -117,15 +113,16 @@ public sealed partial class RoomEnemySystem
     private void ResolveTorizoNormalBomb(
         RoomEnemySlot torizo,
         SamusBombProjectileSlot bomb,
-        ushort selectedShotAi)
+        ushort selectedShotAiPointer)
     {
+        EnemyInteractionCallback? selectedShotAi = HitboxCallback(torizo, selectedShotAiPointer);
         bool isBombTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
         if (!isBombTorizo && !isGoldenTorizo)
             throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
 
         TorizoEnemyState state = RequireBombTorizoState(torizo);
-        if (selectedShotAi == TorizoStandUpSitDownShotAi)
+        if (selectedShotAi == EnemyInteractionCallback.TorizoStandUpSitDownShot)
         {
             // `$C9C2` is a complete no-op in Bomb Torizo's area. Golden Torizo jumps to
             // `$D658`, which accepts common damage only outside the active flash and while
@@ -141,12 +138,12 @@ public sealed partial class RoomEnemySystem
         }
 
         bool validMainCallback = isBombTorizo
-            ? selectedShotAi == BombTorizoShotAi
-            : selectedShotAi is BombTorizoShotAi or GoldenTorizoShotAi;
+            ? selectedShotAi == EnemyInteractionCallback.BombTorizoShot
+            : selectedShotAi is EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.GoldenTorizoShot;
         if (!validMainCallback)
         {
             throw new InvalidDataException(
-                $"Torizo normal-bomb hitbox AI $AA:{selectedShotAi:X4} is not translated.");
+                $"Torizo normal-bomb hitbox AI $AA:{selectedShotAiPointer:X4} is not translated.");
         }
 
         // Both normal callbacks return during the hurt flash. Bomb Torizo also uses its

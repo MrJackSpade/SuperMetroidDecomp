@@ -207,7 +207,6 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    internal const ushort KiHunterShotAi = EnemyAiCodePointers.BankA8.KiHunterShot;
 
     private const ushort EmptyA8Spritemap = 0x804d;
     private const ushort KiHunterGroundWaitFrames = 12;

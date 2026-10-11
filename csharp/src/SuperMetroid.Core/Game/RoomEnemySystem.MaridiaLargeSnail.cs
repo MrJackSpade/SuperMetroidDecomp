@@ -141,13 +141,6 @@ public sealed partial class RoomEnemySystem
     private const ushort MaridiaLargeSnailImpactIndexLoss = 0x1000;
     private const ushort MaridiaLargeSnailSplashSound = 0x000e;
     private const ushort MaridiaLargeSnailShotSound = 0x0057;
-    private const ushort MaridiaLargeSnailDamagingTouchAi =
-        EnemyAiCodePointers.BankA2.MaridiaLargeSnailDamagingTouch;
-    private const ushort MaridiaLargeSnailNonDamagingTouchAi =
-        EnemyAiCodePointers.BankA2.MaridiaLargeSnailNonDamagingTouch;
-    private const ushort MaridiaLargeSnailShotAi =
-        EnemyAiCodePointers.BankA2.MaridiaLargeSnailShot;
-    private const ushort MaridiaLargeSnailNoOpHitboxAi = EnemyAiCodePointers.BankA0.NoOp;
 
     private readonly MaridiaLargeSnailEnemyState?[] _maridiaLargeSnailStates =
         new MaridiaLargeSnailEnemyState?[MaximumEnemyCount];

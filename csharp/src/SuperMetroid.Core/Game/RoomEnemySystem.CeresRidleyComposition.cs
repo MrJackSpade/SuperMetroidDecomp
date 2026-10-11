@@ -677,16 +677,17 @@ public sealed partial class RoomEnemySystem
                 samus.Kinematics.XRadius,
                 samus.Kinematics.YRadius,
                 selectShotCallback: false,
-                out ushort touchAi))
+                out ushort touchAiPointer))
         {
             return false;
         }
+        EnemyInteractionCallback? touchAi = HitboxCallback(slot, touchAiPointer);
 
-        if (touchAi != RidleyExtendedTouchAi)
+        if (touchAi != EnemyInteractionCallback.RidleyExtendedTouch)
         {
             throw new InvalidDataException(
-                $"Ridley extended body selected touch AI $A6:{touchAi:X4}, expected " +
-                $"$A6:{RidleyExtendedTouchAi:X4} from map $A6:{slot.SpritemapPointer:X4}.");
+                $"Ridley extended body selected touch AI $A6:{touchAiPointer:X4}, expected " +
+                $"$A6:{EnemyAiCodePointers.BankA6.RidleyExtendedTouch:X4} from map $A6:{slot.SpritemapPointer:X4}.");
         }
 
         // $A6:DF59 enters the common no-death-check handler. That distinction matters for

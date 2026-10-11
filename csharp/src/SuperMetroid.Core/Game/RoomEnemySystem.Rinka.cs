@@ -75,9 +75,6 @@ public readonly record struct RinkaSpawnResource(
 /// <summary>Literal translation of Rinka enemy AI $A2:B602-$BA0B.</summary>
 public sealed partial class RoomEnemySystem
 {
-    internal const ushort RinkaTouchAi = EnemyAiCodePointers.BankA2.RinkaTouch;
-    internal const ushort RinkaShotAi = EnemyAiCodePointers.BankA2.RinkaShot;
-    internal const ushort RinkaPowerBombAi = EnemyAiCodePointers.BankA2.RinkaPowerBomb;
 
     private const ushort RinkaInitialDelay = 26;
     private const ushort RinkaHealth = 10;

@@ -89,7 +89,6 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    internal const ushort SparkShotAi = EnemyAiCodePointers.BankA8.SparkShot;
 
     private readonly SparkEnemyState?[] _sparkStates =
         new SparkEnemyState?[MaximumEnemyCount];

@@ -68,7 +68,6 @@ public sealed class RipperVariantEnemyState
 public sealed partial class RoomEnemySystem
 {
 
-    internal const ushort GRipperRipper2ShotAi = EnemyAiCodePointers.BankA2.GRipperRipper2Shot;
 
     private readonly ushort[] _ripperVariantMinimumXPositions =
         new ushort[MaximumEnemyCount];

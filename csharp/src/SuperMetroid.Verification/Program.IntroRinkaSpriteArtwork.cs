@@ -16,7 +16,7 @@ internal static partial class Program
         if (unchecked((ushort)(y + CinematicSpriteDrawDefinitions.OriginYBias)) >= CinematicSpriteDrawDefinitions.BiasedOriginYLimit) return;
         DrawImportedSpritemap(bus, oam,
             IntroCinematicRomData.Banks.Spritemaps << 16 | actor.SpriteMapPointer,
-            actor.WholePosition.X, y, actor.PaletteBits,
+            new(actor.WholePosition.X, y), actor.PaletteBits,
             originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
     }
     private static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
@@ -35,9 +35,9 @@ internal static partial class Program
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
-                    DrawImportedSpritemap(bus, native, source, x, y, palette);
+                    DrawImportedSpritemap(bus, native, source, new(x, y), palette);
                 else
-                    DrawImportedSpritemap(bus, native, source, x, y, palette, originIsOnScreen: false);
+                    DrawImportedSpritemap(bus, native, source, new(x, y), palette, originIsOnScreen: false);
                 native.FinalizeFrame();
                 var installed = new OamBuffer();
                 installed.BeginFrame();

@@ -224,7 +224,7 @@ public sealed partial class RoomEnemySystem
             if (KraidPlmDefinitions.ForSinkCallback(function) is { } request)
             {
                 // Each sinking rock starts at the left pixel edge of the removed block.
-                _ = SpawnKraidCeilingRock((ushort)(request.BlockX * 16));
+                _ = SpawnKraidCeilingRock((ushort)(request.Block.X * 16));
                 _kraidPlmRequests.Add(request);
             }
             return;

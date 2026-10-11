@@ -712,15 +712,13 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private static bool ExtendedSpritemapOverlapsRectangle(
         RoomEnemySlot slot,
-        ushort subjectX,
-        ushort subjectY,
-        ushort subjectXRadius,
-        ushort subjectYRadius)
+        Position16<RoomPixels> subject,
+        Extent16<RoomPixels> subjectRadius)
     {
-        int subjectLeft = unchecked((ushort)(subjectX - subjectXRadius));
-        int subjectRight = unchecked((ushort)(subjectX + subjectXRadius));
-        int subjectTop = unchecked((ushort)(subjectY - subjectYRadius));
-        int subjectBottom = unchecked((ushort)(subjectY + subjectYRadius));
+        int subjectLeft = unchecked((ushort)(subject.X - subjectRadius.X));
+        int subjectRight = unchecked((ushort)(subject.X + subjectRadius.X));
+        int subjectTop = unchecked((ushort)(subject.Y - subjectRadius.Y));
+        int subjectBottom = unchecked((ushort)(subject.Y + subjectRadius.Y));
         var components =
             RidleyCollisionDefinitions.ComponentsAt(slot.SpritemapPointer);
         foreach (RidleyCollisionComponent component in components)

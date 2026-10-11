@@ -20,7 +20,7 @@ internal static partial class Program
                 words[row * 64 + (left != 0 ? 63 : 0)] = 0x4000;
                 words[row * 64 + (left != 0 ? 0 : 63)] = 0x8000;
             }
-            var level = CreateRoom(64, 128, words, new byte[words.Length]);
+            var level = CreateRoom(new(64, 128), words, new byte[words.Length]);
             var samus = new SamusState
             {
                 PoseId = left != 0 ? SamusPoseId.StandingAimDiagonalDownLeftPose : SamusPoseId.StandingAimDiagonalDownRightPose,

@@ -44,7 +44,7 @@ internal static partial class Program
                 Position16<ScreenPixels> marker = samusCell.ToMapPixels().ToScreen(pause.MapScroll);
                 ushort x = marker.X, y = marker.Y;
                 var expected = new OamBuffer(); expected.BeginFrame();
-                DrawImportedSpritemap(bus, expected, 0x820000 | Read(0x82c569 + id * 2), x, y, 0x0e00);
+                DrawImportedSpritemap(bus, expected, 0x820000 | Read(0x82c569 + id * 2), new(x, y), 0x0e00);
                 int bytes = expected.NextByteOffset; expected.FinalizeFrame();
                 var actual = (OamBuffer)typeof(PauseMenuState).GetField("oam", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pause)!;
                 AssertTrue(expected.LowTable[..bytes].SequenceEqual(actual.LowTable[..bytes]), "current-position marker native OAM and animation timing");

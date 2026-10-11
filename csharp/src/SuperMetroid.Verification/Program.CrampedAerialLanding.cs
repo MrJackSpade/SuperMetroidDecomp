@@ -45,9 +45,7 @@ internal static partial class Program
         // between the bottom of the ceiling cell and the top of the floor cell.
         foreground[2 * roomWidth + 8] = 0xc000;
         foreground[4 * roomWidth + 8] = 0xc000;
-        RoomLevelData level = CreateRoom(
-            roomWidth,
-            roomHeight,
+        RoomLevelData level = CreateRoom(new(roomWidth, roomHeight),
             foreground,
             new byte[foreground.Length]);
         var samus = new SamusState

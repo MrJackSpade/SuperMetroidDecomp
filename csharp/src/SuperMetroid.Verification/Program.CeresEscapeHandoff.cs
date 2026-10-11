@@ -102,7 +102,7 @@ internal static partial class Program
             position: new(100, 100));
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
-        RoomLevelData emptyRoom = CreateEmptyRoom(32, 32);
+        RoomLevelData emptyRoom = CreateEmptyRoom(new(32, 32));
 
         samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
         samus.PoseHistory.PreviousDirectionAndMovement = 8;

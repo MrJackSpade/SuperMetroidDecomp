@@ -44,7 +44,7 @@ static void VerifyObjRendering()
     bus.WriteBytes(0x818000, [0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
     cgram.SetColor(128 + 2 * 16 + 1, Bgr555.FromWord(0x001f));
     oam.BeginFrame();
-    DrawImportedSpritemap(bus, oam, 0x818000, originX: 10, originY: 20, paletteBits: 0x0400);
+    DrawImportedSpritemap(bus, oam, 0x818000, origin: new(10, 20), paletteBits: 0x0400);
     oam.FinalizeFrame();
 
     var pixels = SnesObjRenderer.Render(oam, vram, cgram, obsel: 0);
@@ -174,15 +174,11 @@ static void VerifyHudStateAndBg3Rendering()
         bus,
         mapSystem,
         areaIndex: AreaId.Crateria,
-        roomMapX: 0x17,
-        roomMapY: 0,
-        roomWidthInBlocks: 9 * 16,
-        roomHeightInBlocks: 5 * 16,
-        samusX: 0x0440,
-        samusY: 0x04bb,
+        roomMap: new(0x17, 0),
+        roomSize: new(9 * 16, 5 * 16),
+        samus: new(0x0440, 0x04bb),
         nmiFrameCounter: 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
-    AssertEqual(27, hud.MinimapCenterX, "minimap Landing Site absolute X");
-    AssertEqual(5, hud.MinimapCenterY, "minimap Landing Site absolute Y");
+    AssertEqual(new Position16<MapTiles>(27, 5), hud.MinimapCenter, "minimap Landing Site absolute tile");
     AssertEqual(0x2c99, hud.Tiles[26], "minimap top-left unvisited map-station tile");
     AssertEqual(0x28bb, hud.Tiles[60], "minimap explored center tile");
 
@@ -191,12 +187,9 @@ static void VerifyHudStateAndBg3Rendering()
         bus,
         noMapSystem,
         areaIndex: AreaId.Crateria,
-        roomMapX: 0x17,
-        roomMapY: 0,
-        roomWidthInBlocks: 9 * 16,
-        roomHeightInBlocks: 5 * 16,
-        samusX: 0x0440,
-        samusY: 0x04bb,
+        roomMap: new(0x17, 0),
+        roomSize: new(9 * 16, 5 * 16),
+        samus: new(0x0440, 0x04bb),
         nmiFrameCounter: 0, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertEqual(0x3cbb, hud.Tiles[60], "minimap blinking center palette");
     AssertEqual(0x2c1f, hud.Tiles[26], "minimap hides unvisited tile without map station");
@@ -213,10 +206,10 @@ static void VerifyHudStateAndBg3Rendering()
         ushort savedAbove = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), aboveAddress);
         WriteTestWord(bus, currentAddress, slope);
         WriteTestWord(bus, aboveAddress, 0x0029);
-        hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, (byte)x, 4, 16, 16, 128, 128, 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
+        hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, new((byte)x, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
         AssertTrue(slopeSystem.IsMapTileExplored(0, new(checked((ushort)x), 4)), "sloped hallway explores its upper corner on either map page");
         AssertEqual(0x2c1f, hud.Tiles[28], "upper corner remains blank on native discovery update");
-        hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, (byte)x, 4, 16, 16, 128, 128, 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
+        hud.UpdateMinimap(bus, slopeSystem, AreaId.Crateria, new((byte)x, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
         AssertEqual(0x2829, hud.Tiles[28], "upper corner displays its explored palette on following update");
         WriteTestWord(bus, currentAddress, savedCurrent);
         WriteTestWord(bus, aboveAddress, savedAbove);
@@ -227,7 +220,7 @@ static void VerifyHudStateAndBg3Rendering()
     int ordinaryAddress = 0xb58000 + AreaMapLayout.GetTilemapWordIndex(new(30, 5)) * 2;
     ushort ordinarySaved = SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), ordinaryAddress);
     WriteTestWord(bus, ordinaryAddress, 0x0029);
-    hud.UpdateMinimap(bus, ordinaryCornerSystem, AreaId.Crateria, 30, 4, 16, 16, 128, 128, 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
+    hud.UpdateMinimap(bus, ordinaryCornerSystem, AreaId.Crateria, new(30, 4), new(16, 16), new(128, 128), 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertTrue(!ordinaryCornerSystem.IsMapTileExplored(0, new(30, 4)), "ordinary map character does not explore upper corner");
     WriteTestWord(bus, ordinaryAddress, ordinarySaved);
 
@@ -246,12 +239,9 @@ static void VerifyHudStateAndBg3Rendering()
         bus,
         overrideSystem,
         AreaId.Crateria,
-        roomMapX: 0x17,
-        roomMapY: 0,
-        roomWidthInBlocks: 9 * 16,
-        roomHeightInBlocks: 5 * 16,
-        samusX: 0x0440,
-        samusY: 0x04bb,
+        roomMap: new(0x17, 0),
+        roomSize: new(9 * 16, 5 * 16),
+        samus: new(0x0440, 0x04bb),
         nmiFrameCounter: 8,
         mapRevealMode: MapRevealMode.Public, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[26],
@@ -262,12 +252,9 @@ static void VerifyHudStateAndBg3Rendering()
         bus,
         overrideSystem,
         AreaId.Crateria,
-        roomMapX: 0x17,
-        roomMapY: 0,
-        roomWidthInBlocks: 9 * 16,
-        roomHeightInBlocks: 5 * 16,
-        samusX: 0x0440,
-        samusY: 0x04bb,
+        roomMap: new(0x17, 0),
+        roomSize: new(9 * 16, 5 * 16),
+        samus: new(0x0440, 0x04bb),
         nmiFrameCounter: 8,
         mapRevealMode: MapRevealMode.Secret, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertEqual(0x2c00, hud.Tiles[26] & 0x3c00,
@@ -277,12 +264,9 @@ static void VerifyHudStateAndBg3Rendering()
         bus,
         overrideSystem,
         AreaId.Crateria,
-        roomMapX: 0x17,
-        roomMapY: 0,
-        roomWidthInBlocks: 9 * 16,
-        roomHeightInBlocks: 5 * 16,
-        samusX: 0x0440,
-        samusY: 0x04bb,
+        roomMap: new(0x17, 0),
+        roomSize: new(9 * 16, 5 * 16),
+        samus: new(0x0440, 0x04bb),
         nmiFrameCounter: 8,
         mapRevealMode: MapRevealMode.Secret, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertEqual(0x2800, hud.Tiles[26] & 0x3c00,
@@ -293,12 +277,9 @@ static void VerifyHudStateAndBg3Rendering()
         bus,
         overrideSystem,
         AreaId.Crateria,
-        roomMapX: 0x17,
-        roomMapY: 0,
-        roomWidthInBlocks: 9 * 16,
-        roomHeightInBlocks: 5 * 16,
-        samusX: 0x0440,
-        samusY: 0x04bb,
+        roomMap: new(0x17, 0),
+        roomSize: new(9 * 16, 5 * 16),
+        samus: new(0x0440, 0x04bb),
         nmiFrameCounter: 8,
         mapRevealMode: MapRevealMode.None, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
     AssertEqual((ushort)MapTileWords.HudBlank, hud.Tiles[27],
@@ -327,15 +308,11 @@ static void VerifyHudStateAndBg3Rendering()
         bus,
         rightPageSystem,
         areaIndex: AreaId.Crateria,
-        roomMapX: 34,
-        roomMapY: 18,
-        roomWidthInBlocks: 2 * 16,
-        roomHeightInBlocks: 16,
-        samusX: 0x0080,
-        samusY: 0x0080,
+        roomMap: new(34, 18),
+        roomSize: new(2 * 16, 16),
+        samus: new(0x0080, 0x0080),
         nmiFrameCounter: 8, presentationMap: SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, AreaId.Crateria));
-    AssertEqual(34, hud.MinimapCenterX, "right-page minimap absolute X");
-    AssertEqual(rightPageCenterY, hud.MinimapCenterY, "right-page minimap absolute Y");
+    AssertEqual(new Position16<MapTiles>(34, rightPageCenterY), hud.MinimapCenter, "right-page minimap absolute tile");
     AssertEqual(0x2e63, hud.Tiles[61],
         "right-page minimap reads the same eastern cell as pause map");
     AssertEqual(0x2c1f, hud.Tiles[59],

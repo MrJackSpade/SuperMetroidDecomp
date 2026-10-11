@@ -253,7 +253,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                         // finish-off function. It starts one complete really-slow forward
                         // body animation when Mother Brain is standing and left of `$80`.
                         bodyWalkRequested = RequestWalkForwardReallySlow(
-                            unchecked((ushort)(Body.XPosition + 0x0010))).Requested;
+                            unchecked((ushort)(Body.Position.X + 0x0010))).Requested;
                         BabyMetroidTileTransferIndex = 0;
                         BabyMetroidSpawned = false;
                         Phase = MotherBrainRainbowBeamAttackPhase.FinishSamusOff;
@@ -580,8 +580,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 if ((FunctionTimer & 0x8000) != 0)
                 {
                     bodyWalkRequested = RequestWalkForward(0x0050, 0x0004).Requested;
-                    bool reachedWalkTarget = unchecked((short)(0x0050 - Body.XPosition)) < 0 ||
-                        NativeAtLeast(Body.XPosition, 0x0080);
+                    bool reachedWalkTarget = unchecked((short)(0x0050 - Body.Position.X)) < 0 ||
+                        NativeAtLeast(Body.Position.X, 0x0080);
                     if (reachedWalkTarget)
                     {
                         Phase2CorpseState = 2;
@@ -657,7 +657,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 Phase = MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting;
                 FunctionTimer = 0x0020;
                 bodyWalkRequested = RequestWalkBackward(
-                    unchecked((ushort)(Body.XPosition - 0x000e)),
+                    unchecked((ushort)(Body.Position.X - 0x000e)),
                     animationDelay: 0x0002).Requested;
                 break;
 
@@ -851,19 +851,19 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
                 FunctionTimer = unchecked((ushort)(FunctionTimer + 0x0020));
                 ushort fallingDisplacement = (ushort)(FunctionTimer >> 8);
-                ushort candidateBrainY = unchecked((ushort)(BrainYPosition + fallingDisplacement));
+                ushort candidateBrainY = unchecked((ushort)(BrainPosition.Y + fallingDisplacement));
                 if (candidateBrainY >= 0x00c4)
                 {
                     EarthquakeType = 2;
                     EarthquakeTimer = 20;
-                    BrainYPosition = 0x00c4;
+                    BrainPosition = BrainPosition.WithY(0x00c4);
                     CorpseTileTransferIndex = 0;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles;
                     FunctionTimer = 0x0100;
                 }
                 else
                 {
-                    BrainYPosition = candidateBrainY;
+                    BrainPosition = BrainPosition.WithY(candidateBrainY);
                 }
                 break;
 
@@ -931,8 +931,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     bus,
                     bus as ISnesMutableMemory ?? throw new InvalidOperationException(
                         "Mother Brain corpse rotting requires live WRAM."),
-                    BrainXPosition,
-                    BrainYPosition,
+                    BrainPosition.X,
+                    BrainPosition.Y,
                     randomNumberSeed,
                     mainEnemyExecutionCounter);
                 corpseRottingVramTransfers.AddRange(corpseRotting.VramTransfers);
@@ -961,8 +961,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                     // The decapitated brain remains at the corpse coordinates for the full
                     // delay. `$B216/$B219` finally park it at (0,0) before escape-timer tile
                     // loading begins; this is a real actor-coordinate mutation, not rendering.
-                    BrainXPosition = 0;
-                    BrainYPosition = 0;
+                    BrainPosition = Position16<RoomPixels>.Zero;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles;
                 }
                 break;

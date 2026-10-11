@@ -1,9 +1,11 @@
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One physical lookahead and callback-selector record for a Yard surface turn.</summary>
+/// <param name="Lookahead">The temporary room-pixel probe offset along the direction of motion.</param>
+/// <param name="OutsideTurnInstructionList">The instruction list for an outside turn.</param>
+/// <param name="InsideTurnInstructionList">The instruction list for an inside turn.</param>
 internal readonly record struct YardTurnDefinition(
-    short LookaheadX,
-    short LookaheadY,
+    Offset16<RoomPixels> Lookahead,
     ushort OutsideTurnInstructionList,
     ushort InsideTurnInstructionList);
 
@@ -22,28 +24,28 @@ internal static class YardTurnDefinitions
         bool transitionDisabled) => movement switch
     {
         YardMovementFunction.CrawlingUpsideUpMovingLeft =>
-            transitionDisabled ? new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown,
-            YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp) : new(-7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingLeft,
+            transitionDisabled ? new(new(0, 0), YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown,
+            YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp) : new(new(-7, 0), YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingLeft,
             YardInstructionProgramDefinitions.InsideTurnUpsideUpMovingLeft),
-        YardMovementFunction.CrawlingUpsideLeftMovingDown => new(0, 7, YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingDown,
+        YardMovementFunction.CrawlingUpsideLeftMovingDown => new(new(0, 7), YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingDown,
             YardInstructionProgramDefinitions.InsideTurnUpsideLeftMovingDown),
         YardMovementFunction.CrawlingUpsideDownMovingRight =>
-            transitionDisabled ? new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp,
-            YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown) : new(7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingRight,
+            transitionDisabled ? new(new(0, 0), YardInstructionProgramDefinitions.CrawlingUpsideRightMovingUp,
+            YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingDown) : new(new(7, 0), YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingRight,
             YardInstructionProgramDefinitions.InsideTurnUpsideDownMovingRight),
-        YardMovementFunction.CrawlingUpsideRightMovingUp => new(0, -7, YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingUp,
+        YardMovementFunction.CrawlingUpsideRightMovingUp => new(new(0, -7), YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingUp,
             YardInstructionProgramDefinitions.InsideTurnUpsideRightMovingUp),
         YardMovementFunction.CrawlingUpsideUpMovingRight =>
-            transitionDisabled ? new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown,
-            YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp) : new(7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingRight,
+            transitionDisabled ? new(new(0, 0), YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown,
+            YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp) : new(new(7, 0), YardInstructionProgramDefinitions.OutsideTurnUpsideUpMovingRight,
             YardInstructionProgramDefinitions.InsideTurnUpsideUpMovingRight),
-        YardMovementFunction.CrawlingUpsideRightMovingDown => new(0, 7, YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingDown,
+        YardMovementFunction.CrawlingUpsideRightMovingDown => new(new(0, 7), YardInstructionProgramDefinitions.OutsideTurnUpsideRightMovingDown,
             YardInstructionProgramDefinitions.InsideTurnUpsideRightMovingDown),
         YardMovementFunction.CrawlingUpsideDownMovingLeft =>
-            transitionDisabled ? new(0, 0, YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp,
-            YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown) : new(-7, 0, YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingLeft,
+            transitionDisabled ? new(new(0, 0), YardInstructionProgramDefinitions.CrawlingUpsideLeftMovingUp,
+            YardInstructionProgramDefinitions.CrawlingUpsideRightMovingDown) : new(new(-7, 0), YardInstructionProgramDefinitions.OutsideTurnUpsideDownMovingLeft,
             YardInstructionProgramDefinitions.InsideTurnUpsideDownMovingLeft),
-        YardMovementFunction.CrawlingUpsideLeftMovingUp => new(0, -7, YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingUp,
+        YardMovementFunction.CrawlingUpsideLeftMovingUp => new(new(0, -7), YardInstructionProgramDefinitions.OutsideTurnUpsideLeftMovingUp,
             YardInstructionProgramDefinitions.InsideTurnUpsideLeftMovingUp),
         _ => throw new InvalidDataException(
             $"Yard crawl function $A3:{(ushort)movement:X4} has no turn definition."),

@@ -522,7 +522,7 @@ static void VerifySamusExtraDisplacement()
 
     const int width = 16;
     const int height = 16;
-    RoomLevelData level = CreateEmptyRoom(width, height);
+    RoomLevelData level = CreateEmptyRoom(new(width, height));
 
     var standing = new SamusState
     {

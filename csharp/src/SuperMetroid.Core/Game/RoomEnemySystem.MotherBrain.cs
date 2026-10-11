@@ -386,7 +386,7 @@ public sealed partial class RoomEnemySystem
         int shakeIndex = (head.FlashTimer & 6) >> 1;
         short neckShakeX = MotherBrainShakeXOffsets[shakeIndex];
         short neckShakeY = MotherBrainShakeYOffsets[shakeIndex];
-        MotherBrainNeckPoint[] segments =
+        Position16<RoomPixels>[] segments =
         [
             state.NeckSegment0,
             state.NeckSegment1,
@@ -396,7 +396,7 @@ public sealed partial class RoomEnemySystem
         ];
         for (int index = segments.Length - 1; index >= 0; index--)
         {
-            MotherBrainNeckPoint segment = segments[index];
+            Position16<RoomPixels> segment = segments[index];
             DrawMotherBrainWorldSpritemap(
                 oam,
                 spritemapPointer: 0xa694,
@@ -478,8 +478,7 @@ public sealed partial class RoomEnemySystem
         }
 
         MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-            state.Body.Position.X.Whole,
-            state.Body.Position.Y.Whole,
+            state.Body.Position.Whole,
             state.LowerNeckAngle,
             state.UpperNeckAngle,
             state.NeckSegment0Distance,
@@ -803,7 +802,7 @@ public sealed partial class RoomEnemySystem
                 BabyMetroidCutsceneState baby = state.BabyMetroid ??
                     throw new InvalidOperationException(
                         "Mother Brain's Baby-targeting opcode ran without the Baby actor.");
-                AimMotherBrainOnionRingsAt(state, baby.XPosition, baby.YPosition);
+                AimMotherBrainOnionRingsAt(state, baby.Position.X.Whole, baby.Position.Y.Whole);
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             }
@@ -863,8 +862,7 @@ public sealed partial class RoomEnemySystem
                 // her parameter-one speed flag without any encounter-specific substitute.
                 RoomEnemyProjectileSlot? laser = SpawnPirateMotherBrainLaser(
                     head,
-                    unchecked((ushort)(head.Position.X.Whole + 0x0010)),
-                    unchecked((ushort)(head.Position.Y.Whole + 0x0004)),
+                    head.Position.Whole + new Offset16<RoomPixels>(0x0010, 0x0004),
                     movingRight: true);
                 if (laser is not null)
                     state.LastSoundEffect = PirateMotherBrainLaserSound;

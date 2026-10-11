@@ -114,7 +114,7 @@ internal static partial class Program
                             bool expectedCeres = NativeCeresOverlap(frame, originX,
                                 originY, xs[xi], ys[yi], radiusX, radiusY);
                             object?[] ceresArguments =
-                                [compiledSlot, xs[xi], ys[yi], radiusX, radiusY];
+                                [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY)];
                             bool actualCeres = (bool)ceresWalker.Invoke(
                                 null, ceresArguments)!;
                             AssertEqual(expectedCeres, actualCeres,

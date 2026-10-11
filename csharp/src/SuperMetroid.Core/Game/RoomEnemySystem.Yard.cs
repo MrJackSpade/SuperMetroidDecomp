@@ -380,13 +380,11 @@ public sealed partial class RoomEnemySystem
         YardTurnDefinition turn = YardTurnDefinitions.ForMovement(
             state.MovementFunction,
             state.TurnTransitionDisabled);
-        short lookaheadX = turn.LookaheadX;
-        short lookaheadY = turn.LookaheadY;
 
         // The lookahead offset is temporary, but the normal-axis probe movement is not.
         // Native adds the offset, performs collision/alignment, then subtracts only the
         // original offset from the resulting center.
-        slot.Position += new Offset16<RoomPixels>(unchecked((short)(lookaheadX)), unchecked((short)(lookaheadY)));
+        slot.Position += turn.Lookahead;
         bool surfaceCollision = movesVertically
             ? MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
@@ -396,7 +394,7 @@ public sealed partial class RoomEnemySystem
                 level,
                 slot,
                 Shift8AddMagnitude(state.CrawlingYVelocity, 1));
-        slot.Position -= new Offset16<RoomPixels>(unchecked((short)(lookaheadX)), unchecked((short)(lookaheadY)));
+        slot.Position -= turn.Lookahead;
 
         if (!surfaceCollision)
         {

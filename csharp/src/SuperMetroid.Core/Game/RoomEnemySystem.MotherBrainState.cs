@@ -271,15 +271,15 @@ public sealed class MotherBrainEnemyState
     public ushort NeckSegment4Distance { get; internal set; }
 
     /// <summary>Five current world-space neck joints; segment four anchors the brain.</summary>
-    public MotherBrainNeckPoint NeckSegment0 { get; internal set; }
+    public Position16<RoomPixels> NeckSegment0 { get; internal set; }
     /// <summary>Joint 1's wrapping world-pixel position, calculated with the lower angle and its distance; used by neck drawing and collision.</summary>
-    public MotherBrainNeckPoint NeckSegment1 { get; internal set; }
+    public Position16<RoomPixels> NeckSegment1 { get; internal set; }
     /// <summary>Joint 2's wrapping world-pixel position, shared by lower-neck drawing/collision and upper-neck geometry as its anchor.</summary>
-    public MotherBrainNeckPoint NeckSegment2 { get; internal set; }
+    public Position16<RoomPixels> NeckSegment2 { get; internal set; }
     /// <summary>Joint 3's wrapping world-pixel position relative to joint 2, calculated with the upper angle and used by neck drawing/collision.</summary>
-    public MotherBrainNeckPoint NeckSegment3 { get; internal set; }
+    public Position16<RoomPixels> NeckSegment3 { get; internal set; }
     /// <summary>Joint 4's wrapping world-pixel position relative to joint 2; the articulated head follows its X and its Y minus twenty-one pixels.</summary>
-    public MotherBrainNeckPoint NeckSegment4 { get; internal set; }
+    public Position16<RoomPixels> NeckSegment4 { get; internal set; }
 
     /// <summary>8.8-style angle words and dispatch indices used by both neck halves.</summary>
     public ushort LowerNeckAngle { get; internal set; }

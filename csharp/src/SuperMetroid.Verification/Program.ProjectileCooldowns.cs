@@ -21,7 +21,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(
                 () => SamusProjectileCooldownDefinitions.ReadByte(address),
                 "Unknown cooldown address fails instead of reading adjacent presentation data");
-        var room = CreateRoom(32, 16, new ushort[512], new byte[512]);
+        var room = CreateRoom(new(32, 16), new ushort[512], new byte[512]);
         var fire = typeof(SamusProjectileSystem).GetMethod("TryFireBeam", BindingFlags.NonPublic | BindingFlags.Instance)!;
         for (ushort beam = 0; beam < 12; beam++)
         foreach (bool charged in new[] { false, true })

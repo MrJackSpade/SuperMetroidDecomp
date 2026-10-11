@@ -90,7 +90,7 @@ internal static partial class Program
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + sprite * 2);
                 var expected = new OamBuffer(); var actual = new OamBuffer(); expected.BeginFrame(); actual.BeginFrame();
                 for (int i = 0; i < occupied; i++) { expected.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); actual.AddRawSmallSprite(new Position16<OamPixels>(12, 34), 56); }
-                DrawImportedSpritemap(rom, expected, pointer, x, y, 0x600);
+                DrawImportedSpritemap(rom, expected, pointer, new(x, y), 0x600);
                 selector.Draw(actual, anchor.Category, anchor.Item, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.LowTable.SequenceEqual(actual.LowTable) && expected.HighTable.SequenceEqual(actual.HighTable),

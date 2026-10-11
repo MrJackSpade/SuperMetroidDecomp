@@ -157,7 +157,7 @@ internal static partial class Program
         words[blockIndex] = 0x0123;
         byte[] definitions = new byte[0x400 * 8];
         definitions[0x0058 * 8] = 0x58;
-        RoomLevelData level = CreateRoom(width, height, words,
+        RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: definitions);
         var plms = new RoomPlmSystem { TourianAccessVisuals = edited };
         AssertTrue(plms.TrySpawnTourianAccess(level, clear),

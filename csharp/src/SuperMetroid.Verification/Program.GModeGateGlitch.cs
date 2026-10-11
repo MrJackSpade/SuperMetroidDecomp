@@ -168,7 +168,7 @@ internal static partial class Program
 
         ushort[] words = Enumerable.Repeat((ushort)0x3000, 16).ToArray();
         byte[] behavior = Enumerable.Repeat((byte)0x80, 16).ToArray();
-        RoomLevelData level = CreateRoom(4, 4, words, behavior);
+        RoomLevelData level = CreateRoom(new(4, 4), words, behavior);
         var plms = new RoomPlmSystem();
 
         int contact = 0;
@@ -231,7 +231,7 @@ internal static partial class Program
             byte[] behavior = new byte[words.Length];
             words[doorIndex] = 0xc123;
             behavior[doorIndex] = RoomBlockBehaviorValues.BlueDoorFacingRight.Value;
-            return CreateRoom(width, height, words, behavior);
+            return CreateRoom(new(width, height), words, behavior);
         }
 
         RoomLevelData freeLevel = DoorRoom();
@@ -302,7 +302,7 @@ internal static partial class Program
                 byte[] behaviors = new byte[words.Length];
                 words[blockIndex] = unchecked((ushort)(((int)collisionType << 12) | 0x0123));
                 behaviors[blockIndex] = bts;
-                return CreateRoom(width, height, words, behaviors);
+                return CreateRoom(new(width, height), words, behaviors);
             }
 
             SamusState CreateSamus()
@@ -363,9 +363,7 @@ internal static partial class Program
             0x00, 0x00,
         ]);
 
-        RoomLevelData level = CreateRoom(
-            width,
-            16,
+        RoomLevelData level = CreateRoom(new(width, 16),
             new ushort[width * 16],
             new byte[width * 16],
             blockDefinitions: new byte[0x400 * 8]);
@@ -447,9 +445,7 @@ internal static partial class Program
             0x0c, 0xd7, blockX, blockY, 0x00, 0x00,
             0x00, 0x00,
         ]);
-        RoomLevelData level = CreateRoom(
-            width,
-            16,
+        RoomLevelData level = CreateRoom(new(width, 16),
             new ushort[width * 16],
             new byte[width * 16],
             blockDefinitions: new byte[0x400 * 8]);

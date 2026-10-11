@@ -80,8 +80,8 @@ internal static partial class Program
         {
             var resource = InvokePrivateStatic<RinkaSpawnResource>(typeof(RoomEnemySystem), "RinkaSpawnResourceAt", index);
             int record = 0xa2b75b + 6 * index;
-            AssertEqual(SmallTableWord(rom, record), resource.XPosition, $"Rinka spawn {index} X");
-            AssertEqual(SmallTableWord(rom, record + 2), resource.YPosition, $"Rinka spawn {index} Y");
+            AssertEqual(SmallTableWord(rom, record), resource.Position.X, $"Rinka spawn {index} X");
+            AssertEqual(SmallTableWord(rom, record + 2), resource.Position.Y, $"Rinka spawn {index} Y");
             AssertEqual(SmallTableWord(rom, record + 4), resource.Token, $"Rinka spawn {index} token");
         }
     }

@@ -24,7 +24,7 @@ internal static partial class Program
             foreground[y * Width + x] = 0x1000;
             behavior[y * Width + x] = (byte)bts;
         }
-        RoomLevelData level = CreateRoom(Width, Height, foreground, behavior);
+        RoomLevelData level = CreateRoom(new(Width, Height), foreground, behavior);
 
         SamusState Falling(ushort y, ushort ySubposition)
         {

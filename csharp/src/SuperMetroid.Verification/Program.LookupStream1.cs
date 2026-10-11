@@ -1781,7 +1781,7 @@ internal static partial class Program
                     result.AddOnScreenSpritePart(SnesSpritemapXWord.Create(part.OffsetX, part.Size == 16), unchecked((byte)(sbyte)part.OffsetY),
                         SnesObjAttributeWord.Create(part.TileNumber, part.Palette ?? selected.Palette, part.Priority,
                             (part.FlipX ? SnesTileFlipFlags.Horizontal : 0) | (part.FlipY ? SnesTileFlipFlags.Vertical : 0)),
-                        new Position16<OamPixels>(unchecked((ushort)(timer.XPixel + anchor.X)), unchecked((ushort)(timer.YPixel + anchor.Y))));
+                        timer.PixelPosition.ToOam() + anchor);
             }
         }
     }

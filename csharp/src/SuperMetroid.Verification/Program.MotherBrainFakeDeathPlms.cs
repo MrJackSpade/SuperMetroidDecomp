@@ -74,7 +74,7 @@ internal static partial class Program
         const int height = 16;
         ushort[] words = Enumerable.Repeat((ushort)0x8123,
             width * height).ToArray();
-        RoomLevelData level = CreateRoom(width, height, words,
+        RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnMotherBrainMutation(level, new(5, 3), header),

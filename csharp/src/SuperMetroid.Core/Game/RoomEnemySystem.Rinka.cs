@@ -31,18 +31,18 @@ public sealed class RinkaEnemyState
         internal set => _slot.VariableA = (ushort)value;
     }
 
-    /// <summary>Signed 8.8 horizontal velocity produced by Math_MultBySin.</summary>
-    public ushort XVelocity
+    /// <summary>
+    /// Signed 8.8 velocity: X produced by Math_MultBySin in variable B, Y by Math_MultByCos in
+    /// variable C.
+    /// </summary>
+    public EightEightVector<RoomPixels> Velocity
     {
-        get => _slot.VariableB;
-        internal set => _slot.VariableB = value;
-    }
-
-    /// <summary>Signed 8.8 vertical velocity produced by Math_MultByCos.</summary>
-    public ushort YVelocity
-    {
-        get => _slot.VariableC;
-        internal set => _slot.VariableC = value;
+        get => new(new SnesSignedEightEight(_slot.VariableB), new SnesSignedEightEight(_slot.VariableC));
+        internal set
+        {
+            _slot.VariableB = value.X.RawValue;
+            _slot.VariableC = value.Y.RawValue;
+        }
     }
 
     /// <summary>
@@ -64,12 +64,10 @@ public sealed class RinkaEnemyState
 }
 
 /// <summary>One literal (X, Y, extra-RAM selector) record from $A2:B75B.</summary>
-/// <param name="XPosition">Authored spawn-center X in whole room pixels, tested against the current layer-one camera when reserving a Mother Brain Rinka location.</param>
-/// <param name="YPosition">Authored spawn-center Y in whole room pixels, not an OAM or camera-relative coordinate.</param>
+/// <param name="Position">Authored spawn centre in whole room pixels (not an OAM or camera-relative coordinate), tested against the current layer-one camera when reserving a Mother Brain Rinka location.</param>
 /// <param name="Token">Native spawn-availability byte selector plus two: even $0002..$0016 for the eleven table locations, reserved until the owning actor leaves, dies, or is terminated.</param>
 public readonly record struct RinkaSpawnResource(
-    ushort XPosition,
-    ushort YPosition,
+    Position16<RoomPixels> Position,
     ushort Token);
 
 /// <summary>Literal translation of Rinka enemy AI $A2:B602-$BA0B.</summary>
@@ -88,23 +86,23 @@ public sealed partial class RoomEnemySystem
     // rewrite their immutable spawn snapshots when the original point is on another screen.
     // $A2:B75B: the eleven authored spawn points; each record's extra-RAM selector token is
     // calculated from its position in the list.
-    private static readonly (ushort X, ushort Y)[] RinkaSpawnPoints =
+    private static readonly Position16<RoomPixels>[] RinkaSpawnPoints =
     [
-        (0x03e7, 0x0026),
-        (0x03e7, 0x00a6),
-        (0x0337, 0x0036),
-        (0x0337, 0x00a6),
-        (0x0277, 0x001c),
-        (0x0277, 0x00b6),
-        (0x01b7, 0x0036),
-        (0x01b7, 0x00a6),
-        (0x00f7, 0x001c),
-        (0x00f7, 0x00b6),
-        (0x0080, 0x00a8),
+        new(0x03e7, 0x0026),
+        new(0x03e7, 0x00a6),
+        new(0x0337, 0x0036),
+        new(0x0337, 0x00a6),
+        new(0x0277, 0x001c),
+        new(0x0277, 0x00b6),
+        new(0x01b7, 0x0036),
+        new(0x01b7, 0x00a6),
+        new(0x00f7, 0x001c),
+        new(0x00f7, 0x00b6),
+        new(0x0080, 0x00a8),
     ];
 
     private static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
-        new(RinkaSpawnPoints[index].X, RinkaSpawnPoints[index].Y, (ushort)(2 * (index + 1)));
+        new(RinkaSpawnPoints[index], (ushort)(2 * (index + 1)));
 
     private readonly RinkaEnemyState?[] _rinkaStates =
         new RinkaEnemyState?[MaximumEnemyCount];
@@ -112,8 +110,7 @@ public sealed partial class RoomEnemySystem
         new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
     private ushort _rinkaActiveCount;
     private ushort _rinkaTerminationFlag;
-    private ushort _rinkaCameraX;
-    private ushort _rinkaCameraY;
+    private Position16<RoomPixels> _rinkaCamera;
     // Special Rinkas whose spawn choice awaits the door loader's camera; see
     // CompleteLoaderTimeCameraReads. Ascending slot order, as Initialise_Enemies runs them.
     private readonly List<int> _deferredRinkaSpawnSlots = new();
@@ -126,8 +123,7 @@ public sealed partial class RoomEnemySystem
         _deferredRinkaSpawnSlots.Clear();
         _rinkaActiveCount = 0;
         _rinkaTerminationFlag = 0;
-        _rinkaCameraX = camera.X;
-        _rinkaCameraY = camera.Y;
+        _rinkaCamera = camera;
     }
 
     /// <summary>
@@ -136,8 +132,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void SetRinkaCamera(Position16<RoomPixels> camera)
     {
-        _rinkaCameraX = camera.X;
-        _rinkaCameraY = camera.Y;
+        _rinkaCamera = camera;
     }
 
     /// <summary>Ports <c>Rinka_Init</c> at $A2:B602.</summary>
@@ -199,8 +194,7 @@ public sealed partial class RoomEnemySystem
     {
         state.Function = RinkaEnemyFunction.WatchForLeavingViewport;
         state.DelayTimer = RinkaInitialDelay;
-        state.XVelocity = 0;
-        state.YVelocity = 0;
+        state.Velocity = default;
 
         if (IsSpecialRinka(slot))
         {
@@ -284,14 +278,15 @@ public sealed partial class RoomEnemySystem
                 byte sourceAngle = CalculateCartridgeAngle(
                     new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))));
                 byte velocityAngle = unchecked((byte)-(sourceAngle + 0x80));
-                state.XVelocity = MultiplyCartridgeSinCos(RinkaSpeed, velocityAngle);
-                state.YVelocity = MultiplyCartridgeSinCos(
-                    RinkaSpeed,
-                    unchecked((byte)(velocityAngle + 0x40)));
+                state.Velocity = new(
+                    new SnesSignedEightEight(MultiplyCartridgeSinCos(RinkaSpeed, velocityAngle)),
+                    new SnesSignedEightEight(MultiplyCartridgeSinCos(
+                        RinkaSpeed,
+                        unchecked((byte)(velocityAngle + 0x40)))));
                 return;
 
             case RinkaEnemyFunction.Flying:
-                slot.Position = slot.Position.Advance(new(new SnesSignedEightEight(state.XVelocity).ToSixteenSixteenDelta(), new SnesSignedEightEight(state.YVelocity).ToSixteenSixteenDelta()));
+                slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
                 if (RinkaIsOutsideFlightWindow(slot))
                     RecycleRinkaAfterLeavingViewport(slot, state);
                 return;
@@ -422,10 +417,9 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports $A2:B69B/$B79D's fixed-resource selection without WRAM alias tricks.</summary>
     private void ReserveSpecialRinkaSpawn(RoomEnemySlot slot, RinkaEnemyState state)
     {
-        ushort spawnX = slot.Spawn.Population.Position.X;
-        ushort spawnY = slot.Spawn.Population.Position.Y;
-        int mappedIndex = FindRinkaSpawnResource(spawnX, spawnY);
-        bool mustRelocate = RinkaSpawnIsOutsideCamera(spawnX, spawnY) ||
+        Position16<RoomPixels> spawn = slot.Spawn.Population.Position;
+        int mappedIndex = FindRinkaSpawnResource(spawn);
+        bool mustRelocate = RinkaSpawnIsOutsideCamera(spawn) ||
             _rinkaOccupiedSpawnResources[mappedIndex];
 
         if (mustRelocate)
@@ -437,7 +431,7 @@ public sealed partial class RoomEnemySystem
             for (int index = 0; index < RinkaSpawnPoints.Length; index++)
             {
                 RinkaSpawnResource candidate = RinkaSpawnResourceAt(index);
-                if (!RinkaSpawnIsOutsideCamera(candidate.XPosition, candidate.YPosition) &&
+                if (!RinkaSpawnIsOutsideCamera(candidate.Position) &&
                     !_rinkaOccupiedSpawnResources[index])
                 {
                     selectedIndex = index;
@@ -465,22 +459,22 @@ public sealed partial class RoomEnemySystem
             RinkaSpawnResource selected = RinkaSpawnResourceAt(selectedIndex);
             RoomEnemyPopulationRecord rewrittenPopulation = slot.Spawn.Population with
             {
-                Position = new(selected.XPosition, selected.YPosition),
+                Position = selected.Position,
             };
             slot.Spawn = slot.Spawn with { Population = rewrittenPopulation };
-            slot.Position = slot.Position.WithWhole(new(selected.XPosition, selected.YPosition));
+            slot.Position = slot.Position.WithWhole(selected.Position);
         }
 
         _rinkaOccupiedSpawnResources[mappedIndex] = true;
         state.SpawnResourceToken = RinkaSpawnResourceAt(mappedIndex).Token;
     }
 
-    private static int FindRinkaSpawnResource(ushort xPosition, ushort yPosition)
+    private static int FindRinkaSpawnResource(Position16<RoomPixels> position)
     {
         for (int index = 0; index < RinkaSpawnPoints.Length; index++)
         {
             RinkaSpawnResource resource = RinkaSpawnResourceAt(index);
-            if (resource.XPosition == xPosition && resource.YPosition == yPosition)
+            if (resource.Position == position)
                 return index;
         }
 
@@ -519,26 +513,26 @@ public sealed partial class RoomEnemySystem
     {
         if (unchecked((short)slot.Position.Y.Whole) < 0)
             return true;
-        ushort relativeY = unchecked((ushort)(slot.Position.Y.Whole + 16 - _rinkaCameraY));
+        ushort relativeY = unchecked((ushort)(slot.Position.Y.Whole + 16 - _rinkaCamera.Y));
         if (unchecked((short)relativeY) < 0 || !IsNegative16(relativeY - 256))
             return true;
         if (unchecked((short)slot.Position.X.Whole) < 0)
             return true;
-        ushort relativeX = unchecked((ushort)(slot.Position.X.Whole + 16 - _rinkaCameraX));
+        ushort relativeX = unchecked((ushort)(slot.Position.X.Whole + 16 - _rinkaCamera.X));
         return unchecked((short)relativeX) < 0 || !IsNegative16(relativeX - 288);
     }
 
     /// <summary>Ports $A2:B8FF's strict camera-origin test used only for special spawns.</summary>
-    private bool RinkaSpawnIsOutsideCamera(ushort xPosition, ushort yPosition)
+    private bool RinkaSpawnIsOutsideCamera(Position16<RoomPixels> position)
     {
-        if (unchecked((short)yPosition) < 0 ||
-            unchecked((short)(yPosition - _rinkaCameraY)) < 0 ||
-            !IsNegative16(yPosition - _rinkaCameraY - 224))
+        if (unchecked((short)position.Y) < 0 ||
+            unchecked((short)(position.Y - _rinkaCamera.Y)) < 0 ||
+            !IsNegative16(position.Y - _rinkaCamera.Y - 224))
         {
             return true;
         }
-        return unchecked((short)(xPosition - _rinkaCameraX)) < 0 ||
-            !IsNegative16(xPosition - _rinkaCameraX - 256);
+        return unchecked((short)(position.X - _rinkaCamera.X)) < 0 ||
+            !IsNegative16(position.X - _rinkaCamera.X - 256);
     }
 
     private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Parameter1 != 0;

@@ -17,13 +17,13 @@ internal static partial class Program
 
         for (ushort index = 0; index < 11; index++)
         {
-            BombTorizoSwipeDefinition definition =
+            Offset16<RoomPixels> definition =
                 BombTorizoAttackDefinitions.Swipe(unchecked((ushort)(index * 2)));
             AssertEqual(unchecked((short)ReadWord(rom, swipeXAddress + index * 2)),
-                definition.XOffset,
+                definition.X,
                 $"Bomb Torizo swipe {index} X offset");
             AssertEqual(unchecked((short)ReadWord(rom, swipeYAddress + index * 2)),
-                definition.YOffset,
+                definition.Y,
                 $"Bomb Torizo swipe {index} Y offset");
             AssertEqual(definition,
                 BombTorizoAttackDefinitions.Swipe(unchecked((ushort)(index * 2 + 1))),
@@ -32,13 +32,13 @@ internal static partial class Program
 
         for (int index = 0; index < 6; index++)
         {
-            BombTorizoExplosionDefinition definition =
+            Offset16<RoomPixels> definition =
                 BombTorizoAttackDefinitions.RawExplosionRow(index);
             AssertEqual(unchecked((short)ReadWord(rom, explosionXAddress + index * 2)),
-                definition.XOffset,
+                definition.X,
                 $"Bomb Torizo explosion {index} X offset");
             AssertEqual(unchecked((short)ReadWord(rom, explosionYAddress + index * 2)),
-                definition.YOffset,
+                definition.Y,
                 $"Bomb Torizo explosion {index} Y offset");
         }
 
@@ -61,7 +61,7 @@ internal static partial class Program
         for (ushort index = 0; index < 11; index++)
         {
             ushort parameter = unchecked((ushort)(index * 2));
-            BombTorizoSwipeDefinition expected =
+            Offset16<RoomPixels> expected =
                 BombTorizoAttackDefinitions.Swipe(parameter);
             (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                 CreateBombTorizoAttackFixture(guarded, facingRight);
@@ -70,10 +70,10 @@ internal static partial class Program
 
             AssertTrue(projectile.IsActive,
                 $"Bomb Torizo swipe {index} facing {facingRight} allocation");
-            short facingX = facingRight ? unchecked((short)-expected.XOffset) : expected.XOffset;
+            short facingX = facingRight ? unchecked((short)-expected.X) : expected.X;
             AssertEqual(unchecked((ushort)(1000 + facingX)), projectile.Position.X.Whole,
                 $"Bomb Torizo swipe {index} facing {facingRight} X");
-            AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.Position.Y.Whole,
+            AssertEqual(unchecked((ushort)(500 + expected.Y)), projectile.Position.Y.Whole,
                 $"Bomb Torizo swipe {index} facing {facingRight} Y");
         }
 
@@ -82,7 +82,7 @@ internal static partial class Program
             ushort maximumParameter = facingRight ? (ushort)9 : (ushort)7;
             for (ushort parameter = 0; parameter <= maximumParameter; parameter++)
             {
-                BombTorizoExplosionDefinition expected =
+                Offset16<RoomPixels> expected =
                     BombTorizoAttackDefinitions.LowHealthExplosion(parameter, facingRight);
                 (RoomEnemySystem enemies, RoomEnemySlot torizo) =
                     CreateBombTorizoAttackFixture(guarded, facingRight);
@@ -91,9 +91,9 @@ internal static partial class Program
 
                 AssertTrue(projectile.IsActive,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} allocation");
-                AssertEqual(unchecked((ushort)(1000 + expected.XOffset)), projectile.Position.X.Whole,
+                AssertEqual(unchecked((ushort)(1000 + expected.X)), projectile.Position.X.Whole,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} X");
-                AssertEqual(unchecked((ushort)(500 + expected.YOffset)), projectile.Position.Y.Whole,
+                AssertEqual(unchecked((ushort)(500 + expected.Y)), projectile.Position.Y.Whole,
                     $"Bomb Torizo explosion {parameter} facing {facingRight} Y");
                 AssertEqual(projectile.Position.X.Whole, projectile.Variable0,
                     $"Bomb Torizo explosion {parameter} retained X");

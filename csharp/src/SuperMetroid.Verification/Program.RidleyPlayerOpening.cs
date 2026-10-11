@@ -9,7 +9,7 @@ internal static partial class Program
     private static void VerifyRidleyPlayerOpening()
     {
         var overlaps = typeof(RoomEnemySystem).GetMethod("IsWithinRidleyRectangle", BindingFlags.NonPublic | BindingFlags.Static)!
-            .CreateDelegate<Func<RoomEnemySlot, ushort, ushort, ushort, ushort, bool>>();
+            .CreateDelegate<Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool>>();
         var bounds = new RoomEnemySystem().Slots[0];
         bounds.Radius = new(8, 8);
         // Native $A9:EF06 adds both radii plus one before its unsigned comparison.
@@ -17,11 +17,11 @@ internal static partial class Program
         {
             ushort extent = (ushort)(8 + targetRadius);
             bounds.Position = bounds.Position.WithWhole(new((ushort)(128 + extent), (ushort)(256 - extent)));
-            AssertTrue(overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival includes touching actor edges");
+            AssertTrue(overlaps(bounds, new(128, 256), new(targetRadius, targetRadius)), "Ridley arrival includes touching actor edges");
             bounds.Position = bounds.Position.WithWholeX(unchecked((ushort)(bounds.Position.X.Whole + 1)));
-            AssertTrue(!overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival rejects one pixel past X edge");
+            AssertTrue(!overlaps(bounds, new(128, 256), new(targetRadius, targetRadius)), "Ridley arrival rejects one pixel past X edge");
             bounds.Position = bounds.Position.WithWholeX(128); bounds.Position = bounds.Position.WithWholeY(unchecked((ushort)(bounds.Position.Y.Whole - 1)));
-            AssertTrue(!overlaps(bounds, 128, 256, targetRadius, targetRadius), "Ridley arrival rejects one pixel past Y edge");
+            AssertTrue(!overlaps(bounds, new(128, 256), new(targetRadius, targetRadius)), "Ridley arrival rejects one pixel past Y edge");
         }
 
         // The player's first movie, from the completed entry into Ridley's room.

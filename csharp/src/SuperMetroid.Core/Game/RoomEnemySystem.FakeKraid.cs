@@ -281,13 +281,13 @@ public sealed partial class RoomEnemySystem
         short xOffset = movingRight ? (short)4 : (short)-4;
         for (int projectile = 0; projectile < 2; projectile++)
         {
-            FakeKraidSpitLaunch launch =
+            EightEightVector<RoomPixels> launch =
                 FakeKraidProjectileDefinitions.SpitLaunch(movingRight, projectile);
             if (SpawnFakeKraidSpit(
                     slot,
                     xOffset,
-                    launch.XVelocity,
-                    launch.YVelocity))
+                    launch.X.RawValue,
+                    launch.Y.RawValue))
                 state.SpawnedSpitCount++;
         }
     }

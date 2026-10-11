@@ -120,7 +120,7 @@ static void VerifySamusStoredShineAndShinespark()
     // scanned row down one row to the bomb block; the native real-room case uses FF/up.
     sparkForeground[sparkExtensionBlockIndex] = 0xd456;
     sparkBehavior[sparkExtensionBlockIndex] = 1;
-    RoomLevelData empty = CreateRoom(width, height, sparkForeground, sparkBehavior);
+    RoomLevelData empty = CreateRoom(new(width, height), sparkForeground, sparkBehavior);
 
     // Exercise all six stable direction poses through the public install and movement
     // handlers. The pose definition's literal X-direction byte—not target-pose parity in

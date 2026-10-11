@@ -140,8 +140,7 @@ public sealed class MorphBallEyeBeamState
 /// OAM with today's cone angle or camera position.
 /// </remarks>
 /// <param name="Phase">Beam lifetime phase latched with the accepted NMI's actor image.</param>
-/// <param name="WorldX">Eye body's horizontal origin in whole room pixels, before layer-one scroll is subtracted.</param>
-/// <param name="WorldY">Eye body's vertical origin in whole room pixels, before layer-one scroll is subtracted.</param>
+/// <param name="WorldPosition">Eye body's origin in whole room pixels, before layer-one scroll is subtracted.</param>
 /// <param name="Angle">Latched beam aim, measured clockwise from up in 256 table units per turn.</param>
 /// <param name="AngularWidth">Whole angular half-width in table units, normally zero through four; fractional widening state is not included in this render snapshot.</param>
 /// <param name="Red">Raw SNES COLDATA red-selector/component byte, with selector bit <c>$20</c> and intensity in the low five bits.</param>
@@ -149,8 +148,7 @@ public sealed class MorphBallEyeBeamState
 /// <param name="Blue">Raw SNES COLDATA blue-selector/component byte, with selector bit <c>$80</c> and intensity in the low five bits.</param>
 public readonly record struct MorphBallEyeBeamRenderSnapshot(
     MorphBallEyeBeamPhase Phase,
-    ushort WorldX,
-    ushort WorldY,
+    Position16<RoomPixels> WorldPosition,
     SnesAngle Angle,
     ushort AngularWidth,
     byte Red,

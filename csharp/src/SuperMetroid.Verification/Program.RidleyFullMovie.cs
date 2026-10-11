@@ -221,7 +221,7 @@ internal static partial class Program
     private static void VerifyRetainedHorizontalSpeed()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var room = CreateRoom(16, 16, new ushort[256], new byte[256]);
+        var room = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         foreach (int branch in new[] { 0, 1, 2, 3 })
         {
             var samus = new SamusState
@@ -317,7 +317,7 @@ internal static partial class Program
     private static void VerifyMorphCameraCheckpoint()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
+        var level = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
         foreach (bool left in new[] { false, true })
         {
             var samus = new SamusState
@@ -352,7 +352,7 @@ internal static partial class Program
     private static void VerifyAimUpLandingAnimation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var level = CreateRoom(16, 32, new ushort[16 * 32], new byte[16 * 32]);
+        var level = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
         foreach (SamusPoseId pose in new[] { SamusPoseId.FallingAimUpRightPose, SamusPoseId.FallingAimUpLeftPose })
         {
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
@@ -419,7 +419,7 @@ internal static partial class Program
             spawn.Invoke(runtime.Enemies, [runtime.Enemies.Slots[0], false]);
             var fireball = runtime.Enemies.EnemyProjectiles[slotIndex--];
             AssertEqual(sample.Item2, fireball.Damage, "native area initializer overrides fireball damage");
-            afterburn.Invoke(runtime.Enemies, [fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, (ushort)0x0e00, (ushort)0]);
+            afterburn.Invoke(runtime.Enemies, [fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, new EightEightVector<RoomPixels>(0x0e00, 0)]);
             AssertEqual(sample.Item2, runtime.Enemies.EnemyProjectiles[slotIndex--].Damage, "directional afterburn runs the same area initializer");
             samus.Position = samus.Position.WithWhole(fireball.Position.Whole);
             samus.Health = 700; samus.EquippedItems = (ushort)SamusEquipmentFlags.GravitySuit;

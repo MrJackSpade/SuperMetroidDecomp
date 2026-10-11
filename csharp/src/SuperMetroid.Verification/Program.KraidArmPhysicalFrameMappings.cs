@@ -37,11 +37,11 @@ internal static partial class Program
             int count = ReadKraidArmInstructionWord(rom, frame);
             int stationary = count == 1 ? 0 : 2;
             ushort record = (ushort)(frame + 2 + 8 * stationary);
-            var expected = (unchecked((short)ReadKraidArmInstructionWord(rom, record)),
+            var expected = new Offset16<RoomPixels>(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
                 unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))));
             AssertTrue(KraidArmCollisionDefinitions.TryGetComponents(frame, out var components), "Stationary arm frame exists");
             KraidArmCollisionComponent actual = components[stationary];
-            AssertEqual(expected, (actual.X, actual.Y), "Native stationary arm component anchor");
+            AssertEqual(expected, actual.Offset, "Native stationary arm component anchor");
             checkedPositions++;
         }
         AssertEqual(22, checkedPositions, "All stationary arm component positions checked");
@@ -63,11 +63,11 @@ internal static partial class Program
             {
                 ushort record = (ushort)(pointer + 2 + 8 * index);
                 var expected = new KraidArmCollisionComponent(
-                    unchecked((short)ReadKraidArmInstructionWord(rom, record)),
-                    unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2))),
+                    new(unchecked((short)ReadKraidArmInstructionWord(rom, record)),
+                        unchecked((short)ReadKraidArmInstructionWord(rom, (ushort)(record + 2)))),
                     ReadKraidArmInstructionWord(rom, (ushort)(record + 6)));
                 if (compiled.Length != 1 && index != 2)
-                    AssertEqual((expected.X, expected.Y), (compiled[index].X, compiled[index].Y), "Native arm frame selects exact ordered articulated positions");
+                    AssertEqual(expected.Offset, compiled[index].Offset, "Native arm frame selects exact ordered articulated positions");
                 hitboxPointers.Add(expected.HitboxPointer);
             }
         }

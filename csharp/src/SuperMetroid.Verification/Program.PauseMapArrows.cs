@@ -55,7 +55,7 @@ internal static partial class Program
                 int program = 0x820000 | Read(0x82c0e8 + animation * 2);
                 int sprite = Read(bases) + bus.ReadCartridgeByte(program + 2);
                 int pointer = 0x820000 | Read(0x82c569 + sprite * 2);
-                DrawImportedSpritemap(bus, expected, pointer, Read(record), unchecked((ushort)(Read(record + 2) - 1)), Read(0x82c100));
+                DrawImportedSpritemap(bus, expected, pointer, new(Read(record), unchecked((ushort)(Read(record + 2) - 1))), Read(0x82c100));
             }
             int expectedBytes = expected.NextByteOffset;
             expected.FinalizeFrame();

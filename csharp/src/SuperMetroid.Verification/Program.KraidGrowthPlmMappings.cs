@@ -4,10 +4,10 @@ using SuperMetroid.Core.Hardware;
 internal static partial class Program
 {
     private static void VerifyKraidGrowthPlmColumns(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 4, request => request.BlockX));
+        Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 4, request => request.Block.X));
 
     private static void VerifyKraidGrowthPlmRows(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 5, request => request.BlockY));
+        Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 5, request => request.Block.Y));
 
     private static void VerifyKraidGrowthPlmHeaders(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 6, request => (ushort)request.Header));

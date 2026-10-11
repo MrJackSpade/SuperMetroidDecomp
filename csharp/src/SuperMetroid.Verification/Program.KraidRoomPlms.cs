@@ -44,7 +44,7 @@ internal static partial class Program
         ushort[] words = new ushort[width * height];
         for (int x = 5; x < 5 + changedBlockCount; x++)
             words[5 * width + x] = 0x8123;
-        RoomLevelData level = CreateRoom(width, height, words,
+        RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = new RoomPlmSystem();
         AssertTrue(plms.TrySpawnKraidRoomMutation(level, new(5, 5), header),

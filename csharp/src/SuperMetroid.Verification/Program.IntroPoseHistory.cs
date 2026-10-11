@@ -13,7 +13,7 @@ internal static partial class Program
         var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 235)) };
         var entries = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) entries[16 * 16 + x] = 0x8000;
-        var room = CreateRoom(16, 32, entries, new byte[entries.Length]);
+        var room = CreateRoom(new(16, 32), entries, new byte[entries.Length]);
         samus.RefreshCollisionRadii(bus);
         samus.InitializeAnimation(bus);
         var history = samus.PoseHistory;

@@ -332,7 +332,7 @@ public sealed partial class RoomEnemySystem
 
             case RidleyAiFunction.NorfairEnterArena:
                 MoveNorfairRidleyToward(slot, state, 64, 256, divisorIndex: 14);
-                if (IsWithinRidleyRectangle(slot, 64, 256, 8, 8))
+                if (IsWithinRidleyRectangle(slot, new(64, 256), new(8, 8)))
                 {
                     state.FightMode = RidleyFightMode.Fighting;
                     state.Function = RidleyAiFunction.NorfairSelectAttack;
@@ -637,7 +637,7 @@ public sealed partial class RoomEnemySystem
             targetX,
             256,
             ReadRidleyHealthMovementDivisorIndex(state));
-        if (IsWithinRidleyRectangle(slot, targetX, 256, 8, 8))
+        if (IsWithinRidleyRectangle(slot, new(targetX, 256), new(8, 8)))
             state.Function = RidleyAiFunction.NorfairSelectAttack;
     }
 
@@ -645,7 +645,7 @@ public sealed partial class RoomEnemySystem
     {
         ushort targetX = state.FacingDirection != RidleyFacing.Left ? (ushort)64 : (ushort)192;
         MoveNorfairRidleyToward(slot, state, targetX, 128, divisorIndex: 1);
-        if (!IsWithinRidleyRectangle(slot, targetX, 128, 8, 8))
+        if (!IsWithinRidleyRectangle(slot, new(targetX, 128), new(8, 8)))
             return;
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;

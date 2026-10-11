@@ -235,7 +235,7 @@ internal static partial class Program
         {
             int fullAddress = address <= ushort.MaxValue ? 0x800000 | address : address;
             DrawImportedSpritemap(bus, oam, fullAddress,
-                unchecked((ushort)(timer.XPixel + offset)), timer.YPixel, palette);
+                new(unchecked((ushort)(timer.PixelPosition.X + offset)), timer.PixelPosition.Y), palette);
         }
     }
 

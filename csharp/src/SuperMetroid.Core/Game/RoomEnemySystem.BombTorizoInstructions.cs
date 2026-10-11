@@ -647,12 +647,8 @@ public sealed partial class RoomEnemySystem
         ushort tableOffset,
         bool subtract)
     {
-        BombTorizoPostureDisplacement displacement =
-            BombTorizoMovementDefinitions.Posture(tableOffset);
-        torizo.Position = torizo.Position.WithWholeX(unchecked((ushort)(
-            torizo.Position.X.Whole + (subtract ? -displacement.X : displacement.X))));
-        torizo.Position = torizo.Position.WithWholeY(unchecked((ushort)(
-            torizo.Position.Y.Whole + (subtract ? -displacement.Y : displacement.Y))));
+        Offset16<RoomPixels> displacement = BombTorizoMovementDefinitions.Posture(tableOffset);
+        torizo.Position += subtract ? -displacement : displacement;
     }
 
     private ushort ProcessBombTorizoWalkInstruction(

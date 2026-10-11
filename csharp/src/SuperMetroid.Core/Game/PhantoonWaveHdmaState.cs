@@ -57,7 +57,7 @@ public sealed class PhantoonWaveHdmaState
         }
         Phase = (ushort)((Phase + 2 * boss.Mouth!.VariableF) & PhantoonWaveRomData.PhaseMask);
         PhantoonWaveTable.Build(boss.Eye.Parameter1, Phase, boss.Mouth.VariableD,
-            boss.Bg2HorizontalScroll, _cycle.AsSpan(0, _cycleLength));
+            boss.Bg2Scroll.X, _cycle.AsSpan(0, _cycleLength));
     }
 
     /// <summary>Latch the completed HDMA data with the accepted NMI's other presentation state.</summary>

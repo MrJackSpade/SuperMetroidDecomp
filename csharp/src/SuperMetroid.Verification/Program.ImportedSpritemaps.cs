@@ -13,7 +13,7 @@ internal static partial class Program
         ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap = false, bool originYIsOnScreen = true) =>
         ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, bank,
-            spritemapPointer, originX, originY, paletteBits, baseTileIndex,
+            spritemapPointer, new(originX, originY), paletteBits, baseTileIndex,
             clipVerticalWrap, originYIsOnScreen);
 
     /// <summary>
@@ -31,7 +31,7 @@ internal static partial class Program
         ushort bank8dSpritemapPointer, ushort originX, ushort originY,
         ushort graphicsIndex, bool originYIsOnScreen) =>
         ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
-            bank8dSpritemapPointer, originX, originY, graphicsIndex, originYIsOnScreen);
+            bank8dSpritemapPointer, new(originX, originY), graphicsIndex, originYIsOnScreen);
 
     /// <summary>Imports only the sprite records authored in a sparse projectile fixture.</summary>
     private static EnemyProjectileSpritemapCatalog ImportFixtureProjectileSprites(TestAddressSpace bus)

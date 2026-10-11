@@ -66,7 +66,7 @@ internal static partial class Program
                 (PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, (ushort)0xa12b, (ushort)0x0054),
             })
             {
-                var level = CreateRoom(width, 16,
+                var level = CreateRoom(new(width, 16),
                     new ushort[width * 16], new byte[width * 16],
                     blockDefinitions: blockDefinitions);
                 BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
@@ -87,7 +87,7 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo slope PLMs did not reread compiled program or draw bytes");
 
-            var crumbleLevel = CreateRoom(width, 16,
+            var crumbleLevel = CreateRoom(new(width, 16),
                 new ushort[width * 16], new byte[width * 16],
                 blockDefinitions: blockDefinitions);
             var crumblePlms = new RoomPlmSystem();
@@ -108,7 +108,7 @@ internal static partial class Program
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "Chozo crumble PLM did not reread compiled program or draw bytes");
 
-            var wreckedHandLevel = CreateRoom(width, 16,
+            var wreckedHandLevel = CreateRoom(new(width, 16),
                 new ushort[width * 16], new byte[width * 16],
                 blockDefinitions: blockDefinitions);
             var wreckedHandPlms = new RoomPlmSystem();

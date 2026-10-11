@@ -384,9 +384,7 @@ internal static partial class Program
         Queue<ushort> random = new(randomValues);
         ushort NextRandom() => random.Count == 0 ? (ushort)1 : random.Dequeue();
 
-        RoomLevelData level = CreateRoom(
-            1,
-            1,
+        RoomLevelData level = CreateRoom(new(1, 1),
             new ushort[1],
             new byte[1]);
         var system = new RoomEnemySystem();

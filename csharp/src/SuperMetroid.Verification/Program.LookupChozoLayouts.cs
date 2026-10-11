@@ -55,7 +55,7 @@ internal static partial class Program
                     AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(invalid, 0), "Chozo layout word run bounds");
                 }
             }
-            var level = CreateRoom(32, 16, new ushort[512], new byte[512], blockDefinitions: new byte[0x400 * 8]);
+            var level = CreateRoom(new(32, 16), new ushort[512], new byte[512], blockDefinitions: new byte[0x400 * 8]);
             var plms = new RoomPlmSystem();
             var guarded = new ChozoProgramAndDrawReadGuard(rom);
             if (field == 0)

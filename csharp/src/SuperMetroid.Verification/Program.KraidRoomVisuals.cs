@@ -123,7 +123,7 @@ internal static partial class Program
             (ushort)KraidRoomDraw.CrumbleFirst, 0,
             0x8180, 0x0180, null, tube, layer1X: 0));
 
-        RoomLevelData tubeLevel = CreateRoom(4, 4, new ushort[16], new byte[16],
+        RoomLevelData tubeLevel = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);
         tubeLevel.SetBlockDefinitionWord(0x005b * 4, 0x005b);
         var tubePlms = new RoomPlmSystem
@@ -162,7 +162,7 @@ internal static partial class Program
         ushort[] words = new ushort[width * 16];
         for (int x = 5; x <= 26; x++)
             words[5 * width + x] = 0x8123;
-        RoomLevelData level = CreateRoom(width, 16, words,
+        RoomLevelData level = CreateRoom(new(width, 16), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         foreach (ushort tile in new ushort[] { 0x0058, 0x0059, 0x005a })
             level.SetBlockDefinitionWord(tile * 4, tile);

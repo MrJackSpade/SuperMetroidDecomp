@@ -53,8 +53,7 @@ static void VerifySamusAerialMovement()
     var foreground = new ushort[width * height];
     for (int x = 0; x < width; x++)
         foreground[6 * width + x] = 0x8000; // ordinary solid floor begins at Y=96
-    RoomLevelData level = CreateRoom(
-        width, height, foreground, new byte[foreground.Length]);
+    RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
 
     var samus = new SamusState
     {
@@ -338,9 +337,7 @@ static void VerifySamusAerialMovement()
                 squareForeground[3 * width + solidBlockX] = 0x1000;
                 squareBehavior[3 * width + solidBlockX] = unchecked((byte)(
                     shape | (orientation << 6)));
-                RoomLevelData squareRoom = CreateRoom(
-                    width,
-                    height,
+                RoomLevelData squareRoom = CreateRoom(new(width, height),
                     squareForeground,
                     squareBehavior);
 
@@ -438,7 +435,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
         WriteTestWord(bus, 0x909f79 + byteOffset, 0);
 
-    RoomLevelData empty = CreateEmptyRoom(16, 16);
+    RoomLevelData empty = CreateEmptyRoom(new(16, 16));
 
     // Exercise the real F624 pose initializer with the same constructed cartridge as
     // the movement tests below. Environment and cinematic gates apply before queuing,
@@ -722,8 +719,7 @@ static void VerifySamusSpaceJumpAndScrewAttack()
     int screwBombIndex = 8 * 16 + 8;
     screwBombForeground[screwBombIndex] = 0xf123;
     screwBombBts[screwBombIndex] = 4;
-    RoomLevelData screwBombLevel = CreateRoom(
-        16, 16, screwBombForeground, screwBombBts);
+    RoomLevelData screwBombLevel = CreateRoom(new(16, 16), screwBombForeground, screwBombBts);
     var screwBombPlms = new RoomPlmSystem();
     SamusState screwBombSamus = CreateFallingSpin(
         SamusPoseId.ScrewAttackRightPose, 0x0008, speed: 3, subspeed: 0);
@@ -1028,7 +1024,7 @@ static void VerifySamusLiquidPhysics()
 
     for (int medium = 0; medium < 3; medium++)
     {
-        RoomLevelData releaseRoom = CreateEmptyRoom(16, 16);
+        RoomLevelData releaseRoom = CreateEmptyRoom(new(16, 16));
         var released = new SamusState
         {
             Pose = SamusPoseId.NormalJumpForwardRightPose,
@@ -1075,7 +1071,7 @@ static void VerifySamusLiquidPhysics()
     fallingRelease.Grapple.ReleasedMovementActive = true;
     SamusAerialMovement.ConfigureEnvironmentGravity(bus, fallingRelease);
     var fallingResult = SamusAerialMovement.StepReleasedFromGrapple(
-        bus, CreateEmptyRoom(16, 16), fallingRelease, controllerInput: 0, nmiFrameCounter: 0);
+        bus, CreateEmptyRoom(new(16, 16)), fallingRelease, controllerInput: 0, nmiFrameCounter: 0);
     AssertEqual(SamusVerticalCollisionResults.Falling, fallingRelease.SolidVerticalCollisionResult,
         "downward release publishes the falling result");
     AssertTrue(!fallingRelease.Grapple.ReleasedMovementActive,
@@ -1094,7 +1090,7 @@ static void VerifySamusLiquidPhysics()
         for (int byteOffset = 0; byteOffset < SpeedTableEntry.ByteCount; byteOffset += 2)
             WriteTestWord(bus, spinEntry + byteOffset, 0);
     }
-    RoomLevelData empty = CreateEmptyRoom(16, 16);
+    RoomLevelData empty = CreateEmptyRoom(new(16, 16));
 
     var partialWaterSpaceJump = new SamusState
     {

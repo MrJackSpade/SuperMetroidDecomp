@@ -40,7 +40,7 @@ internal static partial class Program
         state.NeckSegment2Distance = W(MotherBrainMemory.NeckSegments + 16);
         state.NeckSegment3Distance = W(MotherBrainMemory.NeckSegments + 22);
         state.NeckSegment4Distance = W(MotherBrainMemory.NeckSegments + 28);
-        MotherBrainNeckPoint Segment(int index) => new(
+        Position16<RoomPixels> Segment(int index) => new(
             W(MotherBrainMemory.NeckSegments + index * 6), W(MotherBrainMemory.NeckSegments + index * 6 + 2));
         state.NeckSegment0 = Segment(0);
         state.NeckSegment1 = Segment(1);

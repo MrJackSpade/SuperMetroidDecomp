@@ -1,19 +1,16 @@
 namespace SuperMetroid.Core.Game;
 
-/// <summary>One hand-relative placement used by Bomb Torizo's explosive swipe.</summary>
-internal readonly record struct BombTorizoSwipeDefinition(short XOffset, short YOffset);
-
-/// <summary>One body-relative placement used by Bomb Torizo's low-health explosions.</summary>
-internal readonly record struct BombTorizoExplosionDefinition(short XOffset, short YOffset);
-
-/// <summary>Fixed physical placement definitions for Bomb Torizo's body projectiles.</summary>
+/// <summary>
+/// Fixed physical placement definitions for Bomb Torizo's body projectiles: hand-relative
+/// swipe placements and body-relative low-health explosion placements, each a room-pixel offset.
+/// </summary>
 internal static class BombTorizoAttackDefinitions
 {
     /// <summary>
     /// The eleven paired X/Y placements at <c>$86:A738-$86:A763</c>. Native swipe
     /// parameters are even byte offsets <c>$00..$14</c>.
     /// </summary>
-    private static readonly BombTorizoSwipeDefinition[] SwipePlacements =
+    private static readonly Offset16<RoomPixels>[] SwipePlacements =
     [
         new(-30, -52),
         new(-40, -28),
@@ -33,7 +30,7 @@ internal static class BombTorizoAttackDefinitions
     /// even values; the translated host's bounded odd restored values retain their prior
     /// word-index truncation instead of gaining a new behavior during this migration.
     /// </summary>
-    internal static BombTorizoSwipeDefinition Swipe(ushort parameter)
+    internal static Offset16<RoomPixels> Swipe(ushort parameter)
     {
         int index = parameter >> 1;
         if ((uint)index >= (uint)SwipePlacements.Length)
@@ -50,7 +47,7 @@ internal static class BombTorizoAttackDefinitions
     /// Applies initializer <c>$86:A81B</c>'s facing-dependent operand adjustment and
     /// returns the selected low-health explosion placement.
     /// </summary>
-    internal static BombTorizoExplosionDefinition LowHealthExplosion(
+    internal static Offset16<RoomPixels> LowHealthExplosion(
         ushort parameter,
         bool facingRight)
     {
@@ -70,7 +67,7 @@ internal static class BombTorizoAttackDefinitions
     /// centered row followed by right/left facing rows. Gut offsets are12 pixels
     /// horizontally and8 up; face offsets are16 horizontally and20 up.
     /// </summary>
-    internal static BombTorizoExplosionDefinition RawExplosionRow(int index)
+    internal static Offset16<RoomPixels> RawExplosionRow(int index)
     {
         if ((uint)index >= 6u)
             throw new ArgumentOutOfRangeException(nameof(index));

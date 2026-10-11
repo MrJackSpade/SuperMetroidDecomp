@@ -39,7 +39,7 @@ internal static partial class Program
                 for (int other = 0; other < 6; other++) AssertEqual(anchors[other], edited.Anchor(other), "all other reserve fields preserved");
                 int pointer = 0x820000 | ReadVerificationWord(rom, 0x82c569 + 0x1b * 2);
                 var native = new OamBuffer(); var actual = new OamBuffer(); native.BeginFrame(); actual.BeginFrame();
-                DrawImportedSpritemap(rom, native, pointer, (ushort)anchors[index].X, (ushort)anchors[index].Y, 0x600);
+                DrawImportedSpritemap(rom, native, pointer, new((ushort)anchors[index].X, (ushort)anchors[index].Y), 0x600);
                 edited.Draw(actual, PauseReserveTankVisual.Full, index);
                 native.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(native.LowTable.SequenceEqual(actual.LowTable) && native.HighTable.SequenceEqual(actual.HighTable),

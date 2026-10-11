@@ -67,7 +67,7 @@ internal static partial class Program
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 64)) };
         samus.Kinematics.Radius = new(5, 5);
-        var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         SamusProjectileInheritance.ClearMovement(bus);
         SamusBlockCollision.MoveHorizontal(bus, level, samus.Kinematics, 0x00031234);
         AssertEqual((short)0x0300, SamusProjectileInheritance.ReadVelocity(bus, 2, 0).X.SignedRawValue,

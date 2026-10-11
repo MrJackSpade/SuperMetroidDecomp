@@ -9,6 +9,12 @@ public sealed class RoomPixels : ISpatialSpace;
 /// <summary>Viewport-relative pixels: a room position minus the camera position.</summary>
 public sealed class ScreenPixels : ISpatialSpace;
 
+/// <summary>
+/// Viewport positions in 1/256 pixels: unsigned 8.8 words whose high byte is the whole
+/// <see cref="ScreenPixels"/> coordinate (the escape timer's on-screen position).
+/// </summary>
+public sealed class ScreenSubpixels : ISpatialSpace;
+
 /// <summary>BG2 scroll-register pixels, which follow their own parallax rules rather than the camera.</summary>
 public sealed class Bg2Pixels : ISpatialSpace;
 

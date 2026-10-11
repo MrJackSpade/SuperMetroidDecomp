@@ -82,9 +82,11 @@ internal static partial class Program
                 // Mode-1 BG output row y samples physical scanline y + 1 (#516).
                 int physicalY = y + SnesPpuLayout.FirstVisibleBackgroundScanline;
                 var a = ReadDraygonAuditPixel(capture.Memory, SnesPpuLayout.GameplayBg1TilemapWord,
-                    r.Bg1CharacterWord, 64, 32, x + r.Bg1Scroll.X, physicalY + r.Bg1Scroll.Y);
+                    r.Bg1CharacterWord, new Extent16<TilemapCells>(64, 32),
+                    new Position16<BgPlanePixels>(unchecked((ushort)(x + r.Bg1Scroll.X)), unchecked((ushort)(physicalY + r.Bg1Scroll.Y))));
                 var b = ReadDraygonAuditPixel(capture.Memory, r.Bg2TilemapWord,
-                    r.Bg2CharacterWord, r.Bg2MapSize.X, r.Bg2MapSize.Y, x + r.Bg2Scroll.X, physicalY + r.Bg2Scroll.Y);
+                    r.Bg2CharacterWord, r.Bg2MapSize,
+                    new Position16<BgPlanePixels>(unchecked((ushort)(x + r.Bg2Scroll.X)), unchecked((ushort)(physicalY + r.Bg2Scroll.Y))));
                 // With OBJ/BG3 excluded, front-to-back is BG1 high, BG2 high,
                 // BG1 low, BG2 low. Color zero is transparent on either plane.
                 bool terrainWins = a.Opaque && (!b.Opaque || a.High || !b.High);
@@ -103,10 +105,12 @@ internal static partial class Program
     // Deliberately decode bitplanes here instead of calling the production sampler:
     // the assertion must detect a fused-renderer priority/addressing regression.
     private static (bool Opaque, bool High, int Palette) ReadDraygonAuditPixel(
-        PpuMemorySnapshot memory, int map, int characters, int width, int height, int x, int y)
+        PpuMemorySnapshot memory, int map, int characters, Extent16<TilemapCells> mapSize, Position16<BgPlanePixels> pixel)
     {
-        x &= width * 8 - 1;
-        y &= height * 8 - 1;
+        // The plane wraps at the map size, a power of two dividing the 16-bit scroll range.
+        int width = mapSize.X;
+        int x = pixel.X & (width * 8 - 1);
+        int y = pixel.Y & (mapSize.Y * 8 - 1);
         int tx = x / 8, ty = y / 8;
         int word = map + ((ty / 32) * (width / 32) + tx / 32) * 1024 + ty % 32 * 32 + tx % 32;
         int address = (word & 32767) * 2;

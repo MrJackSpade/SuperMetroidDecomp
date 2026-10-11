@@ -90,7 +90,7 @@ internal static partial class Program
                 var native = new OamBuffer();
                 var generated = new OamBuffer();
                 native.BeginFrame(); generated.BeginFrame();
-                DrawImportedSpritemap(bus, native, 0x8c0000 | pointer, 120, y, 0x0800, originIsOnScreen: y == 72);
+                DrawImportedSpritemap(bus, native, 0x8c0000 | pointer, new(120, y), 0x0800, originIsOnScreen: y == 72);
                 if (y == 72) calculated.DrawOnScreen(generated, new(120, y), 0x0800);
                 else calculated.DrawOffScreen(generated, new(120, y), 0x0800);
                 native.FinalizeFrame(); generated.FinalizeFrame();
@@ -209,9 +209,9 @@ internal static partial class Program
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)
-                    DrawImportedSpritemap(bus, nativeOam, source, 120, y, 0x0800);
+                    DrawImportedSpritemap(bus, nativeOam, source, new(120, y), 0x0800);
                 else
-                    DrawImportedSpritemap(bus, nativeOam, source, 120, y, 0x0800, originIsOnScreen: false);
+                    DrawImportedSpritemap(bus, nativeOam, source, new(120, y), 0x0800, originIsOnScreen: false);
                 nativeOam.FinalizeFrame();
                 var installedOam = new OamBuffer();
                 installedOam.BeginFrame();

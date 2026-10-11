@@ -50,7 +50,7 @@ internal static partial class Program
                 $"Fake Kraid {(movingRight ? "right" : "left")} physical spit actors");
             for (int projectile = 0; projectile < 2; projectile++)
             {
-                FakeKraidSpitLaunch launch =
+                EightEightVector<RoomPixels> launch =
                     FakeKraidProjectileDefinitions.SpitLaunch(movingRight, projectile);
                 AssertEqual(RoomEnemyProjectileKind.FakeKraidSpit, spawned[projectile].Kind,
                     $"Fake Kraid spit {projectile} kind");
@@ -60,10 +60,8 @@ internal static partial class Program
                 AssertEqual(unchecked((ushort)(source.Position.Y.Whole - 16)),
                     spawned[projectile].Position.Y.Whole,
                     $"Fake Kraid spit {projectile} Y origin");
-                AssertEqual(launch.XVelocity, spawned[projectile].Velocity.X.RawValue,
-                    $"Fake Kraid spit {projectile} production X velocity");
-                AssertEqual(launch.YVelocity, spawned[projectile].Velocity.Y.RawValue,
-                    $"Fake Kraid spit {projectile} production Y velocity");
+                AssertEqual(launch, spawned[projectile].Velocity,
+                    $"Fake Kraid spit {projectile} production velocity");
             }
         }
 

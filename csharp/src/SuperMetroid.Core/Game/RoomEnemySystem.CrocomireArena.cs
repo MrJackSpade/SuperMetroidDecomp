@@ -6,7 +6,7 @@ using SuperMetroid.Core.Rooms;
 public sealed partial class RoomEnemySystem
 {
     private void PublishCrocomirePlm(byte blockX, byte blockY, PlmHeaderId header) =>
-        _crocomirePlmRequests.Add(new CrocomirePlmRequest(blockX, blockY, header));
+        _crocomirePlmRequests.Add(new CrocomirePlmRequest(new(blockX, blockY), header));
 
     /// <summary>
     /// Ports the bridge effects in $A4:8D5E, staged at Crocomire X $0600, $0610 and $0620.

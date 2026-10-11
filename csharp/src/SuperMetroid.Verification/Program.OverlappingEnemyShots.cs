@@ -48,7 +48,7 @@ internal static partial class Program
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "non-piercing shot is marked for deferred removal");
         AssertEqual((ushort)0x8100, shot.Type, "collision preserves payload until projectile processing");
-        var level = CreateRoom(16, 16, new ushort[256], new byte[256]);
+        var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         shots.StepFrame(bus, level, samus, 0, 0, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         AssertEqual((ushort)0, shot.Type, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.Slots.Take(3))

@@ -243,11 +243,9 @@ static void VerifyMotherBrainRainbowBeamAttackSequence()
     };
     var attack = new MotherBrainRainbowBeamAttackSequence
     {
-        BrainXPosition = 64,
-        BrainYPosition = 96,
+        BrainPosition = new(64, 96),
     };
-    attack.Body.XPosition = 64;
-    attack.Body.YPosition = 100;
+    attack.Body.Position = new(64, 100);
 
     attack.StartActiveBeam(bus, samus);
     AssertEqual(MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall, attack.Phase,

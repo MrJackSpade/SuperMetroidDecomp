@@ -14,6 +14,7 @@ internal static class DebuggerStateTypeIdentity
     private const string LegacyAssemblyName = "SuperMetroid.Desktop";
     private const string RetiredBackgroundLineScroll = "SuperMetroid.Core.Rendering.BackgroundLineScroll";
     private const string RetiredBackgroundLineScrollArray = RetiredBackgroundLineScroll + "[]";
+    private const string RetiredMotherBrainNeckPoint = "SuperMetroid.Core.Game.MotherBrainNeckPoint";
 
     public static Type? Resolve(string name)
     {
@@ -42,6 +43,13 @@ internal static class DebuggerStateTypeIdentity
             return identity[0] == RetiredBackgroundLineScroll
                 ? typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.BgPlanePixels>)
                 : typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.BgPlanePixels>[]);
+        }
+        if (identity.Length >= 2 && identity[1] == "SuperMetroid.Core" && identity[0] == RetiredMotherBrainNeckPoint)
+        {
+            // #628 replaced Mother Brain's neck-joint pair with the typed room position. Both
+            // are a record struct of the same two ushort fields, X then Y, so the saved joints
+            // restore unchanged into the typed value.
+            return typeof(SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.RoomPixels>);
         }
         if (identity.Length >= 2 && identity[0] == LegacyRootName && identity[1] == LegacyAssemblyName)
             return typeof(DebuggerSaveStateStore).Assembly.GetType(LegacyRootName, throwOnError: true);

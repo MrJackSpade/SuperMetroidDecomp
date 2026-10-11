@@ -67,9 +67,7 @@ internal static partial class Program
                 ? (ushort)0
                 : ReadWord(rom, 0x840000 | unchecked((ushort)(expectedHeader + 2)));
             var plms = new RoomPlmSystem();
-            RoomLevelData level = CreateRoom(
-                4,
-                4,
+            RoomLevelData level = CreateRoom(new(4, 4),
                 new ushort[16],
                 new byte[16],
                 blockDefinitions: new byte[0x400 * 8]);
@@ -160,9 +158,7 @@ internal static partial class Program
                     new(blockX, blockY), 0x8000), // Negative argument always closes.
             ]);
 
-            RoomLevelData level = CreateRoom(
-                8,
-                8,
+            RoomLevelData level = CreateRoom(new(8, 8),
                 new ushort[64],
                 new byte[64],
                 blockDefinitions: new byte[0x400 * 8]);
@@ -241,9 +237,7 @@ internal static partial class Program
 
         const int width = 32;
         const int height = 16;
-        RoomLevelData level = CreateRoom(
-            width,
-            height,
+        RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -359,9 +353,7 @@ internal static partial class Program
             unchecked((byte)roomArgument), unchecked((byte)(roomArgument >> 8)),
             0x00, 0x00,
         ]);
-        RoomLevelData level = CreateRoom(
-            width,
-            height,
+        RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -495,9 +487,7 @@ internal static partial class Program
             unchecked((byte)(roomArgument >> 8)),
             0x00, 0x00,
         ]);
-        RoomLevelData level = CreateRoom(
-            width,
-            height,
+        RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -591,9 +581,7 @@ internal static partial class Program
 
         ushort[] levelWords = new ushort[width * height];
         levelWords[blockY * width + blockX] = 0x9123;
-        RoomLevelData level = CreateRoom(
-            width,
-            height,
+        RoomLevelData level = CreateRoom(new(width, height),
             levelWords,
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -671,9 +659,7 @@ internal static partial class Program
             0xac, 0xb8, 0x01, 0x01, 0x00, 0x00,
             0x00, 0x00,
         ]);
-        RoomLevelData CreateLevel() => CreateRoom(
-            width,
-            height,
+        RoomLevelData CreateLevel() => CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -845,9 +831,7 @@ internal static partial class Program
                 new(inRoomX, inRoomY), 0x28),
         ]);
 
-        RoomLevelData level = CreateRoom(
-            width,
-            height,
+        RoomLevelData level = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -942,9 +926,7 @@ internal static partial class Program
         WriteVerticalPlmDraw(bus, 0x948b, [0x830f, 0x8ae8, 0x82e8, 0x830f]);
         var guarded = new MotherBrainEscapeGateReadGuard(bus);
 
-        RoomLevelData ordinaryLevel = CreateRoom(
-            width,
-            height,
+        RoomLevelData ordinaryLevel = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -980,9 +962,7 @@ internal static partial class Program
         AssertEqual(0, ordinary.ActiveCount,
             "non-escape closed-gate actor releases its slot after six authored frames");
 
-        RoomLevelData escapeLevel = CreateRoom(
-            width,
-            height,
+        RoomLevelData escapeLevel = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -1035,9 +1015,7 @@ internal static partial class Program
         AssertEqual(0, escape.ActiveCount,
             "escape gate releases its slot after the final two-frame hold");
 
-        RoomLevelData fallbackLevel = CreateRoom(
-            width,
-            height,
+        RoomLevelData fallbackLevel = CreateRoom(new(width, height),
             new ushort[width * height],
             new byte[width * height],
             blockDefinitions: new byte[0x400 * 8]);
@@ -1143,9 +1121,7 @@ internal static partial class Program
             0x00, 0x00,
         ]);
 
-        RoomLevelData level = CreateRoom(
-            8,
-            8,
+        RoomLevelData level = CreateRoom(new(8, 8),
             new ushort[64],
             new byte[64],
             blockDefinitions: new byte[0x400 * 8]);
@@ -1248,7 +1224,7 @@ internal static partial class Program
 
         const ushort emptyPopulation = 0x9780;
         WriteWord(bus, 0x8f0000 | emptyPopulation, 0);
-        RoomLevelData level = CreateRoom(32, 32, new ushort[32 * 32],
+        RoomLevelData level = CreateRoom(new(32, 32), new ushort[32 * 32],
             new byte[32 * 32], blockDefinitions: new byte[0x400 * 8]);
         BackgroundTilemapStreamer streamer = level.CreateBackgroundStreamer();
         RoomScrollGrid scrolls = RoomScrollGrid.LoadCompiled(bus,
@@ -1308,9 +1284,7 @@ internal static partial class Program
             0x00, 0x00,
         ]);
         const int width = 32;
-        RoomLevelData level = CreateRoom(
-            width,
-            16,
+        RoomLevelData level = CreateRoom(new(width, 16),
             new ushort[width * 16],
             new byte[width * 16],
             blockDefinitions: new byte[0x400 * 8]);
@@ -1543,9 +1517,7 @@ internal static partial class Program
         bus.WriteBytes(0x8f0000 | population, [
             0x23, 0xb1, 0x03, 0x04, 0x55, 0xaa, 0x00, 0x00,
         ]);
-        RoomLevelData level = CreateRoom(
-            8,
-            8,
+        RoomLevelData level = CreateRoom(new(8, 8),
             new ushort[64],
             new byte[64],
             blockDefinitions: new byte[0x400 * 8]);

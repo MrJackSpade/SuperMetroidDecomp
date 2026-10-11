@@ -20,7 +20,7 @@ internal static partial class Program
 
         for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
         {
-            BombTorizoPostureDisplacement displacement =
+            Offset16<RoomPixels> displacement =
                 BombTorizoMovementDefinitions.Posture(tableOffset);
             int wrappedYOffset = tableOffset & 0x000f;
 
@@ -68,7 +68,7 @@ internal static partial class Program
         for (ushort tableOffset = 0; tableOffset < 32; tableOffset += 2)
         foreach (bool subtract in new[] { false, true })
         {
-            BombTorizoPostureDisplacement expected =
+            Offset16<RoomPixels> expected =
                 BombTorizoMovementDefinitions.Posture(tableOffset);
             var slot = new RoomEnemySlot(0)
             {

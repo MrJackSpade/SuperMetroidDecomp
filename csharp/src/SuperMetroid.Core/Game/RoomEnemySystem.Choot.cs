@@ -324,9 +324,8 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(
-            state.FallingXOrigin + unchecked((short)point.XOffset))), unchecked((ushort)(
-            state.FallingYOrigin + unchecked((short)point.YOffset)))));
+        slot.Position = slot.Position.WithWhole(
+            new Position16<RoomPixels>(state.FallingXOrigin, state.FallingYOrigin) + point.Offset);
         state.FallingPatternIndex = unchecked((ushort)(
             state.FallingPatternIndex + 0x0100));
     }

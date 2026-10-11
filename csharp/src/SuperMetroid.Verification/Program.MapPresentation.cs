@@ -48,14 +48,14 @@ internal static partial class Program
             var hud = new HudState();
             hud.BindPresentation(hudArt);
             hud.Initialize(new TestAddressSpace(), HudSnapshot.CeresDebug);
-            hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, 5, 5, 16, 16, 128, 128, 8,
+            hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, new(5, 5), new(16, 16), new(128, 128), 8,
                 MapRevealMode.Secret, map);
             AssertEqual(map.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "live minimap consumes edited cells without cartridge reads");
             AssertTrue(system.IsMapTileExplored(AreaId.Crateria, new(5, 5)), "art replacement preserves slope corner exploration");
 
             var edited = document with { Cells = document.Cells.Select(c => c with { TileColumn = 19 }).ToArray() };
             var reloaded = Load(Json(edited));
-            hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, 5, 5, 16, 16, 128, 128, 8,
+            hud.UpdateMinimap(new ForbiddenMapBus(), system, AreaId.Crateria, new(5, 5), new(16, 16), new(128, 128), 8,
                 MapRevealMode.Secret, reloaded);
             AssertEqual(reloaded.GetTile(new(5, 6)).ForHud(true).Raw, hud.Tiles[60], "reloaded edit changes live minimap without ROM patch");
         }
@@ -408,8 +408,8 @@ internal static partial class Program
         var installedBeamReadGuard = new PaletteReadForbiddenBus();
         for (int frame = 0; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount + 3; frame++)
         {
-            nativeBeamSequence.Step(bus, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
-            installedBeamSequence.Step(installedBeamReadGuard, true, 100, 95,
+            nativeBeamSequence.Step(bus, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+            installedBeamSequence.Step(installedBeamReadGuard, true, new(100, 95),
                 SnesAngle.QuarterTurn, 0x4000);
             AssertTrue(nativeBeamSequence.Color == installedBeamSequence.Color &&
                 nativeBeamSequence.ColorCursor == installedBeamSequence.ColorCursor &&
@@ -525,13 +525,13 @@ internal static partial class Program
             PresentationColors = runtime.Enemies.MotherBrainRainbowColors,
         };
         var beamReadGuard = new PaletteReadForbiddenBus();
-        stockBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
             stockBeam.Windows.SequenceEqual(editedBeam.Windows),
             "beam initial-color edit changes only color, not HDMA geometry");
-        stockBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
-        editedBeam.Step(beamReadGuard, true, 100, 95, SnesAngle.QuarterTurn, 0x4000);
+        stockBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
+        editedBeam.Step(beamReadGuard, true, new(100, 95), SnesAngle.QuarterTurn, 0x4000);
         AssertTrue(stockBeam.Color != editedBeam.Color &&
             stockBeam.ColorCursor == editedBeam.ColorCursor &&
             stockBeam.Windows.SequenceEqual(editedBeam.Windows),
@@ -1316,7 +1316,7 @@ internal static partial class Program
         runtime.InitializeHud(HudSnapshot.CeresDebug);
         runtime.InitializeStartingCeresRoom();
         runtime.InitializeCeresStartSamus();
-        AssertEqual(edited.Get(AreaId.Ceres).GetTile(new(runtime.Hud.MinimapCenterX, runtime.Hud.MinimapCenterY)).CharacterIndex,
+        AssertEqual(edited.Get(AreaId.Ceres).GetTile(runtime.Hud.MinimapCenter).CharacterIndex,
             (ushort)(runtime.Hud.Tiles[60] & 0x3ff), "Ceres room-entry runtime consumes bound catalog without map ROM reads");
         var room = runtime.ActiveRoom!;
         var pause = new SuperMetroid.Core.Frontend.PauseMenuState(guard, runtime.Samus!, runtime.System,

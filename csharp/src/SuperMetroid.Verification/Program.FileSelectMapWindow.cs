@@ -7,10 +7,10 @@ using SuperMetroid.Core.Spatial;
 
 internal static partial class Program
 {
-    private static WorldMapLabelLayout CreateWindowLabelFixture(int x, int y)
+    private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
-            _ => new Position16<OamPixels>(checked((ushort)x), checked((ushort)y)));
+            _ => label);
         using var stream = new MemoryStream();
         WorldMapLabelLayout.Write(stream, new() { Version = 1, Areas = points });
         stream.Position = 0;
@@ -28,7 +28,7 @@ internal static partial class Program
         // report pixel one instead of pixel two. No rendering endpoint can hide it.
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities, 0xc000);
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 8, 0xc000);
-        var fractional = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(1, 1));
+        var fractional = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(1, 1)));
         // This arithmetic fixture starts below the authored label domain to exercise the lower clamp.
         var edges = (uint[])typeof(FileSelectMapWindow).GetField("edges", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(fractional)!;
         Array.Clear(edges);
@@ -81,7 +81,7 @@ internal static partial class Program
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 6, 1);
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 10, 0xffff);
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 14, 1);
-        var window = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(40, 30));
+        var window = new FileSelectMapWindow(fake, 0, ReadCartridgeMapWindowMotion(fake, 0), CreateWindowLabelFixture(new(40, 30)));
         Rgba32 areaColor = new(255, 0, 0), frameColor = new(0, 0, 255);
         Rgba32[] area = Enumerable.Repeat(areaColor, 256 * 224).ToArray();
         Rgba32[] frame = Enumerable.Repeat(frameColor, 256 * 224).ToArray();

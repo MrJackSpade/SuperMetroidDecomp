@@ -13,6 +13,7 @@ different types; moving between spaces is always a named conversion.
 |---|---|
 | `RoomPixels` | Room-relative pixels: Samus, enemies, projectiles, PLM blocks, the camera's top-left corner (BG1 scroll). |
 | `ScreenPixels` | Viewport-relative pixels: a room position minus the camera position, and the on-screen positions of cinematic and menu objects. |
+| `ScreenSubpixels` | Viewport positions in 1/256 pixels: unsigned 8.8 words whose high byte is the screen pixel (the escape timer). |
 | `OamPixels` | OAM sprite coordinates (nine-bit signed X, eight-bit Y): every spritemap draw origin and every authored sprite anchor. |
 | `Bg2Pixels`, `Bg3Pixels` | BG2/BG3 scroll-register pixels, which follow their own parallax/FX rules. |
 | `Bg3Subpixels` | BG3 room-FX texture drift in 1/256 pixels (the 8.8 rain, fog and spores accumulators). |
@@ -76,13 +77,15 @@ the wrapped value (collision and PLM grid probes).
   one word: `SnesFixedPosition.WithWhole/WithFraction`, `SnesSignedSixteenSixteen.WithWholePixels/WithFraction`,
   `FixedPosition.WithWhole/WithFractionsOf/WithWholeX/WithWholeY/WithFractionX/WithFractionY` and
   `FixedVector.WithWhole/WithWholeX/WithWholeY/WithFractionY`.
+- Mirroring: `Offset16.MirroredX` negates X (a facing-mirrored authored placement).
   Operations exist only where production code uses them; add one with its first consumer.
 - Conversions between spaces are named methods/extensions in `SuperMetroid.Core.Spatial` next to
   the spaces they join:
   - `ScreenConversions.RelativeToCamera`: room position minus camera, as a signed screen offset;
     `ScreenConversions.ToScreen`: the same subtraction kept as the wrapped screen position words
     native code stores (Samus's death-sequence screen position);
-    `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin.
+    `ScreenConversions.ToOam`: an on-screen position as the OAM draw origin;
+    `ScreenConversions.WholePixels`: an unsigned 8.8 screen position's high bytes as screen pixels.
   - `RoomGridConversions.ToRoomBlock`: a room pixel to its block (`LSR ×4`);
     `ToRoomPixels`: a scroll-zone screen to its top-left room pixel; `ToRoomBlocks`: a room size in
     screens as blocks.

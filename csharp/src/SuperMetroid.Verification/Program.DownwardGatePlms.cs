@@ -265,9 +265,7 @@ internal static partial class Program
             blockDefinitions[0x0ff * 8 + tile * 2] = 0x0f;
             blockDefinitions[0x053 * 8 + tile * 2] = 0x53;
         }
-        RoomLevelData level = CreateRoom(
-            roomWidth,
-            16,
+        RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new ushort[roomWidth * 16],
             new byte[roomWidth * 16],
             blockDefinitions: blockDefinitions);

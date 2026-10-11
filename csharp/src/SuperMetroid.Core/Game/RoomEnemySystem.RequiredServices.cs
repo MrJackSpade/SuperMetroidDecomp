@@ -62,9 +62,9 @@ public sealed partial class RoomEnemySystem
         (_setMotherBrainLayerBlendingDefaultConfig ??
             throw MissingService("write Mother Brain's layer-blending configuration"))(value);
 
-    internal void RequireSetMotherBrainBg2Scroll(ushort x, ushort y) =>
+    internal void RequireSetMotherBrainBg2Scroll(Position16<Bg2Pixels> scroll) =>
         (_setMotherBrainBg2Scroll ??
-            throw MissingService("write Mother Brain's BG2 scroll registers"))(x, y);
+            throw MissingService("write Mother Brain's BG2 scroll registers"))(scroll);
 
     private static InvalidOperationException MissingService(string operation) => new(
         $"Room enemy AI attempted to {operation}, but RoomEnemySystem.Load did not install " +

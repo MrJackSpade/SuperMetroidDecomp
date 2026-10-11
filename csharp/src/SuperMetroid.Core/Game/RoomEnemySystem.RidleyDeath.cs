@@ -34,7 +34,7 @@ public sealed partial class RoomEnemySystem
     {
         MoveNorfairRidleyToward(body, state, 128, 328,
             RidleyInertiaDefinitions.DeathDivisorIndex, RidleyInertiaDefinitions.DeathReversalBoost);
-        if (IsWithinRidleyRectangle(body, 128, 328, 4, 4))
+        if (IsWithinRidleyRectangle(body, new(128, 328), new(4, 4)))
             BeginNorfairRidleyDeathRoar(body, state);
     }
 

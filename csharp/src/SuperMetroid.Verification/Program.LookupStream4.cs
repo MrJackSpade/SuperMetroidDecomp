@@ -1902,10 +1902,8 @@ internal static partial class Program
             var hole = BotwoonNavigationDefinitions.HoleForByteOffset(offset);
             ushort Native(int displacement) => (ushort)(rom.ReadByte(0xb3949b + offset + displacement)
                 | rom.ReadByte(0xb3949c + offset + displacement) << 8);
-            AssertEqual(Native(0), hole.Left, "Botwoon named hole native left boundary");
-            AssertEqual(Native(4), hole.Top, "Botwoon named hole native top boundary");
-            AssertEqual((ushort)(Native(0) + 4), hole.TargetX, "Botwoon named hole center X");
-            AssertEqual((ushort)(Native(4) + 4), hole.TargetY, "Botwoon named hole center Y");
+            AssertEqual(new Position16<RoomPixels>(Native(0), Native(4)), hole.TopLeft, "Botwoon named hole native top-left boundary");
+            AssertEqual(new Position16<RoomPixels>((ushort)(Native(0) + 4), (ushort)(Native(4) + 4)), hole.Target, "Botwoon named hole center");
         }
         Suite(nameof(VerifyLookupStream4DarkLightningColors), () => VerifyLookupStream4DarkLightningColors(rom));
         Suite(nameof(VerifyLookupStream4LightningColors), () => VerifyLookupStream4LightningColors(rom));

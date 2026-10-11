@@ -14,13 +14,18 @@ internal static class GrappleConnectionDefinitions
     /// </summary>
     private static readonly SpecialConnection[] AuthoredStops =
     [
-        new(0xd680, GrappleCrouchingDownRightPose, -30, -24, GrappleConnectionFunction.LockedInPlace),
-        new(0xb380, GrappleCrouchingDownRightPose, -28, -8, GrappleConnectionFunction.LockedInPlace),
-        new(0x6a80, GrappleWallContactRightPose, 24, 16, GrappleConnectionFunction.WallGrab),
-        new(0x7380, GrappleWallContactLeftPose, -8, 16, GrappleConnectionFunction.WallGrab),
+        new(0xd680, GrappleCrouchingDownRightPose, new(-30, -24), GrappleConnectionFunction.LockedInPlace),
+        new(0xb380, GrappleCrouchingDownRightPose, new(-28, -8), GrappleConnectionFunction.LockedInPlace),
+        new(0x6a80, GrappleWallContactRightPose, new(24, 16), GrappleConnectionFunction.WallGrab),
+        new(0x7380, GrappleWallContactLeftPose, new(-8, 16), GrappleConnectionFunction.WallGrab),
     ];
 
-    internal readonly record struct SpecialConnection(ushort Angle, SamusPoseId Pose, short X, short Y, GrappleConnectionFunction Function);
+    /// <summary>One collision-stop record.</summary>
+    /// <param name="Angle">The rope angle that triggers the stop.</param>
+    /// <param name="Pose">Samus's pose at the stop.</param>
+    /// <param name="SamusOffset">Samus's room-pixel position relative to the grapple anchor.</param>
+    /// <param name="Function">The connection function installed at the stop.</param>
+    internal readonly record struct SpecialConnection(ushort Angle, SamusPoseId Pose, Offset16<RoomPixels> SamusOffset, GrappleConnectionFunction Function);
 
     /// <summary>Number of native special-angle records, in their native order.</summary>
     internal static int SpecialAngleCount => AuthoredStops.Length * 2;
@@ -31,7 +36,7 @@ internal static class GrappleConnectionDefinitions
         if ((uint)index >= SpecialAngleCount) throw new IndexOutOfRangeException();
         SpecialConnection stop = AuthoredStops[index >> 1];
         return (index & 1) == 0 ? stop : new(unchecked((ushort)(0x0100 - stop.Angle)), MirrorPose(stop.Pose),
-            (short)-stop.X, stop.Y, stop.Function);
+            stop.SamusOffset.MirroredX(), stop.Function);
     }
 
     private static SamusPoseId MirrorPose(SamusPoseId pose) => pose switch

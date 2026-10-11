@@ -33,10 +33,8 @@ internal static partial class Program
         ring.Radius = new(1, 1);
         ring.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         ring.Variable0 = 0;
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(BabyMetroidCutsceneState.XPosition))!
-            .SetValue(state.BabyMetroid, (ushort)0x00ce);
-        typeof(BabyMetroidCutsceneState).GetProperty(nameof(BabyMetroidCutsceneState.YPosition))!
-            .SetValue(state.BabyMetroid, (ushort)0x00b0);
+        typeof(BabyMetroidCutsceneState).GetProperty(nameof(BabyMetroidCutsceneState.Position))!
+            .SetValue(state.BabyMetroid, state.BabyMetroid!.Position.WithWhole(new(0x00ce, 0x00b0)));
 
         typeof(RoomEnemySystem).GetMethod("RunMotherBrainOnionRingPreInstruction", flags)!
             .Invoke(runtime.Enemies, [ring, runtime.Samus, (ushort)0]);

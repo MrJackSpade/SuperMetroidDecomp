@@ -27,9 +27,7 @@ internal static partial class Program
             0x00, 0x00,
         ]);
 
-        RoomLevelData level = CreateRoom(
-            roomWidth,
-            16,
+        RoomLevelData level = CreateRoom(new(roomWidth, 16),
             new ushort[roomWidth * 16],
             new byte[roomWidth * 16],
             blockDefinitions: new byte[0x400 * 8]);

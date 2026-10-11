@@ -283,7 +283,7 @@ internal static partial class Program
         if (game.RuntimeForVerification?.Enemies.MotherBrain?.BabyMetroid is { } baby)
         {
             // Baby Metroid cutscene actor: $0FA8+$40n function words; velocities at +2/+4.
-            Console.WriteLine($"  baby port   pos={baby.XPosition:X4}.{baby.XSubposition:X4}/{baby.YPosition:X4}.{baby.YSubposition:X4} v={baby.XVelocity:X4}/{baby.YVelocity:X4}");
+            Console.WriteLine($"  baby port   pos={baby.Position.X.Whole:X4}.{baby.Position.X.Fraction:X4}/{baby.Position.Y.Whole:X4}.{baby.Position.Y.Fraction:X4} v={baby.Velocity.X.RawValue:X4}/{baby.Velocity.Y.RawValue:X4}");
             Console.WriteLine($"  baby native pos={Native(0x103a)}.{Native(0x103c)}/{Native(0x103e)}.{Native(0x1040)} v={Native(0x106a)}/{Native(0x106c)}");
         }
         if (game.RuntimeForVerification?.Enemies.Ridley is { } ridley)

@@ -17,7 +17,7 @@ public sealed partial class RoomEnemySystem
     private const ushort MotherBrainLaserHeadInstruction = 0x9f34;
 
     private Action<LayerBlendingConfiguration>? _setMotherBrainLayerBlendingDefaultConfig;
-    private Action<ushort, ushort>? _setMotherBrainBg2Scroll;
+    private Action<Position16<Bg2Pixels>>? _setMotherBrainBg2Scroll;
 
     private static readonly ushort[] MotherBrainAscentDustXPositions =
         [0x003d, 0x0054, 0x0020, 0x0035, 0x005a, 0x0043, 0x0067, 0x0029];
@@ -903,6 +903,6 @@ public sealed partial class RoomEnemySystem
         state.Bg2XScroll = x;
         state.Bg2YScroll = y;
         state.HasBg2ScrollOverride = true;
-        RequireSetMotherBrainBg2Scroll(x, y);
+        RequireSetMotherBrainBg2Scroll(new(x, y));
     }
 }

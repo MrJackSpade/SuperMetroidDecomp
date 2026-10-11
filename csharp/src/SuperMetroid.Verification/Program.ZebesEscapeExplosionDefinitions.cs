@@ -24,7 +24,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, guarded);
-            enemies.SpawnEscapeExplosion(0x1234, 0x5678, choice, inherited);
+            enemies.SpawnEscapeExplosion(new(0x1234, 0x5678), choice, inherited);
 
             int selectedIndex = choice < 8 ? choice : inherited;
             ZebesEscapeExplosionDefinition expected =

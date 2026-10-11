@@ -322,7 +322,7 @@ public sealed partial class RoomEnemySystem
                 continue;
             }
 
-            sprite.Position += new Offset16<RoomPixels>(unchecked((short)(movement.XDelta)), unchecked((short)(movement.YDelta)));
+            sprite.Position += movement.Delta;
         }
 
         state.FightIntroDanceIndex = unchecked((ushort)(

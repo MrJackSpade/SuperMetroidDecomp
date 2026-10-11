@@ -41,9 +41,9 @@ public sealed partial class RoomEnemySystem
         {
             // Native tests only middle joints one, two, and three. Joint zero is buried in
             // the body and joint four is already covered by the separate brain rectangles.
-            MotherBrainNeckPoint[] collisionSegments =
+            Position16<RoomPixels>[] collisionSegments =
                 [state.NeckSegment1, state.NeckSegment2, state.NeckSegment3];
-            foreach (MotherBrainNeckPoint segment in collisionSegments)
+            foreach (Position16<RoomPixels> segment in collisionSegments)
             {
                 if (ResolveMotherBrainSamusCollisionPart(
                         state,

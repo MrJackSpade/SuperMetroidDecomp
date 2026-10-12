@@ -197,8 +197,7 @@ internal static partial class Program
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemy, source);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemy, cgram);
-            typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
-                .SetValue(enemy, (Func<bool>)(() => false));
+            enemy.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
             RoomEnemySlot slot = enemy.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
             typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!

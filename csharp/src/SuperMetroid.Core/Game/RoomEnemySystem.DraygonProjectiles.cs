@@ -75,7 +75,7 @@ public sealed partial class RoomEnemySystem
             graphicsIndex: 0x0400);
         goop.Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(state.Body.Position.X.Whole + (movingRight ? 24 : -28))), unchecked((ushort)(state.Body.Position.Y.Whole - 16))));
 
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         byte angle = unchecked((byte)((random & 0x003f) + (movingRight ? 0x00c0 : 0x0080)));
         SetDraygonProjectileVelocity(goop, angle, DraygonProjectileSpeeds.Goop);
         state.GoopProjectilesSpawned++;

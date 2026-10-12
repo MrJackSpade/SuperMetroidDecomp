@@ -131,13 +131,13 @@ public sealed partial class RoomEnemySystem
 
     private void ResetMotherBrainTurretRotationTimer(RoomEnemyProjectileSlot turret)
     {
-        ushort sample = unchecked((byte)_nextRandom!());
+        ushort sample = unchecked((byte)EnemyRandom.Generate());
         turret.Velocity = turret.Velocity.WithX(new SnesSignedEightEight(Math.Max(sample, MotherBrainTurretDefinitions.MinimumRotationDelay)));
     }
 
     private void ResetMotherBrainTurretCooldown(RoomEnemyProjectileSlot turret)
     {
-        ushort sample = unchecked((byte)_nextRandom!());
+        ushort sample = unchecked((byte)EnemyRandom.Generate());
         turret.Velocity = turret.Velocity.WithY(new SnesSignedEightEight(Math.Max(sample, MotherBrainTurretDefinitions.MinimumFiringCooldown)));
     }
 

@@ -2,71 +2,42 @@ using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
-/// Required host services used by translated enemy AI.
+/// The host services translated enemy AI uses, read from the <see cref="IRoomEnemyServices"/> that
+/// <see cref="RoomEnemySystem.Load"/> installed. A host without a service supplies one that fails at
+/// the exact dependency (see <see cref="StandaloneRoomEnemyServices"/>).
 /// </summary>
-/// <remarks>
-/// <see cref="RoomEnemySystem.Load"/> keeps these delegates optional because focused enemy
-/// fixtures do not need every global cartridge subsystem. Once an AI routine actually uses
-/// one, however, absence is a wiring failure—not a false event bit, a zero RNG sample, or a
-/// harmless no-op. Every translated consumer goes through these guards so a standalone test
-/// and the desktop runtime fail at the exact missing dependency.
-/// </remarks>
 public sealed partial class RoomEnemySystem
 {
-    internal ushort RequireRandomNumber() =>
-        (_readRandomNumber ?? throw MissingService("read the current random-number word"))();
+    internal ushort RequireRandomNumber() => EnemyRandom.Read();
 
-    internal bool RequireAreaBossDefeated() =>
-        (_isAreaBossDefeated ?? throw MissingService("read the area-boss flag"))();
+    internal bool RequireAreaBossDefeated() => Services.Bosses.IsDefeated(BossBits.AreaBoss);
 
-    internal void RequireSetAreaBossDefeated() =>
-        (_setAreaBossDefeated ?? throw MissingService("set the area-boss flag"))();
+    internal void RequireSetAreaBossDefeated() => Services.Bosses.SetDefeated(BossBits.AreaBoss);
 
-    internal bool RequireAreaMiniBossDefeated() =>
-        (_isAreaMiniBossDefeated ?? throw MissingService("read the area-miniboss flag"))();
+    internal bool RequireAreaMiniBossDefeated() => Services.Bosses.IsDefeated(BossBits.AreaMiniBoss);
 
-    internal void RequireSetAreaMiniBossDefeated() =>
-        (_setAreaMiniBossDefeated ?? throw MissingService("set the area-miniboss flag"))();
+    internal void RequireSetAreaMiniBossDefeated() => Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
 
-    internal bool RequireEvent(EventNumber eventNumber) =>
-        (_hasEvent ?? throw MissingService("read global event bits"))(eventNumber);
+    internal bool RequireEvent(EventNumber eventNumber) => Services.Events.Has(eventNumber);
 
-    internal void RequireSetEvent(EventNumber eventNumber) =>
-        (_setEvent ?? throw MissingService("set a global event bit"))(eventNumber);
+    internal void RequireSetEvent(EventNumber eventNumber) => Services.Events.Set(eventNumber);
 
-    internal void RequireClearEvent(EventNumber eventNumber) =>
-        (_clearEvent ?? throw MissingService("clear a global event bit"))(eventNumber);
+    internal void RequireClearEvent(EventNumber eventNumber) => Services.Events.Clear(eventNumber);
 
-    internal bool RequireAreaTorizoDefeated() =>
-        (_isAreaTorizoDefeated ?? throw MissingService("read the area-Torizo flag"))();
+    internal bool RequireAreaTorizoDefeated() => Services.Bosses.IsDefeated(BossBits.AreaTorizo);
 
-    internal void RequireSetAreaTorizoDefeated() =>
-        (_setAreaTorizoDefeated ?? throw MissingService("set the area-Torizo flag"))();
+    internal void RequireSetAreaTorizoDefeated() => Services.Bosses.SetDefeated(BossBits.AreaTorizo);
 
-    internal bool RequireRoomPlmPresent(PlmHeaderId headerPointer) =>
-        (_isRoomPlmPresent ?? throw MissingService("query the active room PLM population"))(
-            headerPointer);
+    internal bool RequireRoomPlmPresent(PlmHeaderId headerPointer) => Services.Plms.HasActiveHeader(headerPointer);
 
-    internal void RequireSetRoomScrollState(int index, RoomScrollState state) =>
-        (_setRoomScrollState ?? throw MissingService("write a room scroll state"))(index, state);
+    internal void RequireSetRoomScrollState(int index, RoomScrollState state) => Services.RoomScroll.Write(index, state);
 
-    internal RoomScrollState RequireReadRoomScrollState(int index) =>
-        (_readMotherBrainRoomScrollState ?? throw MissingService("read a room scroll state"))(
-            index);
+    internal RoomScrollState RequireReadRoomScrollState(int index) => Services.RoomScroll.Read(index);
 
-    internal void RequireSetSamusControlsEnabled(bool enabled) =>
-        (_setSamusControlsEnabled ?? throw MissingService("change Samus control enablement"))(
-            enabled);
+    internal void RequireSetSamusControlsEnabled(bool enabled) => Services.SamusControls.SetControlsEnabled(enabled);
 
     internal void RequireSetLayerBlendingDefaultConfig(LayerBlendingConfiguration value) =>
-        (_setMotherBrainLayerBlendingDefaultConfig ??
-            throw MissingService("write Mother Brain's layer-blending configuration"))(value);
+        Services.MotherBrain.SetLayerBlendingDefault(value);
 
-    internal void RequireSetMotherBrainBg2Scroll(Position16<Bg2Pixels> scroll) =>
-        (_setMotherBrainBg2Scroll ??
-            throw MissingService("write Mother Brain's BG2 scroll registers"))(scroll);
-
-    private static InvalidOperationException MissingService(string operation) => new(
-        $"Room enemy AI attempted to {operation}, but RoomEnemySystem.Load did not install " +
-        "the required cartridge-state service.");
+    internal void RequireSetMotherBrainBg2Scroll(Position16<Bg2Pixels> scroll) => Services.MotherBrain.SetBg2Scroll(scroll);
 }

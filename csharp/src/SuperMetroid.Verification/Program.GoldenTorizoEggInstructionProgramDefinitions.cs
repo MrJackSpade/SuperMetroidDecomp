@@ -214,9 +214,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-                enemies,
-                (Func<ushort>)random.Dequeue);
+            enemies.VerificationServices().NextRandom = (Func<ushort>)random.Dequeue;
             return enemies;
         }
     }

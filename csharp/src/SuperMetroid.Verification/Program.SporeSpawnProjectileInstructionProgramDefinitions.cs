@@ -35,9 +35,7 @@ internal static partial class Program
         var selectedPresentation = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 1));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         var samus = new SamusState();
         typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
             enemies,

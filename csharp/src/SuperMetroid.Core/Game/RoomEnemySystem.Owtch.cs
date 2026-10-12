@@ -279,7 +279,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports Owtch's six-in-256 per-frame burial gate at $A2:A553.</summary>
     private void MaybeMakeOwtchSink(RoomEnemySlot slot, OwtchEnemyState state)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         byte decision = unchecked((byte)((byte)random + (byte)slot.FrameCounter));
         if (decision < 6)
             state.Behavior = OwtchBehaviorState.Sinking;

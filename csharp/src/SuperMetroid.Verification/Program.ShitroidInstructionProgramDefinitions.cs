@@ -41,9 +41,7 @@ internal static partial class Program
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
         type.GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        type.GetField("_readRandomNumber", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => randomNumber));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => randomNumber);
         var initialize = type.GetMethod("InitializeShitroid", flags)!
             .CreateDelegate<Action<RoomEnemySlot, ushort>>(enemies);
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;

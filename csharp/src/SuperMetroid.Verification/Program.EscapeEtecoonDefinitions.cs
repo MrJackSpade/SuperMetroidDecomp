@@ -54,8 +54,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guarded);
-            typeof(RoomEnemySystem).GetField("_hasEvent", instanceFlags)!
-                .SetValue(enemies, (Func<EventNumber, bool>)(_ => false));
+            enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
             RoomEnemySlot slot = enemies.Slots[0];
             slot.Parameter1 = parameter;
             slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
@@ -178,8 +177,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_hasEvent", flags)!
-            .SetValue(enemies, (Func<EventNumber, bool>)(_ => false));
+        enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot etecoon = enemies.Slots[0];
         etecoon.EnemyDefinitionPointer = EnemyDefinitionId.EtecoonEscape;
         etecoon.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };

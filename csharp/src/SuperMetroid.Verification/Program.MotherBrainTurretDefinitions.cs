@@ -16,7 +16,6 @@ internal static partial class Program
         MethodInfo spawnBullet = typeof(RoomEnemySystem).GetMethod(
             "SpawnMotherBrainTurretBullet", instance)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
-        FieldInfo randomField = typeof(RoomEnemySystem).GetField("_nextRandom", instance)!;
         var guarded = NewMotherBrainTurretReadGuard(rom);
 
         for (ushort parameter = 0; parameter < 12; parameter++)
@@ -47,7 +46,7 @@ internal static partial class Program
 
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, guarded);
-            randomField.SetValue(enemies, (Func<ushort>)(() => 0));
+            enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
             spawnTurret.Invoke(enemies, [parameter]);
 
             RoomEnemyProjectileSlot turret =

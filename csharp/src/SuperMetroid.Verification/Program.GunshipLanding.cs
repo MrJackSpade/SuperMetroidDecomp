@@ -34,17 +34,8 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         samus.TileTransfers.BindArtwork(
             RepositoryInstallation.SamusBody);
-        enemies.Load(
-            new GunshipMotionFixtureGuard(bus),
-            populationPointer,
-            tilesetPointer,
-            vram,
-            cgram,
-            () => 0,
-            samus: samus,
-            hasEvent: eventNumber =>
-                zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet,
-            gunshipLoadScenario: GunshipLoadScenario.EscapingCeres);
+        enemies.Load(new RoomEnemyLoadRequest(new GunshipMotionFixtureGuard(bus), populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
+                zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } }) { Samus = samus, GunshipScenario = GunshipLoadScenario.EscapingCeres });
 
         RoomEnemySlot top = enemies.Slots[0];
         RoomEnemySlot bottom = enemies.Slots[1];

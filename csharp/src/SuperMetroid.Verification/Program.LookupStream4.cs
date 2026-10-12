@@ -2937,7 +2937,7 @@ internal static partial class Program
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewProjectileCompositionForbiddenBus());
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-                typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
+                enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
                 RoomEnemySlot slot = enemies.Slots[0]; slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
                 typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
                 RidleyEnemyState state = enemies.Ridley!;
@@ -3036,7 +3036,7 @@ internal static partial class Program
                 var guard = NewProjectileCompositionForbiddenBus();
                 typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, cgram);
-                typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => false));
+                enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
                 RoomEnemySlot slot = enemies.Slots[0];
                 slot.EnemyDefinitionPointer = EnemyDefinitionId.Ridley;
                 typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidley", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies)(slot);
@@ -3214,8 +3214,7 @@ internal static partial class Program
             for (int index = 1; index <= freeSlots; index++) enemies.Slots[index].Clear();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewFrontendCartridgeReadGuard(rom));
             int randomCalls = 0;
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies,
-                (Func<ushort>)(() => (ushort)(0x100 + 0x10 * randomCalls++)));
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(0x100 + 0x10 * randomCalls++));
             var spawn = typeof(RoomEnemySystem).GetMethod("SpawnNorfairRidleyBreakupActors", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState>>(enemies);
             RoomEnemySlot body = enemies.Slots[0];

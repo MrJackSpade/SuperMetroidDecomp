@@ -93,10 +93,10 @@ internal static partial class Program
         var state = new CrocomireEnemyState(body);
         typeof(RoomEnemySystem).GetField("<Crocomire>k__BackingField", flags)!.SetValue(enemies, state);
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, new CrocomireDeathState());
-        typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
+        enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)scrolls.SetStorage;
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewCrocomireTongueNoReadBus());
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => 1));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         var run = typeof(RoomEnemySystem).GetMethod("RunCrocomireMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
@@ -124,7 +124,7 @@ internal static partial class Program
         // native wait-for-Samus handoff using the retail room's original scrolls.
         scrolls = RoomScrollGrid.LoadCompiled(rom, storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
-        typeof(RoomEnemySystem).GetField("_setRoomScrollState", flags)!.SetValue(enemies, (Action<int, RoomScrollState>)scrolls.SetStorage);
+        enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)scrolls.SetStorage;
         state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);

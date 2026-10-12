@@ -27,8 +27,8 @@ internal static partial class Program
         int reads = 0, advances = 0;
         ushort seed = 0;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => { reads++; return seed; }));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); }));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeNorfairRidleyPogoVelocity", flags)!
             .CreateDelegate<Action<RidleyEnemyState>>(enemies);
         var state = new RidleyEnemyState();
@@ -67,8 +67,8 @@ internal static partial class Program
         int reads = 0, advances = 0;
         ushort seed = 0;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => { reads++; return seed; }));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); }));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
         var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(enemies);
         var attack = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyGroundAttackMoveToHeight", flags)!

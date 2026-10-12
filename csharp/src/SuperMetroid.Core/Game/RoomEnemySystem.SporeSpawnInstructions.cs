@@ -160,7 +160,7 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnSporeSpawnHardeningDust(SporeSpawnEnemyState state)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((random & 0x7f00) >> 8) - 64))),
             animationIndex: 0x0015);
@@ -169,7 +169,7 @@ public sealed partial class RoomEnemySystem
 
     private void SpawnSporeSpawnDyingExplosion(SporeSpawnEnemyState state)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         _ = SpawnRoomSpriteObject(
             new(unchecked((ushort)(state.Body.Position.X.Whole + (random & 0x007f) - 64)), unchecked((ushort)(state.Body.Position.Y.Whole + ((random & 0x3f00) >> 8) - 32))),
             RoomSpriteObjectKind.SporeSpawnDyingExplosion,
@@ -181,7 +181,7 @@ public sealed partial class RoomEnemySystem
     {
         for (int drop = 0; drop < 16; drop++)
         {
-            ushort random = _nextRandom!();
+            ushort random = EnemyRandom.Generate();
             ushort x = unchecked((ushort)((random & 0x007f) + 64));
             ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 528));
             _sporeSpawnDropRequests.Add(new SporeSpawnDropRequest());

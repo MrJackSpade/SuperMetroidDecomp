@@ -52,10 +52,8 @@ internal static partial class Program
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies, guard);
-            typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(
-                enemies, (Action<ushort>)(_ => { }));
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-                enemies, (Func<ushort>)(() => 0));
+            enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeHopper", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);
@@ -159,10 +157,8 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies, NewHopperAnimationGuard(rom));
-        typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(
-            enemies, (Action<ushort>)(_ => { }));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies, (Func<ushort>)(() => 0));
+        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeHopper", flags)!;
 
         RoomEnemySlot slot = enemies.Slots[0];

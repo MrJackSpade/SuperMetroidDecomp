@@ -174,9 +174,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
             NewRidleyExplosionDefinitionReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 0x8130));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x8130);
         var initialize = typeof(RoomEnemySystem)
             .GetMethod("InitializeNorfairRidleyExplosion", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState>>(enemies);

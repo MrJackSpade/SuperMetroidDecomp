@@ -116,15 +116,7 @@ internal static partial class Program
         // the shared projectile pool. Recreate that exact boundary and inspect initializer E.
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
-        enemies.Load(
-            bus,
-            populationPointer: 0x9600,
-            tilesetPointer: 0,
-            new SnesVram(),
-            new SnesCgram(),
-            nextRandom: () => 0,
-            level: level,
-            samus: new SamusState());
+        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
         enemies.ApplyDownwardGateProjectileRequest(request, level.Size.X);
         RoomEnemyProjectileSlot actor = enemies.EnemyProjectiles.Single(projectile => projectile.IsActive);
         AssertEqual(RoomEnemyProjectileKind.DownwardGateClosed, actor.Kind,

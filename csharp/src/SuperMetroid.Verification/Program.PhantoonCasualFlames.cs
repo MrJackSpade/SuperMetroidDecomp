@@ -23,8 +23,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         ushort random = 0;
         int calls = 0;
-        typeof(RoomEnemySystem).GetField("_nextRandom", BindingFlags.NonPublic | BindingFlags.Instance)!
-            .SetValue(enemies, (Func<ushort>)(() => { calls++; return random; }));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return random; });
         // All RNG words enter the actual new-pattern branch with no address space attached.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

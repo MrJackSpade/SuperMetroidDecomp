@@ -140,8 +140,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!
-            .SetValue(enemies, nextRandom);
+        enemies.VerificationServices().NextRandom = nextRandom;
         RoomEnemySlot slot = enemies.Slots[0];
         slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
         slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };

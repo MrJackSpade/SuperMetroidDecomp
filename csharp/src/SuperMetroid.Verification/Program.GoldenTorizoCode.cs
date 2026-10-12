@@ -26,7 +26,7 @@ internal static partial class Program
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-            typeof(RoomEnemySystem).GetField("_isAreaTorizoDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => defeated));
+            enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
             var initialize = typeof(RoomEnemySystem).GetMethod("RunInitializationAi", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, RoomLevelData?, SamusState?, ushort, ushort>>(enemies);
             var actor = enemies.Slots[0];

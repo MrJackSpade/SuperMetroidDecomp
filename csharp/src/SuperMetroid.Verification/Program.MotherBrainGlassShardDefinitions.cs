@@ -11,7 +11,6 @@ internal static partial class Program
         Suite(nameof(VerifyGlassShardYPlacement), () => VerifyGlassShardYPlacement(rom));
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", instance)!;
-        FieldInfo randomField = typeof(RoomEnemySystem).GetField("_nextRandom", instance)!;
         var guarded = NewMotherBrainGlassShardReadGuard(rom);
 
         Suite(nameof(VerifyGlassShardProgramSelection), () => VerifyGlassShardProgramSelection(rom));
@@ -26,7 +25,7 @@ internal static partial class Program
                 var random = new Queue<ushort>([unchecked((ushort)(animationIndex << 4)), 8, 8]);
                 var enemies = new RoomEnemySystem();
                 busField.SetValue(enemies, guarded);
-                randomField.SetValue(enemies, (Func<ushort>)(() => random.Dequeue()));
+                enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => random.Dequeue()));
                 enemies.SpawnMotherBrainGlassProjectile(new(
                     (ushort)RoomEnemyProjectileKind.MotherBrainGlassShard,
                     parameter,

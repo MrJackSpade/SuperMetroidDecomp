@@ -139,9 +139,8 @@ internal static partial class Program
         {
             var system = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(system, guard);
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!
-                .SetValue(system, (Func<ushort>)(() =>
-                    random.Count == 0 ? (ushort)0x4040 : random.Dequeue()));
+            system.VerificationServices().NextRandom = (Func<ushort>)(() =>
+                    random.Count == 0 ? (ushort)0x4040 : random.Dequeue());
             return system;
         }
 

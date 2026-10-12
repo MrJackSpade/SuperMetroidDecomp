@@ -370,7 +370,7 @@ public sealed partial class RoomEnemySystem
         state.PathComplete = false;
         ushort choice = 0;
         if (!state.InsideHole && !state.InitialAction && state.HealthPhase == 0)
-            choice = unchecked((ushort)(_nextRandom!() & 0x000e));
+            choice = unchecked((ushort)(EnemyRandom.Generate() & 0x000e));
         state.InitialAction = false;
 
         if (choice is 0 or 2 or 4)
@@ -427,7 +427,7 @@ public sealed partial class RoomEnemySystem
 
         ushort nextInside = state.PendingDeath
             ? (ushort)0
-            : unchecked((ushort)(_nextRandom!() & 1));
+            : unchecked((ushort)(EnemyRandom.Generate() & 1));
         state.InsideHole = nextInside != 0;
         state.PreviousInsideHole = state.InsideHole;
         if (!state.InsideHole)
@@ -507,7 +507,7 @@ public sealed partial class RoomEnemySystem
         UpdateBotwoonHealthPhase(head, state);
         ushort insideBase = state.InsideHole ? (ushort)128 : (ushort)0;
         state.PathChoiceOffset = unchecked((ushort)(
-            (_nextRandom!() & 0x0018) + insideBase + 4 * state.TargetHoleOffset));
+            (EnemyRandom.Generate() & 0x0018) + insideBase + 4 * state.TargetHoleOffset));
     }
 
     private static void UpdateBotwoonHealthPhase(RoomEnemySlot head, BotwoonEnemyState state)
@@ -843,7 +843,7 @@ public sealed partial class RoomEnemySystem
         // a real $F337 actor using the retained six-byte item-chance pointer.
         for (int dropIndex = 0; dropIndex < BotwoonSpecialDropCount; dropIndex++)
         {
-            ushort random = _nextRandom!();
+            ushort random = EnemyRandom.Generate();
             var request = new BotwoonDropRequest(
                 Position: new Position16<RoomPixels>(
                     unchecked((ushort)((random & 0x007f) + 64)),
@@ -885,7 +885,7 @@ public sealed partial class RoomEnemySystem
             {
                 state.LargeExplosionTimer = 12;
                 SpawnRoomSpriteObject(
-                    new(unchecked((ushort)((_nextRandom!() & 0x001f) + 232)), unchecked((ushort)(state.WallExplosionFrame + (_nextRandom!() & 0x001f) - 8))),
+                    new(unchecked((ushort)((EnemyRandom.Generate() & 0x001f) + 232)), unchecked((ushort)(state.WallExplosionFrame + (EnemyRandom.Generate() & 0x001f) - 8))),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
                     graphicsIndex: 0x0a00);
                 LastBotwoonSoundEffect = 0x0024;
@@ -900,7 +900,7 @@ public sealed partial class RoomEnemySystem
                 for (int explosion = 0; explosion < 2; explosion++)
                 {
                     SpawnRoomSpriteObject(
-                        new(unchecked((ushort)((_nextRandom!() & 0x003f) + 224)), unchecked((ushort)(state.WallExplosionFrame + (_nextRandom!() & 0x001f) - 8))),
+                        new(unchecked((ushort)((EnemyRandom.Generate() & 0x003f) + 224)), unchecked((ushort)(state.WallExplosionFrame + (EnemyRandom.Generate() & 0x001f) - 8))),
                         RoomSpriteObjectKind.BotwoonSmallExplosion,
                         graphicsIndex: 0x0a00);
                 }

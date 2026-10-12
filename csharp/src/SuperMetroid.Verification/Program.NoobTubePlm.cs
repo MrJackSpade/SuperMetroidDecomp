@@ -250,15 +250,7 @@ internal static partial class Program
     {
         SeedEmptyRoomEnemyPopulation(bus, 0x9600);
         var enemies = new RoomEnemySystem();
-        enemies.Load(
-            bus,
-            populationPointer: 0x9600,
-            tilesetPointer: 0,
-            new SnesVram(),
-            new SnesCgram(),
-            nextRandom: () => 0x4040,
-            level: level,
-            samus: new SamusState());
+        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
 
         foreach (NoobTubeProjectileRequest request in requests)
             enemies.SpawnNoobTubeProjectile(request, level.Size.X);

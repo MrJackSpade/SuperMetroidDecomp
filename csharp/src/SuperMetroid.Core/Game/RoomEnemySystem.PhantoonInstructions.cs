@@ -86,7 +86,7 @@ public sealed partial class RoomEnemySystem
         body.InstructionTimer = 1;
         body.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeHitboxBody;
         body.Properties = body.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        body.VariableE = PhantoonTimerDefinitions.VulnerableWindow[_nextRandom!() & 7];
+        body.VariableE = PhantoonTimerDefinitions.VulnerableWindow[EnemyRandom.Generate() & 7];
         body.VariableF = (ushort)PhantoonAiFunction.EyeTracksSamus;
         state.Eye!.InstructionTimer = 1;
         state.Eye.CurrentInstruction = PhantoonInstructionProgramDefinitions.EyeballCentered;
@@ -98,7 +98,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body = state.Body;
         RoomEnemySlot eye = state.Eye!;
         body.VariableE = 60;
-        eye.VariableA = PhantoonTimerDefinitions.EyeClosed[_nextRandom!() & 7];
+        eye.VariableA = PhantoonTimerDefinitions.EyeClosed[EnemyRandom.Generate() & 7];
         if ((_enemyFrameNmiFrameCounter & 1) != 0)
         {
             if (eye.VariableC == 0)

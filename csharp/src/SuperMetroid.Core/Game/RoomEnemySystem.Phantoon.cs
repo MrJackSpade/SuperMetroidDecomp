@@ -327,7 +327,7 @@ public sealed partial class RoomEnemySystem
         body.VariableF = (ushort)PhantoonAiFunction.MoveInFigureEightThenOpenEye;
         body.VariableB = 0;
         body.VariableD = 0;
-        if ((_nextRandom!() & 1) != 0)
+        if ((EnemyRandom.Generate() & 1) != 0)
         {
             body.VariableC = 0;
             eye.VariableC = 1;
@@ -516,7 +516,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        mouth.VariableA = unchecked((ushort)(_nextRandom!() & 3));
+        mouth.VariableA = unchecked((ushort)(EnemyRandom.Generate() & 3));
         PhantoonCasualFlameDefinitions.Schedule pattern = PhantoonCasualFlameDefinitions.Pattern(mouth.VariableA);
         mouth.VariableC = pattern[0];
         mouth.VariableB = pattern[mouth.VariableC + 1];

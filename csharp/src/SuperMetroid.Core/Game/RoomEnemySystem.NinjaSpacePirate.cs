@@ -422,7 +422,7 @@ public sealed partial class RoomEnemySystem
         // even though all three accepted values select the same list.
         ushort choice;
         do
-            choice = unchecked((ushort)(_nextRandom!() & 3));
+            choice = unchecked((ushort)(EnemyRandom.Generate() & 3));
         while (choice == 0);
 
         InstallNinjaPirateInstruction(

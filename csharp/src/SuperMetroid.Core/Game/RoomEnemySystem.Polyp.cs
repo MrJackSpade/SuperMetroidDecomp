@@ -54,8 +54,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Polyp</c> at $A2:B570.</summary>
     private void InitializePolyp(RoomEnemySlot slot)
     {
-        Action<ushort> setRandomNumber = _setRandomNumber ?? throw new InvalidOperationException(
-            "Polyp initialization requires the writable cartridge RNG seam.");
+        Action<ushort> setRandomNumber = EnemyRandom.Seed;
 
         slot.CurrentInstruction = PolypInstructionProgramDefinitions.Stationary;
         slot.InstructionTimer = 1;
@@ -116,13 +115,13 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the three independent random-table selections at $A2:B5B2.</summary>
     private void ShootPolypRock(RoomEnemySlot slot, PolypEnemyState state)
     {
-        ushort xVelocity = PolypLaunchDefinitions.XVelocity(_nextRandom!());
+        ushort xVelocity = PolypLaunchDefinitions.XVelocity(EnemyRandom.Generate());
 
-        ushort initialYSpeed = PolypLaunchDefinitions.InitialYIndex(_nextRandom!());
+        ushort initialYSpeed = PolypLaunchDefinitions.InitialYIndex(EnemyRandom.Generate());
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Function = PolypEnemyFunction.Cooldown;
-        state.CooldownTimer = PolypLaunchDefinitions.Cooldown(_nextRandom!());
+        state.CooldownTimer = PolypLaunchDefinitions.Cooldown(EnemyRandom.Generate());
     }
 
     /// <summary>

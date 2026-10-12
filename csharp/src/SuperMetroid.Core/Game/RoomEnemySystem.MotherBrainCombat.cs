@@ -156,8 +156,7 @@ public sealed partial class RoomEnemySystem
         if (family is not (SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile))
             return;
 
-        (_incrementMotherBrainGlassRoomArgument ?? throw new InvalidOperationException(
-            "Mother Brain head damage has no loaded glass-PLM argument writer."))();
+        Services.MotherBrain.IncrementGlassRoomArgument();
         QueueEnemySound(SoundEffectLibrary2Sounds.MotherBrainGlassHit, maximumQueued: 6);
 
         // `$B52D-$B539` deliberately alternates odd/even flash parity when a second hit

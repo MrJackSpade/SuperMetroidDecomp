@@ -137,10 +137,10 @@ public sealed partial class RoomEnemySystem
         beam.Position = beam.Position.Advance(beam.Velocity.ToSixteenSixteen());
         state.HandBeamNextPosition = beam.Position;
 
-        ushort angleRandom = _nextRandom!();
+        ushort angleRandom = EnemyRandom.Generate();
         byte scatterAngle = unchecked((byte)(
             state.HandBeamNextAngle + unchecked((byte)angleRandom)));
-        ushort speedRandom = _nextRandom!();
+        ushort speedRandom = EnemyRandom.Generate();
         ushort scatterSpeed = unchecked((ushort)(speedRandom & 0x0700));
         beam.Velocity = beam.Velocity.WithX(new SnesSignedEightEight(MultiplyCartridgeSinCos(scatterSpeed, scatterAngle)));
         beam.Velocity = beam.Velocity.WithY(new SnesSignedEightEight(MultiplyCartridgeSinCos(

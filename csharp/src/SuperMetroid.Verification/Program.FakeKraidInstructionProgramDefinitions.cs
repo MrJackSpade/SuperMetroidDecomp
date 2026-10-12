@@ -170,8 +170,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!
-                .SetValue(enemies, (Func<ushort>)(() => 0));
+            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeFakeKraid", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, SamusState?>>(enemies);
 

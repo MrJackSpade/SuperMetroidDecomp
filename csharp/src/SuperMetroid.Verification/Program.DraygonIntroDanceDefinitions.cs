@@ -94,9 +94,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
             NewDraygonIntroDefinitionReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 0));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         var run = typeof(RoomEnemySystem).GetMethod(
             "RunDraygonIntroDance",
             flags)!.CreateDelegate<Action<DraygonEnemyState, SamusState?, byte>>(enemies);

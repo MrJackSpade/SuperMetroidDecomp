@@ -474,9 +474,7 @@ public sealed partial class RoomEnemySystem
     private ushort StartAlcoonWalking(AlcoonEnemyState state)
     {
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
-        Func<ushort> readRandomNumber = _readRandomNumber ??
-            throw new InvalidOperationException(
-                "Alcoon instruction $A8:DF3F requires a non-advancing random-seed reader.");
+        Func<ushort> readRandomNumber = EnemyRandom.Read;
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
         state.StepCounter = count == 0 ? (ushort)2 : count;
         return state.Velocity.X.WholePixels < 0

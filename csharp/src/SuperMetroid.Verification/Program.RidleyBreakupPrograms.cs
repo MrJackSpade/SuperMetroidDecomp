@@ -19,7 +19,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => 1));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
         var death = typeof(RoomEnemySystem).GetMethod("TickNorfairRidleyDeathExplosions", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var process = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", flags)!

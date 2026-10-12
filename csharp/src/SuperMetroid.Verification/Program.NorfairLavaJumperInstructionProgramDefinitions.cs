@@ -29,7 +29,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         var initialize = type.GetMethod("InitializeNorfairLavaJumpingEnemy", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         var runMain = type.GetMethod("RunNorfairLavaJumpingEnemyMain", flags)!

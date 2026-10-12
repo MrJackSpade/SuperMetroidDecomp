@@ -24,12 +24,11 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies, NewNorfairLavaJumpReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies, (Func<ushort>)(() =>
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() =>
             {
                 advances++;
                 return nextRandom;
-            }));
+            });
         var runMain = typeof(RoomEnemySystem).GetMethod(
                 "RunNorfairLavaJumpingEnemyMain", flags)!
             .CreateDelegate<Action<RoomEnemySlot, NorfairLavaJumpingEnemyState>>(enemies);

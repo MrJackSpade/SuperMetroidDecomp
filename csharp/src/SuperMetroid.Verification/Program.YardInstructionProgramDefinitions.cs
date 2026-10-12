@@ -134,9 +134,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 0));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
 
         yard = enemies.Slots[0];
         yard.EnemyDefinitionPointer = EnemyDefinitionId.Yard;

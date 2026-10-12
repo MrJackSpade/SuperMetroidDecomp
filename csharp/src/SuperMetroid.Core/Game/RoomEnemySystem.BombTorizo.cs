@@ -173,9 +173,6 @@ public sealed partial class RoomEnemySystem
 
     private TorizoEnemyState? _torizoState;
     private readonly List<TorizoOrbDropRequest> _torizoOrbDropRequests = new();
-    private Func<PlmHeaderId, bool>? _isRoomPlmPresent;
-    private Func<bool>? _isAreaTorizoDefeated;
-    private Action? _setAreaTorizoDefeated;
 
     /// <summary>Golden Torizo's state while definition $EF7F owns slot zero.</summary>
     public TorizoEnemyState? GoldenTorizo =>

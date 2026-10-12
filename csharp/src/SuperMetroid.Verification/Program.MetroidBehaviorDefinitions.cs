@@ -85,8 +85,6 @@ internal static partial class Program
             BindingFlags.Instance | BindingFlags.NonPublic)!;
         FieldInfo busField = typeof(RoomEnemySystem).GetField(
             "_bus", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        FieldInfo randomField = typeof(RoomEnemySystem).GetField(
-            "_nextRandom", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var guarded = NewMetroidBehaviorReadGuard(rom);
 
         for (ushort random = 0; random < 8; random++)
@@ -94,7 +92,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem();
             busField.SetValue(enemies, guarded);
             ushort selectedRandom = random;
-            randomField.SetValue(enemies, (Func<ushort>)(() => selectedRandom));
+            enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => selectedRandom));
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Metroid;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xa3 };

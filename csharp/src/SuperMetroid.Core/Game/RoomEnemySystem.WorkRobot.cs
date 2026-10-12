@@ -388,9 +388,7 @@ public sealed partial class RoomEnemySystem
             return nextCursor;
         }
 
-        Func<ushort> readRandomNumber = _readRandomNumber ??
-            throw new InvalidOperationException(
-                "Work Robot laser instruction requires a non-advancing random-seed reader.");
+        Func<ushort> readRandomNumber = EnemyRandom.Read;
         state.LaserCooldown = unchecked((ushort)((readRandomNumber() & 0x001f) + 0x0010));
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingInstruction;

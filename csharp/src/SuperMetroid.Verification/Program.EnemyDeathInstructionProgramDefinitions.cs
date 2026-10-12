@@ -56,8 +56,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!
-                .SetValue(enemies, (Func<ushort>)(() => 0x1234));
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x1234);
             typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!
                 .SetValue(enemies, new SamusState { Health = 99, MaxHealth = 99 });
 

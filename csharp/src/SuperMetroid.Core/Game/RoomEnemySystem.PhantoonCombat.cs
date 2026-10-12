@@ -107,7 +107,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot body,
         PhantoonEnemyState state)
     {
-        if ((_nextRandom!() & 1) != 0)
+        if ((EnemyRandom.Generate() & 1) != 0)
         {
             body.VariableA = 136;
             body.Position = body.Position.WithWholeX(208);
@@ -198,7 +198,7 @@ public sealed partial class RoomEnemySystem
             return;
 
         body.VariableF = (ushort)PhantoonAiFunction.SpawnFlameRain;
-        body.VariableE = PhantoonTimerDefinitions.RainHiding[_nextRandom!() & 7];
+        body.VariableE = PhantoonTimerDefinitions.RainHiding[EnemyRandom.Generate() & 7];
     }
 
     private void RunPhantoonHiddenFlameRain(
@@ -208,7 +208,7 @@ public sealed partial class RoomEnemySystem
         if (!TickPhantoonFunctionTimer(body))
             return;
 
-        ushort pattern = unchecked((ushort)(_nextRandom!() & 7));
+        ushort pattern = unchecked((ushort)(EnemyRandom.Generate() & 7));
         var placement = PhantoonPatternDefinitions.RainPlacement(pattern);
         body.VariableA = placement.Cursor;
         body.Position = body.Position.WithWhole(new(placement.X, placement.Y));

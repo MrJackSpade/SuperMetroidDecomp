@@ -16,7 +16,7 @@ internal static partial class Program
             SeedRetailGateSpriteMaps(bus, retail);
             SeedEmptyRoomEnemyPopulation(bus, 0x9600);
             var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-            enemies.Load(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), () => 0, level: level, samus: new SamusState());
+            enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)) { Level = level, Samus = new SamusState() });
             enemies.ApplyDownwardGateProjectileRequest(plms.TakeDownwardGateProjectileRequests().Single(), level.Size.X);
             enemies.StepEnemyProjectiles(level, null);
             enemies.StepEnemyProjectiles(level, null);

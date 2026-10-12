@@ -45,8 +45,6 @@ public sealed partial class RoomEnemySystem
     /// <summary>$A9:8C61: authored smoke puff X offsets cycled while a tube lands.</summary>
     private static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];
 
-    private Func<int, RoomScrollState>? _readMotherBrainRoomScrollState;
-    private Action<int, RoomScrollState>? _setMotherBrainRoomScrollState;
 
     /// <summary>Dispatches the body pointer after the phase-one function changes to $881D.</summary>
     private void RunMotherBrainFakeDeath(MotherBrainEnemyState state, SamusState? samus)

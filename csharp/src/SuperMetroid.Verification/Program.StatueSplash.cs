@@ -15,8 +15,7 @@ internal static partial class Program
         for (ushort random = 0; random < 64; random++)
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
-                new SnesVram(), new SnesCgram(), () => random);
+            enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => random)));
             foreach (var actor in enemies.EnemyProjectiles) actor.Kind = 0;
             enemies.TourianStatueWaterY = 216;
             enemies.SpawnTourianUnlockEffect(0, false);

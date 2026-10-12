@@ -254,9 +254,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-                enemies,
-                (Func<ushort>)random.Dequeue);
+            enemies.VerificationServices().NextRandom = (Func<ushort>)random.Dequeue;
             RoomEnemySlot torizo = enemies.Slots[0];
             var state = new TorizoEnemyState(torizo, isGolden: true)
             {

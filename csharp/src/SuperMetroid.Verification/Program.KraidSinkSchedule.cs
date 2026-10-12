@@ -56,7 +56,7 @@ internal static partial class Program
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidSinkGuard(rom));
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         var step = typeof(RoomEnemySystem).GetMethod("ProcessKraidSinkTable", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
         var requests = (List<KraidPlmRequest>)typeof(RoomEnemySystem).GetField("_kraidPlmRequests", flags)!.GetValue(enemies)!;
@@ -106,7 +106,7 @@ internal static partial class Program
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidSinkGuard(rom));
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         var step = typeof(RoomEnemySystem).GetMethod("ProcessKraidSinkTable", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
         var requests = (List<KraidPlmRequest>)typeof(RoomEnemySystem).GetField("_kraidPlmRequests", flags)!.GetValue(enemies)!;

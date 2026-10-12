@@ -148,15 +148,13 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_hasEvent", instanceFlags)!.SetValue(
-            enemies,
-            (Func<EventNumber, bool>)(eventNumber => eventNumber switch
+        enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(eventNumber => eventNumber switch
             {
                 EventNumber.ZebetiteDestroyedBit2 => (generation & 4) != 0,
                 EventNumber.ZebetiteDestroyedBit1 => (generation & 2) != 0,
                 EventNumber.ZebetiteDestroyedBit0 => (generation & 1) != 0,
                 _ => false,
-            }));
+            });
         return enemies;
     }
 

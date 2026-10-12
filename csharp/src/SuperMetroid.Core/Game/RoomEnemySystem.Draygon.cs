@@ -765,7 +765,7 @@ public sealed partial class RoomEnemySystem
 
         // $A5:87AA tests NMI_FrameCounter ($05B6), then advances the room RNG even when the
         // chosen turret is disabled; the spawn itself is SpawnDraygonWallTurret.
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         state.TurretCadenceChecks++;
         if (samus is not null)
             SpawnDraygonWallTurret(state, samus, random);

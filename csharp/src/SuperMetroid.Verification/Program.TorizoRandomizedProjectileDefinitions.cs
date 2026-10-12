@@ -46,8 +46,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
                 .SetValue(enemies, guarded);
             int randomCall = 0;
-            typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!
-                .SetValue(enemies, (Func<ushort>)(() => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff));
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff);
             RoomEnemySlot torizo = enemies.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
@@ -109,8 +108,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!
             .SetValue(enemies, guarded);
-        typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!
-            .SetValue(enemies, (Func<ushort>)(() => 0));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
         RoomEnemySlot torizo = enemies.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         torizo.Parameter1 = facingRight ? (ushort)0x8000 : (ushort)0;

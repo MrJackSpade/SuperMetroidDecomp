@@ -41,8 +41,7 @@ internal static partial class Program
         foreach (YardBehavior behavior in new[] { YardBehavior.Dropped, YardBehavior.Kicked, YardBehavior.BeamLaunched })
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
-                new SnesVram(), new SnesCgram(), () => 0);
+            enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
             var actor = enemies.Slots[0];
             var state = enemies.YardStates[0]!;
             actor.Position = new(new(512, 0xF000), new(512, 0xF000));

@@ -113,8 +113,7 @@ public sealed partial class RoomEnemySystem
         MiscDustPlacementDefinition placement =
             MiscDustProjectileDefinitions.SmokePlacement((ushort)(parameter >> 8));
 
-        ushort random = (_readRandomNumber ?? throw new InvalidOperationException(
-            "Eye-door smoke initialization requires the current cartridge RNG word."))();
+        ushort random = EnemyRandom.Read();
         projectile.InstructionPointer = instructionList;
 
         projectile.Position = projectile.Position.WithWhole(block.ToRoomPixels() + new Offset16<RoomPixels>(
@@ -122,8 +121,7 @@ public sealed partial class RoomEnemySystem
             unchecked((short)(8 + placement.Base.Y + ((random >> 8) & placement.RandomMask.Y)))));
 
         // $E4FA advances the global seed after sampling it for both coordinates.
-        (_nextRandom ?? throw new InvalidOperationException(
-            "Eye-door smoke initialization requires the cartridge RNG generator."))();
+        EnemyRandom.Generate();
     }
 
     private void RunEyeDoorProjectilePreInstruction(

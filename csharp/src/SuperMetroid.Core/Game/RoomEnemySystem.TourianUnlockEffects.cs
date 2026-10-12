@@ -52,7 +52,7 @@ public sealed partial class RoomEnemySystem
         if (kind == RoomEnemyProjectileKind.TourianStatueSplash)
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(TourianStatueWaterY - 4)));
         if (kind != RoomEnemyProjectileKind.TourianStatueParticle) return;
-        byte angle = unchecked((byte)((_nextRandom!() & 63) - 32));
+        byte angle = unchecked((byte)((EnemyRandom.Generate() & 63) - 32));
         projectile.Variable0 = (ushort)(angle * 2);
         projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)EnemyTrigonometryTables.SignedNegativeCosineWord(angle + 64))));
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));

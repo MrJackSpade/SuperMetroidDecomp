@@ -422,7 +422,7 @@ public sealed partial class RoomEnemySystem
     {
         // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta. Adding
         // that to the full word is intentional; all later trigonometry masks the low byte.
-        ushort randomLow = unchecked((byte)_nextRandom!());
+        ushort randomLow = unchecked((byte)EnemyRandom.Generate());
         ushort angleDelta = unchecked((byte)(randomLow - 0x40));
         state.CustomAngle = unchecked((ushort)(state.CustomAngle + angleDelta));
         RecalculateSbugCustomDirection(slot, state);
@@ -579,12 +579,7 @@ public sealed partial class RoomEnemySystem
 
     private void SetSbugRandomSeed()
     {
-        if (_setRandomNumber is null)
-        {
-            throw new InvalidOperationException(
-                "Sbug random behaviors require the shared RNG seed-write callback.");
-        }
-        _setRandomNumber(SbugRandomSeed);
+        EnemyRandom.Seed(SbugRandomSeed);
     }
 
     private SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>

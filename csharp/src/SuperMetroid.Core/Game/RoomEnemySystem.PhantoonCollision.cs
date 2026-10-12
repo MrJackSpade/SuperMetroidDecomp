@@ -200,7 +200,7 @@ public sealed partial class RoomEnemySystem
 
             if (vulnerableWindow)
             {
-                ushort random = unchecked((ushort)(_nextRandom!() & 7));
+                ushort random = unchecked((ushort)(EnemyRandom.Generate() & 7));
                 state.Eye!.VariableB = PhantoonPatternDefinitions.ShotEyeMarkers[random];
                 state.Mouth!.Parameter2 = random;
                 state.Tentacles.Parameter2 = 1;

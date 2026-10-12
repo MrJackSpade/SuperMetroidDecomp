@@ -110,8 +110,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!
                 .SetValue(enemies, new KraidEnemyState());
-            typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
-                .SetValue(enemies, (Func<bool>)(() => false));
+            enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
             enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
             RoomEnemySlot slot = enemies.Slots[slotIndex];
             slot.EnemyDefinitionPointer = definition;

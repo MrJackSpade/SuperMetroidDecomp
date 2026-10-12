@@ -182,8 +182,7 @@ public sealed partial class RoomEnemySystem
         ushort baseTime = state.BaseFunctionTime;
         if (unchecked((short)baseTime) < 0)
         {
-            Func<ushort> nextRandom = _nextRandom ?? throw new InvalidOperationException(
-                "Spark randomized timing requires the shared cartridge RNG.");
+            Func<ushort> nextRandom = EnemyRandom.Generate;
             baseTime = unchecked((ushort)((nextRandom() & 0x003f) + 4));
         }
 

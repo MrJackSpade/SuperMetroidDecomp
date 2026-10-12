@@ -52,8 +52,8 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("<Kraid>k__BackingField", flags)!.SetValue(enemies, state);
         enemies.Slots[0].EnemyDefinitionPointer = EnemyDefinitionId.Kraid;
         ushort random = 0;
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => random));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => throw new InvalidOperationException("Nail initialization must not advance RNG.")));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Nail initialization must not advance RNG."));
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeKraidNailFlight", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidPartState>>(enemies);
         foreach (int slot in new[] { 6, 7 })

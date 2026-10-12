@@ -28,9 +28,7 @@ internal static partial class Program
 
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guarded);
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-                enemies,
-                (Func<ushort>)(() => 0x001f));
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x001f);
             RoomEnemySlot slot = enemies.Slots[0];
             slot.Parameter1 = (ushort)variant;
             initialize.Invoke(enemies, [slot]);

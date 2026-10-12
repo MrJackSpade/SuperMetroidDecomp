@@ -25,9 +25,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
                 enemies,
                 NewElevatorInputReadGuard(rom));
-            typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(
-                enemies,
-                (Func<bool>)(() => true));
+            enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeElevator", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, SamusState>>(enemies);
             var wait = typeof(RoomEnemySystem).GetMethod("WaitForElevatorDirectionInput", flags)!

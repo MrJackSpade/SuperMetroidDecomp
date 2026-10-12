@@ -38,9 +38,6 @@ internal static partial class Program
         FieldInfo busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
         FieldInfo vramField = typeof(RoomEnemySystem).GetField("_vram", flags)!;
         FieldInfo cgramField = typeof(RoomEnemySystem).GetField("_cgram", flags)!;
-        FieldInfo nextRandomField = typeof(RoomEnemySystem).GetField("_nextRandom", flags)!;
-        FieldInfo readRandomField = typeof(RoomEnemySystem).GetField(
-            "_readRandomNumber", flags)!;
 
         var translated = new HashSet<EnemyDefinitionId>();
         var owned = new HashSet<EnemyDefinitionId>();
@@ -64,8 +61,8 @@ internal static partial class Program
                 busField.SetValue(enemies, rom);
                 vramField.SetValue(enemies, new SnesVram());
                 cgramField.SetValue(enemies, new SnesCgram());
-                nextRandomField.SetValue(enemies, (Func<ushort>)(() => 0));
-                readRandomField.SetValue(enemies, (Func<ushort>)(() => 0));
+                enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
+                enemies.VerificationServices().ReadRandom = ((Func<ushort>)(() => 0));
 
                 RoomEnemySlot slot = enemies.Slots[0];
                 slot.EnemyDefinitionPointer = definitionPointer;

@@ -29,9 +29,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_setRandomNumber", flags)!.SetValue(
-            enemies,
-            (Action<ushort>)(_ => { }));
+        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         var initialize = type.GetMethod("InitializePolyp", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         MethodInfo process = type.GetMethod("ProcessInstructions", flags)!;

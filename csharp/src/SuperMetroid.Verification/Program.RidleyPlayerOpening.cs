@@ -47,8 +47,8 @@ internal static partial class Program
         body.Position = body.Position.WithFractionX(W(seed, 0xf7c)); body.Position = body.Position.WithFractionY(W(seed, 0xf80));
         ushort random = 0;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
-        typeof(SuperMetroid.Core.Game.RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => random));
-        typeof(SuperMetroid.Core.Game.RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => random));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => random);
         for (int frame = 376; frame <= 744; frame++)
         {
             var expected = Read(frame);

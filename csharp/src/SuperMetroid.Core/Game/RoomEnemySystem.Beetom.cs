@@ -200,8 +200,7 @@ public sealed partial class RoomEnemySystem
 
         // Every Beetom initializer writes the global seed, even when several Beetoms share
         // a room. This is observable cartridge behavior, not a per-actor random stream.
-        Action<ushort> setRandomNumber = _setRandomNumber ?? throw new InvalidOperationException(
-            "Beetom initialization requires the runtime random-seed writer.");
+        Action<ushort> setRandomNumber = EnemyRandom.Seed;
         setRandomNumber(0x0017);
 
         state.InitialShortLeapYSpeedIndex = CalculateInitialBeetomYSpeedIndex(0x3000, 4);
@@ -340,7 +339,7 @@ public sealed partial class RoomEnemySystem
 
     private void ChooseDistantBeetomAction(BeetomEnemyState state)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         state.Function = (random & 7) switch
         {
             0 or 1 => BeetomEnemyFunction.StartIdling,

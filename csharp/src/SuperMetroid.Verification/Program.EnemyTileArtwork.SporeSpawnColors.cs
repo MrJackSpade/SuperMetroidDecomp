@@ -84,8 +84,7 @@ internal static partial class Program
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guarded);
         type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        type.GetField("_isAreaMiniBossDefeated", flags)!.SetValue(
-            enemies, (Func<bool>)(() => false));
+        enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
         RoomEnemySlot body = enemies.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.SporeSpawn;
         body.Definition = default(RoomEnemyDefinition) with { Bank = 0xa5 };

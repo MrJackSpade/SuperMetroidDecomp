@@ -118,7 +118,7 @@ public sealed partial class RoomEnemySystem
         // Rio_Main advances the global enemy RNG even though this particular family never
         // consumes the returned word. Omitting that apparently-useless call changes every
         // later random enemy in the room, so it is part of Rio's observable behavior.
-        _nextRandom!();
+        EnemyRandom.Generate();
 
         switch (state.Function)
         {

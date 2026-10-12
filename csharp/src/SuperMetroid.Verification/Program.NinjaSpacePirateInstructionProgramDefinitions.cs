@@ -171,9 +171,7 @@ internal static partial class Program
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-                enemies,
-                (Func<ushort>)(() => 1));
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.PirateGreyNinja;
             slot.Definition = default(RoomEnemyDefinition) with { Bank = 0xb2 };

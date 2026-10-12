@@ -20,8 +20,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
             var random = new Bank80SystemState();
-            enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
-                new SnesVram(), new SnesCgram(), random.NextRandom, random.SetRandomNumber);
+            enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
             var actor = enemies.Slots[focus];
             var state = enemies.YardStates[focus]!;
             var samus = new SamusState { Health = 999, MaxHealth = 999,
@@ -55,8 +54,7 @@ internal static partial class Program
         foreach (ushort facing in new ushort[] { 0, 1 })
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
-                new SnesVram(), new SnesCgram(), () => 0);
+            enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
             var actor = enemies.Slots[0];
             var state = enemies.YardStates[0]!;
             actor.Position = FixedPosition<RoomPixels>.FromWhole(new(256, unchecked((ushort)(256 - actor.Radius.Y))));

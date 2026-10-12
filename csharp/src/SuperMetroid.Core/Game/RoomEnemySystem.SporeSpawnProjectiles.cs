@@ -97,7 +97,7 @@ public sealed partial class RoomEnemySystem
         {
             spawner.InstructionPointer = SporeSpawnSpawnerSpawnInstruction;
             spawner.InstructionTimer = 1;
-            spawner.Variable1 = unchecked((ushort)(_nextRandom!() & 0x01ff));
+            spawner.Variable1 = unchecked((ushort)(EnemyRandom.Generate() & 0x01ff));
         }
         spawner.Variable1 = unchecked((ushort)(spawner.Variable1 - 1));
     }

@@ -31,9 +31,7 @@ internal static partial class Program
             enemies,
             NewCrocomireBridgeFragmentReadGuard(rom));
         // $86:92A5 reads the seed without advancing it; generating one would fail here.
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 0x1234));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
         typeof(RoomEnemySystem).GetField("<CrocomireDeath>k__BackingField", flags)!.SetValue(enemies, death);
         var spawn = typeof(RoomEnemySystem).GetMethod(
             "SpawnNextCrocomireBridgeFragment", flags)!

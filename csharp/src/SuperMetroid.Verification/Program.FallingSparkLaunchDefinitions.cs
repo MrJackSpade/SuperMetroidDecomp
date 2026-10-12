@@ -14,7 +14,7 @@ internal static partial class Program
             .RejectWrites(_ => "Unexpected falling-spark bus write."));
         ushort random = 0;
         int advances = 0;
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => { advances++; return random; }));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return random; });
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnFallingSpark", flags)!.CreateDelegate<Action<RoomEnemySlot>>(enemies);
         var move = typeof(RoomEnemySystem).GetMethod("AddFallingSparkHorizontalVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemyProjectileSlot>>();

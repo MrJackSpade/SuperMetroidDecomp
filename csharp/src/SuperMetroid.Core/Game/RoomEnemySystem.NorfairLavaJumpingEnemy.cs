@@ -136,7 +136,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
 
         switch (state.Function)
         {

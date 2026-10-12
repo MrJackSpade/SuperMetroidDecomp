@@ -21,8 +21,7 @@ internal static partial class Program
             var denied = NewCeresSteamCollisionNoReadBus();
             var enemies = new RoomEnemySystem { TileArtwork = stock };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, denied);
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-                enemies, (Func<ushort>)(() => 0));
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             RoomEnemySlot slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.Steam;
             slot.Definition = default(RoomEnemyDefinition) with

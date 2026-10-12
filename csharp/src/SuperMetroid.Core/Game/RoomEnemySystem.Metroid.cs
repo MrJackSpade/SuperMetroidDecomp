@@ -118,7 +118,7 @@ public sealed partial class RoomEnemySystem
                 // GenerateRandomNumber advances exactly once and the low three result
                 // bits choose one of the eight cartridge-defined idle cries.
                 LastMetroidSoundEffectLibrary2 =
-                    MetroidBehaviorDefinitions.RandomCrySoundEffect(_nextRandom!());
+                    MetroidBehaviorDefinitions.RandomCrySoundEffect(EnemyRandom.Generate());
                 cursor = unchecked((ushort)(cursor + 2));
                 return true;
             default:
@@ -472,7 +472,7 @@ public sealed partial class RoomEnemySystem
     {
         for (int dropIndex = 0; dropIndex < MetroidSpecialDropCount; dropIndex++)
         {
-            ushort random = _nextRandom!();
+            ushort random = EnemyRandom.Generate();
             // Each axis adds a five-bit random byte minus sixteen: -16..+15 pixels.
             var scatter = new Offset16<RoomPixels>(
                 unchecked((short)((random & 0x001f) - 16)),

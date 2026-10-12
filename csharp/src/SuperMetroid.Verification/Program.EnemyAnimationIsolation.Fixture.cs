@@ -40,11 +40,11 @@ internal static partial class Program
             Bind("_bus", Memory);
             Bind("_vram", Vram);
             Bind("_cgram", Colors);
-            Bind("_nextRandom", (Func<ushort>)NextRandom);
-            Bind("_readRandomNumber", (Func<ushort>)(() => RandomWord));
-            Bind("_setRandomNumber", (Action<ushort>)(value => RandomWord = value));
-            Bind("_isAreaTorizoDefeated", (Func<bool>)(() => BossBitCalls != 0));
-            Bind("_setAreaTorizoDefeated", (Action)(() => BossBitCalls++));
+            Enemies.VerificationServices().NextRandom = (Func<ushort>)NextRandom;
+            Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => RandomWord);
+            Enemies.VerificationServices().SeedRandom = (Action<ushort>)(value => RandomWord = value);
+            Enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => BossBitCalls != 0);
+            Enemies.VerificationServices().SetAreaTorizoDefeated = (Action)(() => BossBitCalls++);
 
             Actor.EnemyDefinitionPointer = golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon;
             Actor.Definition = RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer);

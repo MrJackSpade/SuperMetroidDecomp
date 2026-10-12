@@ -28,8 +28,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         Type enemySystemType = typeof(RoomEnemySystem);
         enemySystemType.GetField("_bus", flags)!.SetValue(enemies, guard);
-        enemySystemType.GetField("_readRandomNumber", flags)!
-            .SetValue(enemies, (Func<ushort>)(() => 0));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         var initialize = enemySystemType.GetMethod("InitializeKago", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         MethodInfo process = enemySystemType.GetMethod("ProcessInstructions", flags)!;

@@ -609,7 +609,7 @@ public sealed partial class RoomEnemySystem
             situation = slot.Health < 9000 ? RidleyAttackSituation.AboveHalfHealth : RidleyAttackSituation.BelowHalfHealth;
         }
 
-        int choice = _nextRandom!() & 7;
+        int choice = EnemyRandom.Generate() & 7;
         state.Function = RidleyAttackChoices.Resolve(situation, choice);
 
         // The native selector tail-calls the chosen routine. Retain that same-frame setup

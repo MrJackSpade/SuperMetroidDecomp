@@ -1,0 +1,46 @@
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+
+internal static partial class Program
+{
+    /// <summary>
+    /// #633: the room-enemy load contract is the union of its children's contracts, each child contract
+    /// exposes only its own capabilities, the concrete request rejects missing required capabilities, and
+    /// standalone services fail at an uninstalled dependency instead of returning a default.
+    /// </summary>
+    private static void VerifyRoomEnemyLoadContracts()
+    {
+        AssertTrue(typeof(IRoomEnemyPopulationSource).IsAssignableFrom(typeof(IRoomEnemyLoad)) &&
+            typeof(IRoomEnemyActorContext).IsAssignableFrom(typeof(IRoomEnemyLoad)),
+            "the load contract includes the population source and actor context its child loaders read");
+        AssertTrue(typeof(IChozoStatueRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)) &&
+            typeof(IMotherBrainRoomServices).IsAssignableFrom(typeof(IRoomEnemyServices)),
+            "room services include every child service contract");
+
+        static string[] Members(Type contract) => contract.GetProperties()
+            .Concat(contract.GetInterfaces().SelectMany(parent => parent.GetProperties()))
+            .Select(property => property.Name).Order(StringComparer.Ordinal).ToArray();
+        AssertTrue(Members(typeof(IChozoStatueRoomServices)).SequenceEqual(["RoomScroll", "SamusControls"]),
+            "the Chozo statue contract exposes only Samus's control lock and the scroll zones");
+        AssertTrue(Members(typeof(IMotherBrainRoomServices)).SequenceEqual(["MotherBrain", "RoomScroll"]),
+            "the Mother Brain contract exposes only its room effects and the scroll zones");
+
+        var services = new StandaloneRoomEnemyServices(() => 0x1234);
+        AssertThrows<ArgumentNullException>(() => _ = new RoomEnemyLoadRequest(null!, 0, 0, new SnesVram(), new SnesCgram(), services),
+            "a load request requires its bus");
+        AssertThrows<ArgumentNullException>(() => _ = new RoomEnemyLoadRequest(
+            SuperMetroidAddressSpace.CreateWithoutCartridge(), 0, 0, new SnesVram(), new SnesCgram(), null!),
+            "a load request requires its services");
+        AssertEqual(GunshipLoadScenario.Ordinary, new RoomEnemyLoadRequest(
+            SuperMetroidAddressSpace.CreateWithoutCartridge(), 0, 0, new SnesVram(), new SnesCgram(), services).GunshipScenario,
+            "the ordinary gunship scenario is the named default");
+
+        AssertEqual((ushort)0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");
+        AssertThrows<InvalidOperationException>(() => services.Random.Read(), "an uninstalled RNG read fails at the dependency");
+        AssertThrows<InvalidOperationException>(() => services.Events.Has(EventNumber.ZebesAwake), "uninstalled event bits fail at the dependency");
+        ushort seed = 0;
+        var seeded = new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => seed, SeedRandom = value => seed = value };
+        seeded.Random.Seed(0x0017);
+        AssertEqual((ushort)0x0017, seeded.Random.Read(), "installed RNG seed reads and writes share the word");
+    }
+}

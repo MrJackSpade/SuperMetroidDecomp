@@ -74,10 +74,8 @@ internal static partial class Program
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guarded);
         type.GetField("_cgram", flags)!.SetValue(enemies, cgram);
-        type.GetField("_isAreaMiniBossDefeated", flags)!
-            .SetValue(enemies, (Func<bool>)(() => false));
-        type.GetField("_setRoomScrollState", flags)!
-            .SetValue(enemies, (Action<int, RoomScrollState>)((_, _) => { }));
+        enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
+        enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)((_, _) => { });
         RoomEnemySlot body = enemies.Slots[0];
         type.GetMethod("InitializeCrocomire", flags)!.Invoke(enemies, [body]);
         CrocomireEnemyState state = (CrocomireEnemyState)type.GetField("<Crocomire>k__BackingField", flags)!

@@ -16,8 +16,7 @@ internal static partial class Program
         var assets = LoadFixtureRoomAssets(bus, room);
         var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
         var random = new Bank80SystemState();
-        enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
-            new SnesVram(), new SnesCgram(), random.NextRandom, random.SetRandomNumber);
+        enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (ushort)(SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };

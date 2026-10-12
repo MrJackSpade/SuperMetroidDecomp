@@ -34,16 +34,6 @@ public sealed partial class RoomEnemySystem
     private readonly List<SolidEnemyCollisionBody> _interactiveCollisionBodies = new();
     private readonly List<RoomEnemyGraphicsSetEntry> _graphicsSet = new();
     private ISnesAddressSpace? _bus;
-    private Func<ushort>? _nextRandom;
-    private Func<ushort>? _readRandomNumber;
-    private Func<bool>? _isAreaBossDefeated;
-    private Action? _setAreaBossDefeated;
-    private Func<bool>? _isAreaMiniBossDefeated;
-    private Func<EventNumber, bool>? _hasEvent;
-    private Action<EventNumber>? _setEvent;
-    private Action<EventNumber>? _clearEvent;
-    private Action? _setAreaMiniBossDefeated;
-    private Action<ushort>? _setRandomNumber;
     private ushort _randomEnemyCounter;
 
     /// <summary>
@@ -219,6 +209,16 @@ public sealed partial class RoomEnemySystem
 
     private bool _deferLoaderTimeCameraReads;
 
+    /// <summary>The cartridge-state services the current room's AI calls; installed by <see cref="Load"/>.</summary>
+    private IRoomEnemyServices Services
+    {
+        get => field ?? throw new InvalidOperationException(
+            "Room enemy AI ran before RoomEnemySystem.Load installed its services.");
+        set;
+    }
+
+    private IEnemyRandomNumbers EnemyRandom => Services.Random;
+
     /// <summary>Language flag sampled by $A6:C0D9 when the warning-text phase begins and by Mother Brain's alternate escape-text selection.</summary>
     public bool JapaneseText { get; set; }
 
@@ -226,74 +226,24 @@ public sealed partial class RoomEnemySystem
     /// Ports the data-producing parts of <c>LoadEnemies</c>,
     /// <c>ProcessEnemyTilesets</c>, and <c>InitializeEnemies</c> at $A0:8A1E-$8C6C.
     /// </summary>
-    public void Load(
-        ISnesAddressSpace bus,
-        ushort populationPointer,
-        ushort tilesetPointer,
-        SnesVram vram,
-        SnesCgram cgram,
-        Func<ushort> nextRandom,
-        Action<ushort>? setRandomNumber = null,
-        Func<ushort>? readRandomNumber = null,
-        RoomLevelData? level = null,
-        SamusState? samus = null,
-        ushort controllerInput = 0,
-        Func<bool>? isAreaBossDefeated = null,
-        Position16<RoomPixels> camera = default,
-        Func<EventNumber, bool>? hasEvent = null,
-        Action<EventNumber>? setEvent = null,
-        Action<EventNumber>? clearEvent = null,
-        Func<bool>? isAreaMiniBossDefeated = null,
-        Action? setAreaMiniBossDefeated = null,
-        Func<bool>? isAreaTorizoDefeated = null,
-        Action? setAreaTorizoDefeated = null,
-        Func<PlmHeaderId, bool>? isRoomPlmPresent = null,
-        Action<bool>? setSamusControlsEnabled = null,
-        Action<int, RoomScrollState>? setRoomScrollState = null,
-        Action? setAreaBossDefeated = null,
-        Action? incrementMotherBrainGlassRoomArgument = null,
-        Func<int, RoomScrollState>? readRoomScrollState = null,
-        Action<LayerBlendingConfiguration>? setMotherBrainLayerBlendingDefaultConfig = null,
-        Action<Position16<Bg2Pixels>>? setMotherBrainBg2Scroll = null,
-        GunshipLoadScenario gunshipLoadScenario = GunshipLoadScenario.Ordinary,
-        bool deferLoaderTimeCameraReads = false)
+    public void Load(IRoomEnemyLoad request)
     {
-        ArgumentNullException.ThrowIfNull(bus);
-        ArgumentNullException.ThrowIfNull(vram);
-        ArgumentNullException.ThrowIfNull(cgram);
-        ArgumentNullException.ThrowIfNull(nextRandom);
-
+        Ensure.NotNull(request);
+        ISnesAddressSpace bus = request.Bus;
         _bus = bus;
-        _gunshipLoadScenario = gunshipLoadScenario;
-        _deferLoaderTimeCameraReads = deferLoaderTimeCameraReads;
-        _samusAtEnemyInitialization = samus;
+        _gunshipLoadScenario = request.GunshipScenario;
+        _deferLoaderTimeCameraReads = request.DeferLoaderTimeCameraReads;
+        _samusAtEnemyInitialization = request.Samus;
         _samusProjectilesForEnemyFrame = null;
-        _nextRandom = nextRandom;
-        _samusForEnemyDrops = samus;
+        _samusForEnemyDrops = request.Samus;
         // Some enemy routines call GenerateRandomNumber while others, including Alcoon's
-        // post-volley bytecode, merely sample the existing WRAM seed. Keep those operations
-        // distinct: substituting nextRandom here would silently advance the cartridge RNG.
-        _readRandomNumber = readRandomNumber;
-        _setRandomNumber = setRandomNumber;
-        _isAreaBossDefeated = isAreaBossDefeated;
-        _setAreaBossDefeated = setAreaBossDefeated;
-        _incrementMotherBrainGlassRoomArgument = incrementMotherBrainGlassRoomArgument;
-        _readMotherBrainRoomScrollState = readRoomScrollState;
-        _setMotherBrainRoomScrollState = setRoomScrollState;
-        _setMotherBrainLayerBlendingDefaultConfig = setMotherBrainLayerBlendingDefaultConfig;
-        _setMotherBrainBg2Scroll = setMotherBrainBg2Scroll;
-        _isAreaMiniBossDefeated = isAreaMiniBossDefeated;
-        _hasEvent = hasEvent;
-        _setEvent = setEvent;
-        _clearEvent = clearEvent;
-        _setAreaMiniBossDefeated = setAreaMiniBossDefeated;
-        _isAreaTorizoDefeated = isAreaTorizoDefeated;
-        _setAreaTorizoDefeated = setAreaTorizoDefeated;
-        _isRoomPlmPresent = isRoomPlmPresent;
-        _vram = vram;
-        _cgram = cgram;
-        PopulationPointer = populationPointer;
-        TilesetPointer = tilesetPointer;
+        // post-volley bytecode, merely sample the existing WRAM seed: IEnemyRandomNumbers keeps
+        // Generate and Read distinct so a sample never silently advances the cartridge RNG.
+        Services = request.Services;
+        _vram = request.Vram;
+        _cgram = request.Cgram;
+        PopulationPointer = request.PopulationPointer;
+        TilesetPointer = request.TilesetPointer;
         EnemyCount = 0;
         EnemiesKilled = 0;
         BossId = 0;
@@ -335,11 +285,11 @@ public sealed partial class RoomEnemySystem
         ResetBombTorizoRoomState();
         ResetTourianEntranceStatueRoomState();
         ResetShaktoolRoomState();
-        ResetChozoStatueRoomState(setSamusControlsEnabled, setRoomScrollState);
+        ResetChozoStatueRoomState(request.Services);
         ResetEscapeAnimalRoomState();
         ResetCrocomireRoomState();
         ResetSporeSpawnRoomState();
-        ResetRinkaRoomState(camera);
+        ResetRinkaRoomState(request.Camera);
         ResetRioRoomState();
         ResetNorfairLavaJumpingEnemyRoomState();
         ResetNorfairRioRoomState();
@@ -355,7 +305,7 @@ public sealed partial class RoomEnemySystem
         ResetDeadSidehopperRoomState();
         ResetDeadTourianCorpseRoomState();
         ResetShitroidRoomState();
-        ResetShutterRoomState(camera);
+        ResetShutterRoomState(request.Camera);
         ResetElevatorRoomActors();
         EnemyDoorTransitionActive = false;
         LastKzanSoundEffect = null;
@@ -498,16 +448,16 @@ public sealed partial class RoomEnemySystem
         // word is the terminator. This is observable: an empty room must not overwrite
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         RoomEnemyPopulationDefinition population =
-            ResolveRoomEnemyPopulation(bus, populationPointer);
+            ResolveRoomEnemyPopulation(bus, request.PopulationPointer);
         if (!population.Records.IsEmpty)
-            LoadGraphicsSet(bus, tilesetPointer, vram, cgram);
+            LoadGraphicsSet(bus, request.TilesetPointer, request.Vram, request.Cgram);
         LoadPopulation(
             bus,
             population,
-            level,
-            samus,
-            controllerInput,
-            camera.X);
+            request.Level,
+            request.Samus,
+            request.ControllerInput,
+            request.Camera.X);
     }
 
     /// <summary>

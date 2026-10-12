@@ -22,8 +22,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
         ushort selectedRandom = 0;
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", instanceFlags)!
-            .SetValue(enemies, (Func<ushort>)(() => selectedRandom));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => selectedRandom);
 
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions",

@@ -25,8 +25,7 @@ internal static partial class Program
         var rain = Call<Action<RoomEnemySlot, PhantoonEnemyState>>("RunPhantoonFlameRainFadeOut");
         ushort randomValue = 0;
         int calls = 0;
-        typeof(RoomEnemySystem).GetField("_nextRandom", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(enemies, (Func<ushort>)(() => { calls++; return randomValue; }));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return randomValue; });
         // No address space is installed: every tested path must use compiled timers.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

@@ -957,50 +957,21 @@ public sealed partial class SuperMetroidRuntime
         SamusProjectileSystem.QueueBeamTilesAndLoadPalette(
             _addressSpace, VramWrites, Cgram, Samus?.EquippedBeams ?? 0, BeamArtwork);
 
-        Enemies.Load(
+        Enemies.Load(new RoomEnemyLoadRequest(
             _addressSpace,
             room.State.EnemyPopulationPointer,
             room.State.EnemyTilesetPointer,
             Vram,
             Cgram,
-            System.NextRandom,
-            System.SetRandomNumber,
-            readRandomNumber: () => System.RandomNumber,
-            level: LevelData,
-            samus: Samus,
-            controllerInput: Controller1.Current,
-            isAreaBossDefeated: () =>
-                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaBoss),
-            setAreaBossDefeated: () =>
-                System.SetBossBits(room.AreaIndex, BossBits.AreaBoss),
-            camera: Camera.PixelPosition,
-            hasEvent: System.HasEvent,
-            setEvent: System.SetEvent,
-            clearEvent: System.ClearEvent,
-            isAreaMiniBossDefeated: () =>
-                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss),
-            setAreaMiniBossDefeated: () =>
-                System.SetBossBits(room.AreaIndex, BossBits.AreaMiniBoss),
-            isAreaTorizoDefeated: () =>
-                System.HasAnyBossBits(room.AreaIndex, BossBits.AreaTorizo),
-            setAreaTorizoDefeated: () =>
-                System.SetBossBits(room.AreaIndex, BossBits.AreaTorizo),
-            setSamusControlsEnabled: enabled =>
-            {
-                SamusState samus = Samus ?? throw new InvalidOperationException(
-                    "Chozo control command requires an active Samus actor.");
-                samus.SetStationaryScriptControlLock(!enabled);
-                GroundedSamusMovementEnabled = enabled;
-            },
-            setRoomScrollState: Camera.Scrolls.SetStorage,
-            incrementMotherBrainGlassRoomArgument: Plms.IncrementMotherBrainGlassRoomArgument,
-            readRoomScrollState: Camera.Scrolls.ReadState,
-            setMotherBrainLayerBlendingDefaultConfig:
-                value => LayerBlendingDefaultConfig = value,
-            setMotherBrainBg2Scroll: BackgroundScroll.SetBg2ScrollRegisters,
-            isRoomPlmPresent: Plms.HasActiveHeader,
-            gunshipLoadScenario: gunshipLoadScenario,
-            deferLoaderTimeCameraReads: viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor);
+            new RoomEnemyRuntimeServices(this, room.AreaIndex))
+        {
+            Level = LevelData,
+            Samus = Samus,
+            ControllerInput = Controller1.Current,
+            Camera = Camera.PixelPosition,
+            GunshipScenario = gunshipLoadScenario,
+            DeferLoaderTimeCameraReads = viewportLoadMode == RoomViewportLoadMode.StreamThroughDoor,
+        });
         // The shared Ridley initializer calls $90:A7E2 only for a live boss.
         // Ceres also disables the HUD map, but has no matching exploration list.
         if (Enemies.Ridley is not null)

@@ -158,17 +158,11 @@ public sealed partial class RoomEnemySystem
                 $"Hopper definition ${(int)slot.EnemyDefinitionPointer:X4} variant " +
                 $"{slot.Definition.VariantIndex} exceeds its four-entry animation tables.");
         }
-        if (_setRandomNumber is null)
-        {
-            throw new InvalidOperationException(
-                "Hopper initialization requires the shared RNG seed-write callback.");
-        }
-
         // The initializer overwrites the global RNG seed and consumes one generated value
         // even though it never reads that value. This changes later enemy randomness and is
         // therefore observable whenever a hopper appears earlier in population order.
-        _setRandomNumber(HopperRandomSeed);
-        _nextRandom!();
+        EnemyRandom.Seed(HopperRandomSeed);
+        EnemyRandom.Generate();
 
         var state = new HopperEnemyState(slot)
         {
@@ -205,7 +199,7 @@ public sealed partial class RoomEnemySystem
         {
             case HopperEnemyFunction.ChooseHopSize:
                 // The ROM consumes an entire frame choosing one of two setup functions.
-                state.Function = (_nextRandom!() & 1) == 0
+                state.Function = (EnemyRandom.Generate() & 1) == 0
                     ? HopperEnemyFunction.PrepareSmallHop
                     : HopperEnemyFunction.PrepareBigHop;
                 return;

@@ -49,6 +49,7 @@ internal static partial class Program
         new(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary()),
         new(nameof(VerifyDspRegisterBoundary), () => VerifyDspRegisterBoundary()),
         new(nameof(VerifySpcMemoryBoundary), () => VerifySpcMemoryBoundary()),
+        new(nameof(VerifyRoomEnemyLoadContracts), () => VerifyRoomEnemyLoadContracts()),
         new(nameof(VerifyAndroidHostPolicies), () => VerifyAndroidHostPolicies()),
         new(nameof(VerifyBoostFloorScroll), () => VerifyBoostFloorScroll()),
         new(nameof(VerifyXrayControls), () => VerifyXrayControls()),

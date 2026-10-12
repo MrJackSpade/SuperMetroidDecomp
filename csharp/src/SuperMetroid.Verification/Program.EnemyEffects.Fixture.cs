@@ -34,7 +34,7 @@ internal static partial class Program
             Bind("_vram", Vram);
             Bind("<Crocomire>k__BackingField", Actor);
             Bind("<CrocomireDeath>k__BackingField", Effect);
-            Bind("_readRandomNumber", (Func<ushort>)(() => 0x1234));
+            Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
         }
 
         private void Bind(string field, object value) => typeof(RoomEnemySystem)

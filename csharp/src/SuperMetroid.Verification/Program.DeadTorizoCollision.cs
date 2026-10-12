@@ -12,7 +12,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, installation.OpenRuntimeAddressSpace());
-            typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
+            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
             var slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer = EnemyDefinitionId.CorpseTorizo;
             slot.Position = slot.Position.WithWhole(new(120, 100));

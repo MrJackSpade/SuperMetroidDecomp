@@ -84,8 +84,7 @@ internal static partial class Program
                 // header damage and the runtime's ordinary collision ordering. A
                 // zero-only RNG would hang native-style drop selection on death.
                 var contactBus = new CrystalFlashContactPopulation(bus, samus.Position.Whole);
-                runtime.Enemies.Load(contactBus, CrystalFlashContactDefinitions.Pointer,
-                    CrystalFlashContactDefinitions.Pointer, runtime.Vram, runtime.Cgram, () => 1);
+                runtime.Enemies.Load(new RoomEnemyLoadRequest(contactBus, CrystalFlashContactDefinitions.Pointer, CrystalFlashContactDefinitions.Pointer, runtime.Vram, runtime.Cgram, new StandaloneRoomEnemyServices(() => 1)));
                 contactEnemy = runtime.Enemies.Slots[0];
                 contactEnemy.VariableC = contactEnemy.VariableD = 0;
                 // Contact runs before AI publishes its first map. Seed that same

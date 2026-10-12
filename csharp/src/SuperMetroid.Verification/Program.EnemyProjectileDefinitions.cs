@@ -27,13 +27,7 @@ internal static partial class Program
         const ushort populationPointer = 0x9400;
         TestAddressSpace setupBus = CreateEmptyEnemyPopulationCartridge(populationPointer);
         var enemies = new RoomEnemySystem();
-        enemies.Load(
-            setupBus,
-            populationPointer,
-            0xffff,
-            new SnesVram(),
-            new SnesCgram(),
-            () => 0);
+        enemies.Load(new RoomEnemyLoadRequest(setupBus, populationPointer, 0xffff, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
         var guard = NewEnemyProjectileDefinitionReadGuard(setupBus, forbidden);
         RoomEnemyProjectileSlot projectile = enemies.EnemyProjectiles[^1];
 

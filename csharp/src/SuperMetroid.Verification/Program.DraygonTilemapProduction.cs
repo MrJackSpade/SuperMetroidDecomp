@@ -21,9 +21,7 @@ internal static partial class Program
             Pose = SamusPoseId.FacingRightNormalPose };
         samus.RefreshCollisionRadii(bus); samus.InitializeAnimation(bus);
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram,
-            random.NextRandom, random.SetRandomNumber, readRandomNumber: () => random.RandomNumber,
-            level: assets.LevelData, samus: samus, isAreaBossDefeated: () => false);
+        enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsBossDefeated = () => false } }) { Level = assets.LevelData, Samus = samus });
         var boss = enemies.Draygon ?? throw new InvalidOperationException("Fresh Draygon population did not load.");
         // Observe which native enemy indexes were actually scheduled, without adding
         // a diagnostic callback to production. This does NOT independently verify AI

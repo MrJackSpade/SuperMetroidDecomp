@@ -32,8 +32,8 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidRockGuard(rom));
         ushort random = 0;
         int reads = 0;
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => { reads++; return random; }));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => throw new InvalidOperationException("Kraid rock must not advance RNG.")));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return random; });
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Kraid rock must not advance RNG."));
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnKraidSpitRock", flags)!.CreateDelegate<Func<RoomEnemySlot, bool>>(enemies);
         var body = enemies.Slots[0];
         var rock = enemies.EnemyProjectiles[^1];

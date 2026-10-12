@@ -97,7 +97,7 @@ public sealed partial class RoomEnemySystem
 
         // $A2:B11F advances the global RNG even though this family does not consume the
         // returned word. The side effect matters when several random enemies share a room.
-        _nextRandom!();
+        EnemyRandom.Generate();
         FlyEnemyState state = RequireFlyState(slot);
         switch (state.Function)
         {

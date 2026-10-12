@@ -536,7 +536,7 @@ public sealed partial class RoomEnemySystem
                     // $A6:BFC9: while the baby is falling ($880C nonzero) it always cries and
                     // continues. Otherwise it samples the live RNG word's low bit without
                     // calling GenerateRandomNumber; a set bit jumps silently ($A6:BFD5).
-                    if (state.BabyVerticalVelocity == 0 && (_readRandomNumber!() & 1) != 0)
+                    if (state.BabyVerticalVelocity == 0 && (EnemyRandom.Read() & 1) != 0)
                     {
                         cursor = CeresBabyInstructionProgramDefinitions.ReadMechanicsWord(argument);
                         break;

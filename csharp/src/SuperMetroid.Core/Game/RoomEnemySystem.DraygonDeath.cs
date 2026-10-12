@@ -114,7 +114,7 @@ public sealed partial class RoomEnemySystem
         if ((frameCounterLow & 7) != 0)
             return;
 
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         ushort x = unchecked((ushort)((random & 0x007f) + 0x00c0));
         ushort y = unchecked((ushort)(((random & 0x3f00) >> 8) + 0x0190));
         if (SpawnRoomSpriteObject(new(x, y), RoomSpriteObjectKind.DustCloud, graphicsIndex: 0) is not null)
@@ -125,7 +125,7 @@ public sealed partial class RoomEnemySystem
         DraygonEnemyState state,
         RoomSpriteObjectKind kind)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         short xOffset = unchecked((short)((random & 0x007f) - 0x0040));
         short yOffset = unchecked((short)(((random & 0x7f00) >> 8) - 0x0040));
         if (SpawnRoomSpriteObject(

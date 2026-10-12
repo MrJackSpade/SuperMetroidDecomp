@@ -320,7 +320,7 @@ public sealed partial class RoomEnemySystem
         bool onRightWall,
         ref ushort cursor)
     {
-        state.ClimbDirection = (_nextRandom!() & 1) == 0
+        state.ClimbDirection = (EnemyRandom.Generate() & 1) == 0
             ? WallSpacePirateClimbDirection.Down
             : WallSpacePirateClimbDirection.Up;
         cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);

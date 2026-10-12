@@ -5024,6 +5024,11 @@ if (args is ["--cpu-bus-boundary"])
     Suite(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary());
     return 0;
 }
+if (args is ["--room-enemy-load-contracts"])
+{
+    Suite(nameof(VerifyRoomEnemyLoadContracts), () => VerifyRoomEnemyLoadContracts());
+    return 0;
+}
 if (args is ["--spc-memory-boundary"])
 {
     Suite(nameof(VerifySpcMemoryBoundary), () => VerifySpcMemoryBoundary());

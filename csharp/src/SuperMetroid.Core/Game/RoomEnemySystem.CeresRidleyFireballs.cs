@@ -1798,11 +1798,11 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 4));
                     break;
                 case EnemyProjectileInstruction.NoobTubeShardAssignFallingAngle:
-                    projectile.Velocity = new(new SnesSignedEightEight(unchecked((byte)(_nextRandom!() >> 8))), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
+                    projectile.Velocity = new(new SnesSignedEightEight(unchecked((byte)(EnemyRandom.Generate() >> 8))), new SnesSignedEightEight(NoobTubeProjectileRomData.ShardFallYVelocity));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle:
-                    projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((byte)(_nextRandom!() >> 8))));
+                    projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((byte)(EnemyRandom.Generate() >> 8))));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.NoobTubeShardReflectFlicker:
@@ -1923,7 +1923,7 @@ public sealed partial class RoomEnemySystem
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 case EnemyProjectileInstruction.GotoY_Probability_1_4:
-                    cursor = (_nextRandom!() & 0xc000) == 0xc000
+                    cursor = (EnemyRandom.Generate() & 0xc000) == 0xc000
                         ? ReadEnemyProjectileInstructionMechanicsWord(
                             projectile,
                             unchecked((ushort)(cursor + 2)))
@@ -2383,7 +2383,7 @@ public sealed partial class RoomEnemySystem
         ushort mask,
         int center)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         ushort x = unchecked((ushort)(
             projectile.Position.X.Whole + (random & mask) - center));
         ushort y = unchecked((ushort)(
@@ -2414,12 +2414,12 @@ public sealed partial class RoomEnemySystem
         byte xCenter = unchecked((byte)(xParameters >> 8));
         byte yMask = unchecked((byte)yParameters);
         byte yCenter = unchecked((byte)(yParameters >> 8));
-        ushort signSample = _nextRandom!();
+        ushort signSample = EnemyRandom.Generate();
 
         int xOffset;
         do
         {
-            xOffset = (xMask & unchecked((byte)_nextRandom())) - xCenter;
+            xOffset = (xMask & unchecked((byte)EnemyRandom.Generate())) - xCenter;
         }
         while (xOffset < 0);
         if ((signSample & 0x8000) != 0)
@@ -2429,7 +2429,7 @@ public sealed partial class RoomEnemySystem
         int yOffset;
         do
         {
-            yOffset = (yMask & unchecked((byte)_nextRandom())) - yCenter;
+            yOffset = (yMask & unchecked((byte)EnemyRandom.Generate())) - yCenter;
         }
         while (yOffset < 0);
         if ((signSample & 0x4000) != 0)

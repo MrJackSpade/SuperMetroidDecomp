@@ -125,9 +125,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-                enemies,
-                (Func<ushort>)(() => 0));
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             var initialize = typeof(RoomEnemySystem).GetMethod(
                 "InitializeCeresSteam", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(enemies);

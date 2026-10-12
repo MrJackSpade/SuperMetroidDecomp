@@ -161,7 +161,7 @@ public sealed partial class RoomEnemySystem
     {
         for (int drop = 0; drop < count; drop++)
         {
-            ushort random = _nextRandom!();
+            ushort random = EnemyRandom.Generate();
             ushort x = unchecked((ushort)((random & xMask) + xBase));
             ushort y = unchecked((ushort)(((random & yMask) >> 8) + yBase));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
@@ -175,7 +175,7 @@ public sealed partial class RoomEnemySystem
     {
         for (int drop = 0; drop < count; drop++)
         {
-            ushort random = _nextRandom!();
+            ushort random = EnemyRandom.Generate();
             ushort x = unchecked((ushort)(origin.X + (random & 0x001f) - 16));
             ushort y = unchecked((ushort)(origin.Y + ((random & 0x1f00) >> 8) - 16));
             SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
@@ -316,7 +316,7 @@ public sealed partial class RoomEnemySystem
         byte random;
         do
         {
-            random = unchecked((byte)_nextRandom!());
+            random = unchecked((byte)EnemyRandom.Generate());
         }
         while (random == 0);
 

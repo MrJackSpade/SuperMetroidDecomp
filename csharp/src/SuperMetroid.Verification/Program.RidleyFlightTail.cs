@@ -40,7 +40,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 0));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
         var tail = typeof(RoomEnemySystem).GetMethod("TickRidleyTail", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         var run = typeof(RoomEnemySystem).GetMethod("RunNorfairRidleyFunction", flags)!
@@ -99,8 +99,8 @@ internal static partial class Program
         AssertEqual(missileTarget, state.TailWhipTargetClockwiseAngle, "missile uses its exact position without Samus's 24-pixel offset");
         ushort seed = 0xf0;
         int advances = 0;
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => seed));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => { advances++; return 0; }));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => seed);
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return 0; });
         var neutral = typeof(RoomEnemySystem).GetMethod("HandleCeresRidleyNeutralTailControl", flags)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?>>(enemies);
         state.IdleTailWhipEnabled = 1;

@@ -1406,15 +1406,7 @@ internal static partial class Program
         SeedSaveStationElectricityProjectile(bus);
 
         var enemies = new RoomEnemySystem();
-        enemies.Load(
-            bus,
-            populationPointer: 0x9600,
-            tilesetPointer: 0,
-            new SnesVram(),
-            new SnesCgram(),
-            nextRandom: () => 0x4040,
-            level: level,
-            samus: new SamusState());
+        enemies.Load(new RoomEnemyLoadRequest(bus, 0x9600, 0, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0x4040)) { Level = level, Samus = new SamusState() });
         enemies.SpawnSaveStationElectricity(saveBlockIndex, level.Size.X);
 
         var visible = new SpriteVisualPart

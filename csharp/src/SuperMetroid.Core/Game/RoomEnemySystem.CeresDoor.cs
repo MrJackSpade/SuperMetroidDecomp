@@ -224,8 +224,7 @@ public sealed partial class RoomEnemySystem
         if (CeresStatus < 2 || EarthquakeTimer != 0)
             return;
 
-        Func<ushort> readRandomNumber = _readRandomNumber ?? throw new InvalidOperationException(
-            "Ceres door earthquake AI requires a non-advancing random-seed reader.");
+        Func<ushort> readRandomNumber = EnemyRandom.Read;
         ushort lowTwelveBits = unchecked((ushort)(readRandomNumber() & 0x0fff));
         if (lowTwelveBits < 0x0080)
         {
@@ -270,7 +269,7 @@ public sealed partial class RoomEnemySystem
 
         // GenerateRandomNumber is called exactly once per explosion. Values below $4000
         // select animation $0C; all other values select animation three (smoke).
-        ushort randomNumber = _nextRandom!();
+        ushort randomNumber = EnemyRandom.Generate();
         ushort animation = randomNumber < 0x4000
             ? CeresDoorExplosionAnimation
             : CeresDoorSmokeAnimation;

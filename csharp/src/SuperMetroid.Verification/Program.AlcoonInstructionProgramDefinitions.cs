@@ -133,16 +133,7 @@ internal static partial class Program
         assets.LoadGraphics(vram, cgram);
         var random = new Bank80SystemState();
         var enemies = new RoomEnemySystem { TileArtwork = installedArt ?? RepositoryInstallation.EnemyTiles };
-        enemies.Load(
-            guard,
-            room.State.EnemyPopulationPointer,
-            room.State.EnemyTilesetPointer,
-            vram,
-            cgram,
-            random.NextRandom,
-            random.SetRandomNumber,
-            readRandomNumber: () => random.RandomNumber,
-            level: assets.LevelData);
+        enemies.Load(new RoomEnemyLoadRequest(guard, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.Slots[0];
         AlcoonEnemyState state = enemies.AlcoonStates[0] ??

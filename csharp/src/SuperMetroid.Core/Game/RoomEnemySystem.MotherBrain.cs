@@ -13,7 +13,6 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class RoomEnemySystem
 {
     private const ushort MotherBrainInitialHeadInstruction = 0x9c21;
-    private Action? _incrementMotherBrainGlassRoomArgument;
 
     /// <summary>The typed multipart encounter while Mother Brain's retail population is loaded.</summary>
     public MotherBrainEnemyState? MotherBrain { get; private set; }

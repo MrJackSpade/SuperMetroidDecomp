@@ -17,8 +17,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
         int glassHits = 0;
-        typeof(RoomEnemySystem).GetField("_incrementMotherBrainGlassRoomArgument", flags)!
-            .SetValue(enemies, (Action)(() => glassHits++));
+        enemies.VerificationServices().IncrementMotherBrainGlassRoomArgument = (Action)(() => glassHits++);
         var head = enemies.Slots[1];
         head.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainHead;
         head.Definition = RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer);

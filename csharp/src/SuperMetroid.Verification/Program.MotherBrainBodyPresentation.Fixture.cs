@@ -27,8 +27,7 @@ internal static partial class Program
             Body.PaletteIndex = Body.VramTilesIndex = 0;
             State = new MotherBrainEnemyState(Body) { Head = Inner.Enemies.Slots[1], Form = 3 };
             typeof(RoomEnemySystem).GetField("<MotherBrain>k__BackingField", Private)!.SetValue(Inner.Enemies, State);
-            typeof(RoomEnemySystem).GetField("_setMotherBrainBg2Scroll", Private)!.SetValue(Inner.Enemies,
-                (Action<Position16<Bg2Pixels>>)ScrollCalls.Add);
+            Inner.Enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)ScrollCalls.Add;
             var queues = (List<ushort>[])typeof(RoomEnemySystem).GetField("_drawQueues", Private)!.GetValue(Inner.Enemies)!;
             queues[0].Add(Body.NativeIndex);
             instructions = typeof(RoomEnemySystem).GetMethod("ProcessInstructions", Private)!

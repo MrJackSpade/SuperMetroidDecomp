@@ -64,9 +64,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
             NewBombTorizoDroolSineReadGuard(rom));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(new Queue<ushort>([0, unchecked((ushort)random)]).Dequeue);
 
         RoomEnemySlot torizo = enemies.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(0x0400, 0x0200));

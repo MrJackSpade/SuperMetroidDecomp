@@ -281,7 +281,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the 3/256 random attack gate at $A2:A01C.</summary>
     private void MaybeStartCacatacAttack(RoomEnemySlot slot, CacatacEnemyState state)
     {
-        ushort decision = unchecked((ushort)((_nextRandom!() + slot.FrameCounter) & 0x00ff));
+        ushort decision = unchecked((ushort)((EnemyRandom.Generate() + slot.FrameCounter) & 0x00ff));
         if (decision >= 3)
             return;
 

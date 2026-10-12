@@ -28,9 +28,7 @@ internal static partial class Program
         var guard = NewChozoTourianDustInstructionReadGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 4));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", instanceFlags)!;
         MethodInfo spawnFootstep = typeof(RoomEnemySystem).GetMethod(

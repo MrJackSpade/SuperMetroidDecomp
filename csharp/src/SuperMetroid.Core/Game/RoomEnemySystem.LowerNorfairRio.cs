@@ -118,7 +118,7 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         RoomLevelData? level)
     {
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
 
         switch (state.Function)
         {

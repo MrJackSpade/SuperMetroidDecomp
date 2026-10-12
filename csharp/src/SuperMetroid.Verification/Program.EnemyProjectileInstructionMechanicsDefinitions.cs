@@ -446,10 +446,8 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem();
             typeof(RoomEnemySystem).GetField("_bus", instanceFlags)!.SetValue(enemies, bus);
-            typeof(RoomEnemySystem).GetField("_readRandomNumber", instanceFlags)!
-                .SetValue(enemies, (Func<ushort>)(() => 0));
-            typeof(RoomEnemySystem).GetField("_nextRandom", instanceFlags)!
-                .SetValue(enemies, (Func<ushort>)(() => 0));
+            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
             return enemies;
         }
 

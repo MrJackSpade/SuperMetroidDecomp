@@ -29,12 +29,8 @@ internal static partial class Program
         var guard = NewKagoBugProjectileInstructionGuard(rom);
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 0x0002));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 0x0080));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x0002);
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x0080);
         typeof(RoomEnemySystem).GetField("_samusForEnemyDrops", flags)!.SetValue(
             enemies,
             new SamusState { Health = 99, MaxHealth = 99 });

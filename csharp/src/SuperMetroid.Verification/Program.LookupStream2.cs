@@ -1252,7 +1252,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
         var state = new KraidEnemyState();
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 1));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 1);
         var finish = typeof(RoomEnemySystem).GetMethod("FinishKraidGrowth", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
         var align = typeof(RoomEnemySystem).GetMethod("AlignKraidPart", flags)!

@@ -22,7 +22,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
             bool defeated = false;
-            typeof(RoomEnemySystem).GetField("_isAreaTorizoDefeated", flags)!.SetValue(enemies, (Func<bool>)(() => defeated));
+            enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
             var initializeWithInput = typeof(RoomEnemySystem).GetMethod("InitializeBombTorizo", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, SamusState?, ushort>>(enemies);
             void initialize(RoomEnemySlot slot) => initializeWithInput(slot, null, 0);

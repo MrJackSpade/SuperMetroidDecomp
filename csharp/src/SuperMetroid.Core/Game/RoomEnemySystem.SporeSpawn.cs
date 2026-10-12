@@ -316,7 +316,7 @@ public sealed partial class RoomEnemySystem
         // $A5:E9F7 tests the 16-bit NMI_FrameCounter, not the 8-bit $05B5 copy.
         if ((_enemyFrameNmiFrameCounter & 0x0f) == 0)
         {
-            ushort random = _nextRandom!();
+            ushort random = EnemyRandom.Generate();
             _ = SpawnRoomSpriteObject(
                 new(unchecked((ushort)((random & 0x003f) + 96)), unchecked((ushort)(((random & 0x0f00) >> 8) + 480))),
                 RoomSpriteObjectKind.DustCloud,

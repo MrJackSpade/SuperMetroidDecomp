@@ -72,7 +72,7 @@ public sealed partial class RoomEnemySystem
             _randomEnemyCounter,
             powerBombActive: sharedProjectiles?.PowerBombExplosion.Status != 0,
             randomNumberSeed: RequireRandomNumber(),
-            nextRandomNumber: _nextRandom,
+            nextRandomNumber: EnemyRandom.Generate,
             alternateEscapeText: JapaneseText,
             typewriterFinished: typewriterFinished,
             globalEarthquakeTimer: EarthquakeTimer);

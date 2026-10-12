@@ -73,7 +73,7 @@ public sealed partial class RoomEnemySystem
 
         // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. Variable D is then
         // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
-        slot.VariableD = unchecked((ushort)((_nextRandom!() & 0x001f) + 1));
+        slot.VariableD = unchecked((ushort)((EnemyRandom.Generate() & 0x001f) + 1));
 
         slot.CurrentInstruction = initialization.InstructionList;
         slot.VariableA = (ushort)initialization.Function;

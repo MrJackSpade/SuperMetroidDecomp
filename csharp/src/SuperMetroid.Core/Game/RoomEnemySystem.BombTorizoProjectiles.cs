@@ -28,12 +28,12 @@ public sealed partial class RoomEnemySystem
         {
             projectile.InstructionPointer =
                 (ushort)BombTorizoDroolInstructionProgramDefinitions.SelectLowHealthInitialProgram(
-                    _nextRandom!());
-            random = _nextRandom!();
+                    EnemyRandom.Generate());
+            random = EnemyRandom.Generate();
         }
         else
         {
-            random = _nextRandom!();
+            random = EnemyRandom.Generate();
         }
         if (kind == RoomEnemyProjectileKind.BombTorizoInitialDrool)
         {
@@ -45,7 +45,7 @@ public sealed partial class RoomEnemySystem
             projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)((random & 0x001f) + 0x30 + (yWithOffset >> 16)))));
             // $86:A68D-$A6C3: the X offset's ADC carries out of CLC; ADC X. Every branch
             // stores a zero X velocity.
-            int jitteredX = (_nextRandom!() & 3) + torizo.Position.X.Whole;
+            int jitteredX = (EnemyRandom.Generate() & 3) + torizo.Position.X.Whole;
             int carry = jitteredX >> 16;
             projectile.Position = projectile.Position.WithWholeX((torizo.Parameter1 & 0x4000) != 0
                 ? unchecked((ushort)jitteredX)
@@ -173,7 +173,7 @@ public sealed partial class RoomEnemySystem
 
         projectile.DirectionParameter = parameter;
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
-            torizo.Position.Y.Whole + ((_nextRandom!() & 1) != 0 ? -12 : 20))));
+            torizo.Position.Y.Whole + ((EnemyRandom.Generate() & 1) != 0 ? -12 : 20))));
         if ((torizo.Parameter1 & 0x8000) != 0)
         {
             projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(torizo.Position.X.Whole + 32)));
@@ -263,7 +263,7 @@ public sealed partial class RoomEnemySystem
             torizo,
             TorizoRandomizedProjectileDefinitions.GoldenEyeBeam(facingRight));
 
-        int angle = ((_nextRandom!() & 0x001e) - 16 + 192 + (facingRight ? 0 : 128)) & 0x01ff;
+        int angle = ((EnemyRandom.Generate() & 0x001e) - 16 + 192 + (facingRight ? 0 : 128)) & 0x01ff;
         int sineIndex = angle >> 1;
         // The native combined table starts at negative cosine, not sine. Its
         // quarter-turn offset selects sine for X; the unshifted sample gives Y.
@@ -282,9 +282,9 @@ public sealed partial class RoomEnemySystem
         projectile.Position = projectile.Position.WithWhole(torizo.Position.Whole + definition.Offset);
         // The native initializer draws the X jitter before the Y jitter.
         short xVelocity = unchecked((short)(
-            definition.BaseVelocity.X.SignedRawValue + unchecked((byte)_nextRandom!()) - 128));
+            definition.BaseVelocity.X.SignedRawValue + unchecked((byte)EnemyRandom.Generate()) - 128));
         short yVelocity = unchecked((short)(
-            definition.BaseVelocity.Y.SignedRawValue + unchecked((byte)_nextRandom!()) - 128));
+            definition.BaseVelocity.Y.SignedRawValue + unchecked((byte)EnemyRandom.Generate()) - 128));
         projectile.Velocity = new EightEightVector<RoomPixels>(xVelocity, yVelocity);
     }
 

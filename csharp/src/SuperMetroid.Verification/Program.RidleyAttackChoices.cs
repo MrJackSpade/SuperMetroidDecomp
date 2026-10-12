@@ -37,9 +37,9 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, SamusState?, ushort, RoomLevelData?>>(reference);
         ushort random = 0;
         int advances = 0, actualReads = 0, referenceReads = 0;
-        typeof(RoomEnemySystem).GetField("_nextRandom", instance)!.SetValue(actual, (Func<ushort>)(() => { advances++; return random; }));
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", instance)!.SetValue(actual, (Func<ushort>)(() => { actualReads++; return random; }));
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", instance)!.SetValue(reference, (Func<ushort>)(() => { referenceReads++; return random; }));
+        actual.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return random; });
+        actual.VerificationServices().ReadRandom = (Func<ushort>)(() => { actualReads++; return random; });
+        reference.VerificationServices().ReadRandom = (Func<ushort>)(() => { referenceReads++; return random; });
         var standing = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };
         var low = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 352)) };
         var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 256)) };

@@ -52,21 +52,7 @@ internal static partial class Program
         samus.InitializeAnimation(rom);
 
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
-        enemies.Load(
-            guard,
-            room.State.EnemyPopulationPointer,
-            room.State.EnemyTilesetPointer,
-            vram,
-            cgram,
-            random.NextRandom,
-            random.SetRandomNumber,
-            readRandomNumber: () => random.RandomNumber,
-            level: assets.LevelData,
-            samus: samus,
-            camera: new(0x0400, 0),
-            setRoomScrollState: assets.Scrolls.SetStorage,
-            isAreaMiniBossDefeated: () => false,
-            setAreaMiniBossDefeated: () => { });
+        enemies.Load(new RoomEnemyLoadRequest(guard, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber, Bosses = new FixtureAreaBossFlags { IsMiniBossDefeated = () => false, SetMiniBossDefeated = () => { } }, RoomScroll = new FixtureRoomScroll(assets.Scrolls.SetStorage) }) { Level = assets.LevelData, Samus = samus, Camera = new(0x0400, 0) });
 
         RoomEnemySlot body = enemies.Slots[0];
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(

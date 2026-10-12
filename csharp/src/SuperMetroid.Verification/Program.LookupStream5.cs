@@ -101,8 +101,7 @@ internal static partial class Program
             slot.VariableD = 48; slot.VariableE = 0; slot.VariableF = 0;
             system.CeresStatus = 2;
             int randomCalls = 0;
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
-                (Func<ushort>)(() => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0)));
+            system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0));
             var tick = typeof(RoomEnemySystem).GetMethod("RunCeresDoorRumbleAndExplosions", flags)!
                 .CreateDelegate<Action<RoomEnemySlot>>(system);
             for (int call = 1; call <= 49; call++)
@@ -143,8 +142,7 @@ internal static partial class Program
             var eye = system.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Slots[2], Mouth = system.Slots[3] };
             int randomCalls = 0;
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
-                (Func<ushort>)(() => (ushort)(++randomCalls == 1 ? bucket : nextPattern)));
+            system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls == 1 ? bucket : nextPattern));
             var fade = typeof(RoomEnemySystem).GetMethod("RunPhantoonFlameRainFadeOut", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!
@@ -202,8 +200,7 @@ internal static partial class Program
             var mouth = system.Slots[3];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.Slots[2], Mouth = mouth };
             int randomCalls = 0;
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system,
-                (Func<ushort>)(() => { randomCalls++; return (ushort)(reversed ? 1 : 0); }));
+            system.VerificationServices().NextRandom = (Func<ushort>)(() => { randomCalls++; return (ushort)(reversed ? 1 : 0); });
             var begin = typeof(RoomEnemySystem).GetMethod("RunPhantoonPickFirstRoundPattern", flags)!
                 .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonFirstRoundFigureEight", flags)!
@@ -349,7 +346,7 @@ internal static partial class Program
             var eye = system.Slots[1];
             var tentacles = system.Slots[2];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.Slots[3] };
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(system, (Func<ushort>)(() => (ushort)bucket));
+            system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)bucket);
             var open = typeof(RoomEnemySystem).GetMethod("BeginPhantoonEyeTracking", flags)!.CreateDelegate<Action<PhantoonEnemyState>>(system);
             var tick = typeof(RoomEnemySystem).GetMethod("RunPhantoonEyeTracking", BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, SamusState>>();
             body.Position = body.Position.WithWhole(new(128, 96));
@@ -1022,8 +1019,7 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, PhantoonEnemyState, ushort, ushort>>(enemies);
         ushort random = 0;
         int calls = 0;
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies,
-            (Func<ushort>)(() => { calls++; return random; }));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return random; });
         for (int bucket = 0; bucket < 8; bucket++)
         {
             random = (ushort)(0xfff8 | bucket);
@@ -1422,7 +1418,6 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;
         var busField = typeof(RoomEnemySystem).GetField("_bus", flags)!;
-        var randomField = typeof(RoomEnemySystem).GetField("_nextRandom", flags)!;
         var rainMethod = typeof(RoomEnemySystem).GetMethod("RunPhantoonHiddenFlameRain", flags)!;
         for (int high = 0; high < 1; high++)
         for (int pattern = 0; pattern < 8; pattern++)
@@ -1431,7 +1426,7 @@ internal static partial class Program
             busField.SetValue(enemies, NewPhantoonPatternReadGuard(rom));
             ushort random = (ushort)((high << 8) | 0xf8 | pattern);
             int calls = 0;
-            randomField.SetValue(enemies, (Func<ushort>)(() => { calls++; return random; }));
+            enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
             var body = enemies.Slots[0];
             var eye = enemies.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };

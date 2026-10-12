@@ -33,8 +33,7 @@ public sealed partial class RoomEnemySystem
         // horizontal table is one record short. The compiled definition retains the
         // final RNG outcome's instruction-byte overread, including its signed delta.
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
-        Func<ushort> nextRandom = _nextRandom ?? throw new InvalidOperationException(
-            "Falling Spark initialization requires the shared cartridge RNG.");
+        Func<ushort> nextRandom = EnemyRandom.Generate;
         (projectile.Variable1, projectile.Variable0) = FallingSparkLaunchDefinitions.FromRandom(nextRandom());
 
     }

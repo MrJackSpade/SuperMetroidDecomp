@@ -420,7 +420,7 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstruction.Instruction_GoldenTorizo_CallY_25Chance_IfHealthLessThan789:
-                if (torizo.Health > 0x0788 || (_nextRandom!() & 0x0102) != 0)
+                if (torizo.Health > 0x0788 || (EnemyRandom.Generate() & 0x0102) != 0)
                     cursor = unchecked((ushort)(cursor + 4));
                 else
                 {
@@ -529,7 +529,7 @@ public sealed partial class RoomEnemySystem
             return unchecked((ushort)(cursor + 4));
         int distance = Math.Abs(unchecked((short)(samus.Position.X.Whole - torizo.Position.X.Whole)));
         if (!BombTorizoFunction12IsNonNegative(torizo, samus) ||
-            distance < 0x20 || distance >= 0x60 || (_nextRandom!() & 0x0110) != 0)
+            distance < 0x20 || distance >= 0x60 || (EnemyRandom.Generate() & 0x0110) != 0)
         {
             return unchecked((ushort)(cursor + 4));
         }
@@ -556,7 +556,7 @@ public sealed partial class RoomEnemySystem
             "Golden Torizo jump decision");
         if (state.SamusSpaceJumpFrames <= 0x0168 &&
             (!heldButtons.HasAny(SnesButtons.HorizontalDirections) ||
-                (_nextRandom!() & 0x0101) == 0))
+                (EnemyRandom.Generate() & 0x0101) == 0))
         {
             return unchecked((ushort)(cursor + 4));
         }

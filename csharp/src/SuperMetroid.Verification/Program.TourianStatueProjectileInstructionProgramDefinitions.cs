@@ -35,9 +35,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = RepositoryInstallation.EnemyTiles };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(
-            enemies,
-            (Func<ushort>)(() => 4));
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
         MethodInfo process = typeof(RoomEnemySystem).GetMethod(
             "ProcessEnemyProjectileInstructions", flags)!;
         MethodInfo spawnChild = typeof(RoomEnemySystem).GetMethod(

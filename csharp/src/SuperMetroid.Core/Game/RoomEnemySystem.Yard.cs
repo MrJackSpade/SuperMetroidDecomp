@@ -167,7 +167,7 @@ public sealed partial class RoomEnemySystem
             case YardInstruction.GoBack4BytesIfHidingOr50PercentChance:
                 // The native instruction receives Y already advanced past the opcode.
                 // Subtracting six therefore resumes four bytes before the opcode.
-                cursor = RequireYardState(slot).Behavior == YardBehavior.Hiding || (_nextRandom!() & 1) != 0
+                cursor = RequireYardState(slot).Behavior == YardBehavior.Hiding || (EnemyRandom.Generate() & 1) != 0
                     ? unchecked((ushort)(cursor - 4))
                     : unchecked((ushort)(cursor + 2));
                 return true;

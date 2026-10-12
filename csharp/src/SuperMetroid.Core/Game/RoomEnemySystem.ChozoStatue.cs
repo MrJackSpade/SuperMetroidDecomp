@@ -83,8 +83,6 @@ public sealed partial class RoomEnemySystem
     private readonly ChozoStatueState?[] _chozoStatueStates =
         new ChozoStatueState?[MaximumEnemyCount];
     private readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
-    private Action<bool>? _setSamusControlsEnabled;
-    private Action<int, RoomScrollState>? _setRoomScrollState;
 
     /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
     public void ApplyPendingChozoStatuePlms(RoomLevelData level, RoomPlmSystem plms)
@@ -111,14 +109,11 @@ public sealed partial class RoomEnemySystem
     /// <summary>FX base Y written by instruction $AA:E436.</summary>
     public ushort ChozoStatueFxBaseYPosition { get; private set; }
 
-    private void ResetChozoStatueRoomState(
-        Action<bool>? setSamusControlsEnabled,
-        Action<int, RoomScrollState>? setRoomScrollState)
+    private void ResetChozoStatueRoomState(IChozoStatueRoomServices services)
     {
+        Ensure.NotNull(services);
         Array.Clear(_chozoStatueStates);
         _chozoStatuePlmRequests.Clear();
-        _setSamusControlsEnabled = setSamusControlsEnabled;
-        _setRoomScrollState = setRoomScrollState;
         LastChozoStatueSoundEffect = null;
         ChozoStatueSamusControlsEnabled = true;
         ChozoStatueFxTimer = 0;

@@ -136,7 +136,7 @@ internal static partial class Program
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var enemies = new RoomEnemySystem { TileArtwork = artwork };
             var vram = new SnesVram(); var colors = new SnesCgram();
-            enemies.Load(memory, state.EnemyPopulationPointer, state.EnemyTilesetPointer, vram, colors, () => 1);
+            enemies.Load(new RoomEnemyLoadRequest(memory, state.EnemyPopulationPointer, state.EnemyTilesetPointer, vram, colors, new StandaloneRoomEnemyServices(() => 1)));
             return (enemies, vram, colors);
         }
 

@@ -11,8 +11,7 @@ internal static partial class Program
         var assets = LoadFixtureRoomAssets(bus, room);
         var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
         var random = new Bank80SystemState();
-        enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
-            new SnesVram(), new SnesCgram(), random.NextRandom, random.SetRandomNumber);
+        enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(random.NextRandom) { SeedRandom = random.SetRandomNumber }));
         // These are the six literal retail population records, not a constructed pile.
         (ushort X, ushort Y, ushort Delay)[] population =
             [(87,156,0x0f00), (98,156,0x0f00), (105,156,0x0f00),

@@ -26,7 +26,7 @@ internal static partial class Program
         var state = new KraidEnemyState();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewKraidCeilingGuard(rom));
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => 63));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 63);
         var step = typeof(RoomEnemySystem).GetMethod("RunKraidGrowthFunction", flags)!
             .CreateDelegate<Action<RoomEnemySlot, KraidEnemyState>>(enemies);
         var requests = (List<KraidPlmRequest>)typeof(RoomEnemySystem).GetField("_kraidPlmRequests", flags)!.GetValue(enemies)!;

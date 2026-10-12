@@ -43,10 +43,8 @@ internal static partial class Program
             const ushort random = 0x5aad;
             int advances = 0;
             var enemies = CreateMiscDustEnemySystem(rom);
-            typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!
-                .SetValue(enemies, (Func<ushort>)(() => random));
-            typeof(RoomEnemySystem).GetField("_nextRandom", flags)!
-                .SetValue(enemies, (Func<ushort>)(() => { advances++; return 0xbeef; }));
+            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
+            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return 0xbeef; });
             var initialize = typeof(RoomEnemySystem).GetMethod("InitializeEyeDoorSmoke", flags)!
                 .CreateDelegate<Action<RoomEnemyProjectileSlot, ushort, Position16<RoomBlocks>>>(enemies);
             RoomEnemyProjectileSlot smoke = enemies.EnemyProjectiles[0];

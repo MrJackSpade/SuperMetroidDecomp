@@ -26,9 +26,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);
-        type.GetField("_setRandomNumber", flags)!.SetValue(
-            enemies,
-            (Action<ushort>)(_ => { }));
+        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         var initialize = type.GetMethod("InitializeBeetom", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
         var startCrawling = type.GetMethod("StartBeetomCrawling", flags)!
@@ -184,8 +182,8 @@ internal static partial class Program
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
-        typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(enemies, (Action<ushort>)(_ => { }));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, nextRandom);
+        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
+        enemies.VerificationServices().NextRandom = nextRandom;
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];

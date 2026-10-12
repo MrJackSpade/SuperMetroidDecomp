@@ -16,9 +16,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(
             enemies,
             NewSparkMovementReadGuard(new TestAddressSpace()));
-        typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!.SetValue(
-            enemies,
-            (Func<bool>)(() => true));
+        enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeSpark", flags)!
             .CreateDelegate<Action<RoomEnemySlot>>(enemies);
         RoomEnemySlot slot = enemies.Slots[0];

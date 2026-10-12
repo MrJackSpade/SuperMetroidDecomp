@@ -11,7 +11,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_setRandomNumber", flags)!.SetValue(enemies, (Action<ushort>)(_ => { }));
+        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
         var interactive = (List<ushort>)typeof(RoomEnemySystem).GetField("_interactiveEnemyIndexes", flags)!.GetValue(enemies)!;
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBeetom", flags)!
             .CreateDelegate<Action<RoomEnemySlot, SamusState, ushort>>(enemies);

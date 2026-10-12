@@ -420,7 +420,7 @@ public sealed partial class RoomEnemySystem
     /// </summary>
     private void RandomlyUpdateCeresRidleyTailCurliness(RidleyEnemyState state)
     {
-        ushort random = _readRandomNumber!();
+        ushort random = EnemyRandom.Read();
         if (random < 0xff00)
             return;
         state.IdealInterSegmentTailAngle = (ushort)((random & 0x000f) + 7 + 1);
@@ -521,7 +521,7 @@ public sealed partial class RoomEnemySystem
                 return;
         }
 
-        state.Function = CeresRidleyAttackDefinitions.SelectAttack(_readRandomNumber!());
+        state.Function = CeresRidleyAttackDefinitions.SelectAttack(EnemyRandom.Read());
         state.HoverCounter = 0;
     }
 
@@ -555,7 +555,7 @@ public sealed partial class RoomEnemySystem
     private void TickCeresRidleyFireballShooting(RoomEnemySlot slot, RidleyEnemyState state)
     {
         // $A6:A7F9 reads RandomNumberSeed without generating a number.
-        ushort random = _readRandomNumber!();
+        ushort random = EnemyRandom.Read();
         ushort jitter = (ushort)(random & 7);
         if ((random & 0x8000) != 0)
             jitter = unchecked((ushort)-jitter);

@@ -14,8 +14,7 @@ internal static partial class Program
         foreach (ushort fraction in new ushort[] { 0, 0x8000, 0xFFFF })
         {
             var enemies = new RoomEnemySystem { TileArtwork = FixtureEnemyTileArtwork() };
-            enemies.Load(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer,
-                new SnesVram(), new SnesCgram(), () => 0);
+            enemies.Load(new RoomEnemyLoadRequest(bus, room.State.EnemyPopulationPointer, room.State.EnemyTilesetPointer, new SnesVram(), new SnesCgram(), new StandaloneRoomEnemyServices(() => 0)));
             var actor = enemies.Slots[0];
             var state = enemies.YardStates[0]!;
             var samus = new SamusState { Pose = pose, Health = 999, MaxHealth = 999,

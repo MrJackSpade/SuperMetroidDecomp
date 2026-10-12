@@ -100,8 +100,7 @@ internal static partial class Program
     {
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_hasEvent", flags)!
-            .SetValue(enemies, (Func<EventNumber, bool>)(_ => false));
+        enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
         RoomEnemySlot dachora = enemies.Slots[0];
         dachora.EnemyDefinitionPointer = EnemyDefinitionId.DachoraEscape;
         dachora.Definition = default(RoomEnemyDefinition) with { Bank = 0xb3 };

@@ -210,7 +210,7 @@ public sealed partial class RoomEnemySystem
 
         // GenerateRandomNumber advances the global seed before the comparison. Only low
         // byte sums zero and one attack; byte wrapping is intentional and observable.
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         byte attackRoll = unchecked((byte)((byte)slot.FrameCounter + (byte)random));
         if (attackRoll >= 2)
             return;

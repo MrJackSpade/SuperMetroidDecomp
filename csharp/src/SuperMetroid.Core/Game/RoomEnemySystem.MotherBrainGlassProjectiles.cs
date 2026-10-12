@@ -50,7 +50,7 @@ public sealed partial class RoomEnemySystem
         // `$86:CDC5` doubles the complete RNG word and masks it to an even nine-bit angle.
         // The low eight-bit angle selects signed sine/cosine velocities; bits 5..8 choose
         // one of sixteen ROM-authored shard animation lists.
-        ushort doubledRandom = unchecked((ushort)(_nextRandom!() * 2));
+        ushort doubledRandom = unchecked((ushort)(EnemyRandom.Generate() * 2));
         ushort angleOffset = unchecked((ushort)(doubledRandom & 0x01fe));
         int angle = angleOffset >> 1;
         shard.Variable0 = angleOffset;
@@ -70,9 +70,9 @@ public sealed partial class RoomEnemySystem
         // Position jitter consumes two additional RNG samples in this order. It is not
         // cosmetic randomness: later turret and sparkle behavior observes the advanced seed.
         shard.Position = shard.Position.WithWholeX(unchecked((ushort)(
-            shard.Position.X.Whole + (_nextRandom!() & 0x000f) - 8)));
+            shard.Position.X.Whole + (EnemyRandom.Generate() & 0x000f) - 8)));
         shard.Position = shard.Position.WithWholeY(unchecked((ushort)(
-            shard.Position.Y.Whole + (_nextRandom!() & 0x000f) - 8)));
+            shard.Position.Y.Whole + (EnemyRandom.Generate() & 0x000f) - 8)));
     }
 
     /// <summary>Ports glass-shard pre-instruction <c>$86:CE9B</c>.</summary>
@@ -92,7 +92,7 @@ public sealed partial class RoomEnemySystem
 
         // The masked test succeeds for 1/16 of samples. The condition itself consumes one
         // random value every live shard frame; a successful sparkle consumes two more below.
-        if ((_nextRandom!() & 0x0420) == 0)
+        if ((EnemyRandom.Generate() & 0x0420) == 0)
             SpawnMotherBrainGlassSparkle(shard);
     }
 
@@ -108,8 +108,8 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.MotherBrainGlassSparkle,
             graphicsIndex: 0);
         sparkle.Position = sparkle.Position.WithWhole(new(unchecked((ushort)(
-            source.Position.X.Whole + (_nextRandom!() & 0x001f) - 16)), unchecked((ushort)(
-            source.Position.Y.Whole + (_nextRandom!() & 0x001f) - 16))));
+            source.Position.X.Whole + (EnemyRandom.Generate() & 0x001f) - 16)), unchecked((ushort)(
+            source.Position.Y.Whole + (EnemyRandom.Generate() & 0x001f) - 16))));
         sparkle.GraphicsIndex = MotherBrainGlassShardDefinitions.GraphicsIndex;
     }
 

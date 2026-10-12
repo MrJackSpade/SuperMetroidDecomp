@@ -10,8 +10,7 @@ internal static partial class Program
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, bus);
-        typeof(RoomEnemySystem).GetField("_setMotherBrainBg2Scroll", flags)!
-            .SetValue(enemies, (Action<Position16<Bg2Pixels>>)(_ => { }));
+        enemies.VerificationServices().SetMotherBrainBg2Scroll = (Action<Position16<Bg2Pixels>>)(_ => { });
         var body = enemies.Slots[0];
         body.EnemyDefinitionPointer = EnemyDefinitionId.MotherBrainBody;
         body.Definition = RoomEnemyDefinitionCatalog.Get(body.EnemyDefinitionPointer);

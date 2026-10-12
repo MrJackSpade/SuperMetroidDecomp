@@ -174,8 +174,7 @@ internal static partial class Program
         {
             var enemies = new RoomEnemySystem { CeresStatus = ceresStatus };
             typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
-            typeof(RoomEnemySystem).GetField("_isAreaBossDefeated", flags)!
-                .SetValue(enemies, isBossDefeated);
+            enemies.VerificationServices().IsAreaBossDefeated = isBossDefeated;
             slot = enemies.Slots[0];
             slot.EnemyDefinitionPointer =
                 EnemyDefinitionId.CeresDoor;

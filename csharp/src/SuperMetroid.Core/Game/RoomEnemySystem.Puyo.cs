@@ -409,7 +409,7 @@ public sealed partial class RoomEnemySystem
     /// enemy's frame counter before keeping the low three bits.
     /// </summary>
     private ushort NextPuyoRandom0To7(RoomEnemySlot slot) =>
-        unchecked((ushort)((_nextRandom!() + slot.FrameCounter) & 7));
+        unchecked((ushort)((EnemyRandom.Generate() + slot.FrameCounter) & 7));
 
     /// <summary>Ports the post-drop bounce wrapper at $A2:9DCD.</summary>
     private void RunDroppedPuyo(RoomEnemySlot slot, PuyoEnemyState state, RoomLevelData level)

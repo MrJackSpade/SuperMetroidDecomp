@@ -74,8 +74,8 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewSlopeHeightNoReadBus());
         ushort rng = 0;
         int reads = 0;
-        typeof(RoomEnemySystem).GetField("_readRandomNumber", flags)!.SetValue(enemies, (Func<ushort>)(() => { reads++; return rng; }));
-        typeof(RoomEnemySystem).GetField("_nextRandom", flags)!.SetValue(enemies, (Func<ushort>)(() => throw new InvalidOperationException("Movement choice must not advance RNG.")));
+        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return rng; });
+        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Movement choice must not advance RNG."));
         var think = typeof(RoomEnemySystem).GetMethod("RunKraidSecondPhaseThinking", flags, null,
             [typeof(RoomEnemySlot), typeof(RoomEnemySlot), typeof(KraidPartState)], null)!
             .CreateDelegate<Action<RoomEnemySlot, RoomEnemySlot, KraidPartState>>(enemies);

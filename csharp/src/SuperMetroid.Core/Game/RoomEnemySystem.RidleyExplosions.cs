@@ -70,7 +70,7 @@ public sealed partial class RoomEnemySystem
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
         fragment.VariableF = RidleyExplosionDefinitions.GetPart(fragment.Parameter1).Lifetime;
 
-        ushort random = _nextRandom!();
+        ushort random = EnemyRandom.Generate();
         ushort horizontalMagnitude = unchecked((ushort)(random & 0x0130));
         fragment.VariableB = unchecked((short)random) < 0
             ? unchecked((ushort)-horizontalMagnitude)

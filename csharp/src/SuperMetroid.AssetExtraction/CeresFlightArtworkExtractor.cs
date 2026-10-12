@@ -50,8 +50,8 @@ internal static class CeresFlightArtworkExtractor
         });
         byte[] mapFile = mapJson.ToArray();
         byte[] nativePalette = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-            CeresFlightRomData.Assets.Palette, SnesCgram.ByteCount);
-        var colors = new PaletteRgb5[SnesCgram.ColorCount];
+            CeresFlightRomData.Assets.Palette, CgramPalettes.ByteCount);
+        var colors = new PaletteRgb5[CgramPalettes.ColorCount];
         for (int index = 0; index < colors.Length; index++)
         {
             ushort word = BinaryPrimitives.ReadUInt16LittleEndian(
@@ -123,7 +123,7 @@ internal static class CeresFlightArtworkExtractor
             !roundTrip.Mode7Maps.Span.SequenceEqual(map) ||
             !roundTrip.ObjectCharacters.Span.SequenceEqual(objectCharacters))
             throw new InvalidDataException("Ceres flight PNG/JSON export did not round-trip cartridge bytes.");
-        for (int index = 0; index < SnesCgram.ColorCount; index++)
+        for (int index = 0; index < CgramPalettes.ColorCount; index++)
             if (roundTrip.Palette.ColorAt(index) != Bgr555.FromCgramPortWord(BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * Bgr555.ByteCount))))
                 throw new InvalidDataException("Ceres flight palette export did not round-trip cartridge colors.");
         return new Dictionary<string, byte[]>(StringComparer.Ordinal)

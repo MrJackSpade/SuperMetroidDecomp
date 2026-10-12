@@ -201,7 +201,7 @@ public sealed class SamusFullBodyCycleColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int index = 0; index < SamusFullBodyCycleColorFormat.ColorsPerPalette; index++)
-            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
+            new SamusPalettes(cgram).Suit.Write(index,
                 Resolve(pointer, index));
     }
 

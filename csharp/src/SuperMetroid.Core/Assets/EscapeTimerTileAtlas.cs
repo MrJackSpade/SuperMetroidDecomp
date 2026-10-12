@@ -95,6 +95,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     }
 
     /// <summary>Queues an installed page when a native transfer record identifies timer artwork.</summary>
+    [PpuLayoutBoundary("codec: queues a matched native escape-timer transfer record's encoded VRAM destination")]
     public bool TryQueueNativeTransfer(VramWriteQueue queue, int sourceAddress, ushort byteCount,
         ushort destinationWord)
     {
@@ -109,6 +110,7 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
     }
 
     /// <summary>Publishes one native page directly for the Mother Brain sequence's synchronous transfer owner.</summary>
+    [PpuLayoutBoundary("codec: executes a matched native escape-timer transfer record's encoded VRAM destination")]
     public bool TryLoadNativeTransfer(SnesVram vram, int sourceAddress, ushort byteCount,
         ushort destinationWord)
     {

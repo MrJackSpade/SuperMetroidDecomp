@@ -64,9 +64,9 @@ public sealed class EnemyPaletteSheet
     public void LoadTo(SnesCgram cgram, int destinationColor)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        if (destinationColor < 0 || destinationColor + ColorCount > SnesCgram.ColorCount)
+        if (destinationColor < 0 || destinationColor + ColorCount > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destinationColor));
-        for (int i = 0; i < ColorCount; i++) cgram.SetColor(destinationColor + i, colors[i]);
+        for (int i = 0; i < ColorCount; i++) new CgramPalettes(cgram).All.Write(destinationColor + i, colors[i]);
     }
 
     private static readonly JsonSerializerOptions Options = new()

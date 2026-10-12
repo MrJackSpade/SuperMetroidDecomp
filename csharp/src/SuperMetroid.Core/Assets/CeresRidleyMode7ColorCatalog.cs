@@ -36,7 +36,7 @@ public sealed class CeresRidleyMode7ColorCatalog
         ArgumentNullException.ThrowIfNull(cgram);
         _ = Resolve(zoomHighByte, 0);
         for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)
-            cgram.SetColor(CeresRidleyPaletteRomData.Mode7ZoomCgramIndex + color, rows.Resolve(zoomHighByte, color));
+            new RidleyPalettes(cgram).CeresMode7Zoom.Write(color, rows.Resolve(zoomHighByte, color));
     }
     /// <summary>Loads all nine zoom shades, each containing fifteen RGB5 colors, rejecting duplicate/unknown JSON properties, unsupported versions, and channel values outside 0..31.</summary>
     /// <param name="json">Caller-owned stream containing the editable Ceres getaway color document.</param>

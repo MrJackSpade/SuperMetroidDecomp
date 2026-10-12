@@ -15,7 +15,7 @@ internal static class TitlePaletteExtractor
         ArgumentNullException.ThrowIfNull(bus);
         var source = new SnesCgram();
         CartridgePaletteImporter.LoadToCgram(source, bus, TitleSequenceRomData.Assets.PaletteAddress);
-        PaletteRgb5[] colors = source.Colors.ToArray().Select(PaletteRgb5.From).ToArray();
+        PaletteRgb5[] colors = new CgramPalettes(source).All.Colors.ToArray().Select(PaletteRgb5.From).ToArray();
         using var json = new MemoryStream();
         TitlePalettePresentation.Write(json, new TitlePaletteDocument
         {

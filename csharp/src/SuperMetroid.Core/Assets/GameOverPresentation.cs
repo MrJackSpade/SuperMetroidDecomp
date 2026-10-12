@@ -71,14 +71,14 @@ public sealed class GameOverPresentation
     {
         if (tilemap is not null)
         {
-            vram.LoadBytes(destinationWord * sizeof(ushort), tilemap);
+            new VramStore(vram).All.Load(tilemap, destinationWord * sizeof(ushort));
             return;
         }
         Span<byte> transfer = stackalloc byte[GameOverPresentationDefinitions.TilemapByteCount];
         for (int cell = 0; cell < GameOverPresentationDefinitions.TilemapCellCount; cell++)
             BinaryPrimitives.WriteUInt16LittleEndian(transfer.Slice(cell * sizeof(ushort)),
                 GameOverPresentationDefinitions.TilemapWord(cell));
-        vram.LoadBytes(destinationWord * sizeof(ushort), transfer);
+        new VramStore(vram).All.Load(transfer, destinationWord * sizeof(ushort));
     }
 
     /// <summary>Appends the chosen Baby sprite composition at the installed anchor using its OBJ palette selector.</summary>
@@ -119,7 +119,7 @@ public sealed class GameOverPresentation
     {
         _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
         for (int index = 0; index < GameOverRomData.BabyAnimation.PaletteColorCount; index++)
-            cgram.SetColor(GameOverRomData.BabyAnimation.PaletteDestinationIndex + index,
+            new GameOverPalettes(cgram).Baby.Write(index,
                 babyPalettes.Read(palette, index));
     }
 

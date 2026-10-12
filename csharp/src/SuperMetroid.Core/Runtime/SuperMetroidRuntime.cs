@@ -696,9 +696,9 @@ public sealed partial class SuperMetroidRuntime
         // $1000 bytes; the following $1000-byte clear table intentionally fills the rest of
         // VRAM $4000-$4FFF with zeroes.
         if (MapPresentation is null)
-            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, VramDmaDestination.FromNative(HudTileAtlasFormat.DestinationWord));
+            VramWrites.Enqueue(HudTileAtlasFormat.TransferByteCount, HudTileAtlasFormat.SourceAddress, Assets.AssetVram.HudCharacterUploadDma);
         else
-            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, VramDmaDestination.FromNative(HudTileAtlasFormat.DestinationWord));
+            VramWrites.EnqueueAsset(VramAssetId.StandardHudTiles, HudTileAtlasFormat.TransferByteCount, Assets.AssetVram.HudCharacterUploadDma);
 
         // $82:8318 follows the BG3 transfer with $2E00 bytes of standard sprite tiles at
         // VRAM $6000. The dynamic Samus DMA refreshes its four reserved regions each NMI;

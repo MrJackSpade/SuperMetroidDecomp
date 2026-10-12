@@ -45,7 +45,7 @@ public sealed class NorfairRidleyColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
-            cgram.SetColor(NorfairRidleyPaletteRomData.InitialCgramIndex + color, initial.ColorAt(color));
+            new RidleyPalettes(cgram).NorfairInitial.Write(color, initial.ColorAt(color));
     }
 
     /// <summary>Copies one arena-reveal row to CGRAM entries 113..126 (BG palette 7, colors 1..14), matching <c>FadeInRidleyRoomBackground</c> at <c>$A6:A4D6</c>; does not advance the reveal timer or process its terminator.</summary>
@@ -56,7 +56,7 @@ public sealed class NorfairRidleyColorCatalog
         NorfairRidleyRevealPaintDefinitions.ValidateRow(row);
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
-            cgram.SetColor(NorfairRidleyPaletteRomData.RevealCgramIndex + color, reveal.ColorAt(row, color));
+            new RidleyPalettes(cgram).NorfairReveal.Write(color, reveal.ColorAt(row, color));
     }
 
     /// <summary>Reads the versioned color document, rejecting duplicate or unknown properties, missing palette entries, and RGB channels outside 0..31, then compiles the colors to SNES RGB5 words.</summary>

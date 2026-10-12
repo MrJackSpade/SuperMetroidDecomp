@@ -86,7 +86,7 @@ public sealed class ZebetiteColorCatalog
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= ZebetiteColorFormat.FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < ZebetiteColorFormat.ColorsPerFrame; color++)
-            cgram.SetColor(destinationColor + color, Resolve(frame, color));
+            new CgramPalettes(cgram).All.Write(destinationColor + color, Resolve(frame, color));
     }
 
     /// <summary>Serializes a Zebetite color document as indented camel-case UTF-8 JSON, then validates the result through <see cref="Load"/> before returning it.</summary>

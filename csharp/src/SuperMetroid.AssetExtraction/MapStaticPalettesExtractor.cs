@@ -18,7 +18,7 @@ internal static class MapStaticPalettesExtractor
         for (int selected = 0; selected < FileSelectMapRomData.AreaCount; selected++)
         {
             var colors = new SnesCgram(); CartridgePaletteImporter.LoadToCgram(colors, bus, FileSelectMapRomData.EntryPalette);
-            colors.SetColor(14, Bgr555.Black); colors.SetColor(30, Bgr555.Black);
+            new CgramPalettes(colors).All.Write(14, Bgr555.Black); new CgramPalettes(colors).All.Write(30, Bgr555.Black);
             for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
             {
                 int offsets = area == selected ? FileSelectMapRomData.ActivePaletteOffsets : FileSelectMapRomData.InactivePaletteOffsets;
@@ -29,7 +29,7 @@ internal static class MapStaticPalettesExtractor
                     ushort source = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor);
                     if (source == ushort.MaxValue) { terminated = true; break; }
                     ushort destination = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), cursor + sizeof(ushort));
-                    if ((destination & 1) != 0 || destination / 2 + MapStaticPalettesRomData.CopyColorCount > SnesCgram.ColorCount)
+                    if ((destination & 1) != 0 || destination / 2 + MapStaticPalettesRomData.CopyColorCount > CgramPalettes.ColorCount)
                         throw new InvalidDataException("World-map palette copy exceeds the color range.");
                     CartridgePaletteImporter.LoadToCgram(colors, bus, FileSelectMapRomData.PaletteColors + source, MapStaticPalettesRomData.CopyColorCount, destination / 2);
                 }
@@ -41,5 +41,5 @@ internal static class MapStaticPalettesExtractor
         MapStaticPalettes.Write(json, new() { Version = MapStaticPalettesFormat.Version, Pause = ToRgb(pause), FileSelect = ToRgb(file), World = world });
         return json.ToArray();
     }
-    private static PaletteRgb5[] ToRgb(SnesCgram palette) => palette.Colors.ToArray().Select(PaletteRgb5.From).ToArray();
+    private static PaletteRgb5[] ToRgb(SnesCgram palette) => new CgramPalettes(palette).All.Colors.ToArray().Select(PaletteRgb5.From).ToArray();
 }

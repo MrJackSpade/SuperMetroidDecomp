@@ -73,10 +73,10 @@ public sealed class MagdollitePaletteCycle
     {
         ArgumentNullException.ThrowIfNull(cgram);
         if (destination < 0 ||
-            destination + MagdollitePaletteRomData.AnimatedColorCount > SnesCgram.ColorCount)
+            destination + MagdollitePaletteRomData.AnimatedColorCount > CgramPalettes.ColorCount)
             throw new ArgumentOutOfRangeException(nameof(destination));
         for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
-            cgram.SetColor(destination + color, Resolve(frame, color));
+            new CgramPalettes(cgram).All.Write(destination + color, Resolve(frame, color));
     }
 
     /// <summary>Validates and compiles the four RGB5 glow rows, preserving independent edits rather than requiring all later rows to rotate the first.</summary>

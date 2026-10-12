@@ -88,10 +88,10 @@ public static class EnemyTileArtworkFiles
                 });
                 var nativeCgram = new SnesCgram();
                 var compiledCgram = new SnesCgram();
-                nativeCgram.LoadBytes(nativeColors);
+                new CgramPalettes(nativeCgram).All.LoadPortBytes(nativeColors);
                 EnemyPaletteSheet.Load(new MemoryStream(paletteJson, writable: false))
                     .LoadTo(compiledCgram, 0);
-                if (!nativeCgram.Colors.SequenceEqual(compiledCgram.Colors))
+                if (!new CgramPalettes(nativeCgram).All.Colors.SequenceEqual(new CgramPalettes(compiledCgram).All.Colors))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
                 File.WriteAllBytes(Path.Combine(directory,
                     EnemyTileArtworkFormat.PaletteFileName(definitionPointer)), paletteJson);

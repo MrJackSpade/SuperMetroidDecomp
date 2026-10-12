@@ -42,18 +42,18 @@ internal static class TextAndMapPresentationContractChecks
                     credits.GetRow(-1);
                     sprites.Draw(MapSpriteId.WorldTitle, oam, 0, 0, 0);
                     sprites.Draw(1, oam, 0, 0, 0);
-                    sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
+                    sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
                     arrows.Get(MapScrollDirection.Left);
                     arrows.Get(MapScrollDirection.Down);
                     arrows.Get(MapScrollDirection.None);
                     arrows.Get((MapScrollDirection)99);
-                    screen.LoadTo(vram, 0, MapScreenDefinitions.WorldForeground);
-                    screen.LoadTo(vram, 0, MapScreenDefinitions.WorldBackground(AreaId.Maridia));
-                    screen.LoadTo(vram, 0, MapScreenDefinitions.RoomFrame(area));
-                    screen.LoadTo(vram, 0, MapScreenDefinitions.WorldBackground(AreaId.Ceres));
-                    screen.LoadTo(vram, 0, unknown);
-                    screen.LoadTo(vram, 0, UnknownFactory(area));
-                    screen.LoadTo(vram, 0, "World.Missing");
+                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.WorldForeground);
+                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.WorldBackground(AreaId.Maridia));
+                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.RoomFrame(area));
+                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, MapScreenDefinitions.WorldBackground(AreaId.Ceres));
+                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, unknown);
+                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, UnknownFactory(area));
+                    screen.LoadTo(new MenuVram(vram).Bg1Tilemap, "World.Missing");
                 }
             }
             """;

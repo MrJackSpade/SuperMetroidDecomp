@@ -1112,10 +1112,9 @@ public sealed partial class RoomEnemySystem
             // enemy's selected code/data bank. Its assembly masks the entire low byte before
             // adding the native eight-row OBJ bias. Retail records use values zero through
             // seven, but retaining the wider mask makes corrupt data fail visibly.
-            int destinationColor = ((vramDestination & 0x00ff) + 8) * 16;
             (TileArtwork ?? throw new InvalidOperationException(
                 "Enemy population requires installed palette artwork."))
-                .LoadPaletteTo(definitionPointer, cgram, destinationColor);
+                .LoadPaletteTo(definitionPointer, new CgramPalettes(cgram).ObjectRow(vramDestination & 0x00ff));
 
             int byteCount = definition.TileDataSize & 0x7fff;
             int stagingOffset = (definition.TileDataSize & 0x8000) != 0
@@ -1129,7 +1128,7 @@ public sealed partial class RoomEnemySystem
                     $"offset ${vramByteOffset:X4}, size ${byteCount:X4}.");
             }
 
-            TileArtwork!.LoadTo(definitionPointer, byteCount, vram, vramByteOffset);
+            TileArtwork!.LoadTo(definitionPointer, byteCount, new EnemyVram(vram).EnemyTiles, stagingOffset);
 
             _graphicsSet.Add(new RoomEnemyGraphicsSetEntry(
                 definitionPointer,

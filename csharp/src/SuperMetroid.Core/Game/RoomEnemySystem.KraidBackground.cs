@@ -103,8 +103,7 @@ public sealed partial class RoomEnemySystem
     {
         KraidBackgroundArtwork art = TileArtwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        art.RoomBackgroundTiles.LoadTo(_vram!,
-            KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort));
+        art.RoomBackgroundTiles.LoadTo(new EnemyVram(_vram!).KraidRoomBackgroundTiles);
     }
 
     /// <summary>Ports <c>$A7:AD3A</c>'s priority-bit pass before second phase.</summary>

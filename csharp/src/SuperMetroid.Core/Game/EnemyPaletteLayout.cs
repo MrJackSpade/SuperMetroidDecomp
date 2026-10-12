@@ -14,6 +14,10 @@ public static class EnemyPaletteLayout
     /// <summary>CGADD $90-$9F (OBJ palette 1): Torizo body row nine written by <c>$AA:C2D0</c> and its health gradient.</summary>
     public static readonly PpuLayoutCell TorizoBody = PpuMemoryLayout.Colors(nameof(TorizoBody), 0x90, 16, "Bgr555 OBJ palette");
 
+    /// <summary>CGADD $F0-$FF (OBJ palette 7): the gold Space Pirate colours the ninja Pirate copies on spawn.</summary>
+    public static readonly PpuLayoutCell NinjaSpacePirate = PpuMemoryLayout.Colors(nameof(NinjaSpacePirate),
+        NinjaSpacePiratePaletteDefinitions.TargetColor, PpuMemoryLayout.ColorsPerRow, "Bgr555 OBJ palette");
+
     /// <summary>CGADD $A0-$AF (OBJ palette 2): Torizo belly row ten.</summary>
     public static readonly PpuLayoutCell TorizoBelly = PpuMemoryLayout.Colors(nameof(TorizoBelly), 0xa0, 16, "Bgr555 OBJ palette");
 
@@ -33,10 +37,6 @@ public static class EnemyPaletteLayout
     /// <summary>CGADD $F1-$FF (OBJ palette 7, colours 1-15): the cutscene Baby Metroid palette (target-palette byte $1E2).</summary>
     public static readonly PpuLayoutCell BabyMetroidCutscene = PpuMemoryLayout.Colors(nameof(BabyMetroidCutscene),
         BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2, BabyMetroidCutsceneColorRomData.InitialColorCount, "Bgr555 OBJ palette colours");
-
-    /// <summary>CGADD $70-$77 (BG palette 7, colours 0-7): Crocomire's fight-body colours flashed white on hurt.</summary>
-    public static readonly PpuLayoutCell CrocomireFightBody = PpuMemoryLayout.Colors(nameof(CrocomireFightBody),
-        CrocomirePaletteRomData.FightBodyDestination, CrocomirePaletteRomData.FightBodyCount, "Bgr555 BG palette colours");
 
     /// <summary>CGADD $91-$9F (OBJ palette 1, colours 1-15): the dead sidehopper's transformation palette.</summary>
     public static readonly PpuLayoutCell DeadSidehopper = PpuMemoryLayout.Colors(nameof(DeadSidehopper), 0x91, 15, "Bgr555 OBJ palette colours");
@@ -60,7 +60,7 @@ public static class EnemyPaletteLayout
     public static readonly PpuLayoutCell MotherBrainBody = PpuMemoryLayout.Colors(nameof(MotherBrainBody),
         MotherBrainDeathRomData.BodyColors, MotherBrainDeathRomData.BodyColorCount, "Bgr555 BG palette colours");
 
-    /// <summary>CGADD $91-$9F (OBJ palette 1, colours 1-15): Mother Brain's brain colours (also the exploded-door palette).</summary>
+    /// <summary>CGADD $91-$9F (OBJ palette 1, colours 1-15): the brain colours <c>$A9:AF77</c> copies to the corpse palette and the exploded-door colours overwrite.</summary>
     public static readonly PpuLayoutCell MotherBrainBrain = PpuMemoryLayout.Colors(nameof(MotherBrainBrain),
         MotherBrainDeathRomData.BrainColors, MotherBrainDeathRomData.CorpseColorCount, "Bgr555 OBJ palette colours");
 
@@ -132,6 +132,9 @@ public readonly struct EnemyPalettes(SnesCgram cgram)
 {
     /// <summary>Torizo body row.</summary>
     public CgramPalette TorizoBody => new(cgram, EnemyPaletteLayout.TorizoBody);
+
+    /// <summary>The ninja Space Pirate's gold palette row.</summary>
+    public CgramPalette NinjaSpacePirate => new(cgram, EnemyPaletteLayout.NinjaSpacePirate);
     /// <summary>Torizo belly row.</summary>
     public CgramPalette TorizoBelly => new(cgram, EnemyPaletteLayout.TorizoBelly);
     /// <summary>First shared Torizo row.</summary>
@@ -145,7 +148,7 @@ public readonly struct EnemyPalettes(SnesCgram cgram)
     /// <summary>The cutscene Baby Metroid palette.</summary>
     public CgramPalette BabyMetroidCutscene => new(cgram, EnemyPaletteLayout.BabyMetroidCutscene);
     /// <summary>Crocomire's fight-body colours.</summary>
-    public CgramPalette CrocomireFightBody => new(cgram, EnemyPaletteLayout.CrocomireFightBody);
+    public CgramPalette CrocomireFightBody => new(cgram, Assets.BossCgramLayout.CrocomireFightBody);
     /// <summary>The dead sidehopper's palette.</summary>
     public CgramPalette DeadSidehopper => new(cgram, EnemyPaletteLayout.DeadSidehopper);
     /// <summary>Kraid's room backdrop row.</summary>

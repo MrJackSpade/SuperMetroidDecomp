@@ -10,6 +10,20 @@ namespace SuperMetroid.Core.Frontend;
 [PpuLayoutBoundary("catalog: pause screen VRAM")]
 public static class PauseVramLayout
 {
+    /// <summary>VMADD $0000-$0FFF: the shared map characters.</summary>
+    public static readonly PpuLayoutCell MapCharacters = new(nameof(MapCharacters), PpuLayoutRegion.Vram,
+        0x0000, Assets.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)", PpuMemoryLayout.Vram);
+
+    /// <summary>VMADD $1000-$1FFF: the pause interface characters uploaded from the pause UI atlas.</summary>
+    public static readonly PpuLayoutCell InterfaceCharacters = new(nameof(InterfaceCharacters), PpuLayoutRegion.Vram,
+        Assets.PauseTileAtlasFormat.DestinationByte / sizeof(ushort), Assets.PauseTileAtlasFormat.ByteCount / sizeof(ushort),
+        "4-bpp BG characters (pause interface)", PpuMemoryLayout.Vram);
+
+    /// <summary>VMADD $2000-$2FFF (byte $4000): the map-object OBJ characters uploaded from <c>$B6:C000</c>.</summary>
+    public static readonly PpuLayoutCell ObjectCharacters = new(nameof(ObjectCharacters), PpuLayoutRegion.Vram,
+        Assets.MapSpriteFormat.PauseDestination / sizeof(ushort), Assets.MapSpriteFormat.ByteCount / sizeof(ushort),
+        "4-bpp OBJ characters (map objects)", PpuMemoryLayout.Vram);
+
     /// <summary>VMADD $3000-$37FF: the map and equipment pages' BG1 64x32 tilemap.</summary>
     public static readonly PpuLayoutCell Bg1Tilemap = new(nameof(Bg1Tilemap), PpuLayoutRegion.Vram,
         PauseMenuLayout.Bg1TilemapWord, 0x0800, "BG tilemap words (64x32)", PpuMemoryLayout.Vram);
@@ -39,6 +53,18 @@ public static class PauseVramLayout
 [PpuLayoutBoundary("rendering view: pause screen VRAM")]
 public readonly struct PauseVram(SnesVram vram)
 {
+    /// <summary>The shared map characters.</summary>
+    public VramRegion MapCharacters => new(vram, PauseVramLayout.MapCharacters);
+
+    /// <summary>The pause interface characters.</summary>
+    public VramRegion InterfaceCharacters => new(vram, PauseVramLayout.InterfaceCharacters);
+
+    /// <summary>The map-object OBJ characters.</summary>
+    public VramRegion ObjectCharacters => new(vram, PauseVramLayout.ObjectCharacters);
+
+    /// <summary>The pause frame's BG2 tilemap.</summary>
+    public VramRegion Bg2Tilemap => new(vram, PauseVramLayout.Bg2Tilemap);
+
     /// <summary>The map/equipment BG1 tilemap.</summary>
     public VramRegion Bg1Tilemap => new(vram, PauseVramLayout.Bg1Tilemap);
 

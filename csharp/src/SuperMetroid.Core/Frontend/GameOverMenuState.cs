@@ -235,9 +235,8 @@ public sealed class GameOverMenuState
         return output;
     }
 
-    [PpuLayoutBoundary("codec: word-addressed game-over tilemap upload into menu BG1")]
     private void LoadGameOverTilemap(GameOverPresentation presentation) =>
-        presentation.LoadTilemapTo(ppu.Vram, MenuVramLayout.Bg1TilemapWord);
+        presentation.LoadTilemapTo(new MenuVram(ppu.Vram).Bg1Tilemap);
 
     /// <summary>Captures BG1/OBJ only; the game-over PPU does not enable BG2.</summary>
     [PpuLayoutBoundary("codec: game-over render packet layers")]

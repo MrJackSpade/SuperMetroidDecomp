@@ -81,9 +81,10 @@ internal sealed partial class PauseMenuState
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
-        mapPresentation.Tiles.LoadTo(vram, 0);
-        mapPresentation.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
-        mapPresentation.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
+        var pauseVram = new PauseVram(vram);
+        mapPresentation.Tiles.LoadTo(pauseVram.MapCharacters);
+        mapPresentation.PauseTiles.LoadTo(pauseVram.InterfaceCharacters);
+        mapPresentation.Sprites.LoadArtworkTo(pauseVram.ObjectCharacters);
         mapPresentation.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
         if (gameplayVram is not null)

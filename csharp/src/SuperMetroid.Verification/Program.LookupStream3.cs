@@ -727,7 +727,7 @@ internal static partial class Program
         void Confirm(GameOverPresentation presentation)
         {
             var vram = new SnesVram();
-            presentation.LoadTilemapTo(vram, 0x1000);
+            presentation.LoadTilemapTo(new VramStore(vram).All.Slice(0x1000, GameOverPresentationDefinitions.TilemapByteCount / sizeof(ushort)));
             for (int cell = 0; cell < document.Tilemap.Length; cell++)
             {
                 MapPresentationCell source = document.Tilemap[cell];

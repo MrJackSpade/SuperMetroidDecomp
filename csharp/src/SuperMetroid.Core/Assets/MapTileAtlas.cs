@@ -18,9 +18,8 @@ public sealed class MapTileAtlas
     }
 
     /// <summary>Copies compiled characters to the screen's own VRAM; source storage cannot be mutated by callers.</summary>
-    /// <param name="vram">Destination VRAM buffer.</param>
-    /// <param name="destinationByteAddress">Byte address of the first character, not a PPU word address; the full 8192-byte atlas is copied.</param>
-    public void LoadTo(SnesVram vram, int destinationByteAddress) => new VramStore(vram).All.Load(planar, destinationByteAddress);
+    /// <param name="destination">The screen's character region receiving the full 8192-byte atlas.</param>
+    public void LoadTo(VramRegion destination) => destination.Load(planar);
 }
 
 /// <summary>Shared pause/file-select character atlas geometry and fixed installed filename.</summary>

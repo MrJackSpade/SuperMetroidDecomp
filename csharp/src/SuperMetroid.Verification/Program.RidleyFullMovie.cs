@@ -911,7 +911,7 @@ internal static partial class Program
             // The final scrolling IRQ publishes the visor before the deferred
             // loading owners reach their shared completion boundary. Check it there.
             for (int color = 0; color < SnesCgram.ColorCount; color++)
-                if (color != DoorTransitionPaletteDefinitions.VisorColorIndex)
+                if (color != SamusXrayRomData.Palette.VisorCgramIndex)
                     words.Add(runtime.Cgram.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.Slots)
                 words.AddRange([(ushort)actor.EnemyDefinitionPointer, actor.Position.X.Whole, actor.Position.X.Fraction,
@@ -1232,8 +1232,8 @@ internal static partial class Program
             if (deferLoadingOwners)
             {
                 if (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FinishDoorLoading)
-                    Check("Completed-scroll visor", runtime.Cgram.Colors[DoorTransitionPaletteDefinitions.VisorColorIndex].ToWord(),
-                        NativeSnapshotMemory.PaletteBuffer + DoorTransitionPaletteDefinitions.VisorColorIndex * 2);
+                    Check("Completed-scroll visor", runtime.Cgram.Colors[SamusXrayRomData.Palette.VisorCgramIndex].ToWord(),
+                        NativeSnapshotMemory.PaletteBuffer + SamusXrayRomData.Palette.VisorCgramIndex * 2);
                 ushort[] owners = CaptureLoadedOwners();
                 if (pendingLoadedOwners is not null && !owners.AsSpan().SequenceEqual(pendingLoadedOwners))
                     throw new InvalidDataException("Destination RNG/palette/enemy owners advanced while native hardware loading was still pending.");

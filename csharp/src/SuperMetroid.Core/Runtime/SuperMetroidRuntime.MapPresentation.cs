@@ -78,8 +78,7 @@ public sealed partial class SuperMetroidRuntime
         // his private BG2 tilemap occupies the ordinary $4000 HUD character
         // address. A restored-state art rebind must honor the *current* PPU
         // character base, or the next NMI paints HUD pixels across Kraid.
-        MapPresentation!.HudTiles.LoadCharactersTo(Vram,
-            GameplayHudCharacterBaseWord * sizeof(ushort));
+        MapPresentation!.HudTiles.LoadCharactersTo(HudCharactersAtCurrentBase());
         hudArtworkRefreshPending = false;
     }
 }

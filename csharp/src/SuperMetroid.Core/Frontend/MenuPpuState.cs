@@ -44,14 +44,14 @@ internal sealed class MenuPpuState
     public void BindMapTiles(MapTileAtlas? mapTiles)
     {
         (mapTiles ?? throw new InvalidOperationException(
-            "Menu PPU requires installed map tiles.")).LoadTo(Vram, 0x6000);
+            "Menu PPU requires installed map tiles.")).LoadTo(new MenuVram(Vram).MapCharacters);
     }
 
     public void BindMapSprites(MapSpriteCatalog? sprites)
     {
         (sprites ?? throw new InvalidOperationException(
             "Menu PPU requires installed sprite artwork."))
-            .LoadArtworkTo(Vram, MapSpriteFormat.FileSelectDestination);
+            .LoadArtworkTo(new MenuVram(Vram).ObjectCharacters);
     }
 
     public void BindMapPalettes(MapStaticPalettes? mapPalettes)

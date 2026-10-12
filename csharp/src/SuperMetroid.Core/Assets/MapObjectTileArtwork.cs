@@ -97,7 +97,7 @@ internal sealed class MapObjectTileArtwork
         return point.X <= fill ? (byte)9 : (byte)14;
     }
 
-    internal void LoadTo(SnesVram vram, int destinationByte)
+    internal void LoadTo(VramRegion destination)
     {
         // This is the immediate transfer payload, never a retained calculated lookup.
         Span<byte> transfer = stackalloc byte[MapSpriteFormat.ByteCount];
@@ -136,6 +136,6 @@ internal sealed class MapObjectTileArtwork
                 transfer[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = encoded;
             }
         }
-        new VramStore(vram).All.Load(transfer, destinationByte);
+        destination.Load(transfer);
     }
 }

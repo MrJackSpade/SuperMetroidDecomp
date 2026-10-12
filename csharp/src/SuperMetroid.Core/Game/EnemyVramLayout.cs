@@ -57,6 +57,11 @@ public static class EnemyVramLayout
         DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress / sizeof(ushort),
         DraygonIntroPresentationDefinitions.EvirTilesByteCount / sizeof(ushort), "4-bpp OBJ characters", EnemyTiles);
 
+    /// <summary>VMADD $3F00-$3FFF: the Kraid room's backdrop BG characters uploaded from <c>$A7:A716</c>.</summary>
+    public static readonly PpuLayoutCell KraidRoomBackgroundTiles = new(nameof(KraidRoomBackgroundTiles), PpuLayoutRegion.Vram,
+        KraidBackgroundRomData.RoomBackgroundTileVramWord, KraidBackgroundRomData.RoomBackgroundTileBytes / sizeof(ushort),
+        "4-bpp BG characters", GameplayVramLayout.BackgroundCharacters);
+
     /// <summary>VMADD $50CB-$50D3: the BG1 row receiving the English EMERGENCY title (<c>DrawEmergencyText</c>, $A6:C136).</summary>
     public static readonly PpuLayoutCell CeresEmergencyText = new(nameof(CeresEmergencyText), PpuLayoutRegion.Vram,
         Assets.CeresEscapeOverlayTilemapDefinitions.EmergencyDestination, Assets.CeresEscapeOverlayTilemapDefinitions.Emergency.WordCount,
@@ -81,6 +86,9 @@ public readonly struct EnemyVram(SnesVram vram)
 
     /// <summary>The enemy graphics-set characters.</summary>
     public VramRegion EnemyTiles => new(vram, EnemyVramLayout.EnemyTiles);
+
+    /// <summary>The Kraid room's backdrop BG characters.</summary>
+    public VramRegion KraidRoomBackgroundTiles => new(vram, EnemyVramLayout.KraidRoomBackgroundTiles);
 
     /// <summary>Draygon's opening Evir characters.</summary>
     public VramRegion DraygonEvirTiles => new(vram, EnemyVramLayout.DraygonEvirTiles);

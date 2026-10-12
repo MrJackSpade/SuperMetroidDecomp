@@ -14,15 +14,15 @@ internal sealed partial class PauseMenuState
         mapArrows ??= new FileSelectMapAnimations(bus, catalog.Arrows);
         mapArrows.BindPresentation(catalog.Arrows);
         paletteAnimation.Bind(catalog.HighlightCycle);
-        catalog.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
-        catalog.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
+        catalog.PauseTiles.LoadTo(new PauseVram(vram).InterfaceCharacters);
+        catalog.Sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
         for (int color = 0; color < CgramPalettes.ColorCount; color++)
             // Live highlights and reserve-arrow colors belong to their animation
             // owners. Replacing the static base must not reset their phase.
             if (color is (< MapAnimationRomData.PaletteDestination or >= (MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount)) and
                 not PauseReserveArrowRomData.Color6Index and not PauseReserveArrowRomData.Color11Index)
                 new CgramPalettes(cgram).All.Write(color, catalog.Palettes.Pause[color]);
-        catalog.Tiles.LoadTo(vram, 0);
+        catalog.Tiles.LoadTo(new PauseVram(vram).MapCharacters);
         catalog.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
@@ -77,7 +77,7 @@ internal sealed partial class PauseMenuState
     {
         (mapPresentation ?? throw new InvalidOperationException(
             "Pause backdrop requires installed presentation assets."))
-            .PauseBackdrops.LoadTo(vram, PauseMenuLayout.Bg2TilemapWord * 2, area);
+            .PauseBackdrops.LoadTo(new PauseVram(vram).Bg2Tilemap, area);
     }
 
     private void RefreshPauseButtonArtwork()

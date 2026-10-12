@@ -197,22 +197,22 @@ public sealed partial class EnemyTileArtworkCatalog
     }
 
     /// <summary>Uploads the complete sheet selected by a room graphics-set record.</summary>
-    public void LoadTo(EnemyDefinitionId definitionPointer, int byteCount, SnesVram vram, int destinationByteAddress)
+    public void LoadTo(EnemyDefinitionId definitionPointer, int byteCount, VramRegion destination, int byteOffset)
     {
         if (!sheets.TryGetValue(definitionPointer, out RoomCharacterAtlas? atlas))
             throw new InvalidDataException($"Enemy ${(int)definitionPointer:X4} has no installed tile sheet.");
         if (atlas.Transfer.Length != byteCount)
             throw new InvalidDataException(
                 $"Enemy ${(int)definitionPointer:X4} requires {byteCount} tile bytes, installed sheet has {atlas.Transfer.Length}.");
-        atlas.LoadTo(vram, destinationByteAddress);
+        destination.Load(atlas.Transfer.Span, byteOffset);
     }
 
     /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
-    public void LoadPaletteTo(EnemyDefinitionId definitionPointer, SnesCgram cgram, int destinationColor)
+    public void LoadPaletteTo(EnemyDefinitionId definitionPointer, CgramPalette destination)
     {
         if (!palettes.TryGetValue(definitionPointer, out EnemyPaletteSheet? palette))
             throw new InvalidDataException($"Enemy ${(int)definitionPointer:X4} has no installed palette.");
-        palette.LoadTo(cgram, destinationColor);
+        palette.LoadTo(destination);
     }
 }
 

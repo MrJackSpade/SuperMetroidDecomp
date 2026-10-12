@@ -80,18 +80,16 @@ public sealed partial class FileSelectAreaMapGraphics
         SelectedArea = selectedArea;
     }
 
-    [PpuLayoutBoundary("codec: byte-addressed world-map screen upload into menu BG1")]
     private void LoadForeground()
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
-            .LoadTo(Vram, MenuVramLayout.Bg1TilemapWord * 2, MapScreenDefinitions.WorldForeground);
+            .LoadTo(new MenuVram(Vram).Bg1Tilemap, MapScreenDefinitions.WorldForeground);
     }
 
     private void LoadBackground(AreaId selectedArea)
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
-            .LoadTo(Vram, FileSelectMapRomData.AreaBackgroundVram * 2,
-                MapScreenDefinitions.WorldBackground(selectedArea));
+            .LoadTo(new MenuVram(Vram).AreaBackgroundTilemap, MapScreenDefinitions.WorldBackground(selectedArea));
     }
 
     /// <summary>Refresh current layer artwork without selecting another area or restarting its palette fade.</summary>

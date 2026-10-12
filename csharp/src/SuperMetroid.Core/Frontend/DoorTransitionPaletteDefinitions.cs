@@ -5,8 +5,6 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Named color-copy operations of GameState_A_LoadingNextRoom, $82:E1F1-$E264.</summary>
 public static class DoorTransitionPaletteDefinitions
 {
-    /// <summary>$82:E52E writes Palettes_SpriteP4C4 when door IRQ scrolling completes.</summary>
-    public const int VisorColorIndex = 196;
     /// <summary>$82:E52B loads the ordinary green visor color before the final loading PLM call.</summary>
     private static readonly Bgr555 DoorCompletionVisorGreen = Bgr555.FromWord(0x3be0);
 

@@ -25,6 +25,20 @@ public static class MenuVramLayout
     public static readonly PpuLayoutCell AreaMapTilemap = new(nameof(AreaMapTilemap), PpuLayoutRegion.Vram,
         Bg1TilemapWord, 2 * SnesPpuLayout.TilemapPageWordCount, "BG tilemap words (64x32)", PpuMemoryLayout.Vram);
 
+    /// <summary>VMADD $3000-$3FFF: the shared map characters file select and the room map draw with.</summary>
+    public static readonly PpuLayoutCell MapCharacters = new(nameof(MapCharacters), PpuLayoutRegion.Vram,
+        FileSelectMapRomData.RoomCharacters, Assets.MapTileAtlasFormat.ByteCount / sizeof(ushort), "4-bpp BG characters (map atlas)",
+        PpuMemoryLayout.Vram);
+
+    /// <summary>VMADD $5C00-$5FFF (menu BG3SC=$5C): the world map's area-background tilemap.</summary>
+    public static readonly PpuLayoutCell AreaBackgroundTilemap = new(nameof(AreaBackgroundTilemap), PpuLayoutRegion.Vram,
+        FileSelectMapRomData.AreaBackgroundVram, SnesPpuLayout.TilemapPageWordCount, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
+
+    /// <summary>VMADD $6000-$6FFF (byte $C000): the map-object OBJ characters uploaded from <c>$B6:C000</c>.</summary>
+    public static readonly PpuLayoutCell ObjectCharacters = new(nameof(ObjectCharacters), PpuLayoutRegion.Vram,
+        Assets.MapSpriteFormat.FileSelectDestination / sizeof(ushort), Assets.MapSpriteFormat.ByteCount / sizeof(ushort),
+        "4-bpp OBJ characters (map objects)", PpuMemoryLayout.Vram);
+
     /// <summary>VMADD $5800-$5BFF: the menu BG2 32x32 tilemap.</summary>
     public static readonly PpuLayoutCell Bg2Tilemap = new(nameof(Bg2Tilemap), PpuLayoutRegion.Vram,
         Bg2TilemapWord, SnesPpuLayout.TilemapPageWordCount, "BG tilemap words (32x32)", PpuMemoryLayout.Vram);
@@ -39,6 +53,15 @@ public readonly struct MenuVram(SnesVram vram)
 
     /// <summary>The file-select room map's area-map tilemap.</summary>
     public VramRegion AreaMapTilemap => new(vram, MenuVramLayout.AreaMapTilemap);
+
+    /// <summary>The shared map characters.</summary>
+    public VramRegion MapCharacters => new(vram, MenuVramLayout.MapCharacters);
+
+    /// <summary>The world map's area-background tilemap.</summary>
+    public VramRegion AreaBackgroundTilemap => new(vram, MenuVramLayout.AreaBackgroundTilemap);
+
+    /// <summary>The map-object OBJ characters.</summary>
+    public VramRegion ObjectCharacters => new(vram, MenuVramLayout.ObjectCharacters);
 
     /// <summary>The menu BG2 tilemap.</summary>
     public VramRegion Bg2Tilemap => new(vram, MenuVramLayout.Bg2Tilemap);

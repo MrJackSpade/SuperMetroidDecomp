@@ -85,11 +85,11 @@ internal static class EnemyTileArtworkPresentationContractChecks
             bytes.Length == overlay.WordCount * sizeof(ushort), "exact Ceres overlay source");
         var vram = new SnesVram();
         vram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, first.ByteCount + 2).ToArray());
-        catalog.LoadTo(first.DefinitionPointer, first.ByteCount, vram, 1);
+        catalog.LoadTo(first.DefinitionPointer, first.ByteCount, new VramStore(vram).All, 1);
         Require(vram.ReadByte(0) == 0xa5 && vram.ReadByte(first.ByteCount + 1) == 0xa5 &&
             vram.Bytes.Slice(1, first.ByteCount).IndexOfAnyExcept((byte)0) < 0, "exact tile upload and unchanged neighbors");
         var cgram = new SnesCgram();
-        catalog.LoadPaletteTo(first.DefinitionPointer, cgram, 1);
+        catalog.LoadPaletteTo(first.DefinitionPointer, new CgramPalettes(cgram).All.Slice(1, 16));
         Require(cgram.Colors[0] == Bgr555.Black && cgram.Colors[1] == new Bgr555(1, 0, 0) && cgram.Colors[16] == new Bgr555(1, 0, 0) && cgram.Colors[17] == Bgr555.Black,
             "exact palette upload and unchanged neighbors");
     }

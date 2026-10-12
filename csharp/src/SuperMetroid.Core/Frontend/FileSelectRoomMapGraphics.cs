@@ -54,12 +54,11 @@ public sealed partial class FileSelectRoomMapGraphics
         LoadFrame(mapPresentation.Screens, area);
     }
 
-    [PpuLayoutBoundary("codec: byte-addressed room-map frame upload into menu BG2")]
     private void LoadFrame(MapScreenPresentation? screens, AreaId area)
     {
         (screens ?? throw new InvalidOperationException(
             "Room-map frame requires installed map-screen assets."))
-            .LoadTo(Vram, MenuVramLayout.Bg2TilemapWord * 2, MapScreenDefinitions.RoomFrame(area));
+            .LoadTo(new MenuVram(Vram).Bg2Tilemap, MapScreenDefinitions.RoomFrame(area));
     }
 
     /// <summary>Reprojects current host artwork without resetting menu animation or scroll state.</summary>
@@ -76,7 +75,7 @@ public sealed partial class FileSelectRoomMapGraphics
                     new CgramPalettes(Cgram).All.Write(color, catalog.Palettes.FileSelect[color]);
         (catalog ?? throw new InvalidOperationException(
             "Room-map graphics require installed map presentation assets."))
-            .Tiles.LoadTo(Vram, FileSelectMapRomData.RoomCharacters * 2);
+            .Tiles.LoadTo(new MenuVram(Vram).MapCharacters);
         var system = icons.MapSystem;
         var area = icons.MapArea;
         ppu.BindWorldArtwork(catalog?.WorldArtwork);

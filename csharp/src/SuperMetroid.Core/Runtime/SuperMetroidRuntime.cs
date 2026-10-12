@@ -430,6 +430,14 @@ public sealed partial class SuperMetroidRuntime
     public ushort GameplayHudCharacterBaseWord { get; private set; } =
         GameplayVramLayout.HudCharacterWord;
 
+    /// <summary>The BG3 character region at the base BG34NBA currently selects (Kraid's room moves it to word $2000).</summary>
+    [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
+    private VramRegion HudCharactersAtCurrentBase()
+    {
+        VramRegion ordinary = new GameplayVram(Vram).HudCharacters;
+        return new VramStore(Vram).All.Slice(GameplayHudCharacterBaseWord, ordinary.WordCount);
+    }
+
     /// <summary>Selects the ordinary BG3 character base (BG34NBA=$04), as gameplay PPU initialization does.</summary>
     [PpuLayoutBoundary("rendering view: the BG34NBA BG3 character-base register shadow")]
     private void SelectGameplayHudCharacterBase() => GameplayHudCharacterBaseWord = GameplayVramLayout.HudCharacterWord;

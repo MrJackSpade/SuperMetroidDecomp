@@ -16,8 +16,10 @@ using static ColorWordsVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ending palette artwork verification.</summary>
 internal static class EndingPaletteArtworkVerification
 {
+    /// <summary>Verifies ending logo palette fade.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette fade")]
     internal static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
@@ -117,6 +119,7 @@ internal static class EndingPaletteArtworkVerification
         AssertEqual(512, loaded.ColorCount, "computed fade retains published resource size");
     }
 
+    /// <summary>Verifies ending palette metadata.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending palette metadata")]
     internal static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
@@ -177,6 +180,7 @@ internal static class EndingPaletteArtworkVerification
         }
     }
 
+    /// <summary>Verifies ending palette role selection.</summary>
     internal static void VerifyEndingPaletteRoleSelection()
     {
         // Distinct caller-owned values exercise the original constructor-position contract.
@@ -205,6 +209,7 @@ internal static class EndingPaletteArtworkVerification
             AssertThrows<IndexOutOfRangeException>(() => _ = catalog[(EndingPaletteId)invalid], "ending palette invalid role compatibility");
     }
 
+    /// <summary>Verifies ending palette artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
@@ -403,6 +408,7 @@ internal static class EndingPaletteArtworkVerification
         Console.WriteLine("Ending palettes: seven native images and installed palette-FX colors, full ending CGRAM parity, ROM-free installed scene/audio-step guard, live visible overrides and strict failures pass.");
     }
 
+    /// <summary>Verifies visible ending palette fx override.</summary>
     private static void VerifyVisibleEndingPaletteFxOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -467,6 +473,7 @@ internal static class EndingPaletteArtworkVerification
             "edited Zebes lava palette-FX changes visible ending pixels without changing phase or VRAM");
     }
 
+    /// <summary>Verifies ending logo palette artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette artwork")]
     private static void VerifyEndingLogoPaletteArtwork(EndingPaletteCatalog stock,
@@ -505,6 +512,7 @@ internal static class EndingPaletteArtworkVerification
             "installed logo never reads either native palette color source");
     }
 
+    /// <summary>Verifies visible credits palette override.</summary>
     private static void VerifyVisibleCreditsPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -555,6 +563,7 @@ internal static class EndingPaletteArtworkVerification
         File.Delete(overridePath);
     }
 
+    /// <summary>Verifies visible logo palette override.</summary>
     private static void VerifyVisibleLogoPaletteOverride(GameInstallation installation,
         ISnesAddressSpace guardedBus, ISnesAddressSpace nativeBus)
     {
@@ -605,6 +614,7 @@ internal static class EndingPaletteArtworkVerification
         File.Delete(overridePath);
     }
 
+    /// <summary>Stores ending palette source ranges.</summary>
     private static readonly (EndingPaletteId Id, int Start, int End)[] EndingPaletteSourceRanges =
         Enum.GetValues<EndingPaletteId>()
             .Where(id => id != EndingPaletteId.LogoCrossfade)
@@ -637,6 +647,7 @@ internal static class EndingPaletteArtworkVerification
         return guard;
     }
 
+    /// <summary>Lookup ending palette roles command.</summary>
     [VerificationCommand("--lookup-ending-palette-roles")]
     internal static int LookupEndingPaletteRolesCommand()
     {

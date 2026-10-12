@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Represents full body palette pointer lists verification.</summary>
 internal static class FullBodyPalettePointerListsVerification
 {
+    /// <summary>Verifies full body palette pointer lists.</summary>
     internal static void VerifyFullBodyPalettePointerLists()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -184,6 +186,7 @@ internal static class FullBodyPalettePointerListsVerification
         }
     }
 
+    /// <summary>Asserts palette colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for full-body cycle palette colors")]
     private static void AssertPaletteColors(
@@ -197,6 +200,7 @@ internal static class FullBodyPalettePointerListsVerification
                 $"{context} CGRAM color {color} matches ROM");
     }
 
+    /// <summary>Full body palette pointer lists command.</summary>
     [VerificationCommand("--full-body-palette-pointer-lists")]
     internal static int FullBodyPalettePointerListsCommand()
     {

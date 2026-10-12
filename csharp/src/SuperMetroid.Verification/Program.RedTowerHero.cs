@@ -13,10 +13,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents red tower hero verification.</summary>
 internal static class RedTowerHeroVerification
 {
     // Isolates the real target/PLM interaction with deliberately controlled camera
     // coordinates. This is NOT a successful controller-only Red Tower climb.
+    /// <summary>Verifies controlled red tower hero shot.</summary>
     internal static void VerifyControlledRedTowerHeroShot()
     {
         SamusProjectileSpawnSnapshot? stationaryLaunch = null;
@@ -90,6 +92,7 @@ internal static class RedTowerHeroVerification
         }
     }
 
+    /// <summary>Red tower hero command.</summary>
     [VerificationCommand("--red-tower-hero")]
     internal static int RedTowerHeroCommand()
     {

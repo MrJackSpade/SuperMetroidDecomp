@@ -4,8 +4,11 @@ namespace SuperMetroid.Desktop;
 /// <summary>Observes queue drains without changing PCM, buffering, or device pacing.</summary>
 internal sealed class WaveOutQueueHealth
 {
+    /// <summary>Stores sync.</summary>
     private readonly Lock sync = new();
+    /// <summary>Stores observations.</summary>
     private long observations, emptyObservations;
+    /// <summary>Stores minimum.</summary>
     private int minimum = int.MaxValue, maximum;
 
     /// <summary>
@@ -26,6 +29,7 @@ internal sealed class WaveOutQueueHealth
         }
     }
 
+    /// <summary>Snapshot.</summary>
     internal WaveOutQueueHealthSnapshot Snapshot(int managedQueued)
     {
         lock (sync) return new(observations, emptyObservations, observations == 0 ? null : minimum,
@@ -33,5 +37,6 @@ internal sealed class WaveOutQueueHealth
     }
 }
 
+/// <summary>Represents wave out queue health snapshot.</summary>
 internal readonly record struct WaveOutQueueHealthSnapshot(long RefillObservations, long EmptyBeforeRefill,
     int? MinimumNativeQueued, int? MaximumNativeQueued, int ManagedQueued);

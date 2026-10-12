@@ -4,14 +4,18 @@ using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup sky chunk pointers verification.</summary>
 internal static class LookupSkyChunkPointersVerification
 {
+    /// <summary>verify land sky chunk pointers.</summary>
     internal static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land, RoomMainCallback.ScrollingSkyLand));
 
+    /// <summary>verify ocean sky chunk pointers.</summary>
     internal static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean, RoomMainCallback.ScrollingSkyOcean));
 
+    /// <summary>verify sky chunk pointers.</summary>
     private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table, RoomMainCallback callback)
     {
         ushort Original(int index) => ReadVerificationWord(rom, 0x880000 | (((int)table + 2 * index) & 0xffff));

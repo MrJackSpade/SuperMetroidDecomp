@@ -154,6 +154,7 @@ public static class PauseAudioSmokeTest
         }
     }
 
+    /// <summary>Seed crateria save.</summary>
     private static void SeedCrateriaSave(SuperMetroidAddressSpace bus)
     {
         var system = new Bank80SystemState();

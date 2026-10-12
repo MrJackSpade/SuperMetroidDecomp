@@ -7,6 +7,7 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>A reflection lookup site, formatted as repository file, line and source text.</summary>
 internal sealed record ReflectionSite(string File, int Line, string Text)
 {
+    /// <summary>To string.</summary>
     public override string ToString() => $"{File}\t{Line}\t{Text}";
 }
 
@@ -18,17 +19,22 @@ internal sealed record ReflectionSite(string File, int Line, string Text)
 /// </summary>
 internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph graph)
 {
+    /// <summary>Stores named lookups.</summary>
     private static readonly HashSet<string> NamedLookups =
         ["GetMethod", "GetProperty", "GetField", "GetConstructor", "GetMember", "GetEvent", "GetNestedType"];
+    /// <summary>Stores enumerations.</summary>
     private static readonly HashSet<string> Enumerations =
         ["GetMethods", "GetProperties", "GetFields", "GetConstructors", "GetMembers", "GetEvents", "GetNestedTypes"];
 
+    /// <summary>Gets unresolved sites.</summary>
     public HashSet<ReflectionSite> UnresolvedSites { get; } = [];
+    /// <summary>Gets enumeration sites.</summary>
     public HashSet<ReflectionSite> EnumerationSites { get; } = [];
 
     /// <summary>Identifier literals near lookups whose receiver type is unknown.</summary>
     public HashSet<(string Name, ReflectionSite Site)> CandidateNames { get; } = [];
 
+    /// <summary>Observe invocation.</summary>
     public void ObserveInvocation(SemanticModel model, InvocationExpressionSyntax invocation, IMethodSymbol method, string owner)
     {
         string container = method.ContainingType.ToDisplayString();
@@ -126,15 +132,20 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
         }
     }
 
+    /// <summary>Represents computed lookup.</summary>
     private sealed record ComputedLookup(INamedTypeSymbol? Receiver, HashSet<string> Literals, IParameterSymbol? NameParameter,
         ReflectionSite Site, string Owner);
 
+    /// <summary>Stores computed lookups.</summary>
     private readonly List<ComputedLookup> computedLookups = [];
+    /// <summary>Stores caller constants.</summary>
     private readonly HashSet<(string Parameter, string Value)> callerConstants = [];
 
+    /// <summary>Parameter key.</summary>
     private static string ParameterKey(IParameterSymbol parameter) =>
         $"{parameter.ContainingSymbol.OriginalDefinition.ToDisplayString()}#{parameter.Ordinal}";
 
+    /// <summary>Enumerated members.</summary>
     private static IEnumerable<ISymbol> EnumeratedMembers(INamedTypeSymbol type, string enumeration)
     {
         for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
@@ -152,6 +163,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
                     yield return member;
     }
 
+    /// <summary>Members named.</summary>
     private static IEnumerable<ISymbol> MembersNamed(INamedTypeSymbol type, string name)
     {
         for (INamedTypeSymbol? current = type; current is not null; current = current.BaseType)
@@ -159,7 +171,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
                 yield return member;
     }
 
-    /// <summary>typeof(T).Lookup(...) or value.GetType().Lookup(...); anything else is unknown.</summary>
+    /// <summary>Typeof(T).Lookup(...) or value.GetType().Lookup(...); anything else is unknown.</summary>
     private static INamedTypeSymbol? ReceiverType(SemanticModel model, InvocationExpressionSyntax invocation) =>
         invocation.Expression is not MemberAccessExpressionSyntax access ? null
         : access.Expression is TypeOfExpressionSyntax typeOf ? model.GetTypeInfo(typeOf.Type).Type as INamedTypeSymbol
@@ -167,6 +179,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
             ? model.GetTypeInfo(getType.Expression).Type as INamedTypeSymbol
         : null;
 
+    /// <summary>Enclosing literals.</summary>
     private static HashSet<string> EnclosingLiterals(SyntaxNode node)
     {
         var scope = node.Ancestors().FirstOrDefault(a => a is BaseMethodDeclarationSyntax or AccessorDeclarationSyntax
@@ -176,6 +189,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
             .Select(l => l.Token.ValueText).ToHashSet();
     }
 
+    /// <summary>Site.</summary>
     private ReflectionSite Site(SyntaxNode node) => new(identity.Relative(node.SyntaxTree.FilePath),
         node.GetLocation().GetLineSpan().StartLinePosition.Line + 1,
         string.Join(' ', node.ToString().Split(['\r', '\n', '\t'], StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim())));

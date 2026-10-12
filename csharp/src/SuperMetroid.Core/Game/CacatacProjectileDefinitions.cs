@@ -59,6 +59,7 @@ internal static class CacatacProjectileDefinitions
     }
 }
 
+/// <summary>Represents cacatac spike speed pair.</summary>
 internal readonly record struct CacatacSpikeSpeedPair(
     ushort Negative,
     ushort Positive);

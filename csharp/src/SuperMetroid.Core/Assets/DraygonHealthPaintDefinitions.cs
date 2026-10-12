@@ -9,8 +9,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class DraygonHealthPaintDefinitions
 {
+    /// <summary>Defines shades.</summary>
     private const int Shades = 4;
+    /// <summary>Defines bands.</summary>
     private const int Bands = 8;
+    /// <summary>Defines maximum.</summary>
     private const int Maximum = (1 << 5) - 1;
     /// <summary>
     /// $A5:96AF-96B6 (also normal palette slots9..12 at $A5:A289-A290):
@@ -22,8 +25,10 @@ internal sealed class DraygonHealthPaintDefinitions
     /// rule selecting alternate paint. Pixels and health thresholds are separate.
     /// </summary>
     private const int HealthyRedStep = 5, HealthyGreenStep = 6;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Initializes a new draygon health paint definitions instance.</summary>
     internal DraygonHealthPaintDefinitions(Bgr555[][] rows)
     {
         for (int band = 0; band < Bands; band++)
@@ -31,6 +36,7 @@ internal sealed class DraygonHealthPaintDefinitions
                 if (rows[band][shade] != Calculate(band, shade)) edits.Add(band * Shades + shade, rows[band][shade]);
     }
 
+    /// <summary>Color.</summary>
     internal Bgr555 Color(int band, int shade) => edits.TryGetValue(band * Shades + shade, out Bgr555 edited)
         ? edited : Calculate(band, shade);
 
@@ -57,6 +63,7 @@ internal sealed class DraygonHealthPaintDefinitions
         return Calculate(0, shade);
     }
 
+    /// <summary>Interpolate.</summary>
     private static int Interpolate(int first, int last, int band)
     {
         int delta = last - first;

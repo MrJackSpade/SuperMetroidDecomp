@@ -24,6 +24,7 @@ public sealed class SamusDrainedState
     // Controller zero and command `$17` both call LoadSamusSuitPalette immediately. The
     // runtime's software-CGRAM pass occurs later in the same frame, so this one-shot latch
     // preserves that ordering without passing a rendering device into movement commands.
+    /// <summary>Stores suit palette restore requested.</summary>
     private bool _suitPaletteRestoreRequested;
 
     /// <summary>Host-readable substitute for the active native pose/handler combination.</summary>
@@ -399,6 +400,7 @@ public sealed class SamusDrainedState
     /// <summary>Ends the Samus-side drain lock after release art reaches `$FD,$01/$02`.</summary>
     internal void CompleteRelease() => Phase = DrainedSamusPhase.Inactive;
 
+    /// <summary>Setup for rainbow beam.</summary>
     private void SetupForRainbowBeam(ISnesAddressSpace bus, SamusState samus)
     {
         Ensure.NotNull(bus);
@@ -416,6 +418,7 @@ public sealed class SamusDrainedState
         Phase = DrainedSamusPhase.RainbowBeamLocked;
     }
 
+    /// <summary>Clears base and vertical speed.</summary>
     private static void ClearBaseAndVerticalSpeed(SamusState samus)
     {
         samus.HorizontalSpeed.BaseSpeed = 0;

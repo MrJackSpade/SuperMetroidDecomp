@@ -12,6 +12,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM Ceres approach Mode-7 and OBJ graphics streams → Ceres flight artwork")]
 internal static class CeresFlightArtworkExtractor
 {
+    /// <summary>Extracts.</summary>
     [PpuLayoutBoundary("codec: native 512-byte CGRAM image of the Ceres flight palette")]
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {

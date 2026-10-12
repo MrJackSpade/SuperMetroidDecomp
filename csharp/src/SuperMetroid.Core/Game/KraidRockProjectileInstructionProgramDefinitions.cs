@@ -37,7 +37,9 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort SpitRockShotDelete = 0x9ca1;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 12;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 7;
 
     /// <summary>Two fixed poses end in Sleep. The shot sequence installs its
@@ -76,6 +78,7 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         RoomEnemyProjectileKind.KagoBug,
     ];
 
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) => OwnerKinds.Contains(kind) && kind switch
     {
         RoomEnemyProjectileKind.KraidSpitRock =>
@@ -87,6 +90,7 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"{kind} is not a Kraid rock owner."),
     };
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;
@@ -130,6 +134,7 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         RisingRight,
     }
 
+    /// <summary>Program of.</summary>
     private static FixedPoseProgram ProgramOf(FixedPoseCursor cursor) => cursor switch
     {
         FixedPoseCursor.SharedPose or FixedPoseCursor.SharedSleep => FixedPoseProgram.Shared,
@@ -137,15 +142,19 @@ internal abstract class KraidRockProjectileInstructionProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(FixedPoseCursor)} {(int)cursor}."),
     };
 
+    /// <summary>Checks whether an address is a fixed-pose cursor for the selected program.</summary>
     private static bool IsFixedPoseCursor(ushort address, FixedPoseProgram program) =>
         Enum.IsDefined((FixedPoseCursor)address) && ProgramOf((FixedPoseCursor)address) == program;
 
+    /// <summary>Checks whether an address belongs to the shared fixed-pose program.</summary>
     private static bool IsSharedProgramAddress(ushort address) =>
         IsFixedPoseCursor(address, FixedPoseProgram.Shared);
 
+    /// <summary>Checks whether an address belongs to the rising-right fixed-pose program.</summary>
     private static bool IsRisingRightProgramAddress(ushort address) =>
         IsFixedPoseCursor(address, FixedPoseProgram.RisingRight);
 
+    /// <summary>Checks whether an address is an odd word in the spit-rock shot program.</summary>
     private static bool IsSpitShotProgramAddress(ushort address) =>
         address >= SpitRockShot && address <= SpitRockShotDelete && (address & 1) != 0;
 }

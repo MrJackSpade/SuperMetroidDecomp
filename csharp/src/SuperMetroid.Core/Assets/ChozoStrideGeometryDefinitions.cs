@@ -30,6 +30,7 @@ internal static class ChozoStrideGeometryDefinitions
     private const int TransferFootX = -31, EarlySupportFootX = -28,
         LateSupportFootX = -14, PushOffFootX = -7;
 
+    /// <summary>support foot x.</summary>
     internal static int SupportFootX(int phase) => phase switch
     {
         0 => TransferFootX,
@@ -39,6 +40,7 @@ internal static class ChozoStrideGeometryDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(phase)),
     };
 
+    /// <summary>native pose identity.</summary>
     internal static int NativePoseIdentity(int pose)
     {
         if ((uint)pose >= 8) throw new ArgumentOutOfRangeException(nameof(pose));
@@ -49,6 +51,7 @@ internal static class ChozoStrideGeometryDefinitions
             (phase == 0 ? 0 : firstBytes + (phase - 1) * otherBytes);
     }
 
+    /// <summary>compile.</summary>
     internal static EnemySpritemapParts Compile(int identity, EnemySpritemapParts supplied)
     {
         int pose = 0;
@@ -80,20 +83,28 @@ internal static class ChozoStrideGeometryDefinitions
         return new FootParts(supplied, phase, left, right);
     }
 
+    /// <summary>Represents foot appearance.</summary>
     private readonly record struct FootAppearance(ushort XFlags, byte Y, SnesObjAttributeWord Attributes)
     {
+        /// <summary>from.</summary>
         internal static FootAppearance From(EnemySpritemapPart part) =>
             new((ushort)(part.X.Raw & ~0x1ff), part.Y, part.Attributes);
+        /// <summary>at.</summary>
         internal EnemySpritemapPart At(int x) =>
             new(new SnesSpritemapXWord((ushort)(XFlags | (x & 0x1ff))), Y, Attributes);
     }
 
+    /// <summary>Represents foot parts.</summary>
     private sealed class FootParts : EnemySpritemapParts
     {
+        /// <summary>Stores other parts.</summary>
         private readonly EnemySpritemapPart[] otherParts;
+        /// <summary>Stores left.</summary>
         private readonly FootAppearance left, right;
+        /// <summary>Stores phase.</summary>
         private readonly int phase, leftIndex, rightIndex;
 
+        /// <summary>Initializes a new foot parts instance.</summary>
         internal FootParts(EnemySpritemapParts supplied, int phase, int leftIndex, int rightIndex)
         {
             this.phase = phase;
@@ -106,7 +117,9 @@ internal static class ChozoStrideGeometryDefinitions
             for (int index = 0; index < supplied.Count; index++)
                 if (index != leftIndex && index != rightIndex) otherParts[output++] = supplied[index];
         }
+        /// <summary>Gets the number of items in this collection.</summary>
         public override int Count => otherParts.Length + 2;
+        /// <summary>Accesses a value by index or range.</summary>
         public override EnemySpritemapPart this[int index]
         {
             get

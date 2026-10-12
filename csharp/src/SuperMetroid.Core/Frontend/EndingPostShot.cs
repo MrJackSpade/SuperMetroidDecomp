@@ -6,19 +6,32 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Func139–142: rotate the shot graphic, fade Samus, and stage the final logo.</summary>
 internal sealed class EndingPostShot
 {
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores source palette.</summary>
     private readonly Bgr555[] sourcePalette;
+    /// <summary>Stores tiles.</summary>
     private byte[] tiles = [];
+    /// <summary>Stores map.</summary>
     private byte[] map = [];
+    /// <summary>Stores font.</summary>
     private readonly byte[] font;
+    /// <summary>Stores calls.</summary>
     private int calls;
+    /// <summary>Stores hold.</summary>
     private int hold;
+    /// <summary>Gets or sets scale.</summary>
     public int Scale { get; private set; } = EndingPostShotDefinitions.InitialScale;
+    /// <summary>Gets or sets angle.</summary>
     public byte Angle { get; private set; }
+    /// <summary>Gets or sets uploads.</summary>
     public int Uploads { get; private set; }
+    /// <summary>Gets or sets rotation finished.</summary>
     public bool RotationFinished { get; private set; }
+    /// <summary>Gets or sets ready for white flash.</summary>
     public bool ReadyForWhiteFlash { get; private set; }
 
+    /// <summary>Initializes a new ending post shot instance.</summary>
     public EndingPostShot(ISnesAddressSpace bus, SnesCgram cgram, EndingFontAtlas fontAtlas,
         EndingObjectArtworkCatalog? artwork = null)
     {
@@ -75,6 +88,7 @@ internal sealed class EndingPostShot
         }
     }
 
+    /// <summary>Step.</summary>
     public void Step(SnesVram vram, SnesCgram cgram)
     {
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
@@ -105,6 +119,7 @@ internal sealed class EndingPostShot
         }
     }
 
+    /// <summary>Applies fade.</summary>
     [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
     private void ApplyFade(SnesCgram cgram, int start, int elapsed)
     {
@@ -118,6 +133,7 @@ internal sealed class EndingPostShot
         }
     }
 
+    /// <summary>Upload.</summary>
     [PpuLayoutBoundary("codec: post-shot upload records' VMADD destinations")]
     private void Upload(SnesVram vram, int index)
     {

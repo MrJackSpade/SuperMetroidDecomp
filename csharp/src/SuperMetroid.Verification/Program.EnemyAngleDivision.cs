@@ -13,8 +13,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents enemy angle division verification.</summary>
 internal static class EnemyAngleDivisionVerification
 {
+    /// <summary>Verifies enemy angle division.</summary>
     internal static void VerifyEnemyAngleDivision()
     {
         AssertEqual(ushort.MaxValue, SnesUnsignedDivision.Quotient(0, 0), "Hardware zero-over-zero quotient");
@@ -30,6 +32,7 @@ internal static class EnemyAngleDivisionVerification
         }
     }
 
+    /// <summary>Enemy angle division command.</summary>
     [VerificationCommand("--enemy-angle-division")]
     internal static int EnemyAngleDivisionCommand()
     {

@@ -17,6 +17,7 @@ using static SamusRenderingFixtureVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus grapple verification.</summary>
 internal static class SamusGrappleVerification
 {
 
@@ -1173,6 +1174,7 @@ static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset1
 static void WriteGrappleSwingFrame(TestAddressSpace bus, byte angle, byte frame) =>
     WriteTestByte(bus, 0x9bc1c2 + angle, frame);
 
+    /// <summary>samus grapple command.</summary>
     [VerificationCommand("--samus-grapple")]
     internal static int SamusGrappleCommand()
     {

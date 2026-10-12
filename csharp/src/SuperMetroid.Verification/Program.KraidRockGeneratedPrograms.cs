@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidSmallProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid rock generated programs verification.</summary>
 internal static class KraidRockGeneratedProgramsVerification
 {
+    /// <summary>Verifies kraid rock mechanics mapping.</summary>
     internal static void VerifyKraidRockMechanicsMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidSmallMechanics), () => VerifyKraidSmallMechanics(rom,
             [0x9c7d, 0x9c81, 0x9c83, 0x9c87, 0x9c89, 0x9c8b, 0x9c8d, 0x9c91, 0x9c95, 0x9c99, 0x9c9d, 0x9ca1],
@@ -13,6 +15,7 @@ internal static class KraidRockGeneratedProgramsVerification
             KraidRockProjectileInstructionProgramDefinitions.ReadMechanicsWord,
             KraidRockProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, bank: 0x86));
 
+    /// <summary>Verifies kraid rock presentation mapping.</summary>
     internal static void VerifyKraidRockPresentationMapping() =>
         Suite(nameof(VerifyKraidSmallPresentation), () => VerifyKraidSmallPresentation([0x9c7f, 0x9c85, 0x9c8f, 0x9c93, 0x9c97, 0x9c9b, 0x9c9f],
             KraidRockProjectileInstructionProgramDefinitions.PresentationWordCount,

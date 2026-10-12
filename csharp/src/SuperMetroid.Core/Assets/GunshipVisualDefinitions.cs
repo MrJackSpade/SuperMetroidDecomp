@@ -22,6 +22,7 @@ internal static class GunshipVisualDefinitions
         Bottom = 0xaddd,
     }
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);

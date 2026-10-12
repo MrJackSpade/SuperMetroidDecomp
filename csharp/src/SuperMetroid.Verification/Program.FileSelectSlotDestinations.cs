@@ -15,8 +15,10 @@ using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents file select slot destinations verification.</summary>
 internal static class FileSelectSlotDestinationsVerification
 {
+    /// <summary>Verifies file select slot destinations.</summary>
     internal static void VerifyFileSelectSlotDestinations()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -75,9 +77,11 @@ internal static class FileSelectSlotDestinationsVerification
         }
     }
 
+    /// <summary>File select slot destinations rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot destinations")]
     private static byte FileSelectSlotDestinationsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies file select slot label sources.</summary>
     private static void VerifyFileSelectSlotLabelSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
     {
         int[][] loadInstructions = [[0x819f13, 0x819f46, 0x819f7c], [0x819636, 0x819666, 0x819696]];
@@ -94,9 +98,11 @@ internal static class FileSelectSlotDestinationsVerification
             AssertThrows<IndexOutOfRangeException>(() => FileSelectTilemaps.SlotLabel(invalid), "slot label source bounds");
     }
 
+    /// <summary>File select slot label sources rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot label sources")]
     private static byte FileSelectSlotLabelSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Lookup file select slot fields command.</summary>
     [VerificationCommand("--lookup-file-select-slot-fields")]
     internal static int LookupFileSelectSlotFieldsCommand()
     {

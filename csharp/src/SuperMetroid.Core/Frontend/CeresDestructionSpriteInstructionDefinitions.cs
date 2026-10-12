@@ -39,6 +39,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     /// <summary>$8B:CE35, exclusive end before the spawner's separate program.</summary>
     internal const ushort StationBlastEnd = 0xce35;
 
+    /// <summary>Loop byte.</summary>
     private static byte LoopByte(int offset, ushort start, ushort frame)
     {
         ushort word = (offset / 2) switch
@@ -52,6 +53,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Title byte.</summary>
     private static byte TitleByte(int offset)
     {
         ushort word = (offset / 2) switch
@@ -72,6 +74,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Star sheet byte.</summary>
     private static byte StarSheetByte(int offset)
     {
         int quadrant = offset / 8;
@@ -85,6 +88,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         };
         return LoopByte(offset % 8, (ushort)(StarSheetsStart + quadrant * 8), frame);
     }
+    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= LargeAsteroidStart and < LargeAsteroidEnd)
@@ -109,17 +113,27 @@ internal static class CeresDestructionSpriteInstructionDefinitions
     /// <summary>Exclusive ends of the compiled lists a word read must not straddle.</summary>
     private enum ListEnd
     {
+        /// <summary>Identifies large asteroid.</summary>
         LargeAsteroid,
+        /// <summary>Identifies rear cluster.</summary>
         RearCluster,
+        /// <summary>Identifies planet.</summary>
         Planet,
+        /// <summary>Identifies title.</summary>
         Title,
+        /// <summary>Identifies initial explosion.</summary>
         InitialExplosion,
+        /// <summary>Identifies repeating explosion.</summary>
         RepeatingExplosion,
+        /// <summary>Identifies explosions.</summary>
         Explosions,
+        /// <summary>Identifies star sheets.</summary>
         StarSheets,
+        /// <summary>Identifies station blast.</summary>
         StationBlast,
     }
 
+    /// <summary>Address of.</summary>
     private static ushort AddressOf(ListEnd end) => end switch
     {
         ListEnd.LargeAsteroid => LargeAsteroidEnd,
@@ -134,8 +148,10 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(ListEnd)} {(int)end}."),
     };
 
+    /// <summary>Stores list ends.</summary>
     private static readonly ListEnd[] ListEnds = Enum.GetValues<ListEnd>();
 
+    /// <summary>Checks whether the instruction pointer marks the end of the list.</summary>
     private static bool IsListEnd(ushort address)
     {
         foreach (ListEnd end in ListEnds)
@@ -143,6 +159,7 @@ internal static class CeresDestructionSpriteInstructionDefinitions
         return false;
     }
 
+    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         ushort next = unchecked((ushort)(pointer + 1));

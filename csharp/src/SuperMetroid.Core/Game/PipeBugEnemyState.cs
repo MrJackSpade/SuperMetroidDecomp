@@ -65,8 +65,10 @@ public enum PipeBugEnemyFunction : ushort
 /// </summary>
 public sealed class PipeBugEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new pipe bug enemy state instance.</summary>
     internal PipeBugEnemyState(RoomEnemySlot slot)
     {
         _slot = slot;

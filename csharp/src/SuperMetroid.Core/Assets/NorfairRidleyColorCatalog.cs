@@ -23,15 +23,19 @@ public sealed class NorfairRidleyColorCatalog
             content.AppendColorFrames("reveal", revealWords);
         });
 
+    /// <summary>Stores initial.</summary>
     private readonly NorfairRidleyInitialPaintDefinitions initial;
+    /// <summary>Stores reveal.</summary>
     private readonly NorfairRidleyRevealPaintDefinitions reveal;
 
+    /// <summary>Initializes a new norfair ridley color catalog instance.</summary>
     private NorfairRidleyColorCatalog(Bgr555[] initial, Bgr555[][] reveal)
     {
         this.initial = new(initial);
         this.reveal = new(reveal);
     }
 
+    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -106,6 +110,7 @@ public sealed class NorfairRidleyColorCatalog
         return bytes;
     }
 
+    /// <summary>compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[] colors, string label)
     {
         var words = new Bgr555[colors.Length];
@@ -120,6 +125,7 @@ public sealed class NorfairRidleyColorCatalog
         return words;
     }
 
+    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate Norfair Ridley color property."));

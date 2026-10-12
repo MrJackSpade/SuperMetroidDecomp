@@ -15,9 +15,11 @@ internal static class IntroBabyDiscoveryInputDefinitions
     /// <summary>$91:8784, exclusive end of the SR388 demo object definition.</summary>
     internal const ushort HeaderEnd = 0x8784;
 
+    /// <summary>Input word.</summary>
     private static ushort InputWord(int field, ushort duration, SnesButton held = 0, bool press = false) =>
         field == 0 ? duration : field == 1 || press ? (ushort)held : (ushort)0;
 
+    /// <summary>List word.</summary>
     private static ushort ListWord(int word)
     {
         if (word < 9)
@@ -49,6 +51,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
         };
     }
 
+    /// <summary>Header word.</summary>
     private static ushort HeaderWord(int word) => word switch
     {
         0 => DemoInputRomData.Routines.NoOp,
@@ -57,6 +60,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(word)),
     };
 
+    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         int offset;
@@ -76,6 +80,7 @@ internal static class IntroBabyDiscoveryInputDefinitions
         return (byte)(word >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is >= ListStart and < (ListEnd - 1) or >= HeaderStart and < (HeaderEnd - 1))

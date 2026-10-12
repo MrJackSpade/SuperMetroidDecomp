@@ -11,11 +11,13 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents vertical off screen deletion verification.</summary>
 internal static class VerticalOffScreenDeletionVerification
 {
     // #1269: $86:B5B9 keeps n00b-tube shards above the camera and until they are $120
     // pixels below its top row. The port deleted them at $100, removing a 100% movie shard
     // while native still advanced it.
+    /// <summary>verify vertical off screen deletion.</summary>
     internal static void VerifyVerticalOffScreenDeletion()
     {
         const ushort cameraY = 0x100;
@@ -37,6 +39,7 @@ internal static class VerticalOffScreenDeletionVerification
         }
     }
 
+    /// <summary>vertical offscreen deletion command.</summary>
     [VerificationCommand("--vertical-offscreen-deletion")]
     internal static int VerticalOffscreenDeletionCommand()
     {

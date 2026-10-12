@@ -16,8 +16,10 @@ using static ColorWordsVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents frontend verification.</summary>
 internal static class FrontendVerification
 {
+/// <summary>Verifies lo rom cross bank compressed data.</summary>
 [CpuBusBoundary("exact bus test: LoROM cross-bank traversal of a compressed stream over a constructed cartridge")]
 internal static void VerifyLoRomCrossBankCompressedData()
 {
@@ -39,6 +41,7 @@ internal static void VerifyLoRomCrossBankCompressedData()
     AssertEqual(0x44, output[3], "cross-bank final literal");
 }
 
+/// <summary>Verifies mode7 rendering.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyMode7Rendering()
 {
@@ -118,6 +121,7 @@ internal static void VerifyMode7Rendering()
         "Ceres Ridley scanline 208 restores Mode-1 BG2 floor");
 }
 
+/// <summary>Verifies layer compositor backdrop.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyLayerCompositorBackdrop()
 {
@@ -141,6 +145,7 @@ internal static void VerifyLayerCompositorBackdrop()
     AssertEqual(cgram.GetRgba(1), frame[1], "non-keyed pixel replaces backdrop");
 }
 
+/// <summary>Verifies bg priority plane rendering.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
 internal static void VerifyBgPriorityPlaneRendering()
 {
@@ -166,6 +171,7 @@ internal static void VerifyBgPriorityPlaneRendering()
     AssertEqual(255, high[8].A, "high-priority BG cell selected");
 }
 
+/// <summary>Verifies file select fresh save tilemap.</summary>
 internal static void VerifyFileSelectFreshSaveTilemap()
 {
     var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling
@@ -396,6 +402,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     Console.WriteLine("  SRAM/file select: slots, COPY/CLEAR, checksums, NO DATA, ENERGY, and TIME agree.");
 }
 
+/// <summary>Advances file select to main.</summary>
 static void AdvanceFileSelectToMain(FileSelectMenuState menu)
 {
     // Native indices 0-2 take five updates (two are NMI continuations), then index
@@ -407,6 +414,7 @@ static void AdvanceFileSelectToMain(FileSelectMenuState menu)
     AssertEqual(FileSelectPhase.Main, menu.Phase, "file-select fade reaches main menu on its 35th update");
 }
 
+/// <summary>Advances file select fade.</summary>
 static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expected)
 {
     // Delay-one native fades: thirty updates out, thirty back in. The data-management
@@ -416,12 +424,14 @@ static void AdvanceFileSelectFade(FileSelectMenuState menu, FileSelectPhase expe
     AssertEqual(expected, menu.Phase, "file-select data-management fade completes");
 }
 
+/// <summary>Pulse file select.</summary>
 static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
 {
     menu.Step((ushort)button);
     menu.Step(0);
 }
 
+/// <summary>Verifies saved game load appearance.</summary>
 internal static void VerifySavedGameLoadAppearance()
 {
     string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -499,6 +509,7 @@ internal static void VerifySavedGameLoadAppearance()
         "  Saved-game appearance: front pose, ROM palette FX, 360-frame lifetime, and save lockout agree.");
 }
 
+/// <summary>Verifies intro gameplay flashback vertical scroll.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 {
@@ -528,6 +539,7 @@ internal static void VerifyIntroGameplayFlashbackVerticalScroll()
     Console.WriteLine("  Intro: Mother Brain and SR388 BG1 retain the native eight-pixel vertical scroll.");
 }
 
+/// <summary>Verifies cinematic palette fader.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
 internal static void VerifyCinematicPaletteFader()
 {
@@ -565,6 +577,7 @@ internal static void VerifyCinematicPaletteFader()
     AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
 }
 
+/// <summary>Verifies demo input object.</summary>
 internal static void VerifyDemoInputObject()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -696,9 +709,11 @@ internal static void VerifyDemoInputObject()
     Console.WriteLine("  Demo input: records, edges, shared opcodes, special dispatch, and deletion agree.");
 }
 
+/// <summary>Reads demo fixture word.</summary>
 [CpuBusBoundary("exact bus test: retail and constructed cartridge oracle for bank-$91 demo-input object and instruction words")]
 internal static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
     CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
+/// <summary>Writes rom word.</summary>
 internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
@@ -709,12 +724,16 @@ internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 /// <summary>A demo owner whose one private routine ($8739) disables the object and continues (#633).</summary>
 internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
 {
+    /// <summary>Gets or sets calls.</summary>
     public int Calls { get; private set; }
 
+    /// <summary>Reads instruction word.</summary>
     public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
 
+    /// <summary>Attempts to run pre instruction.</summary>
     public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
 
+    /// <summary>Runs special instruction.</summary>
     public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor)
     {
         AssertEqual(0x8739, opcode, "demo special instruction pointer");
@@ -724,12 +743,14 @@ internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDem
     }
 }
 
+    /// <summary>Demo input fixture command.</summary>
     [VerificationCommand("--demo-input-fixture")]
     internal static int DemoInputFixtureCommand()
     {
      VerifyDemoInputObject(); return 0; 
     }
 
+    /// <summary>File select fresh save command.</summary>
     [VerificationCommand("--file-select-fresh-save")]
     internal static int FileSelectFreshSaveCommand()
     {
@@ -737,6 +758,7 @@ internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDem
         return 0;
     }
 
+    /// <summary>Demo input object command.</summary>
     [VerificationCommand("--demo-input-object")]
     internal static int DemoInputObjectCommand()
     {

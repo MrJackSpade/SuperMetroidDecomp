@@ -12,11 +12,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Input;
 
+/// <summary>Represents xray window geometry verification.</summary>
 internal static class XrayWindowGeometryVerification
 {
     // Per-pixel reference raster, refilled for every scroll the interval check compares.
+    /// <summary>Stores xray geometry reference.</summary>
     internal static readonly Rgba32[] xrayGeometryReference = new Rgba32[256 * 224];
 
+    /// <summary>Verifies xray window geometry.</summary>
     internal static void VerifyXrayWindowGeometry()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -34,6 +37,7 @@ internal static class XrayWindowGeometryVerification
         }
         Console.WriteLine("  X-ray intervals: standing/crouching, both facings, widening, aim sweep and clipped origins match per-pixel reference.");
     }
+    /// <summary>Verifies xray window geometry.</summary>
     internal static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus, Rgba32[] reference)
     {
         if (samus.Xray.SetupStage != XraySetupStage.Complete || samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return;
@@ -56,6 +60,7 @@ internal static class XrayWindowGeometryVerification
         }
     }
 
+    /// <summary>Xray window geometry command.</summary>
     [VerificationCommand("--xray-window-geometry")]
     internal static int XrayWindowGeometryCommand()
     {

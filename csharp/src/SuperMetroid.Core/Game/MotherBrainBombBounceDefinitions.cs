@@ -13,9 +13,12 @@ internal static class MotherBrainBombBounceDefinitions
     /// <summary>The ordinary fall gravity, also used before the first bounce.</summary>
     internal const ushort FallAcceleration = 0x0007;
 
+    /// <summary>Stores growth unit.</summary>
     private const int GrowthUnit = 16;
+    /// <summary>Stores maximum growth steps.</summary>
     private const int MaximumGrowthSteps = 4;
 
+    /// <summary>Yacceleration.</summary>
     internal static ushort YAcceleration(int stage)
     {
         if ((uint)stage >= StageCount) throw new ArgumentOutOfRangeException(nameof(stage));

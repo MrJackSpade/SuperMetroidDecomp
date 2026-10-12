@@ -13,12 +13,14 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents botwoon position history verification.</summary>
 internal static class BotwoonPositionHistoryVerification
 {
     // #1269: InitAI_Botwoon seeds only the four delayed head positions. Its position
     // history ($7E:9000-$93FF) lies in the range Initialise_Enemies zeroes, so the body
     // segments' first placements read (0,0); the port seeded it with the head position.
     // Its hidden/dying head sets property $0400, which the port had mistranslated as $8000.
+    /// <summary>verify botwoon position history.</summary>
     internal static void VerifyBotwoonPositionHistory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -51,6 +53,7 @@ internal static class BotwoonPositionHistoryVerification
         Console.WriteLine("Botwoon position history and collision bit: ring starts zeroed; $0400 hides the head.");
     }
 
+    /// <summary>botwoon position history command.</summary>
     [VerificationCommand("--botwoon-position-history")]
     internal static int BotwoonPositionHistoryCommand()
     {

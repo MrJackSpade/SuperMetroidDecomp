@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed palette-domain closure proofs; no boss AI or palette timing is run.</summary>
 internal static class BossColorClosedContractDefinitions
 {
+    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.BeamPaletteCatalog", "beam-palettes-v1-twelve-selections", ["LoadTo"],

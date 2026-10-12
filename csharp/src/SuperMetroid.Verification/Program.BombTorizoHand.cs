@@ -20,6 +20,7 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents bomb torizo hand verification.</summary>
 internal static class BombTorizoHandVerification
 {
     /// <summary>
@@ -164,6 +165,7 @@ internal static class BombTorizoHandVerification
             "  Bomb Torizo hand: inventory gate, DMA, debris cadence, music, and deletion agree.");
     }
 
+    /// <summary>Verifies bomb torizo hand program definitions.</summary>
     private static void VerifyBombTorizoHandProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -182,6 +184,7 @@ internal static class BombTorizoHandVerification
         Suite(nameof(VerifyHandProgramTransferDestination), () => VerifyHandProgramTransferDestination(rom));
     }
 
+    /// <summary>Creates bomb torizo hand program read guard.</summary>
     private static CartridgeReadGuard NewBombTorizoHandProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
                 address is >= 0x84d368 and <= 0x84d3c6 or >= 0x849877 and <= 0x8498d0,
@@ -226,6 +229,7 @@ internal static class BombTorizoHandVerification
         ]);
     }
 
+    /// <summary>Bomb torizo hand plm program command.</summary>
     [VerificationCommand("--bomb-torizo-hand-plm-program")]
     internal static int BombTorizoHandPlmProgramCommand()
     {

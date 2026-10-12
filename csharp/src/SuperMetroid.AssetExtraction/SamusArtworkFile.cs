@@ -7,10 +7,13 @@ namespace SuperMetroid.AssetExtraction;
 /// <summary>Retains the exact selected Samus filename across hash, JSON and codec admission.</summary>
 internal sealed record SamusArtworkFile(string Path, byte[] Bytes)
 {
+    /// <summary>Defines diagnostic path key.</summary>
     private const string DiagnosticPathKey = "SuperMetroid.SamusArtworkFile.Path";
 
+    /// <summary>read.</summary>
     internal static SamusArtworkFile Read(string path) => new(path, File.ReadAllBytes(path));
 
+    /// <summary>stock.</summary>
     internal static SamusArtworkFile Stock(string path, string expectedHash)
     {
         SamusArtworkFile file = Read(path);
@@ -23,6 +26,7 @@ internal sealed record SamusArtworkFile(string Path, byte[] Bytes)
         });
     }
 
+    /// <summary>select.</summary>
     internal SamusArtworkFile Select(string? overrideDirectory)
     {
         string? replacement = overrideDirectory is null ? null :
@@ -30,15 +34,18 @@ internal sealed record SamusArtworkFile(string Path, byte[] Bytes)
         return replacement is not null && File.Exists(replacement) ? Read(replacement) : this;
     }
 
+    /// <summary>json.</summary>
     internal T Json<T>(JsonSerializerOptions options) => Compile(stream =>
         JsonAssetDocument.Read<T>(stream, options, $"Samus artwork {Path}"));
 
+    /// <summary>compile.</summary>
     internal T Compile<T>(Func<Stream, T> compile) => WithContext(() =>
     {
         using var stream = new MemoryStream(Bytes, writable: false);
         return compile(stream);
     });
 
+    /// <summary>with context.</summary>
     internal T WithContext<T>(Func<T> compile)
     {
         try { return compile(); }

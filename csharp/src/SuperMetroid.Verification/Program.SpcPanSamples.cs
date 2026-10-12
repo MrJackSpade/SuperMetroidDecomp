@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents spc pan samples verification.</summary>
 internal static class SpcPanSamplesVerification
 {
+    /// <summary>verify spc pan samples.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan samples")]
     internal static void VerifySpcPanSamples(ISnesAddressSpace rom)
     {

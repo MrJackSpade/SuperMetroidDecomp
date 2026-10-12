@@ -16,6 +16,7 @@ internal static class SamusBodyFrameDefinitions
     internal static int NormalFrameCount => FrameExtent(SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose);
     /// <summary>$92:DD18/DD20/DD28/DD30/DD48/DD50/DEB0/DEB8: the shared jump/fall sequences contain two records; the count derives from the adjacent named allocation.</summary>
     internal static int JumpFrameCount => FrameExtent(SamusPoseId.NormalJumpAimDownRightPose, SamusPoseId.NormalJumpAimDownLeftPose);
+    /// <summary>frame extent.</summary>
     private static int FrameExtent(SamusPoseId first, SamusPoseId next) => (SamusBodyPoseDefinitions.DefaultFrameList(next) - SamusBodyPoseDefinitions.DefaultFrameList(first)) / 4;
 
     /// <summary>
@@ -70,14 +71,17 @@ internal static class SamusBodyFrameDefinitions
     }
     // Resolved once: the alias walk is a pure function of the component index, so render-time
     // lookups never rebuild its pose tables or closures.
+    /// <summary>Stores source components.</summary>
     private static readonly int[] sourceComponents = ResolveSourceComponents();
 
+    /// <summary>source component.</summary>
     internal static int SourceComponent(int index)
     {
         if ((uint)index >= (uint)sourceComponents.Length) throw new ArgumentOutOfRangeException(nameof(index));
         return sourceComponents[index];
     }
 
+    /// <summary>resolve source components.</summary>
     private static int[] ResolveSourceComponents()
     {
         var components = new int[SamusBodyArtworkCatalog.FrameCount * 4];
@@ -96,6 +100,7 @@ internal static class SamusBodyFrameDefinitions
         return components;
     }
 
+    /// <summary>source step.</summary>
     private static int SourceStep(int index)
     {
         if ((uint)index >= SamusBodyArtworkCatalog.FrameCount * 4) throw new ArgumentOutOfRangeException(nameof(index));

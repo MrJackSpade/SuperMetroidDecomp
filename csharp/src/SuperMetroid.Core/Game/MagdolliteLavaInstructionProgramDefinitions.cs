@@ -16,7 +16,9 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_MagdolliteFlame</c> at $86:DFE4.</summary>
     internal const ushort Shot = 0xdfe4;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 7;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Each facing displays a one-tick pose then sleeps; being shot spawns drops and deletes.</summary>
@@ -39,12 +41,14 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitions
         return new((ushort)(Shot + 2 * (index - 4)), command);
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Left + 6 * index + 2);
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

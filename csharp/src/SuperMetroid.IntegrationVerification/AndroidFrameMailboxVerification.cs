@@ -1,8 +1,10 @@
 using SuperMetroid.Android;
 using SuperMetroid.Core.Assets;
 
+/// <summary>Represents android frame mailbox verification.</summary>
 internal static class AndroidFrameMailboxVerification
 {
+    /// <summary>Runs.</summary>
     public static void Run()
     {
         var mailbox = new AndroidFrameMailbox(2);

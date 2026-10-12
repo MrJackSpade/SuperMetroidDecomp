@@ -1,15 +1,20 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave combo steps with the Spacetime palette copy tail.</summary>
 internal sealed class BeamCombos
 {
+    /// <summary>Stores animation.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Stores charge.</summary>
     private readonly BeamChargeState _charge;
+    /// <summary>Stores slot table.</summary>
     private readonly ProjectileSlotTable _slotTable;
+    /// <summary>Stores trails.</summary>
     private readonly ProjectileTrails _trails;
 
+    /// <summary>Initializes a new beam combos instance.</summary>
     internal BeamCombos(ProjectileAnimation animation, BeamChargeState charge, ProjectileSlotTable slotTable, ProjectileTrails trails)
     {
         _animation = animation;
@@ -98,6 +103,7 @@ internal sealed class BeamCombos
         return activated;
     }
 
+    /// <summary>initialize combo data.</summary>
     internal static void InitializeComboData(SamusProjectileSlot slot, bool ordinary, bool echo)
     {
         int table = ordinary ? SamusProjectileRomData.Beams.ChargedDataPointers :
@@ -322,9 +328,11 @@ internal sealed class BeamCombos
         return 0;
     }
 
+    /// <summary>advance spazer angle.</summary>
     private static void AdvanceSpazerAngle(SamusProjectileSlot slot) =>
         slot.Variable = unchecked((byte)(slot.Variable + slot.Velocity.Y.SignedRawValue));
 
+    /// <summary>begin spazer fall.</summary>
     private static void BeginSpazerFall(SamusProjectileSlot slot)
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (slot.SlotIndex < 2 ? 16 : -16))));
@@ -376,6 +384,7 @@ internal sealed class BeamCombos
         return slot.SlotIndex == 3 && (oldXSpeed < 0) != (slot.Velocity.X.SignedRawValue < 0) ? SamusComboRomData.WavePulseSound : (ushort)0;
     }
 
+    /// <summary>accelerate wave axis.</summary>
     private static short AccelerateWaveAxis(short speed, short targetDelta)
     {
         if (targetDelta < 0)

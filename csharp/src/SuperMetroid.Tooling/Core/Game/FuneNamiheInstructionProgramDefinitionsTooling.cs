@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(FuneNamiheInstructionProgramDefinitions))]
 internal abstract class FuneNamiheInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 62;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 38;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -27,6 +30,7 @@ internal abstract class FuneNamiheInstructionProgramDefinitionsTooling : IInstru
             (namihe ? 52 : 48) * (speciesIndex / wordsPerFacing) + offset);
         return new(address, FuneNamiheInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -38,6 +42,7 @@ internal abstract class FuneNamiheInstructionProgramDefinitionsTooling : IInstru
         return (ushort)((namihe ? FuneNamiheInstructionProgramDefinitions.NamiheIdleLeft : FuneNamiheInstructionProgramDefinitions.FuneIdleLeft) +
             (namihe ? 52 : 48) * (speciesIndex / frames) + offset);
     }
+    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;

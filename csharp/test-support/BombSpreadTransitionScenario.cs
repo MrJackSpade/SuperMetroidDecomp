@@ -12,20 +12,28 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class BombSpreadTransitionScenario
 {
+    /// <summary>Stores trace header.</summary>
     internal const string TraceHeader = "left,delay,frame,input,pose,x,xsub,y,ysub,charge,spread,bombs";
 
+    /// <summary>Gets or sets left.</summary>
     internal bool Left { get; }
+    /// <summary>Gets or sets wall route.</summary>
     internal bool WallRoute { get; }
+    /// <summary>Gets or sets timing case.</summary>
     internal int TimingCase { get; }
     /// <summary>Frames the timed release or morph is late; wall cases 10..13 are the 40..43 controls.</summary>
     internal int Delay { get; }
+    /// <summary>Gets or sets runtime.</summary>
     internal SuperMetroidRuntime Runtime { get; }
+    /// <summary>Gets or sets samus.</summary>
     internal SamusState Samus => Runtime.Player.Samus!;
+    /// <summary>Gets or sets frame count.</summary>
     internal int FrameCount => WallRoute ? 300 : 260;
 
     /// <summary>Timing cases per direction: ten delays, plus the wall route's late-success and two negative controls.</summary>
     internal static int TimingCaseCount(bool wallRoute) => wallRoute ? 14 : 10;
 
+    /// <summary>Initializes a new bomb spread transition scenario instance.</summary>
     internal BombSpreadTransitionScenario(SuperMetroidRuntime runtime, ISnesAddressSpace bus, bool left, int timingCase, bool wallRoute)
     {
         (Runtime, Left, TimingCase, WallRoute) = (runtime, left, timingCase, wallRoute);

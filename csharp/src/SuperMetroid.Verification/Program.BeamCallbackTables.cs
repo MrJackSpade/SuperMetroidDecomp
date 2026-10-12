@@ -16,8 +16,10 @@ using SuperMetroid.Core.Spatial;
 using static BeamSpeedRowsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents beam callback tables verification.</summary>
 internal static class BeamCallbackTablesVerification
 {
+    /// <summary>verify beam callback tables.</summary>
     internal static void VerifyBeamCallbackTables(bool initializeOnly = false)
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -90,6 +92,7 @@ internal static class BeamCallbackTablesVerification
             "Beam callback definitions: all 32 low-nibble words and 24 production firing paths pass with both source ranges forbidden.");
     }
 
+    /// <summary>beam callback tables command.</summary>
     [VerificationCommand("--beam-callback-tables")]
     internal static int BeamCallbackTablesCommand()
     {

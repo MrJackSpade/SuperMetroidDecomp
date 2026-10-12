@@ -7,8 +7,10 @@ using SuperMetroid.Core.Input;
 using static GameOptionsCursorPhasesVerification;
 using static MapPresentationVerification;
 
+/// <summary>Represents game options presentation verification.</summary>
 internal static class GameOptionsPresentationVerification
 {
+    /// <summary>Verifies game options presentation assets.</summary>
     internal static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

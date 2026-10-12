@@ -41,6 +41,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions
     /// <summary><c>RTS_AADAE4</c>, the first adjacent code routine at $AA:DAE4.</summary>
     internal const ushort FirstAdjacentCodeRoutine = 0xdae4;
 
+    /// <summary>Stores presentation operand.</summary>
     internal const int PresentationOperand = -1;
     /// <summary>$AA:D9EC/D9F4: total dormant attack duration shared by the saw pieces. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort AttackTicks = 576;
@@ -62,6 +63,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions
     private const ushort FirstFacingTicks = 0x0774;
     /// <summary>$AA:DA8E/DAA2: final one-tick waits before head-program fallthrough; independent scheduling choice. Reviewed under #1165 as authored action timing: the interpreter loads it into the instruction timer; relationships around it stay calculated and no simulation quantity derives the magnitude.</summary>
     private const ushort HeadFallthroughTicks = 1;
+    /// <summary>Indicates whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         if (address is >= SawHandPrimaryPiece and < ArmPieceAttackBack)
@@ -72,12 +74,14 @@ internal abstract class ShaktoolInstructionProgramDefinitions
         return address == ArmPieceNormal + 2 || address >= HeadAimingLeft && address < FirstAdjacentCodeRoutine &&
             ((address - HeadAimingLeft) & 7) == 2;
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address < SawHandAttackPrimaryPiece || address >= FirstAdjacentCodeRoutine || (address & 1) != 0 || IsPresentationWord(address))
             throw new InvalidDataException($"Shaktool instruction mechanics pointer $AA:{address:X4} is not compiled.");
         return (ushort)ProgramWord(address);
     }
+    /// <summary>Program word.</summary>
     internal static int ProgramWord(ushort address)
     {
         if (address < SawHandPrimaryPiece)
@@ -155,6 +159,7 @@ internal abstract class ShaktoolInstructionProgramDefinitions
         aiming.Goto(facing);
         return aiming.Value;
     }
+    /// <summary>Bob.</summary>
     private static void Bob(ref WordSelector writer, int inwardLayer)
     {
         ushort lead = (ushort)(inwardLayer * BobStaggerTicks);
@@ -164,16 +169,24 @@ internal abstract class ShaktoolInstructionProgramDefinitions
         writer.Command((ushort)ShaktoolInstruction.Instruction_Shaktool_Raise1Pixel);
         if (lead != 0) writer.Wait(lead);
     }
+    /// <summary>Represents word selector.</summary>
     private struct WordSelector(ushort address, ushort start)
     {
+        /// <summary>Stores remaining.</summary>
         private int remaining = (address - start) / 2;
 
+        /// <summary>Gets value.</summary>
         public int Value { get => field == int.MinValue
             ? throw new InvalidOperationException("Shaktool semantic program shape is incomplete.") : field; private set; } = int.MinValue;
+        /// <summary>Command.</summary>
         public void Command(ushort command) => Emit(command);
+        /// <summary>Timed.</summary>
         public void Timed(ushort duration) { Emit(duration); Emit(PresentationOperand); }
+        /// <summary>Wait.</summary>
         public void Wait(ushort duration) { Emit((ushort)CommonEnemyInstruction.WaitFrames); Emit(duration); }
+        /// <summary>Goto.</summary>
         public void Goto(ushort target) { Emit((ushort)CommonEnemyInstruction.Goto); Emit(target); }
+        /// <summary>Emits.</summary>
         private void Emit(int value) { if (remaining-- == 0) Value = value; }
     }
 }

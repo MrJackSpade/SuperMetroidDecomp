@@ -10,6 +10,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM attract-demo room, equipment and Samus-setup set tables → AttractDemoScene")]
 internal static class AttractDemoSceneImporter
 {
+    /// <summary>Reads.</summary>
     public static AttractDemoScene? Read(ISnesAddressSpace bus, int set, int scene)
     {
         Ensure.NotNull(bus);
@@ -42,6 +43,7 @@ internal static class AttractDemoSceneImporter
             Equipment(AttractDemoRomDataEquipmentFields.EquippedBeams), Equipment(AttractDemoRomDataEquipmentFields.InputObject));
     }
 
+    /// <summary>Records address.</summary>
     private static int RecordAddress(int bank, int list, int scene, int stride)
     {
         long offset = list + (long)scene * stride;

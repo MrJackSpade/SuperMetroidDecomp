@@ -15,12 +15,14 @@ internal abstract class VerticalShutterInstructionProgramDefinitions
     /// <summary>True only for the plain vertical shutter, not the Kamer platform loop.</summary>
     internal static bool IsPlainShutterPresentationWord(ushort address) => address == Plain + 2;
 
+    /// <summary>Checks whether kamer presentation word.</summary>
     internal static bool IsKamerPresentationWord(ushort address)
     {
         int offset = address - (KamerPlatform + 2);
         return (uint)offset < 16 && offset % 4 == 0;
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == Plain) return 1;

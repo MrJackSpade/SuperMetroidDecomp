@@ -34,6 +34,7 @@ public static class XrayRevealOverlays
             Write(level, tilemap, tile.Word, tile.Block, layer1Position);
     }
 
+    /// <summary>Write.</summary>
     private static void Write(RoomLevelData level, Span<ushort> tilemap, ushort word, Position16<RoomBlocks> block,
         Position16<RoomPixels> layer1Position)
     {

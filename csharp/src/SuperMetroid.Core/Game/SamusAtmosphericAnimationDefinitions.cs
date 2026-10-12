@@ -16,6 +16,7 @@ internal static class SamusLiquidDamageDefinitions
 /// <summary>Calculated uniform/progressive frame cadence with narrowly retained original atmospheric exposure choreography. These selected animation holds are not a fluid or damage integration law.</summary>
 internal static class SamusAtmosphericAnimationDefinitions
 {
+    /// <summary>Represents effect type.</summary>
     private enum EffectType : byte
     {
         /// <summary>$90:8BA5, AtmosphericGraphics_1_FootstepSplashes.</summary>

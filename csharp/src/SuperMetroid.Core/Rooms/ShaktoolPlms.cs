@@ -1,13 +1,16 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Shaktool's room controller PLM and the pre-instruction that follows Shaktool's digging.</summary>
 internal sealed class ShaktoolPlms
 {
+    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Initializes a new shaktool plms instance.</summary>
     internal ShaktoolPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;
@@ -35,6 +38,7 @@ internal sealed class ShaktoolPlms
         return false;
     }
 
+    /// <summary>run shaktool room pre instruction.</summary>
     internal void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
         ushort powerBombExplosionStatus)
     {

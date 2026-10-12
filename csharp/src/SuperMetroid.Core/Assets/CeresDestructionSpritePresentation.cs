@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions unique to the station blast and Zebes reveal.</summary>
 public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(CeresDestructionSpritePresentation), frames);
 
+    /// <summary>Initializes a new ceres destruction sprite presentation instance.</summary>
     private CeresDestructionSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -99,6 +101,7 @@ internal sealed class CeresSceneSpritePresentation(
     CeresFlightSpritePresentation flight,
     CeresDestructionSpritePresentation destruction) : IIntroCinematicSpritePresentation
 {
+    /// <summary>Draw.</summary>
     public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
@@ -142,7 +145,9 @@ public static class CeresDestructionSpriteFormat
 /// </summary>
 internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Stores placements.</summary>
     private readonly (sbyte X, sbyte Y, ushort Tile)[] placements;
+    /// <summary>Initializes a new zebes star grid parts instance.</summary>
     private ZebesStarGridParts(SpriteComposition supplied)
     {
         placements = new (sbyte, sbyte, ushort)[supplied.PartCount];
@@ -153,6 +158,7 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
                 (sbyte)(unchecked((sbyte)part.Y) / 8), (ushort)part.Attributes.TileNumber);
         }
     }
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(CeresDestructionBackdrop? backdrop, SpriteComposition supplied)
     {
         if (backdrop is not (CeresDestructionBackdrop.UpperLeftStars or
@@ -162,7 +168,9 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         // Full-field matching preserves off-grid and independently edited appearance.
         return supplied.CalculateIfMatching(new ZebesStarGridParts(supplied));
     }
+    /// <summary>Gets count.</summary>
     public int Count => placements.Length;
+    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -172,9 +180,11 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(point.Tile, 0, 0), true);
         }
     }
+    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Gets enumerator.</summary>
     System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
 }

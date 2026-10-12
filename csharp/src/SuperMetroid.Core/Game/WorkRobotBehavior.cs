@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The work robot species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WorkRobotBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Initializes a new work robot behavior instance.</summary>
     internal WorkRobotBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
     {
         _room = room;
@@ -20,15 +25,23 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Stores work robot facing left velocity.</summary>
     private const ushort WorkRobotFacingLeftVelocity = 0xfe00;
+    /// <summary>Stores work robot facing right velocity.</summary>
     private const ushort WorkRobotFacingRightVelocity = 0x0200;
+    /// <summary>Stores work robot step pixels.</summary>
     private const int WorkRobotStepPixels = 4;
+    /// <summary>Stores work robot footstep sound.</summary>
     private const ushort WorkRobotFootstepSound = 0x0068;
 
+    /// <summary>Stores work robot states.</summary>
     internal readonly WorkRobotEnemyState?[] _workRobotStates =
         new WorkRobotEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores work robot palette animation timer.</summary>
     internal ushort _workRobotPaletteAnimationTimer;
+    /// <summary>Stores work robot palette animation table offset.</summary>
     internal ushort _workRobotPaletteAnimationTableOffset;
+    /// <summary>Stores work robot palette animation palette index.</summary>
     internal ushort _workRobotPaletteAnimationPaletteIndex;
 
     /// <summary>
@@ -37,6 +50,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastWorkRobotSoundEffect { get; private set; }
 
+    /// <summary>Indicates whether work robot definition.</summary>
     internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
 
@@ -224,6 +238,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves work robot.</summary>
     private ushort MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState? samus, RoomLevelData? level, ushort nextCursor, WorkRobotMoveStep step)
     {
         if (level is null)
@@ -263,6 +278,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         return step.FallInstruction;
     }
 
+    /// <summary>Indicates whether work robot origin strictly on screen.</summary>
     private static bool IsWorkRobotOriginStrictlyOnScreen(
         RoomEnemySlot robot,
         Position16<RoomPixels> camera) =>
@@ -271,6 +287,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         unchecked((short)(robot.Position.Y.Whole - camera.Y)) > 0 &&
         unchecked((short)(camera.Y + 224 - robot.Position.Y.Whole)) >= 0;
 
+    /// <summary>Attempts to fire work robot laser.</summary>
     private ushort TryFireWorkRobotLaser(
         RoomEnemySlot robot,
         WorkRobotEnemyState state,
@@ -291,6 +308,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         return firingInstruction;
     }
 
+    /// <summary>Decrement work robot laser cooldown.</summary>
     private static void DecrementWorkRobotLaserCooldown(WorkRobotEnemyState state)
     {
         if (state.LaserCooldown != 0)
@@ -368,10 +386,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
             _workRobotPaletteAnimationTableOffset + 10));
     }
 
+    /// <summary>Requires work robot state.</summary>
     private WorkRobotEnemyState RequireWorkRobotState(RoomEnemySlot slot) =>
         _workRobotStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Work Robot state.");
 
+    /// <summary>Registers work robot bomb reactions.</summary>
     internal void RegisterWorkRobotBombReactions(EnemyAiTable table)
     {
         // Powered Work Robot returns until Phantoon is dead. Bank $A0 has already marked the bomb, so callback
@@ -386,6 +406,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers work robot projectiles.</summary>
     internal static void RegisterWorkRobotProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -394,6 +415,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.WreckedShipRobotLaser);
     }
 
+    /// <summary>Registers work robot initialization ai.</summary>
     internal void RegisterWorkRobotInitializationAi(EnemyAiTable table)
     {
 
@@ -407,6 +429,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         table.RegisterInitialization(EnemyAiRoutine.InitAI_RobotNoPower, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower, shared74);
     }
 
+    /// <summary>Registers work robot main ai.</summary>
     internal void RegisterWorkRobotMainAi(EnemyAiTable table)
     {
 
@@ -416,6 +439,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers work robot owned instructions.</summary>
     internal void RegisterWorkRobotOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -425,6 +449,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers work robot shot reactions.</summary>
     internal void RegisterWorkRobotShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
@@ -434,12 +459,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers work robot touch.</summary>
     internal static void RegisterWorkRobotTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.WorkRobotTouch,
             context => ResolveWorkRobotTouch(context.Slot, context.Samus));
     }
+    /// <summary>Stores work robot laser sound.</summary>
     private const ushort WorkRobotLaserSound = 0x0067;
 
     /// <summary>
@@ -537,6 +564,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers unpowered work robot main ai.</summary>
     internal static void RegisterUnpoweredWorkRobotMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.RTL_A8CC66, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RobotNoPower, (slot, frame, nmiFrameCounter8) =>

@@ -90,6 +90,7 @@ internal static class BotwoonNavigationDefinitions
     // also has an earlier (-128, -16) terminator followed by padding; it does
     // not start a new stream. Reverse descriptors point to the end separator;
     // the existing consumer applies its native four-byte rewind.
+    /// <summary>Path boundary.</summary>
     private static ushort PathBoundary(int ordinal, bool afterSeparator)
     {
         for (int pointer = MovementDataStart; pointer < MovementDataEndExclusive; pointer += 2)
@@ -129,6 +130,7 @@ internal static class BotwoonNavigationDefinitions
             DecodeMovementComponent(packed & 0x0f));
     }
 
+    /// <summary>Decodes movement component.</summary>
     private static sbyte DecodeMovementComponent(int code) => code switch
     {
         0 => sbyte.MinValue,

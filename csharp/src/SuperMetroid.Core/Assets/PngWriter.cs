@@ -30,6 +30,7 @@ public static class PngWriter
         output.Write(checksum);
     }
 
+    /// <summary>Updates crc.</summary>
     internal static uint UpdateCrc(uint crc, byte value)
     {
         crc ^= value;

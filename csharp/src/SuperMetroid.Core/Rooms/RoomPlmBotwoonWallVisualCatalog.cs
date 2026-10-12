@@ -24,6 +24,7 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
             content.AppendWords("blocks", selected);
         });
 
+    /// <summary>Stores blocks.</summary>
     private readonly ushort[]? blocks;
 
     /// <summary>Validates the single nine-block wall-clear appearance and retains an owned copy only when it differs from compiled stock visuals.</summary>
@@ -48,6 +49,7 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
         if (!stock) blocks = selected[0].Blocks.ToArray();
     }
 
+    /// <summary>Stock word.</summary>
     private static ushort StockWord(int index) =>
         new RoomLevelWord(BotwoonWallPlmDrawDefinitions.LevelWordAt(index)).VisualWord;
 

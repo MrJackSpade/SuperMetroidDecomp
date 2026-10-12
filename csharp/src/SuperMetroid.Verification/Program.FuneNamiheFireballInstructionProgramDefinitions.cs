@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents fune namihe fireball instruction program definitions verification.</summary>
 internal static class FuneNamiheFireballInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies fune namihe fireball instruction program definitions.</summary>
     internal static void VerifyFuneNamiheFireballInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies fune namihe fireball instruction program definitions.</summary>
     internal static void VerifyFuneNamiheFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -105,6 +108,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
             "with mechanics bytes forbidden.");
     }
 
+    /// <summary>Verifies fune namihe fireball visual selectors.</summary>
     private static void VerifyFuneNamiheFireballVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
@@ -139,8 +143,10 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 "fireball resolver rejects distant invalid inputs");
     }
 
+    /// <summary>Fune namihe fireball visual selectors rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Fune Namihe fireball visual selectors")]
     private static byte FuneNamiheFireballVisualSelectorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+    /// <summary>Verifies fune namihe fireball mechanics mapping.</summary>
     private static void VerifyFuneNamiheFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xde96, 0xde9a, 0xde9e, 0xdea2, 0xdea4, 0xdea6, 0xdeaa, 0xdeae, 0xdeb2, 0xdeb4];
@@ -183,6 +189,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 "FuneNamihe-fireball mechanics ordinal bounds");
     }
 
+    /// <summary>Verifies fune namihe fireball presentation addresses.</summary>
     private static void VerifyFuneNamiheFireballPresentationAddresses()
     {
         ushort[] expected = [0xde98, 0xde9c, 0xdea0, 0xdea8, 0xdeac, 0xdeb0];
@@ -196,6 +203,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
                 "FuneNamihe-fireball presentation ordinal bounds");
     }
 
+    /// <summary>Probe fune namihe fireball instruction mechanics allocation.</summary>
     private static int ProbeFuneNamiheFireballInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -209,6 +217,7 @@ internal static class FuneNamiheFireballInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>Fune namihe fireball instruction mechanics command.</summary>
     [VerificationCommand("--fune-namihe-fireball-instruction-mechanics")]
     internal static int FuneNamiheFireballInstructionMechanicsCommand()
     {

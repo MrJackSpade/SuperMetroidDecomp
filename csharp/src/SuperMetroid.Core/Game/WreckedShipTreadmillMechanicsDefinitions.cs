@@ -47,8 +47,10 @@ public static class WreckedShipTreadmillMechanicsDefinitions
 /// <summary>One direction-specific treadmill header and boss-gated four-frame loop.</summary>
 public sealed class WreckedShipTreadmillObjectDefinition
 {
+    /// <summary>Stores frame instruction pointers.</summary>
     private readonly CalculatedFramePointers frameInstructionPointers;
 
+    /// <summary>Initializes a new wrecked ship treadmill object definition instance.</summary>
     internal WreckedShipTreadmillObjectDefinition(
         WreckedShipTreadmillDirection direction,
         AnimatedTileObject objectPointer,
@@ -62,19 +64,25 @@ public sealed class WreckedShipTreadmillObjectDefinition
 
     // The native two-byte boss wait is followed by four four-byte timed entries.
     // Store the first cursor only; indexing and enumeration calculate the layout.
+    /// <summary>Represents calculated frame pointers.</summary>
     private sealed class CalculatedFramePointers(ushort first) : IReadOnlyList<ushort>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 4;
+        /// <summary>Gets an indexed value.</summary>
         public ushort this[int index] => (uint)index < 4
             ? unchecked((ushort)(first + 4 * index))
             : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Frame index.</summary>
     private int FrameIndex(ushort pointer)
     {
         int delta = unchecked((ushort)(pointer - LoopInstructionPointer));

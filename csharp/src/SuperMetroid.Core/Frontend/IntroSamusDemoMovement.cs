@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal static class IntroSamusDemoMovement
 {
+    /// <summary>Steps grounded left.</summary>
     public static void StepGroundedLeft(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -119,6 +120,7 @@ internal static class IntroSamusDemoMovement
             samus.CommitPoseHistory(bus);
     }
 
+    /// <summary>Applies pose transition.</summary>
     private static void ApplyPoseTransition(
         ISnesAddressSpace bus,
         SamusState samus,

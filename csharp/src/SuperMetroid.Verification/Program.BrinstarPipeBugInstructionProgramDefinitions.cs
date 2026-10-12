@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents brinstar pipe bug instruction program definitions verification.</summary>
 internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify brinstar pipe bug instruction program definitions.</summary>
     internal static void VerifyBrinstarPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>verify brinstar pipe bug instruction program definitions.</summary>
     internal static void VerifyBrinstarPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -167,6 +170,7 @@ internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>probe brinstar pipe bug instruction mechanics allocation.</summary>
     private static int ProbeBrinstarPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -178,6 +182,7 @@ internal static class BrinstarPipeBugInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>brinstar pipe bug instruction mechanics command.</summary>
     [VerificationCommand("--brinstar-pipe-bug-instruction-mechanics")]
     internal static int BrinstarPipeBugInstructionMechanicsCommand()
     {

@@ -16,6 +16,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PaletteDefinitionAudit
 {
+    /// <summary>Runs.</summary>
     public static void Run(string root, ResourceIndex exports, AuditReport report)
     {
         InstallColorIdentities(exports);
@@ -73,6 +74,7 @@ internal static class PaletteDefinitionAudit
             exports.Count(ResourceDomains.PaletteFx)));
     }
 
+    /// <summary>Installs color identities.</summary>
     internal static void InstallColorIdentities(ResourceIndex exports)
     {
         SyntheticCartridge recorder = ColorAddressRecorder();
@@ -91,11 +93,13 @@ internal static class PaletteDefinitionAudit
             exports.Add(ResourceDomains.PaletteFx, ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, pointer));
     }
 
+    /// <summary>Indicates whether color method.</summary>
     private static bool IsColorMethod(MethodInfo method) =>
         method.Name.EndsWith("ColorPointer", StringComparison.Ordinal) && method.ReturnType == typeof(ushort) &&
         method.GetParameters() is [{ ParameterType: var first }, { ParameterType: var second }] &&
         first == typeof(int) && second == typeof(int);
 
+    /// <summary>Checks color method.</summary>
     private static bool CheckColorMethod(Type rowType, object? row, MethodInfo method, string prefix,
         PaletteCatalogAudit audit)
     {
@@ -123,6 +127,7 @@ internal static class PaletteDefinitionAudit
         return true;
     }
 
+    /// <summary>Reads count.</summary>
     private static int? ReadCount(Type type, object? row, string name)
     {
         const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
@@ -130,6 +135,7 @@ internal static class PaletteDefinitionAudit
         return value is int count ? count : null;
     }
 
+    /// <summary>Finds source.</summary>
     private static string FindSource(string root, string name)
     {
         string path = Path.Combine(root, "csharp/src/SuperMetroid.Core/Game", name + ".cs");

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents lookup palette fx areas verification.</summary>
 internal static class LookupPaletteFxAreasVerification
 {
+    /// <summary>verify palette fx area list pointers.</summary>
     internal static void VerifyPaletteFxAreaListPointers(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
@@ -14,6 +16,7 @@ internal static class LookupPaletteFxAreasVerification
                 "Area-list identity preserves indexed-span bounds");
     }
 
+    /// <summary>verify palette fx area selections.</summary>
     internal static void VerifyPaletteFxAreaSelections(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 256; area++)

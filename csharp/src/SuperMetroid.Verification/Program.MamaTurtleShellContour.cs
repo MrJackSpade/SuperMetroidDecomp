@@ -13,6 +13,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents mama turtle shell contour verification.</summary>
 internal static class MamaTurtleShellContourVerification
 {
     /// <summary>
@@ -84,6 +85,7 @@ internal static class MamaTurtleShellContourVerification
             "production distance cases pass without a ROM bus.");
     }
 
+    /// <summary>mama turtle shell contour command.</summary>
     [VerificationCommand("--mama-turtle-shell-contour")]
     internal static int MamaTurtleShellContourCommand()
     {

@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// on a common atlas grid. Native priority is zero for these four compositions.</summary>
 internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         foreach (Pose pose in EndingRewardSpriteFrameSeries.ShootingScene)
@@ -15,6 +16,7 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                 return supplied.CalculateIfMatching(new EndingRewardShootingSceneParts(pose));
         return supplied;
     }
+    /// <summary>Gets count.</summary>
     public int Count => pose switch
     {
         Pose.SamusFalling or Pose.SamusShooting => 15,
@@ -22,6 +24,7 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
         Pose.SamusLanded => 21,
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
+    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -91,10 +94,12 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                 unchecked((byte)(originY + 8 * (tile / 16))), SnesObjAttributeWord.Create(tile, 0, 0, 0), true);
         }
     }
+    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

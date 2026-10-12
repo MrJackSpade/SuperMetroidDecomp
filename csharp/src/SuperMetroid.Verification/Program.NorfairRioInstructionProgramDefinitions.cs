@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents norfair rio instruction program definitions verification.</summary>
 internal static class NorfairRioInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies norfair rio instruction program definitions.</summary>
     internal static void VerifyNorfairRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairRioInstructionProgramDefinitions), () => VerifyNorfairRioInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies norfair rio instruction program definitions.</summary>
     internal static void VerifyNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -135,6 +138,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             "flame programs, eleven callbacks, and 34 compiled spritemap selectors pass.");
     }
 
+    /// <summary>Verifies norfair rio initializer selections.</summary>
     private static void VerifyNorfairRioInitializerSelections(
         ISnesAddressSpace bus)
     {
@@ -159,6 +163,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             "Norfair Rio follower initializer selects ascending flames");
     }
 
+    /// <summary>New norfair rio instruction system.</summary>
     internal static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
@@ -180,6 +185,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         return (enemies, slot, state);
     }
 
+    /// <summary>Runs norfair rio instruction frames.</summary>
     internal static void RunNorfairRioInstructionFrames(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -193,6 +199,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probe norfair rio instruction mechanics allocation.</summary>
     private static int ProbeNorfairRioInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -206,12 +213,14 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads norfair rio instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Rio instruction words")]
     internal static ushort ReadNorfairRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
+    /// <summary>New norfair rio instruction read guard.</summary>
     internal static CartridgeReadGuard NewNorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -227,6 +236,7 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa20000, NorfairRioInstructionProgramDefinitions.PresentationWordCount, NorfairRioInstructionProgramDefinitions.PresentationWordAddress);
     }
 
+    /// <summary>Norfair rio instruction program definitions command.</summary>
     [VerificationCommand("--norfair-rio-instruction-program-definitions")]
     internal static int NorfairRioInstructionProgramDefinitionsCommand()
     {

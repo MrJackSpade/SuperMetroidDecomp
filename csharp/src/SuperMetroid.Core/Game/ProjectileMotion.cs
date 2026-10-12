@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Per-frame projectile movement: the beam, wave, Hyper Beam, missile and Super Missile pre-instructions, Super Missile links, and the movement-window deletion check.</summary>
 internal sealed class ProjectileMotion
 {
+    /// <summary>Stores animation.</summary>
     private readonly ProjectileAnimation _animation;
+    /// <summary>Stores slot table.</summary>
     private readonly ProjectileSlotTable _slotTable;
+    /// <summary>Stores terrain collision.</summary>
     private readonly ProjectileTerrainCollision _terrainCollision;
+    /// <summary>Stores trails.</summary>
     private readonly ProjectileTrails _trails;
 
+    /// <summary>Initializes a new projectile motion instance.</summary>
     internal ProjectileMotion(ProjectileAnimation animation, ProjectileSlotTable slotTable, ProjectileTerrainCollision terrainCollision, ProjectileTrails trails)
     {
         _animation = animation;
@@ -19,6 +24,7 @@ internal sealed class ProjectileMotion
         _terrainCollision = terrainCollision;
         _trails = trails;
     }
+    /// <summary>Runs no wave beam pre instruction.</summary>
     internal bool RunNoWaveBeamPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -82,6 +88,7 @@ internal sealed class ProjectileMotion
         return collided;
     }
 
+    /// <summary>Runs wave beam pre instruction.</summary>
     internal void RunWaveBeamPreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -112,6 +119,7 @@ internal sealed class ProjectileMotion
         RunWaveBeamShared(level, slot, layer1, roomPlms);
     }
 
+    /// <summary>Runs hyper beam pre instruction.</summary>
     internal void RunHyperBeamPreInstruction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -130,6 +138,7 @@ internal sealed class ProjectileMotion
         RunWaveBeamShared(level, slot, layer1, roomPlms);
     }
 
+    /// <summary>Runs wave beam shared.</summary>
     private void RunWaveBeamShared(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -163,6 +172,7 @@ internal sealed class ProjectileMotion
         DeleteIfOutsideMovementWindow(slot, layer1);
     }
 
+    /// <summary>Runs missile pre instruction.</summary>
     internal bool RunMissilePreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -234,6 +244,7 @@ internal sealed class ProjectileMotion
         return collided;
     }
 
+    /// <summary>Runs super missile pre instruction.</summary>
     internal bool RunSuperMissilePreInstruction(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -336,6 +347,7 @@ internal sealed class ProjectileMotion
         return true;
     }
 
+    /// <summary>Spawn super missile link.</summary>
     private void SpawnSuperMissileLink(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -367,6 +379,7 @@ internal sealed class ProjectileMotion
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
     }
 
+    /// <summary>Runs super missile link pre instruction.</summary>
     internal void RunSuperMissileLinkPreInstruction(SamusProjectileSlot link)
     {
         // `$90:B075` leaves an ordinary link completely stationary. A high direction nibble
@@ -377,6 +390,7 @@ internal sealed class ProjectileMotion
         ClearAllSuperMissileLinks();
     }
 
+    /// <summary>Updates super missile link axis.</summary>
     private void UpdateSuperMissileLinkAxis(
         RoomLevelData level,
         SamusProjectileSlot owner,
@@ -434,6 +448,7 @@ internal sealed class ProjectileMotion
             _animation.ClearProjectile(link);
     }
 
+    /// <summary>Clears all super missile links.</summary>
     private void ClearAllSuperMissileLinks()
     {
         for (int slotIndex = SamusProjectileSystem.SlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -444,6 +459,7 @@ internal sealed class ProjectileMotion
         }
     }
 
+    /// <summary>Moves missile horizontally.</summary>
     private static bool MoveMissileHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -461,6 +477,7 @@ internal sealed class ProjectileMotion
             level, slot, horizontalMovement: true, roomPlms: roomPlms);
     }
 
+    /// <summary>Moves missile vertically.</summary>
     private static bool MoveMissileVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -475,6 +492,7 @@ internal sealed class ProjectileMotion
             level, slot, horizontalMovement: false, roomPlms: roomPlms);
     }
 
+    /// <summary>Missile point reaction.</summary>
     private static bool MissilePointReaction(
         RoomLevelData level,
         SamusProjectileSlot slot,
@@ -550,6 +568,7 @@ internal sealed class ProjectileMotion
         };
     }
 
+    /// <summary>Missile slope point reaction.</summary>
     private static bool MissileSlopePointReaction(
         RoomCollisionBlock block,
         SamusProjectileSlot slot,

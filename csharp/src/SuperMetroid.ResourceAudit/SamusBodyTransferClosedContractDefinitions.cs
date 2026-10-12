@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Physical DMA-record availability, independently reviewed from Samus placement tables.</summary>
 internal static class SamusBodyTransferClosedContractDefinitions
 {
+    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.SamusBodyArtworkCatalog", "samus-complete-physical-transfer-records",

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents slope landing pose probe verification.</summary>
 internal static class SlopeLandingPoseProbeVerification
 {
     /// <summary>
@@ -58,6 +59,7 @@ internal static class SlopeLandingPoseProbeVerification
         Console.WriteLine("Slope landing: a zero-distance pose-change probe rejects the landing on the clipped frame; the next frame lands.");
     }
 
+    /// <summary>Slope landing zero probe command.</summary>
     [VerificationCommand("--slope-landing-zero-probe")]
     internal static int SlopeLandingZeroProbeCommand()
     {

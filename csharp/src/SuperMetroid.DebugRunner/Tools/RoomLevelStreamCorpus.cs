@@ -3,6 +3,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents room level stream corpus.</summary>
 internal static class RoomLevelStreamCorpus
 {
     /// <summary>

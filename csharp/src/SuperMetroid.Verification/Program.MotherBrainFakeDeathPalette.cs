@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents mother brain fake death palette verification.</summary>
 internal static class MotherBrainFakeDeathPaletteVerification
 {
+    /// <summary>verify mother brain fake death palette.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain fake-death palette")]
     internal static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
@@ -61,6 +63,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         }
     }
 
+    /// <summary>create fake death palette enemy.</summary>
     private static RoomEnemySystem CreateFakeDeathPaletteEnemy(
         MotherBrainRainbowPalettePresentation colors, SnesCgram cgram)
     {
@@ -71,6 +74,7 @@ internal static class MotherBrainFakeDeathPaletteVerification
         return enemies;
     }
 
+    /// <summary>capture fake death palette frame.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static (Bgr555[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)

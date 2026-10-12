@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class FileSelectCaptureComparison
 {
+    /// <summary>Runs.</summary>
     public static int Run(string journalPath, string wavePath)
     {
         VerifyMatcher();
@@ -69,6 +70,7 @@ internal static class FileSelectCaptureComparison
         return 0;
     }
 
+    /// <summary>Verifies matcher.</summary>
     private static void VerifyMatcher()
     {
         // A known shifted, volume-scaled signal checks the measurement itself before
@@ -85,6 +87,7 @@ internal static class FileSelectCaptureComparison
             throw new InvalidDataException("Silent capture incorrectly matches a nonzero signal.");
     }
 
+    /// <summary>Finds.</summary>
     private static (int Offset, double Score) Find(double[] capture, double[] target)
     {
         if (capture.Length < target.Length) throw new InvalidDataException("Capture is shorter than comparison window.");
@@ -106,6 +109,7 @@ internal static class FileSelectCaptureComparison
         return (best, score);
     }
 
+    /// <summary>Correlation.</summary>
     private static double Correlation(double[] capture, double[] target, int offset, int stride)
     {
         double dot = 0, a = 0, b = 0;
@@ -119,6 +123,7 @@ internal static class FileSelectCaptureComparison
         return a == 0 || b == 0 ? 0 : dot / Math.Sqrt(a * b);
     }
 
+    /// <summary>Reads wave.</summary>
     private static double[] ReadWave(string path)
     {
         using var reader = new BinaryReader(File.OpenRead(path));

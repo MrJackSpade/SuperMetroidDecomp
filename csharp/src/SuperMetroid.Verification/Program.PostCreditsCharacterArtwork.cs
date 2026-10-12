@@ -9,8 +9,10 @@ using static EndingLogoSpriteArtworkVerification;
 using static EndingObjectArtworkVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Represents post credits character artwork verification.</summary>
 internal static class PostCreditsCharacterArtworkVerification
 {
+    /// <summary>Verifies post credits character artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {

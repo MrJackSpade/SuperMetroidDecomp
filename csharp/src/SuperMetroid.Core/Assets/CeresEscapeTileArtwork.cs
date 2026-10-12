@@ -17,25 +17,33 @@ internal static class CeresEscapeTileArtworkDefinitions
         new(CeresEscapeTileRomData.DoorSource,
             CeresEscapeTileRomData.DoorByteCount, "ceres-escape-door-tiles.png");
 
+    /// <summary>Gets all.</summary>
     internal static PageSequence All => default;
 
+    /// <summary>Represents page sequence.</summary>
     internal readonly struct PageSequence : IReadOnlyList<CeresEscapeTileSheetDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 2;
+        /// <summary>Gets length.</summary>
         public int Length => Count;
+        /// <summary>Gets an indexed value.</summary>
         public CeresEscapeTileSheetDefinition this[int index] => index switch
         {
             0 => WarningText,
             1 => Doors,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<CeresEscapeTileSheetDefinition> GetEnumerator()
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Contains.</summary>
     internal static bool Contains(int sourceAddress, int byteCount)
     {
         foreach (CeresEscapeTileSheetDefinition page in All)
@@ -62,8 +70,10 @@ public sealed class CeresEscapeTileArtwork
                 content.Append("tiles", page.Transfer.Span);
         });
 
+    /// <summary>Stores pages.</summary>
     private readonly RoomCharacterAtlas[] pages;
 
+    /// <summary>Initializes a new ceres escape tile artwork instance.</summary>
     internal CeresEscapeTileArtwork(RoomCharacterAtlas[] pages)
     {
         Ensure.NotNull(pages);
@@ -79,6 +89,7 @@ public sealed class CeresEscapeTileArtwork
         this.pages = [.. pages];
     }
 
+    /// <summary>Tries to resolve.</summary>
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> characters)
     {

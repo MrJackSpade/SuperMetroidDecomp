@@ -9,8 +9,10 @@ using static ColorWordsVerification;
 using static KraidPaletteDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy tile artwork kraid colors verification.</summary>
 internal static class EnemyTileArtworkKraidColorsVerification
 {
+    /// <summary>Verifies installed kraid colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid palette rows")]
     internal static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
@@ -119,6 +121,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
 
     // Independent palette writes from pinned sm_a7.c. This fixture's zero health
     // thresholds select band eight at 1000 HP; odd hurt frames select the flash band.
+    /// <summary>Reference kraid palette consumer.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid palette consumer reference")]
     private static ushort[] ReferenceKraidPaletteConsumer(
@@ -168,6 +171,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         }
     }
 
+    /// <summary>Creates kraid palette source guard.</summary>
     private static CartridgeReadGuard NewKraidPaletteSourceGuard(ISnesAddressSpace rom)
     {
         var guard = new CartridgeReadGuard(rom);
@@ -181,6 +185,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         return guard;
     }
 
+    /// <summary>Capture kraid palette consumer.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static Bgr555[] CaptureKraidPaletteConsumer(
         ISnesAddressSpace bus, EnemyTileArtworkCatalog artwork,
@@ -230,14 +235,22 @@ internal static class EnemyTileArtworkKraidColorsVerification
         return cgram.Colors.ToArray();
     }
 
+    /// <summary>Represents kraid palette consumer.</summary>
     internal enum KraidPaletteConsumer
     {
+        /// <summary>Identifies backdrop load.</summary>
         BackdropLoad,
+        /// <summary>Identifies initial target load.</summary>
         InitialTargetLoad,
+        /// <summary>Identifies backdrop fade.</summary>
         BackdropFade,
+        /// <summary>Identifies health normal.</summary>
         HealthNormal,
+        /// <summary>Identifies health flash.</summary>
         HealthFlash,
+        /// <summary>Identifies eye unglow.</summary>
         EyeUnglow,
+        /// <summary>Identifies death arm.</summary>
         DeathArm,
     }
 }

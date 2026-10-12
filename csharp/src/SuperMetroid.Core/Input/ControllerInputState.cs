@@ -62,9 +62,12 @@ public sealed class ControllerInputState
         return restore;
     }
 
+    /// <summary>Represents demo input restore.</summary>
     private sealed class DemoInputRestore(ControllerInputState owner, ushort held, ushort newlyPressed) : IDisposable
     {
+        /// <summary>Stores disposed.</summary>
         private bool disposed;
+        /// <summary>Disposes.</summary>
         public void Dispose()
         {
             if (disposed) return;

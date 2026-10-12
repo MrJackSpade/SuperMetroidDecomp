@@ -23,9 +23,12 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_GoldenTorizoEgg_Break_FacingRight</c> at $86:B1A8.</summary>
     internal const ushort BreakRight = 0xb1a8;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 53;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 26;
 
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -82,6 +85,7 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
             breakWord == 5 ? (ushort)(facing == 0 ? 10 : 8) : (ushort)4);
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -98,6 +102,7 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitions
         int breakOffset = index - 16;
         return (ushort)(BreakLeft + 24 * (breakOffset / 5) + 4 + 4 * (breakOffset % 5));
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address is >= TorizoChozoOrbInstructionProgramDefinitions.WallImpact and <= 0xab3f)

@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
 
+/// <summary>Represents alcoon fireball instruction program definitions verification.</summary>
 internal static class AlcoonFireballInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify alcoon fireball instruction program definitions.</summary>
     internal static void VerifyAlcoonFireballInstructionProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -26,6 +28,7 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions(rom));
     }
 
+    /// <summary>verify alcoon fireball visual selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Alcoon fireball visual selectors")]
     private static void VerifyAlcoonFireballVisualSelectors(SuperMetroidAddressSpace rom)
     {
@@ -60,6 +63,7 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
             AssertThrows<InvalidDataException>(() => EnemyProjectileSpritemapDefinitions.AlcoonFireballFrameAt(address),
                 "fireball resolver rejects distant invalid inputs");
     }
+    /// <summary>verify alcoon fireball mechanics mapping.</summary>
     private static void VerifyAlcoonFireballMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0x9e9e, 0x9ea2, 0x9ea6, 0x9eaa, 0x9eae, 0x9eb0];
@@ -102,6 +106,7 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
                 "Alcoon-fireball mechanics ordinal bounds");
     }
 
+    /// <summary>verify alcoon fireball presentation addresses.</summary>
     private static void VerifyAlcoonFireballPresentationAddresses()
     {
         ushort[] expected = [0x9ea0, 0x9ea4, 0x9ea8, 0x9eac];
@@ -115,6 +120,7 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
                 "Alcoon-fireball presentation ordinal bounds");
     }
 
+    /// <summary>verify alcoon fireball instruction program definitions.</summary>
     internal static void VerifyAlcoonFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -218,6 +224,7 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>probe alcoon fireball instruction mechanics allocation.</summary>
     private static int ProbeAlcoonFireballInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -231,12 +238,14 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new alcoon fireball instruction read guard.</summary>
     private static CartridgeReadGuard NewAlcoonFireballInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
                 ((SnesAddressMath.BankBase(address)) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
             address => $"Production read migrated Alcoon-fireball program byte ${address:X6}.");
 
+    /// <summary>lookup alcoon fireball programs command.</summary>
     [VerificationCommand("--lookup-alcoon-fireball-programs")]
     internal static int LookupAlcoonFireballProgramsCommand()
     {
@@ -245,6 +254,7 @@ internal static class AlcoonFireballInstructionProgramDefinitionsVerification
         return 0;
     }
 
+    /// <summary>alcoon fireball instruction mechanics command.</summary>
     [VerificationCommand("--alcoon-fireball-instruction-mechanics")]
     internal static int AlcoonFireballInstructionMechanicsCommand()
     {

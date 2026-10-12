@@ -2,14 +2,21 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup chozo program verification.</summary>
 internal static class LookupChozoProgramVerification
 {
+    /// <summary>Verifies chozo program controls.</summary>
     internal static void VerifyChozoProgramControls(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 0);
+    /// <summary>Verifies chozo program draws.</summary>
     internal static void VerifyChozoProgramDraws(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 1);
+    /// <summary>Verifies chozo program targets.</summary>
     internal static void VerifyChozoProgramTargets(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 2);
+    /// <summary>Verifies chozo program callback.</summary>
     internal static void VerifyChozoProgramCallback(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 3);
+    /// <summary>Verifies chozo program event.</summary>
     internal static void VerifyChozoProgramEvent(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 4);
 
+    /// <summary>Verifies chozo program field.</summary>
     private static void VerifyChozoProgramField(SuperMetroidAddressSpace rom, int field)
     {
         int[] draws = [0xd0f8,0xd0fc,0xd100,0xd104,0xd151,0xd3d1,0xd3ee];
@@ -46,6 +53,7 @@ internal static class LookupChozoProgramVerification
         AssertEqual(field switch {0 => 36,1 => 14,2 => 2,3 => 2,_ => 2}, count, "ChozoProgram independent field count");
     }
 
+    /// <summary>Chozo program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo program field")]
     private static byte ChozoProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

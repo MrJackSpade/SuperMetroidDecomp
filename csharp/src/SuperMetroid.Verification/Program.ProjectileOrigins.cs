@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents projectile origins verification.</summary>
 internal static class ProjectileOriginsVerification
 {
+    /// <summary>Verifies projectile origins.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile origins")]
     internal static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
     {
@@ -59,9 +61,11 @@ internal static class ProjectileOriginsVerification
         Console.WriteLine("Projectile origins: forty native words and 343872 real position initializations cover all direction words, every pose, coordinate boundaries and adjacent cooldown reads with authored reads forbidden.");
     }
 
+    /// <summary>Represents projectile origin read guard.</summary>
     [CpuBusBoundary("exact bus test: serves substitute presentation bytes ($90:C1A8-C203) while forbidding origin rows, proving physical origins ignore presentation data")]
     internal sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
+        /// <summary>Reads cartridge byte.</summary>
         public byte ReadCartridgeByte(int address)
         {
             if (address is >= 0x90c204 and < 0x90c28f)
@@ -70,6 +74,7 @@ internal static class ProjectileOriginsVerification
             if (address is >= 0x90c1a8 and < 0x90c204) return 0x5a;
             return source.ReadCartridgeByte(address);
         }
+        /// <summary>Writes byte.</summary>
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
     }
 }

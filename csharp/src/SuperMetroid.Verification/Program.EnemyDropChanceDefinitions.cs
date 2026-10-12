@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyDropsVerification;
 
+/// <summary>Represents enemy drop chance definitions verification.</summary>
 internal static class EnemyDropChanceDefinitionsVerification
 {
+    /// <summary>verify enemy drop chance definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy drop chance definitions")]
     internal static void VerifyEnemyDropChanceDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -88,6 +90,7 @@ internal static class EnemyDropChanceDefinitionsVerification
             "through production selection with RAM-only memory; invalid pointers reject without a ROM fallback.");
     }
 
+    /// <summary>enemy drop chance definitions command.</summary>
     [VerificationCommand("--enemy-drop-chance-definitions")]
     internal static int EnemyDropChanceDefinitionsCommand()
     {

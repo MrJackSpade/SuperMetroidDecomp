@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Coloured and blue door PLMs: their setup, shot reactions, opening and the door-closing spawn after a transition.</summary>
 internal sealed class DoorPlms
 {
+    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Stores drawing.</summary>
     private readonly PlmBlockDrawing _drawing;
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Stores sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Initializes a new door plms instance.</summary>
     internal DoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -161,6 +166,7 @@ internal sealed class DoorPlms
             (ushort)levelWord.WithCollisionType(deactivatedType));
     }
 
+    /// <summary>Applies colored door setup.</summary>
     private static void ApplyColoredDoorSetup(RoomLevelData level, int blockIndex)
     {
         // Setup `$84:C7B1` preserves the visual twelve bits, installs shootable-solid
@@ -204,6 +210,7 @@ internal sealed class DoorPlms
             wasOpened ? ColoredDoorPhase.ConvertToBlue : ColoredDoorPhase.Waiting);
     }
 
+    /// <summary>Attempts to step colored door.</summary>
     internal bool TryStepColoredDoor(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         ColoredDoorPlmState? door = slot.ColoredDoor;
@@ -309,6 +316,7 @@ internal sealed class DoorPlms
         return false;
     }
 
+    /// <summary>Attempts to identify colored door.</summary>
     internal static bool TryIdentifyColoredDoor(
         PlmHeaderId header,
         out ColoredDoorColor color,

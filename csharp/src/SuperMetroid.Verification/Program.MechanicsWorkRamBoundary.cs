@@ -14,6 +14,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents mechanics work ram boundary verification.</summary>
 internal static class MechanicsWorkRamBoundaryVerification
 {
     /// <summary>Checks the statically identified PLM/speed WRAM conversions, never searches gameplay for cartridge reads.</summary>
@@ -71,6 +72,7 @@ internal static class MechanicsWorkRamBoundaryVerification
         writer.WriteByte(address + 1, SnesLittleEndian.HighByte(value));
     }
 
+    /// <summary>Mechanics workram boundary command.</summary>
     [VerificationCommand("--mechanics-workram-boundary")]
     internal static int MechanicsWorkramBoundaryCommand()
     {

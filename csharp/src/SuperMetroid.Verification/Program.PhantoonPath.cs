@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents phantoon path verification.</summary>
 internal static class PhantoonPathVerification
 {
+    /// <summary>Verifies compiled phantoon path.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon path")]
     internal static void VerifyCompiledPhantoonPath(SuperMetroidAddressSpace rom)
     {

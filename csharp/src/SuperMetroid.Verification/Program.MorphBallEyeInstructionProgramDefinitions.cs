@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents morph ball eye instruction program definitions verification.</summary>
 internal static class MorphBallEyeInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies morph ball eye instruction program definitions.</summary>
     internal static void VerifyMorphBallEyeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMorphBallEyeInstructionProgramDefinitions), () => VerifyMorphBallEyeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies morph ball eye instruction program definitions.</summary>
     internal static void VerifyMorphBallEyeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -168,6 +171,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
             "without presentation ROM reads.");
     }
 
+    /// <summary>Verifies morph ball eye initializer selections.</summary>
     private static void VerifyMorphBallEyeInitializerSelections(ISnesAddressSpace bus)
     {
         foreach ((ushort parameter1, ushort expected) in new[]
@@ -205,6 +209,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>New morph ball eye instruction system.</summary>
     private static RoomEnemySystem NewMorphBallEyeInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -213,6 +218,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Prepares morph ball eye instruction slot.</summary>
     private static RoomEnemySlot PrepareMorphBallEyeInstructionSlot(
         RoomEnemySystem enemies,
         ushort entry)
@@ -225,6 +231,7 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         return slot;
     }
 
+    /// <summary>Probe morph ball eye instruction mechanics allocation.</summary>
     private static int ProbeMorphBallEyeInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -238,18 +245,21 @@ internal static class MorphBallEyeInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads morph ball eye instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Morph Ball Eye instruction words")]
     internal static ushort ReadMorphBallEyeInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
 
+    /// <summary>New morph ball eye instruction read guard.</summary>
     private static CartridgeReadGuard NewMorphBallEyeInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MorphBallEyeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Morph Ball eye mechanics byte ${address:X6}.")
             .ObserveWords(0xa80000, MorphBallEyeInstructionProgramDefinitions.PresentationWordCount, MorphBallEyeInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Morph ball eye instruction program definitions command.</summary>
     [VerificationCommand("--morph-ball-eye-instruction-program-definitions")]
     internal static int MorphBallEyeInstructionProgramDefinitionsCommand()
     {

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using static RoomMainCodeCatalogVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents room header definitions verification.</summary>
 internal static class RoomHeaderDefinitionsVerification
 {
+    /// <summary>Verifies compiled room header definitions.</summary>
     internal static void VerifyCompiledRoomHeaderDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -37,6 +39,7 @@ internal static class RoomHeaderDefinitionsVerification
         Console.WriteLine("Room headers: all262 identities, ten original native fields, sorted enumeration and complete ushort rejection domain pass.");
     }
 
+    /// <summary>Verifies room header identities.</summary>
     private static void VerifyRoomHeaderIdentities(ushort[] rooms)
     {
         AssertEqual(262, rooms.Length, "Independent retail room roster");
@@ -60,17 +63,28 @@ internal static class RoomHeaderDefinitionsVerification
         }
     }
 
+    /// <summary>Verifies room header room index.</summary>
     private static void VerifyRoomHeaderRoomIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 0, header => (int)header.RoomIndex);
+    /// <summary>Verifies room header area index.</summary>
     private static void VerifyRoomHeaderAreaIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 1, header => (int)header.AreaIndex);
+    /// <summary>Verifies room header map x.</summary>
     private static void VerifyRoomHeaderMapX(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 2, header => header.MapPosition.X);
+    /// <summary>Verifies room header map y.</summary>
     private static void VerifyRoomHeaderMapY(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 3, header => header.MapPosition.Y);
+    /// <summary>Verifies room header width in screens.</summary>
     private static void VerifyRoomHeaderWidthInScreens(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 4, header => header.Size.X);
+    /// <summary>Verifies room header height in screens.</summary>
     private static void VerifyRoomHeaderHeightInScreens(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 5, header => header.Size.Y);
+    /// <summary>Verifies room header up scroller.</summary>
     private static void VerifyRoomHeaderUpScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => (int)header.UpScroller);
+    /// <summary>Verifies room header down scroller.</summary>
     private static void VerifyRoomHeaderDownScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => (int)header.DownScroller);
+    /// <summary>Verifies room header cre bitset.</summary>
     private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => (int)header.CreBitset);
+    /// <summary>Verifies room header door list pointer.</summary>
     private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => (int)header.DoorListPointer);
 
+    /// <summary>Verifies room header field.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room header field")]
     private static void VerifyRoomHeaderField(SuperMetroidAddressSpace rom, ushort[] rooms,
         int offset, Func<RoomHeaderDefinition, int> field)
@@ -89,6 +103,7 @@ internal static class RoomHeaderDefinitionsVerification
         }
     }
 
+    /// <summary>Room header definitions command.</summary>
     [VerificationCommand("--room-header-definitions")]
     internal static int RoomHeaderDefinitionsCommand()
     {

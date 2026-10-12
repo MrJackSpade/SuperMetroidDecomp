@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents wrap shot widths verification.</summary>
 internal static class WrapShotWidthsVerification
 {
+    /// <summary>Verifies wrap shot widths.</summary>
     internal static void VerifyWrapShotWidths(string tracePath)
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();
@@ -63,6 +65,7 @@ internal static class WrapShotWidthsVerification
         Console.WriteLine("PASS 1080 original-cartridge width-boundary records.");
     }
 
+    /// <summary>Wrap shot widths command.</summary>
     [VerificationCommand("--wrap-shot-widths")]
     internal static int WrapShotWidthsCommand()
     {

@@ -11,9 +11,13 @@ internal readonly record struct CrocomireSkeletonTransferDefinition(
 /// </summary>
 internal static class CrocomireSkeletonTransferDefinitions
 {
+    /// <summary>Stores chunk byte count.</summary>
     internal const int ChunkByteCount = 0x0200;
+    /// <summary>Stores total byte count.</summary>
     internal const int TotalByteCount = ChunkByteCount * FrameCount;
+    /// <summary>Stores obsel base word.</summary>
     internal const int ObselBaseWord = 0x6000;
+    /// <summary>Stores file name.</summary>
     internal const string FileName = "crocomire-skeleton-tiles.png";
     /// <summary>First source page at $AD:A600; subsequent pages are contiguous $0200-byte chunks.</summary>
     internal const int FirstGraphicsSourceAddress = 0xada600;
@@ -26,12 +30,17 @@ internal static class CrocomireSkeletonTransferDefinitions
     private const int SecondAtlasTile = 0x1e0;
     /// <summary>$A4:99D3..99D5 installs two rows at tiles $1E0..$1FF.</summary>
     private const int SecondRegionRows = 2;
+    /// <summary>Stores tile byte count.</summary>
     private const int TileByteCount = 32;
+    /// <summary>Stores tiles per row.</summary>
     private const int TilesPerRow = 16;
+    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = FirstRegionRows + SecondRegionRows;
 
+    /// <summary>Gets frames.</summary>
     internal static CrocomireSkeletonTransferSequence Frames => new(FrameCount);
 
+    /// <summary>Frame.</summary>
     internal static CrocomireSkeletonTransferDefinition Frame(int index)
     {
         if ((uint)index >= FrameCount) throw new IndexOutOfRangeException();
@@ -61,6 +70,7 @@ internal static class CrocomireSkeletonTransferDefinitions
 /// <summary>Calculated source-page and OBJ-placement identities, without stored transfer rows.</summary>
 internal readonly record struct CrocomireSkeletonTransferSequence(int Length)
 {
+    /// <summary>Gets an indexed value.</summary>
     internal CrocomireSkeletonTransferDefinition this[int index] =>
         CrocomireSkeletonTransferDefinitions.Frame(index);
 }

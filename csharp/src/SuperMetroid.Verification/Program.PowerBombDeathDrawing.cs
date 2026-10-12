@@ -13,9 +13,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static EnemyDropsVerification;
 
+/// <summary>Represents power bomb death drawing verification.</summary>
 internal static class PowerBombDeathDrawingVerification
 {
     // #1168: reproduce the runtime's queue -> power-bomb damage -> draw ordering.
+    /// <summary>Verifies power bomb death drawing.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyPowerBombDeathDrawing()
     {
@@ -77,6 +79,7 @@ internal static class PowerBombDeathDrawingVerification
         }
     }
 
+    /// <summary>Power bomb death drawing command.</summary>
     [VerificationCommand("--power-bomb-death-drawing")]
     internal static int PowerBombDeathDrawingCommand()
     {

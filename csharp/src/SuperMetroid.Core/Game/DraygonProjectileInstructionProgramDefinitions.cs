@@ -20,8 +20,10 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_DraygonsWallTurretProjectile_1</c> at $86:8CE6.</summary>
     internal const ushort WallTurretFlight = 0x8ce6;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 27;
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -34,10 +36,12 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
             _ => WallTurretFlight + 2 + (index - 24) * 4,
         });
     }
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.DraygonGoop or
         RoomEnemyProjectileKind.DraygonWallTurret;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -46,6 +50,7 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
             $"Draygon projectile mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         value = address switch
@@ -79,6 +84,7 @@ internal abstract class DraygonProjectileInstructionProgramDefinitions
         return value != 0;
     }
 
+    /// <summary>Checks whether the instruction draws artwork.</summary>
     private static bool IsDraw(int address, ushort first, int frames)
     {
         int offset = address - first;

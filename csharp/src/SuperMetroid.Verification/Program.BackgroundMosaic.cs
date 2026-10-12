@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Represents background mosaic verification.</summary>
 internal static class BackgroundMosaicVerification
 {
+    /// <summary>Verifies background mosaic sampling.</summary>
     internal static void VerifyBackgroundMosaicSampling()
     {
         // Explicit boundaries catch quantizing world coordinates or starting the

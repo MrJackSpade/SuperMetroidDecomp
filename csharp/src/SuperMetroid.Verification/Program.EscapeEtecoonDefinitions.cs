@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents escape etecoon definitions verification.</summary>
 internal static class EscapeEtecoonDefinitionsVerification
 {
+    /// <summary>Verifies escape etecoon definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for escape Etecoon definitions")]
     internal static void VerifyEscapeEtecoonDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -87,12 +89,14 @@ internal static class EscapeEtecoonDefinitionsVerification
             "Escape Etecoon definitions: fifteen native values and all six masked retail selectors pass with the authored tables forbidden during production initialization; malformed restored selectors fail explicitly.");
     }
 
+    /// <summary>Verifies escape etecoon instruction program definitions.</summary>
     internal static void VerifyEscapeEtecoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies escape etecoon instruction program definitions.</summary>
     internal static void VerifyEscapeEtecoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -173,6 +177,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             "programs and 30 installed native selectors pass with source reads forbidden.");
     }
 
+    /// <summary>Creates escape etecoon program system.</summary>
     private static RoomEnemySystem CreateEscapeEtecoonProgramSystem(
         ISnesAddressSpace bus)
     {
@@ -187,6 +192,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Runs forced escape etecoon instructions.</summary>
     private static void RunForcedEscapeEtecoonInstructions(
         RoomEnemySystem enemies,
         RoomEnemySlot etecoon,
@@ -207,6 +213,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         }
     }
 
+    /// <summary>Probe escape etecoon instruction mechanics allocation.</summary>
     private static int ProbeEscapeEtecoonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -218,6 +225,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New escape etecoon definition guard.</summary>
     private static CartridgeReadGuard NewEscapeEtecoonDefinitionGuard(ISnesAddressSpace rom) =>
         new CartridgeReadGuard(rom)
             .Forbid(EscapeEtecoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -228,6 +236,7 @@ internal static class EscapeEtecoonDefinitionsVerification
                 EscapeEtecoonInstructionProgramDefinitions.PresentationWordCount,
                 EscapeEtecoonInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Escape etecoon definitions command.</summary>
     [VerificationCommand("--escape-etecoon-definitions")]
     internal static int EscapeEtecoonDefinitionsCommand()
     {
@@ -236,6 +245,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         return 0;
     }
 
+    /// <summary>Escape etecoon instruction mechanics command.</summary>
     [VerificationCommand("--escape-etecoon-instruction-mechanics")]
     internal static int EscapeEtecoonInstructionMechanicsCommand()
     {

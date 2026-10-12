@@ -18,8 +18,10 @@ public static class RoomPlmCollectibleVisualFiles
     public const string VisualFileName = "collectibles.json";
     /// <summary>Stock provenance manifest filename containing the format, source-cartridge identity, and visual-file digest.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -92,6 +94,7 @@ public static class RoomPlmCollectibleVisualFiles
     /// <param name="directory">Stock collectible directory; overrides are intentionally ignored.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>read and verify native.</summary>
     private static RoomPlmCollectibleVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         for (int slot = 0; slot < 4; slot++)
@@ -122,6 +125,7 @@ public static class RoomPlmCollectibleVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>verify stock matches compiled.</summary>
     private static void VerifyStockMatchesCompiled(RoomPlmCollectibleVisualCatalog catalog,
         string path)
     {
@@ -132,6 +136,7 @@ public static class RoomPlmCollectibleVisualFiles
                     $"Stock collectible visuals {path} differ from compiled frame {frame.Id}.");
     }
 
+    /// <summary>create catalog.</summary>
     private static RoomPlmCollectibleVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -146,8 +151,10 @@ public static class RoomPlmCollectibleVisualFiles
         }
     }
 
+    /// <summary>read json.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>read json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -161,8 +168,10 @@ public static class RoomPlmCollectibleVisualFiles
         }
     }
 
+    /// <summary>Represents visual manifest.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Represents visual document.</summary>
     private sealed record VisualDocument(int Version,
         RoomPlmCollectibleVisualEntry[] Entries);
 }

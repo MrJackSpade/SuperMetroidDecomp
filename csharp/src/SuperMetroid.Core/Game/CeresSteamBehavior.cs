@@ -1,11 +1,14 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Ceres steam species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CeresSteamBehavior
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Initializes a new ceres steam behavior instance.</summary>
     internal CeresSteamBehavior(EnemyRoomBinding room, EnemyCollision collision)
     {
         _room = room;
@@ -54,7 +57,9 @@ internal sealed class CeresSteamBehavior
         }
     }
 
+    /// <summary>Stores ceres steam palette index.</summary>
     private static readonly ushort CeresSteamPaletteIndex = EnemyPaletteBits.Palette5;
+    /// <summary>Defines ceres steam indestructible health.</summary>
     private const ushort CeresSteamIndestructibleHealth = 0x7fff;
 
     /// <summary>Ports <c>CeresSteam_Init</c> at <c>$A6:EFB1</c>.</summary>
@@ -121,6 +126,7 @@ internal sealed class CeresSteamBehavior
         }
     }
 
+    /// <summary>Register ceres steam initialization ai.</summary>
     internal void RegisterCeresSteamInitializationAi(EnemyAiTable table)
     {
 
@@ -130,6 +136,7 @@ internal sealed class CeresSteamBehavior
         });
     }
 
+    /// <summary>Register ceres steam main ai.</summary>
     internal static void RegisterCeresSteamMainAi(EnemyAiTable table)
     {
 
@@ -139,6 +146,7 @@ internal sealed class CeresSteamBehavior
         });
     }
 
+    /// <summary>Register ceres steam owned instructions.</summary>
     internal static void RegisterCeresSteamOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -148,6 +156,7 @@ internal sealed class CeresSteamBehavior
         });
     }
 
+    /// <summary>Register ceres steam touch.</summary>
     internal void RegisterCeresSteamTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
@@ -175,6 +184,7 @@ internal sealed class CeresSteamBehavior
 
 
     // Ordinary common shot AI with no species stage.
+    /// <summary>Register ceres steam shot reactions.</summary>
     internal static void RegisterCeresSteamShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&

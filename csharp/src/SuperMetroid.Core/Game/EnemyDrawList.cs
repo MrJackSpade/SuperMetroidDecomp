@@ -12,16 +12,26 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyDrawList
 {
+    /// <summary>Stores ceres ridley behavior.</summary>
     private readonly CeresRidleyBehavior _ceresRidleyBehavior;
+    /// <summary>Stores dead torizo behavior.</summary>
     private readonly DeadTorizoBehavior _deadTorizoBehavior;
+    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Stores instructions.</summary>
     private readonly EnemyInstructionInterpreter _instructions;
+    /// <summary>Stores mother brain behavior.</summary>
     private readonly MotherBrainBehavior _motherBrainBehavior;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Stores ridley encounter.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new enemy draw list instance.</summary>
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
     {
         _ceresRidleyBehavior = dependencies.CeresRidleyBehavior;
@@ -34,6 +44,7 @@ internal sealed class EnemyDrawList
         _room = dependencies.Room;
         _slotTable = dependencies.SlotTable;
     }
+    /// <summary>Stores draw queues.</summary>
     private readonly List<ushort>[] _drawQueues =
         Enumerable.Range(0, 8).Select(_ => new List<ushort>()).ToArray();
 

@@ -37,8 +37,10 @@ using static SuiteTimingVerification;
 using static WorkRobotLaserInstructionProgramDefinitionsVerification;
 using static YellowPipeBugInstructionProgramDefinitionsVerification;
 
+/// <summary>Represents lookup stream3 verification.</summary>
 internal static class LookupStream3Verification
 {
+    /// <summary>Verifies stream3 falling tube population layout.</summary>
     internal static void VerifyStream3FallingTubePopulationLayout(ISnesAddressSpace rom)
     {
         ushort[] expected = [0x8ae5, 0x8af5, 0x8b05, 0x8b15, 0x8b25];
@@ -56,6 +58,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyMotherBrainFallingTubePopulationDefinitions), () => VerifyMotherBrainFallingTubePopulationDefinitions(rom));
         Console.WriteLine("Falling-tube layout: five native records, all eight columns, production spawns and independent fixture behavior pass; placement magnitudes and delay remain required.");
     }
+    /// <summary>Verifies stream3 intro palette rows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
     {
@@ -96,6 +99,7 @@ internal static class LookupStream3Verification
             return IntroCinematicPalette.Load(json);
         }
     }
+    /// <summary>Verifies stream3 intro eye rectangles.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
     {
@@ -172,6 +176,7 @@ internal static class LookupStream3Verification
             return IntroEyeTilemapPresentation.Load(json);
         }
     }
+    /// <summary>Verifies stream3 intro divider.</summary>
     internal static void VerifyStream3IntroDivider(ISnesAddressSpace rom)
     {
         var native = new ushort[IntroFinalLineTilemapFormat.CellCount];
@@ -214,6 +219,7 @@ internal static class LookupStream3Verification
             return IntroFinalLineTilemap.Load(json);
         }
     }
+    /// <summary>Verifies stream3 hand beam body layout.</summary>
     internal static void VerifyStream3HandBeamBodyLayout()
     {
         ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
@@ -229,6 +235,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Hand-beam body address layout: fifteen native identities, enumeration and index bounds pass; selected mechanics inputs remain required.");
     }
 
+    /// <summary>Verifies stream3 options borders.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for options borders")]
     internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
@@ -299,6 +306,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 file select borders.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select borders")]
     internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
@@ -369,6 +377,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 grapple tile patterns.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple tile patterns")]
     internal static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
     {
@@ -419,6 +428,7 @@ internal static class LookupStream3Verification
         AssertTrue(!stock.TryResolve(transfers[0].SourceAddress, 31, out _), "stream 3 Grapple rejects partial transfer");
     }
 
+    /// <summary>Verifies stream3 narration layout.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for narration layout")]
     internal static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
@@ -476,6 +486,7 @@ internal static class LookupStream3Verification
         document.Pages["Page6"] = sixth;
     }
 
+    /// <summary>Verifies stream3 mochtroid visuals.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
     internal static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
     {
@@ -507,6 +518,7 @@ internal static class LookupStream3Verification
             }
         }
     }
+    /// <summary>Verifies stream3 menu sprite geometry.</summary>
     internal static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -609,6 +621,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 enemy frame registration.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy frame registration")]
     internal static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
     {
@@ -639,6 +652,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
 
+    /// <summary>Verifies stream3 hopper operand positions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for hopper operand positions")]
     internal static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
     {
@@ -662,6 +676,7 @@ internal static class LookupStream3Verification
                 "hopper calculated selector position matches native program structure");
     }
 
+    /// <summary>Verifies stream3 file select patches.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select patches")]
     internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
@@ -734,6 +749,7 @@ internal static class LookupStream3Verification
             }
         }
     }
+    /// <summary>Verifies stream3 game over text.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyStream3GameOverText(ISnesAddressSpace rom)
     {
@@ -770,6 +786,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 options geometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for options geometry")]
     private static void VerifyStream3OptionsGeometry(ISnesAddressSpace rom)
     {
@@ -895,6 +912,7 @@ internal static class LookupStream3Verification
             }
         }
     }
+    /// <summary>Verifies lookup stream3.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for stream-3 inline tables")]
     internal static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
@@ -1340,6 +1358,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Lookup stream 3: all implemented mapping conversions match their original values and accepted domains.");
     }
 
+    /// <summary>Verifies stream3 death selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for death selectors")]
     private static void VerifyStream3DeathSelectors(ISnesAddressSpace rom)
     {
@@ -1397,6 +1416,7 @@ internal static class LookupStream3Verification
         AssertEqual(0, text.EscapePaletteFxRequests.Count, "stream 3 escape palette registrations occur once");
     }
 
+    /// <summary>Verifies stream3 painful walking.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for painful walking")]
     private static void VerifyStream3PainfulWalking(ISnesAddressSpace rom)
     {
@@ -1425,6 +1445,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 escape geometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for escape geometry")]
     private static void VerifyStream3EscapeGeometry(ISnesAddressSpace rom)
     {
@@ -1473,6 +1494,7 @@ internal static class LookupStream3Verification
             SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null)));
     }
 
+    /// <summary>Verifies stream3 corpse geometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for stream-3 inline tables")]
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
@@ -1551,6 +1573,7 @@ internal static class LookupStream3Verification
         Suite(nameof(VerifyMotherBrainCorpseStockArtwork), () => VerifyMotherBrainCorpseStockArtwork());
     }
 
+    /// <summary>Verifies stream3 shitroid pulse.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shitroid pulse")]
     internal static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
     {
@@ -1675,6 +1698,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.NormalColor(0, invalid), "stream 3 Shitroid pulse color bounds");
     }
 
+    /// <summary>Verifies stream3 drain fades.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for drain fades")]
     internal static void VerifyStream3DrainFades(ISnesAddressSpace rom)
@@ -1959,6 +1983,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 baby fade.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby fade")]
     internal static void VerifyStream3BabyFade(ISnesAddressSpace rom)
     {
@@ -2050,6 +2075,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.FadeColor(1, invalid), "stream 3 Baby fade color bounds");
     }
 
+    /// <summary>Verifies stream3 mother brain fades.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain fades")]
     internal static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)
     {
@@ -2168,6 +2194,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.CorpseColor(0, invalid), "stream 3 corpse fade color bounds");
     }
 
+    /// <summary>Verifies stream3 uniform enemy loops.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for uniform enemy loops")]
     private static void VerifyStream3UniformEnemyLoops(ISnesAddressSpace rom)
     {
@@ -2223,6 +2250,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 ripper mappings.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ripper mappings")]
     private static void VerifyStream3RipperMappings(ISnesAddressSpace rom)
     {
@@ -2272,6 +2300,7 @@ internal static class LookupStream3Verification
             "stream 3 Ripper rejects foreign enemy");
     }
 
+    /// <summary>Verifies stream3 choot control.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Choot control")]
     private static void VerifyStream3ChootControl(ISnesAddressSpace rom)
     {
@@ -2321,6 +2350,7 @@ internal static class LookupStream3Verification
                 "stream 3 Choot visual bounds");
     }
 
+    /// <summary>Verifies stream3 pickup and fireflea programs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pickup and Fireflea programs")]
     private static void VerifyStream3PickupAndFirefleaPrograms(ISnesAddressSpace rom)
     {
@@ -2426,6 +2456,7 @@ internal static class LookupStream3Verification
                 "stream 3 Fireflea visual bounds");
     }
 
+    /// <summary>Verifies stream3 work robot colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot colors")]
     private static void VerifyStream3WorkRobotColors(ISnesAddressSpace rom)
@@ -2501,6 +2532,7 @@ internal static class LookupStream3Verification
                 "stream 3 Work Robot color bounds");
     }
 
+    /// <summary>Verifies stream3 health tint.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for health tint")]
     private static void VerifyStream3HealthTint(ISnesAddressSpace rom)
@@ -2577,6 +2609,7 @@ internal static class LookupStream3Verification
                     }
     }
 
+    /// <summary>Verifies stream3 recovery lights.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for recovery lights")]
     internal static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
@@ -2672,6 +2705,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 room flash.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room flash")]
     internal static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
@@ -2752,6 +2786,7 @@ internal static class LookupStream3Verification
                 }
     }
 
+    /// <summary>Executes stream3 door scroll.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for door scroll")]
     private static void ExecuteStream3DoorScroll(
         ISnesAddressSpace bus,
@@ -2811,6 +2846,7 @@ internal static class LookupStream3Verification
             $"Door callback $8F:{pointer:X4} did not return within 32 instructions.");
     }
 
+    /// <summary>Unsupported stream3 door scroll.</summary>
     private static InvalidDataException UnsupportedStream3DoorScroll(
         ushort pointer,
         byte opcode,
@@ -2818,6 +2854,7 @@ internal static class LookupStream3Verification
         new(
             $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
             $"${opcode:X2} at ${SnesAddressMath.BankNumber(opcodeAddress):X2}:{SnesAddressMath.OffsetInBank(opcodeAddress):X4}.");
+    /// <summary>Verifies stream3 phase two rear leg.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for phase two rear leg")]
     internal static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
@@ -2857,6 +2894,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 auxiliary palettes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for auxiliary palettes")]
     internal static void VerifyStream3AuxiliaryPalettes(ISnesAddressSpace rom)
     {
@@ -2936,6 +2974,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => stock.Resolve((EnemyAuxiliaryPalette)invalid, 0, 0), "stream 3 auxiliary palette identities reject unknown values");
     }
 
+    /// <summary>Verifies stream3 baby sprite reflection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby sprite reflection")]
     internal static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
     {
@@ -3051,6 +3090,7 @@ internal static class LookupStream3Verification
         }
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
+    /// <summary>Verifies stream3 hand beam layout.</summary>
     internal static void VerifyStream3HandBeamLayout()
     {
         ushort[] stages = [0xc796, 0xc7b7, 0xc7d8];
@@ -3092,6 +3132,7 @@ internal static class LookupStream3Verification
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallInstruction(index), "hand-beam callback index domain");
     }
 
+    /// <summary>Verifies stream3 baby instruction layout.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby instruction layout")]
     internal static void VerifyStream3BabyInstructionLayout(ISnesAddressSpace rom)
     {
@@ -3118,6 +3159,7 @@ internal static class LookupStream3Verification
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainBabyInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "Baby visual enumeration domain");
     }
 
+    /// <summary>Verifies stream3 mother brain attack palette.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain attack palette")]
     internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
@@ -3170,6 +3212,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 final room paints.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for final room paints")]
     internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
@@ -3236,6 +3279,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 room entry palettes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room entry palettes")]
     internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
@@ -3336,6 +3380,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 baby initial paints.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby initial paints")]
     internal static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
@@ -3396,6 +3441,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 initial narration map.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the initial narration tilemap and opening font")]
     internal static void VerifyStream3InitialNarrationMap()
@@ -3458,6 +3504,7 @@ internal static class LookupStream3Verification
         finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
     }
 
+    /// <summary>Verifies stream3 file select sprites.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select sprites")]
     internal static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
@@ -3540,6 +3587,7 @@ internal static class LookupStream3Verification
         }
     }
 
+    /// <summary>Verifies stream3 intro font.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the opening font")]
     internal static void VerifyStream3IntroFont()
     {
@@ -3590,6 +3638,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Intro font: 144 native tiles/2304 bytes, 2304 independent edits, four outline additions/91 removals, exact period alias and no stock output storage pass.");
     }
 
+    /// <summary>Verifies stream3 background maps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro background page tilemaps")]
     internal static void VerifyStream3BackgroundMaps()
@@ -3649,6 +3698,7 @@ internal static class LookupStream3Verification
     }
 
 
+    /// <summary>Verifies stream3 work robot registry.</summary>
     internal static void VerifyStream3WorkRobotRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3677,6 +3727,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Work Robot registry: 27 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
     }
 
+    /// <summary>Verifies stream3 shaktool registry.</summary>
     internal static void VerifyStream3ShaktoolRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3698,6 +3749,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Shaktool registry: 15 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
     }
 
+    /// <summary>Verifies stream3 nintendo fade entries.</summary>
     internal static void VerifyStream3NintendoFadeEntries()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -3737,6 +3789,7 @@ internal static class LookupStream3Verification
         Console.WriteLine("Nintendo fade entries: both native definition/slot/fallthrough-or-branch contracts, order and bounds pass; timing/colors unchanged.");
     }
 
+    /// <summary>Verifies stream3 portrait map.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro Samus head tilemap")]
     internal static void VerifyStream3PortraitMap()
@@ -3784,6 +3837,7 @@ internal static class LookupStream3Verification
         finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
     }
 
+    /// <summary>Lookup stream3 room flash command.</summary>
     [VerificationCommand("--lookup-stream3-room-flash")]
     internal static int LookupStream3RoomFlashCommand()
     {
@@ -3792,6 +3846,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 room entry palettes command.</summary>
     [VerificationCommand("--lookup-stream3-room-entry-palettes")]
     internal static int LookupStream3RoomEntryPalettesCommand()
     {
@@ -3800,6 +3855,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 recovery lights command.</summary>
     [VerificationCommand("--lookup-stream3-recovery-lights")]
     internal static int LookupStream3RecoveryLightsCommand()
     {
@@ -3808,6 +3864,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 attack palette command.</summary>
     [VerificationCommand("--lookup-stream3-attack-palette")]
     internal static int LookupStream3AttackPaletteCommand()
     {
@@ -3816,36 +3873,42 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 intro font command.</summary>
     [VerificationCommand("--lookup-stream3-intro-font")]
     internal static int LookupStream3IntroFontCommand()
     {
      VerifyStream3IntroFont(); return 0; 
     }
 
+    /// <summary>Lookup stream3 background maps command.</summary>
     [VerificationCommand("--lookup-stream3-background-maps")]
     internal static int LookupStream3BackgroundMapsCommand()
     {
      VerifyStream3BackgroundMaps(); return 0; 
     }
 
+    /// <summary>Lookup stream3 work robot registry command.</summary>
     [VerificationCommand("--lookup-stream3-work-robot-registry")]
     internal static int LookupStream3WorkRobotRegistryCommand()
     {
      VerifyStream3WorkRobotRegistry(); return 0; 
     }
 
+    /// <summary>Lookup stream3 shaktool registry command.</summary>
     [VerificationCommand("--lookup-stream3-shaktool-registry")]
     internal static int LookupStream3ShaktoolRegistryCommand()
     {
      VerifyStream3ShaktoolRegistry(); return 0; 
     }
 
+    /// <summary>Lookup stream3 nintendo fade entries command.</summary>
     [VerificationCommand("--lookup-stream3-nintendo-fade-entries")]
     internal static int LookupStream3NintendoFadeEntriesCommand()
     {
      VerifyStream3NintendoFadeEntries(); return 0; 
     }
 
+    /// <summary>Lookup stream3 portrait map command.</summary>
     [VerificationCommand("--lookup-stream3-portrait-map")]
     internal static int LookupStream3PortraitMapCommand()
     {
@@ -3853,6 +3916,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 initial narration command.</summary>
     [VerificationCommand("--lookup-stream3-initial-narration")]
     internal static int LookupStream3InitialNarrationCommand()
     {
@@ -3860,6 +3924,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 baby sprite reflection command.</summary>
     [VerificationCommand("--lookup-stream3-baby-sprite-reflection")]
     internal static int LookupStream3BabySpriteReflectionCommand()
     {
@@ -3868,6 +3933,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 final room paints command.</summary>
     [VerificationCommand("--lookup-stream3-final-room-paints")]
     internal static int LookupStream3FinalRoomPaintsCommand()
     {
@@ -3877,6 +3943,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 menu sprites command.</summary>
     [VerificationCommand("--lookup-stream3-menu-sprites")]
     internal static int LookupStream3MenuSpritesCommand()
     {
@@ -3886,6 +3953,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 file select sprites command.</summary>
     [VerificationCommand("--lookup-stream3-file-select-sprites")]
     internal static int LookupStream3FileSelectSpritesCommand()
     {
@@ -3894,6 +3962,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 options sprites command.</summary>
     [VerificationCommand("--lookup-stream3-options-sprites")]
     internal static int LookupStream3OptionsSpritesCommand()
     {
@@ -3903,6 +3972,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 file select borders command.</summary>
     [VerificationCommand("--lookup-stream3-file-select-borders")]
     internal static int LookupStream3FileSelectBordersCommand()
     {
@@ -3912,6 +3982,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup stream3 grapple tile patterns command.</summary>
     [VerificationCommand("--lookup-stream3-grapple-tile-patterns")]
     internal static int LookupStream3GrappleTilePatternsCommand()
     {
@@ -3931,6 +4002,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup narration layout command.</summary>
     [VerificationCommand("--lookup-narration-layout")]
     internal static int LookupNarrationLayoutCommand()
     {
@@ -3941,6 +4013,7 @@ internal static class LookupStream3Verification
         return 0;
     }
 
+    /// <summary>Lookup file select patches command.</summary>
     [VerificationCommand("--lookup-file-select-patches")]
     internal static int LookupFileSelectPatchesCommand()
     {

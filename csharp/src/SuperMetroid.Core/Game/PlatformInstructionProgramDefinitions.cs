@@ -44,6 +44,7 @@ internal abstract class PlatformInstructionProgramDefinitions
             (false, false, true) => TripperStillMovingLeft,
             (false, false, false) => TripperStillMovingRight,
         };
+    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - KamerMovingLeft;

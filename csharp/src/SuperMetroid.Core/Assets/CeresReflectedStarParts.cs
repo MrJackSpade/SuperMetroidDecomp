@@ -8,13 +8,16 @@ namespace SuperMetroid.Core.Assets;
 /// Preserve fixed source ordering; this is not dynamic clipping of edited stars.</summary>
 internal sealed class CeresReflectedStarParts(SpriteComposition source) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates if matching.</summary>
     internal static IReadOnlyList<CompiledSpritePart> CalculateIfMatching(SpriteComposition? source, IReadOnlyList<CompiledSpritePart> supplied)
     {
         if (source is null || source.PartCount != 25 || supplied.Count != 23) return supplied;
         var calculated = new CeresReflectedStarParts(source);
         return supplied.SequenceEqual(calculated) ? calculated : supplied;
     }
+    /// <summary>Gets count.</summary>
     public int Count => 23;
+    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -28,9 +31,11 @@ internal sealed class CeresReflectedStarParts(SpriteComposition source) : IReadO
                     part.Attributes.Priority, part.Attributes.FlipFlags ^ SnesTileFlipFlags.Horizontal), part.InheritPalette);
         }
     }
+    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

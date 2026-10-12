@@ -16,6 +16,7 @@ using static HyperBeamPaletteFxProgramDefinitionsVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus damage and grab verification.</summary>
 internal static class SamusDamageAndGrabVerification
 {
 
@@ -872,6 +873,7 @@ static void InstallHyperBeamProjectilePaletteProgramFixture(TestAddressSpace bus
     WriteTestWord(bus, 0x8dd9ce, 0xd904);
 }
 
+    /// <summary>Samus solid enemy collision command.</summary>
     [VerificationCommand("--samus-solid-enemy-collision")]
     internal static int SamusSolidEnemyCollisionCommand()
     {

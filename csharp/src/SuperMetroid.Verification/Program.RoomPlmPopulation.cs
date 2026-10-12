@@ -27,8 +27,10 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents room plm population verification.</summary>
 internal static class RoomPlmPopulationVerification
 {
+    /// <summary>Verifies elevator platform plm definitions.</summary>
     internal static void VerifyElevatorPlatformPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorPlatformControls), () => VerifyElevatorPlatformControls(rom));
@@ -41,12 +43,15 @@ internal static class RoomPlmPopulationVerification
         Console.WriteLine("Elevator platform PLM: native instruction loop and three complete draw lists match cartridge.");
     }
 
+    /// <summary>Verifies fallback door headers.</summary>
     private static void VerifyFallbackDoorHeaders(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, false);
+    /// <summary>Verifies fallback door lists.</summary>
     private static void VerifyFallbackDoorLists(SuperMetroidAddressSpace rom) => VerifyFallbackDoorField(rom, true);
 
     /// <summary>Entries in <c>Door_Closing_PLMs</c> ($8F:E68A), the orientation byte's domain.</summary>
     private const byte DoorClosingTableEntries = 12;
 
+    /// <summary>Verifies fallback door field.</summary>
     private static void VerifyFallbackDoorField(SuperMetroidAddressSpace rom, bool list)
     {
         for (int raw = 0; raw <= byte.MaxValue; raw++)
@@ -74,6 +79,7 @@ internal static class RoomPlmPopulationVerification
         }
     }
 
+    /// <summary>Verifies door closing plm definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for door closing PLM definitions")]
     internal static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
@@ -204,6 +210,7 @@ internal static class RoomPlmPopulationVerification
             "nonresident blue-door collision header is outside resident closing domain");
     }
 
+    /// <summary>Verifies speed booster escape stage definitions.</summary>
     internal static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -936,6 +943,7 @@ internal static class RoomPlmPopulationVerification
             "Mother Brain escape gate never rereads compiled programs or physical draws");
     }
 
+    /// <summary>Verifies mother brain escape gate compiled definitions.</summary>
     internal static void VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -946,6 +954,7 @@ internal static class RoomPlmPopulationVerification
         Suite(nameof(VerifyEscapeGateDrawVisuals), () => VerifyEscapeGateDrawVisuals(rom));
     }
 
+    /// <summary>Writes vertical plm draw.</summary>
     private static void WriteVerticalPlmDraw(
         TestAddressSpace bus,
         ushort pointer,
@@ -1118,6 +1127,7 @@ internal static class RoomPlmPopulationVerification
             "Shaktool controller deletes itself when the path event is set");
     }
 
+    /// <summary>Verifies other station families.</summary>
     internal static void VerifyOtherStationFamilies(TestAddressSpace bus,
         RoomPlmStationVisualCatalog? visuals = null)
     {
@@ -1258,6 +1268,7 @@ internal static class RoomPlmPopulationVerification
             "locked save station cannot reopen until room re-entry");
     }
 
+    /// <summary>Verifies save station electricity.</summary>
     private static void VerifySaveStationElectricity(
         TestAddressSpace bus,
         RoomLevelData level,
@@ -1312,6 +1323,7 @@ internal static class RoomPlmPopulationVerification
             "save electricity reaches the ordinary room enemy-projectile draw path");
     }
 
+    /// <summary>Verifies unsupported population context.</summary>
     private static void VerifyUnsupportedPopulationContext(TestAddressSpace bus)
     {
         const ushort population = 0x9400;
@@ -1345,6 +1357,7 @@ internal static class RoomPlmPopulationVerification
             "unsupported PLM failure includes population/header/record/coordinate/argument context");
     }
 
+    /// <summary>Verifies save station confirmation.</summary>
     private static void VerifySaveStationConfirmation(TestAddressSpace bus)
     {
         GameplayMessageTitleCell[] Cells(int count, ushort first) => Enumerable.Range(0, count)
@@ -1425,6 +1438,7 @@ internal static class RoomPlmPopulationVerification
             "save confirmation defaults to yes and publishes acceptance");
     }
 
+    /// <summary>Seed room plm population rom.</summary>
     internal static void SeedRoomPlmPopulationRom(TestAddressSpace bus)
     {
         SeedPoseOneSamusData(bus);
@@ -1443,6 +1457,7 @@ internal static class RoomPlmPopulationVerification
         SeedPlmProgramWords(bus, 0xafc8, 0xafb6);
     }
 
+    /// <summary>Seed timed draw loop.</summary>
     private static void SeedTimedDrawLoop(
         TestAddressSpace bus,
         ushort list,
@@ -1459,6 +1474,7 @@ internal static class RoomPlmPopulationVerification
         }
     }
 
+    /// <summary>Creates mother brain escape gate guard.</summary>
     internal static CartridgeReadGuard NewMotherBrainEscapeGateGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => address is >= 0x84bb34 and <= 0x84bb51 or >= 0x849473 and <= 0x849496,
@@ -1529,12 +1545,14 @@ internal static class RoomPlmPopulationVerification
             WriteTestWord(bus, 0x859900 + word * 2, unchecked((ushort)(0x2a00 + word)));
     }
 
+    /// <summary>Room plm population command.</summary>
     [VerificationCommand("--room-plm-population")]
     internal static int RoomPlmPopulationCommand()
     {
      VerifySequentialRoomPlmPopulationLoader(); return 0; 
     }
 
+    /// <summary>Door closing definitions command.</summary>
     [VerificationCommand("--door-closing-definitions")]
     internal static int DoorClosingDefinitionsCommand()
     {

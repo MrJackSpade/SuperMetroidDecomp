@@ -37,7 +37,7 @@ public static class TitleSequenceRomData
     {
         /// <summary>Music data selector $03 loaded at title-sequence setup.</summary>
         public const byte DataIndex = 0x03;
-        /// <summary>Track command five queued after title music data for the normal opening sequence.</summary>
+        /// <summary>Tracks command five queued after title music data for the normal opening sequence.</summary>
         public const byte OpeningTrack = 5;
         /// <summary>$8B:9A94 track command six queued by the skip transition before reconstructing the immediate title screen.</summary>
         public const byte ImmediateTitleTrack = 6;
@@ -143,6 +143,7 @@ public static class TitleSequenceRomData
             {
                 for (int frame = 0; frame < Count; frame++) yield return this[frame];
             }
+            /// <summary>Gets enumerator.</summary>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
         /// <summary>Byte length of the complete title OBJ character upload: $4000 bytes.</summary>

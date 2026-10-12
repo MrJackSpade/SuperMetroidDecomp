@@ -11,8 +11,10 @@ internal static class RinkaVisualDefinitions
 {
     /// <summary>Native Rinka spritemap bank.</summary>
     internal const byte Bank = 0xa2;
+    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 5;
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(PuyoInstructionProgramDefinitions))]
 internal abstract class PuyoInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 28;
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 17;
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -21,12 +24,14 @@ internal abstract class PuyoInstructionProgramDefinitionsTooling : IInstructionP
         else pointer = PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4 + (index - 18) / 2 * 6 + (index % 2) * 4;
         return new((ushort)pointer, PuyoInstructionProgramDefinitions.ReadMechanicsWord((ushort)pointer));
     }
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 12 ? PuyoInstructionProgramDefinitions.GroundedFast + index / 4 * 20 + index % 4 * 4 + 2 :
             PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4 + (index - 12) * 6 + 2);
     }
+    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup elevatube stock verification.</summary>
 internal static class LookupElevatubeStockVerification
 {
+    /// <summary>Verifies elevatube stock mapping.</summary>
     internal static void VerifyElevatubeStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMaridiaElevatubeVisualCatalog installed)
     {

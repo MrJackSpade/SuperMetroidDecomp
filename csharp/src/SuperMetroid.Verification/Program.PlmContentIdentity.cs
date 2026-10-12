@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents plm content identity verification.</summary>
 internal static class PlmContentIdentityVerification
 {
     /// <summary>Selected-art verification only: constructed catalogs, no ROM and no gameplay traversal.</summary>
@@ -56,6 +57,7 @@ internal static class PlmContentIdentityVerification
             "dynamic item pixels/palettes, draw-run framing and host compatibility pass without a ROM.");
     }
 
+    /// <summary>Creates plm identity fixture.</summary>
     private static IReadOnlyDictionary<string, string> CreatePlmIdentityFixture(
         string? edited = null, bool reverse = false)
     {
@@ -121,6 +123,7 @@ internal static class PlmContentIdentityVerification
                 .Select(draw => new RoomPlmCollectibleVisualEntry(RoomPlmCollectibleDrawDefinitions.All.ToArray().Single(frame => frame.Pointer == draw.Pointer).Id, draw.Word))), DynamicCollectibleArt = new RoomPlmDynamicCollectibleArtCatalog(reverse ? dynamicEntries.Reverse() : dynamicEntries) });
     }
 
+    /// <summary>Plm content identity command.</summary>
     [VerificationCommand("--plm-content-identity")]
     internal static int PlmContentIdentityCommand()
     {

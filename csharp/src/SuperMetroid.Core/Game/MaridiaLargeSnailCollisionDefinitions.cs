@@ -20,9 +20,13 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     private const ushort LastFrame = 0xcca9;
     /// <summary>Each native one-component extended frame occupies ten bytes.</summary>
     private const int FrameStride = 10;
+    /// <summary>Defines damage touch.</summary>
     private const ushort DamageTouch = EnemyAiCodePointers.BankA2.MaridiaLargeSnailDamagingTouch;
+    /// <summary>Defines safe touch.</summary>
     private const ushort SafeTouch = EnemyAiCodePointers.BankA2.MaridiaLargeSnailNonDamagingTouch;
+    /// <summary>Defines shot.</summary>
     private const ushort Shot = EnemyAiCodePointers.BankA2.MaridiaLargeSnailShot;
+    /// <summary>Defines no shot.</summary>
     private const ushort NoShot = EnemyAiCodePointers.BankA0.NoOp;
 
     /// <summary>First consecutive hitbox record, Hitbox_Oum_FacingLeft_0 at $A2:D034.</summary>
@@ -67,12 +71,15 @@ internal static class MaridiaLargeSnailCollisionDefinitions
             [new(-15, -17, 0, 16, SafeTouch, NoShot), new(0, -17, 16, 0, SafeTouch, Shot), new(0, 0, 16, 16, SafeTouch, NoShot)],
         ]));
 
+    /// <summary>Gets frame pointers.</summary>
     internal static FramePointerSequence FramePointers => default;
 
+    /// <summary>Checks whether frame.</summary>
     internal static bool HasFrame(ushort frame) =>
         frame >= FirstFrame && frame <= LastFrame &&
         (frame - FirstFrame) % FrameStride == 0;
 
+    /// <summary>Hitbox list at.</summary>
     internal static ushort HitboxListAt(ushort frame)
     {
         if (!HasFrame(frame))
@@ -80,6 +87,7 @@ internal static class MaridiaLargeSnailCollisionDefinitions
         return Lists.PointerAt((frame - FirstFrame) / FrameStride);
     }
 
+    /// <summary>Hitboxes at.</summary>
     internal static ReadOnlySpan<MaridiaLargeSnailCollisionHitbox> HitboxesAt(ushort list) =>
         Lists.TryGet(list, out MaridiaLargeSnailCollisionHitbox[] hitboxes)
             ? hitboxes
@@ -89,15 +97,20 @@ internal static class MaridiaLargeSnailCollisionDefinitions
     /// <summary>Consecutive ten-byte one-component frame identities at $A2:CB87-$CCA9.</summary>
     internal readonly struct FramePointerSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Gets count.</summary>
         public int Count => (LastFrame - FirstFrame) / FrameStride + 1;
+        /// <summary>Gets length.</summary>
         public int Length => Count;
+        /// <summary>Gets an indexed value.</summary>
         public ushort this[int index] => (uint)index < Count
             ? (ushort)(FirstFrame + index * FrameStride)
             : throw new IndexOutOfRangeException();
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

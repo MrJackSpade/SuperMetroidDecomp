@@ -21,13 +21,20 @@ public enum ChootEnemyFunction : ushort
 /// </summary>
 public sealed class ChootEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Stores spawn positions.</summary>
     private readonly Position16<RoomPixels>[] _spawnPositions;
+    /// <summary>Stores initial falling positions.</summary>
     private readonly Position16<RoomPixels>[] _initialFallingPositions;
+    /// <summary>Stores falling origins.</summary>
     private readonly Position16<RoomPixels>[] _fallingOrigins;
+    /// <summary>Stores initial yspeed table indexes.</summary>
     private readonly ushort[] _initialYSpeedTableIndexes;
+    /// <summary>Stores jump delay timers.</summary>
     private readonly ushort[] _jumpDelayTimers;
 
+    /// <summary>Initializes a new choot enemy state instance.</summary>
     internal ChootEnemyState(
         RoomEnemySlot slot,
         Position16<RoomPixels>[] spawnPositions,

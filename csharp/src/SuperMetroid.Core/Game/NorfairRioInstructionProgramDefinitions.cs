@@ -23,10 +23,14 @@ internal abstract class NorfairRioInstructionProgramDefinitions
 
     // Pose holds are authored animation cadence (reviewed under #1165); program geometry and the
     // callback dispatch below are calculated.
+    /// <summary>Stores idle holds.</summary>
     private static readonly ushort[] IdleHolds = [13, 18];
+    /// <summary>Stores flight holds.</summary>
     private static readonly ushort[] FlightHolds = [6, 5, 8, 6];
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 65;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 34;
 
     /// <summary>
@@ -46,6 +50,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return LoopWord(index - 59, FlamesDescending, 0, false);
     }
 
+    /// <summary>Loop word.</summary>
     private static InstructionMechanicsWord LoopWord(int index, ushort start, ushort setup, bool idle)
     {
         int frameStart = start;
@@ -59,6 +64,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return new((ushort)(frameStart + 16 + (index - 4) * 2), index == 4 ? (ushort)CommonEnemyInstruction.Goto : start);
     }
 
+    /// <summary>Transition word.</summary>
     private static InstructionMechanicsWord TransitionWord(int index, ushort start, bool ascending)
     {
         int poses = ascending ? 8 : 6;
@@ -91,6 +97,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         _ => (ushort)NorfairRioInstruction.Instruction_Geruta_SetFlamesYOffset_negative10,
     };
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -103,6 +110,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return (ushort)(FlamesDescending + 2 + (index - 30) * 4);
     }
 
+    /// <summary>Indicates whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)
@@ -110,6 +118,7 @@ internal abstract class NorfairRioInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

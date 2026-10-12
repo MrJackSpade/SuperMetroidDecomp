@@ -29,8 +29,10 @@ public enum OwtchBehaviorState : ushort
 /// </summary>
 public sealed class OwtchEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new owtch enemy state instance.</summary>
     internal OwtchEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c>, fractional half of positive 16.16 speed.</summary>

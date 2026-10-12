@@ -34,12 +34,15 @@ internal enum KraidRoomDraw : ushort
 /// </summary>
 internal static class KraidRoomPlmDrawDefinitions
 {
+    /// <summary>Defines draw count.</summary>
     internal const int DrawCount = 10;
 
     /// <summary>A horizontal, single-run Kraid draw evaluated without stored words.</summary>
     internal readonly record struct Draw(ushort Pointer)
     {
+        /// <summary>Gets block count.</summary>
         internal int BlockCount => CountFor(Pointer);
+        /// <summary>word at.</summary>
         internal ushort WordAt(int index) => LevelWord(Pointer, index);
     }
 
@@ -57,6 +60,7 @@ internal static class KraidRoomPlmDrawDefinitions
         };
     }
 
+    /// <summary>try get.</summary>
     internal static bool TryGet(ushort pointer, out Draw draw)
     {
         if (CountFor(pointer) != 0)
@@ -72,6 +76,7 @@ internal static class KraidRoomPlmDrawDefinitions
     private static int CountFor(ushort pointer) =>
         Enum.IsDefined((KraidRoomDraw)pointer) ? CountFor((KraidRoomDraw)pointer) : 0;
 
+    /// <summary>count for.</summary>
     private static int CountFor(KraidRoomDraw draw) => draw switch
     {
         KraidRoomDraw.CrumbleFirst or KraidRoomDraw.CrumbleSecond or KraidRoomDraw.CrumbleThird or
@@ -93,6 +98,7 @@ internal static class KraidRoomPlmDrawDefinitions
         return LevelWord(ClosedNativeWords.Decode<KraidRoomDraw>(pointer, "Kraid room draw"), index);
     }
 
+    /// <summary>level word.</summary>
     private static ushort LevelWord(KraidRoomDraw draw, int index) => draw switch
     {
         KraidRoomDraw.CrumbleFirst => 0x8180,
@@ -126,6 +132,7 @@ internal static class KraidRoomPlmDrawDefinitions
         }
     }
 
+    /// <summary>try get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out Draw draw)
     {
         foreach (KraidRoomDraw candidate in Enum.GetValues<KraidRoomDraw>())
@@ -134,8 +141,10 @@ internal static class KraidRoomPlmDrawDefinitions
         draw = default;
         return false;
     }
+    /// <summary>visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<KraidRoomDraw>(pointer, "Kraid room draw with a visual ID"));
+    /// <summary>visual id.</summary>
     private static string VisualId(KraidRoomDraw draw) => draw switch
     {
         KraidRoomDraw.CrumbleFirst => "crumble-first",
@@ -151,6 +160,7 @@ internal static class KraidRoomPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(KraidRoomDraw)} {(int)draw:X4}."),
     };
 
+    /// <summary>is kraid owner.</summary>
     internal static bool IsKraidOwner(PlmHeaderId header) => header is
         PlmHeaderId.CrumbleKraidCeilingIntoBackground1 or
         PlmHeaderId.CrumbleKraidPlatformVariant1 or

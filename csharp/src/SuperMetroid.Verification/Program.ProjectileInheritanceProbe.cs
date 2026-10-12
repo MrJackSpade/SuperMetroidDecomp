@@ -18,9 +18,11 @@ using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents projectile inheritance probe verification.</summary>
 internal static class ProjectileInheritanceProbeVerification
 {
     // The original initialized-WRAM reproduction is retained alongside live producers.
+    /// <summary>probe projectile velocity inheritance.</summary>
     internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = typeof(BeamFiring)
@@ -81,6 +83,7 @@ internal static class ProjectileInheritanceProbeVerification
         Console.WriteLine("Projectile inheritance: original 50 cases, live movement writes and preceding-frame runtime shot pass.");
     }
 
+    /// <summary>verify projectile inheritance movement.</summary>
     private static void VerifyProjectileInheritanceMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -118,6 +121,7 @@ internal static class ProjectileInheritanceProbeVerification
             "Alpha reset clears exactly all eight directional words");
     }
 
+    /// <summary>verify projectile inheritance runtime.</summary>
     private static void VerifyProjectileInheritanceRuntime(ushort weapon)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -185,6 +189,7 @@ internal static class ProjectileInheritanceProbeVerification
         return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);
     }
 
+    /// <summary>projectile inheritance probe command.</summary>
     [VerificationCommand("--projectile-inheritance-probe")]
     internal static int ProjectileInheritanceProbeCommand()
     {

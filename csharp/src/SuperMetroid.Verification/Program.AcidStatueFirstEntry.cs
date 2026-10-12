@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents acid statue first entry verification.</summary>
 internal static class AcidStatueFirstEntryVerification
 {
+    /// <summary>verify acid statue first entry.</summary>
     internal static void VerifyAcidStatueFirstEntry()
     {
         const ushort sourceRoom = 0xb236;
@@ -120,6 +122,7 @@ internal static class AcidStatueFirstEntryVerification
         Console.WriteLine($"Acid Statue first entry: checked {destinationFrames} destination transition frames.");
     }
 
+    /// <summary>acid statue first entry command.</summary>
     [VerificationCommand("--acid-statue-first-entry")]
     internal static int AcidStatueFirstEntryCommand()
     {

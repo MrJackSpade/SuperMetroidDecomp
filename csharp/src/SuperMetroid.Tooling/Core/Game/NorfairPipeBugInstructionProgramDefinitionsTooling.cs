@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(NorfairPipeBugInstructionProgramDefinitions))]
 internal abstract class NorfairPipeBugInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => NorfairPipeBugInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => NorfairPipeBugInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 28;
     /// <summary>Each timed record interleaves its visual selector two bytes after duration.</summary>
     public static ushort PresentationWordAddress(int index)
@@ -22,6 +25,7 @@ internal abstract class NorfairPipeBugInstructionProgramDefinitionsTooling : IIn
             frame -= 8;
         return (ushort)((flying ? NorfairPipeBugInstructionProgramDefinitions.FlyingLeft : NorfairPipeBugInstructionProgramDefinitions.RisingLeft) + 64 * facing + 4 * frame + 2);
     }
+    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xb30000)

@@ -2,12 +2,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup tube draws verification.</summary>
 internal static class LookupTubeDrawsVerification
 {
+    /// <summary>Verifies tube geometry.</summary>
     internal static void VerifyTubeGeometry(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 0);
+    /// <summary>Verifies tube collision.</summary>
     internal static void VerifyTubeCollision(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 1);
+    /// <summary>Verifies tube visuals.</summary>
     internal static void VerifyTubeVisuals(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 2);
 
+    /// <summary>Verifies tube draw field.</summary>
     private static void VerifyTubeDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x98d1,0x98d7,0x98dd,0x98e3,0x9953,0x9991,0x99e5];

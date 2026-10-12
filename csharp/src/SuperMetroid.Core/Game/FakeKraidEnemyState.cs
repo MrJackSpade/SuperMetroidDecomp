@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class FakeKraidEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new fake kraid enemy state instance.</summary>
     internal FakeKraidEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Signed whole-pixel walk delta in native variable B.</summary>

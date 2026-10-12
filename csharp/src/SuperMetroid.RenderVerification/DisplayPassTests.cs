@@ -6,8 +6,10 @@ using Vortice.Direct3D11;
 using Vortice.DXGI;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents display pass tests.</summary>
 internal static class DisplayPassTests
 {
+    /// <summary>Runs.</summary>
     internal static unsafe void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var packet = RenderFrameSnapshotCodec.Deserialize(File.ReadAllBytes(

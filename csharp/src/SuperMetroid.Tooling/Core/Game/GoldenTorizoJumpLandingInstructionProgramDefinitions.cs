@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Stores start.</summary>
     internal const ushort Start = 0xcdaf;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 4 * 5;
 
     /// <summary>
@@ -47,6 +49,7 @@ internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : I
         return new((ushort)(Start + index * sizeof(ushort)), value);
     }
 
+    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xaa0000)

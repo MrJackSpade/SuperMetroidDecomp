@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents rio launch definitions verification.</summary>
 internal static class RioLaunchDefinitionsVerification
 {
+    /// <summary>Verifies compiled rio launches.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Rio launches")]
     internal static void VerifyCompiledRioLaunches(SuperMetroidAddressSpace rom)
     {

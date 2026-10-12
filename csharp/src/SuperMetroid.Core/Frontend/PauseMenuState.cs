@@ -22,37 +22,68 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class PauseMenuState
 {
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Stores palette animation.</summary>
     private readonly MapPaletteAnimation paletteAnimation;
+    /// <summary>Stores samus.</summary>
     private readonly SamusState samus;
+    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState system;
+    /// <summary>Stores area.</summary>
     private readonly AreaId area;
+    /// <summary>Stores room map position.</summary>
     private readonly Position16<MapTiles> roomMapPosition;
+    /// <summary>Stores map reveal mode.</summary>
     private readonly MapRevealMode mapRevealMode;
+    /// <summary>Stores map presentation.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram vram = new();
+    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram cgram = new();
+    /// <summary>Stores oam.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Stores equipment tilemap.</summary>
     private readonly byte[] equipmentTilemap;
+    /// <summary>Stores pause button tilemap.</summary>
     private readonly byte[] pauseButtonTilemap;
+    /// <summary>Stores transition.</summary>
     private PauseMenuTransition transition;
+    /// <summary>Stores transition fade counter.</summary>
     private int transitionFadeCounter;
+    /// <summary>Stores transition brightness.</summary>
     private int transitionBrightness = 15;
+    /// <summary>Stores selected category.</summary>
     private PauseEquipmentCategory selectedCategory;
+    /// <summary>Stores selected item.</summary>
     private int selectedItem;
+    /// <summary>Stores map scroll position.</summary>
     private Position16<MapPixels> mapScrollPosition;
+    /// <summary>Stores map scroll.</summary>
     private PauseMapScroll mapScroll = null!;
+    /// <summary>Stores map arrows.</summary>
     private FileSelectMapAnimations? mapArrows;
+    /// <summary>Stores map labels before icons.</summary>
     private bool mapLabelsBeforeIcons;
+    /// <summary>Stores map indicator animation frame.</summary>
     private int mapIndicatorAnimationFrame;
+    /// <summary>Stores map indicator animation timer.</summary>
     private int mapIndicatorAnimationTimer;
+    /// <summary>Stores item selector animation frame.</summary>
     private int itemSelectorAnimationFrame;
+    /// <summary>Stores item selector animation timer.</summary>
     private int itemSelectorAnimationTimer;
+    /// <summary>Stores plasma label overrun active.</summary>
     private bool plasmaLabelOverrunActive;
+    /// <summary>Stores last indicator origin.</summary>
     private Position16<OamPixels> lastIndicatorOrigin;
+    /// <summary>Stores last indicator spritemap id.</summary>
     private ushort lastIndicatorSpritemapId;
 
+    /// <summary>Initializes a new pause menu state instance.</summary>
     public PauseMenuState(ISnesAddressSpace bus, PauseMenuEntry entry)
     {
         this.bus = Ensure.NotNull(bus);
@@ -226,9 +257,12 @@ internal sealed class PauseMenuState
     /// <summary>Composes the cartridge's BG2 frame and current BG1 page at 256x224.</summary>
     // Raster scratch reused across draws; never part of saved state (restores reallocate it).
     [NonSerialized] private Rgba32[]? objScratchPixels;
+    /// <summary>Stores obj scratch priorities.</summary>
     [NonSerialized] private byte[]? objScratchPriorities;
+    /// <summary>Stores bg3 scratch plane.</summary>
     [NonSerialized] private Rgba32[]? bg3ScratchPlane;
 
+    /// <summary>render.</summary>
     public Rgba32[] Render()
     {
         Rgba32[] output = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
@@ -289,6 +323,7 @@ internal sealed class PauseMenuState
             PauseMenuLayout.ObjectSelection, checked((byte)(transition == PauseMenuTransition.None ? 15 : transitionBrightness)));
     }
 
+    /// <summary>prepare render oam.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -313,6 +348,7 @@ internal sealed class PauseMenuState
         oam.FinalizeFrame();
     }
 
+    /// <summary>composite pause bg.</summary>
     private void CompositePauseBg(
         Span<Rgba32> output,
         ushort tilemapBaseWord,
@@ -323,6 +359,7 @@ internal sealed class PauseMenuState
         SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(isMapLayer && ScreenMode == 0 ? mapScrollPosition.X : (ushort)0, unchecked((ushort)((isMapLayer && ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline))), Size = SnesPpuLayout.ScreenSize, TilemapSize = new Extent16<TilemapCells>(checked((ushort)tilemapWidthInTiles), 32) }, priority: priority);
     }
 
+    /// <summary>composite pause bg3.</summary>
     private void CompositePauseBg3(Span<Rgba32> output, bool priority)
     {
         Rgba32[] plane = bg3ScratchPlane ??= new Rgba32[32 * 8 * 32 * 8];
@@ -334,6 +371,7 @@ internal sealed class PauseMenuState
             output.Length));
     }
 
+    /// <summary>composite resolved obj priority.</summary>
     private static void CompositeResolvedObjPriority(
         Span<Rgba32> output,
         ResolvedObjFrame objects,
@@ -346,6 +384,7 @@ internal sealed class PauseMenuState
         }
     }
 
+    /// <summary>step page transition.</summary>
     private void StepPageTransition()
     {
         switch (transition)
@@ -404,6 +443,7 @@ internal sealed class PauseMenuState
         }
     }
 
+    /// <summary>select first collected equipment.</summary>
     private void SelectFirstCollectedEquipment()
     {
         // $82:ABAD-$ABB5 selects the tank mode control whenever reserve capacity exists,
@@ -432,12 +472,15 @@ internal sealed class PauseMenuState
         selectedItem = 0;
     }
 
+    /// <summary>get collected bits.</summary>
     private ushort GetCollectedBits(PauseEquipmentCategory category) =>
         category == PauseEquipmentCategory.Beams ? samus.CollectedBeams : samus.CollectedItems;
 
+    /// <summary>get equipped bits.</summary>
     private ushort GetEquippedBits(PauseEquipmentCategory category) =>
         category == PauseEquipmentCategory.Beams ? samus.EquippedBeams : samus.EquippedItems;
 
+    /// <summary>rebuild equipment tilemap.</summary>
     private void RebuildEquipmentTilemap()
     {
         // Restore the literal base before applying inventory-dependent labels. This makes
@@ -482,6 +525,7 @@ internal sealed class PauseMenuState
         }
     }
 
+    /// <summary>write samus wireframe.</summary>
     private void WriteSamusWireframe()
     {
         int variant = PauseEquipmentRules.WireframeIndex(samus.EquippedItems);
@@ -490,6 +534,7 @@ internal sealed class PauseMenuState
             .PauseWireframes.ApplyTo(equipmentTilemap, (PauseWireframeKind)variant);
     }
 
+    /// <summary>load pause map tilemap.</summary>
     private void LoadPauseMapTilemap()
     {
         IAreaMapView map = (mapPresentation ?? throw new InvalidOperationException(
@@ -501,6 +546,7 @@ internal sealed class PauseMenuState
         // Installed backdrops already contain their authored area lettering.
     }
 
+    /// <summary>setup map scrolling.</summary>
     private void SetupMapScrolling()
     {
         int areaIndex = AreaIds.ToIndex(area);
@@ -603,9 +649,11 @@ internal sealed class PauseMenuState
         mapScrollPosition = new(horizontal, vertical);
     }
 
+    /// <summary>samus map cell.</summary>
     private Position16<MapTiles> SamusMapCell() =>
         roomMapPosition + new Offset16<MapTiles>(checked((short)(SnesEightEight.WholeOf(samus.Position.X.Whole))), checked((short)((SnesEightEight.WholeOf(samus.Position.Y.Whole)) + 1)));
 
+    /// <summary>draw map position indicator.</summary>
     private void DrawMapPositionIndicator()
     {
         Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(mapScrollPosition).ToOam();
@@ -618,6 +666,7 @@ internal sealed class PauseMenuState
             ReadPauseSpritePaletteBits());
     }
 
+    /// <summary>step map indicator animation.</summary>
     private void StepMapIndicatorAnimation()
     {
         // The native timer starts at zero, advances to frame one on the first draw, then
@@ -631,6 +680,7 @@ internal sealed class PauseMenuState
         mapIndicatorAnimationTimer--;
     }
 
+    /// <summary>reset item selector animation.</summary>
     private void ResetItemSelectorAnimation()
     {
         itemSelectorAnimationFrame = 0;
@@ -639,6 +689,7 @@ internal sealed class PauseMenuState
             .PauseSelectors.InitialDurationTicks;
     }
 
+    /// <summary>step item selector animation.</summary>
     private void StepItemSelectorAnimation()
     {
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
@@ -656,6 +707,7 @@ internal sealed class PauseMenuState
         itemSelectorAnimationTimer = selectors.Duration(itemSelectorAnimationFrame);
     }
 
+    /// <summary>draw equipment item selector.</summary>
     private void DrawEquipmentItemSelector()
     {
         if (samus.MaxReserveEnergy == 0 && samus.CollectedItems == 0 && samus.CollectedBeams == 0)
@@ -671,6 +723,7 @@ internal sealed class PauseMenuState
         selector.Draw(oam, selectedCategory, selectedItem, itemSelectorAnimationFrame);
     }
 
+    /// <summary>read pause sprite palette bits.</summary>
     private static ushort ReadPauseSpritePaletteBits() => PauseMenuLayout.MapMarkerPaletteBits;
 
     /// <summary>
@@ -735,6 +788,7 @@ internal sealed class PauseMenuState
                 PauseMenuLayout.ButtonRowsByteCount));
     }
 
+    /// <summary>draw menu spritemap.</summary>
     private void DrawMenuSpritemap(MapSpriteId id, Position16<OamPixels> origin, ushort paletteBits)
     {
         // Map compositions use this shared entry. Extracted equipment selectors
@@ -744,12 +798,15 @@ internal sealed class PauseMenuState
             .Sprites.Draw(id, oam, origin, paletteBits);
     }
 
+    /// <summary>upload equipment tilemap.</summary>
     private void UploadEquipmentTilemap() =>
         new PauseVram(vram).Bg1Tilemap.Load(equipmentTilemap);
 
+    /// <summary>read category mask.</summary>
     private static ushort ReadCategoryMask(PauseEquipmentCategoryDefinition category, int item) =>
         PauseEquipmentRules.Mask(category.Category, item);
 
+    /// <summary>handle equipment input.</summary>
     private void HandleEquipmentInput(SnesButton pressed, byte nmiFrameCounter8)
     {
         PauseEquipmentCategory dispatchedCategory = selectedCategory;
@@ -807,6 +864,7 @@ internal sealed class PauseMenuState
         UploadEquipmentTilemap();
     }
 
+    /// <summary>update equipment label.</summary>
     private void UpdateEquipmentLabel(PauseEquipmentCategory categoryIndex, int item, int wordCount, bool disabled)
     {
         var category = PauseEquipmentCategories.Get(categoryIndex);
@@ -819,6 +877,7 @@ internal sealed class PauseMenuState
                 equipmentTilemap, categoryIndex, item, wordCount, disabled);
     }
 
+    /// <summary>try select equipment.</summary>
     private bool TrySelectEquipment(PauseEquipmentCategory categoryIndex, int start, int step)
     {
         if (categoryIndex == PauseEquipmentCategory.Beams && samus.HyperBeam != 0)
@@ -844,6 +903,7 @@ internal sealed class PauseMenuState
         return false;
     }
 
+    /// <summary>try select reserves.</summary>
     private bool TrySelectReserves()
     {
         if (samus.MaxReserveEnergy == 0) return false;
@@ -853,6 +913,7 @@ internal sealed class PauseMenuState
         return true;
     }
 
+    /// <summary>move equipment selector.</summary>
     private void MoveEquipmentSelector(SnesButton pressed)
     {
         bool left = (pressed & SnesButton.Left) != 0, right = (pressed & SnesButton.Right) != 0;
@@ -923,6 +984,7 @@ internal sealed class PauseMenuState
         new PauseVram(vram).AcceptedHudRows.Load(new PauseVram(gameplayVram).AcceptedHudRows);
     }
 
+    /// <summary>bind map presentation.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? catalog)
     {
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
@@ -988,6 +1050,7 @@ internal sealed class PauseMenuState
         if (ScreenMode == 0) LoadPauseMapTilemap();
     }
 
+    /// <summary>load pause backdrop.</summary>
     private void LoadPauseBackdrop()
     {
         (mapPresentation ?? throw new InvalidOperationException(
@@ -995,6 +1058,7 @@ internal sealed class PauseMenuState
             .PauseBackdrops.LoadTo(new PauseVram(vram).Bg2Tilemap, area);
     }
 
+    /// <summary>refresh pause button artwork.</summary>
     private void RefreshPauseButtonArtwork()
     {
         byte[] replacement = (mapPresentation ?? throw new InvalidOperationException(
@@ -1017,9 +1081,13 @@ internal sealed class PauseMenuState
     // The arrow state latched by its native owner: equipment setup lights it and tank
     // dispatches update it; other categories leave it latched. Content rebinds re-apply this
     // state with the new presentation rather than re-running the owner.
+    /// <summary>Stores reserve arrow latched.</summary>
     private bool reserveArrowLatched;
+    /// <summary>Stores reserve arrow latched enabled.</summary>
     private bool reserveArrowLatchedEnabled;
+    /// <summary>Stores reserve arrow latched animated.</summary>
     private bool reserveArrowLatchedAnimated;
+    /// <summary>Stores reserve arrow latched frame.</summary>
     private byte reserveArrowLatchedFrame;
 
     /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
@@ -1032,6 +1100,7 @@ internal sealed class PauseMenuState
         SetReserveArrow(enabled, animated, nmiFrameCounter8);
     }
 
+    /// <summary>set reserve arrow.</summary>
     private void SetReserveArrow(bool enabled, bool animated = false, byte nmiFrameCounter8 = 0)
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
@@ -1049,6 +1118,7 @@ internal sealed class PauseMenuState
     private void ReapplyLatchedReserveArrow() =>
         SetReserveArrow(reserveArrowLatchedEnabled, reserveArrowLatchedAnimated, reserveArrowLatchedFrame);
 
+    /// <summary>write reserve labels.</summary>
     private void WriteReserveLabels()
     {
         // Absence of capacity leaves the original blank template intact. Restoring
@@ -1067,6 +1137,7 @@ internal sealed class PauseMenuState
     }
 
     // Retained at the simulation boundary so redraws cannot advance fill flicker.
+    /// <summary>Stores pause nmi frame counter8.</summary>
     private byte pauseNmiFrameCounter8;
 
     /// <summary>Ports $82:B2AA's full/partial/empty strip and final cap.</summary>
@@ -1103,6 +1174,7 @@ internal sealed class PauseMenuState
 
     // Native $0757 persists while the selector moves away. It is not a host
     // task or timer: only the selected reserve-transfer subdispatcher ticks it.
+    /// <summary>Stores reserve transfer sound delay.</summary>
     private ushort reserveTransferSoundDelay;
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
@@ -1160,13 +1232,21 @@ internal sealed class PauseMenuState
     }
 }
 
+/// <summary>Represents pause menu transition.</summary>
 internal enum PauseMenuTransition
 {
+    /// <summary>Identifies none.</summary>
     None,
+    /// <summary>Identifies map to equipment fade out.</summary>
     MapToEquipmentFadeOut,
+    /// <summary>Identifies map to equipment fade in.</summary>
     MapToEquipmentFadeIn,
+    /// <summary>Identifies equipment to map fade out.</summary>
     EquipmentToMapFadeOut,
+    /// <summary>Identifies equipment to map fade in.</summary>
     EquipmentToMapFadeIn,
+    /// <summary>Identifies map to equipment load.</summary>
     MapToEquipmentLoad,
+    /// <summary>Identifies equipment to map load.</summary>
     EquipmentToMapLoad,
 }

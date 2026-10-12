@@ -49,6 +49,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
     }
 
     // Temporary DTOs serve artwork interfaces; runtime draws the scalar square directly.
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -61,9 +62,11 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         }
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<SporeSpawnCeilingDraw>(pointer, "Spore Spawn ceiling draw with a visual ID"));
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(SporeSpawnCeilingDraw pointer) => pointer switch
     {
         SporeSpawnCeilingDraw.Clear => "clear-ceiling",
@@ -73,6 +76,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined SporeSpawnCeilingDraw {pointer}."),
     };
 
+    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -88,6 +92,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Crumble frame pointer.</summary>
     internal static ushort CrumbleFramePointer(int frame) => frame switch
     {
         0 => (ushort)SporeSpawnCeilingDraw.CrumbleFirst,
@@ -96,6 +101,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
 
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -108,6 +114,7 @@ internal static class SporeSpawnCeilingPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Square.</summary>
     private static RoomPlmShotBlockDrawDefinitions.DrawList Square(
         ushort pointer, ushort physicalWord) => new(pointer,
         new RoomPlmShotBlockDrawDefinitions.Run[]

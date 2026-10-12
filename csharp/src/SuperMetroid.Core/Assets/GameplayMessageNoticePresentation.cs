@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessageNoticePresentation
 {
+    /// <summary>Stores notices.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledNotice> notices;
+    /// <summary>Stores border.</summary>
     private readonly ushort[] border;
 
+    /// <summary>Initializes a new gameplay message notice presentation instance.</summary>
     private GameplayMessageNoticePresentation(
         Dictionary<GameplayMessageId, CompiledNotice> notices,
         ushort[] border,
@@ -196,12 +199,14 @@ public sealed class GameplayMessageNoticePresentation
         output.Write(bytes);
     }
 
+    /// <summary>get.</summary>
     private CompiledNotice Get(GameplayMessageId messageId) =>
         notices.TryGetValue(messageId, out CompiledNotice? notice)
             ? notice
             : throw new ArgumentOutOfRangeException(nameof(messageId), messageId,
                 "The gameplay-message notice catalog does not own this message.");
 
+    /// <summary>Represents compiled notice.</summary>
     private sealed record CompiledNotice(
         int RowCount,
         ushort[] Template,
@@ -209,6 +214,7 @@ public sealed class GameplayMessageNoticePresentation
         ushort[]? YesSelection,
         ushort[]? NoSelection);
 
+    /// <summary>Represents compiled text region.</summary>
     private sealed record CompiledTextRegion(
         int Row,
         int Column,

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(WorkRobotLaserInstructionProgramDefinitions))]
 internal abstract class WorkRobotLaserInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 9;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -21,6 +25,7 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitionsTooling : IIn
             _ => new((ushort)(WorkRobotLaserInstructionProgramDefinitions.Initial + 4 * index), 4),
         };
     }
+    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)

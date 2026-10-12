@@ -6,8 +6,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents enemy tile artwork zebetite colors verification.</summary>
 internal static class EnemyTileArtworkZebetiteColorsVerification
 {
+    /// <summary>Verifies installed zebetite colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Zebetite colors")]
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,

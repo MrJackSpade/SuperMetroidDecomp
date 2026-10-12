@@ -22,6 +22,7 @@ public static class ScrollingSkyChunkPointerDefinitions
 {
     /// <summary>First sky tilemap page at $8A:B180; native pages occupy800 bytes each.</summary>
     private const int FirstPage = 0xb180;
+    /// <summary>Defines page byte count.</summary>
     private const int PageByteCount = 0x0800;
 
     /// <summary>$88:ADB2 REP #$30: ocean index6 reads opcode/operand as word30C2.</summary>

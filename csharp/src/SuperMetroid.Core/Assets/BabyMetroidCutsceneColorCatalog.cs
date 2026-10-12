@@ -15,15 +15,19 @@ public sealed class BabyMetroidCutsceneColorCatalog
             fade.AppendIdentity(content);
         });
 
+    /// <summary>Stores initial.</summary>
     private readonly BabyMetroidInitialPalette initial;
+    /// <summary>Stores fade.</summary>
     private readonly ColorFade fade;
 
+    /// <summary>Initializes a new baby metroid cutscene color catalog instance.</summary>
     private BabyMetroidCutsceneColorCatalog(Bgr555[] initial, Bgr555[][] fade)
     {
         this.initial = new(initial);
         this.fade = new(fade);
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -54,8 +58,10 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// no latent RGB8 endpoint reconstruction or stored stock sample is needed.</summary>
     private sealed class ColorFade
     {
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[][]? supplied;
 
+        /// <summary>Initializes a new color fade instance.</summary>
         internal ColorFade(Bgr555[][] frames)
         {
             for (int frame = 0; frame < frames.Length; frame++)
@@ -67,10 +73,13 @@ public sealed class BabyMetroidCutsceneColorCatalog
                 }
         }
 
+        /// <summary>Resolves.</summary>
         internal Bgr555 Resolve(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Endpoint.</summary>
         private static Bgr555 Endpoint(int color) => BabyMetroidFinalHealthPaintDefinitions.Color(color);
 
+        /// <summary>Calculates.</summary>
         private static Bgr555 Calculate(int frame, int color)
         {
             int remaining = BabyMetroidCutsceneColorRomData.FadeFrameCount - 1 - frame;
@@ -78,6 +87,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
             return Endpoint(color).Map((_, channel) => channel * remaining / intervals);
         }
 
+        /// <summary>Append identity.</summary>
         internal void AppendIdentity(SelectedPresentationHash content)
         {
             content.Append("fade", BabyMetroidCutsceneColorRomData.FadeFrameCount);
@@ -133,6 +143,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
         return bytes;
     }
 
+    /// <summary>Compiles.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name)
     {
         if (source is null || source.Length != required)
@@ -151,6 +162,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
         return compiled;
     }
 
+    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate cutscene Baby color property {name}."));

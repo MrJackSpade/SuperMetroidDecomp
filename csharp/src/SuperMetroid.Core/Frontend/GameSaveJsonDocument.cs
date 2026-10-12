@@ -10,6 +10,7 @@ public sealed record GameSaveJsonDocument
 {
     /// <summary>The file-format revision used to select compatible decoding and migration rules.</summary>
     public int SchemaVersion { get; init; } = GameSaveJsonFormat.SchemaVersion;
+    /// <summary>Gets or sets source schema version.</summary>
     internal int SourceSchemaVersion { get; init; } = GameSaveJsonFormat.SchemaVersion;
 
     /// <summary>The zero-based file-select slot persisted globally; valid values are 0 through 2.</summary>
@@ -156,19 +157,19 @@ public sealed record SaveProgressionJsonDocument
     /// <summary>One composable boss-state byte for each native area index.</summary>
     public required BossBits[] BossFlagsByAreaIndex { get; init; }
 
-    /// <summary>Set bit indices in the 64-byte room Chozo-orb persistence plane.</summary>
+    /// <summary>Sets bit indices in the 64-byte room Chozo-orb persistence plane.</summary>
     public required int[] RoomChozoBits { get; init; }
 
-    /// <summary>Set bit indices in the 64-byte collected-item persistence plane.</summary>
+    /// <summary>Sets bit indices in the 64-byte collected-item persistence plane.</summary>
     public required int[] CollectedItemBits { get; init; }
 
-    /// <summary>Set bit indices in the 64-byte opened-door persistence plane.</summary>
+    /// <summary>Sets bit indices in the 64-byte opened-door persistence plane.</summary>
     public required int[] OpenedDoorBits { get; init; }
 
-    /// <summary>Set bit indices in the 16-byte save-station and elevator persistence plane.</summary>
+    /// <summary>Sets bit indices in the 16-byte save-station and elevator persistence plane.</summary>
     public required int[] UsedSaveStationBits { get; init; }
 
-    /// <summary>Set bit indices in the 12-byte acquired-map-station persistence plane.</summary>
+    /// <summary>Sets bit indices in the 12-byte acquired-map-station persistence plane.</summary>
     public required int[] AcquiredMapStationBits { get; init; }
 
     /// <summary>Explored map cells grouped by the six persisted Zebes areas.</summary>

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RidleyInertiaVerification;
 
+/// <summary>Represents ridley death acceleration verification.</summary>
 internal static class RidleyDeathAccelerationVerification
 {
+    /// <summary>Verifies ridley death acceleration.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley death acceleration")]
     internal static void VerifyRidleyDeathAcceleration(SuperMetroidAddressSpace rom)
     {

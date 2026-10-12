@@ -25,25 +25,32 @@ public enum BrinstarBlueSporePaletteOwner
 /// </remarks>
 public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>Stores standard.</summary>
     private static readonly BrinstarBlueSporePaletteFxProgramDefinition Standard =
         new(BrinstarBlueSporePaletteOwner.StandardRooms);
+    /// <summary>Stores spore spawn.</summary>
     private static readonly BrinstarBlueSporePaletteFxProgramDefinition SporeSpawn =
         new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom);
 
+    /// <summary>Represents program owners.</summary>
     private sealed class ProgramOwners : IReadOnlyList<BrinstarBlueSporePaletteFxProgramDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 2;
+        /// <summary>Gets an indexed value.</summary>
         public BrinstarBlueSporePaletteFxProgramDefinition this[int index] => index switch
         {
             0 => Standard,
             1 => SporeSpawn,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<BrinstarBlueSporePaletteFxProgramDefinition> GetEnumerator()
         {
             yield return Standard;
             yield return SporeSpawn;
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Fourteen ten-frame records form one complete spore-color cycle.</summary>
@@ -75,6 +82,7 @@ public static class BrinstarBlueSporePaletteFxProgramMechanicsDefinitions
 /// <summary>One room-specific entry into the fourteen-frame blue-spore palette loop.</summary>
 public sealed class BrinstarBlueSporePaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new brinstar blue spore palette fx program definition instance.</summary>
     internal BrinstarBlueSporePaletteFxProgramDefinition(BrinstarBlueSporePaletteOwner owner)
     {
         if (owner is not (BrinstarBlueSporePaletteOwner.StandardRooms or BrinstarBlueSporePaletteOwner.SporeSpawnRoom))

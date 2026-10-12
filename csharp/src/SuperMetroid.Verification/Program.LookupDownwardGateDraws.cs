@@ -3,15 +3,20 @@ using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup downward gate draws verification.</summary>
 internal static class LookupDownwardGateDrawsVerification
 {
+    /// <summary>verify downward gate draw geometry.</summary>
     internal static void VerifyDownwardGateDrawGeometry(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 0));
+    /// <summary>verify downward gate draw collision.</summary>
     internal static void VerifyDownwardGateDrawCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 1));
+    /// <summary>verify downward gate draw visuals.</summary>
     internal static void VerifyDownwardGateDrawVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 2));
 
+    /// <summary>verify downward gate draw field.</summary>
     private static void VerifyDownwardGateDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa517,0xa525,0xa533,0xa541,0xa54f,0xa55d,
@@ -115,6 +120,7 @@ internal static class LookupDownwardGateDrawsVerification
         AssertEqual(46, cells, "Gate complete original cell domain");
     }
 
+    /// <summary>downward gate draw field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate draw field")]
     private static byte DownwardGateDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

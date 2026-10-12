@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 using static KraidReportedCollisionsVerification;
 using static SuiteTimingVerification;
+/// <summary>Represents kraid super missile damage verification.</summary>
 internal static class KraidSuperMissileDamageVerification
 {
+    /// <summary>Verifies kraid super missile damage.</summary>
     internal static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -91,6 +93,7 @@ internal static class KraidSuperMissileDamageVerification
         return 0;
     }
 
+    /// <summary>Verifies kraid collision slot order.</summary>
     private static void VerifyKraidCollisionSlotOrder(ISnesAddressSpace bus,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {
@@ -164,12 +167,14 @@ internal static class KraidSuperMissileDamageVerification
         Console.WriteLine("Kraid close-range damage, deferred owner/link cleanup, count traversal and adjacent bomb slot verified.");
     }
 
+    /// <summary>Kraid reported collisions command.</summary>
     [VerificationCommand("--kraid-reported-collisions")]
     internal static int KraidReportedCollisionsCommand()
     {
         return VerifyKraidSuperMissileDamage(collisionReport: true);
     }
 
+    /// <summary>Kraid super missile damage command.</summary>
     [VerificationCommand("--kraid-super-missile-damage")]
     internal static int KraidSuperMissileDamageCommand()
     {

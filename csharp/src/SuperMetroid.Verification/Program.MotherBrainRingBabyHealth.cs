@@ -13,12 +13,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents mother brain ring baby health verification.</summary>
 internal static class MotherBrainRingBabyHealthVerification
 {
     // #1269: an onion ring that hits the Baby ($86:C381) subtracts $50 from the Baby slot's
     // Enemy.health inside the projectile pass. The port charged only its Baby actor and
     // published the health on the Baby's next AI turn, so in the 100% movie the slot still
     // read $0C80 at the end of the frame where native read $0C30.
+    /// <summary>Verifies mother brain ring baby health.</summary>
     internal static void VerifyMotherBrainRingBabyHealth()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -51,6 +53,7 @@ internal static class MotherBrainRingBabyHealthVerification
         Console.WriteLine("Mother Brain ring Baby health: the hit writes the Baby slot's health immediately.");
     }
 
+    /// <summary>Mother brain ring baby health command.</summary>
     [VerificationCommand("--mother-brain-ring-baby-health")]
     internal static int MotherBrainRingBabyHealthCommand()
     {

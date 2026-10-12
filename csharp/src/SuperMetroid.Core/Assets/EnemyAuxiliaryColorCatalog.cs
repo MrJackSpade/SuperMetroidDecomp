@@ -24,10 +24,15 @@ public sealed class EnemyAuxiliaryColorCatalog
             }
         });
 
+    /// <summary>Stores face block.</summary>
     private readonly PaletteRows faceBlock;
+    /// <summary>Stores dead sidehopper.</summary>
     private readonly PaletteRows deadSidehopper;
+    /// <summary>Stores torizo body.</summary>
     private readonly PaletteRows torizoBody;
+    /// <summary>Stores torizo belly.</summary>
     private readonly PaletteRows torizoBelly;
+    /// <summary>Initializes a new enemy auxiliary color catalog instance.</summary>
     private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, Bgr555[][]> frames)
     {
         faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
@@ -36,6 +41,7 @@ public sealed class EnemyAuxiliaryColorCatalog
         torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], healthGradient: true, rearTorizo: true);
     }
 
+    /// <summary>rows for.</summary>
     private PaletteRows RowsFor(EnemyAuxiliaryPalette palette) => palette switch
     {
         EnemyAuxiliaryPalette.FaceBlock => faceBlock,
@@ -68,16 +74,26 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// </summary>
     private sealed class PaletteRows
     {
+        /// <summary>Stores first.</summary>
         private readonly Bgr555[] first;
+        /// <summary>Stores last.</summary>
         private readonly Bgr555[] last;
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[][]? supplied;
+        /// <summary>Stores face glow.</summary>
         private readonly bool faceGlow;
+        /// <summary>Stores stock torizo.</summary>
         private readonly bool stockTorizo, rearTorizo, stockSidehopperDrain, stockFaceGlow;
+        /// <summary>Stores glow accent start.</summary>
         private readonly Bgr555 glowAccentStart;
+        /// <summary>Stores corpse.</summary>
         private readonly Bgr555[]? corpse;
 
+        /// <summary>Gets frame count.</summary>
         internal int FrameCount { get; }
+        /// <summary>Gets color count.</summary>
         internal int ColorCount { get; }
+        /// <summary>Initializes a new palette rows instance.</summary>
         internal PaletteRows(Bgr555[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false, bool rearTorizo = false)
         {
             FrameCount = rows.Length;
@@ -105,7 +121,9 @@ public sealed class EnemyAuxiliaryColorCatalog
                     if (Calculate(frame, color) != rows[frame][color]) { supplied = rows; return; }
 
         }
+        /// <summary>color.</summary>
         internal Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
+        /// <summary>calculate.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             if (stockTorizo) return GoldenTorizoHealthPaintDefinitions.Color(frame, color, rearTorizo);
@@ -180,10 +198,12 @@ public sealed class EnemyAuxiliaryColorCatalog
         return data;
     }
 
+    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
             name => new InvalidDataException($"Duplicate auxiliary palette property {name}."));
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

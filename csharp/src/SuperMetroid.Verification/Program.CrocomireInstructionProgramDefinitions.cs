@@ -16,16 +16,20 @@ using static ImportedSpritemapsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents crocomire instruction program definitions verification.</summary>
 internal static class CrocomireInstructionProgramDefinitionsVerification
 {
+    /// <summary>Defines crocomire instruction audit room.</summary>
     private const ushort CrocomireInstructionAuditRoom = 0xa98d;
 
+    /// <summary>Verifies crocomire instruction program definitions.</summary>
     internal static void VerifyCrocomireInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireInstructionProgramDefinitions), () => VerifyCrocomireInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies crocomire instruction program definitions.</summary>
     internal static void VerifyCrocomireInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -121,6 +125,7 @@ internal static class CrocomireInstructionProgramDefinitionsVerification
             "with runtime reads forbidden.");
     }
 
+    /// <summary>Probe crocomire instruction mechanics allocation.</summary>
     private static int ProbeCrocomireInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -134,12 +139,14 @@ internal static class CrocomireInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New crocomire instruction read guard.</summary>
     private static CartridgeReadGuard NewCrocomireInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(CrocomireInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Crocomire mechanics byte ${address:X6}.")
             .ObserveWords(0xa40000, CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount, CrocomireInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Crocomire instruction mechanics command.</summary>
     [VerificationCommand("--crocomire-instruction-mechanics")]
     internal static int CrocomireInstructionMechanicsCommand()
     {

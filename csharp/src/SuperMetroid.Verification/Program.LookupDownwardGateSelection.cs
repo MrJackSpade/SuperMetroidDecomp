@@ -3,17 +3,22 @@ using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup downward gate selection verification.</summary>
 internal static class LookupDownwardGateSelectionVerification
 {
+    /// <summary>Verifies downward gate list selection.</summary>
     internal static void VerifyDownwardGateListSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateSelectionField), () => VerifyDownwardGateSelectionField(rom, 0x84c70a, 0));
 
+    /// <summary>Verifies downward gate left selection.</summary>
     internal static void VerifyDownwardGateLeftSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateSelectionField), () => VerifyDownwardGateSelectionField(rom, 0x84c71a, 1));
 
+    /// <summary>Verifies downward gate right selection.</summary>
     internal static void VerifyDownwardGateRightSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateSelectionField), () => VerifyDownwardGateSelectionField(rom, 0x84c72a, 2));
 
+    /// <summary>Verifies downward gate selection field.</summary>
     private static void VerifyDownwardGateSelectionField(SuperMetroidAddressSpace rom, int source, int field)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

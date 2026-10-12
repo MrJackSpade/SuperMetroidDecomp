@@ -16,8 +16,10 @@ using static RoomPlmPopulationVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents recharge station admission verification.</summary>
 internal static class RechargeStationAdmissionVerification
 {
+    /// <summary>Verifies recharge station admission.</summary>
     internal static void VerifyRechargeStationAdmission()
     {
         foreach (bool missile in new[] { false, true })
@@ -64,6 +66,7 @@ internal static class RechargeStationAdmissionVerification
         Console.WriteLine("Recharge admission: full energy/missiles reject before lock; later-full exits unlock; depleted recharge completes from both sides.");
     }
 
+    /// <summary>Recharge station admission command.</summary>
     [VerificationCommand("--recharge-station-admission")]
     internal static int RechargeStationAdmissionCommand()
     {

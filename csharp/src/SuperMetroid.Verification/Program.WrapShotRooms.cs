@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents wrap shot rooms verification.</summary>
 internal static class WrapShotRoomsVerification
 {
+    /// <summary>Verifies retail wrap shot doors.</summary>
     internal static void VerifyRetailWrapShotDoors()
     {
         foreach (var setup in new[] {
@@ -63,6 +65,7 @@ internal static class WrapShotRoomsVerification
         }
     }
 
+    /// <summary>Wrap shot rooms command.</summary>
     [VerificationCommand("--wrap-shot-rooms")]
     internal static int WrapShotRoomsCommand()
     {

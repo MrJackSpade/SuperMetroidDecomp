@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,12 +6,18 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Ki-Hunter species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KiHunterBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new ki hunter behavior instance.</summary>
     internal KiHunterBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable)
     {
         _room = room;
@@ -58,26 +64,35 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Stores empty a8 spritemap.</summary>
     private const ushort EmptyA8Spritemap = 0x804d;
+    /// <summary>Stores ki hunter ground wait frames.</summary>
     private const ushort KiHunterGroundWaitFrames = 12;
+    /// <summary>Stores ki hunter spit wait frames.</summary>
     private const ushort KiHunterSpitWaitFrames = 24;
+    /// <summary>Stores ki hunter ground attack distance.</summary>
     private const ushort KiHunterGroundAttackDistance = 96;
 
+    /// <summary>Stores ki hunter states.</summary>
     internal readonly KiHunterEnemyState?[] _kiHunterStates =
         new KiHunterEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Last library-two sound queued by an acid-spit instruction this frame.</summary>
     public ushort? LastKiHunterSoundEffect { get; private set; }
 
+    /// <summary>Checks whether the definition identifies a Ki Hunter body.</summary>
     internal static bool IsKiHunterBodyDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreen or EnemyDefinitionId.KihunterYellow or EnemyDefinitionId.KihunterRed;
 
+    /// <summary>Checks whether the definition identifies a Ki Hunter wing.</summary>
     internal static bool IsKiHunterWingDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.KihunterGreenWings or EnemyDefinitionId.KihunterYellowWings or EnemyDefinitionId.KihunterRedWings;
 
+    /// <summary>Checks whether the definition identifies a Ki Hunter part.</summary>
     internal static bool IsKiHunterDefinition(EnemyDefinitionId definition) =>
         IsKiHunterBodyDefinition(definition) || IsKiHunterWingDefinition(definition);
 
+    /// <summary>Resets ki hunter room state.</summary>
     internal void ResetKiHunterRoomState()
     {
         Array.Clear(_kiHunterStates);
@@ -322,6 +337,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             StartKiHunterSwoopRecovery(state);
     }
 
+    /// <summary>Start ki hunter swoop recovery.</summary>
     private static void StartKiHunterSwoopRecovery(KiHunterEnemyState state)
     {
         state.Function = KiHunterEnemyFunction.RecoveringFromSwoop;
@@ -605,6 +621,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         wings.Properties = wings.Properties.With(EnemyProperties.ProcessOffScreen);
     }
 
+    /// <summary>Calculates ki hunter detached speed reset.</summary>
     private static void CalculateKiHunterDetachedSpeedReset(KiHunterEnemyState state)
     {
         state.DetachedSpeedReset = 0;
@@ -620,6 +637,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         while (unchecked((short)(state.DetachedSpeedAccumulator - 0x2000)) < 0);
     }
 
+    /// <summary>Begins detached ki hunter wing orbit.</summary>
     private static void BeginDetachedKiHunterWingOrbit(
         RoomEnemySlot wings,
         KiHunterEnemyState state)
@@ -630,6 +648,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         state.OrbitCenter = wings.Position.Whole;
     }
 
+    /// <summary>Begins detached ki hunter wing collision arc.</summary>
     private static void BeginDetachedKiHunterWingCollisionArc(
         RoomEnemySlot wings,
         KiHunterEnemyState state)
@@ -640,6 +659,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         state.OrbitCenter = wings.Position.Whole;
     }
 
+    /// <summary>Reads ki hunter quadratic angle delta.</summary>
     internal static ushort ReadKiHunterQuadraticAngleDelta(ushort speedIndex, bool negativeHalf)
     {
         int index = unchecked((byte)(SnesEightEight.WholeOf(speedIndex)));
@@ -649,6 +669,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (negativeHalf ? 5 : 1));
     }
 
+    /// <summary>Decrement ki hunter detached speed index.</summary>
     private static void DecrementKiHunterDetachedSpeedIndex(KiHunterEnemyState state)
     {
         short next = unchecked((short)(state.TargetXOrSpeedIndex - 384));
@@ -672,12 +693,15 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             : KiHunterInstructionProgramDefinitions.FlyingLeft;
     }
 
+    /// <summary>Start ki hunter ground jump from instruction.</summary>
     private static void StartKiHunterGroundJumpFromInstruction(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundJump;
 
+    /// <summary>Start ki hunter ground wait from instruction.</summary>
     private static void StartKiHunterGroundWaitFromInstruction(KiHunterEnemyState state) =>
         state.Function = KiHunterEnemyFunction.GroundWait;
 
+    /// <summary>Spawns ki hunter acid from instruction.</summary>
     private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, bool movingRight)
     {
         LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit.Value;
@@ -686,6 +710,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         RequireKiHunterState(body).WaitTimer = KiHunterSpitWaitFrames;
     }
 
+    /// <summary>Sets ki hunter pair facing.</summary>
     private void SetKiHunterPairFacing(RoomEnemySlot body, bool movingRight)
     {
         InstallKiHunterInstruction(
@@ -757,6 +782,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return wings;
     }
 
+    /// <summary>Gets ki hunter body.</summary>
     private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings)
     {
         if (!IsKiHunterWingDefinition(wings.EnemyDefinitionPointer) || wings.SlotIndex == 0)
@@ -766,6 +792,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return body;
     }
 
+    /// <summary>Creates ki hunter state.</summary>
     private KiHunterEnemyState CreateKiHunterState(RoomEnemySlot slot)
     {
         var state = new KiHunterEnemyState(slot);
@@ -773,10 +800,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Requires ki hunter state.</summary>
     private KiHunterEnemyState RequireKiHunterState(RoomEnemySlot slot) =>
         _kiHunterStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Ki-Hunter state.");
 
+    /// <summary>Installs ki hunter instruction.</summary>
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -789,6 +818,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         unchecked((short)KiHunterMotionDefinitions.GravityWhole),
         KiHunterMotionDefinitions.GravityFraction);
 
+    /// <summary>Adds ki hunter fixed.</summary>
     private static (ushort Whole, ushort Fraction) AddKiHunterFixed(
         ushort whole,
         ushort fraction,
@@ -801,6 +831,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             unchecked((ushort)lowSum));
     }
 
+    /// <summary>Requires ki hunter world.</summary>
     private static void RequireKiHunterWorld(
         RoomEnemySlot actor,
         SamusState? samus,
@@ -812,18 +843,21 @@ internal sealed class KiHunterBehavior : IEnemySpecies
             throw new InvalidDataException("A Ki-Hunter wing entered body-only movement AI.");
     }
 
+    /// <summary>Requires ki hunter samus.</summary>
     private static void RequireKiHunterSamus(SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Ki-Hunter AI requires the active Samus actor.");
     }
 
+    /// <summary>Requires ki hunter level.</summary>
     private static void RequireKiHunterLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Ki-Hunter movement requires room collision data.");
     }
 
+    /// <summary>Registers ki hunter bomb reactions.</summary>
     internal void RegisterKiHunterBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.EnemyDefinitionPointer) &&
@@ -833,6 +867,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers ki hunter projectiles.</summary>
     internal static void RegisterKiHunterProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -851,6 +886,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.KiHunterAcid_Right);
     }
 
+    /// <summary>Registers ki hunter initialization ai.</summary>
     internal void RegisterKiHunterInitializationAi(EnemyAiTable table)
     {
 
@@ -865,6 +901,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers ki hunter main ai.</summary>
     internal void RegisterKiHunterMainAi(EnemyAiTable table)
     {
 
@@ -878,6 +915,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         table.RegisterMain(EnemyAiRoutine.MainAI_KihunterWings, slot => IsKiHunterWingDefinition(slot.EnemyDefinitionPointer), shared85);
     }
 
+    /// <summary>Registers ki hunter owned instructions.</summary>
     internal void RegisterKiHunterOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -887,6 +925,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers ki hunter power bomb reactions.</summary>
     internal void RegisterKiHunterPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
@@ -896,6 +935,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers ki hunter shot reactions.</summary>
     internal void RegisterKiHunterShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
@@ -906,10 +946,14 @@ internal sealed class KiHunterBehavior : IEnemySpecies
     }
     // Definition records hold the idle RTS at $86:CFF7; the start-moving callbacks install
     // the mover at $86:CFF8, so the spit does not move on the frames before that.
+    /// <summary>Stores ki hunter acid moving pre instruction.</summary>
     private const ushort KiHunterAcidMovingPreInstruction =
         (ushort)EnemyProjectilePreInstruction.KiHunterAcid_Moving;
+    /// <summary>Stores ki hunter acid horizontal speed.</summary>
     private const ushort KiHunterAcidHorizontalSpeed = 0x0300;
+    /// <summary>Stores ki hunter acid gravity.</summary>
     private const ushort KiHunterAcidGravity = 0x0010;
+    /// <summary>Stores ki hunter acid terminal yspeed.</summary>
     private const ushort KiHunterAcidTerminalYSpeed = 0x0200;
 
     /// <summary>

@@ -22,6 +22,7 @@ internal static class PowerBombRuntimeVerificationDefinitions
     public const ushort ScreenCenterY = 0x0080;
 }
 
+/// <summary>Represents power bomb runtime integration verification.</summary>
 internal static class PowerBombRuntimeIntegrationVerification
 {
     /// <summary>
@@ -86,6 +87,7 @@ internal static class PowerBombRuntimeIntegrationVerification
             "  Power Bomb runtime: shared desktop rendering includes the active bank-$88 window.");
     }
 
+    /// <summary>count power bomb frame differences.</summary>
     private static int CountPowerBombFrameDifferences(
         ReadOnlySpan<Rgba32> first,
         ReadOnlySpan<Rgba32> second)

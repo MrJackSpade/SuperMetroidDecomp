@@ -10,8 +10,10 @@ using static IntroRinkaSpriteArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Represents intro egg effect sprite artwork verification.</summary>
 internal static class IntroEggEffectSpriteArtworkVerification
 {
+    /// <summary>Verifies intro egg effect sprite artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)

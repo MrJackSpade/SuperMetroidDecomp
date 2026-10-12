@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents etecoon instruction program definitions verification.</summary>
 internal static class EtecoonInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies etecoon instruction program definitions.</summary>
     internal static void VerifyEtecoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEtecoonInstructionProgramDefinitions), () => VerifyEtecoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies etecoon instruction program definitions.</summary>
     internal static void VerifyEtecoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -142,6 +145,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             "spritemap selectors match cartridge data with runtime reads forbidden.");
     }
 
+    /// <summary>Execute etecoon program.</summary>
     private static void ExecuteEtecoonProgram(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -161,6 +165,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes etecoon instruction mechanics allocation.</summary>
     private static int ProbeEtecoonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -174,6 +179,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Etecoon instruction program definitions command.</summary>
     [VerificationCommand("--etecoon-instruction-program-definitions")]
     internal static int EtecoonInstructionProgramDefinitionsCommand()
     {

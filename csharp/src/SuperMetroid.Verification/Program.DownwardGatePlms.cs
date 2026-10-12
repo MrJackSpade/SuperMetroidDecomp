@@ -12,8 +12,10 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents downward gate plms verification.</summary>
 internal static class DownwardGatePlmsVerification
 {
+    /// <summary>verify downward gate shot block definitions.</summary>
     internal static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDownwardGateListSelection), () => VerifyDownwardGateListSelection(rom));
@@ -56,6 +58,7 @@ internal static class DownwardGatePlmsVerification
             "  Downward gates: setup, slot order, actor handoff, and all eight shot filters agree.");
     }
 
+    /// <summary>verify downward gate header definitions.</summary>
     private static void VerifyDownwardGateHeaderDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -66,6 +69,7 @@ internal static class DownwardGatePlmsVerification
                 "Gate compiled-population first instruction");
     }
 
+    /// <summary>verify downward gate draw definitions.</summary>
     private static void VerifyDownwardGateDrawDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -76,6 +80,7 @@ internal static class DownwardGatePlmsVerification
         Suite(nameof(VerifyDownwardGateDrawVisuals), () => VerifyDownwardGateDrawVisuals(rom));
     }
 
+    /// <summary>verify downward gate program definitions.</summary>
     private static void VerifyDownwardGateProgramDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -87,6 +92,7 @@ internal static class DownwardGatePlmsVerification
         Suite(nameof(VerifyDownwardGateProgramSounds), () => VerifyDownwardGateProgramSounds(rom));
     }
 
+    /// <summary>verify downward gate setup and projectile.</summary>
     private static void VerifyDownwardGateSetupAndProjectile()
     {
         (TestAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer,
@@ -205,6 +211,7 @@ internal static class DownwardGatePlmsVerification
             "moving gate travels four tiles down and remains parked closed");
     }
 
+    /// <summary>verify downward gate trigger.</summary>
     private static void VerifyDownwardGateTrigger(
         DownwardGateTriggerBehavior trigger,
         ushort projectile,
@@ -237,6 +244,7 @@ internal static class DownwardGatePlmsVerification
             $"{trigger} trigger list draws once and deletes without ROM control bytes");
     }
 
+    /// <summary>create downward gate fixture.</summary>
     internal static (TestAddressSpace Bus, RoomLevelData Level,
         BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms, int GateBlockIndex)
         CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger,
@@ -277,12 +285,14 @@ internal static class DownwardGatePlmsVerification
         return (bus, level, streamer, plms, gateY * roomWidth + gateX);
     }
 
+    /// <summary>new downward gate header read guard.</summary>
     private static CartridgeReadGuard NewDownwardGateHeaderReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             // The resident and shot-block gate headers' first-instruction words.
             .Forbid(address => address is >= 0x84c82c and <= 0x84c82d or >= 0x84c838 and <= 0x84c839,
                 address => $"Gate population read compiled header word ${address:X6}.");
 
+    /// <summary>step downward gate plm.</summary>
     internal static void StepDownwardGatePlm(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -290,6 +300,7 @@ internal static class DownwardGatePlmsVerification
         BackgroundTilemapStreamer streamer) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
+    /// <summary>seed downward gate projectile rom.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the downward-gate enemy projectile definitions and list")]
     private static void SeedDownwardGateProjectileRom(TestAddressSpace bus)
     {

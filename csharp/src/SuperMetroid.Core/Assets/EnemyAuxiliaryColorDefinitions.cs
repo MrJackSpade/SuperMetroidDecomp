@@ -29,12 +29,17 @@ internal static class EnemyAuxiliaryColorDefinitions
     internal static readonly EnemyAuxiliaryPaletteDefinition GoldenTorizoBelly = new(
         EnemyAuxiliaryPalette.GoldenTorizoBelly, 0x848132, 8, 16, 16);
 
+    /// <summary>Gets all.</summary>
     internal static DefinitionSet All { get; } = new();
 
+    /// <summary>Represents definition set.</summary>
     internal sealed class DefinitionSet : IReadOnlyList<EnemyAuxiliaryPaletteDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 4;
+        /// <summary>Gets length.</summary>
         public int Length => Count;
+        /// <summary>Gets an indexed value.</summary>
         public EnemyAuxiliaryPaletteDefinition this[int index] => index switch
         {
             0 => FaceBlock,
@@ -43,14 +48,17 @@ internal static class EnemyAuxiliaryColorDefinitions
             3 => GoldenTorizoBelly,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<EnemyAuxiliaryPaletteDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 
+/// <summary>Represents enemy auxiliary palette definition.</summary>
 internal readonly record struct EnemyAuxiliaryPaletteDefinition(
     EnemyAuxiliaryPalette Id, int SourceAddress, int FrameCount, int ColorCount, int NativeFrameStrideColors);
 

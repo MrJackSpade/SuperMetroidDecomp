@@ -12,8 +12,10 @@ using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents dead torizo collision verification.</summary>
 internal static class DeadTorizoCollisionVerification
 {
+    /// <summary>Verifies dead torizo collision.</summary>
     internal static int VerifyDeadTorizoCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -87,6 +89,7 @@ internal static class DeadTorizoCollisionVerification
         }
     }
 
+    /// <summary>Dead torizo collision command.</summary>
     [VerificationCommand("--dead-torizo-collision")]
     internal static int DeadTorizoCollisionCommand()
     {

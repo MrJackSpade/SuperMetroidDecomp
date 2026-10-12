@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents native enemy visual selectors verification.</summary>
 internal static class NativeEnemyVisualSelectorsVerification
 {
     /// <summary>

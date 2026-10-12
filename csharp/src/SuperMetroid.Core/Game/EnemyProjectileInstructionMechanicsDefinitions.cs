@@ -125,12 +125,13 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>$86:E1FC, <c>UNUSED_InstList_EnemyProj_MiscDust_1C_ElevatorPad_86E1FC</c>, native misc-dust selector 28: LoopingElevatorPad.</summary>
     internal const ushort MiscDustLoopingElevatorPad = 0xe1fc;
 
+    /// <summary>Stores blue ring radius count.</summary>
     internal const int BlueRingRadiusCount = 6;
 
     /// <summary>$8D:8276/827D/8284..82C6: mutually exclusive tiny seed, single ring and composite radial growth forms.</summary>
-    private enum RingGrowthPhase { Seed, Formation, RadialExpansion }
+    private enum RingGrowthPhase { /** <summary>Identifies seed.</summary> */ Seed, /** <summary>Identifies formation.</summary> */ Formation, /** <summary>Identifies radial expansion.</summary> */ RadialExpansion }
     /// <summary>$8D:B098/B0AE versus B0C4/B0DA/B0F0: four small versus four large burst quadrants.</summary>
-    private enum RainbowBurstPhase { Compact, Expanded }
+    private enum RainbowBurstPhase { /** <summary>Identifies compact.</summary> */ Compact, /** <summary>Identifies expanded.</summary> */ Expanded }
     /// <summary>$86:C436 holds the single 8x8 seed tile $1AD selected by $8D:8276.</summary>
     private const ushort RingSeedFrames = 16;
     /// <summary>$86:C43E holds the single 16x16 ring tile $1A7 selected by $8D:827D.</summary>
@@ -249,6 +250,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
     /// <summary>$86:C8CA: released drool pose before Sleep; this chosen timing input remains required.</summary>
     private const ushort DroolReleaseFrames = 10;
 
+    /// <summary>Blue ring duration.</summary>
     private static ushort BlueRingDuration(int radius)
     {
         RingGrowthPhase phase = radius switch
@@ -267,12 +269,15 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         };
     }
 
+    /// <summary>Rainbow explosion duration.</summary>
     private static ushort RainbowExplosionDuration(int frame)
     {
         RainbowBurstPhase phase = frame < 2 ? RainbowBurstPhase.Compact : RainbowBurstPhase.Expanded;
         return phase == RainbowBurstPhase.Compact ? CompactRainbowBurstFrames : ExpandedRainbowBurstFrames;
     }
+    /// <summary>Stores timed program count.</summary>
     internal const int TimedProgramCount = 37;
+    /// <summary>Timed program.</summary>
     internal static EnemyProjectileTimedProgramDefinition TimedProgram(int index) => index switch
     {
         0 => new(MotherBrainBombInitial, 9, null, (ushort)EnemyProjectileInstruction.GotoY, MotherBrainBombInitial, frame => (ushort)(BombPeakFrames - Math.Min(frame, 9 - frame) * BombHoldStepFrames)),
@@ -321,6 +326,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.MotherBrainOnionRing or
         RoomEnemyProjectileKind.MotherBrainBomb or
@@ -336,6 +342,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         RoomEnemyProjectileKind.EyeDoorSmoke or
         RoomEnemyProjectileKind.MiscDustExplosion;
 
+    /// <summary>Misc dust initial pointer.</summary>
     internal static ushort MiscDustInitialPointer(ushort animationIndex)
     {
         if (animationIndex >= 30)
@@ -381,9 +388,11 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         };
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryReadMechanicsWord(address, out ushort value)
         ? value : throw new InvalidDataException($"Bank-$86 projectile mechanics pointer ${address:X4} is outside the translated program domain.");
 
+    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         int offset = address - MotherBrainBlueRingInitial;
@@ -432,10 +441,13 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Gets visual frames.</summary>
     internal static VisualFrameList VisualFrames { get; } = new();
 
+    /// <summary>Represents visual frame list.</summary>
     internal sealed class VisualFrameList : IReadOnlyList<EnemyProjectilePresentationFrameDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count
         {
             get
@@ -445,6 +457,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                 return count;
             }
         }
+        /// <summary>Gets an indexed value.</summary>
         public EnemyProjectilePresentationFrameDefinition this[int index]
         {
             get
@@ -454,6 +467,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                 throw new InvalidOperationException("Projectile visual enumeration count disagrees with its programs.");
             }
         }
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<EnemyProjectilePresentationFrameDefinition> GetEnumerator()
         {
             for (int frame = 0; frame < 6; frame++)
@@ -474,6 +488,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitions
                     yield return new((ushort)(first + frame * 4 + 2), $"projectile_86_{program.InitialPointer:X4}_frame_{frame:D2}".ToLowerInvariant());
             }
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

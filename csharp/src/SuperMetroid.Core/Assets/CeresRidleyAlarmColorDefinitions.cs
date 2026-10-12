@@ -13,13 +13,20 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresRidleyAlarmColorDefinitions
 {
+    /// <summary>Defines bright green.</summary>
     private const int BrightGreen = 22;
+    /// <summary>Defines middle red.</summary>
     private const int MiddleRed = 23;
+    /// <summary>Defines middle green.</summary>
     private const int MiddleGreen = 14;
+    /// <summary>Defines dark red.</summary>
     private const int DarkRed = 12;
+    /// <summary>Defines dark green.</summary>
     private const int DarkGreen = 5;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Initializes a new ceres ridley alarm color definitions instance.</summary>
     internal CeresRidleyAlarmColorDefinitions(Bgr555[][] rows)
     {
         for (int row = 0; row < CeresRidleyPaletteRomData.AlarmRowCount; row++)
@@ -36,6 +43,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         return Math.Min(row, CeresRidleyPaletteRomData.AlarmRowCount - row);
     }
 
+    /// <summary>Resolve.</summary>
     internal Bgr555 Resolve(int row, int color)
     {
         _ = SourceRow(row);
@@ -45,6 +53,7 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         return edits.TryGetValue(key, out Bgr555 value) ? value : Calculate(row, color);
     }
 
+    /// <summary>Calculate.</summary>
     private static Bgr555 Calculate(int row, int color)
     {
         int phase = SourceRow(row), halfStep = (phase + 1) / 2;

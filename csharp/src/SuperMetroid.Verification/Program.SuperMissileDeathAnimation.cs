@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents super missile death animation verification.</summary>
 internal static class SuperMissileDeathAnimationVerification
 {
     /// <summary>
@@ -30,6 +31,7 @@ internal static class SuperMissileDeathAnimationVerification
         Console.WriteLine("  Super Missile death animation: headers three and four are kept, lower ones become two.");
     }
 
+    /// <summary>Super missile kill program.</summary>
     private static ushort SuperMissileKillProgram(EnemyDefinitionId enemyDefinition)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -63,6 +65,7 @@ internal static class SuperMissileDeathAnimationVerification
         return explosion.InstructionPointer;
     }
 
+    /// <summary>Super missile death animation command.</summary>
     [VerificationCommand("--super-missile-death-animation")]
     internal static int SuperMissileDeathAnimationCommand()
     {

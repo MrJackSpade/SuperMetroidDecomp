@@ -10,8 +10,11 @@ public sealed class PauseBackdropPresentation
 {
     // Exact independent stock differences and supplied edits remain explicit;
     // calculated complete backdrops are never cached.
+    /// <summary>Stores areas.</summary>
     private readonly Dictionary<int, ushort>[] areas;
+    /// <summary>Stores buttons.</summary>
     private readonly Dictionary<int, ushort> buttons;
+    /// <summary>Initializes a new pause backdrop presentation instance.</summary>
     private PauseBackdropPresentation(Dictionary<int, ushort>[] areas, Dictionary<int, ushort> buttons)
     { this.areas = areas; this.buttons = buttons; }
 
@@ -38,6 +41,7 @@ public sealed class PauseBackdropPresentation
             destination.Write(cell, selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell));
     }
 
+    /// <summary>differences.</summary>
     private static Dictionary<int, ushort> Differences(byte[] selected, Func<int, ushort> calculate)
     {
         var result = new Dictionary<int, ushort>();

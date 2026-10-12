@@ -3,8 +3,10 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Complete terrain-reveal, installed overlay, and permanent-item stores.</summary>
 internal static class RoomRevealClosedContractDefinitions
 {
+    /// <summary>Stores xray catalog.</summary>
     private static readonly ReviewedSource XrayCatalog = new(
         "csharp/src/SuperMetroid.Core/Rooms/XrayRevealVisualCatalog.cs");
+    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.XrayRevealVisualCatalog", "xray-command-and-visual-share-one-identity", ["Apply"],

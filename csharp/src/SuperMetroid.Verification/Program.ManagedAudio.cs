@@ -19,8 +19,10 @@ using static AudioSoundProgramsVerification;
 using static BrrLoopExtractionVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents managed audio verification.</summary>
 internal static class ManagedAudioVerification
 {
+    /// <summary>Verifies managed snes dsp.</summary>
     internal static void VerifyManagedSnesDsp()
     {
         Suite(nameof(VerifyManagedDspResetProducesSilence), () => VerifyManagedDspResetProducesSilence());
@@ -42,6 +44,7 @@ internal static class ManagedAudioVerification
         Suite(nameof(VerifyEditableMusicPrograms), () => VerifyEditableMusicPrograms());
     }
 
+    /// <summary>Verifies managed dsp uses live source at loop.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspUsesLiveSourceAtLoop()
     {
@@ -64,6 +67,7 @@ internal static class ManagedAudioVerification
         AssertTrue(unchecked((sbyte)dsp.ReadRegister(outputRegister)) < 0, "loop follows live source without another key-on");
     }
 
+    /// <summary>Verifies managed dsp uses independent loop entry.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void VerifyManagedDspUsesIndependentLoopEntry()
     {
@@ -96,6 +100,7 @@ internal static class ManagedAudioVerification
             new Dictionary<byte, byte> { [1] = 3 }), "loop aliases require a mapped destination");
     }
 
+    /// <summary>Verifies stereo pcm continuity meter.</summary>
     private static void VerifyStereoPcmContinuityMeter()
     {
         var meter = new StereoPcmContinuityMeter();
@@ -192,6 +197,7 @@ internal static class ManagedAudioVerification
         }
     }
 
+    /// <summary>Adds spc upload record.</summary>
     private static void AddSpcUploadRecord(List<byte> stream, ushort target, byte[] payload)
     {
         stream.Add(unchecked((byte)payload.Length));
@@ -313,6 +319,7 @@ internal static class ManagedAudioVerification
         AssertEqual(0, dsp.ReadRegister(0x08), "replacement voice reaches silence after key-off");
     }
 
+    /// <summary>Configure audible voice zero.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     internal static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
     {
@@ -400,6 +407,7 @@ internal static class ManagedAudioVerification
         }
     }
 
+    /// <summary>Verifies managed dsp rejects invalid boundaries.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     private static void VerifyManagedDspRejectsInvalidBoundaries()
     {
@@ -436,6 +444,7 @@ internal static class ManagedAudioVerification
             "managed PCM rejects malformed WAV container");
     }
 
+    /// <summary>Pcm loop entry command.</summary>
     [VerificationCommand("--pcm-loop-entry")]
     internal static int PcmLoopEntryCommand()
     {

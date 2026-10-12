@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents bomb torizo dormant definitions verification.</summary>
 internal static class BombTorizoDormantDefinitionsVerification
 {
     /// <summary>
@@ -52,6 +53,7 @@ internal static class BombTorizoDormantDefinitionsVerification
             "Bomb Torizo dormant entry: six mechanics words and one visual selector " +
             "match the pinned cartridge.");
     }
+    /// <summary>Verifies bomb torizo dormant control mapping.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo dormant control mapping")]
     private static void VerifyBombTorizoDormantControlMapping(ISnesAddressSpace rom)
     {

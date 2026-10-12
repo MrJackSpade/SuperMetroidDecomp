@@ -1,12 +1,15 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Spark species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SparkBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Stores falling sparks behavior.</summary>
     private readonly FallingSparksBehavior _fallingSparksBehavior;
 
+    /// <summary>Initializes a new spark behavior instance.</summary>
     internal SparkBehavior(EnemyRoomBinding room, FallingSparksBehavior fallingSparksBehavior)
     {
         _fallingSparksBehavior = fallingSparksBehavior;
@@ -41,6 +44,7 @@ internal sealed class SparkBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Stores spark states.</summary>
     internal readonly SparkEnemyState?[] _sparkStates =
         new SparkEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -140,16 +144,19 @@ internal sealed class SparkBehavior : IEnemySpecies
         state.FunctionTimer = unchecked((ushort)(baseTime + additionalTime));
     }
 
+    /// <summary>Installs spark instruction list.</summary>
     private static void InstallSparkInstructionList(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Requires spark state.</summary>
     private SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>
         _sparkStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Spark state.");
 
+    /// <summary>Registers spark initialization ai.</summary>
     internal void RegisterSparkInitializationAi(EnemyAiTable table)
     {
 
@@ -159,6 +166,7 @@ internal sealed class SparkBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers spark main ai.</summary>
     internal void RegisterSparkMainAi(EnemyAiTable table)
     {
 
@@ -168,6 +176,7 @@ internal sealed class SparkBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers spark owned instructions.</summary>
     internal static void RegisterSparkOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

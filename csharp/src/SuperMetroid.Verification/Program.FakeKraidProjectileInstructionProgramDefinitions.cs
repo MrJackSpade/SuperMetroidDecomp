@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static FakeKraidProjectileProgramMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents fake kraid projectile instruction program definitions verification.</summary>
 internal static class FakeKraidProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies fake kraid projectile instruction program definitions.</summary>
     internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies fake kraid projectile instruction program definitions.</summary>
     internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -146,6 +149,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         }
     }
 
+    /// <summary>Probe fake kraid projectile instruction mechanics allocation.</summary>
     private static int ProbeFakeKraidProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -159,12 +163,14 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
+    /// <summary>Reads fake kraid projectile instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid projectile instruction words")]
     internal static ushort ReadFakeKraidProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
 
+    /// <summary>Fake kraid projectile instruction mechanics command.</summary>
     [VerificationCommand("--fake-kraid-projectile-instruction-mechanics")]
     internal static int FakeKraidProjectileInstructionMechanicsCommand()
     {

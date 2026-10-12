@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents ending logo tables verification.</summary>
 internal static class EndingLogoTablesVerification
 {
+    /// <summary>verify ending logo palette sources.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette sources")]
     internal static void VerifyEndingLogoPaletteSources(ISnesAddressSpace rom)
     {
@@ -20,6 +22,7 @@ internal static class EndingLogoTablesVerification
             AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoPalettePointerDefinitions.Source(0, invalid), "palette selector bounds");
     }
 
+    /// <summary>verify ending post shot transfer fields.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending post shot transfer fields")]
     internal static void VerifyEndingPostShotTransferFields(ISnesAddressSpace rom)
     {

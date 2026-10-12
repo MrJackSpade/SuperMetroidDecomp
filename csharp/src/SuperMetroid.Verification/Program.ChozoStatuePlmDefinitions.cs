@@ -8,8 +8,10 @@ using static LookupChozoLayoutsVerification;
 using static LookupChozoProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents chozo statue plm definitions verification.</summary>
 internal static class ChozoStatuePlmDefinitionsVerification
 {
+    /// <summary>verify chozo statue plm definitions.</summary>
     internal static void VerifyChozoStatuePlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyChozoTerrainHeaders), () => VerifyChozoTerrainHeaders(rom));
@@ -34,6 +36,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
             "Chozo statue PLMs: five headers, four bounded instruction streams, shared delete, native draws and visual-only terrain overrides pass.");
     }
 
+    /// <summary>verify chozo terrain headers.</summary>
     private static void VerifyChozoTerrainHeaders(SuperMetroidAddressSpace rom)
     {
         ChozoStatuePlmDefinition[] definitions = ChozoStatuePlmDefinitions.All.ToArray();

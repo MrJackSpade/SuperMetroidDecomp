@@ -49,19 +49,24 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
     /// <summary>The fade-in and fade-out programs in native order without cached definition records.</summary>
     public static IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition> All { get; } = new DefinitionSequence();
 
+    /// <summary>Represents definition sequence.</summary>
     private sealed class DefinitionSequence : IReadOnlyList<PlanetZebesTextPaletteFxProgramDefinition>
     {
+        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => 2;
+        /// <summary>Accesses a value by index or range.</summary>
         public PlanetZebesTextPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => new(PlanetZebesTextPaletteFxProgramOwner.FadeIn),
             1 => new(PlanetZebesTextPaletteFxProgramOwner.FadeOut),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<PlanetZebesTextPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
@@ -81,6 +86,7 @@ public static class PlanetZebesTextPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete cinematic PLANET ZEBES text-fade control program.</summary>
 public sealed class PlanetZebesTextPaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new planet zebes text palette fx program definition instance.</summary>
     internal PlanetZebesTextPaletteFxProgramDefinition(PlanetZebesTextPaletteFxProgramOwner owner) => Owner = owner;
 
     /// <summary>The mutually exclusive text-fade owner.</summary>

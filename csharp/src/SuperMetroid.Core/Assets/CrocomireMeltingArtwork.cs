@@ -21,11 +21,16 @@ public sealed class CrocomireMeltingArtwork
             content.AppendWords("second-map", secondTilemap.Words());
         });
 
+    /// <summary>Stores first.</summary>
     private readonly RoomCharacterAtlas first;
+    /// <summary>Stores second.</summary>
     private readonly RoomCharacterAtlas second;
+    /// <summary>Stores first tilemap.</summary>
     private readonly CrocomireMeltingTilemap firstTilemap;
+    /// <summary>Stores second tilemap.</summary>
     private readonly CrocomireMeltingTilemap secondTilemap;
 
+    /// <summary>Initializes a new crocomire melting artwork instance.</summary>
     private CrocomireMeltingArtwork(RoomCharacterAtlas first, RoomCharacterAtlas second,
         ushort[] firstTilemap, ushort[] secondTilemap)
     {
@@ -86,6 +91,7 @@ public sealed class CrocomireMeltingArtwork
         json.Write(bytes);
     }
 
+    /// <summary>Reads tilemap.</summary>
     private static ushort[] ReadTilemap(Stream json)
     {
         CrocomireMeltingTilemapDocument document;
@@ -126,6 +132,7 @@ public sealed class CrocomireMeltingArtwork
         return words;
     }
 
+    /// <summary>Stores tilemap json options.</summary>
     private static readonly JsonSerializerOptions TilemapJsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -134,6 +141,7 @@ public sealed class CrocomireMeltingArtwork
         WriteIndented = true,
     };
 
+    /// <summary>Used byte count.</summary>
     internal static int UsedByteCount(CrocomireMeltingPass pass)
     {
         int end = 0;
@@ -142,6 +150,7 @@ public sealed class CrocomireMeltingArtwork
         return end;
     }
 
+    /// <summary>Validates padding.</summary>
     private static void ValidatePadding(RoomCharacterAtlas atlas, CrocomireMeltingPass pass,
         string name)
     {

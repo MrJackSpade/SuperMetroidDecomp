@@ -10,13 +10,19 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class SpcAudioEngine : IDisposable
 {
+    /// <summary>Stores sample rate.</summary>
     public const int SampleRate = 48_000;
+    /// <summary>Stores stereo frames per video frame.</summary>
     public const int StereoFramesPerVideoFrame = SampleRate / 60;
+    /// <summary>Stores channel count.</summary>
     public const int ChannelCount = 2;
 
+    /// <summary>Stores renderer.</summary>
     private readonly CartridgeAudioRenderer renderer;
+    /// <summary>Stores disposed.</summary>
     private bool disposed;
 
+    /// <summary>Initializes a new spc audio engine instance.</summary>
     internal SpcAudioEngine(ExtractedAudioAssetCatalog assets, ManagedSpcPlayer player)
     {
         renderer = new CartridgeAudioRenderer(assets, Ensure.NotNull(player));
@@ -33,7 +39,9 @@ internal sealed class SpcAudioEngine : IDisposable
         return renderer.RenderFrame(commands);
     }
 
+    /// <summary>Reads acknowledgements.</summary>
     public CartridgeAudioAcknowledgements ReadAcknowledgements() => renderer.ReadAcknowledgements();
 
+    /// <summary>Disposes.</summary>
     public void Dispose() => disposed = true;
 }

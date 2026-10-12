@@ -6,9 +6,13 @@ namespace SuperMetroid.ReachabilityAudit;
 /// <summary>How a declaration is reported; enum members and fields have their own categories.</summary>
 internal enum DeclarationShape
 {
+    /// <summary>Identifies type.</summary>
     Type,
+    /// <summary>Identifies member.</summary>
     Member,
+    /// <summary>Identifies field.</summary>
     Field,
+    /// <summary>Identifies enum member.</summary>
     EnumMember,
 }
 
@@ -19,8 +23,10 @@ internal sealed record Declaration(string Key, string Kind, string Display, stri
 /// <summary>Records every type and member declared in repository source.</summary>
 internal sealed class DeclarationCollector(SymbolIdentity identity, ReachabilityGraph graph)
 {
+    /// <summary>Gets declarations.</summary>
     public Dictionary<string, Declaration> Declarations { get; } = [];
 
+    /// <summary>Collect.</summary>
     public void Collect(Project project, Compilation compilation)
     {
         foreach (var tree in compilation.SyntaxTrees.Where(identity.IsRepositorySource))
@@ -46,6 +52,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         }
     }
 
+    /// <summary>Declared symbol.</summary>
     internal static ISymbol? DeclaredSymbol(SemanticModel model, SyntaxNode node) => node switch
     {
         BaseTypeDeclarationSyntax or DelegateDeclarationSyntax or BaseMethodDeclarationSyntax
@@ -59,6 +66,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         _ => null,
     };
 
+    /// <summary>Shape.</summary>
     private static DeclarationShape Shape(ISymbol symbol) => symbol switch
     {
         INamedTypeSymbol => DeclarationShape.Type,
@@ -67,6 +75,7 @@ internal sealed class DeclarationCollector(SymbolIdentity identity, Reachability
         _ => DeclarationShape.Member,
     };
 
+    /// <summary>Kind.</summary>
     private static string Kind(ISymbol symbol) => symbol switch
     {
         INamedTypeSymbol { IsRecord: true, TypeKind: TypeKind.Struct } => "record struct",

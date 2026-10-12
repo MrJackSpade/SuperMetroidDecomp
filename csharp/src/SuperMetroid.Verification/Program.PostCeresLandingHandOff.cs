@@ -5,6 +5,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static RoomDefinitionIntegrationVerification;
 
+/// <summary>Represents post ceres landing hand off verification.</summary>
 internal static class PostCeresLandingHandOffVerification
 {
     /// <summary>

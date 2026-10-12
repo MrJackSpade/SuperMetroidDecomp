@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents enemy projectile code pointers verification.</summary>
 internal static class EnemyProjectileCodePointersVerification
 {
     /// <summary>
@@ -50,6 +51,7 @@ internal static class EnemyProjectileCodePointersVerification
             $"instruction lists are named{(bus is null ? "" : " and ROM-readable")}.");
     }
 
+    /// <summary>get enemy projectile pointer constants.</summary>
     private static FieldInfo[] GetEnemyProjectilePointerConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))
         .ToArray();

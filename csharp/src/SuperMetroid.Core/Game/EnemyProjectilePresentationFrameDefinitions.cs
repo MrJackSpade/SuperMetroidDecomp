@@ -12,61 +12,91 @@ internal static class EnemyProjectilePresentationFrameDefinitions
     // Each generation is a complete historical set of named visual operands. Their
     // order matches the published artwork schema, so an older override can be merged
     // by operand identity without assuming that the sorted current catalog is a prefix.
+    /// <summary>Represents catalog generation.</summary>
     private enum CatalogGeneration
     {
+        /// <summary>Identifies pre golden torizo.</summary>
         PreGoldenTorizo,
+        /// <summary>Identifies pre golden torizo egg.</summary>
         PreGoldenTorizoEgg,
+        /// <summary>Identifies pre torizo effects.</summary>
         PreTorizoEffects,
+        /// <summary>Identifies pre generic enemy death.</summary>
         PreGenericEnemyDeath,
+        /// <summary>Identifies pre environment and attack.</summary>
         PreEnvironmentAndAttack,
+        /// <summary>Identifies pre mother brain and statue.</summary>
         PreMotherBrainAndStatue,
+        /// <summary>Identifies pre work robot.</summary>
         PreWorkRobot,
+        /// <summary>Identifies pre polyp rock.</summary>
         PrePolypRock,
+        /// <summary>Identifies current.</summary>
         Current,
     }
 
+    /// <summary>Stores pre golden torizo frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoFrames =
         Build(CatalogGeneration.PreGoldenTorizo);
+    /// <summary>Stores pre golden torizo egg frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGoldenTorizoEggFrames =
         Build(CatalogGeneration.PreGoldenTorizoEgg);
+    /// <summary>Stores pre torizo effects frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreTorizoEffectsFrames =
         Build(CatalogGeneration.PreTorizoEffects);
+    /// <summary>Stores pre generic enemy death frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreGenericEnemyDeathFrames =
         Build(CatalogGeneration.PreGenericEnemyDeath);
+    /// <summary>Stores pre environment and attack frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreEnvironmentAndAttackFrames =
         Build(CatalogGeneration.PreEnvironmentAndAttack);
+    /// <summary>Stores pre mother brain and statue frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreMotherBrainAndStatueFrames =
         Build(CatalogGeneration.PreMotherBrainAndStatue);
+    /// <summary>Stores pre work robot frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PreWorkRobotFrames =
         Build(CatalogGeneration.PreWorkRobot);
+    /// <summary>Stores frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] Frames =
         Build(CatalogGeneration.Current);
+    /// <summary>Stores pre polyp rock frames.</summary>
     private static readonly EnemyProjectilePresentationFrameDefinition[] PrePolypRockFrames =
         Build(CatalogGeneration.PrePolypRock);
 
+    /// <summary>Gets all.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> All => Frames;
+    /// <summary>Gets pre polyp rock.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PrePolypRock =>
         PrePolypRockFrames;
+    /// <summary>Gets pre golden torizo.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizo =>
         PreGoldenTorizoFrames;
+    /// <summary>Gets pre golden torizo egg.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGoldenTorizoEgg =>
         PreGoldenTorizoEggFrames;
+    /// <summary>Gets pre torizo effects.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreTorizoEffects =>
         PreTorizoEffectsFrames;
+    /// <summary>Gets pre generic enemy death.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreGenericEnemyDeath =>
         PreGenericEnemyDeathFrames;
+    /// <summary>Gets pre environment and attack.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreEnvironmentAndAttack =>
         PreEnvironmentAndAttackFrames;
+    /// <summary>Gets pre mother brain and statue.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreMotherBrainAndStatue =>
         PreMotherBrainAndStatueFrames;
+    /// <summary>Gets pre work robot.</summary>
     internal static ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> PreWorkRobot =>
         PreWorkRobotFrames;
 
+    /// <summary>Contains.</summary>
     internal static bool Contains(ushort operandAddress) =>
         Array.BinarySearch(Frames,
             new EnemyProjectilePresentationFrameDefinition(operandAddress, string.Empty),
             AddressComparer.Instance) >= 0;
 
+    /// <summary>Builds.</summary>
     private static EnemyProjectilePresentationFrameDefinition[] Build(
         CatalogGeneration generation)
     {
@@ -242,9 +272,12 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             .ToArray();
     }
 
+    /// <summary>Represents address comparer.</summary>
     private sealed class AddressComparer : IComparer<EnemyProjectilePresentationFrameDefinition>
     {
+        /// <summary>Stores instance.</summary>
         internal static readonly AddressComparer Instance = new();
+        /// <summary>Compare.</summary>
         public int Compare(EnemyProjectilePresentationFrameDefinition left,
             EnemyProjectilePresentationFrameDefinition right) =>
             left.OperandAddress.CompareTo(right.OperandAddress);

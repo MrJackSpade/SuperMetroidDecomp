@@ -8,9 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// jump/helmet caps. Native draw order is preserved independently of tile order.</summary>
 internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Checks whether head.</summary>
     private static bool IsHead(Pose pose) => pose is >= Pose.LargeSamusHelmetFromEndingFrame1 and <= Pose.JumpingSamusHeadFromEnding
         or >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadWithHelmetFromEnding;
 
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         foreach (Pose pose in Enum.GetValues<Pose>())
@@ -19,6 +21,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
         return supplied;
     }
 
+    /// <summary>Gets count.</summary>
     public int Count => pose switch
     {
         Pose.LargeSamusHelmetFromEndingFrame1 or Pose.LargeSamusHelmetFromEndingFrame2 => 5,
@@ -28,6 +31,7 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 
+    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -72,9 +76,11 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

@@ -5,8 +5,10 @@ using static ShaktoolOrbitAlgorithmVerification;
 using static SuiteTimingVerification;
 using static WordSamplesVerification;
 
+/// <summary>Represents family trigonometry verification.</summary>
 internal static class FamilyTrigonometryVerification
 {
+    /// <summary>Verifies signed sixteen bit sine definitions.</summary>
     internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
         Func<byte, short> bullSample = BullBehavior.ReadBullSignedSine;
@@ -19,9 +21,11 @@ internal static class FamilyTrigonometryVerification
         }
     }
 
+    /// <summary>Signed sixteen bit sine definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for signed sixteen bit sine definitions")]
     private static byte SignedSixteenBitSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies compiled family trigonometry.</summary>
     internal static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
     {
         short Read(int address) => unchecked((short)(SnesLittleEndian.Word(CompiledFamilyTrigonometryRomByte(rom, address), CompiledFamilyTrigonometryRomByte(rom, address + 1))));
@@ -105,6 +109,7 @@ internal static class FamilyTrigonometryVerification
         Console.WriteLine("Compiled family math: signed 16-bit samples, every angle with every speed-word boundary class for Bull moves, word/byte Yapping Maw products over every boundary class and 196,608 linked Shaktool placements match cartridge data without a production bus.");
     }
 
+    /// <summary>Compiled family trigonometry rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled family trigonometry")]
     private static byte CompiledFamilyTrigonometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

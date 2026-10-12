@@ -21,10 +21,14 @@ public static class SamusBodyArtworkFiles
 {
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
+    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 4;
+    /// <summary>Defines tile width.</summary>
     private const int TileWidth = 64;
+    /// <summary>Defines definition height.</summary>
     private const int DefinitionHeight = 16;
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -161,6 +165,7 @@ public static class SamusBodyArtworkFiles
     /// <exception cref="InvalidDataException">The body installation or any linked artwork resource is invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>extract half.</summary>
     private static DefinitionEntry[][] ExtractHalf(ISnesAddressSpace bus, string directory,
         ushort[] pointers, ushort[] sortedPointers, bool upperHalf,
         Dictionary<string, string> hashes)
@@ -206,6 +211,7 @@ public static class SamusBodyArtworkFiles
         return sets;
     }
 
+    /// <summary>build catalog.</summary>
     private static SamusBodyArtworkCatalog BuildCatalog(string stockDirectory, Manifest manifest,
         string? overrideDirectory)
     {
@@ -226,6 +232,7 @@ public static class SamusBodyArtworkFiles
         return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = manifest.TopPointers, BottomPointers = manifest.BottomPointers, PosePointers = manifest.PosePointers, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
     }
 
+    /// <summary>load half.</summary>
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,
         string? overrideDirectory, Manifest manifest, bool upperHalf)
     {
@@ -272,6 +279,7 @@ public static class SamusBodyArtworkFiles
         return result;
     }
 
+    /// <summary>validate manifest.</summary>
     private static void ValidateManifest(Manifest manifest)
     {
         if (manifest.Version != FormatVersion ||
@@ -293,9 +301,11 @@ public static class SamusBodyArtworkFiles
             throw new InvalidDataException("Samus body manifest does not match this installation.");
     }
 
+    /// <summary>read pointers.</summary>
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
         Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((start + i * 2))).ToArray();
 
+    /// <summary>read spritemap.</summary>
     private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
     {
         int address = CartridgeBankWindow.At(SamusCartridgeTables.AnimationBank, pointer);
@@ -312,9 +322,11 @@ public static class SamusBodyArtworkFiles
         return new SamusSpritemapDefinition(pointer, parts);
     }
 
+    /// <summary>file name.</summary>
     private static string FileName(bool upperHalf, int set) =>
         $"{(upperHalf ? "top" : "bottom")}-{set:X2}.png";
 
+    /// <summary>Represents manifest.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         ushort[] TopPointers, ushort[] BottomPointers, ushort[] PosePointers,
         sbyte[] GraphicsYOffsets,
@@ -325,5 +337,6 @@ public static class SamusBodyArtworkFiles
         sbyte[] PostureYOffsets, sbyte[] DrainedYOffsets,
         Dictionary<string, string> Hashes);
 
+    /// <summary>Represents definition entry.</summary>
     private sealed record DefinitionEntry(int SourceAddress, ushort FirstSize, ushort SecondSize);
 }

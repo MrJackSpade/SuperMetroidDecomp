@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Represents render presentation gate tests verification.</summary>
 internal static class RenderPresentationGateTestsVerification
 {
+    /// <summary>verify render presentation gate.</summary>
     internal static void VerifyRenderPresentationGate()
     {
         var gate = new RenderPresentationGate(1);

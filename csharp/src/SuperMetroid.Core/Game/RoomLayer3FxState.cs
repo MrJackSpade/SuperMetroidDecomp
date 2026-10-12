@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class RoomLayer3FxState
 {
+    /// <summary>Stores animated tiles.</summary>
     private readonly RoomFxAnimatedTilesState animatedTiles = new();
 
     /// <summary>Current host-owned liquid/rain frame art; never stored in debugger state.</summary>
@@ -31,36 +32,57 @@ public sealed class RoomLayer3FxState
     public RoomFxPaletteBlendCatalog? PaletteBlendColors { get; set; }
     // The rain/fog/spores texture drift: one 8.8 accumulator per axis, whose signed high
     // byte is added to the BG3 scroll before each axis's velocity is applied.
+    /// <summary>Stores drift.</summary>
     private Offset16<Bg3Subpixels> drift;
+    /// <summary>Stores horizontal velocity.</summary>
     private ushort horizontalVelocity;
     // Rain scrolls by the layer-one movement since its previous frame.
+    /// <summary>Stores previous camera.</summary>
     private Position16<RoomPixels> previousCamera;
+    /// <summary>Stores base ysubposition.</summary>
     private ushort baseYSubposition;
+    /// <summary>Stores tide phase.</summary>
     private ushort tidePhase;
+    /// <summary>Stores tide fixed offset.</summary>
     private int tideFixedOffset;
+    /// <summary>Stores water horizontal subscroll.</summary>
     private ushort waterHorizontalSubscroll;
+    /// <summary>Stores water bg3 wave timer.</summary>
     private ushort waterBg3WaveTimer;
+    /// <summary>Stores water bg2 wave timer.</summary>
     private ushort waterBg2WaveTimer;
+    /// <summary>Stores water bg3 wave phase.</summary>
     private int waterBg3WavePhase;
+    /// <summary>Stores water bg2 wave phase.</summary>
     private int waterBg2WavePhase;
+    /// <summary>Stores water surface screen y.</summary>
     private short waterSurfaceScreenY;
+    /// <summary>Stores lava acid bg2 wave timer.</summary>
     private ushort lavaAcidBg2WaveTimer;
+    /// <summary>Stores lava acid bg2 wave phase.</summary>
     private int lavaAcidBg2WavePhase;
     // The spawned BG3 HDMA object's first pass installs its pre-instruction;
     // subsequent passes execute it before the main-loop RNG call. The water lists at
     // $88:D856 have the same shape, so this latch serves every liquid; the serialized
     // name predates water's use of it.
+    /// <summary>Stores lava acid bg3 pre instruction installed.</summary>
     private bool lavaAcidBg3PreInstructionInstalled;
     // A liquid's scroll HDMA objects own every per-frame liquid update. A direct
     // HDMA-object deletion ($A9:8C0C) ends them until the next room load.
+    /// <summary>Stores liquid hdma objects deleted.</summary>
     private bool liquidHdmaObjectsDeleted;
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
     private ushort lavaSoundTimer;
+    /// <summary>Stores liquid rise phase.</summary>
     private LiquidRisePhase liquidRisePhase;
+    /// <summary>Stores sound requests.</summary>
     private readonly List<RoomFxSoundRequest> soundRequests = [];
+    /// <summary>Stores audio power bomb.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    /// <summary>Stores earthquake sound timer.</summary>
     private ushort earthquakeSoundTimer;
+    /// <summary>Stores earthquake sound sequence index.</summary>
     private int earthquakeSoundSequenceIndex;
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
@@ -121,6 +143,7 @@ public sealed class RoomLayer3FxState
         ushort roomHeaderPointer = 0) =>
         LoadCore(bus, vram, cgram, new RoomFxLoadSource { FxPointer = fxPointer, DoorPointer = doorPointer, RandomNumber = randomNumber, RoomHeaderPointer = roomHeaderPointer, SuppliedDefinition = null });
 
+    /// <summary>Loads core.</summary>
     private void LoadCore(ISnesAddressSpace bus, SnesVram vram, SnesCgram cgram, RoomFxLoadSource source)
     {
         Ensure.NotNull(bus);
@@ -441,6 +464,7 @@ public sealed class RoomLayer3FxState
             definition.DefaultLayerBlend, "LoadFxEntry");
     }
 
+    /// <summary>Applies palette blend.</summary>
     private void ApplyPaletteBlend(SnesCgram cgram, byte selection)
     {
         (PaletteBlendColors ?? throw new InvalidOperationException(
@@ -502,6 +526,7 @@ public sealed class RoomLayer3FxState
         }
     }
 
+    /// <summary>Advances liquid motion.</summary>
     private void AdvanceLiquidMotion(ushort randomNumber, bool mainGameLoopCarry)
     {
         StepLiquidRise(randomNumber, mainGameLoopCarry);
@@ -714,18 +739,22 @@ public sealed class RoomLayer3FxState
             tidePhase + (sample >= 0 ? positiveDelta : negativeDelta)));
     }
 
+    /// <summary>Computes tidal yposition.</summary>
     private ushort ComputeTidalYPosition()
     {
         uint baseFixed = SnesSixteenSixteen.Compose(BaseYPosition, baseYSubposition);
         return SnesFixedPosition.WholeOf(unchecked((int)(baseFixed + (uint)tideFixedOffset)));
     }
 
+    /// <summary>Gets uses lava acid vertical wave.</summary>
     private bool UsesLavaAcidVerticalWave =>
         (LiquidOptions & RoomFxRomData.LavaAcid.VerticalBg2WaveOption) != 0;
 
+    /// <summary>Gets uses lava acid horizontal wave.</summary>
     private bool UsesLavaAcidHorizontalWave =>
         (LiquidOptions & RoomFxRomData.LavaAcid.HorizontalBg2WaveOption) != 0;
 
+    /// <summary>Computes liquid vertical scroll.</summary>
     private static ushort ComputeLiquidVerticalScroll(ushort surfaceY, ushort cameraY)
     {
         if (unchecked((short)surfaceY) < 0)
@@ -738,6 +767,7 @@ public sealed class RoomLayer3FxState
             : (ushort)0;
     }
 
+    /// <summary>Resets.</summary>
     private void Reset()
     {
         animatedTiles.Reset();
@@ -782,8 +812,11 @@ public sealed class RoomLayer3FxState
     /// <summary>The mutually exclusive callbacks installed in the native rise-function word.</summary>
     private enum LiquidRisePhase
     {
+        /// <summary>Identifies dormant.</summary>
         Dormant,
+        /// <summary>Identifies waiting.</summary>
         Waiting,
+        /// <summary>Identifies moving.</summary>
         Moving,
     }
 }

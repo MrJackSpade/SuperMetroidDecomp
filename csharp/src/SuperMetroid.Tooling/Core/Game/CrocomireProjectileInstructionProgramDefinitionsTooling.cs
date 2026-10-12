@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(CrocomireProjectileInstructionProgramDefinitions))]
 internal abstract class CrocomireProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index) => CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 22;
     /// <summary>Enumerates each program's timed frames followed by its control
     /// trailer: a self-loop, or the shot program's drop/goto/delete sequence.</summary>
@@ -25,6 +28,7 @@ internal abstract class CrocomireProjectileInstructionProgramDefinitionsTooling 
         ushort address = (ushort)(start + offset);
         return new(address, CrocomireProjectileInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

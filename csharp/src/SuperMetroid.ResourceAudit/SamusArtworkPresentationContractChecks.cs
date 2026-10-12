@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms only the identified complete placement and indexed composition contracts.</summary>
 internal static class SamusArtworkPresentationContractChecks
 {
+    /// <summary>Runs.</summary>
     internal static void Run()
     {
         var trees = SamusArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -89,6 +90,7 @@ internal static class SamusArtworkPresentationContractChecks
             "an unreviewed partial provider declaration must revoke access to the private offset state");
     }
 
+    /// <summary>Requires.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Samus artwork provider confirmation failed: " + reason);

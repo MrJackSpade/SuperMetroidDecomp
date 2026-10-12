@@ -89,6 +89,7 @@ internal abstract class CeresSteamInstructionProgramDefinitions
             _ => new((ushort)(start + 50), (ushort)(start + 12)),
         };
     }
+    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

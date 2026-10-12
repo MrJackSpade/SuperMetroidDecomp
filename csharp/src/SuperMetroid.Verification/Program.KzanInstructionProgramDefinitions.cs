@@ -17,14 +17,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kzan instruction program definitions verification.</summary>
 internal static class KzanInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies kzan instruction program definitions.</summary>
     internal static void VerifyKzanInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies kzan instruction program definitions.</summary>
     internal static void VerifyKzanInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -85,6 +88,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
             "program and exact frame selection pass with instruction bytes forbidden.");
     }
 
+    /// <summary>Probe kzan instruction mechanics allocation.</summary>
     private static int ProbeKzanInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -96,6 +100,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New kzan instruction program guard.</summary>
     private static CartridgeReadGuard NewKzanInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KzanInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -103,6 +108,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
             .ForbidRange(0xa60000 | KzanInstructionProgramDefinitionsTooling.PresentationWord, 2,
                 _ => "Production read the compiled Kzan visual operand.");
 
+    /// <summary>Single frame enemy visuals command.</summary>
     [VerificationCommand("--single-frame-enemy-visuals")]
     internal static int SingleFrameEnemyVisualsCommand()
     {
@@ -113,6 +119,7 @@ internal static class KzanInstructionProgramDefinitionsVerification
         return 0;
     }
 
+    /// <summary>Kzan instruction mechanics command.</summary>
     [VerificationCommand("--kzan-instruction-mechanics")]
     internal static int KzanInstructionMechanicsCommand()
     {

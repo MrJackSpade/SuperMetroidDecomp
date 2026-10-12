@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Dachora species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DachoraBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Initializes a new dachora behavior instance.</summary>
     internal DachoraBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable, EnemyPresentation presentation)
     {
         _room = room;
@@ -20,28 +25,47 @@ internal sealed class DachoraBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Defines dachora activation sound.</summary>
     private const ushort DachoraActivationSound = 0x001d;
+    /// <summary>Defines dachora speed booster sound.</summary>
     private const ushort DachoraSpeedBoosterSound = 0x0039;
+    /// <summary>Defines dachora charge sound.</summary>
     private const ushort DachoraChargeSound = 0x003d;
+    /// <summary>Defines dachora launch sound.</summary>
     private const ushort DachoraLaunchSound = 0x003b;
+    /// <summary>Defines dachora ceiling impact sound.</summary>
     private const ushort DachoraCeilingImpactSound = 0x003c;
+    /// <summary>Defines dachora wall impact sound.</summary>
     private const ushort DachoraWallImpactSound = 0x0071;
 
     // NTSC retail constants at $A7:F4C9-$F4DB. They are kept as paired native words so
     // fixed-point carry and exact threshold frames remain visible and auditable.
+    /// <summary>Defines dachora activation xdistance.</summary>
     private const int DachoraActivationXDistance = 0x60;
+    /// <summary>Defines dachora activation ydistance.</summary>
     private const int DachoraActivationYDistance = 0x40;
+    /// <summary>Defines dachora blink duration.</summary>
     private const ushort DachoraBlinkDuration = 0x78;
+    /// <summary>Defines dachora charge duration.</summary>
     private const ushort DachoraChargeDuration = 0x3c;
+    /// <summary>Defines dachora echo position interval.</summary>
     private const ushort DachoraEchoPositionInterval = 1;
+    /// <summary>Defines dachora echo lifetime.</summary>
     private const ushort DachoraEchoLifetime = 8;
+    /// <summary>Defines dachora maximum speed whole.</summary>
     private const ushort DachoraMaximumSpeedWhole = 8;
+    /// <summary>Defines dachora maximum speed fraction.</summary>
     private const ushort DachoraMaximumSpeedFraction = 0;
+    /// <summary>Defines dachora acceleration whole.</summary>
     private const ushort DachoraAccelerationWhole = 0;
+    /// <summary>Defines dachora acceleration fraction.</summary>
     private const ushort DachoraAccelerationFraction = 0x1000;
+    /// <summary>Defines dachora left turn x.</summary>
     private const ushort DachoraLeftTurnX = 0x0060;
+    /// <summary>Defines dachora shinespark x.</summary>
     private const ushort DachoraShinesparkX = 0x0480;
 
+    /// <summary>Stores dachora states.</summary>
     internal readonly DachoraEnemyState?[] _dachoraStates =
         new DachoraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -482,6 +506,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         throw new InvalidOperationException("Dachora requires installed palette-cycle colors.");
     }
 
+    /// <summary>require dachora echo slots.</summary>
     private RoomEnemySlot[] RequireDachoraEchoSlots(RoomEnemySlot body)
     {
         if (body.SlotIndex + 4 >= RoomEnemySystem.MaximumEnemyCount)
@@ -501,22 +526,27 @@ internal sealed class DachoraBehavior : IEnemySpecies
         return echoes;
     }
 
+    /// <summary>require dachora state.</summary>
     private DachoraEnemyState RequireDachoraState(RoomEnemySlot slot) =>
         _dachoraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Dachora slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>install dachora instruction.</summary>
     private static void InstallDachoraInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>dachora within axis.</summary>
     private static bool DachoraWithinAxis(ushort actor, ushort samus, int distance) =>
         Math.Abs(unchecked((short)(actor - samus))) < distance;
 
+    /// <summary>compose dachora fixed.</summary>
     private static int ComposeDachoraFixed(ushort whole, ushort fraction) =>
         unchecked((SnesSixteenSixteen.FromWhole((int)(short)whole)) | fraction);
 
+    /// <summary>add dachora fixed.</summary>
     private static (ushort Whole, ushort Fraction) AddDachoraFixed(
         ushort whole,
         ushort fraction,
@@ -529,6 +559,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         return (SnesFixedPosition.WholeOf(unchecked((int)value)), unchecked((ushort)value));
     }
 
+    /// <summary>register dachora initialization ai.</summary>
     internal void RegisterDachoraInitializationAi(EnemyAiTable table)
     {
 
@@ -538,6 +569,7 @@ internal sealed class DachoraBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register dachora main ai.</summary>
     internal void RegisterDachoraMainAi(EnemyAiTable table)
     {
 

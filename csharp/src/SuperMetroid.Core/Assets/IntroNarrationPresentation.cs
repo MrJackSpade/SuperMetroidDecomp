@@ -11,8 +11,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class IntroNarrationPresentation
 {
+    /// <summary>Stores page1.</summary>
     private readonly NarrationPage page1, page2, page3, page4, page5, page6;
 
+    /// <summary>Initializes a new intro narration presentation instance.</summary>
     private IntroNarrationPresentation(
         Dictionary<IntroNarrationPageId, NarrationPage> pages,
         string contentIdentity)
@@ -132,9 +134,12 @@ public sealed class IntroNarrationPresentation
     /// <summary>Calculated word wrapping and two-row spacing. Stock story wording and its one deliberate hard break are reviewed narrative content; independent edits remain exact.</summary>
     private sealed class NarrationPage : IReadOnlyList<IntroNarrationLine>
     {
+        /// <summary>Stores text.</summary>
         private readonly string? text;
+        /// <summary>Stores supplied.</summary>
         private readonly IntroNarrationLine[]? supplied;
 
+        /// <summary>Initializes a new narration page instance.</summary>
         internal NarrationPage(IntroNarrationLine[] lines)
         {
             var candidate = new StringBuilder();
@@ -153,7 +158,9 @@ public sealed class IntroNarrationPresentation
             else supplied = lines.ToArray();
         }
 
+        /// <summary>Gets count.</summary>
         public int Count => supplied?.Length ?? CalculateLines(text!).Count();
+        /// <summary>Gets an indexed value.</summary>
         public IntroNarrationLine this[int index]
         {
             get
@@ -166,6 +173,7 @@ public sealed class IntroNarrationPresentation
             }
         }
 
+        /// <summary>Calculates lines.</summary>
         private static IEnumerable<IntroNarrationLine> CalculateLines(string text)
         {
             int row = IntroNarrationDefinitions.FirstTextRow;
@@ -185,9 +193,11 @@ public sealed class IntroNarrationPresentation
             }
         }
 
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<IntroNarrationLine> GetEnumerator() => supplied is not null
             ? ((IEnumerable<IntroNarrationLine>)supplied).GetEnumerator()
             : CalculateLines(text!).GetEnumerator();
+        /// <summary>Gets enumerator.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

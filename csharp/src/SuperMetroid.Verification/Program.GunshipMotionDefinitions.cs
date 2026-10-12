@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents gunship motion definitions verification.</summary>
 internal static class GunshipMotionDefinitionsVerification
 {
+    /// <summary>Verifies gunship motion definitions.</summary>
     internal static void VerifyGunshipMotionDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
@@ -85,9 +87,11 @@ internal static class GunshipMotionDefinitionsVerification
             "Gunship motion definitions: all seventeen brake deltas, four idle-bob records, and both production consumers pass with source reads forbidden.");
     }
 
+    /// <summary>Gunship motion definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship motion definitions")]
     private static byte GunshipMotionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies gunship brake algorithm.</summary>
     private static void VerifyGunshipBrakeAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort frame = 0; frame < 17; frame++)
@@ -97,6 +101,7 @@ internal static class GunshipMotionDefinitionsVerification
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.LandingBrakeYDelta(ushort.MaxValue), "Brake invalid maximum");
     }
 
+    /// <summary>Verifies gunship hover timer algorithm.</summary>
     private static void VerifyGunshipHoverTimerAlgorithm(SuperMetroidAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
@@ -106,9 +111,11 @@ internal static class GunshipMotionDefinitionsVerification
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover timer invalid maximum");
     }
 
+    /// <summary>Gunship hover timer algorithm rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship hover timer algorithm")]
     private static byte GunshipHoverTimerAlgorithmRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies gunship hover delta selection.</summary>
     private static void VerifyGunshipHoverDeltaSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort phase = 0; phase < 4; phase++)
@@ -118,6 +125,7 @@ internal static class GunshipMotionDefinitionsVerification
         AssertThrows<InvalidDataException>(() => GunshipMotionDefinitions.IdleBob(ushort.MaxValue), "Hover delta invalid maximum");
     }
 
+    /// <summary>Gunship hover delta selection rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Gunship hover delta selection")]
     private static byte GunshipHoverDeltaSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
@@ -127,8 +135,10 @@ internal static class GunshipMotionDefinitionsVerification
     /// </summary>
     internal sealed class GunshipMotionFixtureGuard : CartridgeReadGuard, IRoomEnemyFixtureSource
     {
+        /// <summary>Stores source.</summary>
         private readonly ISnesAddressSpace source;
 
+        /// <summary>Initializes a new gunship motion fixture guard instance.</summary>
         public GunshipMotionFixtureGuard(ISnesAddressSpace source)
             : base(source)
         {
@@ -137,22 +147,26 @@ internal static class GunshipMotionDefinitionsVerification
                 address => $"Gunship attempted migrated motion-definition read ${address:X6}.");
         }
 
+        /// <summary>Reads enemy definition.</summary>
         public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyDefinition(pointer)
                 : RoomEnemyDefinitionCatalog.Get(pointer);
 
+        /// <summary>Reads enemy population.</summary>
         public RoomEnemyPopulationDefinition ReadEnemyPopulation(ushort pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyPopulation(pointer)
                 : RoomEnemyPopulationDefinitions.Get(pointer);
 
+        /// <summary>Reads enemy graphics set.</summary>
         public RoomEnemyGraphicsSetDefinition ReadEnemyGraphicsSet(ushort pointer) =>
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyGraphicsSet(pointer)
                 : RoomEnemyGraphicsSetDefinitions.Get(pointer);
     }
 
+    /// <summary>Gunship motion definitions command.</summary>
     [VerificationCommand("--gunship-motion-definitions")]
     internal static int GunshipMotionDefinitionsCommand()
     {

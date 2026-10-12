@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class TitleGradientPresentation
 {
+    /// <summary>Stores variants.</summary>
     private readonly TitleGradientLine[][] variants;
 
+    /// <summary>Initializes a new title gradient presentation instance.</summary>
     private TitleGradientPresentation(TitleGradientLine[][] variants) => this.variants = variants;
 
     /// <summary>Returns the authored scanlines selected by native zoom bits four through seven.</summary>

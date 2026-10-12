@@ -4,14 +4,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents botwoon speeds verification.</summary>
 internal static class BotwoonSpeedsVerification
 {
+    /// <summary>Verifies compiled botwoon speeds.</summary>
     internal static void VerifyCompiledBotwoonSpeeds(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonSpeedAlgorithm), () => VerifyBotwoonSpeedAlgorithm(rom));
         Suite(nameof(VerifyBotwoonSpacingAlgorithm), () => VerifyBotwoonSpacingAlgorithm(rom));
     }
 
+    /// <summary>Verifies botwoon speed algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon speed algorithm")]
     private static void VerifyBotwoonSpeedAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -42,6 +45,7 @@ internal static class BotwoonSpeedsVerification
         Console.WriteLine("Botwoon speed algorithm: both three-word native views and 3,001 real health transitions match; hidden phases remain held.");
     }
 
+    /// <summary>Verifies botwoon spacing algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon spacing algorithm")]
     private static void VerifyBotwoonSpacingAlgorithm(SuperMetroidAddressSpace rom)
     {

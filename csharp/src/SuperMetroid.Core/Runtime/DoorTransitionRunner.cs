@@ -9,26 +9,46 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class DoorTransitionRunner
 {
+    /// <summary>Stores actor drawing.</summary>
     private readonly GameplayActorDrawing _actorDrawing;
+    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Stores ceres elevator shaft.</summary>
     private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
+    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Stores enemy phase.</summary>
     private readonly EnemyFramePhase _enemyPhase;
+    /// <summary>Stores hdma phase.</summary>
     private readonly HdmaObjectPhase _hdmaPhase;
+    /// <summary>Stores maridia elevatube.</summary>
     private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
+    /// <summary>Stores nmi.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Stores nmi handler.</summary>
     private readonly NmiHandler _nmiHandler;
+    /// <summary>Stores oam.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Stores wrecked ship treadmill.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
+    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Initializes a new door transition runner instance.</summary>
     internal DoorTransitionRunner(DoorTransitionRunnerDependencies dependencies)
     {
         _actorDrawing = dependencies.ActorDrawing;
@@ -131,6 +151,7 @@ internal sealed class DoorTransitionRunner
         }
     }
 
+    /// <summary>Starts wrecked ship treadmill.</summary>
     private void StartWreckedShipTreadmill(WreckedShipTreadmillDirection direction)
     {
         if (_room.LevelData is null || _room.BackgroundStreamer is null || _room.ActiveRoom is null)
@@ -150,6 +171,7 @@ internal sealed class DoorTransitionRunner
             _system.HasAnyBossBits(_room.ActiveRoom.AreaIndex, BossBits.AreaBoss));
     }
 
+    /// <summary>Sets up maridia elevatube.</summary>
     private void SetUpMaridiaElevatube(bool fromSouth)
     {
         if (_room.LevelData is null)

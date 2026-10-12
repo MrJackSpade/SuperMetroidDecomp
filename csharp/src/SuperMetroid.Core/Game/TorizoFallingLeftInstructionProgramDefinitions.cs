@@ -29,6 +29,7 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbc78),
         Entry(Start),
@@ -42,5 +43,6 @@ internal abstract class TorizoFallingLeftInstructionProgramDefinitions
         Op((ushort)TorizoInstruction.Instruction_Torizo_SpawnTorizoLandingDustClouds),
         Op((ushort)TorizoInstruction.Instruction_Torizo_GotoY_IfFaceBlownUp_ElseGotoY2_IfGolden, FacelessWalkingLeftLeg, GoldenTorizoWalkingLeftLeftLegMoving),
         Op((ushort)CommonEnemyInstruction.Goto, BombTorizoWalkingLeftLeg));
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

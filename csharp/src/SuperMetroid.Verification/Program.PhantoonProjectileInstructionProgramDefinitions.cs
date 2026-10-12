@@ -15,12 +15,15 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents phantoon projectile instruction program definitions verification.</summary>
 internal static class PhantoonProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies phantoon projectile instruction program definitions.</summary>
     internal static void VerifyPhantoonProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyPhantoonProjectileInstructionProgramDefinitions), () => VerifyPhantoonProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies phantoon projectile instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon projectile instruction program definitions")]
     internal static void VerifyPhantoonProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -190,6 +193,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Probe phantoon projectile instruction mechanics allocation.</summary>
     private static int ProbePhantoonProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -203,6 +207,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>New phantoon projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewPhantoonProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PhantoonProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -210,6 +215,7 @@ internal static class PhantoonProjectileInstructionProgramDefinitionsVerificatio
             .ObserveWords(EnemyProjectileCodePointers.BankBase, PhantoonProjectileInstructionProgramDefinitions.PresentationWordCount,
                 PhantoonProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Phantoon projectile instruction mechanics command.</summary>
     [VerificationCommand("--phantoon-projectile-instruction-mechanics")]
     internal static int PhantoonProjectileInstructionMechanicsCommand()
     {

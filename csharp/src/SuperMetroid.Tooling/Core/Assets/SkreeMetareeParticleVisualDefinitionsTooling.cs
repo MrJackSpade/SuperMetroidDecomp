@@ -3,6 +3,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Operand resolution for the shared bank-$86 visual scans in the development audits.</summary>
 internal static class SkreeMetareeParticleVisualDefinitionsTooling
 {
+    /// <summary>Adds operand resolution for the particle visual definitions used by development audits.</summary>
     extension(SkreeMetareeParticleVisualDefinitions)
     {
         /// <summary>

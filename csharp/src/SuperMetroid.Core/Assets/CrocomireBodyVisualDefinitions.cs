@@ -16,7 +16,9 @@ internal static class CrocomireBodyVisualDefinitions
     internal const ushort FirstPureOamFrame = 0xca7e;
     /// <summary>First skeleton extended frame at $A4:E1FE.</summary>
     internal const ushort FirstSkeletonFrame = 0xe1fe;
+    /// <summary>Defines body frame count.</summary>
     internal const int BodyFrameCount = 50;
+    /// <summary>Defines mixed bg2 frame count.</summary>
     internal const int MixedBg2FrameCount = 42;
 
     /// <summary>$A4:BFC4, twelve selected six-component charge/step-back frames.</summary>
@@ -32,6 +34,7 @@ internal static class CrocomireBodyVisualDefinitions
     /// <summary>$A4:C752, fourteen selected seven-component body frames.</summary>
     private const ushort LaterBodyStart = 0xc752;
 
+    /// <summary>Gets frames.</summary>
     internal static CrocomireBodyFrameSequence Frames => new(BodyFrameCount);
 
     /// <summary>Enumerates native frame roots in ascending order. A frame has a
@@ -58,6 +61,7 @@ internal static class CrocomireBodyVisualDefinitions
         InRun(pointer, BodyStart, 3, 0x3a) || pointer == IsolatedBodyFrame ||
         InRun(pointer, LaterBodyStart, 14, 0x3a);
 
+    /// <summary>In run.</summary>
     private static bool InRun(ushort pointer, ushort start, int count, int stride)
     {
         int offset = pointer - start;
@@ -68,12 +72,18 @@ internal static class CrocomireBodyVisualDefinitions
 /// <summary>Calculated body-frame enumeration; no cached pointer lookup.</summary>
 internal readonly record struct CrocomireBodyFrameSequence(int Length)
 {
+    /// <summary>Gets an indexed value.</summary>
     internal ushort this[int index] => CrocomireBodyVisualDefinitions.FramePointer(index);
+    /// <summary>Gets enumerator.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Represents enumerator.</summary>
     internal struct Enumerator(CrocomireBodyFrameSequence sequence)
     {
+        /// <summary>Stores index.</summary>
         private int index = -1;
+        /// <summary>Moves next.</summary>
         public bool MoveNext() => ++index < sequence.Length;
+        /// <summary>Gets current.</summary>
         public ushort Current => sequence[index];
     }
 }

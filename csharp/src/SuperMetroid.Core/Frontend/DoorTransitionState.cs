@@ -17,11 +17,17 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 public sealed class DoorTransitionState
 {
+    /// <summary>Stores palette transition.</summary>
     private CartridgePaletteTransition? paletteTransition;
+    /// <summary>Stores faded source palette.</summary>
     private Bgr555[]? fadedSourcePalette;
+    /// <summary>Stores door.</summary>
     private CartridgeDoorHeader? door;
+    /// <summary>Stores source samus.</summary>
     private FixedPosition<RoomPixels> sourceSamus;
+    /// <summary>Stores source cre bitset.</summary>
     private byte sourceCreBitset;
+    /// <summary>Stores destination cre bitset.</summary>
     private byte destinationCreBitset;
 
     /// <summary>Gets the currently selected native door-transition coroutine phase.</summary>
@@ -294,6 +300,7 @@ public sealed class DoorTransitionState
         }
     }
 
+    /// <summary>Builds source fade target.</summary>
     private static Bgr555[] BuildSourceFadeTarget(SuperMetroidRuntime runtime)
     {
         var target = new Bgr555[CgramPalettes.ColorCount];
@@ -316,6 +323,7 @@ public sealed class DoorTransitionState
         return target;
     }
 
+    /// <summary>Restore palette.</summary>
     private static void RestorePalette(SnesCgram cgram, ReadOnlySpan<Bgr555> colors)
     {
         new CgramPalettes(cgram).LoadImage(colors);

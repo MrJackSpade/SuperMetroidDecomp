@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Represents bomb jump wall verification.</summary>
 internal static class BombJumpWallVerification
 {
+    /// <summary>Verifies bomb jump wall contact.</summary>
     internal static void VerifyBombJumpWallContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -46,6 +48,7 @@ internal static class BombJumpWallVerification
         Suite(nameof(VerifyCarriedMorphCeiling), () => VerifyCarriedMorphCeiling(bus));
     }
 
+    /// <summary>Verifies carried morph ceiling.</summary>
     private static void VerifyCarriedMorphCeiling(SuperMetroidAddressSpace bus)
     {
         var words = new ushort[32 * 16];
@@ -101,6 +104,7 @@ internal static class BombJumpWallVerification
         AssertTrue(!hurt.BombJumpPoseInputLocked, "hurt expiry restores normal pose input");
     }
 
+    /// <summary>Bomb wall command.</summary>
     [VerificationCommand("--bomb-wall")]
     internal static int BombWallCommand()
     {

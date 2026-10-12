@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents mother brain body instruction programs verification.</summary>
 internal static class MotherBrainBodyInstructionProgramsVerification
 {
     /// <summary>
@@ -62,6 +63,7 @@ internal static class MotherBrainBodyInstructionProgramsVerification
             "body command/duration words and visual selectors match the cartridge.");
     }
 
+    /// <summary>mother brain body instruction mechanics command.</summary>
     [VerificationCommand("--mother-brain-body-instruction-mechanics")]
     internal static int MotherBrainBodyInstructionMechanicsCommand()
     {

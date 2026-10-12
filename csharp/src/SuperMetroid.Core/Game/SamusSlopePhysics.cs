@@ -158,6 +158,7 @@ public static class SamusSlopePhysics
         return new SlopeAlignmentResult(yPosition, adjusted);
     }
 
+    /// <summary>try get block at pixel.</summary>
     private static bool TryGetBlockAtPixel(
         RoomLevelData level,
         Position16<RoomPixels> pixel,

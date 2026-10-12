@@ -12,12 +12,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents mother brain body hitboxes verification.</summary>
 internal static class MotherBrainBodyHitboxesVerification
 {
     // #1269: Mother Brain's body collides through its extended frames' hitbox lists
     // ($A0:9B7F), and each body rectangle's shot callback $A9:B503 turns the projectile into
     // a dud. The port tested a header radius instead, so in the 100% movie a Hyper Beam that
     // native stopped on the body's arm (frame $A174, list $A504) flew on and hit the head.
+    /// <summary>Verifies mother brain body hitboxes.</summary>
     internal static void VerifyMotherBrainBodyHitboxes()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -58,6 +60,7 @@ internal static class MotherBrainBodyHitboxesVerification
         Console.WriteLine("Mother Brain body hitboxes: shots resolve against the body's extended frame rectangles.");
     }
 
+    /// <summary>Mother brain body hitboxes command.</summary>
     [VerificationCommand("--mother-brain-body-hitboxes")]
     internal static int MotherBrainBodyHitboxesCommand()
     {

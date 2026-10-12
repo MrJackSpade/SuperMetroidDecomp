@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Cacatac species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class CacatacBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Initializes a new cacatac behavior instance.</summary>
     internal CacatacBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -43,8 +46,10 @@ internal sealed class CacatacBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Defines cacatac spike sound.</summary>
     private const ushort CacatacSpikeSound = 0x0034;
 
+    /// <summary>Stores cacatac states.</summary>
     internal readonly CacatacEnemyState?[] _cacatacStates =
         new CacatacEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -192,6 +197,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
     /// <summary>Animation instruction $A2:9F2A: publish library-two sound $34.</summary>
     private void PlayCacatacSpikeSound() => LastCacatacSoundEffect = CacatacSpikeSound;
 
+    /// <summary>set cacatac instruction list.</summary>
     internal static void SetCacatacInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -199,10 +205,12 @@ internal sealed class CacatacBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>require cacatac state.</summary>
     private CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
         _cacatacStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Cacatac state.");
 
+    /// <summary>register cacatac projectiles.</summary>
     internal static void RegisterCacatacProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -212,6 +220,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.CacatacSpike);
     }
 
+    /// <summary>register cacatac initialization ai.</summary>
     internal void RegisterCacatacInitializationAi(EnemyAiTable table)
     {
 
@@ -221,6 +230,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register cacatac main ai.</summary>
     internal void RegisterCacatacMainAi(EnemyAiTable table)
     {
 
@@ -230,6 +240,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register cacatac owned instructions.</summary>
     internal void RegisterCacatacOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -323,6 +334,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 
+    /// <summary>move cacatac spike x.</summary>
     private static void MoveCacatacSpikeX(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)
@@ -330,6 +342,7 @@ internal sealed class CacatacBehavior : IEnemySpecies
         projectile.Position = projectile.Position.AdvanceX(new SnesSignedEightEight(velocity).ToSixteenSixteenDelta());
     }
 
+    /// <summary>move cacatac spike y.</summary>
     private static void MoveCacatacSpikeY(
         RoomEnemyProjectileSlot projectile,
         ushort velocity)

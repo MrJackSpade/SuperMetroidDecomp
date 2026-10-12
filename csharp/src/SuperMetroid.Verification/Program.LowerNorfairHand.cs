@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using static ChozoStatueVisualsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents lower norfair hand verification.</summary>
 internal static class LowerNorfairHandVerification
 {
+    /// <summary>Verifies lower norfair hand.</summary>
     internal static void VerifyLowerNorfairHand()
     {
         var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -127,6 +129,7 @@ internal static class LowerNorfairHandVerification
         Console.WriteLine($"Lower Norfair hand: collision/admission, live FX writes, {displayedHeights.Count} displayed drain heights, control release and re-entry pass.");
     }
 
+    /// <summary>Lower norfair hand command.</summary>
     [VerificationCommand("--lower-norfair-hand")]
     internal static int LowerNorfairHandCommand()
     {

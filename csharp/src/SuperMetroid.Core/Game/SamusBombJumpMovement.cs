@@ -123,6 +123,7 @@ public static class SamusBombJumpMovement
         return new BombJumpMovementResult(vertical, FellWithoutFloor: movedDown);
     }
 
+    /// <summary>Moves up with gravity.</summary>
     private static (BlockMoveResult Result, bool MovedDown) MoveUpWithGravity(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -150,6 +151,7 @@ public static class SamusBombJumpMovement
         return (result, displacement >= 0);
     }
 
+    /// <summary>End.</summary>
     private static BombJumpMovementResult End(
         SamusState samus,
         BlockMoveResult? vertical)

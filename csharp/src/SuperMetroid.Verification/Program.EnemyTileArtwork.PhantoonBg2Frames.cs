@@ -9,8 +9,10 @@ using static ExtendedBg2ReferenceVerification;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy tile artwork phantoon bg2 frames verification.</summary>
 internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 {
+    /// <summary>verify installed phantoon bg2 frames.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
     internal static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
@@ -135,6 +137,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         Console.WriteLine("  Phantoon BG2 frames: all 22 selectors preserve native writes and engine-owned hitboxes; live VRAM edit, collision ROM guard, reload and invalid-data checks passed.");
     }
 
+    /// <summary>verify phantoon collision definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon collision definitions")]
     private static void VerifyPhantoonCollisionDefinitions(
         SuperMetroidAddressSpace rom, ISnesAddressSpace guardedBus,
@@ -207,6 +210,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
             "Phantoon eye-only frame selects native vulnerable eye callback");
     }
 
+    /// <summary>find phantoon hitbox callback.</summary>
     internal static ushort FindPhantoonHitboxCallback(
         EnemyTileArtworkCatalog art, ISnesAddressSpace bus,
         ushort pointer, Position16<RoomPixels> target, bool selectShot)
@@ -228,6 +232,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         return found ? (ushort)arguments[4]! : (ushort)0;
     }
 
+    /// <summary>draw phantoon bg2.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, bool newInstructionFrame)

@@ -15,12 +15,15 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents torizo chozo orb instruction program definitions verification.</summary>
 internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify torizo chozo orb instruction program definitions.</summary>
     internal static void VerifyTorizoChozoOrbInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoChozoOrbInstructionProgramDefinitions), () => VerifyTorizoChozoOrbInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>verify torizo chozo orb instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo Chozo orb instruction program definitions")]
     internal static void VerifyTorizoChozoOrbInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -210,6 +213,7 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>probe torizo chozo orb instruction mechanics allocation.</summary>
     private static int ProbeTorizoChozoOrbInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -223,12 +227,14 @@ internal static class TorizoChozoOrbInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new torizo chozo orb instruction read guard.</summary>
     private static CartridgeReadGuard NewTorizoChozoOrbInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TorizoChozoOrbInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo Chozo-orb byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoChozoOrbInstructionProgramDefinitions.PresentationWordCount, TorizoChozoOrbInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>torizo chozo orb instruction mechanics command.</summary>
     [VerificationCommand("--torizo-chozo-orb-instruction-mechanics")]
     internal static int TorizoChozoOrbInstructionMechanicsCommand()
     {

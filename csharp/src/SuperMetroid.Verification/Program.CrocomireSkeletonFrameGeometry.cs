@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents crocomire skeleton frame geometry verification.</summary>
 internal static class CrocomireSkeletonFrameGeometryVerification
 {
+    /// <summary>Verifies crocomire skeleton frame geometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton frame geometry")]
     internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {

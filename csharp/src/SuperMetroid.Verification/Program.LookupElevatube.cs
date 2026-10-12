@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup elevatube verification.</summary>
 internal static class LookupElevatubeVerification
 {
+    /// <summary>Verifies elevatube physical draw.</summary>
     internal static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
     {
         AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), MaridiaElevatubePlmDefinitions.PhysicalWord, "Elevatube native scalar");
@@ -28,12 +30,16 @@ internal static class LookupElevatubeVerification
         }
     }
 
+    /// <summary>Elevatube physical draw rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Elevatube physical draw")]
     private static byte ElevatubePhysicalDrawRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies elevatube program controls.</summary>
     internal static void VerifyElevatubeProgramControls(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, false);
+    /// <summary>Verifies elevatube program draw.</summary>
     internal static void VerifyElevatubeProgramDraw(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, true);
 
+    /// <summary>Verifies elevatube program field.</summary>
     private static void VerifyElevatubeProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xb8f0,0xb8f4,0xb8f7];
@@ -51,6 +57,7 @@ internal static class LookupElevatubeVerification
         }
     }
 
+    /// <summary>Verifies elevatube program sound.</summary>
     internal static void VerifyElevatubeProgramSound(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -60,6 +67,7 @@ internal static class LookupElevatubeVerification
         }
     }
 
+    /// <summary>Elevatube program sound rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Elevatube program sound")]
     private static byte ElevatubeProgramSoundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

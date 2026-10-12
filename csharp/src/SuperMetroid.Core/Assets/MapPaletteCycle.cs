@@ -6,8 +6,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable authored highlight colors and durations; contains no palette addresses or audio commands.</summary>
 public sealed class MapPaletteCycle
 {
+    /// <summary>Stores duration edits.</summary>
     private readonly Dictionary<int, byte> durationEdits = [];
+    /// <summary>Stores colors.</summary>
     private readonly Bgr555[][] colors;
+    /// <summary>Stores reverse color edits.</summary>
     private readonly Dictionary<int, Bgr555> reverseColorEdits = [];
 
     /// <summary>
@@ -16,6 +19,7 @@ public sealed class MapPaletteCycle
     /// </summary>
     private static byte NativeDuration(int frame) => frame == 0 ? (byte)15 : (byte)3;
 
+    /// <summary>Initializes a new map palette cycle instance.</summary>
     private MapPaletteCycle(byte[] durations, Bgr555[][] suppliedColors)
     {
         FrameCount = durations.Length;
@@ -34,8 +38,10 @@ public sealed class MapPaletteCycle
     /// <summary>Number of selected ordered color frames, one through 255; the animation owner, not this resource, advances and wraps the frame cursor.</summary>
     public int FrameCount { get; }
 
+    /// <summary>Phase.</summary>
     private int Phase(int frame) => FrameCount == 14 ? Math.Min(frame, 14 - frame) : frame;
 
+    /// <summary>Checks frame.</summary>
     private void CheckFrame(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();

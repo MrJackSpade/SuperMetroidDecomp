@@ -15,9 +15,12 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_TorizoChozoOrbs</c> at $86:AB68.</summary>
     internal const ushort Shot = 0xab68;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 40;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 18;
 
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -71,6 +74,7 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -79,10 +83,12 @@ internal abstract class TorizoChozoOrbInstructionProgramDefinitions
         if (index < 13) return (ushort)(FloorImpact + 15 + 4 * (index - 7));
         return (ushort)(Shot + 8 + 4 * (index - 13));
     }
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoChozoOrb or
         RoomEnemyProjectileKind.GoldenTorizoChozoOrb;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

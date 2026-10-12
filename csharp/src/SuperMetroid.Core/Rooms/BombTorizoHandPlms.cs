@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -7,19 +7,26 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>The Bomb Torizo statue's hand PLM: its setup, per-frame state and the instructions that wake the statue.</summary>
 internal sealed class BombTorizoHandPlms
 {
+    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Initializes a new bomb torizo hand plms instance.</summary>
     internal BombTorizoHandPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;
         _slotTable = slotTable;
     }
+    /// <summary>Defines bomb torizo statue breaking definition.</summary>
     private const ushort BombTorizoStatueBreakingDefinition = 0xa993;
 
+    /// <summary>Stores vram write requests.</summary>
     private readonly List<PlmVramWriteRequest> _vramWriteRequests = [];
+    /// <summary>Stores bomb torizo statue projectile requests.</summary>
     private readonly List<BombTorizoStatueProjectileRequest>
         _bombTorizoStatueProjectileRequests = [];
+    /// <summary>Stores music requests.</summary>
     private readonly List<PlmMusicRequest> _musicRequests = [];
 
     /// <summary>Raw seven-byte VRAM queue entries emitted during the latest PLM pass.</summary>
@@ -57,6 +64,7 @@ internal sealed class BombTorizoHandPlms
         _bombTorizoHandRoomWidth = level.Size.X;
     }
 
+    /// <summary>begin bomb torizo hand frame.</summary>
     internal void BeginBombTorizoHandFrame()
     {
         _vramWriteRequests.Clear();
@@ -64,6 +72,7 @@ internal sealed class BombTorizoHandPlms
         _musicRequests.Clear();
     }
 
+    /// <summary>reset bomb torizo hand state.</summary>
     internal void ResetBombTorizoHandState()
     {
         BeginBombTorizoHandFrame();
@@ -96,6 +105,7 @@ internal sealed class BombTorizoHandPlms
         slot.PreInstruction = 0;
     }
 
+    /// <summary>try execute bomb torizo hand instruction.</summary>
     internal bool TryExecuteBombTorizoHandInstruction(
         ISnesAddressSpace bus,
         PlmSlot slot,
@@ -157,8 +167,10 @@ internal sealed class BombTorizoHandPlms
         }
     }
 
+    /// <summary>Stores bomb torizo hand room width.</summary>
     private int _bombTorizoHandRoomWidth;
 
+    /// <summary>mark bomb torizo hand deleted.</summary>
     internal static void MarkBombTorizoHandDeleted(PlmSlot slot)
     {
         if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)

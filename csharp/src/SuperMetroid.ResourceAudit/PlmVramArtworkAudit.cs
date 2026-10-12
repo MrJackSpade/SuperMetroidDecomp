@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmVramArtworkAudit
 {
+    /// <summary>Owns installed transfer.</summary>
     internal static bool OwnsInstalledTransfer(int source, int count) => count > 0 &&
         (EnemyTileSourceDefinitions.All.Any(page => page.SourceAddress == source && page.ByteCount == count) ||
          TorizoInstructionVramArtworkDefinitions.All.ToArray().Any(page =>
@@ -16,6 +17,7 @@ internal static class PlmVramArtworkAudit
          CeresEscapeTileArtworkDefinitions.Contains(source, count) ||
          CeresEscapeOverlayTilemapDefinitionsTooling.IsSource(source, count));
 
+    /// <summary>Verifies source.</summary>
     internal static void VerifySource(string root, PlmProgramAuditReport report)
     {
         // Includes the importer: a range merely named in Core must not count as

@@ -12,6 +12,7 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 
+/// <summary>Represents dsp register boundary verification.</summary>
 internal static class DspRegisterBoundaryVerification
 {
     /// <summary>
@@ -101,6 +102,7 @@ internal static class DspRegisterBoundaryVerification
         AssertEqual(0L, GC.GetAllocatedBytesForCurrentThread() - before, "typed DSP writes allocate nothing");
     }
 
+    /// <summary>Writes typed dsp burst.</summary>
     private static void WriteTypedDspBurst(SnesDspControls controls)
     {
         for (int voice = 0; voice < 8; voice++)
@@ -113,6 +115,7 @@ internal static class DspRegisterBoundaryVerification
         controls.Global.WriteEchoFeedback(0);
     }
 
+    /// <summary>Dsp register boundary command.</summary>
     [VerificationCommand("--dsp-register-boundary")]
     internal static int DspRegisterBoundaryCommand()
     {

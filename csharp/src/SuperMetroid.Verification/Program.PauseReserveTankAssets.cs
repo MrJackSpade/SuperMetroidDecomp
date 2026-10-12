@@ -13,8 +13,10 @@ using static PauseReserveAnchorsVerification;
 using static PauseReserveFramesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents pause reserve tank assets verification.</summary>
 internal static class PauseReserveTankAssetsVerification
 {
+    /// <summary>Verifies pause reserve tank assets.</summary>
     internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
     {
         Directory.CreateDirectory(overrides);
@@ -122,6 +124,7 @@ internal static class PauseReserveTankAssetsVerification
             return pause;
         }
     }
+    /// <summary>New reserve tank asset read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the reserve-tank pause spritemap and tilemap ranges")]
     private static CartridgeReadGuard NewReserveTankAssetReadGuard(ISnesAddressSpace source)
     {

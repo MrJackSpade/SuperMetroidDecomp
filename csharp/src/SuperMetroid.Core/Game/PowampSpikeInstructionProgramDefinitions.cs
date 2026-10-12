@@ -16,14 +16,17 @@ internal abstract class PowampSpikeInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_PowampSpike_Delete</c> at $86:D218.</summary>
     internal const ushort Delete = 0xd218;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 3;
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + index * 4 + 2);
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) => TryRead(address, out ushort value)
         ? value : throw new InvalidDataException($"Powamp-spike instruction mechanics pointer $86:{address:X4} is not compiled.");
 
@@ -39,6 +42,7 @@ internal abstract class PowampSpikeInstructionProgramDefinitions
     }
 
     // Three six-frame drawings repeat until the producer chooses the separate delete program.
+    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         value = 0;

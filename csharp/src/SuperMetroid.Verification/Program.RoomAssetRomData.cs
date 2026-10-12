@@ -16,6 +16,7 @@ using SuperMetroid.Core.Spatial;
 using static RetailRuntimeFixtureVerification;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Represents room asset rom data verification.</summary>
 internal static class RoomAssetRomDataVerification
 {
     /// <summary>
@@ -275,6 +276,7 @@ internal static class RoomAssetRomDataVerification
             "and padding edits are rejected.");
     }
 
+    /// <summary>Creates room character read guard.</summary>
     private static MutableCartridgeReadGuard NewRoomCharacterReadGuard(ISnesAddressSpace source, int areaCharacters)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -285,6 +287,7 @@ internal static class RoomAssetRomDataVerification
 
     // The guarded range begins at graphics set zero's native definition, located once
     // through the unguarded source's pointer table.
+    /// <summary>Creates tileset definition read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle locating graphics set zero's native tileset definition")]
     private static MutableCartridgeReadGuard NewTilesetDefinitionReadGuard(ISnesAddressSpace source)
     {
@@ -299,6 +302,7 @@ internal static class RoomAssetRomDataVerification
         return guard;
     }
 
+    /// <summary>Validates tilemap transfer.</summary>
     private static void ValidateTilemapTransfer(
         RoomAssetRomData.TilemapTransfer transfer,
         string description)
@@ -316,6 +320,7 @@ internal static class RoomAssetRomDataVerification
             $"{description} transfer remains in 64-KiB VRAM");
     }
 
+    /// <summary>Room tileset definitions command.</summary>
     [VerificationCommand("--room-tileset-definitions")]
     internal static int RoomTilesetDefinitionsCommand()
     {
@@ -323,6 +328,7 @@ internal static class RoomAssetRomDataVerification
         return 0;
     }
 
+    /// <summary>Room character atlases command.</summary>
     [VerificationCommand("--room-character-atlases")]
     internal static int RoomCharacterAtlasesCommand()
     {

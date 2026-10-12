@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal static class DraygonBg2FrameDefinitions
 {
+    /// <summary>Stores version.</summary>
     internal const int Version = 1;
+    /// <summary>Stores file name.</summary>
     internal const string FileName = "draygon-bg2-frames.json";
+    /// <summary>Stores bank.</summary>
     internal const byte Bank = 0xa5;
     /// <summary>Each selected Draygon BG2 frame has one zero-offset stream.</summary>
     internal const int MaximumComponents = 1;
@@ -18,8 +21,10 @@ internal static class DraygonBg2FrameDefinitions
     private const ushort FacingLeftStart = 0xa31b;
     /// <summary>$A5:A643, first right-facing one-component BG2 body frame.</summary>
     private const ushort FacingRightStart = 0xa643;
+    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 34;
 
+    /// <summary>Gets frames.</summary>
     internal static EnemyBg2FrameDefinitionSequence Frames => new(FrameCount, Frame);
 
     /// <summary>Each facing has seventeen ten-byte extended frames: a two-byte
@@ -32,8 +37,10 @@ internal static class DraygonBg2FrameDefinitions
         return new(pointer, $"draygon_bg2_{pointer:X4}");
     }
 
+    /// <summary>Checks whether the address identifies a frame.</summary>
     internal static bool IsFrame(ushort pointer) => InFacing(pointer, FacingLeftStart) || InFacing(pointer, FacingRightStart);
 
+    /// <summary>In facing.</summary>
     private static bool InFacing(ushort pointer, ushort start)
     {
         int offset = pointer - start;

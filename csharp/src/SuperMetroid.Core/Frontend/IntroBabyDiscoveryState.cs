@@ -13,15 +13,24 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class IntroBabyDiscoveryState
 {
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Stores demo word reader.</summary>
     private readonly Func<ushort, ushort> demoWordReader;
+    /// <summary>Stores demo.</summary>
     private readonly DemoInputState demo = new();
+    /// <summary>Stores egg particles.</summary>
     private readonly List<IntroEggParticle> eggParticles = [];
+    /// <summary>Stores slime drops.</summary>
     private readonly List<IntroEggSlimeDrop> slimeDrops = [];
+    /// <summary>Stores egg.</summary>
     private readonly IntroDiscoverySprite egg;
+    /// <summary>Stores confused baby.</summary>
     private readonly IntroDiscoverySprite confusedBaby;
 
+    /// <summary>Initializes a new intro baby discovery state instance.</summary>
     public IntroBabyDiscoveryState(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         SamusState? existingSamus = null, Func<ushort, ushort>? demoWordReader = null)
     {
@@ -55,12 +64,16 @@ internal sealed class IntroBabyDiscoveryState
             definitionWord: this.demoWordReader);
     }
 
+    /// <summary>Gets samus.</summary>
     public SamusState Samus { get; }
 
+    /// <summary>Gets level.</summary>
     public RoomLevelData Level { get; }
 
+    /// <summary>Gets or sets egg hatching started.</summary>
     public bool EggHatchingStarted { get; private set; }
 
+    /// <summary>Gets or sets page three requested.</summary>
     public bool PageThreeRequested { get; private set; }
 
     /// <summary>
@@ -143,6 +156,7 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Step();
     }
 
+    /// <summary>Draws actors.</summary>
     public void DrawActors(OamBuffer oam,
         IntroEggEffectSpritePresentation? eggEffectArt = null,
         IntroDiscoveryActorSpritePresentation? actorArt = null)
@@ -157,6 +171,7 @@ internal sealed class IntroBabyDiscoveryState
             slimeDrop.Draw(oam, eggEffectArt);
     }
 
+    /// <summary>Runs demo pre instruction.</summary>
     private void RunDemoPreInstruction(ushort pointer, ushort introCrossfadeTimer)
     {
         // The Baby-discovery object references only these four routines. Another
@@ -188,6 +203,7 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Handles demo instruction.</summary>
     private DemoInputInstructionResult HandleDemoInstruction(
         DemoInputState state,
         ushort pointer,
@@ -204,6 +220,7 @@ internal sealed class IntroBabyDiscoveryState
         return DemoInputInstructionResult.ContinueAt(argumentPointer);
     }
 
+    /// <summary>Handles egg instruction.</summary>
     private ushort HandleEggInstruction(IntroEggInstruction opcode, ushort argumentPointer)
     {
         switch (opcode)
@@ -230,6 +247,7 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Handles confused baby instruction.</summary>
     private ushort HandleConfusedBabyInstruction(ConfusedBabyInstruction opcode, ushort argumentPointer)
     {
         byte soundId = opcode switch
@@ -246,6 +264,7 @@ internal sealed class IntroBabyDiscoveryState
         return argumentPointer;
     }
 
+    /// <summary>Steps confused baby.</summary>
     private void StepConfusedBaby(ushort introCrossfadeTimer)
     {
         switch (CinematicInstructionWords.Decode<ConfusedBabyPreInstruction>(
@@ -287,10 +306,13 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Gets or sets baby velocity.</summary>
     private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
 
+    /// <summary>Gets or sets baby idle timer.</summary>
     private ushort BabyIdleTimer { get; set; }
 
+    /// <summary>Steps hatched baby.</summary>
     private void StepHatchedBaby()
     {
         // Equality is intentional: $BA76 uses BNE, and the actor's subpixel integration
@@ -328,6 +350,7 @@ internal sealed class IntroBabyDiscoveryState
         }
     }
 
+    /// <summary>Steps dancing baby.</summary>
     private void StepDancingBaby(ushort introCrossfadeTimer)
     {
         if (introCrossfadeTimer == 0)
@@ -370,6 +393,7 @@ internal sealed class IntroBabyDiscoveryState
         AddEightEightVelocity(confusedBaby, horizontal: false, BabyVelocity.Y);
     }
 
+    /// <summary>Accelerate toward.</summary>
     private static SnesSignedEightEight AccelerateToward(
         ushort position,
         ushort target,
@@ -385,6 +409,7 @@ internal sealed class IntroBabyDiscoveryState
         return new(unchecked((ushort)velocity));
     }
 
+    /// <summary>Adds eight eight velocity.</summary>
     private static void AddEightEightVelocity(
         IntroDiscoverySprite sprite,
         bool horizontal,
@@ -395,6 +420,7 @@ internal sealed class IntroBabyDiscoveryState
             : sprite.Position.WithY(IntroCinematicMotion.AddEightEight(sprite.Position.Y, velocity));
     }
 
+    /// <summary>Creates actor.</summary>
     private static IntroDiscoverySprite CreateActor(IntroBabyActorDefinition definition)
     {
         var actor = new IntroDiscoverySprite(
@@ -405,6 +431,7 @@ internal sealed class IntroBabyDiscoveryState
         return actor;
     }
 
+    /// <summary>Creates level.</summary>
     private static RoomLevelData CreateLevel()
     {
         const int width = IntroBabyDiscoveryCollisionDefinitions.Columns;
@@ -420,14 +447,17 @@ internal sealed class IntroBabyDiscoveryState
     /// </summary>
     private sealed class DiscoveryDemoProgram(IntroBabyDiscoveryState owner, ushort introCrossfadeTimer) : IDemoInputProgram
     {
+        /// <summary>Reads instruction word.</summary>
         public ushort ReadInstructionWord(ushort pointer) => owner.demoWordReader(pointer);
 
+        /// <summary>Tries to run pre instruction.</summary>
         public bool TryRunPreInstruction(DemoInputState demo, ushort pointer)
         {
             owner.RunDemoPreInstruction(pointer, introCrossfadeTimer);
             return true;
         }
 
+        /// <summary>Runs special instruction.</summary>
         public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
             owner.HandleDemoInstruction(demo, opcode, cursor);
     }

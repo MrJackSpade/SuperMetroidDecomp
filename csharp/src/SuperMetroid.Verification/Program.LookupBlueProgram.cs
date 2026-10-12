@@ -2,13 +2,19 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup blue program verification.</summary>
 internal static class LookupBlueProgramVerification
 {
+    /// <summary>verify blue program controls.</summary>
     internal static void VerifyBlueProgramControls(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 0);
+    /// <summary>verify blue program draws.</summary>
     internal static void VerifyBlueProgramDraws(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 1);
+    /// <summary>verify blue program sounds.</summary>
     internal static void VerifyBlueProgramSounds(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 2);
+    /// <summary>verify blue program bts.</summary>
     internal static void VerifyBlueProgramBts(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 3);
 
+    /// <summary>verify blue program field.</summary>
     private static void VerifyBlueProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.
@@ -50,6 +56,7 @@ internal static class LookupBlueProgramVerification
             "Blue program independent field byte count");
     }
 
+    /// <summary>blue program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for blue program field")]
     private static byte BlueProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

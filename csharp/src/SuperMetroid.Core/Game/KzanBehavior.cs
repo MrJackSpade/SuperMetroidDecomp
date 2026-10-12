@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,23 +6,34 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Kzan species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KzanBehavior : IEnemySpecies
 {
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new kzan behavior instance.</summary>
     internal KzanBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>Defines kzan landing sound effect.</summary>
     private const ushort KzanLandingSoundEffect = 0x001b;
+    /// <summary>Defines kzan ntsc rise wait frames.</summary>
     private const ushort KzanNtscRiseWaitFrames = 0x0040;
+    /// <summary>Defines kzan ntsc rising subspeed.</summary>
     private const ushort KzanNtscRisingSubspeed = 0x8000;
+    /// <summary>Defines kzan maximum falling speed table offset.</summary>
     private const ushort KzanMaximumFallingSpeedTableOffset = 0x0200;
 
+    /// <summary>Stores kzan states.</summary>
     internal readonly KzanEnemyState?[] _kzanStates =
         new KzanEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores kzan fall wait timer reset values.</summary>
     internal readonly ushort[] _kzanFallWaitTimerResetValues = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores kzan previous ypositions.</summary>
     internal readonly ushort[] _kzanPreviousYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores kzan falling yspeed table indexes.</summary>
     internal readonly ushort[] _kzanFallingYSpeedTableIndexes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores kzan rise wait timers.</summary>
     internal readonly ushort[] _kzanRiseWaitTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_KzanTop</c> at <c>$A6:8B2F</c>.</summary>
@@ -249,10 +260,12 @@ internal sealed class KzanBehavior : IEnemySpecies
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, unchecked((short)(yDelta)));
     }
 
+    /// <summary>require kzan state.</summary>
     private KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
         _kzanStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");
 
+    /// <summary>register kzan initialization ai.</summary>
     internal void RegisterKzanInitializationAi(EnemyAiTable table)
     {
 
@@ -267,6 +280,7 @@ internal sealed class KzanBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register kzan main ai.</summary>
     internal void RegisterKzanMainAi(EnemyAiTable table)
     {
 

@@ -6,6 +6,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Creates a private, portable cinematic seed without changing any player's saves.</summary>
 internal static class CeresDescentStateFixture
 {
+    /// <summary>Export.</summary>
     public static int Export(string destination)
     {
         string root = Path.GetFullPath(destination);

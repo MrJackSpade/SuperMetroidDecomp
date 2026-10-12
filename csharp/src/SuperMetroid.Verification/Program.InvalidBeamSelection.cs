@@ -13,8 +13,10 @@ using System.Buffers.Binary;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents invalid beam selection verification.</summary>
 internal static class InvalidBeamSelectionVerification
 {
+    /// <summary>Verifies invalid beam selection.</summary>
     internal static void VerifyInvalidBeamSelection()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -87,9 +89,11 @@ internal static class InvalidBeamSelectionVerification
         Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, tile footprint and rendered labels.");
     }
 
+    /// <summary>Invalid beam selection rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for invalid beam selection")]
     private static byte InvalidBeamSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Inventory fixture command.</summary>
     [VerificationCommand("--inventory-fixture")]
     internal static int InventoryFixtureCommand()
     {

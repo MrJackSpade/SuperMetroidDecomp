@@ -2,12 +2,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup elevator platform program verification.</summary>
 internal static class LookupElevatorPlatformProgramVerification
 {
+    /// <summary>verify elevator platform controls.</summary>
     internal static void VerifyElevatorPlatformControls(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 0);
+    /// <summary>verify elevator platform draw selection.</summary>
     internal static void VerifyElevatorPlatformDrawSelection(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 1);
+    /// <summary>verify elevator platform loop target.</summary>
     internal static void VerifyElevatorPlatformLoopTarget(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformProgramField(rom, 2);
 
+    /// <summary>verify elevator platform program field.</summary>
     private static void VerifyElevatorPlatformProgramField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] addresses = field switch

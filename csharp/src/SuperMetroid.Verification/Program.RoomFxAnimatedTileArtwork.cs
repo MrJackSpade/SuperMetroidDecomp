@@ -5,6 +5,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Represents room fx animated tile artwork verification.</summary>
 internal static class RoomFxAnimatedTileArtworkVerification
 {
     /// <summary>Exercises every retail frame through both native transfer owners.</summary>
@@ -112,6 +113,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         Console.WriteLine("  Room-FX animation artwork: 30 simple and four treadmill PNG frames match native bytes and ROM-free NMI transfers.");
     }
 
+    /// <summary>Verifies room fx animated tile artwork override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentationCatalog baseline,
@@ -246,6 +248,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
         Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
+    /// <summary>Creates room fx artwork forbidden bus.</summary>
     internal static MutableCartridgeReadGuard NewRoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
     {
         var guard = new MutableCartridgeReadGuard(inner);
@@ -254,11 +257,14 @@ internal static class RoomFxAnimatedTileArtworkVerification
         return guard;
     }
 
+    /// <summary>Represents room fx artwork test provider.</summary>
     internal sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolves.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Room-FX test did not expect typed asset {asset}.");
+        /// <summary>Attempts to resolve.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) => atlas.TryResolve(sourceAddress, byteCount, out data);
     }

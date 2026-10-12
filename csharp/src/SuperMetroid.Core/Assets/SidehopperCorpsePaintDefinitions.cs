@@ -26,6 +26,7 @@ internal static class SidehopperCorpsePaintDefinitions
     /// <summary>$A9:F8B4, ink7 is the selected floor two-thirds dark-body outline/mouth shade.</summary>
     private const int OutlineNumerator = 2, OutlineDenominator = 3;
 
+    /// <summary>Color.</summary>
     internal static Bgr555 Color(int color) => color switch
     {
         0 => TransparentSlot,
@@ -40,6 +41,7 @@ internal static class SidehopperCorpsePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
 
+    /// <summary>Scale.</summary>
     private static Bgr555 Scale(Bgr555 color, int numerator, int denominator, int rounding)
     {
         return color.Map((_, a) => ((a * numerator + rounding) / denominator));

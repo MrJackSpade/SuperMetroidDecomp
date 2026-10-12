@@ -18,6 +18,7 @@ using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents ceres save startup verification.</summary>
 internal static class CeresSaveStartupVerification
 {
     /// <summary>
@@ -233,13 +234,16 @@ internal static class CeresSaveStartupVerification
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }
 
+    /// <summary>Sets state.</summary>
     internal static void SetState(SuperMetroidGame owner, SuperMetroidGameState state) =>
         typeof(SuperMetroidGame).GetProperty(nameof(owner.GameState))!.SetValue(owner, state);
 
+    /// <summary>Sets field.</summary>
     private static void SetField(SuperMetroidGame owner, string name, object value) =>
         typeof(SuperMetroidGame).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(owner, value);
 
+    /// <summary>Ceres save startup command.</summary>
     [VerificationCommand("--ceres-save-startup")]
     internal static int CeresSaveStartupCommand()
     {

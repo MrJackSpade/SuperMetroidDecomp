@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents boss display bindings oracle verification.</summary>
 internal static class BossDisplayBindingsOracleVerification
 {
     /// <summary>Independent bounded decode of the already inventoried native visual and collision records.</summary>
@@ -70,6 +71,7 @@ internal static class BossDisplayBindingsOracleVerification
         return (oam.ToArray(), bg2.ToArray());
     }
 
+    /// <summary>Boss physical components.</summary>
     private static (short X, short Y, ushort Pointer)[] BossPhysicalComponents(EnemyExtendedFrameDefinition frame) => frame.Bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer).ToArray()
@@ -81,6 +83,7 @@ internal static class BossDisplayBindingsOracleVerification
         _ => throw new InvalidDataException("Unknown native oracle family."),
     };
 
+    /// <summary>Boss physical hitboxes.</summary>
     private static ushort[][] BossPhysicalHitboxes(byte bank, ushort pointer) => bank switch
     {
         CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.HitboxesAt(pointer).ToArray()
@@ -93,6 +96,7 @@ internal static class BossDisplayBindingsOracleVerification
         _ => throw new InvalidDataException("Unknown native oracle bank."),
     };
 
+    /// <summary>Words.</summary>
     private static ushort[] Words(short left, short top, short right, short bottom, ushort touch, ushort shot) =>
         [unchecked((ushort)left), unchecked((ushort)top), unchecked((ushort)right), unchecked((ushort)bottom), touch, shot];
 }

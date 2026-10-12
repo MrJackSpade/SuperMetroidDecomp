@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rendering;
 using static IntroCinematicArtworkVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Represents ending flyaway artwork verification.</summary>
 internal static class EndingFlyawayArtworkVerification
 {
+    /// <summary>Verifies ending flyaway artwork.</summary>
     internal static void VerifyEndingFlyawayArtwork(GameInstallation installation)
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");

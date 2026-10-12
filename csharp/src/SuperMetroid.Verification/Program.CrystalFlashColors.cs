@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents crystal flash colors verification.</summary>
 internal static class CrystalFlashColorsVerification
 {
+    /// <summary>Verifies crystal flash color override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crystal Flash body and bubble colors")]
     internal static void VerifyCrystalFlashColorOverride(string stockDirectory,
@@ -152,6 +154,7 @@ internal static class CrystalFlashColorsVerification
         }
     }
 
+    /// <summary>Creates crystal flash color read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Crystal Flash palette pointers and colors the installed cycle must not reread")]
     private static CartridgeReadGuard NewCrystalFlashColorReadGuard(ISnesAddressSpace source)
     {

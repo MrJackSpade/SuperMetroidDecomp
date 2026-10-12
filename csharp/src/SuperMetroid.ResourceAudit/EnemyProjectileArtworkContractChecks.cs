@@ -10,6 +10,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified dynamic projectile availability boundary without projectile simulation.</summary>
 internal static class EnemyProjectileArtworkContractChecks
 {
+    /// <summary>Run.</summary>
     internal static void Run()
     {
         var direct = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
@@ -43,6 +44,7 @@ internal static class EnemyProjectileArtworkContractChecks
         ConfirmStaticCalls(directId, program.OperandAddress);
     }
 
+    /// <summary>Confirm static calls.</summary>
     private static void ConfirmStaticCalls(ushort directId, ushort programId)
     {
         var trees = EnemyProjectileArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -99,6 +101,7 @@ internal static class EnemyProjectileArtworkContractChecks
         Require(revoked.Classifications.Count == 0 && revoked.UnresolvedCount == 7, "external mutable frame-array reference revokes completeness");
     }
 
+    /// <summary>Reject.</summary>
     private static void Reject(Action action, string reason)
     {
         try { action(); }
@@ -106,6 +109,7 @@ internal static class EnemyProjectileArtworkContractChecks
         throw new InvalidOperationException("Projectile artwork confirmation did not reject " + reason);
     }
 
+    /// <summary>Require.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Projectile artwork confirmation failed: " + reason);

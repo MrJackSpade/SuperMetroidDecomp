@@ -33,26 +33,31 @@ internal enum SamusEaterDraw : ushort
 /// </summary>
 internal static class SamusEaterPlmDrawDefinitions
 {
+    /// <summary>Represents draw.</summary>
     internal readonly record struct Draw(bool Ceiling, int Phase)
     {
+        /// <summary>Count.</summary>
         internal static int Count(int run) => run switch
         {
             0 or 1 => 2,
             2 => 4,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Next x.</summary>
         internal static sbyte NextX(int run) => run switch
         {
             0 or 1 => -2,
             2 => 0,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Next y.</summary>
         internal sbyte NextY(int run) => run switch
         {
             0 or 2 => 0,
             1 => Ceiling ? (sbyte)1 : (sbyte)-1,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
@@ -81,6 +86,7 @@ internal static class SamusEaterPlmDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (!Enum.IsDefined((SamusEaterDraw)pointer))
@@ -105,6 +111,7 @@ internal static class SamusEaterPlmDrawDefinitions
     }
 
     // Materialize temporary DTOs only for the existing artwork import/export interface.
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -120,9 +127,11 @@ internal static class SamusEaterPlmDrawDefinitions
         }
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<SamusEaterDraw>(pointer, "Samus Eater draw with a visual ID"));
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(SamusEaterDraw pointer) => pointer switch
     {
         SamusEaterDraw.FloorIdle => "floor-idle",
@@ -136,6 +145,7 @@ internal static class SamusEaterPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {pointer}."),
     };
 
+    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
@@ -151,6 +161,7 @@ internal static class SamusEaterPlmDrawDefinitions
         return false;
     }
 
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

@@ -66,6 +66,7 @@ internal static class CeresExplosionDefinitions
         FinalWave,
     }
 
+    /// <summary>frame of.</summary>
     private static int FrameOf(SpawnerMilestone milestone) => milestone switch
     {
         SpawnerMilestone.InitialWave => InitialSpawnFrame,

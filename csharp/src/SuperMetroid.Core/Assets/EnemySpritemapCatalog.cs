@@ -22,9 +22,12 @@ public sealed class EnemySpritemapCatalog
             }
         });
 
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<int, EnemySpritemapParts> frames;
+    /// <summary>Stores display frames.</summary>
     private readonly Dictionary<int, int> displayFrames;
 
+    /// <summary>Initializes a new enemy spritemap catalog instance.</summary>
     private EnemySpritemapCatalog(Dictionary<int, EnemySpritemapParts> frames,
         Dictionary<int, int> displayFrames)
     {
@@ -181,6 +184,7 @@ public sealed class EnemySpritemapCatalog
         return parts;
     }
 
+    /// <summary>Rejects duplicate properties.</summary>
     internal static void RejectDuplicateProperties(JsonElement element, StringComparer? propertyComparer = null) =>
         JsonAssetDocument.RejectDuplicateProperties(element, propertyComparer ?? StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate enemy composition property {name}."));

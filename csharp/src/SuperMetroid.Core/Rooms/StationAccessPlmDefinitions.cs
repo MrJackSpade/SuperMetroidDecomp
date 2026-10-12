@@ -50,6 +50,7 @@ internal readonly record struct StationAccessPlmDefinition(
     ushort RetractedDrawPointer,
     ushort ExtendedDrawPointer)
 {
+    /// <summary>draw pointer.</summary>
     internal ushort DrawPointer(bool extended) =>
         extended ? ExtendedDrawPointer : RetractedDrawPointer;
 }

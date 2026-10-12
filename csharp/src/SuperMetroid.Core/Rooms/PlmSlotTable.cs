@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Rooms;
 internal sealed class PlmSlotTable
 {
 
+    /// <summary>Stores slot count.</summary>
     internal const int SlotCount = 40;
 
+    /// <summary>Stores slots.</summary>
     internal readonly PlmSlot[] _slots = Enumerable
         .Range(0, SlotCount)
         .Select(_ => new PlmSlot())

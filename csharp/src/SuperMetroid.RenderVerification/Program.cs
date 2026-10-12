@@ -7,6 +7,7 @@ using SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static class Program
 {
+    /// <summary>Main.</summary>
     private static void Main(string[] args)
     {
         try

@@ -48,6 +48,7 @@ public static class SpcUploadStreamReader
             $"did not terminate within ${AudioRomData.SpcUpload.MaximumStreamBytes:X} bytes.");
     }
 
+    /// <summary>Reads word.</summary>
     private static ushort ReadWord(IImportCartridgeSource cartridge, ref int cursor,
         List<byte> bytes)
     {
@@ -56,6 +57,7 @@ public static class SpcUploadStreamReader
         return unchecked((ushort)(SnesLittleEndian.Word(low, high)));
     }
 
+    /// <summary>Reads byte.</summary>
     private static byte ReadByte(IImportCartridgeSource cartridge, ref int cursor,
         List<byte> bytes)
     {

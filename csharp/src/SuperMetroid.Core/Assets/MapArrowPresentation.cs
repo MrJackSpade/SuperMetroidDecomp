@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable map-arrow anchors and cosmetic phase durations; no controller bindings.</summary>
 public sealed class MapArrowPresentation
 {
+    /// <summary>Stores left.</summary>
     private readonly MapArrowVisual left, right, up, down;
+    /// <summary>Initializes a new map arrow presentation instance.</summary>
     private MapArrowPresentation(MapArrowVisual left, MapArrowVisual right, MapArrowVisual up, MapArrowVisual down)
     { this.left = left; this.right = right; this.up = up; this.down = down; }
 
@@ -50,7 +52,9 @@ public sealed class MapArrowPresentation
 /// <summary>Provides one map arrow's screen anchor and cyclic cosmetic phase timing.</summary>
 public sealed class MapArrowVisual
 {
+    /// <summary>Stores duration overrides.</summary>
     private readonly Dictionary<int, byte>? durationOverrides;
+    /// <summary>Initializes a new map arrow visual instance.</summary>
     internal MapArrowVisual(Position16<OamPixels> position, int[] durations)
     {
         Position = position;

@@ -4,8 +4,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Represents retail frontend tests.</summary>
 internal static class RetailFrontendTests
 {
+    /// <summary>Run.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Required fixture, not an optional skip. SRAM is private to these address

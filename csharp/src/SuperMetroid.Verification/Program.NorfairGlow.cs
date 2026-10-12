@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents norfair glow verification.</summary>
 internal static class NorfairGlowVerification
 {
     /// <summary>

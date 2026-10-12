@@ -5,10 +5,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using static AssertionsVerification;
 
+/// <summary>Represents imported spritemaps verification.</summary>
 internal static class ImportedSpritemapsVerification
 {
     // These adapters require an import source at the diagnostic boundary. Core has no
     // address-based artwork loader, including when tests use constructed cartridge data.
+    /// <summary>Draws imported enemy spritemap.</summary>
     internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, EnemySpritemapDraw draw) =>
         ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, draw);
 
@@ -24,6 +26,7 @@ internal static class ImportedSpritemapsVerification
                 0x860000 | projectile.PresentationOperandAddress)
             : projectile.SpritemapPointer;
 
+    /// <summary>Draws imported enemy projectile spritemap.</summary>
     internal static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
@@ -52,6 +55,7 @@ internal static class ImportedSpritemapsVerification
                 ProgramFrames = programs,
             })));
     }
+    /// <summary>Verifies executed enemy selector.</summary>
     internal static void VerifyExecutedEnemySelector(ISnesAddressSpace rom,
         RoomEnemySlot slot, HashSet<ushort> executedOperands)
     {
@@ -64,10 +68,12 @@ internal static class ImportedSpritemapsVerification
         executedOperands.Add(operand);
     }
 
+    /// <summary>Executed enemy selector rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for executed enemy selector")]
     private static byte ExecutedEnemySelectorRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     // Confirm the visual actually selected by a timed instruction, whether its owner
     // carries an installed operand or a legacy compiled sprite identity.
+    /// <summary>Verifies executed projectile frame.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
@@ -103,6 +109,7 @@ internal static class ImportedSpritemapsVerification
             $"projectile frame $86:{operand:X4} installed composition matches native OAM");
     }
 
+    /// <summary>Executed projectile frame rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for executed projectile frame")]
     private static byte ExecutedProjectileFrameRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

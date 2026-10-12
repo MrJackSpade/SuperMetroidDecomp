@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents item cancel clears charge verification.</summary>
 internal static class ItemCancelClearsChargeVerification
 {
     /// <summary>
@@ -53,6 +54,7 @@ internal static class ItemCancelClearsChargeVerification
         Console.WriteLine("  Item cancel: a Y press with nothing selected still clears the charge.");
     }
 
+    /// <summary>Item cancel clears charge command.</summary>
     [VerificationCommand("--item-cancel-clears-charge")]
     internal static int ItemCancelClearsChargeCommand()
     {

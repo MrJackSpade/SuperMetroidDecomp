@@ -14,6 +14,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
     /// <summary>Diagnostic identifier for reusable argument validation that should use the shared Ensure API.</summary>
     public const string GuardId = "SME6201";
 
+    /// <summary>Stores guard rule.</summary>
     private static readonly DiagnosticDescriptor GuardRule = new(
         GuardId,
         "Use Ensure for reusable validation",
@@ -26,6 +27,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
     /// <summary>Diagnostic identifier for an Ensure call that defeats its caller-expression capture.</summary>
     public const string RedundantArgumentId = "SME6202";
 
+    /// <summary>Stores redundant argument rule.</summary>
     private static readonly DiagnosticDescriptor RedundantArgumentRule = new(
         RedundantArgumentId,
         "Let Ensure capture the value expression",
@@ -57,6 +59,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         });
     }
 
+    /// <summary>analyze invocation.</summary>
     private static void AnalyzeInvocation(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))
@@ -80,6 +83,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         if (operation is not null)
             Report(context, invocation.GetLocation(), operation);
     }
+    /// <summary>analyze ensure call.</summary>
     private static void AnalyzeEnsureCall(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, IMethodSymbol method)
     {
         IMethodSymbol definition = method.ReducedFrom ?? method.OriginalDefinition;
@@ -104,6 +108,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         }
     }
 
+    /// <summary>parameter of.</summary>
     private static IParameterSymbol? ParameterOf(ArgumentSyntax argument, InvocationExpressionSyntax invocation, IMethodSymbol method)
     {
         if (argument.NameColon is { } nameColon)
@@ -113,12 +118,14 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
     }
 
     // The value Ensure validates is the parameter its caller-expression capture names.
+    /// <summary>is captured value.</summary>
     private static bool IsCapturedValue(IParameterSymbol parameter, IMethodSymbol method) =>
         method.Parameters.Any(candidate => candidate.GetAttributes().Any(attribute =>
             attribute.AttributeClass?.ToDisplayString() == "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute" &&
             attribute.ConstructorArguments.Length == 1 &&
             attribute.ConstructorArguments[0].Value as string == parameter.Name));
 
+    /// <summary>analyze if.</summary>
     private static void AnalyzeIf(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))
@@ -140,6 +147,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         Report(context, statement.Condition.GetLocation(), operation);
     }
 
+    /// <summary>analyze coalesce.</summary>
     private static void AnalyzeCoalesce(SyntaxNodeAnalysisContext context)
     {
         if (InsideEnsure(context))
@@ -155,6 +163,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         Report(context, expression.GetLocation(), "NotNull");
     }
 
+    /// <summary>guard operation.</summary>
     private static string? GuardOperation(
         ExpressionSyntax condition,
         SemanticModel model,
@@ -208,6 +217,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return "AtLeastZero";
     }
 
+    /// <summary>try outside inclusive range.</summary>
     private static bool TryOutsideInclusiveRange(
         BinaryExpressionSyntax expression,
         out ExpressionSyntax? value)
@@ -223,6 +233,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
+    /// <summary>try get thrown argument exception.</summary>
     private static bool TryGetThrownArgumentException(
         StatementSyntax statement, SemanticModel model,
         out string exceptionType, out ArgumentListSyntax arguments)
@@ -246,6 +257,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return true;
     }
 
+    /// <summary>has parameter name.</summary>
     private static bool HasParameterName(ArgumentListSyntax arguments, string exceptionType) =>
         exceptionType switch
         {
@@ -258,6 +270,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
             _ => false
         };
 
+    /// <summary>parameter name matches.</summary>
     private static bool ParameterNameMatches(
         ArgumentListSyntax arguments, ExpressionSyntax value, string exceptionType)
     {
@@ -270,6 +283,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return nameOf.ArgumentList.Arguments[0].Expression.ToString() == value.ToString();
     }
 
+    /// <summary>is numeric.</summary>
     private static bool IsNumeric(ITypeSymbol? type) => type?.SpecialType is
         SpecialType.System_SByte or SpecialType.System_Byte or
         SpecialType.System_Int16 or SpecialType.System_UInt16 or
@@ -280,6 +294,7 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         type?.ToDisplayString() is "System.Half" or "System.IntPtr" or "System.UIntPtr" or
             "System.Int128" or "System.UInt128" or "System.Numerics.BigInteger";
 
+    /// <summary>is api argument.</summary>
     private static bool IsApiArgument(ExpressionSyntax expression, SyntaxNodeAnalysisContext context)
     {
         // A private cartridge routine often validates its own transient state with the
@@ -294,16 +309,20 @@ public sealed class EnsureUsageAnalyzer : DiagnosticAnalyzer
         return context.SemanticModel.GetSymbolInfo(identifier).Symbol is IParameterSymbol;
     }
 
+    /// <summary>is zero.</summary>
     private static bool IsZero(ExpressionSyntax expression) =>
         expression is LiteralExpressionSyntax literal &&
         literal.Token.ValueText is "0" or "0.0";
 
+    /// <summary>is null.</summary>
     private static bool IsNull(ExpressionSyntax expression) =>
         expression is LiteralExpressionSyntax literal && literal.IsKind(SyntaxKind.NullLiteralExpression);
 
+    /// <summary>inside ensure.</summary>
     private static bool InsideEnsure(SyntaxNodeAnalysisContext context) =>
         context.ContainingSymbol?.ContainingType?.ToDisplayString() == "SuperMetroid.Core.Ensure";
 
+    /// <summary>report.</summary>
     private static void Report(SyntaxNodeAnalysisContext context, Location location, string operation) =>
         context.ReportDiagnostic(Diagnostic.Create(GuardRule, location, operation));
 }

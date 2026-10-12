@@ -14,6 +14,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents enemy visual selector inventory verification.</summary>
 internal static class EnemyVisualSelectorInventoryVerification
 {
     /// <summary>The bank-resolved selector inventory matches the generated catalog address for address.</summary>
@@ -98,6 +99,7 @@ internal static class EnemyVisualSelectorInventoryVerification
             "sorted lookup and unknown-key rejection pass.");
     }
 
+    /// <summary>Enemy visual selector inventory command.</summary>
     [VerificationCommand("--enemy-visual-selector-inventory")]
     internal static int EnemyVisualSelectorInventoryCommand()
     {
@@ -105,6 +107,7 @@ internal static class EnemyVisualSelectorInventoryVerification
         return 0;
     }
 
+    /// <summary>Verifies enemy visual selectors command.</summary>
     [VerificationCommand("--verify-enemy-visual-selectors")]
     internal static int VerifyEnemyVisualSelectorsCommand()
     {

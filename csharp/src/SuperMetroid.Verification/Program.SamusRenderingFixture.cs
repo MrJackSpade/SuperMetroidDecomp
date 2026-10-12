@@ -4,13 +4,17 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus rendering fixture verification.</summary>
 internal static class SamusRenderingFixtureVerification
 {
+    /// <summary>Stores rendering fixture stock.</summary>
     private static readonly Lazy<SamusBodyArtworkCatalog> renderingFixtureStock =
         new(() => InstalledFixtures.SamusBody);
 
+    /// <summary>Stores graphics offset fixtures.</summary>
     private static readonly Dictionary<sbyte, SamusBodyArtworkCatalog> graphicsOffsetFixtures = [];
 
+    /// <summary>Samus graphics offset fixture.</summary>
     internal static SamusBodyArtworkCatalog SamusGraphicsOffsetFixture(sbyte offset)
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
@@ -35,6 +39,7 @@ internal static class SamusRenderingFixtureVerification
     // Adapt this fixture's sparse, deliberately distinctive artwork to the installed
     // catalog boundary. Unspecified complete DMA groups retain valid stock layout;
     // sprite maps remain the fixture's own compact compositions, including zero pointers.
+    /// <summary>Bind synthetic samus rendering.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture decoding seeded Samus rendering tables into an artwork catalog")]
     internal static void BindSyntheticSamusRendering(TestAddressSpace bus, SamusState samus)
     {

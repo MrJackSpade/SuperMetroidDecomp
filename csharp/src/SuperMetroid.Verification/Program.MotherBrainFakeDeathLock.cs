@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents mother brain fake death lock verification.</summary>
 internal static class MotherBrainFakeDeathLockVerification
 {
     /// <summary>
@@ -49,6 +50,7 @@ internal static class MotherBrainFakeDeathLockVerification
         Console.WriteLine("  Mother Brain fake-death lock: command zero locks Samus, command one frees her.");
     }
 
+    /// <summary>Mother brain fake death lock command.</summary>
     [VerificationCommand("--mother-brain-fake-death-lock")]
     internal static int MotherBrainFakeDeathLockCommand()
     {

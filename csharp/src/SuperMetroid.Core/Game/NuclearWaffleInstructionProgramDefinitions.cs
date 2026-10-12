@@ -10,13 +10,17 @@ internal abstract class NuclearWaffleInstructionProgramDefinitions
     /// <summary><c>$A6:9490</c>, the twelve-frame body animation loop.</summary>
     internal const ushort BodyLoop = 0x9490;
 
+    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 12;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => FrameCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(BodyLoop + index * 4 + 2);
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - BodyLoop;

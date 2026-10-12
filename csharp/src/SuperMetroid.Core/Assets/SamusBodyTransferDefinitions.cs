@@ -4,7 +4,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native body-art allocations and transfer-row geometry, independent of chosen pixel content.</summary>
 internal static class SamusBodyTransferDefinitions
 {
+    /// <summary>Defines tile bytes.</summary>
     private const int TileBytes = 32;
+    /// <summary>Defines large obj tiles across.</summary>
     private const int LargeObjTilesAcross = 16 / 8;
 
     /// <summary>$9E:8000, SamusTiles_Top_Set0_Entry0, packed general upper artwork.</summary>
@@ -60,6 +62,7 @@ internal static class SamusBodyTransferDefinitions
     /// <summary>$9F:EB00, SamusTiles_Bottom_SetA_Entry0, general lower artwork.</summary>
     private const int BottomA = 0x9feb00;
 
+    /// <summary>source address.</summary>
     internal static int SourceAddress(SamusBodyArtworkCatalog body, bool upper, int set, int position)
     {
         int start = (upper, set) switch

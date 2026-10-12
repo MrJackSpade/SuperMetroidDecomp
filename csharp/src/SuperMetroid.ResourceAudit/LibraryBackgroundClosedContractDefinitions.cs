@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Exact source-key admission for the required compressed background library.</summary>
 internal static class LibraryBackgroundClosedContractDefinitions
 {
+    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.RoomBackgroundTilemapCatalog", "library-background-exact-required-source-keys", ["Get"],

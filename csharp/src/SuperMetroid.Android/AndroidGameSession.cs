@@ -14,19 +14,31 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidGameSession
 {
+    /// <summary>Stores root.</summary>
     private readonly string root;
+    /// <summary>Stores view.</summary>
     private readonly AndroidGameView view;
+    /// <summary>Stores active.</summary>
     private readonly ManualResetEventSlim active = new(false);
+    /// <summary>Stores wake.</summary>
     private readonly AutoResetEvent wake = new(false);
+    /// <summary>Stores commands.</summary>
     private readonly AndroidSessionCommands commands = new();
+    /// <summary>Stores stopping.</summary>
     private readonly CancellationTokenSource stopping = new();
+    /// <summary>Stores worker.</summary>
     private readonly Task worker;
+    /// <summary>Gets input.</summary>
     public FrameInputLatch Input { get; } = new();
+    /// <summary>Stores effective options.</summary>
     private SuperMetroidGameOptions? effectiveOptions;
+    /// <summary>Gets effective options.</summary>
     public SuperMetroidGameOptions? EffectiveOptions => Volatile.Read(ref effectiveOptions);
+    /// <summary>Records input.</summary>
     public void RecordInput(string description) =>
         File.AppendAllText(Path.Combine(root, "input-events.log"), $"{DateTimeOffset.UtcNow:O} {description}\n");
 
+    /// <summary>Initializes a new android game session instance.</summary>
     public AndroidGameSession(string root, AndroidGameView view)
     {
         this.root = root;
@@ -34,6 +46,7 @@ internal sealed class AndroidGameSession
         worker = Task.Run(Run);
     }
 
+    /// <summary>Sets active.</summary>
     public void SetActive(bool value)
     {
         view.SetPresentationActive(value);
@@ -43,11 +56,16 @@ internal sealed class AndroidGameSession
         wake.Set();
     }
 
+    /// <summary>Saves slot.</summary>
     public Task<string> SaveSlot(int slot) => Request(data => data.SaveSlot(slot));
+    /// <summary>Loads slot.</summary>
     public Task<string> LoadSlot(int slot) => Request(data => data.LoadSlot(slot));
+    /// <summary>Import state.</summary>
     public Task<string> ImportState(string path, int slot) => Request(data => data.ImportState(path, slot));
+    /// <summary>Import save.</summary>
     public Task<string> ImportSave(string path) => Request(data => data.ImportSave(path));
 
+    /// <summary>Export diagnostics.</summary>
     public Task<string> ExportDiagnostics(string destination, int slot) => worker.IsCompleted
         // Fatal runtime errors must not make the already durable crash files inaccessible.
         ? Task.Run(() => AndroidDiagnosticBundle.Create(root, destination, slot))
@@ -59,6 +77,7 @@ internal sealed class AndroidGameSession
             return "Private diagnostic bundle prepared.";
         });
 
+    /// <summary>Request.</summary>
     private Task<string> Request(Func<AndroidSessionData, string> action)
     {
         Task<string> result = commands.Enqueue(action);
@@ -66,6 +85,7 @@ internal sealed class AndroidGameSession
         return result;
     }
 
+    /// <summary>Stop.</summary>
     public async Task Stop()
     {
         view.SetPresentationActive(false);
@@ -77,6 +97,7 @@ internal sealed class AndroidGameSession
         stopping.Dispose();
     }
 
+    /// <summary>Run.</summary>
     private void Run()
     {
         AndroidPcmOutput? output = null;
@@ -245,6 +266,7 @@ internal sealed class AndroidGameSession
         }
     }
 
+    /// <summary>Reports stopped.</summary>
     private void ReportStopped(Exception error, bool append = false)
     {
         view.SetPresentationActive(false);
@@ -260,6 +282,7 @@ internal sealed class AndroidGameSession
         view.ShowStatus("Stopped: " + error.Message + " (see last-error.txt)");
     }
 
+    /// <summary>Drain commands.</summary>
     private void DrainCommands(AndroidSessionData data)
     {
         while (commands.TryDequeue(out var request))
@@ -277,6 +300,7 @@ internal sealed class AndroidGameSession
         }
     }
 
+    /// <summary>Refreshes effective options.</summary>
     private void RefreshEffectiveOptions(AndroidSessionData data) => Volatile.Write(ref effectiveOptions,
         data.Game.ConfiguredOptions with
         {

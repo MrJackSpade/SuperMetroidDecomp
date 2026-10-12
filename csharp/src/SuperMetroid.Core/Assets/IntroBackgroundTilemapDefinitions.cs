@@ -11,6 +11,7 @@ internal static class IntroBackgroundTilemapDefinitions
     /// <summary>$96:FF14: unadorned scene interior blank $3FF.</summary>
     private const ushort SceneBlank = 0x03ff;
 
+    /// <summary>compile.</summary>
     internal static byte[] Compile()
     {
         var output = new byte[IntroCinematicArtworkFormat.BackgroundPageCount * IntroCinematicArtworkFormat.BackgroundPageByteCount];
@@ -250,18 +251,23 @@ internal static class IntroBackgroundTilemapDefinitions
         p.Put(cell + new Offset16<TilemapCells>(1, 1), narrow ? SceneBlank : 0x1e00);
     }
 
+    /// <summary>Represents page.</summary>
     private sealed class Page(byte[] output, int page)
     {
         // One 32x32 background page of tilemap words.
+        /// <summary>Stores page size.</summary>
         private static readonly Extent16<TilemapCells> PageSize = new(32, 32);
 
+        /// <summary>put.</summary>
         internal void Put(Position16<TilemapCells> cell, int word) => BinaryPrimitives.WriteUInt16LittleEndian(
             output.AsSpan(page * IntroCinematicArtworkFormat.BackgroundPageByteCount + PageSize.RowMajorIndex(cell) * 2), (ushort)word);
+        /// <summary>fill.</summary>
         internal void Fill(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word)
         {
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++) Put(origin + new Offset16<TilemapCells>(checked((short)column), checked((short)row)), word);
         }
+        /// <summary>patch.</summary>
         internal void Patch(Position16<TilemapCells> origin, Extent16<TilemapCells> size, int word, bool mirrorX = false, bool mirrorY = false)
         {
             for (int row = 0; row < size.Y; row++)

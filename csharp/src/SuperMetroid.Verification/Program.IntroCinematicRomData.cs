@@ -5,6 +5,7 @@ using System.Reflection;
 using static EnemyInstructionCodePointersVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents intro cinematic rom data verification.</summary>
 internal static class IntroCinematicRomDataVerification
 {
     /// <summary>
@@ -123,9 +124,11 @@ internal static class IntroCinematicRomDataVerification
             _ = CinematicCodePointerCatalogRomByte(bus, (int)new SnesAddress(0x8c, pointer));
     }
 
+    /// <summary>Cinematic code pointer catalog rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for cinematic code pointer catalog")]
     private static byte CinematicCodePointerCatalogRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Asserts intro palette spans.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void AssertIntroPaletteSpans(
         IntroCinematicRomData.Palette.Regions spans,

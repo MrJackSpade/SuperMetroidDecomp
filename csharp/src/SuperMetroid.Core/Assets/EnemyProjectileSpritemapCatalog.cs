@@ -23,9 +23,12 @@ public sealed class EnemyProjectileSpritemapCatalog
             }
         });
 
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, EnemySpritemapPart[]> frames;
+    /// <summary>Stores program frames.</summary>
     private readonly Dictionary<ushort, EnemySpritemapPart[]> programFrames;
 
+    /// <summary>Initializes a new enemy projectile spritemap catalog instance.</summary>
     private EnemyProjectileSpritemapCatalog(Dictionary<ushort, EnemySpritemapPart[]> frames,
         Dictionary<ushort, EnemySpritemapPart[]> programFrames)
     {
@@ -145,6 +148,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return new EnemyProjectileSpritemapCatalog(compiled, compiledPrograms);
     }
 
+    /// <summary>Indicates whether alcoon fireball operand.</summary>
     private static bool IsAlcoonFireballOperand(ushort operandAddress)
     {
         for (int index = 0;
@@ -158,6 +162,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return false;
     }
 
+    /// <summary>Compile parts.</summary>
     private static EnemySpritemapPart[] CompileParts(string name, SpriteVisualPart[] visual)
     {
         if (visual.Length > EnemyProjectileSpritemapDefinitions.MaximumParts)
@@ -188,6 +193,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return parts;
     }
 
+    /// <summary>Writes.</summary>
     internal static byte[] Write(EnemyProjectileSpritemapDocument document)
     {
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(document, Options);
@@ -195,6 +201,7 @@ public sealed class EnemyProjectileSpritemapCatalog
         return json;
     }
 
+    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

@@ -12,8 +12,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+/// <summary>Represents waterfall rooms verification.</summary>
 internal static class WaterfallRoomsVerification
 {
+    /// <summary>verify waterfall rooms.</summary>
     internal static void VerifyWaterfallRooms()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
@@ -53,6 +55,7 @@ internal static class WaterfallRoomsVerification
         }
     }
 
+    /// <summary>waterfall rooms command.</summary>
     [VerificationCommand("--waterfall-rooms")]
     internal static int WaterfallRoomsCommand()
     {

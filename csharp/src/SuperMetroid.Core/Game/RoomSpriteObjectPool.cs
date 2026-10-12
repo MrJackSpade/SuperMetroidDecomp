@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -9,13 +9,17 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class RoomSpriteObjectPool
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Initializes a new room sprite object pool instance.</summary>
     internal RoomSpriteObjectPool(EnemyRoomBinding room)
     {
         _room = room;
     }
+    /// <summary>Defines room sprite object slot count.</summary>
     internal const int RoomSpriteObjectSlotCount = 32;
+    /// <summary>Stores room sprite objects.</summary>
     private readonly RoomSpriteObjectSlot[] _roomSpriteObjects =
         Enumerable.Range(0, RoomSpriteObjectSlotCount)
             .Select(index => new RoomSpriteObjectSlot(index))
@@ -95,6 +99,7 @@ internal sealed class RoomSpriteObjectPool
         }
     }
 
+    /// <summary>Process room sprite object opcode.</summary>
     private static void ProcessRoomSpriteObjectOpcode(RoomSpriteObjectSlot slot)
     {
         RoomSpriteObjectInstruction instruction = ClosedNativeWords.Decode<RoomSpriteObjectInstruction>(
@@ -133,6 +138,7 @@ internal sealed class RoomSpriteObjectPool
         }
     }
 
+    /// <summary>Loads room sprite object frame.</summary>
     internal static void LoadRoomSpriteObjectFrame(RoomSpriteObjectSlot slot)
     {
         ushort duration = RoomSpriteObjectInstructionProgramDefinitions.ReadMechanicsWord(

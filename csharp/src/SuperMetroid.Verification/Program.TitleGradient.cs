@@ -16,8 +16,10 @@ using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using static SuiteTimingVerification;
 
+/// <summary>Represents title gradient verification.</summary>
 internal static class TitleGradientVerification
 {
+    /// <summary>create title presentation fixture.</summary>
     private static TitleSequenceState CreateTitlePresentationFixture(ISnesAddressSpace bus,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
@@ -25,6 +27,7 @@ internal static class TitleGradientVerification
  =>
         InstalledFixtures.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
             titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
+    /// <summary>verify title gradient tables.</summary>
     internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         Suite(nameof(VerifyTitleGradientObjectEligibility), () => VerifyTitleGradientObjectEligibility());
@@ -51,6 +54,7 @@ internal static class TitleGradientVerification
         Console.WriteLine("  Title gradient: 256 zoom selections, native cyan bands and subtract/add boundary agree.");
     }
 
+    /// <summary>verify extracted title graphics.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for title graphics streams and the year text pointer")]
     private static void VerifyExtractedTitleGraphics(ISnesAddressSpace bus)
     {
@@ -222,6 +226,7 @@ internal static class TitleGradientVerification
         }
     }
 
+    /// <summary>verify extracted title palette.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the title palette")]
     private static void VerifyExtractedTitlePalette(ISnesAddressSpace bus)
@@ -274,6 +279,7 @@ internal static class TitleGradientVerification
             "initial cartridge source bytes.");
     }
 
+    /// <summary>verify extracted title ambient palette.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient palette color words")]
     private static void VerifyExtractedTitleAmbientPalette(
         ISnesAddressSpace bus,
@@ -334,6 +340,7 @@ internal static class TitleGradientVerification
             "installed title ambient loops avoid cartridge color reads");
     }
 
+    /// <summary>verify title palette validation.</summary>
     private static void VerifyTitlePaletteValidation(byte[] extracted)
     {
         TitlePaletteDocument document = JsonSerializer.Deserialize<TitlePaletteDocument>(
@@ -392,6 +399,7 @@ internal static class TitleGradientVerification
             "title palette rejects native-address escape hatch");
     }
 
+    /// <summary>verify extracted title gradient.</summary>
     private static void VerifyExtractedTitleGradient(ISnesAddressSpace bus)
     {
         var cartridgeReads = new HashSet<int>();
@@ -435,6 +443,7 @@ internal static class TitleGradientVerification
             $"production avoided {cartridgeReads.Count} cartridge source bytes.");
     }
 
+    /// <summary>verify title gradient validation.</summary>
     private static void VerifyTitleGradientValidation(byte[] extracted)
     {
         TitleGradientDocument document = JsonSerializer.Deserialize<TitleGradientDocument>(
@@ -473,6 +482,7 @@ internal static class TitleGradientVerification
             "title gradient rejects native-address escape hatch");
     }
 
+    /// <summary>capture installed title gradient.</summary>
     internal static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
         ISnesAddressSpace bus,
         TitleGradientPresentation presentation,
@@ -492,6 +502,7 @@ internal static class TitleGradientVerification
         throw new InvalidDataException("Production title rendering never reached a gradient frame.");
     }
 
+    /// <summary>verify title gradient object eligibility.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyTitleGradientObjectEligibility()
     {
@@ -524,12 +535,14 @@ internal static class TitleGradientVerification
             TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, 0xa1)), "native five-bit subtraction");
     }
 
+    /// <summary>new title presentation read bus.</summary>
     internal static CartridgeReadGuard NewTitlePresentationReadBus(ISnesAddressSpace source, HashSet<int> addresses, bool forbidReads) =>
         forbidReads
             ? new CartridgeReadGuard(source).Forbid(addresses.Contains,
                 address => $"Production title gradient reread cartridge byte {SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4}.")
             : new CartridgeReadGuard(source).Observe(_ => true, address => addresses.Add(address));
 
+    /// <summary>title instruction definitions command.</summary>
     [VerificationCommand("--title-instruction-definitions")]
     internal static int TitleInstructionDefinitionsCommand()
     {

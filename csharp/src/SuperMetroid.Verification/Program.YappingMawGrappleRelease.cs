@@ -12,8 +12,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents yapping maw grapple release verification.</summary>
 internal static class YappingMawGrappleReleaseVerification
 {
+    /// <summary>Verifies yapping maw grapple release.</summary>
     internal static void VerifyYappingMawGrappleRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -63,6 +65,7 @@ internal static class YappingMawGrappleReleaseVerification
         Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)samus.Pose:X2}, position={samus.Position.X.Whole}/{samus.Position.Y.Whole}, input unlocked.");
     }
 
+    /// <summary>Yapping maw grapple release command.</summary>
     [VerificationCommand("--yapping-maw-grapple-release")]
     internal static int YappingMawGrappleReleaseCommand()
     {

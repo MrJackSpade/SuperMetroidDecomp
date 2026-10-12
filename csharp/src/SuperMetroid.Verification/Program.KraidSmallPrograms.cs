@@ -2,24 +2,29 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid small programs verification.</summary>
 internal static class KraidSmallProgramsVerification
 {
+    /// <summary>Verifies kraid lint mechanics mapping.</summary>
     internal static void VerifyKraidLintMechanicsMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidSmallMechanics), () => VerifyKraidSmallMechanics(rom, [0x8afe, 0x8b02, 0x8b04, 0x8b08],
             KraidLintInstructionProgramDefinitions.MechanicsWordCount,
             index => { var word = KraidLintInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
             KraidLintInstructionProgramDefinitions.ReadMechanicsWord, KraidLintInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte));
 
+    /// <summary>Verifies kraid nail mechanics mapping.</summary>
     internal static void VerifyKraidNailMechanicsMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidSmallMechanics), () => VerifyKraidSmallMechanics(rom, [0x8b0a, 0x8b0e, 0x8b12, 0x8b16, 0x8b1a, 0x8b1e, 0x8b22, 0x8b26, 0x8b2a, 0x8b2c],
             KraidNailInstructionProgramDefinitions.MechanicsWordCount,
             index => { var word = KraidNailInstructionProgramDefinitions.MechanicsWord(index); return (word.Address, word.Value); },
             KraidNailInstructionProgramDefinitions.ReadMechanicsWord, KraidNailInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte));
 
+    /// <summary>Verifies kraid lint presentation mapping.</summary>
     internal static void VerifyKraidLintPresentationMapping() =>
         Suite(nameof(VerifyKraidSmallPresentation), () => VerifyKraidSmallPresentation([0x8b00, 0x8b06], KraidLintInstructionProgramDefinitions.PresentationWordCount,
             KraidLintInstructionProgramDefinitions.PresentationWordAddress, KraidLintInstructionProgramDefinitions.ReadMechanicsWord));
 
+    /// <summary>Verifies kraid nail presentation mapping.</summary>
     internal static void VerifyKraidNailPresentationMapping() =>
         Suite(nameof(VerifyKraidSmallPresentation), () => VerifyKraidSmallPresentation([0x8b0c, 0x8b10, 0x8b14, 0x8b18, 0x8b1c, 0x8b20, 0x8b24, 0x8b28],
             KraidNailInstructionProgramDefinitions.PresentationWordCount,
@@ -27,6 +32,7 @@ internal static class KraidSmallProgramsVerification
 
     // Independent original address lists from the pinned native programs;
     // all expected values come from the cartridge, not the replacement formulas.
+    /// <summary>Verifies kraid small mechanics.</summary>
     internal static void VerifyKraidSmallMechanics(SuperMetroidAddressSpace rom, ushort[] addresses, int count,
         Func<int, (ushort Address, ushort Value)> indexed, Func<ushort, ushort> read, Func<int, bool> ownsByte, int bank = 0xa7)
     {
@@ -51,9 +57,11 @@ internal static class KraidSmallProgramsVerification
         AssertThrows<IndexOutOfRangeException>(() => indexed(addresses.Length), "mechanics index past end");
     }
 
+    /// <summary>Kraid small mechanics rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid small mechanics")]
     private static byte KraidSmallMechanicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies kraid small presentation.</summary>
     internal static void VerifyKraidSmallPresentation(ushort[] expected, int count,
         Func<int, ushort> actual, Func<ushort, ushort> readMechanics)
     {

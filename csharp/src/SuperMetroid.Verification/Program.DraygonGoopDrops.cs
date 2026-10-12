@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents draygon goop drops verification.</summary>
 internal static class DraygonGoopDropsVerification
 {
+    /// <summary>Verifies draygon goop drops.</summary>
     internal static void VerifyDraygonGoopDrops()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -58,6 +60,7 @@ internal static class DraygonGoopDropsVerification
         Console.WriteLine("Draygon goop: two burst images, native drop timing/header/position/slot, and deletion pass.");
     }
 
+    /// <summary>Draygon goop drops command.</summary>
     [VerificationCommand("--draygon-goop-drops")]
     internal static int DraygonGoopDropsCommand()
     {

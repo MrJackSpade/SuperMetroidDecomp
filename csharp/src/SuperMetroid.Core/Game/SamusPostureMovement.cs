@@ -72,6 +72,7 @@ public static class SamusPostureMovement
         return MoveWithZeroBaseSpeed(bus, level, samus, nmiFrameCounter, plms);
     }
 
+    /// <summary>move with zero base speed.</summary>
     private static GroundedMovementResult MoveWithZeroBaseSpeed(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -103,6 +104,7 @@ public static class SamusPostureMovement
         return new GroundedMovementResult(horizontal, vertical);
     }
 
+    /// <summary>validate.</summary>
     private static void Validate(
         ISnesAddressSpace bus,
         RoomLevelData level,

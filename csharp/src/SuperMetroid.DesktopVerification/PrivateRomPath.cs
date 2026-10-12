@@ -2,6 +2,7 @@ using SuperMetroid.Core;
 /// <summary>Locates the user's private cartridge image without requiring debug arguments.</summary>
 static class PrivateRomPath
 {
+    /// <summary>Stores known file names.</summary>
     private static readonly string[] KnownFileNames =
     [
         "Super Metroid.smc",
@@ -10,6 +11,7 @@ static class PrivateRomPath
         "sm.sfc",
     ];
 
+    /// <summary>Resolves.</summary>
     public static string Resolve(string[] arguments)
     {
         Ensure.NotNull(arguments);
@@ -22,6 +24,7 @@ static class PrivateRomPath
         };
     }
 
+    /// <summary>Finds automatically.</summary>
     private static string FindAutomatically()
     {
         // An environment override keeps the copyrighted cartridge image outside copied
@@ -46,6 +49,7 @@ static class PrivateRomPath
             "path as the sole argument.");
     }
 
+    /// <summary>Validates.</summary>
     private static string Validate(string path)
     {
         string fullPath = Path.GetFullPath(path);
@@ -54,6 +58,7 @@ static class PrivateRomPath
         return fullPath;
     }
 
+    /// <summary>Builds bounded search roots.</summary>
     private static List<string> BuildBoundedSearchRoots()
     {
         var roots = new List<string>();
@@ -63,6 +68,7 @@ static class PrivateRomPath
         return roots;
     }
 
+    /// <summary>Adds ancestors.</summary>
     private static void AddAncestors(
         string startingDirectory,
         List<string> roots,

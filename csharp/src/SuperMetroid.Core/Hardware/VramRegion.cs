@@ -20,7 +20,9 @@ public enum VramIncrement
 [PpuLayoutBoundary("rendering view: a bounded VRAM word range")]
 public readonly struct VramRegion
 {
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram vram;
+    /// <summary>Stores first.</summary>
     private readonly int first;
 
     /// <summary>Binds the VRAM words described by <paramref name="cell"/>.</summary>
@@ -32,6 +34,7 @@ public readonly struct VramRegion
     {
     }
 
+    /// <summary>Initializes a new vram region instance.</summary>
     private VramRegion(SnesVram vram, int first, int wordCount)
     {
         this.vram = vram;
@@ -100,6 +103,7 @@ public readonly struct VramRegion
         _ => throw new ArgumentOutOfRangeException(nameof(increment), increment, "Undefined VRAM increment."),
     };
 
+    /// <summary>Checks words.</summary>
     private void CheckWords(int wordOffset, int wordCount)
     {
         if (wordOffset < 0 || wordCount < 0 || wordOffset + wordCount > WordCount)
@@ -107,6 +111,7 @@ public readonly struct VramRegion
                 $"Words {wordOffset}+{wordCount} exceed the {WordCount}-word VRAM region at ${first:X4}.");
     }
 
+    /// <summary>Checks bytes.</summary>
     private void CheckBytes(int byteOffset, int byteCount)
     {
         if (byteOffset < 0 || byteCount < 0 || byteOffset + byteCount > ByteCount)
@@ -123,9 +128,12 @@ public readonly struct VramRegion
 [PpuLayoutBoundary("codec: queued VRAM DMA destination word")]
 public readonly record struct VramDmaDestination
 {
+    /// <summary>Defines column flag.</summary>
     private const ushort ColumnFlag = 0x8000;
+    /// <summary>Defines word mask.</summary>
     private const ushort WordMask = 0x7fff;
 
+    /// <summary>Initializes a new vram dma destination instance.</summary>
     private VramDmaDestination(ushort encoded) => Encoded = encoded;
 
     /// <summary>The native queue word: VMADD in bits 0-14, bit 15 set for the column increment.</summary>

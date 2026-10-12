@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CollectibleVisualsVerification;
 
+/// <summary>Represents lookup collectible stock verification.</summary>
 internal static class LookupCollectibleStockVerification
 {
+    /// <summary>Verifies collectible stock mapping.</summary>
     internal static void VerifyCollectibleStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCollectibleVisualCatalog installed)
     {

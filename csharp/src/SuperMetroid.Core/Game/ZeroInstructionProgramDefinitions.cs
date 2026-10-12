@@ -15,9 +15,12 @@ internal abstract class ZeroInstructionProgramDefinitions
     /// <summary><c>UNUSED_InstList_Zero_UpsideUp_FacingRight_A3990B</c> at $A3:990B.</summary>
     internal const ushort UpsideUp = 0x990b;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 40;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 24;
 
+    /// <summary>Entry.</summary>
     private static ushort Entry(CrawlerSurfaceOrientation surface) => surface switch
     {
         CrawlerSurfaceOrientation.UpsideRight => UpsideRight,
@@ -46,12 +49,14 @@ internal abstract class ZeroInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Entry(CrawlerSurfaceOrientations.AtTableIndex(index / 6)) + 6 + 4 * (index % 6));
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

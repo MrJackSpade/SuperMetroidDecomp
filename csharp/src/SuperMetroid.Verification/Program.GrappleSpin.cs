@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents grapple spin verification.</summary>
 internal static class GrappleSpinVerification
 {
+    /// <summary>Verifies grapple spin input.</summary>
     internal static void VerifyGrappleSpinInput()
     {
         foreach (bool left in new[] { false, true })
@@ -48,6 +50,7 @@ internal static class GrappleSpinVerification
         }
     }
 
+    /// <summary>Grapple spin command.</summary>
     [VerificationCommand("--grapple-spin")]
     internal static int GrappleSpinCommand()
     {

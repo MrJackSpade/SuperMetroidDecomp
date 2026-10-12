@@ -31,6 +31,7 @@ public static class TitleGradientDecoder
         return result;
     }
 
+    /// <summary>Expand.</summary>
     private static byte[] Expand(IImportCartridgeSource cartridge, int cursor)
     {
         var result = new byte[SnesPpuLayout.ScreenHeightPixels];

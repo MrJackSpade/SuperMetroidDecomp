@@ -19,6 +19,7 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents noob tube plm verification.</summary>
 internal static class NoobTubePlmVerification
 {
     /// <summary>
@@ -219,6 +220,7 @@ internal static class NoobTubePlmVerification
             "  N00b tube: setup, two-stage wake, debris, earthquake, event, water, and reload agree.");
     }
 
+    /// <summary>verify noob tube program definitions.</summary>
     private static void VerifyNoobTubeProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -335,6 +337,7 @@ internal static class NoobTubePlmVerification
             "already-broken n00b-tube branch never rereads program bytes");
     }
 
+    /// <summary>new noob tube program read guard.</summary>
     private static CartridgeReadGuard NewNoobTubeProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x84d4d4 and <= 0x84d518 or
@@ -356,6 +359,7 @@ internal static class NoobTubePlmVerification
         return roomFx;
     }
 
+    /// <summary>step noob tube.</summary>
     internal static void StepNoobTube(
         RoomPlmSystem plms,
         ISnesAddressSpace bus,
@@ -425,6 +429,7 @@ internal static class NoobTubePlmVerification
         WriteOneBlockDraw(bus, 0x98dd, 0x8005);
     }
 
+    /// <summary>noob tube plm program command.</summary>
     [VerificationCommand("--noob-tube-plm-program")]
     internal static int NoobTubePlmProgramCommand()
     {
@@ -432,6 +437,7 @@ internal static class NoobTubePlmVerification
         return 0;
     }
 
+    /// <summary>grapple resident trigger command.</summary>
     [VerificationCommand("--grapple-resident-trigger")]
     internal static int GrappleResidentTriggerCommand()
     {

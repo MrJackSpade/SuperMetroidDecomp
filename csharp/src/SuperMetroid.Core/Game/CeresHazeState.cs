@@ -11,8 +11,11 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class CeresHazeState
 {
-    private enum Phase { Waiting, FadingIn, Holding, FadingOut }
+    /// <summary>Represents phase.</summary>
+    private enum Phase { /** <summary>Identifies waiting.</summary> */ Waiting, /** <summary>Identifies fading in.</summary> */ FadingIn, /** <summary>Identifies holding.</summary> */ Holding, /** <summary>Identifies fading out.</summary> */ FadingOut }
+    /// <summary>Stores phase.</summary>
     private Phase _phase;
+    /// <summary>Stores counter.</summary>
     private int _counter;
     /// <summary>Whether the loaded room setup owns a haze effect; false makes updates inert and suppresses the renderer's layer, independently of the stored fade phase.</summary>
     public bool Enabled { get; private set; }

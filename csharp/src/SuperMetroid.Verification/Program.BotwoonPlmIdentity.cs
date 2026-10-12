@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents botwoon plm identity verification.</summary>
 internal static class BotwoonPlmIdentityVerification
 {
+    /// <summary>Verifies botwoon plm identity.</summary>
     internal static void VerifyBotwoonPlmIdentity()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -43,6 +45,7 @@ internal static class BotwoonPlmIdentityVerification
         Console.WriteLine("Botwoon hardcoded PLMs: both header identities, slot order, placement, programs, timers and full-pool/reset behavior pass.");
     }
 
+    /// <summary>Botwoon plm identity command.</summary>
     [VerificationCommand("--botwoon-plm-identity")]
     internal static int BotwoonPlmIdentityCommand()
     {

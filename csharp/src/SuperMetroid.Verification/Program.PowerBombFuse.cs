@@ -17,8 +17,10 @@ using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents power bomb fuse verification.</summary>
 internal static class PowerBombFuseVerification
 {
+    /// <summary>Verifies power bomb fuse.</summary>
     internal static void VerifyPowerBombFuse()
     {
         // Expected boundary cases follow the literal C157 branches, including a
@@ -53,6 +55,7 @@ internal static class PowerBombFuseVerification
         Console.WriteLine("Power Bomb fuse: native boundary/flag/wrap cases and complete 60-frame fuse agree.");
     }
 
+    /// <summary>Verifies power bomb retained radius speed.</summary>
     private static void VerifyPowerBombRetainedRadiusSpeed()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -77,12 +80,14 @@ internal static class PowerBombFuseVerification
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "next allocation preserves radius speed until setup");
     }
 
+    /// <summary>Power bomb fixtures command.</summary>
     [VerificationCommand("--power-bomb-fixtures")]
     internal static int PowerBombFixturesCommand()
     {
      VerifyPowerBombFuse(); VerifyPowerBombColorMathWindow(); return 0; 
     }
 
+    /// <summary>Power bomb fuse command.</summary>
     [VerificationCommand("--power-bomb-fuse")]
     internal static int PowerBombFuseCommand()
     {

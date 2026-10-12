@@ -45,6 +45,7 @@ public readonly record struct DisplayViewport(Offset16<DisplayPixels> Offset, Ex
     private static Extent16<DisplayPixels> Scaled(int unitWidth, int scale) =>
         new(checked((ushort)(unitWidth * scale)), checked((ushort)(SnesPpuLayout.ScreenHeightPixels * scale)));
 
+    /// <summary>Centered.</summary>
     private static DisplayViewport Centered(Extent16<DisplayPixels> client, Extent16<DisplayPixels> picture) => new(
         new Offset16<DisplayPixels>(checked((short)((client.X - picture.X) / 2)), checked((short)((client.Y - picture.Y) / 2))),
         picture);
@@ -53,6 +54,8 @@ public readonly record struct DisplayViewport(Offset16<DisplayPixels> Offset, Ex
 /// <summary>Consumer display aspect, distinct from the native SNES sample dimensions.</summary>
 internal static class DisplayAspect
 {
+    /// <summary>Stores numerator.</summary>
     internal const int Numerator = 4;
+    /// <summary>Stores denominator.</summary>
     internal const int Denominator = 3;
 }

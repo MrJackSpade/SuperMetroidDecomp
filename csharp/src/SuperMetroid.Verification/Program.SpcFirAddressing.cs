@@ -13,8 +13,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents spc fir addressing verification.</summary>
 internal static class SpcFirAddressingVerification
 {
+    /// <summary>verify spc fir addressing.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC FIR addressing")]
     internal static void VerifySpcFirAddressing()
@@ -57,6 +59,7 @@ internal static class SpcFirAddressingVerification
         Console.WriteLine("SPC FIR: all256 byte presets preserve native low-byte indexing and mutable RAM reads.");
     }
 
+    /// <summary>lookup spc fir addressing command.</summary>
     [VerificationCommand("--lookup-spc-fir-addressing")]
     internal static int LookupSpcFirAddressingCommand()
     {

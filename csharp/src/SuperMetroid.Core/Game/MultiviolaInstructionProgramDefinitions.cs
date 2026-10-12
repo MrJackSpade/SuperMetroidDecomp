@@ -16,8 +16,11 @@ internal abstract class MultiviolaInstructionProgramDefinitions
     /// <summary>$A2:B314 Instruction_Common_GotoY after the timed loop.</summary>
     private const ushort LoopOpcode = Flying + TimedFrameCount * 4;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => TimedFrameCount + 2;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => TimedFrameCount;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -25,11 +28,13 @@ internal abstract class MultiviolaInstructionProgramDefinitions
             : new((ushort)(LoopOpcode + (index - TimedFrameCount) * 2),
                 index == TimedFrameCount ? (ushort)CommonEnemyInstruction.Goto : Flying);
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= TimedFrameCount) throw new IndexOutOfRangeException();
         return (ushort)(Flying + index * 4 + 2);
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

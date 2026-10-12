@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Represents mother brain ascent capture verification.</summary>
 internal static class MotherBrainAscentCaptureVerification
 {
+    /// <summary>verify mother brain ascent capture.</summary>
     internal static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

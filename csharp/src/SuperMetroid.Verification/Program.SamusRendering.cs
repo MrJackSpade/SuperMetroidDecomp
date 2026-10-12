@@ -16,6 +16,7 @@ using static AssertionsVerification;
 using static SamusRenderingFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus rendering verification.</summary>
 internal static class SamusRenderingVerification
 {
 
@@ -1069,18 +1070,21 @@ static void SeedHurtFlashPalettes(TestAddressSpace bus)
 // Checks required-new/required-held masks, extra-button acceptance, ROM priority order,
 // terminators, and same-pose suppression in the bank-$91 prospective-pose lookup.
 
+    /// <summary>arm cannon fixture command.</summary>
     [VerificationCommand("--arm-cannon-fixture")]
     internal static int ArmCannonFixtureCommand()
     {
      VerifySamusArmCannon(); return 0; 
     }
 
+    /// <summary>samus palette fixtures command.</summary>
     [VerificationCommand("--samus-palette-fixtures")]
     internal static int SamusPaletteFixturesCommand()
     {
      VerifySamusVisorPalette(); VerifySamusHurtFlashPalette(); VerifySamusVisorColors(); return 0; 
     }
 
+    /// <summary>samus rendering slice command.</summary>
     [VerificationCommand("--samus-rendering-slice")]
     internal static int SamusRenderingSliceCommand()
     {

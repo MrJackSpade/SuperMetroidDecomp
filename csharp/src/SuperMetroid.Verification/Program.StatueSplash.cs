@@ -15,8 +15,10 @@ using SuperMetroid.Core.Runtime;
 using static ImportedSpritemapsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents statue splash verification.</summary>
 internal static class StatueSplashVerification
 {
+    /// <summary>Verifies statue splash.</summary>
     internal static void VerifyStatueSplash()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -95,10 +97,12 @@ internal static class StatueSplashVerification
         Console.WriteLine($"Statue particles: all 64 launch angles and {splashes} splash crossings passed.");
     }
 
+    /// <summary>Reads native statue particle word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B3C3 statue-particle launch table")]
     private static ushort ReadNativeStatueParticleWord(ISnesAddressSpace bus, int index) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa0b3c3 + index * 2);
 
+    /// <summary>Statue splash command.</summary>
     [VerificationCommand("--statue-splash")]
     internal static int StatueSplashCommand()
     {

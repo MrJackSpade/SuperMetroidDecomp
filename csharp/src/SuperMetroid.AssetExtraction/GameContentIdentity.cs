@@ -190,6 +190,7 @@ public sealed record GameContentIdentity(
         return warnings;
     }
 
+    /// <summary>Append.</summary>
     private static void Append(IncrementalHash hash, string value)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(value);
@@ -199,6 +200,7 @@ public sealed record GameContentIdentity(
         hash.AppendData(bytes);
     }
 
+    /// <summary>Validates digest.</summary>
     private static void ValidateDigest(string digest, string parameterName)
     {
         if (digest is null || digest.Length != SHA256.HashSizeInBytes * 2 ||
@@ -210,6 +212,7 @@ public sealed record GameContentIdentity(
         }
     }
 
+    /// <summary>Adds digest warning.</summary>
     private static void AddDigestWarning(
         List<string> warnings,
         string component,

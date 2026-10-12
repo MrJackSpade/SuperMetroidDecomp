@@ -31,6 +31,7 @@ public sealed class RoomPlmNoobTubeVisualCatalog
         }
     });
 
+    /// <summary>Stores custom blocks.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates all seven N00b-tube layouts and copies visual differences without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>

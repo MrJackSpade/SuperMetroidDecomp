@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CompiledDynamicCollectibleGraphicsVerification;
 
+/// <summary>Represents lookup dynamic collectible sources verification.</summary>
 internal static class LookupDynamicCollectibleSourcesVerification
 {
+    /// <summary>Verifies dynamic collectible source pointers.</summary>
     internal static void VerifyDynamicCollectibleSourcePointers(SuperMetroidAddressSpace rom)
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();
@@ -30,9 +32,11 @@ internal static class LookupDynamicCollectibleSourcesVerification
         }
     }
 
+    /// <summary>Dynamic collectible source pointers rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for dynamic collectible source pointers")]
     private static byte DynamicCollectibleSourcePointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies dynamic collectible kind identity.</summary>
     internal static void VerifyDynamicCollectibleKindIdentity()
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();

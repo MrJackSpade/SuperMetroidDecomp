@@ -36,6 +36,7 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions
     /// <summary>Native program bank $A2.</summary>
     internal const byte Bank = 0xa2;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xca4b),
         Entry(FacingLeftIdle),
@@ -127,6 +128,7 @@ internal abstract class MaridiaLargeSnailInstructionProgramDefinitions
         Op((ushort)MaridiaLargeSnailInstruction.DisallowAttackRotation),
         Op((ushort)CommonEnemyInstruction.Goto, FacingRightRollingBackwards));
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Input;
 /// </summary>
 public sealed class FrameInputLatch
 {
+    /// <summary>Stores gate.</summary>
     private readonly Lock gate = new();
+    /// <summary>Stores sources.</summary>
     private readonly Dictionary<int, SnesButton> sources = [];
+    /// <summary>Stores held.</summary>
     private SnesButton held;
+    /// <summary>Stores pressed.</summary>
     private SnesButton pressed;
 
     /// <summary>Each physical key/axis producer owns an independent contribution.</summary>

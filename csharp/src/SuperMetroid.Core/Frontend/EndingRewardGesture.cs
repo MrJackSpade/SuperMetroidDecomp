@@ -6,11 +6,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Runs E342's reward gesture actors until their native jumping-actor handoff.</summary>
 internal sealed class EndingRewardGesture
 {
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores actors.</summary>
     private readonly List<IntroDiscoverySprite> actors = [];
+    /// <summary>Gets or sets jump requested.</summary>
     public bool JumpRequested { get; private set; }
+    /// <summary>Gets or sets suitless jump requested.</summary>
     public bool SuitlessJumpRequested { get; private set; }
 
+    /// <summary>Initializes a new ending reward gesture instance.</summary>
     public EndingRewardGesture(ISnesAddressSpace bus, EndingReward reward)
     {
         this.bus = bus;
@@ -29,6 +34,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
+    /// <summary>Steps.</summary>
     public void Step(Func<ushort, ushort>? instructionWord = null)
     {
         if (JumpRequested) throw new InvalidOperationException("Reward gesture handoff must be consumed before advancing again.");
@@ -37,6 +43,7 @@ internal sealed class EndingRewardGesture
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
+    /// <summary>Draws.</summary>
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();
@@ -47,6 +54,7 @@ internal sealed class EndingRewardGesture
         return oam;
     }
 
+    /// <summary>Handles instruction.</summary>
     private ushort HandleInstruction(EndingRewardGestureInstruction instruction, ushort cursor)
     {
         switch (instruction)
@@ -63,6 +71,7 @@ internal sealed class EndingRewardGesture
         }
     }
 
+    /// <summary>Spawns.</summary>
     private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);

@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents door sound disable verification.</summary>
 internal static class DoorSoundDisableVerification
 {
+    /// <summary>verify door sound disable guard.</summary>
     internal static void VerifyDoorSoundDisableGuard()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

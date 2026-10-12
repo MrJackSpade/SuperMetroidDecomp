@@ -9,7 +9,9 @@ internal sealed record GameConfigurationFile(
     SuperMetroidGameOptions Options,
     string Source)
 {
+    /// <summary>Stores file name.</summary>
     public const string FileName = "SuperMetroid.ini";
+    /// <summary>Stores defaults file name.</summary>
     public const string DefaultsFileName = "SuperMetroid.defaults.ini";
 
     /// <summary>Loads normal player settings from the installation, independent of its import ROM.</summary>
@@ -19,6 +21,7 @@ internal sealed record GameConfigurationFile(
         return LoadFromDirectory(dataDirectory, defaultsDirectory, "installation data-directory settings");
     }
 
+    /// <summary>Loads from directory.</summary>
     private static GameConfigurationFile LoadFromDirectory(string dataDirectory,
         string? defaultsDirectory, string source)
     {

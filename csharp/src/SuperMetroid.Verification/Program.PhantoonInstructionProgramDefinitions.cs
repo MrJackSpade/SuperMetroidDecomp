@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents phantoon instruction program definitions verification.</summary>
 internal static class PhantoonInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies phantoon instruction program definitions.</summary>
     internal static void VerifyPhantoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies phantoon instruction program definitions.</summary>
     internal static void VerifyPhantoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -193,6 +196,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             "programs, four callbacks, and 27 native sprite selections pass with zero live reads.");
     }
 
+    /// <summary>Creates phantoon instruction system.</summary>
     internal static RoomEnemySystem CreatePhantoonInstructionSystem(ISnesAddressSpace bus)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -221,6 +225,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Runs phantoon instruction program.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon instruction program")]
     private static void RunPhantoonInstructionProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
@@ -245,6 +250,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probe phantoon instruction allocation.</summary>
     private static int ProbePhantoonInstructionAllocation()
     {
         int checksum = 0;
@@ -259,6 +265,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New phantoon instruction read guard.</summary>
     private static CartridgeReadGuard NewPhantoonInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PhantoonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -266,6 +273,7 @@ internal static class PhantoonInstructionProgramDefinitionsVerification
             .ObserveWords(0xa70000, PhantoonInstructionProgramDefinitions.PresentationWordCount,
                 PhantoonInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Phantoon instruction program definitions command.</summary>
     [VerificationCommand("--phantoon-instruction-program-definitions")]
     internal static int PhantoonInstructionProgramDefinitionsCommand()
     {

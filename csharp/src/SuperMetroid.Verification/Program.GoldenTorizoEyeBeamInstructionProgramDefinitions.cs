@@ -16,12 +16,15 @@ using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents golden torizo eye beam instruction program definitions verification.</summary>
 internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies golden torizo eye beam instruction program definitions.</summary>
     internal static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions), () => VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies golden torizo eye beam instruction program definitions.</summary>
     internal static void VerifyGoldenTorizoEyeBeamInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -272,9 +275,11 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
         }
     }
 
+    /// <summary>Golden torizo eye beam instruction program definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo eye beam instruction program definitions")]
     private static byte GoldenTorizoEyeBeamInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Probes golden torizo eye beam instruction mechanics allocation.</summary>
     private static int ProbeGoldenTorizoEyeBeamInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -288,6 +293,7 @@ internal static class GoldenTorizoEyeBeamInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
+    /// <summary>Golden torizo eye beam instruction mechanics command.</summary>
     [VerificationCommand("--golden-torizo-eye-beam-instruction-mechanics")]
     internal static int GoldenTorizoEyeBeamInstructionMechanicsCommand()
     {

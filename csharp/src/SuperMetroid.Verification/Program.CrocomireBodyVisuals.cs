@@ -9,8 +9,10 @@ using static EnemyExtendedFrameArtworkVerification;
 using static ExtendedBg2ReferenceVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents crocomire body visuals verification.</summary>
 internal static class CrocomireBodyVisualsVerification
 {
+    /// <summary>Verifies crocomire body frame geometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire body frame geometry")]
     internal static void VerifyCrocomireBodyFrameGeometry(SuperMetroidAddressSpace rom)
     {
@@ -43,6 +45,7 @@ internal static class CrocomireBodyVisualsVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(-1), "negative body frame");
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBodyVisualDefinitions.FramePointer(50), "body frame past end");
     }
+    /// <summary>Verifies crocomire bg2 generated catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire BG2 generated catalog")]
     internal static void VerifyCrocomireBg2GeneratedCatalog(SuperMetroidAddressSpace rom)
     {
@@ -78,6 +81,7 @@ internal static class CrocomireBodyVisualsVerification
                 "generated catalog loads every native BG2 stream by its published key");
         AssertTrue(!loaded.TryGet(0xca7e, out _), "pure-OAM frame excluded from BG2 catalog");
     }
+    /// <summary>Verifies installed crocomire body visuals.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire body visuals")]
     internal static void VerifyInstalledCrocomireBodyVisuals(

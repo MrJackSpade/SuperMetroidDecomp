@@ -17,8 +17,10 @@ using static AssertionsVerification;
 using static ProjectileCompositionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents projectile visual parts verification.</summary>
 internal static class ProjectileVisualPartsVerification
 {
+    /// <summary>Verifies projectile visual parts.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyProjectileVisualParts()
     {
@@ -65,6 +67,7 @@ internal static class ProjectileVisualPartsVerification
         WriteTestWord(bus, 0x93f705, attribute);
     }
 
+    /// <summary>Projectile sprite compositions command.</summary>
     [VerificationCommand("--projectile-sprite-compositions")]
     internal static int ProjectileSpriteCompositionsCommand()
     {

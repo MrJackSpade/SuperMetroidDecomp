@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents polyp rock instruction program definitions verification.</summary>
 internal static class PolypRockInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies polyp rock instruction program definitions.</summary>
     internal static void VerifyPolypRockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies polyp rock instruction program definitions.</summary>
     internal static void VerifyPolypRockInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -114,6 +117,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes polyp rock instruction mechanics allocation.</summary>
     private static int ProbePolypRockInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -127,12 +131,14 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads polyp rock instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp rock instruction words")]
     internal static ushort ReadPolypRockInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
 
+    /// <summary>New polyp rock instruction read guard.</summary>
     private static CartridgeReadGuard NewPolypRockInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => PolypRockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -142,6 +148,7 @@ internal static class PolypRockInstructionProgramDefinitionsVerification
                     PolypRockInstructionProgramDefinitions.PresentationWord) is 0 or 1,
                 _ => "Production read the compiled Polyp-rock visual operand.");
 
+    /// <summary>Polyp rock instruction mechanics command.</summary>
     [VerificationCommand("--polyp-rock-instruction-mechanics")]
     internal static int PolypRockInstructionMechanicsCommand()
     {

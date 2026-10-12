@@ -8,8 +8,10 @@ using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents map arrow durations verification.</summary>
 internal static class MapArrowDurationsVerification
 {
+    /// <summary>Verifies map arrow durations.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow durations")]
     internal static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
@@ -69,6 +71,7 @@ internal static class MapArrowDurationsVerification
         }
     }
 
+    /// <summary>Verifies map arrow duration ticks.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow duration ticks")]
     private static void VerifyMapArrowDurationTicks(ISnesAddressSpace rom, MapArrowPresentation presentation)
     {

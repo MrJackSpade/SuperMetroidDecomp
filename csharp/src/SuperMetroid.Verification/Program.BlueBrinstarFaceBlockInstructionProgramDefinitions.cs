@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents blue brinstar face block instruction program definitions verification.</summary>
 internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify blue brinstar face block instruction program definitions.</summary>
     internal static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>verify blue brinstar face block instruction program definitions.</summary>
     internal static void VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -136,6 +139,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         }
     }
 
+    /// <summary>verify face block mechanics mapping.</summary>
     private static void VerifyFaceBlockMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [0xe80c,0xe810,0xe814,0xe818,0xe81a,0xe81e,0xe822,0xe826,0xe828,0xe82c];
@@ -165,6 +169,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         foreach (int index in new[] {int.MinValue,-1,10,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.MechanicsWord(index), "face-block control ordinal bounds");
     }
+    /// <summary>verify face block presentation mapping.</summary>
     private static void VerifyFaceBlockPresentationMapping()
     {
         ushort[] expected = [0xe80e,0xe812,0xe816,0xe81c,0xe820,0xe824,0xe82a];
@@ -177,6 +182,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         foreach (int index in new[] {int.MinValue,-1,7,int.MaxValue})
             AssertThrows<IndexOutOfRangeException>(() => BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress(index), "face-block operand ordinal bounds");
     }
+    /// <summary>verify face block visual mapping.</summary>
     private static void VerifyFaceBlockVisualMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xe80e,0xe812,0xe816,0xe81c,0xe820,0xe824,0xe82a];
@@ -210,6 +216,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         foreach (ushort address in new ushort[] {0,0x7fff,0xffff})
             AssertThrows<InvalidDataException>(() => BlueBrinstarFaceBlockVisualDefinitions.FrameAt(address), "face-block distant invalid operand");
     }
+    /// <summary>probe blue brinstar face block instruction mechanics allocation.</summary>
     private static int ProbeBlueBrinstarFaceBlockInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -221,12 +228,14 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
         return checksum;
     }
 
+    /// <summary>read blue brinstar face block word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Blue Brinstar face block words")]
     internal static ushort ReadBlueBrinstarFaceBlockWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>new blue brinstar face block program read guard.</summary>
     private static CartridgeReadGuard NewBlueBrinstarFaceBlockProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -235,6 +244,7 @@ internal static class BlueBrinstarFaceBlockInstructionProgramDefinitionsVerifica
                 BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount,
                 BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>blue brinstar face block instruction mechanics command.</summary>
     [VerificationCommand("--blue-brinstar-face-block-instruction-mechanics")]
     internal static int BlueBrinstarFaceBlockInstructionMechanicsCommand()
     {

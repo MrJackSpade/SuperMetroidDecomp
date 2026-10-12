@@ -1,12 +1,15 @@
 using SuperMetroid.Core.Assets;
 
+/// <summary>Represents menu font evidence verification.</summary>
 internal static class MenuFontEvidenceVerification
 {
     // Evidence assertions belong to the existing two font proofs, not a second
     // oracle or a separate test that searches for other artwork differences.
+    /// <summary>menu evidence pixel.</summary>
     internal static byte MenuEvidencePixel(IndexedPngImage image, int tile, Position16<CharacterPixels> pixel) =>
         image.Pixels[(tile / 16 * 8 + pixel.Y) * image.Size.X + tile % 16 * 8 + pixel.X];
 
+    /// <summary>assert menu ink region equal.</summary>
     internal static void AssertMenuInkRegionEqual(IndexedPngImage image,
         int firstTile, Position16<CharacterPixels> first, int secondTile, Position16<CharacterPixels> second,
         Extent16<CharacterPixels> size, string context)

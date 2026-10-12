@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MotherBrainGlassInstructionProgramDefinitions))]
 internal abstract class MotherBrainGlassInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => MotherBrainGlassInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => MotherBrainGlassInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 85;
     /// <summary>Enumerate ten mechanics words per shard loop, then five sparkle words.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -23,6 +26,7 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitionsTooling : I
         else address = MotherBrainGlassInstructionProgramDefinitions.Sparkle + (index - 80) * 4;
         return new((ushort)address, MotherBrainGlassInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
+    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

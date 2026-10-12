@@ -5,7 +5,8 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Eight mutually exclusive compass gaze directions selected at $A7:CCA7..CCD6.</summary>
 internal enum PhantoonGazeDirection
 {
-    Up, UpRight, Right, DownRight, Down, DownLeft, Left, UpLeft,
+    /// <summary>Identifies up.</summary>
+    Up, /** <summary>Identifies up right.</summary> */ UpRight, /** <summary>Identifies right.</summary> */ Right, /** <summary>Identifies down right.</summary> */ DownRight, /** <summary>Identifies down.</summary> */ Down, /** <summary>Identifies down left.</summary> */ DownLeft, /** <summary>Identifies left.</summary> */ Left, /** <summary>Identifies up left.</summary> */ UpLeft,
 }
 
 /// <summary>Program-order access to Phantoon's gaze directions.</summary>
@@ -34,7 +35,9 @@ internal static class PhantoonGazeDirections
 /// </summary>
 internal static class PhantoonBg2FrameDefinitions
 {
+    /// <summary>Stores version.</summary>
     internal const int Version = 1;
+    /// <summary>Stores file name.</summary>
     internal const string FileName = "phantoon-bg2-frames.json";
     /// <summary>Phantoon's tentacle frames have at most two BG2 components.</summary>
     internal const int MaximumComponents = 2;
@@ -45,8 +48,10 @@ internal static class PhantoonBg2FrameDefinitions
     private const ushort BodyEyeStart = 0xdedd;
     /// <summary>$A7:DFE9, first one-component mouth frame; three selected roots.</summary>
     private const ushort MouthStart = 0xdfe9;
+    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 22;
 
+    /// <summary>Gets frames.</summary>
     internal static EnemyBg2FrameDefinitionSequence Frames => new(FrameCount, Frame);
 
     /// <summary>Sixteen body/eye frames at ten-byte stride, three tentacle frames
@@ -112,9 +117,11 @@ internal static class PhantoonBg2FrameDefinitions
     internal static ushort TentaclePose(int phase) => (uint)phase < 3 ? Frame(16 + phase).Pointer : throw new ArgumentOutOfRangeException(nameof(phase));
     /// <summary>$A7:DFE9/DFF3/DFFD, the three mouth poses from rest to flame release.</summary>
     internal static ushort MouthPose(int phase) => (uint)phase < 3 ? Frame(19 + phase).Pointer : throw new ArgumentOutOfRangeException(nameof(phase));
+    /// <summary>Checks whether the address identifies a frame.</summary>
     internal static bool IsFrame(ushort pointer) => InRun(pointer, BodyEyeStart, 16, 10) ||
         InRun(pointer, (ushort)PhantoonCollisionFrame.Tentacles0, 3, 18) || InRun(pointer, MouthStart, 3, 10);
 
+    /// <summary>In run.</summary>
     private static bool InRun(ushort pointer, ushort start, int count, int stride)
     {
         int offset = pointer - start;

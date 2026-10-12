@@ -3,9 +3,11 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed complete bank-$84 artwork domains, separate from collision words and instruction timing.</summary>
 internal static class PlmClosedContractDefinitions
 {
+    /// <summary>Stores shared draw shape.</summary>
     private static readonly ReviewedSource SharedDrawShape = new(
         "csharp/src/SuperMetroid.Core/Rooms/RoomPlmShotBlockDrawDefinitions.cs");
 
+    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Rooms.RoomPlmShotBlockVisualCatalog", "plm-shot-block-complete-draws", ["GetWord"],

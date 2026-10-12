@@ -15,6 +15,7 @@ using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus terrain movement verification.</summary>
 internal static class SamusTerrainMovementVerification
 {
 
@@ -1512,6 +1513,7 @@ static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
 // Sends a synthetic planar tile through DMA, OAM, OBSEL, and CGRAM so this tests the
 // complete sprite-to-pixel path rather than a helper decoder in isolation.
 
+    /// <summary>Samus grounded reversal command.</summary>
     [VerificationCommand("--samus-grounded-reversal")]
     internal static int SamusGroundedReversalCommand()
     {

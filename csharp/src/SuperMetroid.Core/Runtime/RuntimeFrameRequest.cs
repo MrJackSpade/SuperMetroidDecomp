@@ -46,6 +46,7 @@ public sealed record RuntimeFramePolicy
 /// </summary>
 public sealed class RuntimeFrameAudio
 {
+    /// <summary>Initializes a new runtime frame audio instance.</summary>
     private RuntimeFrameAudio(Func<ushort>? queueEchoSound, Action? checkLowHealth)
     {
         QueueEchoSound = queueEchoSound;

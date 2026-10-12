@@ -2,15 +2,23 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static MotherBrainGlassShardDefinitionsVerification;
 
+/// <summary>Represents lookup glass projectile program verification.</summary>
 internal static class LookupGlassProjectileProgramVerification
 {
+    /// <summary>Verifies glass mechanics addresses.</summary>
     internal static void VerifyGlassMechanicsAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 0);
+    /// <summary>Verifies glass presentation addresses.</summary>
     internal static void VerifyGlassPresentationAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 1);
+    /// <summary>Verifies glass shard cadence.</summary>
     internal static void VerifyGlassShardCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 2);
+    /// <summary>Verifies glass sparkle cadence.</summary>
     internal static void VerifyGlassSparkleCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 3);
+    /// <summary>Verifies glass projectile controls.</summary>
     internal static void VerifyGlassProjectileControls(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 4);
+    /// <summary>Verifies glass projectile loop targets.</summary>
     internal static void VerifyGlassProjectileLoopTargets(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 5);
 
+    /// <summary>Verifies glass projectile field.</summary>
     private static void VerifyGlassProjectileField(SuperMetroidAddressSpace rom, int field)
     {
         // Parse the original bounded programs; never obtain expected addresses or values

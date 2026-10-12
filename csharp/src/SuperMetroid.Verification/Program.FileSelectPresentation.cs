@@ -7,8 +7,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents file select presentation verification.</summary>
 internal static class FileSelectPresentationVerification
 {
+    /// <summary>Verifies file select presentation assets.</summary>
     internal static void VerifyFileSelectPresentationAssets(
         ISnesAddressSpace bus,
         string stock,
@@ -180,6 +182,7 @@ internal static class FileSelectPresentationVerification
         }
     }
 
+    /// <summary>New file select presentation guard.</summary>
     private static MutableCartridgeReadGuard NewFileSelectPresentationGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -188,6 +191,7 @@ internal static class FileSelectPresentationVerification
         return guard;
     }
 
+    /// <summary>Checks whether file select presentation address.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static bool IsFileSelectPresentationAddress(int address) =>
         InFileSelectRange(address, FileSelectMapRomData.InitialMenuBackground,
@@ -204,6 +208,7 @@ internal static class FileSelectPresentationVerification
             MenuPpuState.SpritemapPointerTableAddress + 0x2c * sizeof(ushort),
             (0x4d - 0x2c + 1) * sizeof(ushort));
 
+    /// <summary>In file select range.</summary>
     private static bool InFileSelectRange(int address, int start, int count) =>
         address >= start && address < start + count;
 }

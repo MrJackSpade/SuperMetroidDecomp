@@ -16,7 +16,9 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
     /// <summary>8 KiB of battery-backed SRAM used by three save slots and metadata.</summary>
     public const int SaveRamByteCount = 0x2000;
 
+    /// <summary>Stores work ram.</summary>
     private readonly byte[] _workRam = new byte[WorkRamByteCount];
+    /// <summary>Stores save ram.</summary>
     private readonly byte[] _saveRam = new byte[SaveRamByteCount];
 
     /// <summary>
@@ -87,10 +89,13 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
             $"CPU write ${bank:X2}:{offset:X4} is outside the runtime address map.");
     }
 
+    /// <summary>Checks whether system bank.</summary>
     private static bool IsSystemBank(int bank) => bank is <= 0x3f or >= 0x80 and <= 0xbf;
 
+    /// <summary>Checks whether save ram bank.</summary>
     private static bool IsSaveRamBank(int bank) => bank is >= 0x70 and <= 0x7d or >= 0xf0 and <= 0xff;
 
+    /// <summary>Validates address.</summary>
     private static void ValidateAddress(int address)
     {
         if ((uint)address > 0x00ff_ffff)

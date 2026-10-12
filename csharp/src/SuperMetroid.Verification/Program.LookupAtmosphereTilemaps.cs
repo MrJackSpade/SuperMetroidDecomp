@@ -6,15 +6,20 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup atmosphere tilemaps verification.</summary>
 internal static class LookupAtmosphereTilemapsVerification
 {
+    /// <summary>Verifies rain tile palette.</summary>
     private static void VerifyRainTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Rain, 0x1c00));
+    /// <summary>Verifies fog tile palette.</summary>
     private static void VerifyFogTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x1c00));
+    /// <summary>Verifies fog tile priority.</summary>
     private static void VerifyFogTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Fog, 0x2000));
 
+    /// <summary>Verifies atmosphere tile field.</summary>
     private static void VerifyAtmosphereTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock,
         RoomFxType type, int mask)
     {
@@ -31,6 +36,7 @@ internal static class LookupAtmosphereTilemapsVerification
         }
     }
 
+    /// <summary>Verifies atmosphere tilemap domain and edits.</summary>
     private static void VerifyAtmosphereTilemapDomainAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         for (int value = 0; value <= ushort.MaxValue; value++)
@@ -76,9 +82,11 @@ internal static class LookupAtmosphereTilemapsVerification
         }
     }
 
+    /// <summary>Atmosphere tilemap domain and edits rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for atmosphere tilemap domain and edits")]
     private static byte AtmosphereTilemapDomainAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies atmosphere tilemap fields.</summary>
     internal static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifyRainTilePalette), () => VerifyRainTilePalette(rom, stock));

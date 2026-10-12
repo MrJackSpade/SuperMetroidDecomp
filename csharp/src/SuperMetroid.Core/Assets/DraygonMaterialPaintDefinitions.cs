@@ -37,8 +37,10 @@ internal sealed class DraygonMaterialPaintDefinitions
     /// </summary>
     private const int MagentaBlue = 22,
         RedTargetRed = 18, RedTargetGreen = 4, RedTargetBlue = 6;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Initializes a new draygon material paint definitions instance.</summary>
     internal DraygonMaterialPaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 16);
@@ -46,14 +48,17 @@ internal sealed class DraygonMaterialPaintDefinitions
             if (colors[color] != StockColor(color)) edits.Add(color, colors[color]);
     }
 
+    /// <summary>Color.</summary>
     internal Bgr555 Color(int index)
     {
         if ((uint)index >= 16) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : StockColor(index);
     }
 
+    /// <summary>Gets clear target.</summary>
     internal static Bgr555 ClearTarget => Pack(0, 0, ClearBlue);
 
+    /// <summary>Stock color.</summary>
     private static Bgr555 StockColor(int color)
     {
         if (color is >= 5 and <= 8)
@@ -77,5 +82,6 @@ internal sealed class DraygonMaterialPaintDefinitions
         };
     }
 
+    /// <summary>Pack.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

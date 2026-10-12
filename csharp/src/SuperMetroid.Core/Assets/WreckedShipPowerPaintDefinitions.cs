@@ -61,6 +61,7 @@ internal static class WreckedShipPowerPaintDefinitions
     /// <summary>$A7:CB07/CB19/CB1B: dark green, red indicator and gold indicator selected intensities.</summary>
     private const int BackgroundGreenDark = 6, RedIndicator = 21, GoldIndicatorRed = 27, GoldIndicatorGreen = 18;
 
+    /// <summary>Color.</summary>
     internal static Bgr555 Color(int index)
     {
         if ((uint)index >= 112) throw new ArgumentOutOfRangeException(nameof(index));
@@ -78,6 +79,7 @@ internal static class WreckedShipPowerPaintDefinitions
             _ => ink == 14 ? White : Neutral(CommonNeutral),
         };
     }
+    /// <summary>Common.</summary>
     private static Bgr555 Common(int ink) => ink switch
     {
         >= 1 and <= 3 => Gold(ink - 1),
@@ -86,6 +88,7 @@ internal static class WreckedShipPowerPaintDefinitions
         10 or 12 or 14 => White, 11 => Bgr555.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Green door.</summary>
     private static Bgr555 GreenDoor(int ink) => ink switch
     {
         1 => GreenHighlight, 2 => GreenMiddle, 3 => GreenDark,
@@ -94,12 +97,14 @@ internal static class WreckedShipPowerPaintDefinitions
         11 => Bgr555.Black, 12 => White, 13 => Gold(0), 14 => Rgb(31, 0, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Magenta door.</summary>
     private static Bgr555 MagentaDoor(int ink) => ink switch
     {
         1 => Rgb(MagentaLight, MagentaLightGreen, MagentaLight),
         2 => MagentaMiddle, 3 => Rgb(MagentaDarkRed, 0, MagentaDarkBlue),
         14 => White, _ => Neutral(CommonNeutral),
     };
+    /// <summary>Blue door.</summary>
     private static Bgr555 BlueDoor(int ink) => ink switch
     {
         1 => Rgb(DoorBlueLightRed, DoorBlueLightGreen, DoorBlueBright),
@@ -107,6 +112,7 @@ internal static class WreckedShipPowerPaintDefinitions
         3 => Rgb(DoorBlueDarkRed, DoorBlueDarkGreen, DoorBlueDark),
         14 => White, _ => Neutral(CommonNeutral),
     };
+    /// <summary>Foreground.</summary>
     private static Bgr555 Foreground(int ink) => ink switch
     {
         >= 1 and <= 3 => Warm(ShipLight - ShadeStep * (ink - 1), GreenMaterialTint),
@@ -116,6 +122,7 @@ internal static class WreckedShipPowerPaintDefinitions
         12 => GreenMiddle, 13 => GreenHighlight, 14 => White,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Background.</summary>
     private static Bgr555 Background(int ink) => ink switch
     {
         1 => Subtract(GreenMiddle, BackgroundGreenReduction), 2 => GreenDark,
@@ -125,12 +132,14 @@ internal static class WreckedShipPowerPaintDefinitions
         12 => Rgb(RedIndicator, 0, 0), 13 => Rgb(GoldIndicatorRed, GoldIndicatorGreen, 0), 14 => White,
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
+    /// <summary>Gold.</summary>
     private static Bgr555 Gold(int shade)
     {
         int red = shade switch { 0 => 31, 1 => GoldMiddleRed, _ => GoldDarkRed };
         int green = GoldDarkGreen + (red - GoldDarkRed) * (GoldLightGreen - GoldDarkGreen) / (31 - GoldDarkRed);
         return Rgb(red, green, 0);
     }
+    /// <summary>Common metal.</summary>
     private static Bgr555 CommonMetal(int shade)
     {
         (int red, int green) = shade switch
@@ -140,13 +149,20 @@ internal static class WreckedShipPowerPaintDefinitions
         };
         return Rgb(red, green, green + (shade < 2 ? MetalLightBlueTint : MetalDarkBlueTint));
     }
+    /// <summary>Warm.</summary>
     private static Bgr555 Warm(int intensity, int greenTint = 0) =>
         Rgb(intensity, intensity + greenTint, Math.Max(WarmBlueFloor, intensity - WarmBlueSeparation));
+    /// <summary>Cool.</summary>
     private static Bgr555 Cool(int intensity) => Rgb(intensity, intensity, intensity + CoolBlueTint);
+    /// <summary>Subtract.</summary>
     private static Bgr555 Subtract(Bgr555 color, int amount) =>
         Rgb(Math.Max(0, (color.Red) - amount), Math.Max(0, (color.Green) - amount), Math.Max(0, (color.Blue) - amount));
+    /// <summary>Gets green dark.</summary>
     private static Bgr555 GreenDark => Rgb(GreenDarkRed, GreenDarkRed * 2, 0);
+    /// <summary>Neutral.</summary>
     private static Bgr555 Neutral(int intensity) => Rgb(intensity, intensity, intensity);
+    /// <summary>Gets white.</summary>
     private static Bgr555 White => Neutral(31);
+    /// <summary>Rgb.</summary>
     private static Bgr555 Rgb(int red, int green, int blue) => new Bgr555(red, green, blue);
 }

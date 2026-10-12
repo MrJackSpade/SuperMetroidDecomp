@@ -9,6 +9,7 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class MapPresentationJsonContractVerification
 {
+    /// <summary>Runs.</summary>
     internal static int Run(string installationRoot)
     {
         GameInstallation installation = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
@@ -100,9 +101,11 @@ internal static class MapPresentationJsonContractVerification
         }
     }
 
+    /// <summary>Hash files.</summary>
     private static Dictionary<string, string> HashFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
+    /// <summary>Rewrite hash.</summary>
     private static void RewriteHash(string path, byte[] baseline, string file, byte[] content)
     {
         var manifest = System.Text.Json.Nodes.JsonNode.Parse(baseline)!;
@@ -110,6 +113,7 @@ internal static class MapPresentationJsonContractVerification
         File.WriteAllText(path, manifest.ToJsonString());
     }
 
+    /// <summary>Duplicate documents.</summary>
     private static IEnumerable<byte[]> DuplicateDocuments(JsonElement root)
     {
         // Repeating a valid property is still ambiguous authored JSON. Before
@@ -120,6 +124,7 @@ internal static class MapPresentationJsonContractVerification
         if (nested is not null) yield return DuplicateAt(root, nested);
     }
 
+    /// <summary>First nested object.</summary>
     private static string[]? FirstNestedObject(JsonElement root, string[]? path = null)
     {
         path ??= [];
@@ -140,6 +145,7 @@ internal static class MapPresentationJsonContractVerification
         return null;
     }
 
+    /// <summary>Duplicate at.</summary>
     private static byte[] DuplicateAt(JsonElement root, string[] target)
     {
         using var bytes = new MemoryStream();
@@ -178,6 +184,7 @@ internal static class MapPresentationJsonContractVerification
         }
     }
 
+    /// <summary>Requires.</summary>
     private static void Require(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);

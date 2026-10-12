@@ -55,8 +55,10 @@ public enum WallSpacePirateClimbDirection : ushort
 /// </summary>
 public sealed class WallSpacePirateEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new wall space pirate enemy state instance.</summary>
     internal WallSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Bank-$B2 AI entry stored in slot variable A, initialized for the starting wall and replaced by instruction $B2:EF83 as attack, jump, and landing lists advance.</summary>

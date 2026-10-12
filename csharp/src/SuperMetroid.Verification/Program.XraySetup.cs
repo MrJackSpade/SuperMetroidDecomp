@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents xray setup verification.</summary>
 internal static class XraySetupVerification
 {
+    /// <summary>Verifies xray setup buffers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXraySetupBuffers()
     {
@@ -107,6 +109,7 @@ internal static class XraySetupVerification
         }
     }
 
+    /// <summary>Xray setup command.</summary>
     [VerificationCommand("--xray-setup")]
     internal static int XraySetupCommand()
     {

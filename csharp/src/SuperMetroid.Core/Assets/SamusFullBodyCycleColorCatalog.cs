@@ -32,15 +32,19 @@ namespace SuperMetroid.Core.Assets;
 /// This disposition covers only these full-body inputs, not other palettes.</remarks>
 public sealed class SamusFullBodyCycleColorCatalog
 {
+    /// <summary>Stores colors.</summary>
     private readonly Dictionary<int, Bgr555> colors;
     // Independent channel inputs for the seven remaining Speed Booster endpoints.
+    /// <summary>Stores power dim1.</summary>
     private readonly LoadingPaletteInputView.Channels powerDim1, powerDim2, powerBright9, powerDim12;
+    /// <summary>Stores varia bright10.</summary>
     private readonly LoadingPaletteInputView.Channels variaBright10, variaDim12, gravityDim2;
     /// <summary>Active-shinespark blue inputs at9C64/9C84 and9C50; Varia9E84 shares Power9C64.</summary>
     private readonly LoadingPaletteInputView.Channels activePowerMiddle2, activePowerBright2, activePowerDim8;
     /// <summary>Screw Attack endpoint components at9D14/9D1E/9F04.</summary>
     private readonly LoadingPaletteInputView.Channels screwPowerBright10, screwPowerBright15, screwVariaBright2;
 
+    /// <summary>Initializes a new samus full body cycle color catalog instance.</summary>
     private SamusFullBodyCycleColorCatalog(Bgr555[][] palettes)
     {
         colors = new Dictionary<int, Bgr555>();
@@ -118,6 +122,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -135,6 +140,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return ResolveIndex(index);
     }
 
+    /// <summary>resolve index.</summary>
     private Bgr555 ResolveIndex(int index)
     {
         switch (index)
@@ -180,6 +186,7 @@ public sealed class SamusFullBodyCycleColorCatalog
             ResolveIndex((palette / 16 * 16 + 4) * 16 + color), palette % 4);
     }
 
+    /// <summary>active gold expected.</summary>
     private Bgr555 ActiveGoldExpected(int palette)
     {
         _ = SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, 2,
@@ -187,6 +194,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return value;
     }
 
+    /// <summary>screw expected.</summary>
     private Bgr555 ScrewExpected(int palette, int color)
     {
         Bgr555 basis = ResolveIndex((palette / 16 * 16 + 12) * 16 + color);
@@ -240,6 +248,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         return bytes;
     }
 
+    /// <summary>add family.</summary>
     private static void AddFamily(Bgr555[][] destination,
         SamusFullBodyCycleFamily family, PaletteRgb5[][][]? source)
     {
@@ -274,6 +283,7 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
+    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate full-body color property {name}."));

@@ -20,13 +20,18 @@ internal readonly record struct EnemyProjectileDefinition(
 {
     /// <summary>The collision half-extents decoded from the packed radius word (X low byte, Y high byte).</summary>
     internal Extent16<RoomPixels> Radius => new(unchecked((byte)RadiusWord), SnesLittleEndian.HighByte(RadiusWord));
+    /// <summary>Gets damage.</summary>
     internal ushort Damage => unchecked((ushort)(Properties & 0x0fff));
+    /// <summary>Gets draw priority.</summary>
     internal EnemyProjectileDrawPriority DrawPriority =>
         (Properties & 0x1000) != 0
             ? EnemyProjectileDrawPriority.High
             : EnemyProjectileDrawPriority.Low;
+    /// <summary>Gets can damage samus.</summary>
     internal bool CanDamageSamus => (Properties & 0x2000) == 0;
+    /// <summary>Gets persists on samus contact.</summary>
     internal bool PersistsOnSamusContact => (Properties & 0x4000) != 0;
+    /// <summary>Gets blocks samus projectiles.</summary>
     internal bool BlocksSamusProjectiles => (Properties & 0x8000) != 0;
 }
 

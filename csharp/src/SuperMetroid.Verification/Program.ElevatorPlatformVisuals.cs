@@ -10,8 +10,10 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents elevator platform visuals verification.</summary>
 internal static class ElevatorPlatformVisualsVerification
 {
+    /// <summary>Verifies elevator platform visuals.</summary>
     internal static void VerifyElevatorPlatformVisuals()
     {
         RoomPlmElevatorPlatformVisualCatalog stock =
@@ -71,6 +73,7 @@ internal static class ElevatorPlatformVisualsVerification
         Suite(nameof(VerifyElevatorPlatformVisualInstallation), () => VerifyElevatorPlatformVisualInstallation());
     }
 
+    /// <summary>Verifies elevator platform visual installation.</summary>
     private static void VerifyElevatorPlatformVisualInstallation()
     {
         using var testRootScratch = new TestScratchDirectory("elevator-platform-visual");

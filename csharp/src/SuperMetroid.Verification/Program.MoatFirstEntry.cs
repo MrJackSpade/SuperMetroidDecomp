@@ -14,10 +14,12 @@ using SuperMetroid.Core.Runtime;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents moat first entry verification.</summary>
 internal static class MoatFirstEntryVerification
 {
     // #370 diagnostic: stage each reciprocal doorway, never preload the destination.
     // A completed transition is only fixture setup, not proof the water pixels are correct.
+    /// <summary>Verifies moat first entry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyMoatFirstEntry()
     {
@@ -111,6 +113,7 @@ internal static class MoatFirstEntryVerification
         }
     }
 
+    /// <summary>Moat first entry command.</summary>
     [VerificationCommand("--moat-first-entry")]
     internal static int MoatFirstEntryCommand()
     {

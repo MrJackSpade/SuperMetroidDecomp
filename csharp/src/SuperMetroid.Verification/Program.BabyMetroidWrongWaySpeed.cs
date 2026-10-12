@@ -12,12 +12,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BabyMetroidFixtureHeadVerification;
 
+/// <summary>Represents baby metroid wrong way speed verification.</summary>
 internal static class BabyMetroidWrongWaySpeedVerification
 {
     // #1269: the Baby's stare-down, fly-off and final-charge-staging legs call
     // $A9:F466, which stores a $10 wrong-way off-screen X extra before the accelerator.
     // The port passed zero, so in the 100% movie the off-screen Baby reversing toward X
     // $131 slowed by $0A instead of $1A ($015F -> $0145 natively).
+    /// <summary>Verifies baby metroid wrong way speed.</summary>
     internal static void VerifyBabyMetroidWrongWaySpeed()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -37,6 +39,7 @@ internal static class BabyMetroidWrongWaySpeedVerification
         Console.WriteLine("Baby Metroid wrong-way speed: $A9:F466 legs apply the $10 off-screen extra.");
     }
 
+    /// <summary>Baby metroid wrong way speed command.</summary>
     [VerificationCommand("--baby-metroid-wrong-way-speed")]
     internal static int BabyMetroidWrongWaySpeedCommand()
     {

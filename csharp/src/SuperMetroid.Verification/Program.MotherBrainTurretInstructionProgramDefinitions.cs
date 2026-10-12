@@ -14,12 +14,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents mother brain turret instruction program definitions verification.</summary>
 internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies mother brain turret instruction program definitions.</summary>
     internal static void VerifyMotherBrainTurretInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainTurretInstructionProgramDefinitions), () => VerifyMotherBrainTurretInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies mother brain turret instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain turret instruction program definitions")]
     internal static void VerifyMotherBrainTurretInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -193,6 +196,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probe mother brain turret instruction mechanics allocation.</summary>
     private static int ProbeMotherBrainTurretInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -206,6 +210,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New mother brain turret instruction read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainTurretInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MotherBrainTurretInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -213,6 +218,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Mother Brain turret mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, MotherBrainTurretInstructionProgramDefinitions.PresentationWordCount, MotherBrainTurretInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Mother brain turret instruction mechanics command.</summary>
     [VerificationCommand("--mother-brain-turret-instruction-mechanics")]
     internal static int MotherBrainTurretInstructionMechanicsCommand()
     {

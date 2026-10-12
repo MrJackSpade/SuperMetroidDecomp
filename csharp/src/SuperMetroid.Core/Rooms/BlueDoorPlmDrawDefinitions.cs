@@ -20,7 +20,9 @@ internal static class BlueDoorPlmDrawDefinitions
     /// <summary>One of twenty twelve-byte records at $84:A9A7..AA96.</summary>
     internal readonly record struct Draw(int Orientation, int Frame)
     {
+        /// <summary>Gets vertical.</summary>
         internal bool Vertical => Orientation < 2;
+        /// <summary>Gets direction and count.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
         /// <summary>
@@ -45,6 +47,7 @@ internal static class BlueDoorPlmDrawDefinitions
         }
     }
 
+    /// <summary>Tries to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         int offset = pointer - (LeftFrame0 - DrawListBytes);
@@ -67,6 +70,7 @@ internal static class BlueDoorPlmDrawDefinitions
             }
         }
     }
+    /// <summary>Visual source.</summary>
     internal static ushort VisualSource(ushort pointer) => pointer switch
     {
         LeftFrame0 - DrawListBytes => LeftFrame0,
@@ -77,6 +81,7 @@ internal static class BlueDoorPlmDrawDefinitions
     };
 
     // Temporary import/export DTOs; the runtime calculates cells directly.
+    /// <summary>Tries to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -87,6 +92,7 @@ internal static class BlueDoorPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -95,6 +101,7 @@ internal static class BlueDoorPlmDrawDefinitions
         return $"{direction}-frame-{Math.Max(draw.Frame, 0)}";
     }
 
+    /// <summary>Tries to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (var candidate in Editable)

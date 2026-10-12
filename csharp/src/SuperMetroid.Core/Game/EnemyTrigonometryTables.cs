@@ -100,6 +100,7 @@ public static class EnemyTrigonometryTables
     // 1e-19 covers that remainder, decimal rounding and the 28-place pi constant.
     // Full-domain ROM proofs establish both scales' exact integer results. This
     // allocation-free recurrence avoids libm and per-sample correction constants.
+    /// <summary>Unit half wave.</summary>
     internal static decimal UnitHalfWave(int index)
     {
         if ((uint)index >= 128) throw new IndexOutOfRangeException();

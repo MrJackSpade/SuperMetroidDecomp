@@ -14,8 +14,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using static EnemyDropsVerification;
 
+/// <summary>Represents evir death frame verification.</summary>
 internal static class EvirDeathFrameVerification
 {
+    /// <summary>Verifies evir death frame.</summary>
     internal static void VerifyEvirDeathFrame()
     {
         var samus = CreateDropTestSamus();
@@ -69,6 +71,7 @@ internal static class EvirDeathFrameVerification
         Console.WriteLine("Evir death frame: real contact kill, cleared-slot arm/spit reads, single death and next-frame removal confirmed.");
     }
 
+    /// <summary>Evir death frame command.</summary>
     [VerificationCommand("--evir-death-frame")]
     internal static int EvirDeathFrameCommand()
     {

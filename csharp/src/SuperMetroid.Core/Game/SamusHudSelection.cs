@@ -1,12 +1,14 @@
-﻿using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>One frame of HandleSwitchingHudSelection ($90:C4B5): HUD item cycling and availability.</summary>
 internal sealed class SamusHudSelection
 {
+    /// <summary>Stores samus.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Initializes a new samus hud selection instance.</summary>
     internal SamusHudSelection(SamusState owner)
     {
         _samus = owner;
@@ -78,6 +80,7 @@ internal sealed class SamusHudSelection
         return new HudSelectionOutcome(itemHandlerAccepted);
     }
 
+    /// <summary>Checks whether hud item available.</summary>
     private bool IsHudItemAvailable(ushort index) => index switch
     {
         0 => true,

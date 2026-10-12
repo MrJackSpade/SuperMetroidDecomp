@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable visible OAM composition of the intro caret, independent of its blink script.</summary>
 public sealed class IntroCaretSpritePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroCaretSpritePresentation), frames);
 
+    /// <summary>Initializes a new intro caret sprite presentation instance.</summary>
     private IntroCaretSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

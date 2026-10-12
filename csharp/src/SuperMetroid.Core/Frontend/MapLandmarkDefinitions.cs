@@ -33,8 +33,11 @@ public static class MapLandmarkDefinitions
     /// <summary>$82:C83B/C89D/C90B/C981/C9DB/CA9B are Crateria/Kraid/Ridley/Phantoon/Draygon/Ceres boss slots.</summary>
     public readonly struct BossSequence : IReadOnlyList<string?>
     {
+        /// <summary>Stores area.</summary>
         private readonly AreaId area;
+        /// <summary>Stores count.</summary>
         private readonly int count;
+        /// <summary>Initializes a new boss sequence instance.</summary>
         internal BossSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of native boss slots consumed by the area.</summary>
         public int Count => count;
@@ -67,6 +70,7 @@ public static class MapLandmarkDefinitions
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -77,8 +81,11 @@ public static class MapLandmarkDefinitions
     /// </summary>
     public readonly struct ElevatorSequence : IReadOnlyList<MapElevatorLabel>
     {
+        /// <summary>Stores area.</summary>
         private readonly AreaId area;
+        /// <summary>Stores count.</summary>
         private readonly int count;
+        /// <summary>Initializes a new elevator sequence instance.</summary>
         internal ElevatorSequence(AreaId area, int count) { this.area = area; this.count = count; }
         /// <summary>Gets the number of elevator label records for the area.</summary>
         public int Count => count;
@@ -109,6 +116,7 @@ public static class MapLandmarkDefinitions
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>$82:C759..C7CA use menu spritemaps $59..$5D for Crateria through Maridia labels.</summary>

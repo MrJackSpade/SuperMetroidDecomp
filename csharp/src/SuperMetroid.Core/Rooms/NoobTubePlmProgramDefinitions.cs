@@ -67,6 +67,7 @@ internal static class NoobTubePlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == BreakSoundAddress)
@@ -78,6 +79,7 @@ internal static class NoobTubePlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Indicates whether even step.</summary>
     private static bool IsEvenStep(ushort address, ushort first, ushort last) =>
         address >= first && address <= last && ((address - first) & 1) == 0;
 }

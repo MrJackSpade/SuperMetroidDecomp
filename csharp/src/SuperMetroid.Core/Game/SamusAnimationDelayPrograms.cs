@@ -40,8 +40,10 @@ internal enum SamusAnimationCommand : byte
 /// <remarks>Command operands are semantic: back distances derive from the repeat target and pose bytes are pose identities.</remarks>
 internal sealed class SamusAnimationSegment
 {
+    /// <summary>Stores delays.</summary>
     private readonly byte[] delays;
 
+    /// <summary>Initializes a new samus animation segment instance.</summary>
     internal SamusAnimationSegment(ushort address, byte[] delays, SamusAnimationCommand command, SamusAnimationTransition transition)
     {
         WordPose = transition.WordPose;
@@ -56,7 +58,9 @@ internal sealed class SamusAnimationSegment
         EquippedAirborne = transition.EquippedAirborne;
     }
 
+    /// <summary>Gets address.</summary>
     internal ushort Address { get; }
+    /// <summary>Gets command.</summary>
     internal SamusAnimationCommand Command { get; }
 
     /// <summary>Address of the frame selected by <see cref="SamusAnimationCommand.RepeatFrom"/>.</summary>
@@ -67,8 +71,11 @@ internal sealed class SamusAnimationSegment
 
     /// <summary>Pose for an unequipped item at rest, and the only pose of <c>$F8</c>/<c>$FD</c>.</summary>
     internal SamusPoseId UnequippedGrounded { get; }
+    /// <summary>Gets unequipped airborne.</summary>
     internal SamusPoseId UnequippedAirborne { get; }
+    /// <summary>Gets equipped grounded.</summary>
     internal SamusPoseId EquippedGrounded { get; }
+    /// <summary>Gets equipped airborne.</summary>
     internal SamusPoseId EquippedAirborne { get; }
 
     /// <summary>
@@ -77,8 +84,10 @@ internal sealed class SamusAnimationSegment
     /// </summary>
     internal bool WordPose { get; }
 
+    /// <summary>Gets command address.</summary>
     internal ushort CommandAddress => (ushort)(Address + delays.Length);
 
+    /// <summary>Gets length.</summary>
     internal int Length => delays.Length + 1 + Command switch
     {
         SamusAnimationCommand.Transition => WordPose ? 2 : 1,
@@ -138,6 +147,7 @@ internal static class SamusAnimationDelayPrograms
 {
     // Native segments are contiguous from $91:B20A: each starts where the previous one ends,
     // so start addresses are laid out from the stream start rather than stored.
+    /// <summary>Stores segments.</summary>
     private static readonly SamusAnimationSegment[] segments = Layout(
         SnesLittleEndian.LowWord(SamusAnimationDelayDefinitions.DelayStreamsAddress),
     [
@@ -306,6 +316,7 @@ internal static class SamusAnimationDelayPrograms
     /// <summary>Builds one segment at its laid-out address; <c>earlier</c> holds the preceding segments.</summary>
     private delegate SamusAnimationSegment Placement(ushort address, IReadOnlyList<SamusAnimationSegment> earlier);
 
+    /// <summary>Layout.</summary>
     private static SamusAnimationSegment[] Layout(ushort start, Placement[] placements)
     {
         var laidOut = new List<SamusAnimationSegment>(placements.Length);
@@ -319,6 +330,7 @@ internal static class SamusAnimationDelayPrograms
         return [.. laidOut];
     }
 
+    /// <summary>Repeat.</summary>
     private static byte[] Repeat(byte delay, int count)
     {
         byte[] run = new byte[count];
@@ -326,22 +338,27 @@ internal static class SamusAnimationDelayPrograms
         return run;
     }
 
+    /// <summary>Loop.</summary>
     private static Placement Loop(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Loop, new SamusAnimationTransition());
 
+    /// <summary>Hold.</summary>
     private static Placement Hold(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Hold, new SamusAnimationTransition());
 
+    /// <summary>Loop unless low energy.</summary>
     private static Placement LoopUnlessLowEnergy(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.LoopUnlessLowEnergy, new SamusAnimationTransition());
 
+    /// <summary>Install drained fall.</summary>
     private static Placement InstallDrainedFall(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.InstallDrainedFall, new SamusAnimationTransition());
 
+    /// <summary>Wall jump select.</summary>
     private static Placement WallJumpSelect(byte[] delays) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.WallJumpSelect, new SamusAnimationTransition());
@@ -356,10 +373,12 @@ internal static class SamusAnimationDelayPrograms
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.RepeatFrom, new SamusAnimationTransition { RepeatTarget = (ushort)(earlier[^segmentsBack].Address + frame) });
 
+    /// <summary>Turns transition.</summary>
     private static Placement TurnTransition(byte[] delays, SamusPoseId pose) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.TurnTransition, new SamusAnimationTransition { UnequippedGrounded = pose });
 
+    /// <summary>Transition.</summary>
     private static Placement Transition(byte[] delays, SamusPoseId pose) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Transition, new SamusAnimationTransition { UnequippedGrounded = pose });
@@ -369,11 +388,13 @@ internal static class SamusAnimationDelayPrograms
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.Transition, new SamusAnimationTransition { UnequippedGrounded = pose, WordPose = true });
 
+    /// <summary>Item transition.</summary>
     private static Placement ItemTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequipped, SamusPoseId equipped) =>
         (address, earlier) =>
             new(address, delays, SamusAnimationCommand.ItemTransition, new SamusAnimationTransition { Item = item, UnequippedGrounded = unequipped, EquippedGrounded = equipped });
 
+    /// <summary>Item airborne transition.</summary>
     private static Placement ItemAirborneTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequippedGrounded, SamusPoseId unequippedAirborne,
         SamusPoseId equippedGrounded, SamusPoseId equippedAirborne) =>

@@ -41,6 +41,7 @@ public static class CreditsPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>read native rows.</summary>
     internal static ushort[][] ReadNativeRows(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);
@@ -110,6 +111,7 @@ public static class CreditsPresentationExtractor
         throw new InvalidDataException("Native credits did not terminate within the bounded operation count.");
     }
 
+    /// <summary>decode line.</summary>
     private static CreditsLineDocument DecodeLine(
         ushort[][] rows, ref int rowIndex, CreditsLineDefinition definition)
     {
@@ -162,6 +164,7 @@ public static class CreditsPresentationExtractor
         };
     }
 
+    /// <summary>require blank column.</summary>
     private static void RequireBlankColumn(
         ushort[] top, ushort[]? bottom, int column, string identity)
     {
@@ -172,6 +175,7 @@ public static class CreditsPresentationExtractor
         }
     }
 
+    /// <summary>require blank rows.</summary>
     private static void RequireBlankRows(ushort[][] rows, int start, int count, string identity)
     {
         if (start + count > rows.Length)
@@ -184,14 +188,17 @@ public static class CreditsPresentationExtractor
         }
     }
 
+    /// <summary>is blank.</summary>
     private static bool IsBlank(ushort word) =>
         (word & 0x03ff) == CreditsPresentationDefinitions.BlankWord;
 
+    /// <summary>read word.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         RomDataReader.ReadWordFixedBank(
             CartridgeImportSource.Require(bus),
             new SnesAddress(CreditsPresentationDefinitions.Native.InstructionBank, pointer));
 
+    /// <summary>add.</summary>
     private static ushort Add(ushort pointer, int bytes) =>
         unchecked((ushort)(pointer + bytes));
 }

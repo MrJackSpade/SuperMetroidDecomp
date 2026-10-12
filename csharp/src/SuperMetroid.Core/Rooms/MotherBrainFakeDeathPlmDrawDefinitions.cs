@@ -57,12 +57,15 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// <summary><c>$84:9717</c>: first byte of the following glass draw region.</summary>
     internal const ushort EndExclusive = 0x9717;
 
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         BoundaryDraws().Concat(BackgroundDraws()).Concat(RegularDraws());
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) => VisualId(
         ClosedNativeWords.Decode<MotherBrainFakeDeathDraw>(pointer, "Mother Brain fake-death draw with a visual ID"));
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(MotherBrainFakeDeathDraw pointer) => pointer switch
     {
         MotherBrainFakeDeathDraw.FillWall => "fill-wall",
@@ -90,6 +93,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined MotherBrainFakeDeathDraw {pointer}."),
     };
 
+    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
@@ -114,17 +118,21 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// </summary>
     internal readonly record struct RegularDraw(MotherBrainFakeDeathDraw Pointer, int RunLength, int RunCount, bool Ceiling, bool Fill, int Side)
     {
+        /// <summary>Count.</summary>
         internal int Count(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return Side != 0 && run == 1 ? 1 : RunLength;
         }
+        /// <summary>Vertical.</summary>
         internal bool Vertical(int run) => !Fill && !(Side != 0 && run == 1);
+        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             Count(run);
             return run + 1 == RunCount ? (sbyte)0 : (sbyte)(Side == 0 ? 1 : Side);
         }
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int block)
         {
             int count = Count(run);
@@ -136,6 +144,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to describe regular.</summary>
     internal static bool TryDescribeRegular(ushort pointer, out RegularDraw draw)
     {
         draw = default;
@@ -166,6 +175,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to get regular.</summary>
     private static bool TryGetRegular(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -181,6 +191,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Regular draws.</summary>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> RegularDraws()
     {
         // Each next record follows its counts, cells and two-byte continuation pairs.
@@ -224,6 +235,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// </summary>
     internal readonly record struct BackgroundDraw(int Row)
     {
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int column)
         {
             if ((uint)column >= 13) throw new IndexOutOfRangeException();
@@ -231,6 +243,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to describe background.</summary>
     internal static bool TryDescribeBackground(ushort pointer, out BackgroundDraw draw)
     {
         int offset = pointer - (int)MotherBrainFakeDeathDraw.BackgroundRow2;
@@ -239,6 +252,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Attempts to get background.</summary>
     private static bool TryGetBackground(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -249,6 +263,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Background draws.</summary>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BackgroundDraws()
     {
         for (int pointer = (int)MotherBrainFakeDeathDraw.BackgroundRow2;
@@ -271,6 +286,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     private const ushort DoorLowerInterior = 0x1d0;
 
     // Called only after validating the two-column/four-row door domain.
+    /// <summary>Escape door visual at.</summary>
     private static ushort EscapeDoorVisualAt(int column, int row) => row switch
     {
         0 => (ushort)(DoorUpperEdgeLeft + column),
@@ -288,21 +304,25 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// </summary>
     internal readonly record struct BoundaryDraw(MotherBrainFakeDeathDraw Pointer)
     {
+        /// <summary>Count.</summary>
         internal int Count(int run)
         {
             if ((uint)run >= 2) throw new IndexOutOfRangeException();
             return Pointer == MotherBrainFakeDeathDraw.EscapeDoor ? 4 : 2 - run;
         }
+        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             Count(run);
             return Pointer == MotherBrainFakeDeathDraw.EscapeDoor && run == 0 ? (sbyte)1 : (sbyte)0;
         }
+        /// <summary>Next y.</summary>
         internal sbyte NextY(int run)
         {
             Count(run);
             return Pointer == MotherBrainFakeDeathDraw.FillWall && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)block >= Count(run)) throw new IndexOutOfRangeException();
@@ -314,6 +334,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to describe boundary.</summary>
     internal static bool TryDescribeBoundary(ushort pointer, out BoundaryDraw draw)
     {
         draw = default;
@@ -325,6 +346,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Attempts to get boundary.</summary>
     private static bool TryGetBoundary(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -340,6 +362,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Boundary draws.</summary>
     private static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> BoundaryDraws()
     {
         TryGetBoundary((ushort)MotherBrainFakeDeathDraw.FillWall, out var wall);

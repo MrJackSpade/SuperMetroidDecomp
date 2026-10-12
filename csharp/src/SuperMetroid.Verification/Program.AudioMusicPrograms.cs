@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 using static AudioInstrumentsVerification;
 
+/// <summary>Represents audio music programs verification.</summary>
 internal static class AudioMusicProgramsVerification
 {
+    /// <summary>Verifies editable music programs.</summary>
     [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
     internal static void VerifyEditableMusicPrograms()
     {
@@ -207,6 +209,7 @@ internal static class AudioMusicProgramsVerification
             $"{instructionCount} instructions, exact stock bytes, live audible note edit and strict failures pass.");
     }
 
+    /// <summary>Audio music programs command.</summary>
     [VerificationCommand("--audio-music-programs")]
     internal static int AudioMusicProgramsCommand()
     {

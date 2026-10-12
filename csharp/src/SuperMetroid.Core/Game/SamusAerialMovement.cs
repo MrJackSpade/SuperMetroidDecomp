@@ -570,6 +570,7 @@ public static class SamusAerialMovement
         return result;
     }
 
+    /// <summary>move normal aerial x.</summary>
     private static BlockMoveResult MoveNormalAerialX(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -608,6 +609,7 @@ public static class SamusAerialMovement
         return horizontal;
     }
 
+    /// <summary>finish vertical movement.</summary>
     private static AerialMovementResult FinishVerticalMovement(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -698,6 +700,7 @@ public static class SamusAerialMovement
         return vertical;
     }
 
+    /// <summary>apply variable jump cutoff.</summary>
     private static void ApplyVariableJumpCutoff(
         SamusKinematicsState state,
         ushort controllerInput)
@@ -715,6 +718,7 @@ public static class SamusAerialMovement
         }
     }
 
+    /// <summary>is forward held.</summary>
     private static bool IsForwardHeld(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -830,6 +834,7 @@ public static class SamusAerialMovement
         return true;
     }
 
+    /// <summary>clear base horizontal motion.</summary>
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
         speed.BaseSpeed = 0;
@@ -837,6 +842,7 @@ public static class SamusAerialMovement
         speed.AccelerationMode = 0;
     }
 
+    /// <summary>validate common.</summary>
     private static void ValidateCommon(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -847,6 +853,7 @@ public static class SamusAerialMovement
         Ensure.NotNull(samus);
     }
 
+    /// <summary>set vertical speed.</summary>
     private static void SetVerticalSpeed(SamusKinematicsState state, uint speed)
     {
         state.YSpeed = unchecked((ushort)(SnesSixteenSixteen.WholeOf(speed)));
@@ -863,6 +870,7 @@ public readonly record struct AerialMovementResult(
     bool WallContact = false,
     ushort WallDistance = 0);
 
+/// <summary>Represents wall jump check result.</summary>
 internal readonly record struct WallJumpCheckResult(
     bool Triggered,
     bool Contact,

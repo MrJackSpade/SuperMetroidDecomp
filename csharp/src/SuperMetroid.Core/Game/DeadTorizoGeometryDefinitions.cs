@@ -12,10 +12,14 @@ internal readonly record struct DeadTorizoGraphicsCopy(int SourceOffset, int Des
 /// </summary>
 internal static class DeadTorizoGeometryDefinitions
 {
+    /// <summary>Defines tile bytes.</summary>
     private const int TileBytes = 32, TilePixels = 8;
+    /// <summary>Gets rows.</summary>
     internal static int Rows => Bounds.Bottom - Bounds.Top;
+    /// <summary>Gets columns.</summary>
     internal static int Columns => Bounds.Right - Bounds.Left;
 
+    /// <summary>Gets or sets bounds.</summary>
     private static (int Left, int Top, int Right, int Bottom) Bounds
     {
         get
@@ -31,6 +35,7 @@ internal static class DeadTorizoGeometryDefinitions
         }
     }
 
+    /// <summary>Source part.</summary>
     private static (int X, int Y, int Extent) SourcePart(int index)
     {
         DeadTorizoStockPart part = DeadTorizoStationaryCompositionDefinitions.Part(index);
@@ -39,7 +44,7 @@ internal static class DeadTorizoGeometryDefinitions
             tile / DeadTorizoStationaryCompositionDefinitions.SourceColumns, part.TileExtent);
     }
 
-    /// <summary>Calculate each native MVN's source, destination and length from the stock sprite tile union.</summary>
+    /// <summary>Calculates each native MVN's source, destination and length from the stock sprite tile union.</summary>
     internal static DeadTorizoGraphicsCopy InitialCopy(int row)
     {
         var bounds = Bounds;

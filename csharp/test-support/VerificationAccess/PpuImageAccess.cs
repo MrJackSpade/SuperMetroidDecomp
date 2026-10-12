@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 /// <summary>Whole-image comparisons of PPU state that only verification performs (#630).</summary>
 internal static class PpuImageAccess
 {
+    /// <summary>Provides extension members for <c>OamBuffer</c>.</summary>
     extension(OamBuffer self)
     {
         /// <summary>Whether this OAM holds exactly the same low and high tables as <paramref name="other"/>.</summary>
@@ -11,6 +12,7 @@ internal static class PpuImageAccess
             self.LowTable.SequenceEqual(other.LowTable) && self.HighTable.SequenceEqual(other.HighTable);
     }
 
+    /// <summary>Provides extension members for <c>SnesVram</c>.</summary>
     extension(SnesVram self)
     {
         /// <summary>Whether this VRAM holds exactly the same 64 KiB image as <paramref name="other"/>.</summary>
@@ -18,6 +20,7 @@ internal static class PpuImageAccess
         internal bool ImageEquals(SnesVram other) => self.Bytes.SequenceEqual(other.Bytes);
     }
 
+    /// <summary>Provides extension members for <c>CgramPalettes</c>.</summary>
     extension(CgramPalettes self)
     {
         /// <summary>Whether this CGRAM holds exactly the same 256-colour image as <paramref name="other"/>.</summary>

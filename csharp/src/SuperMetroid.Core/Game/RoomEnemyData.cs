@@ -112,6 +112,7 @@ public readonly record struct RoomEnemySpawnSnapshot(
 /// </summary>
 public sealed class RoomEnemySlot
 {
+    /// <summary>Initializes a new room enemy slot instance.</summary>
     internal RoomEnemySlot(int slotIndex)
     {
         SlotIndex = slotIndex;
@@ -190,6 +191,7 @@ public sealed class RoomEnemySlot
     /// <summary>Native spawn-data graphical offset, added to the live whole position before camera subtraction.</summary>
     public Offset16<RoomPixels> SpawnOffset { get; internal set; }
 
+    /// <summary>Clear.</summary>
     internal void Clear()
     {
         EnemyDefinitionPointer = 0;

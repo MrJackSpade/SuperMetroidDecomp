@@ -10,6 +10,7 @@ internal static class CrateriaLightningColorDefinitions
     internal static CrateriaLightningPaletteFxProgramDefinition SurfaceProgram =>
         CrateriaLightningPaletteFxProgramMechanicsDefinitions.All[0];
 
+    /// <summary>Attempts to resolve coordinates.</summary>
     internal static bool TryCoordinates(ushort pointer, out int frame, out int color)
     {
         var program = SurfaceProgram;
@@ -47,6 +48,7 @@ internal static class CrateriaLightningColorDefinitions
     internal static CrateriaLightningPaletteFxProgramDefinition DarkProgram =>
         CrateriaLightningPaletteFxProgramMechanicsDefinitions.All[1];
 
+    /// <summary>Attempts to resolve dark coordinates.</summary>
     internal static bool TryDarkCoordinates(ushort pointer, out int frame, out int color)
     {
         var program = DarkProgram;

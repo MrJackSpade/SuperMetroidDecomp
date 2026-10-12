@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(ZoaInstructionProgramDefinitions))]
 internal abstract class ZoaInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 26;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 12;
     /// <summary>Enumerates the thirteen mechanics words per facing in native address order.
     /// Shooting has three callback/timer pairs and a loop pair; rising has three
@@ -31,6 +33,7 @@ internal abstract class ZoaInstructionProgramDefinitionsTooling : IInstructionPr
         int frame = index % 6;
         return (ushort)(start + (frame < 3 ? 4 + 6 * frame : 24 + 4 * (frame - 3)));
     }
+    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;

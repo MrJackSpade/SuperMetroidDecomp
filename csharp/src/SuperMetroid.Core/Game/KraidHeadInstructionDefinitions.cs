@@ -81,6 +81,7 @@ internal static class KraidHeadInstructionDefinitions
         return OpeningCommand(DeathInitial, index - 22, true, DeathEntryTimer, 64);
     }
 
+    /// <summary>Opening command.</summary>
     private static KraidHeadInstructionDefinition OpeningCommand(
         ushort start, int step, bool death, ushort frameTimer, ushort openTimer)
     {
@@ -95,6 +96,7 @@ internal static class KraidHeadInstructionDefinitions
         return MouthFrame(pointer, stage == 3 ? openTimer : frameTimer, stage);
     }
 
+    /// <summary>Mouth frame.</summary>
     private static KraidHeadInstructionDefinition MouthFrame(ushort pointer, ushort duration, int stage) =>
         Frame(pointer, duration, (ushort)(ClosedMouthTilemap + 0x300 * stage),
             (ushort)(VulnerableHitboxStart + 8 * stage),
@@ -184,6 +186,7 @@ internal static class KraidHeadInstructionDefinitions
             _ => new(0x96f4, 64),
         };
 
+    /// <summary>Frame.</summary>
     private static KraidHeadInstructionDefinition Frame(
         ushort pointer,
         ushort duration,
@@ -193,15 +196,18 @@ internal static class KraidHeadInstructionDefinitions
         new(pointer, KraidHeadInstructionKind.Frame, duration, tilemap,
             vulnerableHitbox, invulnerableHitbox, 0);
 
+    /// <summary>Sound.</summary>
     private static KraidHeadInstructionDefinition Sound(
         ushort pointer,
         KraidHeadInstructionKind kind,
         ushort soundId) =>
         new(pointer, kind, 0, 0, 0, 0, soundId);
 
+    /// <summary>End.</summary>
     private static KraidHeadInstructionDefinition End(ushort pointer) =>
         new(pointer, KraidHeadInstructionKind.Terminate, 0, 0, 0, 0, 0);
 
+    /// <summary>Reads live byte.</summary>
     private static byte ReadLiveByte(ISnesAddressSpace bus, ushort pointer)
     {
         // Bank $A7's low system window mirrors WRAM, not cartridge data.
@@ -220,9 +226,13 @@ internal static class KraidHeadInstructionDefinitions
 /// <summary>Mutually exclusive command forms used by Kraid's private head interpreter.</summary>
 internal enum KraidHeadInstructionKind
 {
+    /// <summary>Identifies frame.</summary>
     Frame,
+    /// <summary>Identifies roar sound.</summary>
     RoarSound,
+    /// <summary>Identifies dying sound.</summary>
     DyingSound,
+    /// <summary>Identifies terminate.</summary>
     Terminate,
 }
 
@@ -242,18 +252,25 @@ internal readonly record struct KraidHeadResumeDefinition(ushort Pointer, ushort
 /// <summary>Calculated native head commands with no stored lookup or startup cache.</summary>
 internal readonly record struct KraidHeadCommandSequence(int Length)
 {
+    /// <summary>Gets an indexed value.</summary>
     public KraidHeadInstructionDefinition this[int index] => KraidHeadInstructionDefinitions.Command(index);
+    /// <summary>To array.</summary>
     public KraidHeadInstructionDefinition[] ToArray()
     {
         var result = new KraidHeadInstructionDefinition[Length];
         for (int index = 0; index < result.Length; index++) result[index] = this[index];
         return result;
     }
+    /// <summary>Returns an enumerator over this sequence.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Represents enumerator.</summary>
     public struct Enumerator(KraidHeadCommandSequence sequence)
     {
+        /// <summary>Stores next.</summary>
         private int next;
+        /// <summary>Moves next.</summary>
         public bool MoveNext() => next++ < sequence.Length;
+        /// <summary>Gets current.</summary>
         public KraidHeadInstructionDefinition Current => KraidHeadInstructionDefinitions.Command(next - 1);
     }
 }

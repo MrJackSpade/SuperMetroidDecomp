@@ -12,7 +12,9 @@ internal readonly record struct CeresEscapeOverlayTilemapDefinition(
 /// <summary>Native identity and queue geometry for the English and Japanese Ceres overlays.</summary>
 internal static class CeresEscapeOverlayTilemapDefinitions
 {
+    /// <summary>Stores version.</summary>
     internal const int Version = 1;
+    /// <summary>Stores file name.</summary>
     internal const string FileName = "ceres-escape-overlay-tilemaps.json";
 
     /// <summary>English EMERGENCY title tilemap at $A6:C164.</summary>
@@ -41,9 +43,13 @@ internal static class CeresEscapeOverlayTilemapDefinitions
     // Authored warning wording and font ordering are categorical typography content.
     // The selected two-half packing, foreground priority and Japanese palette role
     // preserve that composition; glyph pixels and RGB paint remain separate obligations.
+    /// <summary>Stores emergency text.</summary>
     private const string EmergencyText = "EMERGENCY";
+    /// <summary>Stores japanese first line.</summary>
     private const string JapaneseFirstLine = "自爆装置が、作動しました";
+    /// <summary>Stores japanese second line.</summary>
     private const string JapaneseSecondLine = "ただちに脱出して下さい";
+    /// <summary>Stores japanese glyphs.</summary>
     private const string JapaneseGlyphs = "自爆装置が、作動まただちに脱出して下さい";
     /// <summary>$A6:C164 selects the Latin atlas beginning with A at BG tile $182.</summary>
     private const int LatinFirstTile = CeresEscapeVramTransferDefinitions.WarningBackgroundDestination / (8 * 8 * 4 / 16);
@@ -52,12 +58,15 @@ internal static class CeresEscapeOverlayTilemapDefinitions
         JapaneseLowerTile = JapaneseUpperTile + MainGlyphCount;
     /// <summary>$A6:C432..C438 selects the final four upper halves packed before the first sixteen at BG $19C..19F.</summary>
     private const int JapaneseTrailingUpperTile = LatinFirstTile + ('Z' - 'A' + 1);
+    /// <summary>Stores main glyph count.</summary>
     private const int MainGlyphCount = 16;
     /// <summary>$A6:C164 and C3F4 use priority plus BG palettes six and seven respectively.</summary>
     private const int Priority = 1 << 13;
+    /// <summary>Stores english style.</summary>
     private const int EnglishStyle = Priority | (CeresRidleyPaletteRomData.AlarmCgramIndex / 16) << 10,
         JapaneseStyle = Priority | 7 << 10;
 
+    /// <summary>Stock word.</summary>
     internal static ushort StockWord(CeresEscapeOverlayTilemapDefinition page, int index)
     {
         if ((uint)index >= page.WordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -73,12 +82,17 @@ internal static class CeresEscapeOverlayTilemapDefinitions
             ? JapaneseUpperTile + glyph : JapaneseTrailingUpperTile + glyph - MainGlyphCount;
         return (ushort)(JapaneseStyle | tile);
     }
+    /// <summary>Gets all.</summary>
     internal static PageSequence All => default;
 
+    /// <summary>Represents page sequence.</summary>
     internal readonly struct PageSequence : IReadOnlyList<CeresEscapeOverlayTilemapDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 5;
+        /// <summary>Gets length.</summary>
         public int Length => Count;
+        /// <summary>Gets an indexed value.</summary>
         public CeresEscapeOverlayTilemapDefinition this[int index] => index switch
         {
             0 => Emergency,
@@ -88,10 +102,12 @@ internal static class CeresEscapeOverlayTilemapDefinitions
             4 => JapaneseFourth,
             _ => throw new IndexOutOfRangeException(),
         };
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<CeresEscapeOverlayTilemapDefinition> GetEnumerator()
         {
             for (int i = 0; i < Count; i++) yield return this[i];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -99,7 +115,9 @@ internal static class CeresEscapeOverlayTilemapDefinitions
 /// <summary>Human-readable visual tile words; DMA timing and destinations are not editable.</summary>
 internal sealed record CeresEscapeOverlayTilemapDocument
 {
+    /// <summary>Gets or sets version.</summary>
     public int Version { get; init; }
+    /// <summary>Gets or sets pages.</summary>
     public required Dictionary<string, ushort[]> Pages { get; init; }
 }
 
@@ -117,9 +135,12 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         }
     });
 
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, ushort> edits;
+    /// <summary>Initializes a new ceres escape overlay tilemap catalog instance.</summary>
     private CeresEscapeOverlayTilemapCatalog(Dictionary<int, ushort> edits) => this.edits = edits;
 
+    /// <summary>Transfers.</summary>
     private byte[] Transfer(CeresEscapeOverlayTilemapDefinition page)
     {
         // Ephemeral contiguous DMA/hash output, not a retained lookup definition.
@@ -132,6 +153,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         }
         return bytes;
     }
+    /// <summary>Loads.</summary>
     internal static CeresEscapeOverlayTilemapCatalog Load(Stream json)
     {
         Ensure.NotNull(json);
@@ -140,12 +162,14 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         return new(Compile(document));
     }
 
+    /// <summary>Writes.</summary>
     internal static byte[] Write(CeresEscapeOverlayTilemapDocument document)
     {
         _ = Compile(document);
         return JsonSerializer.SerializeToUtf8Bytes(document, Options);
     }
 
+    /// <summary>Attempts to resolve.</summary>
     internal bool TryResolve(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
@@ -159,6 +183,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         return false;
     }
 
+    /// <summary>Compile.</summary>
     private static Dictionary<int, ushort> Compile(
         CeresEscapeOverlayTilemapDocument document)
     {
@@ -188,6 +213,7 @@ public sealed class CeresEscapeOverlayTilemapCatalog
         return compiled;
     }
 
+    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

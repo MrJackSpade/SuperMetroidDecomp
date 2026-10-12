@@ -13,9 +13,11 @@ internal static class CatalogFields
         [.. SuperMetroid.Tooling.ToolingTypes.WithAdapter(catalog).SelectMany(type => type.GetFields(flags)),
          .. Companion(catalog)?.GetFields(flags) ?? []];
 
+    /// <summary>companion.</summary>
     private static Type? Companion(Type catalog) =>
         typeof(CatalogFields).Assembly.GetType(FlatName(catalog) + "Constants");
 
+    /// <summary>flat name.</summary>
     private static string FlatName(Type type) =>
         type.DeclaringType is { } outer ? FlatName(outer) + type.Name : type.Name;
 }

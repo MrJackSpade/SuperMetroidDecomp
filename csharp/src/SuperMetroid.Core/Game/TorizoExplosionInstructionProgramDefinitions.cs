@@ -18,6 +18,7 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions
     // repetition counts are authored scatter choices for the effect; program geometry calculates.
     /// <summary>Small and large explosion pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private static readonly ushort[] SmallExplosionHolds = [2, 2, 3, 3, 2];
+    /// <summary>Stores large explosion holds.</summary>
     private static readonly ushort[] LargeExplosionHolds = [4, 6, 5, 5, 5, 6];
     /// <summary>$86:A3CF/A3FE: common property mask applied by both explosion initializers.</summary>
     private const ushort ExplosionPropertyMask = 0x3000;
@@ -30,15 +31,20 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions
     /// <summary>$86:A43B: smoke packed vertical bias and random mask.</summary>
     private const ushort SmokeVerticalSpread = 0x043f;
 
-    private enum ExplosionPhase { LowHealth, LargeDeath, DeathSmoke }
+    /// <summary>Represents explosion phase.</summary>
+    private enum ExplosionPhase { /** <summary>Identifies low health.</summary> */ LowHealth, /** <summary>Identifies large death.</summary> */ LargeDeath, /** <summary>Identifies death smoke.</summary> */ DeathSmoke }
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 53;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 15;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
         return BuildLayout(index, false).Selected;
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -59,6 +65,7 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions
         return layout;
     }
 
+    /// <summary>Builds explosion.</summary>
     private static void BuildExplosion(ref Layout layout, ExplosionPhase phase)
     {
         bool small = phase == ExplosionPhase.LowHealth;
@@ -85,17 +92,24 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions
         layout.Word((ushort)EnemyProjectileInstruction.Delete);
     }
 
+    /// <summary>Represents layout.</summary>
     private struct Layout(int target, bool presentation)
     {
+        /// <summary>Stores remaining.</summary>
         private int remaining = target;
+        /// <summary>Stores address.</summary>
         internal ushort Address;
+        /// <summary>Stores selected.</summary>
         internal InstructionMechanicsWord Selected;
+        /// <summary>Word.</summary>
         internal void Word(ushort value)
         {
             if (!presentation && remaining-- == 0) Selected = new(Address, value);
             Address += 2;
         }
+        /// <summary>Command.</summary>
         internal void Command(ushort instruction, ushort operand) { Word(instruction); Word(operand); }
+        /// <summary>Pose.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
@@ -103,10 +117,12 @@ internal abstract class TorizoExplosionInstructionProgramDefinitions
             Address += 2;
         }
     }
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
         RoomEnemyProjectileKind.BombTorizoDeathExplosion;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

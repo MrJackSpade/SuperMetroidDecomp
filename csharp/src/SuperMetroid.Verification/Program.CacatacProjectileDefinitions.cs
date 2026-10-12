@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents cacatac projectile definitions verification.</summary>
 internal static class CacatacProjectileDefinitionsVerification
 {
+    /// <summary>Verifies cacatac projectile definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac projectile definitions")]
     internal static void VerifyCacatacProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -62,6 +64,7 @@ internal static class CacatacProjectileDefinitionsVerification
             "Cacatac spike definitions: ten native selectors, speed pairs and production spawns pass with selector reads forbidden.");
     }
 
+    /// <summary>Creates cacatac projectile read guard.</summary>
     private static CartridgeReadGuard NewCacatacProjectileReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86d96a and < 0x86d97e,

@@ -17,6 +17,7 @@ internal static class DoorScrollPrograms
 
     // A null target probes callback ownership without performing writes.
     // The same named cases own both recognition and execution.
+    /// <summary>dispatch.</summary>
     private static bool Dispatch(DoorSetupCode pointer, RoomScrollGrid? scrolls)
     {
         switch (pointer)
@@ -328,7 +329,10 @@ internal static class DoorScrollPrograms
         }
     }
 
+    /// <summary>red.</summary>
     private static void Red(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.RedBoundary);
+    /// <summary>blue.</summary>
     private static void Blue(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.Blue);
+    /// <summary>green.</summary>
     private static void Green(RoomScrollGrid? scrolls, byte index) => scrolls?.SetStorage(index, RoomScrollState.Green);
 }

@@ -3,7 +3,7 @@ using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>Mutually exclusive native Tourian statue palette payload domains.</summary>
-internal enum TourianStatuePaintBand { Base, Statue, Eye, Grey }
+internal enum TourianStatuePaintBand { /** <summary>Identifies base.</summary> */ Base, /** <summary>Identifies statue.</summary> */ Statue, /** <summary>Identifies eye.</summary> */ Eye, /** <summary>Identifies grey.</summary> */ Grey }
 
 /// <summary>
 /// Selected decoration, gold statue, boss-eye and released cool-stone paints.
@@ -16,6 +16,7 @@ internal static class TourianStatuePaintDefinitions
 {
     /// <summary>Native copied transparent-slot word at $AA:D765/D785 and $87:839C.</summary>
     private static readonly Bgr555 TransparentSlotPayload = Bgr555.FromWord(0x3800);
+    /// <summary>Stores max.</summary>
     private const int Max = 31;
     /// <summary>$AA:D787: olive base highlight RGB(25,31,9), fading to black at color8.</summary>
     private const int BaseHighlightRed = 25, BaseHighlightBlue = 9;
@@ -49,6 +50,7 @@ internal static class TourianStatuePaintDefinitions
     private const int GreyLightRed = 199, GreyLightGreen = 214, GreyLightBlue = 255,
         GreyDarkRed = 31, GreyDarkGreen = 32, GreyDarkBlue = 39;
 
+    /// <summary>Color.</summary>
     internal static Bgr555 Color(TourianStatuePaintBand band, int index) => band switch
     {
         TourianStatuePaintBand.Base => Base(index),
@@ -61,13 +63,18 @@ internal static class TourianStatuePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
 
+    /// <summary>Grey channel.</summary>
     private static int GreyChannel(int first, int last, int step) => (first * (6 - step) + last * step) / (6 * 8);
+    /// <summary>Pack.</summary>
     private static Bgr555 Pack(int r, int g, int b) => new Bgr555(r, g, b);
+    /// <summary>Nearest.</summary>
     private static int Nearest(int first, int last, int step, int count) =>
         (first * (count - step) + last * step + count / 2) / count;
+    /// <summary>Gamma shade.</summary>
     private static int GammaShade(int first, int last, int step) =>
         step == 0 ? first : step == 2 ? last : (int)Math.Floor((first + last + 2 * Math.Sqrt(first * last)) / 4);
 
+    /// <summary>Base.</summary>
     private static Bgr555 Base(int color)
     {
         if (color == 0) return TransparentSlotPayload;
@@ -78,6 +85,7 @@ internal static class TourianStatuePaintDefinitions
         return Pack(neutral, neutral, neutral);
     }
 
+    /// <summary>Statue.</summary>
     private static Bgr555 Statue(int color)
     {
         if (color == 0) return TransparentSlotPayload;
@@ -96,6 +104,7 @@ internal static class TourianStatuePaintDefinitions
         return Pack(yellow, yellow, 0);
     }
 
+    /// <summary>Eye.</summary>
     private static Bgr555 Eye(int boss, int color)
     {
         if (color == 0) return boss switch

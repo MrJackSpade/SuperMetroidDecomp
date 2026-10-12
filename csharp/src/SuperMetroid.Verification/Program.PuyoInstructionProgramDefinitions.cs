@@ -14,8 +14,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents puyo instruction program definitions verification.</summary>
 internal static class PuyoInstructionProgramDefinitionsVerification
 {
+    /// <summary>Stores puyo grounded instruction programs.</summary>
     internal static readonly ushort[] PuyoGroundedInstructionPrograms =
     [
         PuyoInstructionProgramDefinitions.GroundedFast,
@@ -23,6 +25,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         PuyoInstructionProgramDefinitions.GroundedSlow,
     ];
 
+    /// <summary>Stores puyo airborne instruction programs.</summary>
     internal static readonly ushort[] PuyoAirborneInstructionPrograms =
     [
         PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4,
@@ -32,12 +35,14 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         PuyoInstructionProgramDefinitions.RightFrame4LeftFrame0,
     ];
 
+    /// <summary>verify puyo instruction program definitions.</summary>
     internal static void VerifyPuyoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>verify puyo instruction program definitions.</summary>
     internal static void VerifyPuyoInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -113,6 +118,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
             "bytes forbidden.");
     }
 
+    /// <summary>execute puyo instruction calls.</summary>
     internal static void ExecutePuyoInstructionCalls(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -126,6 +132,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>probe puyo instruction mechanics allocation.</summary>
     private static int ProbePuyoInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -139,12 +146,14 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>read puyo instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo instruction words")]
     internal static ushort ReadPuyoInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
+    /// <summary>new puyo instruction read guard.</summary>
     internal static CartridgeReadGuard NewPuyoInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
@@ -160,6 +169,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
             : guard.ObserveWords(0xa20000, PuyoInstructionProgramDefinitionsTooling.PresentationWordCount, PuyoInstructionProgramDefinitionsTooling.PresentationWordAddress);
     }
 
+    /// <summary>puyo instruction mechanics command.</summary>
     [VerificationCommand("--puyo-instruction-mechanics")]
     internal static int PuyoInstructionMechanicsCommand()
     {

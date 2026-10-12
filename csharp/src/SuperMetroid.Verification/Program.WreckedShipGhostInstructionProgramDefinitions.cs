@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents wrecked ship ghost instruction program definitions verification.</summary>
 internal static class WreckedShipGhostInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies wrecked ship ghost instruction program definitions.</summary>
     internal static void VerifyWreckedShipGhostInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWreckedShipGhostInstructionProgramDefinitions), () => VerifyWreckedShipGhostInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies wrecked ship ghost instruction program definitions.</summary>
     internal static void VerifyWreckedShipGhostInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -99,6 +102,7 @@ internal static class WreckedShipGhostInstructionProgramDefinitionsVerification
             "pass with zero runtime ROM reads.");
     }
 
+    /// <summary>Probes wrecked ship ghost instruction mechanics allocation.</summary>
     private static int ProbeWreckedShipGhostInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -112,12 +116,14 @@ internal static class WreckedShipGhostInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates wrecked ship ghost instruction read guard.</summary>
     private static CartridgeReadGuard NewWreckedShipGhostInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(WreckedShipGhostInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled ghost mechanics byte ${address:X6}.")
             .ObserveWords(0xa80000, WreckedShipGhostInstructionProgramDefinitions.PresentationWordCount, WreckedShipGhostInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Wrecked ship ghost instruction mechanics command.</summary>
     [VerificationCommand("--wrecked-ship-ghost-instruction-mechanics")]
     internal static int WreckedShipGhostInstructionMechanicsCommand()
     {

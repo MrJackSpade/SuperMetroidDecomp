@@ -12,8 +12,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Represents power bomb afterglow shape verification.</summary>
 internal static class PowerBombAfterglowShapeVerification
 {
+    /// <summary>verify power bomb afterglow shape.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb afterglow shape")]
     internal static void VerifyPowerBombAfterglowShape()
     {
@@ -58,6 +60,7 @@ internal static class PowerBombAfterglowShapeVerification
         Console.WriteLine($"Power Bomb afterglow: {checkedFrames} frames retain the native oval, including captured windows and rendered corner pixels.");
     }
 
+    /// <summary>power bomb afterglow shape command.</summary>
     [VerificationCommand("--power-bomb-afterglow-shape")]
     internal static int PowerBombAfterglowShapeCommand()
     {

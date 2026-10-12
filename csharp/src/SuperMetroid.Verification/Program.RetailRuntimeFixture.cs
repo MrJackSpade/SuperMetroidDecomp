@@ -5,14 +5,19 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Represents retail runtime fixture verification.</summary>
 internal static class RetailRuntimeFixtureVerification
 {
+    /// <summary>Creates projectile fixture.</summary>
     internal static SamusProjectileSystem CreateProjectileFixture() => InstalledFixtures.CreateProjectileSystem();
 
+    /// <summary>Creates bomb fixture.</summary>
     internal static SamusBombProjectileSystem CreateBombFixture() => InstalledFixtures.CreateBombSystem();
+    /// <summary>Prepare retail samus fixture.</summary>
     internal static SamusState PrepareRetailSamusFixture(SamusState samus) => InstalledFixtures.BindSamus(samus);
     // Tests using retail gameplay must supply the host's installed presentation
     // contract explicitly. Each fixture retains its own bus and mutable runtime.
+    /// <summary>Creates retail runtime fixture.</summary>
     internal static SuperMetroidRuntime CreateRetailRuntimeFixture(
         ISnesAddressSpace addressSpace,
         bool playerInvincibilityEnabled = false,

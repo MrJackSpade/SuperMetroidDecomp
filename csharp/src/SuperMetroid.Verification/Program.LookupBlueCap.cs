@@ -2,12 +2,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup blue cap verification.</summary>
 internal static class LookupBlueCapVerification
 {
+    /// <summary>Verifies blue cap geometry.</summary>
     internal static void VerifyBlueCapGeometry(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 0);
+    /// <summary>Verifies blue cap collision.</summary>
     internal static void VerifyBlueCapCollision(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 1);
+    /// <summary>Verifies blue cap visuals.</summary>
     internal static void VerifyBlueCapVisuals(SuperMetroidAddressSpace rom) => VerifyBlueCapField(rom, 2);
 
+    /// <summary>Verifies blue cap field.</summary>
     private static void VerifyBlueCapField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0xa9b3,0xa9bf,0xa9cb,0xa9d7,0xa9ef,0xa9fb,0xaa07,0xaa13,0xaa2b,0xaa37,0xaa43,0xaa4f,0xaa67,0xaa73,0xaa7f,0xaa8b,0xa9a7,0xa9e3,0xaa1f,0xaa5b];

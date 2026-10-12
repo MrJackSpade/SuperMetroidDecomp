@@ -4,8 +4,11 @@ namespace SuperMetroid.Core.Assets;
 public sealed class EndingFontAtlas
 {
     // Footprint positions, native cutouts and all other artwork remain required.
+    /// <summary>Stores glyph footprint.</summary>
     private readonly HashSet<int> glyphFootprint = new();
+    /// <summary>Stores pixels.</summary>
     private readonly Dictionary<int, byte> pixels = new();
+    /// <summary>Initializes a new ending font atlas instance.</summary>
     private EndingFontAtlas(byte[] supplied)
     {
         for (int pixel = 0; pixel < supplied.Length; pixel++)
@@ -21,6 +24,7 @@ public sealed class EndingFontAtlas
             .Select(Pixel).ToArray(),
         new(EndingFontAtlasFormat.Width, EndingFontAtlasFormat.Height), EndingFontAtlasFormat.BitsPerPixel);
 
+    /// <summary>pixel.</summary>
     private byte Pixel(int pixel) => pixels.TryGetValue(pixel, out byte value) ? value
         : EndingFontAtlasFormat.TryCalculatedPixel(pixel, glyphFootprint, out byte calculated) ? calculated
         : throw new InvalidOperationException("Required ending font pixel is absent.");
@@ -78,10 +82,12 @@ public static class EndingFontAtlasFormat
     }
 
     /// <summary>The two blank characters the ending text maps to a space.</summary>
-    private enum SpaceCell { ResultBlank, LargeBlank }
+    private enum SpaceCell { /** <summary>Identifies result blank.</summary> */ ResultBlank, /** <summary>Identifies large blank.</summary> */ LargeBlank }
 
+    /// <summary>Stores space cells.</summary>
     private static readonly SpaceCell[] SpaceCells = Enum.GetValues<SpaceCell>();
 
+    /// <summary>tile of.</summary>
     private static int TileOf(SpaceCell space) => space switch
     {
         SpaceCell.ResultBlank => EndingTextDefinitions.ResultBlankWord,
@@ -95,6 +101,7 @@ public static class EndingFontAtlasFormat
     /// <summary>Font3 $97:E7DE, small/large alphabet and copyright digits: REQUIRED one-pixel eight-neighbor outline extent.</summary>
     private const int GlyphOutlineWidth = 1;
 
+    /// <summary>is small alphabet pixel.</summary>
     internal static bool IsSmallAlphabetPixel(int pixel)
     {
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
@@ -158,6 +165,7 @@ public static class EndingFontAtlasFormat
             or (0x42, 7, 13) or (0x42, 1, 14) or (0x42, 6, 14)
             or (0x45, 6, 11) or (0x45, 2, 14);
     }
+    /// <summary>try calculated pixel.</summary>
     internal static bool TryCalculatedPixel(int pixel, IReadOnlySet<int> requiredFootprint, out byte ink)
     {
         ink = 0;

@@ -20,16 +20,23 @@ public readonly record struct CrocomireDropRequest();
 /// </summary>
 public sealed class CrocomireDeathState
 {
+    /// <summary>Stores melting column count.</summary>
     internal const int MeltingColumnCount = 128;
     // $A4:943D contains a shipped off-by-one copy: each nominal $0200-word chunk copies
     // $0201 words, and the seventh second-melt chunk reaches just beyond the authored
     // $0E00-byte image. Keep enough adjacent scratch to preserve that overlap safely.
+    /// <summary>Stores melting graphics byte count.</summary>
     internal const int MeltingGraphicsByteCount = 0x1200;
+    /// <summary>Stores bg2 working word count.</summary>
     internal const int Bg2WorkingWordCount = 0x0800;
 
+    /// <summary>Stores melting column heights.</summary>
     private readonly byte[] _meltingColumnHeights = new byte[MeltingColumnCount];
+    /// <summary>Stores melting graphics.</summary>
     private readonly byte[] _meltingGraphics = new byte[MeltingGraphicsByteCount];
+    /// <summary>Stores bg2 working tilemap.</summary>
     private readonly ushort[] _bg2WorkingTilemap = new ushort[Bg2WorkingWordCount];
+    /// <summary>Stores bg2 scroll by scanline.</summary>
     private readonly ushort[] _bg2ScrollByScanline = new ushort[256];
 
     /// <summary>Unaligned $7E:9016 bridge-fragment parameter: 0,2,...,22.</summary>
@@ -104,10 +111,16 @@ public sealed class CrocomireDeathState
     /// </summary>
     public bool MeltingHdmaActive { get; internal set; }
 
+    /// <summary>Gets mutable melting column heights.</summary>
     internal Span<byte> MutableMeltingColumnHeights => _meltingColumnHeights;
+    /// <summary>Gets mutable melting graphics.</summary>
     internal Span<byte> MutableMeltingGraphics => _meltingGraphics;
+    /// <summary>Gets mutable bg2 working tilemap.</summary>
     internal Span<ushort> MutableBg2WorkingTilemap => _bg2WorkingTilemap;
+    /// <summary>Gets mutable bg2 scroll by scanline.</summary>
     internal Span<ushort> MutableBg2ScrollByScanline => _bg2ScrollByScanline;
+    /// <summary>Gets melting graphics.</summary>
     internal ReadOnlySpan<byte> MeltingGraphics => _meltingGraphics;
+    /// <summary>Gets bg2 working tilemap.</summary>
     internal ReadOnlySpan<ushort> Bg2WorkingTilemap => _bg2WorkingTilemap;
 }

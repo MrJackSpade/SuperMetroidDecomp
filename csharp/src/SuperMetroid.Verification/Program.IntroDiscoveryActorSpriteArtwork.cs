@@ -9,8 +9,10 @@ using static IntroCinematicArtworkVerification;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Represents intro discovery actor sprite artwork verification.</summary>
 internal static class IntroDiscoveryActorSpriteArtworkVerification
 {
+    /// <summary>Verifies intro discovery actor sprite artwork.</summary>
     internal static void VerifyIntroDiscoveryActorSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {

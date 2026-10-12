@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Reviewed installed-transfer pipeline for the bank-$84 DMA audit.</summary>
 internal static class PlmVramArtworkSourceContract
 {
+    /// <summary>Stores sources.</summary>
     internal static readonly ReviewedSource[] Sources =
     [
         .. EnemyArtworkClosedContractDefinitions.All[0].Sources,

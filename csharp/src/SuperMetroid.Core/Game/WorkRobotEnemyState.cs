@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class WorkRobotEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new work robot enemy state instance.</summary>
     internal WorkRobotEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

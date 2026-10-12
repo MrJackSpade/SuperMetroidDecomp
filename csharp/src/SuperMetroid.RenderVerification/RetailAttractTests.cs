@@ -5,8 +5,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Represents retail attract tests.</summary>
 internal static class RetailAttractTests
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         // Attract scenes are compiled stock definitions, so the fixture tours the stock first

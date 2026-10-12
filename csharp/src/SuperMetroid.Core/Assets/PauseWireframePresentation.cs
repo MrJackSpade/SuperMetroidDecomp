@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable wireframe artwork. It cannot change which equipment selects a visual.</summary>
 public sealed class PauseWireframePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Wireframe[] frames;
+    /// <summary>Initializes a new pause wireframe presentation instance.</summary>
     private PauseWireframePresentation(Wireframe[] frames) => this.frames = frames;
 
     /// <summary>Patches the selected eight-column, seventeen-row wireframe into the equipment page at tile (12, 7), matching native <c>EquipmentScreen_WriteSamusWireframeTilemap</c> at <c>$82:B20C</c>; leaves all other cells untouched and does not choose the inventory variant or queue VRAM.</summary>
@@ -48,9 +50,12 @@ public sealed class PauseWireframePresentation
     /// <summary>Calculated authored composition with independent supplied word overrides.</summary>
     private sealed class Wireframe
     {
+        /// <summary>Stores kind.</summary>
         private readonly PauseWireframeKind kind;
+        /// <summary>Stores edits.</summary>
         private readonly Dictionary<int, ushort> edits = [];
 
+        /// <summary>Initializes a new wireframe instance.</summary>
         internal Wireframe(PauseWireframeKind kind, ReadOnlySpan<byte> words)
         {
             this.kind = kind;
@@ -61,6 +66,7 @@ public sealed class PauseWireframePresentation
             }
         }
 
+        /// <summary>Word.</summary>
         internal ushort Word(int cell) => edits.TryGetValue(cell, out ushort value)
             ? value : PauseWireframeDefinitions.StockWord(kind, cell);
     }

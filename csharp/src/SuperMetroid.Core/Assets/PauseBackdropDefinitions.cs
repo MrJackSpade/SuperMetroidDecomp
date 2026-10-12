@@ -80,6 +80,7 @@ public static class PauseBackdropDefinitions
         return StockFrameWord(cell + (Rows - ButtonRows) * Columns);
     }
 
+    /// <summary>Stock frame word.</summary>
     private static ushort StockFrameWord(int cell)
     {
         int row = cell / Columns, column = cell % Columns;
@@ -110,6 +111,7 @@ public static class PauseBackdropDefinitions
         return BlankWord;
     }
 
+    /// <summary>Styled.</summary>
     private static ushort Styled(int glyph, bool flipX = false, bool flipY = false) =>
         (ushort)(0x2800 | glyph | (flipX ? 0x4000 : 0) | (flipY ? 0x8000 : 0));
 }

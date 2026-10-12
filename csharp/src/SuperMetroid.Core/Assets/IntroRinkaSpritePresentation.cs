@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
 public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroRinkaSpritePresentation), frames);
 
+    /// <summary>Initializes a new intro rinka sprite presentation instance.</summary>
     private IntroRinkaSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

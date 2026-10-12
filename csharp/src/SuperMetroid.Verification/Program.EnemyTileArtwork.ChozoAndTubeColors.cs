@@ -7,8 +7,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy tile artwork chozo and tube colors verification.</summary>
 internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 {
+    /// <summary>Verifies installed chozo and tube colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo and tube palette bands")]
     internal static void VerifyInstalledChozoAndTubeColors(
@@ -130,6 +132,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         }
     }
 
+    /// <summary>New chozo and tube palette read guard.</summary>
     private static CartridgeReadGuard NewChozoAndTubePaletteReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= ChozoAndTubeColorRomData.TubeCracksSource and < (ChozoAndTubeColorRomData.LowerNorfairSource + ChozoAndTubeColorRomData.ColorCount * sizeof(ushort)),

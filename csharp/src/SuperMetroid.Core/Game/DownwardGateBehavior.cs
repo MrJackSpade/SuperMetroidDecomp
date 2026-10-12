@@ -1,13 +1,16 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The downward gate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DownwardGateBehavior
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Initializes a new downward gate behavior instance.</summary>
     internal DownwardGateBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -37,6 +40,7 @@ internal sealed class DownwardGateBehavior
         }
     }
 
+    /// <summary>Spawns downward gate projectile.</summary>
     private void SpawnDownwardGateProjectile(
         DownwardGateProjectileRequest request,
         int roomWidthInBlocks)
@@ -69,6 +73,7 @@ internal sealed class DownwardGateBehavior
             request.PlmBlockIndex * DownwardGateEnemyProjectileRomData.NativeBytesPerRoomBlock));
     }
 
+    /// <summary>Wake downward gate projectile.</summary>
     private void WakeDownwardGateProjectile(int plmBlockIndex)
     {
         ushort nativeBlockIndex = checked((ushort)(
@@ -113,6 +118,7 @@ internal sealed class DownwardGateBehavior
         projectile.Position = projectile.Position.AdvanceY(projectile.Velocity.Y.ToSixteenSixteenDelta());
     }
 
+    /// <summary>Registers downward gate projectiles.</summary>
     internal static void RegisterDownwardGateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

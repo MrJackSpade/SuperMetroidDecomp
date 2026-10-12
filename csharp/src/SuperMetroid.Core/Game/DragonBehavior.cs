@@ -1,13 +1,17 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Dragon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DragonBehavior : IEnemySpecies
 {
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Initializes a new dragon behavior instance.</summary>
     internal DragonBehavior(EnemyProjectileEngine projectiles, EnemySlotTable slotTable, EnemyCollision collision)
     {
         _projectiles = projectiles;
@@ -35,20 +39,30 @@ internal sealed class DragonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Defines dragon rise or sink frames.</summary>
     private const ushort DragonRiseOrSinkFrames = 0x0030;
+    /// <summary>Defines dragon shot count.</summary>
     private const ushort DragonShotCount = 3;
+    /// <summary>Defines dragon wait before sink frames.</summary>
     private const ushort DragonWaitBeforeSinkFrames = 0x0060;
+    /// <summary>Defines dragon wait before rise frames.</summary>
     private const ushort DragonWaitBeforeRiseFrames = 0x0080;
+    /// <summary>Defines dragon fireball sound.</summary>
     private const ushort DragonFireballSound = 0x0061;
 
+    /// <summary>Stores dragon requested instruction lists.</summary>
     private readonly ushort[] _dragonRequestedInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores dragon installed instruction lists.</summary>
     private readonly ushort[] _dragonInstalledInstructionLists = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores dragon animation finished flags.</summary>
     private readonly ushort[] _dragonAnimationFinishedFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores dragon states.</summary>
     internal readonly DragonEnemyState?[] _dragonStates = new DragonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Last library-two sound queued by a Dragon volley during the current frame.</summary>
     public ushort? LastDragonSoundEffect { get; private set; }
 
+    /// <summary>reset dragon room state.</summary>
     internal void ResetDragonRoomState()
     {
         Array.Clear(_dragonRequestedInstructionLists);
@@ -269,6 +283,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         following.AiHandlerBits = actor.AiHandlerBits;
     }
 
+    /// <summary>install dragon instruction list.</summary>
     internal static void InstallDragonInstructionList(
         RoomEnemySlot slot,
         DragonEnemyState state)
@@ -282,6 +297,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>get dragon wing.</summary>
     private RoomEnemySlot GetDragonWing(RoomEnemySlot body)
     {
         if (body.SlotIndex >= RoomEnemySystem.MaximumEnemyCount - 1)
@@ -297,6 +313,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         return wing;
     }
 
+    /// <summary>create dragon state.</summary>
     private DragonEnemyState CreateDragonState(RoomEnemySlot slot)
     {
         var state = new DragonEnemyState(
@@ -308,10 +325,12 @@ internal sealed class DragonBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>require dragon state.</summary>
     private DragonEnemyState RequireDragonState(RoomEnemySlot slot) =>
         _dragonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Dragon state.");
 
+    /// <summary>register dragon bomb reactions.</summary>
     internal void RegisterDragonBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -321,6 +340,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register dragon projectiles.</summary>
     internal static void RegisterDragonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -329,6 +349,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.DragonFireball);
     }
 
+    /// <summary>register dragon initialization ai.</summary>
     internal void RegisterDragonInitializationAi(EnemyAiTable table)
     {
 
@@ -338,6 +359,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register dragon main ai.</summary>
     internal void RegisterDragonMainAi(EnemyAiTable table)
     {
 
@@ -347,6 +369,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register dragon owned instructions.</summary>
     internal void RegisterDragonOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -356,6 +379,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register dragon power bomb reactions.</summary>
     internal void RegisterDragonPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -365,6 +389,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register dragon shot reactions.</summary>
     internal void RegisterDragonShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -374,6 +399,7 @@ internal sealed class DragonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register dragon touch.</summary>
     internal void RegisterDragonTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
@@ -384,9 +410,13 @@ internal sealed class DragonBehavior : IEnemySpecies
                 ResolveDragonCombatAfterCommon(context.Slot);
             });
     }
+    /// <summary>Defines dragon fireball initial yvelocity.</summary>
     private const ushort DragonFireballInitialYVelocity = 0xfc3f;
+    /// <summary>Defines dragon fireball left xvelocity.</summary>
     private const ushort DragonFireballLeftXVelocity = 0xfd40;
+    /// <summary>Defines dragon fireball right xvelocity.</summary>
     private const ushort DragonFireballRightXVelocity = 0x02c0;
+    /// <summary>Defines dragon fireball gravity.</summary>
     private const ushort DragonFireballGravity = 0x0020;
 
     /// <summary>Ports projectile initializer $86:B4EF.</summary>

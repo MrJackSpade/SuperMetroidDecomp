@@ -4,16 +4,20 @@ using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid movement choices verification.</summary>
 internal static class KraidMovementChoicesVerification
 {
+    /// <summary>Verifies kraid movement targets.</summary>
     private static void VerifyKraidMovementTargets(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.TargetX));
 
+    /// <summary>Verifies kraid movement timers.</summary>
     private static void VerifyKraidMovementTimers(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.ThinkTimer));
 
+    /// <summary>Verifies kraid movement field.</summary>
     private static void VerifyKraidMovementField(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected,
         Func<(ushort TargetX, ushort ThinkTimer), ushort> field)
@@ -34,6 +38,7 @@ internal static class KraidMovementChoicesVerification
         }
     }
 
+    /// <summary>Verifies kraid movement choices.</summary>
     internal static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1)));
@@ -115,6 +120,7 @@ internal static class KraidMovementChoicesVerification
         Console.WriteLine("Kraid choices: all indirect native pairs, every RNG word per row, 524288 actual coordinate/choice transitions and all timer words pass bus-free.");
     }
 
+    /// <summary>Kraid movement choices rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid movement choices")]
     private static byte KraidMovementChoicesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

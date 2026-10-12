@@ -8,8 +8,10 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents frontend render capture tests verification.</summary>
 internal static class FrontendRenderCaptureTestsVerification
 {
+    /// <summary>verify frontend render capture.</summary>
     internal static void VerifyFrontendRenderCapture()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));

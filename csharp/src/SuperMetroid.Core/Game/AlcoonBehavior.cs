@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Alcoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class AlcoonBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Initializes a new alcoon behavior instance.</summary>
     internal AlcoonBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles)
     {
         _room = room;
@@ -67,17 +71,28 @@ internal sealed class AlcoonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Stores alcoon emerge xdistance.</summary>
     private const ushort AlcoonEmergeXDistance = 0x0050;
+    /// <summary>Stores alcoon hide xdistance.</summary>
     private const ushort AlcoonHideXDistance = 0x0070;
+    /// <summary>Stores alcoon emerge sound.</summary>
     private const ushort AlcoonEmergeSound = 0x005e;
+    /// <summary>Stores alcoon fire sound.</summary>
     private const ushort AlcoonFireSound = 0x003f;
+    /// <summary>Stores alcoon jump simulation limit.</summary>
     private const int AlcoonJumpSimulationLimit = 4096;
 
+    /// <summary>Stores alcoon yaccelerations.</summary>
     internal readonly ushort[] _alcoonYAccelerations = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores alcoon ysubaccelerations.</summary>
     internal readonly ushort[] _alcoonYSubaccelerations = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores alcoon spawn xpositions.</summary>
     internal readonly ushort[] _alcoonSpawnXPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores alcoon landing ypositions.</summary>
     internal readonly ushort[] _alcoonLandingYPositions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores alcoon step counters.</summary>
     internal readonly ushort[] _alcoonStepCounters = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores alcoon states.</summary>
     internal readonly AlcoonEnemyState?[] _alcoonStates =
         new AlcoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -166,6 +181,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Wait for alcoon activation.</summary>
     private void WaitForAlcoonActivation(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
@@ -196,6 +212,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         LastAlcoonSoundEffect = AlcoonEmergeSound;
     }
 
+    /// <summary>Runs alcoon emerging rise.</summary>
     private static void RunAlcoonEmergingRise(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
@@ -211,6 +228,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
                 : AlcoonInstructionProgramDefinitions.AirborneRightLookingForward);
     }
 
+    /// <summary>Runs alcoon emerging fall.</summary>
     private void RunAlcoonEmergingFall(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
@@ -244,6 +262,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.StepCounter = 1;
     }
 
+    /// <summary>Runs emerged alcoon.</summary>
     private void RunEmergedAlcoon(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
@@ -289,6 +308,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.Function = AlcoonEnemyFunction.WaitingForFireAnimation;
     }
 
+    /// <summary>Runs alcoon hiding rise.</summary>
     private static void RunAlcoonHidingRise(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
@@ -297,6 +317,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             state.Function = AlcoonEnemyFunction.HidingFalling;
     }
 
+    /// <summary>Runs alcoon hiding fall.</summary>
     private static void RunAlcoonHidingFall(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         AddAlcoonYVelocity(slot, state);
@@ -312,6 +333,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.Function = AlcoonEnemyFunction.WaitingForSamus;
     }
 
+    /// <summary>Setup alcoon jump movement.</summary>
     private static void SetupAlcoonJumpMovement(AlcoonEnemyState state)
     {
         state.Velocity = new FixedVector<RoomPixels>(
@@ -321,6 +343,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.YSubacceleration = 0x8000;
     }
 
+    /// <summary>Accelerate alcoon y.</summary>
     private static void AccelerateAlcoonY(AlcoonEnemyState state)
     {
         SnesSignedSixteenSixteen acceleration = SnesSignedSixteenSixteen.FromParts(
@@ -328,11 +351,13 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         state.Velocity = state.Velocity.WithY(state.Velocity.Y + acceleration);
     }
 
+    /// <summary>Adds alcoon yvelocity.</summary>
     private static void AddAlcoonYVelocity(RoomEnemySlot slot, AlcoonEnemyState state)
     {
         slot.Position = slot.Position.AdvanceY(state.Velocity.Y);
     }
 
+    /// <summary>Guard alcoon jump simulation.</summary>
     private static void GuardAlcoonJumpSimulation(int iterations, RoomEnemySlot slot)
     {
         if (iterations > AlcoonJumpSimulationLimit)
@@ -343,6 +368,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Installs alcoon instruction.</summary>
     private static void InstallAlcoonInstruction(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -392,10 +418,12 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             : AlcoonInstructionProgramDefinitions.WalkingRightFirstFrame;
     }
 
+    /// <summary>Requires alcoon state.</summary>
     private AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
         _alcoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Alcoon state.");
 
+    /// <summary>Registers alcoon projectiles.</summary>
     internal static void RegisterAlcoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -404,6 +432,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.AlcoonFireball);
     }
 
+    /// <summary>Registers alcoon initialization ai.</summary>
     internal void RegisterAlcoonInitializationAi(EnemyAiTable table)
     {
 
@@ -413,6 +442,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers alcoon main ai.</summary>
     internal void RegisterAlcoonMainAi(EnemyAiTable table)
     {
 
@@ -422,6 +452,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers alcoon owned instructions.</summary>
     internal void RegisterAlcoonOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -430,8 +461,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies
             return TryProcessAlcoonInstruction(slot, context.Level, word, ref cursor);
         });
     }
+    /// <summary>Stores alcoon fireball graphics horizontal speed.</summary>
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 0x0400;
+    /// <summary>Stores alcoon fireball terminal horizontal speed.</summary>
     private const ushort AlcoonFireballTerminalHorizontalSpeed = 0x0200;
+    /// <summary>Stores alcoon fireball horizontal deceleration.</summary>
     private const ushort AlcoonFireballHorizontalDeceleration = 0x0040;
 
     /// <summary>

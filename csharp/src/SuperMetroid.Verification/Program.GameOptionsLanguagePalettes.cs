@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents game options language palettes verification.</summary>
 internal static class GameOptionsLanguagePalettesVerification
 {
+    /// <summary>verify game options toggle geometry.</summary>
     internal static void VerifyGameOptionsToggleGeometry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -64,9 +66,11 @@ internal static class GameOptionsLanguagePalettesVerification
         Console.WriteLine("Options toggle geometry: all eight native boxes, widths and both highlight states pass through extraction and presentation.");
     }
 
+    /// <summary>game options toggle geometry rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options toggle geometry")]
     private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>verify game options language palettes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGameOptionsLanguagePalettes()
     {
@@ -124,9 +128,11 @@ internal static class GameOptionsLanguagePalettesVerification
             (BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(offset, 2)) >> 10) & 7;
     }
 
+    /// <summary>game options language palettes rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options language palettes")]
     private static byte GameOptionsLanguagePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>lookup options toggle geometry command.</summary>
     [VerificationCommand("--lookup-options-toggle-geometry")]
     internal static int LookupOptionsToggleGeometryCommand()
     {
@@ -134,6 +140,7 @@ internal static class GameOptionsLanguagePalettesVerification
         return 0;
     }
 
+    /// <summary>game options language palettes command.</summary>
     [VerificationCommand("--game-options-language-palettes")]
     internal static int GameOptionsLanguagePalettesCommand()
     {

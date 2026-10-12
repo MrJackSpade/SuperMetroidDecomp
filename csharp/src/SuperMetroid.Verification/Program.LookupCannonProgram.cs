@@ -2,14 +2,21 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup cannon program verification.</summary>
 internal static class LookupCannonProgramVerification
 {
+    /// <summary>Verifies cannon controls.</summary>
     internal static void VerifyCannonControls(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 0);
+    /// <summary>Verifies cannon draws.</summary>
     internal static void VerifyCannonDraws(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 1);
+    /// <summary>Verifies cannon targets.</summary>
     internal static void VerifyCannonTargets(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 2);
+    /// <summary>Verifies cannon callback.</summary>
     internal static void VerifyCannonCallback(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 3);
+    /// <summary>Verifies cannon hit count.</summary>
     internal static void VerifyCannonHitCount(SuperMetroidAddressSpace rom) => VerifyCannonField(rom, 4);
 
+    /// <summary>Verifies cannon field.</summary>
     private static void VerifyCannonField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent original operand positions in the right-hand list; left is relocated.
@@ -53,6 +60,7 @@ internal static class LookupCannonProgramVerification
         AssertEqual(field switch {0 => 76,1 => 44,2 => 20,3 => 4,_ => 2}, count, "Cannon independent field count");
     }
 
+    /// <summary>Cannon field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for cannon field")]
     private static byte CannonFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

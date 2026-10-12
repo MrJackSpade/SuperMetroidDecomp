@@ -4,12 +4,15 @@ using SuperMetroid.Core.Hardware;
 using static LookupGlassProjectileProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents mother brain glass instruction program definitions verification.</summary>
 internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies mother brain glass instruction program definitions.</summary>
     internal static void VerifyMotherBrainGlassInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies mother brain glass instruction program definitions.</summary>
     internal static void VerifyMotherBrainGlassInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -149,6 +152,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes mother brain glass instruction mechanics allocation.</summary>
     private static int ProbeMotherBrainGlassInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -162,6 +166,7 @@ internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates mother brain glass instruction read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainGlassInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MotherBrainGlassInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||

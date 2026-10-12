@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BabyMetroidFixtureHeadVerification;
 
+/// <summary>Represents mother brain glitch mechanics verification.</summary>
 internal static class MotherBrainGlitchMechanicsVerification
 {
     /// <summary>

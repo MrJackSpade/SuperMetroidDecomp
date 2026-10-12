@@ -37,8 +37,10 @@ using static VerticalShutterInstructionProgramDefinitionsVerification;
 using static WorkRobotVisualsVerification;
 using static YardVisualsVerification;
 
+/// <summary>Represents enemy spritemap artwork verification.</summary>
 internal static class EnemySpritemapArtworkVerification
 {
+    /// <summary>Verifies installed alcoon instruction frames.</summary>
     private static void VerifyInstalledAlcoonInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -59,6 +61,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Verifies installed beetom instruction frames.</summary>
     private static void VerifyInstalledBeetomInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -79,6 +82,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Verifies installed hopper instruction frames.</summary>
     private static void VerifyInstalledHopperInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -112,6 +116,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
+    /// <summary>Verifies installed choot instruction frames.</summary>
     private static void VerifyInstalledChootInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -132,6 +137,7 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyChootInstructionProgramDefinitions), () => VerifyChootInstructionProgramDefinitions(rom, stock));
     }
 
+    /// <summary>Verifies installed bull instruction frames.</summary>
     private static void VerifyInstalledBullInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -182,6 +188,7 @@ internal static class EnemySpritemapArtworkVerification
             "installed Bull programs retain compiled timing and control words");
     }
 
+    /// <summary>Verifies installed puyo instruction frames.</summary>
     private static void VerifyInstalledPuyoInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -227,6 +234,7 @@ internal static class EnemySpritemapArtworkVerification
             "installed Puyo programs retain compiled timing and control words");
     }
 
+    /// <summary>Verifies installed enemy spritemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
@@ -3675,6 +3683,7 @@ internal static class EnemySpritemapArtworkVerification
         }
     }
 
+    /// <summary>Verifies installed mother brain draw hook.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -3696,6 +3705,7 @@ internal static class EnemySpritemapArtworkVerification
             "Mother Brain private draw still culls a head above the viewport");
     }
 
+    /// <summary>Draws installed mother brain frame.</summary>
     private static OamBuffer DrawInstalledMotherBrainFrame(
         EnemyTileArtworkCatalog art, ISnesAddressSpace rom, ushort pointer,
         Position16<RoomPixels> world)
@@ -3708,6 +3718,7 @@ internal static class EnemySpritemapArtworkVerification
         return oam;
     }
 
+    /// <summary>Draws room sprite object.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, RoomSpriteObjectKind kind)
@@ -3727,17 +3738,20 @@ internal static class EnemySpritemapArtworkVerification
         return oam;
     }
 
+    /// <summary>New bank b4 read guard.</summary>
     private static CartridgeReadGuard NewBankB4ReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => (SnesAddressMath.BankNumber(address)) == 0xb4,
                 address => $"Installed room sprite object reread bank-$B4 byte ${address:X6}.");
 
+    /// <summary>New mother brain frame read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainFrameReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa9a586 and < 0xa9a7c2 or
                 >= 0xa9ad3e and < 0xa9aee4,
                 address => $"Mother Brain draw reread native artwork byte ${address:X6}.");
 
+    /// <summary>New frame read guard.</summary>
     private static CartridgeReadGuard NewFrameReadGuard(ISnesAddressSpace source,
         string? frameName = null) =>
         new CartridgeReadGuard(source)

@@ -27,8 +27,11 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
 
 
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 23;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 11;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -52,6 +55,7 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Hold loop.</summary>
     private static InstructionMechanicsWord HoldLoop(ushort start, int index) => index switch
     {
         0 => new(start, 0x7fff),
@@ -59,6 +63,7 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
         _ => new((ushort)(start + 6), start),
     };
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -73,6 +78,7 @@ internal abstract class KagoBugProjectileInstructionProgramDefinitions
             _ => JumpLoop + 2,
         };
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

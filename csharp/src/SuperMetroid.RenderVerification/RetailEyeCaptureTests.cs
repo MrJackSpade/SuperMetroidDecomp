@@ -7,8 +7,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents retail eye capture tests.</summary>
 internal static class RetailEyeCaptureTests
 {
+    /// <summary>Runs.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var runtime = RepositoryInstallation.CreateRuntime(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
@@ -37,6 +39,7 @@ internal static class RetailEyeCaptureTests
     }
 }
 
+/// <summary>Represents eye capture fixture.</summary>
 internal static class EyeCaptureFixture
 {
     /// <summary>World camera X used by the production Morph Ball eye apex regression.</summary>

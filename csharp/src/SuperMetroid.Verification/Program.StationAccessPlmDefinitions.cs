@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rooms;
 using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents station access plm definitions verification.</summary>
 internal static class StationAccessPlmDefinitionsVerification
 {
+    /// <summary>Verifies station access plm definitions.</summary>
     internal static void VerifyStationAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyStationAccessHeaders), () => VerifyStationAccessHeaders(rom));
@@ -20,11 +22,16 @@ internal static class StationAccessPlmDefinitionsVerification
             "Station access PLMs: all six native access draw operands and real access animations pass without runtime header reads.");
     }
 
+    /// <summary>Verifies station access headers.</summary>
     private static void VerifyStationAccessHeaders(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 0);
+    /// <summary>Verifies station access initial lists.</summary>
     private static void VerifyStationAccessInitialLists(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 1);
+    /// <summary>Verifies station access retracted draws.</summary>
     internal static void VerifyStationAccessRetractedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 2);
+    /// <summary>Verifies station access extended draws.</summary>
     internal static void VerifyStationAccessExtendedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 3);
 
+    /// <summary>Verifies station access field.</summary>
     private static void VerifyStationAccessField(SuperMetroidAddressSpace rom, int field)
     {
         var entries = StationAccessPlmDefinitions.All.ToArray();

@@ -69,9 +69,12 @@ internal static class CrocomireRumbleDefinitions
     /// </summary>
     internal static TargetSequence All => default;
 
+    /// <summary>Represents target sequence.</summary>
     internal readonly struct TargetSequence : IReadOnlyList<CrocomireRumbleDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 4 + PhaseCount * 2;
+        /// <summary>Gets or sets an indexed value.</summary>
         public CrocomireRumbleDefinition this[int index]
         {
             get
@@ -94,10 +97,12 @@ internal static class CrocomireRumbleDefinitions
             }
         }
 
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<CrocomireRumbleDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

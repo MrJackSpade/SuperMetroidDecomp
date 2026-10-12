@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MotherBrainHandBeamInstructionProgramDefinitions))]
 internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling : IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index) => MotherBrainHandBeamInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Defines words per stage.</summary>
     internal const int WordsPerStage = MotherBrainHandBeamInstructionProgramDefinitions.FramesPerStage + 1;
+    /// <summary>Gets native word count.</summary>
     internal static int NativeWordCount => MotherBrainHandBeamInstructionProgramDefinitions.StageCount * WordsPerStage + 1;
+    /// <summary>native word.</summary>
     internal static InstructionMechanicsWord NativeWord(int index)
     {
         if ((uint)index >= NativeWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -20,6 +25,7 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling 
             (record == 1 ? MotherBrainHandBeamInstructionProgramDefinitions.FrameBytes : MotherBrainHandBeamInstructionProgramDefinitions.FrameOffset(record == 0 ? 0 : record - 1)));
         return new(address, MotherBrainHandBeamInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

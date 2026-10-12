@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static WorkRobotInstructionProgramDefinitionsVerification;
 
+/// <summary>Represents work robot visuals verification.</summary>
 internal static class WorkRobotVisualsVerification
 {
+    /// <summary>verify installed work robot visuals.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Work Robot visuals")]
     internal static void VerifyInstalledWorkRobotVisuals(

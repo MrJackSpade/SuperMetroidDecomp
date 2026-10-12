@@ -25,12 +25,18 @@ public enum KzanEnemyFunction : ushort
 /// </summary>
 public sealed class KzanEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Stores fall wait timer reset values.</summary>
     private readonly ushort[] _fallWaitTimerResetValues;
+    /// <summary>Stores previous ypositions.</summary>
     private readonly ushort[] _previousYPositions;
+    /// <summary>Stores falling yspeed table indexes.</summary>
     private readonly ushort[] _fallingYSpeedTableIndexes;
+    /// <summary>Stores rise wait timers.</summary>
     private readonly ushort[] _riseWaitTimers;
 
+    /// <summary>Initializes a new kzan enemy state instance.</summary>
     internal KzanEnemyState(
         RoomEnemySlot slot,
         ushort[] fallWaitTimerResetValues,

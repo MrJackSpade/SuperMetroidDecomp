@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents spin charge verification.</summary>
 internal static class SpinChargeVerification
 {
     /// <summary>Regression for #473: spin HUD dispatch preserves charge on Shoot release.</summary>

@@ -80,9 +80,11 @@ public static class PauseEquipmentBaseDefinitions
     /// <summary>$B6:EB06-EB0F: repeated empty reserve-gauge segment $FC and endcap $FE.</summary>
     private const int EmptyGauge = 0xfc, GaugeEnd = 0xfe;
 
-    private enum PanelKind { Supply, Beam, Suit, Misc, Boots }
+    /// <summary>Represents panel kind.</summary>
+    private enum PanelKind { /** <summary>Identifies supply.</summary> */ Supply, /** <summary>Identifies beam.</summary> */ Beam, /** <summary>Identifies suit.</summary> */ Suit, /** <summary>Identifies misc.</summary> */ Misc, /** <summary>Identifies boots.</summary> */ Boots }
     /// <summary>Right-column panels whose left border joins the beam panel's guide line.</summary>
     private static readonly PanelKind[] GuidedPanels = [PanelKind.Suit, PanelKind.Misc, PanelKind.Boots];
+    /// <summary>Represents panel shape.</summary>
     private readonly record struct PanelShape(int Left, int Top, int Right, int Bottom,
         int TextColumn, int TextWidth, int TextTile, int TextPalette, bool TextPriority);
 
@@ -92,6 +94,7 @@ public static class PauseEquipmentBaseDefinitions
     private const int GuideBorderJunction = 0x154;
 
     // These title styles and supply padding are the authored composition of this exact page.
+    /// <summary>Panel.</summary>
     private static PanelShape Panel(PanelKind kind) => kind switch
     {
         PanelKind.Supply => SupplyPanel(),
@@ -102,6 +105,7 @@ public static class PauseEquipmentBaseDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
+    /// <summary>Supply panel.</summary>
     private static PanelShape SupplyPanel()
     {
         int label = PauseReserveUiDefinitions.StockLabelOffset("Mode") / sizeof(ushort);
@@ -111,6 +115,7 @@ public static class PauseEquipmentBaseDefinitions
         return new(left, label / Columns - 1, right, last / Columns + 2,
             (left + right - titleWidth + 1) / 2, titleWidth, SupplyTitle, 3, false);
     }
+    /// <summary>Inventory panel.</summary>
     private static PanelShape InventoryPanel(PauseEquipmentCategory category, int firstItem, int lastItem,
         int titleWidth, int titleGlyph, int titlePalette)
     {
@@ -191,6 +196,7 @@ public static class PauseEquipmentBaseDefinitions
         return 0;
     }
 
+    /// <summary>Tile.</summary>
     private static ushort Tile(int character, int palette, bool priority = true, bool flipX = false, bool flipY = false) =>
         (ushort)(character | palette << 10 | (priority ? 0x2000 : 0) | (flipX ? 0x4000 : 0) | (flipY ? 0x8000 : 0));
 }

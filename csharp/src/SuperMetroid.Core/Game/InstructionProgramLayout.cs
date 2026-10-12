@@ -18,6 +18,7 @@ internal readonly record struct InstructionWord(ushort Value, bool IsPresentatio
     /// <summary>Two packed byte operands (for example X/Y radii) read as one native word.</summary>
     internal static InstructionWord Bytes(byte low, byte high) => new((ushort)(SnesLittleEndian.Word(low, high)), false);
 
+    /// <summary>Converts to InstructionWord.</summary>
     public static implicit operator InstructionWord(ushort value) => new(value, false);
 }
 
@@ -37,6 +38,7 @@ internal enum InstructionItemKind : byte
 /// <summary>One item of a program in native address order.</summary>
 internal readonly struct InstructionItem
 {
+    /// <summary>Initializes a new instruction item instance.</summary>
     private InstructionItem(InstructionItemKind kind, InstructionWord[] words, ushort value)
     {
         Kind = kind;
@@ -44,7 +46,9 @@ internal readonly struct InstructionItem
         Value = value;
     }
 
+    /// <summary>Gets kind.</summary>
     internal InstructionItemKind Kind { get; }
+    /// <summary>Gets words.</summary>
     internal InstructionWord[] Words { get; }
 
     /// <summary>Entry or origin address, or the skipped byte count.</summary>
@@ -71,10 +75,13 @@ internal readonly struct InstructionItem
     internal static InstructionItem Frame(ushort duration, ushort visual) =>
         new(InstructionItemKind.Words, [duration, InstructionWord.Visual(visual)], 0);
 
+    /// <summary>Entry.</summary>
     internal static InstructionItem Entry(ushort address) => new(InstructionItemKind.Entry, [], address);
 
+    /// <summary>Origin.</summary>
     internal static InstructionItem Origin(ushort address) => new(InstructionItemKind.Origin, [], address);
 
+    /// <summary>Skip.</summary>
     internal static InstructionItem Skip(int bytes)
     {
         if (bytes is <= 0 or > ushort.MaxValue) throw new ArgumentOutOfRangeException(nameof(bytes));
@@ -92,11 +99,14 @@ internal readonly struct InstructionItem
 /// </remarks>
 internal sealed class InstructionProgramLayout
 {
+    /// <summary>Stores items.</summary>
     private readonly InstructionItem[] items;
     // Lookups run per instruction and per byte; the layout is immutable, so its words are laid
     // out once and indexed by address instead of walked on every query.
+    /// <summary>Stores index.</summary>
     internal readonly Lazy<WordIndex> index;
 
+    /// <summary>Initializes a new instruction program layout instance.</summary>
     internal InstructionProgramLayout(byte bank, params InstructionItem[] items)
     {
         if (items.Length == 0 || items[0].Kind != InstructionItemKind.Origin)
@@ -137,8 +147,11 @@ internal sealed class InstructionProgramLayout
         EndAddress = address;
     }
 
+    /// <summary>Gets bank.</summary>
     internal byte Bank { get; }
+    /// <summary>Gets mechanics word count.</summary>
     internal int MechanicsWordCount { get; }
+    /// <summary>Gets presentation slot count.</summary>
     internal int PresentationSlotCount { get; }
 
     /// <summary>Exclusive end of the last item.</summary>
@@ -151,6 +164,7 @@ internal sealed class InstructionProgramLayout
         return this.index.Value.Words[this.index.Value.Presentation[index]].Address;
     }
 
+    /// <summary>Attempts to read mechanics word.</summary>
     internal bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (index.Value.TryGet(address, out InstructionWord word))
@@ -177,6 +191,7 @@ internal sealed class InstructionProgramLayout
         return false;
     }
 
+    /// <summary>Checks whether an address identifies a presentation word.</summary>
     internal bool IsPresentationWord(ushort address) =>
         index.Value.TryGet(address, out InstructionWord word) && word.IsPresentation;
 
@@ -186,10 +201,14 @@ internal sealed class InstructionProgramLayout
     /// <summary>Every laid-out word in address order, its address index, and its two orderings.</summary>
     internal sealed class WordIndex
     {
+        /// <summary>Stores words.</summary>
         internal readonly (ushort Address, InstructionWord Word)[] Words;
+        /// <summary>Stores mechanics.</summary>
         internal readonly int[] Mechanics, Presentation;
+        /// <summary>Stores by address.</summary>
         private readonly Dictionary<ushort, int> byAddress = [];
 
+        /// <summary>Initializes a new word index instance.</summary>
         internal WordIndex(WordWalker walker)
         {
             var words = new List<(ushort, InstructionWord)>();
@@ -206,6 +225,7 @@ internal sealed class InstructionProgramLayout
             Presentation = [.. presentation];
         }
 
+        /// <summary>Attempts to get.</summary>
         internal bool TryGet(ushort address, out InstructionWord word)
         {
             bool found = byAddress.TryGetValue(address, out int position);
@@ -217,15 +237,21 @@ internal sealed class InstructionProgramLayout
     /// <summary>Allocation-free walk of every laid-out word in address order.</summary>
     internal struct WordWalker(InstructionItem[] items)
     {
+        /// <summary>Stores item.</summary>
         private int item = -1;
+        /// <summary>Stores word.</summary>
         private int word = -1;
+        /// <summary>Stores address.</summary>
         private int address;
 
+        /// <summary>Returns an enumerator over this sequence.</summary>
         public readonly WordWalker GetEnumerator() => this;
 
+        /// <summary>Gets current.</summary>
         public readonly (ushort Address, InstructionWord Word) Current =>
             ((ushort)address, items[item].Words[word]);
 
+        /// <summary>Moves next.</summary>
         public bool MoveNext()
         {
             if (item >= 0 && word >= 0) address += sizeof(ushort);

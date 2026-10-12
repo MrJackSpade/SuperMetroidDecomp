@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents dead torizo instruction program definitions verification.</summary>
 internal static class DeadTorizoInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies dead torizo instruction program definitions.</summary>
     internal static void VerifyDeadTorizoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDeadTorizoInstructionProgramDefinitions), () => VerifyDeadTorizoInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies dead torizo instruction program definitions.</summary>
     internal static void VerifyDeadTorizoInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -89,6 +92,7 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
             "terminal sleep, and the compiled spritemap selector pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Probes dead torizo instruction mechanics allocation.</summary>
     private static int ProbeDeadTorizoInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -102,6 +106,7 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New dead torizo instruction read guard.</summary>
     private static CartridgeReadGuard NewDeadTorizoInstructionReadGuard(ISnesAddressSpace source,
         Action sawPresentationWord) =>
         new CartridgeReadGuard(source)
@@ -115,6 +120,7 @@ internal static class DeadTorizoInstructionProgramDefinitionsVerification
                 },
                 _ => sawPresentationWord());
 
+    /// <summary>Dead torizo instruction mechanics command.</summary>
     [VerificationCommand("--dead-torizo-instruction-mechanics")]
     internal static int DeadTorizoInstructionMechanicsCommand()
     {

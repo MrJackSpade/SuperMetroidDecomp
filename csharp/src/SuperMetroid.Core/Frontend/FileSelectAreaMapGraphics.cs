@@ -12,12 +12,19 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 public sealed class FileSelectAreaMapGraphics
 {
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores ppu.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Stores palettes.</summary>
     [NonSerialized] private MapStaticPalettes? palettes;
+    /// <summary>Stores labels.</summary>
     [NonSerialized] private WorldMapLabelLayout? labels;
+    /// <summary>Stores screens.</summary>
     [NonSerialized] private MapScreenPresentation? screens;
+    /// <summary>Stores sprites.</summary>
     [NonSerialized] private MapSpriteCatalog? sprites;
+    /// <summary>Binds labels.</summary>
     internal void BindLabels(WorldMapLabelLayout? content) => labels = content;
 
     /// <summary>Area-map graphics bound to every installed resource the file-select map draws.</summary>
@@ -80,12 +87,14 @@ public sealed class FileSelectAreaMapGraphics
         SelectedArea = selectedArea;
     }
 
+    /// <summary>Loads foreground.</summary>
     private void LoadForeground()
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
             .LoadTo(new MenuVram(Vram).Bg1Tilemap, MapScreenDefinitions.WorldForeground);
     }
 
+    /// <summary>Loads background.</summary>
     private void LoadBackground(AreaId selectedArea)
     {
         (screens ?? throw new InvalidOperationException("World map requires installed screen assets."))
@@ -101,13 +110,16 @@ public sealed class FileSelectAreaMapGraphics
         LoadBackground((AreaId)SelectedArea);
     }
 
+    /// <summary>Binds palettes.</summary>
     internal void BindPalettes(MapStaticPalettes? content)
     {
         palettes = content;
         if (content is not null) LoadInstalledPalette((AreaId)SelectedArea);
     }
+    /// <summary>Binds sprites.</summary>
     internal void BindSprites(MapSpriteCatalog? content) { sprites = content; ppu.BindMapSprites(content); }
 
+    /// <summary>Loads installed palette.</summary>
     private void LoadInstalledPalette(AreaId selectedArea)
     {
         var colors = palettes!.World(selectedArea);
@@ -120,9 +132,12 @@ public sealed class FileSelectAreaMapGraphics
     /// </summary>
     // Layer scratch reused across draws; never part of saved state (restores reallocate it).
     [NonSerialized] private Rgba32[]? foregroundScratch;
+    /// <summary>Stores subscreen scratch.</summary>
     [NonSerialized] private Rgba32[]? subscreenScratch;
+    /// <summary>Stores obj scratch.</summary>
     [NonSerialized] private Rgba32[]? objScratch;
     // Owned frame: valid until this map renders again.
+    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
     /// <summary>Composes the unmasked 256-by-224 BG1 main scene plus additive BG3 subscreen, excluding OBJ labels and transition clipping; no menu state advances.</summary>
@@ -166,6 +181,7 @@ public sealed class FileSelectAreaMapGraphics
         return frame;
     }
 
+    /// <summary>Prepares labels.</summary>
     private OamBuffer PrepareLabels(ReadOnlySpan<ushort> usedStationMasks)
     {
         if (usedStationMasks.Length < FileSelectMapRomData.AreaCount)

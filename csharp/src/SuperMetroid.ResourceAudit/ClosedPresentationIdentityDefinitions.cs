@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Sparse identities whose ownership cannot be expressed as a contiguous index range.</summary>
 internal static class ClosedPresentationIdentityDefinitions
 {
+    /// <summary>Gets.</summary>
     internal static int[]? Get(string type, string method, string parameter) => (type, method, parameter) switch
     {
         ("GameplayMessageTitlePresentation", "Build", "messageId") =>
@@ -73,6 +74,7 @@ internal static class ClosedPresentationIdentityDefinitions
         _ => null,
     };
 
+    /// <summary>Full body pointers.</summary>
     private static int[] FullBodyPointers() =>
         new[] { SamusFullBodyCycleFamily.SpeedBooster, SamusFullBodyCycleFamily.ScrewAttack,
             SamusFullBodyCycleFamily.StoredShine, SamusFullBodyCycleFamily.ActiveShinespark }
@@ -81,6 +83,7 @@ internal static class ClosedPresentationIdentityDefinitions
                 .Select(shade => (int)SamusFullBodyCycleColorFormat.Pointer(family, suit, shade))))
         .Distinct().ToArray();
 
+    /// <summary>Tileset sources.</summary>
     private static int[] TilesetSources(Func<TilesetDefinition, int> select) => Enumerable.Range(0, RoomTilesetDefinitions.Count)
         .Select(index => select(RoomTilesetDefinitions.Get((byte)index))).Distinct().ToArray();
 }

@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static TilemapJsonContractsEnvironmentVerification;
 
+/// <summary>Represents tilemap json contracts verification.</summary>
 internal static class TilemapJsonContractsVerification
 {
     /// <summary>Exercises the actual shared room/Kraid loaders, not a parallel JSON validator.</summary>
@@ -84,6 +85,7 @@ internal static class TilemapJsonContractsVerification
             $"exact word roundtrips/historical casing; {rejected} invalid documents rejected.");
     }
 
+    /// <summary>Tilemap contract corruptions.</summary>
     internal static IEnumerable<string> TilemapContractCorruptions(string json, Func<JsonObject, JsonObject> cell)
     {
         yield return TilemapContractMutate(json, root => root["attackDuration"] = 7);
@@ -99,6 +101,7 @@ internal static class TilemapJsonContractsVerification
         yield return TilemapContractMutate(json, root => cell(root)["palette"] = RoomBackgroundTilemapFormat.PaletteCount);
     }
 
+    /// <summary>Tilemap contract words.</summary>
     internal static byte[] TilemapContractWords(int count)
     {
         var bytes = new byte[count * sizeof(ushort)];
@@ -107,6 +110,7 @@ internal static class TilemapJsonContractsVerification
         return bytes;
     }
 
+    /// <summary>Tilemap contract cell.</summary>
     internal static RoomBackgroundTilemapCell TilemapContractCell(ushort word)
     {
         var fields = new SnesBgTilemapWord(word);
@@ -119,6 +123,7 @@ internal static class TilemapJsonContractsVerification
         };
     }
 
+    /// <summary>Tilemap contract mutate.</summary>
     internal static string TilemapContractMutate(string json, Action<JsonObject> mutate)
     {
         var root = (JsonObject)JsonNode.Parse(json)!;
@@ -126,11 +131,14 @@ internal static class TilemapJsonContractsVerification
         return root.ToJsonString();
     }
 
+    /// <summary>Tilemap contract stream.</summary>
     internal static MemoryStream TilemapContractStream(string text) => new(Encoding.UTF8.GetBytes(text), writable: false);
+    /// <summary>Tilemap contract historical casing.</summary>
     internal static string TilemapContractHistoricalCasing(string json) => json
         .Replace("\"version\"", "\"VERSION\"", StringComparison.Ordinal)
         .Replace("\"tileColumn\"", "\"TILECOLUMN\"", StringComparison.Ordinal);
 
+    /// <summary>Tilemap json contracts command.</summary>
     [VerificationCommand("--tilemap-json-contracts")]
     internal static int TilemapJsonContractsCommand()
     {

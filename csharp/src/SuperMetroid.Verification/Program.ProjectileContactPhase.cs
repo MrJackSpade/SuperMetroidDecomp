@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents projectile contact phase verification.</summary>
 internal static class ProjectileContactPhaseVerification
 {
+    /// <summary>Verifies projectile runtime phase.</summary>
     internal static void VerifyProjectileRuntimePhase()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -67,6 +69,7 @@ internal static class ProjectileContactPhaseVerification
         AssertEqual(0, failures.Count, "native projectile frame ordering: " + string.Join("; ", failures));
     }
 
+    /// <summary>Verifies projectile contact phase.</summary>
     internal static void VerifyProjectileContactPhase(bool verifyPhase)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -105,6 +108,7 @@ internal static class ProjectileContactPhaseVerification
         AssertEqual(0, failures.Count, string.Join("; ", failures));
     }
 
+    /// <summary>Projectile runtime phase command.</summary>
     [VerificationCommand("--projectile-runtime-phase")]
     internal static int ProjectileRuntimePhaseCommand()
     {
@@ -112,6 +116,7 @@ internal static class ProjectileContactPhaseVerification
         return 0;
     }
 
+    /// <summary>Projectile contact phase command.</summary>
     [VerificationCommand("--projectile-contact-phase")]
     [VerificationCommand("--projectile-contact-damage")]
     internal static int ProjectileContactPhaseCommand(string[] args)

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents wave door bands verification.</summary>
 internal static class WaveDoorBandsVerification
 {
     /// <summary>Checks the XBA/BMI guard at pixel-half, screen, and signed-coordinate boundaries.</summary>

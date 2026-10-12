@@ -10,6 +10,7 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Represents ensure code fix tests.</summary>
 internal static class EnsureCodeFixTests
 {
     /// <summary>#677: SME6202 cases and the Ensure code fix for every recognized guard shape.</summary>

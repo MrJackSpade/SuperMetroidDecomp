@@ -4,6 +4,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents kraid installed presentation oracle verification.</summary>
 internal static class KraidInstalledPresentationOracleVerification
 {
     /// <summary>
@@ -33,6 +34,7 @@ internal static class KraidInstalledPresentationOracleVerification
         return result;
     }
 
+    /// <summary>Reads imported kraid head frame.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
     internal static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(

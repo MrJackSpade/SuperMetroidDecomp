@@ -15,8 +15,10 @@ using static SharedSlopeHeightsVerification;
 using static SuiteTimingVerification;
 using static TorizoLandingLifetimeVerification;
 
+/// <summary>Represents torizo palette shake verification.</summary>
 internal static class TorizoPaletteShakeVerification
 {
+    /// <summary>Verifies torizo palette shake.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static int VerifyTorizoPaletteShake()
     {
@@ -120,6 +122,7 @@ internal static class TorizoPaletteShakeVerification
         }
     }
 
+    /// <summary>Torizo palette shake command.</summary>
     [VerificationCommand("--torizo-palette-shake")]
     internal static int TorizoPaletteShakeCommand()
     {

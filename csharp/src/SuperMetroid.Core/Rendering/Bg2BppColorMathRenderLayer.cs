@@ -14,6 +14,7 @@ public enum ExpandedColorMathOperation : byte
 /// <summary>Owned 2-bpp BG color-math plane with a physical-line scroll table.</summary>
 public sealed record Bg2BppColorMathRenderLayer : RenderLayer
 {
+    /// <summary>Stores scrolls.</summary>
     private readonly Position16<BgPlanePixels>[] scrolls;
     /// <summary>
     /// The owned 224 literal scroll-register pairs indexed by physical output scanline, including HUD

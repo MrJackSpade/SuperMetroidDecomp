@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static WorkRobotInitialSelectionVerification;
 
+/// <summary>Represents enemy rom table pointers verification.</summary>
 internal static class EnemyRomTablePointersVerification
 {
     /// <summary>
@@ -90,6 +91,7 @@ internal static class EnemyRomTablePointersVerification
         (EnemyRomTablePointers.WorkRobot.InitialInstructionListWords, 4),
     ];
 
+    /// <summary>Verifies compiled enemy instruction selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy instruction selectors")]
     private static void VerifyCompiledEnemyInstructionSelectors(
         SuperMetroidAddressSpace rom)
@@ -148,6 +150,7 @@ internal static class EnemyRomTablePointersVerification
             "  Enemy instruction selectors: nine native words and all three production initializers avoid their source tables.");
     }
 
+    /// <summary>New enemy instruction selection read guard.</summary>
     private static CartridgeReadGuard NewEnemyInstructionSelectionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= EnemyRomTablePointersTorizo.SuperMissileInstructionPointers and
@@ -158,12 +161,14 @@ internal static class EnemyRomTablePointersVerification
                     < EnemyRomTablePointersTourianStatueConstants.InstructionListWords + 6,
                 address => $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");
 
+    /// <summary>Enemy pointer fixture command.</summary>
     [VerificationCommand("--enemy-pointer-fixture")]
     internal static int EnemyPointerFixtureCommand()
     {
      VerifyEnemyRomTablePointerCatalog(); return 0; 
     }
 
+    /// <summary>Enemy instruction selectors command.</summary>
     [VerificationCommand("--enemy-instruction-selectors")]
     internal static int EnemyInstructionSelectorsCommand()
     {

@@ -13,6 +13,7 @@ using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents reserve refill rainbow beam verification.</summary>
 internal static class ReserveRefillRainbowBeamVerification
 {
     /// <summary>
@@ -45,6 +46,7 @@ internal static class ReserveRefillRainbowBeamVerification
         Console.WriteLine("  Reserve refill under the rainbow beam: the beam's lock survives the refill.");
     }
 
+    /// <summary>Reserve refill rainbow beam command.</summary>
     [VerificationCommand("--reserve-refill-rainbow-beam")]
     internal static int ReserveRefillRainbowBeamCommand()
     {

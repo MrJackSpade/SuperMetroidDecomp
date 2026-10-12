@@ -264,6 +264,7 @@ public sealed record ControllerInputRecording
         return Read(source);
     }
 
+    /// <summary>Validate.</summary>
     private void Validate()
     {
         Ensure.NotNull(RomSha256);
@@ -290,6 +291,7 @@ public sealed record ControllerInputRecording
         }
     }
 
+    /// <summary>Validates digest.</summary>
     private static void ValidateDigest(byte[]? digest, string component)
     {
         if (digest is null || digest.Length != ControllerInputRecordingFormat.DigestByteCount)

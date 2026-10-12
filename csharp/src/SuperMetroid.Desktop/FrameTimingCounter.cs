@@ -45,15 +45,25 @@ public sealed class FrameTimingCounter
     internal event Action<long>? EmulatedFrameMeasured;
     /// <summary>Owner-thread observer for whole-run catch-up discards, independent of toolbar intervals.</summary>
     internal event Action<double>? LateFramesRecorded;
+    /// <summary>Stores timestamp frequency.</summary>
     private readonly long timestampFrequency;
+    /// <summary>Stores reporting interval ticks.</summary>
     private readonly long reportingIntervalTicks;
+    /// <summary>Stores interval started.</summary>
     private long intervalStarted;
+    /// <summary>Stores emulation ticks.</summary>
     private long emulationTicks;
+    /// <summary>Stores worst emulation ticks.</summary>
     private long worstEmulationTicks;
+    /// <summary>Stores paint ticks.</summary>
     private long paintTicks;
+    /// <summary>Stores worst paint ticks.</summary>
     private long worstPaintTicks;
+    /// <summary>Stores emulated frames.</summary>
     private int emulatedFrames;
+    /// <summary>Stores painted frames.</summary>
     private int paintedFrames;
+    /// <summary>Stores late frames.</summary>
     private double lateFrames;
 
     /// <summary>Creates an empty UI-thread counter using Stopwatch ticks and the host's one-second reporting interval.</summary>
@@ -139,11 +149,14 @@ public sealed class FrameTimingCounter
         return true;
     }
 
+    /// <summary>to average milliseconds.</summary>
     private double ToAverageMilliseconds(long ticks, int observations) =>
         observations == 0 ? 0 : ToMilliseconds(ticks) / observations;
 
+    /// <summary>to milliseconds.</summary>
     private double ToMilliseconds(long ticks) => ticks * 1000.0 / timestampFrequency;
 
+    /// <summary>clear observations.</summary>
     private void ClearObservations()
     {
         emulationTicks = 0;

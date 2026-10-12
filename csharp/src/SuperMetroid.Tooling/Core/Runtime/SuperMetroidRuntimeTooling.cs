@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Development-tool instance members of <see cref="SuperMetroidRuntime"/>.</summary>
 internal static class SuperMetroidRuntimeToolingExtensions
 {
+    /// <summary>Provides tooling operations on a Super Metroid runtime.</summary>
     extension(SuperMetroidRuntime self)
     {
         /// <summary>

@@ -10,10 +10,12 @@ internal static class NuclearWaffleVisualDefinitions
     /// <summary>Eight distinct head frames at $A6:9954..9985 selected by the twelve-frame loop.</summary>
     internal const int FrameCount = 8;
 
+    /// <summary>Operands.</summary>
     internal static ushort[] Operands() => Enumerable.Range(0,
         NuclearWaffleInstructionProgramDefinitions.PresentationWordCount)
         .Select(NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "nuclear_waffle");
 }

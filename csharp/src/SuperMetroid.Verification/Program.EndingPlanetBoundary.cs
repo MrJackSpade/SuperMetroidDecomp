@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rom;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ending planet boundary verification.</summary>
 internal static class EndingPlanetBoundaryVerification
 {
     /// <summary>
@@ -84,6 +85,7 @@ internal static class EndingPlanetBoundaryVerification
     /// <summary>Planet-explosion frames to serialize for the native PPU comparison, into a caller-owned scratch directory.</summary>
     internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames);
 
+    /// <summary>Verifies ending planet boundary.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending planet-explosion VRAM reconstruction")]
     internal static void VerifyEndingPlanetBoundary(PlanetFrameCapture? capture)
     {
@@ -149,6 +151,7 @@ internal static class EndingPlanetBoundaryVerification
         AssertEqual(0, memoryDifferences, "explosion setup executes exactly the native DMA byte ranges");
     }
 
+    /// <summary>Ending planet boundary command.</summary>
     [VerificationCommand("--ending-planet-boundary")]
     internal static int EndingPlanetBoundaryCommand()
     {
@@ -156,6 +159,7 @@ internal static class EndingPlanetBoundaryVerification
         return 0;
     }
 
+    /// <summary>Ending native ppu command.</summary>
     [VerificationCommand("--ending-native-ppu")]
     internal static int EndingNativePpuCommand()
     {
@@ -163,6 +167,7 @@ internal static class EndingPlanetBoundaryVerification
         return 0;
     }
 
+    /// <summary>Ending native finale command.</summary>
     [VerificationCommand("--ending-native-finale")]
     internal static int EndingNativeFinaleCommand()
     {
@@ -170,6 +175,7 @@ internal static class EndingPlanetBoundaryVerification
         return 0;
     }
 
+    /// <summary>Ending native burst command.</summary>
     [VerificationCommand("--ending-native-burst")]
     internal static int EndingNativeBurstCommand()
     {

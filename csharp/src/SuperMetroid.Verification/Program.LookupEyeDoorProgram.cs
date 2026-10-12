@@ -2,21 +2,35 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup eye door program verification.</summary>
 internal static class LookupEyeDoorProgramVerification
 {
+    /// <summary>verify eye door program control.</summary>
     internal static void VerifyEyeDoorProgramControl(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Control");
+    /// <summary>verify eye door program duration.</summary>
     internal static void VerifyEyeDoorProgramDuration(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Duration");
+    /// <summary>verify eye door program draw.</summary>
     internal static void VerifyEyeDoorProgramDraw(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Draw");
+    /// <summary>verify eye door program target.</summary>
     internal static void VerifyEyeDoorProgramTarget(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Target");
+    /// <summary>verify eye door program callback.</summary>
     internal static void VerifyEyeDoorProgramCallback(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Callback");
+    /// <summary>verify eye door program columns.</summary>
     internal static void VerifyEyeDoorProgramColumns(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Columns");
+    /// <summary>verify eye door program rows.</summary>
     internal static void VerifyEyeDoorProgramRows(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Rows");
+    /// <summary>verify eye door program attack.</summary>
     internal static void VerifyEyeDoorProgramAttack(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Attack");
+    /// <summary>verify eye door program sweat.</summary>
     internal static void VerifyEyeDoorProgramSweat(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sweat");
+    /// <summary>verify eye door program sound.</summary>
     internal static void VerifyEyeDoorProgramSound(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sound");
+    /// <summary>verify eye door program hit count.</summary>
     internal static void VerifyEyeDoorProgramHitCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "HitCount");
+    /// <summary>verify eye door program loop count.</summary>
     internal static void VerifyEyeDoorProgramLoopCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "LoopCount");
 
+    /// <summary>verify eye door program field.</summary>
     private static void VerifyEyeDoorProgramField(SuperMetroidAddressSpace rom, string field)
     {
         // Independent byte ownership from pinned bank_84.asm native instruction/operand declarations.
@@ -61,6 +75,7 @@ internal static class LookupEyeDoorProgramVerification
         }
     }
 
+    /// <summary>eye door program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for eye door program field")]
     private static byte EyeDoorProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

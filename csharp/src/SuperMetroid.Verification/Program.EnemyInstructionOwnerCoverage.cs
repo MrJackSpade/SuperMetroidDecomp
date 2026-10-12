@@ -15,6 +15,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents enemy instruction owner coverage verification.</summary>
 internal static class EnemyInstructionOwnerCoverageVerification
 {
     /// <summary>
@@ -171,6 +172,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             "explicitly inventoried pending families.");
     }
 
+    /// <summary>has compiled enemy instruction owner.</summary>
     private static bool HasCompiledEnemyInstructionOwner(
         RoomEnemySystem enemies,
         ISnesAddressSpace source,
@@ -201,6 +203,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         }
     }
 
+    /// <summary>is untranslated enemy initializer.</summary>
     private static bool IsUntranslatedEnemyInitializer(
         Exception? exception,
         EnemyDefinitionId definitionPointer) =>
@@ -210,6 +213,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             StringComparison.Ordinal) &&
         invalid.Message.EndsWith(" is not translated.", StringComparison.Ordinal);
 
+    /// <summary>read named retail enemy definitions.</summary>
     private static EnemyDefinitionId[] ReadNamedRetailEnemyDefinitions()
     {
         string symbolPath = Path.GetFullPath(
@@ -228,6 +232,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
             .ToArray();
     }
 
+    /// <summary>read retail enemy population records.</summary>
     private static Dictionary<EnemyDefinitionId, List<RoomEnemyPopulationRecord>>
         ReadRetailEnemyPopulationRecords(ISnesAddressSpace rom)
     {
@@ -265,13 +270,16 @@ internal static class EnemyInstructionOwnerCoverageVerification
         return records;
     }
 
+    /// <summary>new enemy instruction owner read probe.</summary>
     private static CartridgeReadGuard NewEnemyInstructionOwnerReadProbe(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(_ => true,
             address => new EnemyInstructionOwnerFallbackReadException(address));
 
+    /// <summary>Represents enemy instruction owner fallback read exception.</summary>
     internal sealed class EnemyInstructionOwnerFallbackReadException(int address) :
         Exception($"Ordinary-enemy mechanics fell back to ROM at ${address:X6}.");
 
+    /// <summary>enemy instruction owner coverage command.</summary>
     [VerificationCommand("--enemy-instruction-owner-coverage")]
     internal static int EnemyInstructionOwnerCoverageCommand()
     {

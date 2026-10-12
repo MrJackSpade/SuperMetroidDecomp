@@ -192,15 +192,19 @@ internal static class XrayRevealDefinitions
         _ => null,
     };
 
+    /// <summary>One.</summary>
     private static XrayRevealDefinition One(ushort tile) =>
         new(XrayRevealCommand.CopyOne, tile, 0, 0, 0);
 
+    /// <summary>Wide.</summary>
     private static XrayRevealDefinition Wide(ushort left, ushort right) =>
         new(XrayRevealCommand.CopyWide, left, right, 0, 0);
 
+    /// <summary>Tall.</summary>
     private static XrayRevealDefinition Tall(ushort top, ushort bottom) =>
         new(XrayRevealCommand.CopyTall, top, 0, bottom, 0);
 
+    /// <summary>Square.</summary>
     private static XrayRevealDefinition Square(
         ushort topLeft,
         ushort topRight,

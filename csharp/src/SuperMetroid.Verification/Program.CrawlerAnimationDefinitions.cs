@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents crawler animation definitions verification.</summary>
 internal static class CrawlerAnimationDefinitionsVerification
 {
+    /// <summary>Verifies crawler animation definitions.</summary>
     internal static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -121,6 +123,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             "Crawler animation definitions: forty-four native selectors and all family/orientation initializers plus 24 real surface handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Creates crawler animation read guard.</summary>
     private static CartridgeReadGuard NewCrawlerAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa396db and < 0xa396e3 or

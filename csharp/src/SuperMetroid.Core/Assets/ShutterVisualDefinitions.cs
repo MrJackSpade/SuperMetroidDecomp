@@ -12,6 +12,7 @@ internal static class ShutterVisualDefinitions
     /// <summary>Native shutter sprite-map bank.</summary>
     internal const byte Bank = 0xa2;
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         new(Bank, GrowingFrame(0), "shutter_growing_10px"),
@@ -27,12 +28,15 @@ internal static class ShutterVisualDefinitions
     // A stage with n sprites occupies 2+5n bytes, followed by an unused
     // intermediate map with n+1 sprites occupying 2+5(n+1) bytes.
     // Sum those pairs for the preceding stages, where n starts at one.
+    /// <summary>Growing frame.</summary>
     private static ushort GrowingFrame(int stage) => (ushort)(0xed44 + 19 * stage + 5 * stage * (stage - 1));
 
+    /// <summary>Checks whether an address identifies a presentation word.</summary>
     internal static bool IsPresentationWord(ushort address) =>
         GrowingShutterInstructionProgramDefinitions.IsPresentationWord(address) ||
         HorizontalShutterInstructionProgramDefinitions.IsPresentationWord(address);
 
+    /// <summary>Pointer at.</summary>
     internal static ushort PointerAt(ushort operandAddress)
     {
         if (GrowingShutterInstructionProgramDefinitions.IsPresentationWord(operandAddress))

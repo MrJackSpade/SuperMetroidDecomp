@@ -17,6 +17,7 @@ internal static class ShaktoolSegmentDefinitions
     // Integrated symmetric joint increments 1,2,3,4,3,2. The first arm uses
     // triangular numbers; the other arm subtracts the remaining triangle from 16.
     // ForIndex validates the physical segment domain 0..6 before this calculation.
+    /// <summary>Integrated joint step.</summary>
     private static int IntegratedJointStep(int index) => index <= 4
         ? index * (index + 1) / 2
         : 16 - (7 - index) * (8 - index) / 2;

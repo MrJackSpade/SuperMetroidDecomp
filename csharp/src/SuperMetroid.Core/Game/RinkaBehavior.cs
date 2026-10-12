@@ -1,16 +1,24 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Rinka species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class RinkaBehavior : IEnemySpecies
 {
+    /// <summary>Stores dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Initializes a new rinka behavior instance.</summary>
     internal RinkaBehavior(IEnemyDispatch dispatch, EnemySlotTable slotTable, EnemyCollision collision, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
     {
         _dispatch = dispatch;
@@ -22,10 +30,15 @@ internal sealed class RinkaBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>Defines rinka initial delay.</summary>
     private const ushort RinkaInitialDelay = 26;
+    /// <summary>Defines rinka health.</summary>
     private const ushort RinkaHealth = 10;
+    /// <summary>Stores rinka palette index.</summary>
     private static readonly ushort RinkaPaletteIndex = EnemyPaletteBits.Palette2;
+    /// <summary>Defines rinka speed.</summary>
     private const ushort RinkaSpeed = 0x0120;
+    /// <summary>Defines rinka maximum special actors.</summary>
     private const ushort RinkaMaximumSpecialActors = 3;
 
     // This is not a designed host spawn layout. These eleven triples are the untouched
@@ -34,6 +47,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
     // rewrite their immutable spawn snapshots when the original point is on another screen.
     // $A2:B75B: the eleven authored spawn points; each record's extra-RAM selector token is
     // calculated from its position in the list.
+    /// <summary>Stores rinka spawn points.</summary>
     private static readonly Position16<RoomPixels>[] RinkaSpawnPoints =
     [
         new(0x03e7, 0x0026),
@@ -49,18 +63,25 @@ internal sealed class RinkaBehavior : IEnemySpecies
         new(0x0080, 0x00a8),
     ];
 
+    /// <summary>rinka spawn resource at.</summary>
     internal static RinkaSpawnResource RinkaSpawnResourceAt(int index) =>
         new(RinkaSpawnPoints[index], (ushort)(2 * (index + 1)));
 
+    /// <summary>Stores rinka states.</summary>
     internal readonly RinkaEnemyState?[] _rinkaStates =
         new RinkaEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores rinka occupied spawn resources.</summary>
     private readonly bool[] _rinkaOccupiedSpawnResources =
         new bool[RinkaMaximumSpecialActors + 8]; // Eleven literal table entries.
+    /// <summary>Stores rinka active count.</summary>
     private ushort _rinkaActiveCount;
+    /// <summary>Stores rinka termination flag.</summary>
     internal ushort _rinkaTerminationFlag;
+    /// <summary>Stores rinka camera.</summary>
     private Position16<RoomPixels> _rinkaCamera;
     // Special Rinkas whose spawn choice awaits the door loader's camera; see
     // CompleteLoaderTimeCameraReads. Ascending slot order, as Initialise_Enemies runs them.
+    /// <summary>Stores deferred rinka spawn slots.</summary>
     private readonly List<int> _deferredRinkaSpawnSlots = new();
 
     /// <summary>Clears the two shared words and all per-slot/extra-RAM spawn ownership.</summary>
@@ -138,6 +159,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         InitializeRinkaLife(slot, state);
     }
 
+    /// <summary>initialize rinka life.</summary>
     private void InitializeRinkaLife(RoomEnemySlot slot, RinkaEnemyState state)
     {
         state.Function = RinkaEnemyFunction.WatchForLeavingViewport;
@@ -343,6 +365,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>recycle rinka after leaving viewport.</summary>
     private void RecycleRinkaAfterLeavingViewport(
         RoomEnemySlot slot,
         RinkaEnemyState state)
@@ -417,6 +440,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         state.SpawnResourceToken = RinkaSpawnResourceAt(mappedIndex).Token;
     }
 
+    /// <summary>find rinka spawn resource.</summary>
     private static int FindRinkaSpawnResource(Position16<RoomPixels> position)
     {
         for (int index = 0; index < RinkaSpawnPoints.Length; index++)
@@ -431,6 +455,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         return 0;
     }
 
+    /// <summary>release special rinka spawn.</summary>
     private void ReleaseSpecialRinkaSpawn(RinkaEnemyState state)
     {
         if (state.SpawnResourceToken == 0)
@@ -447,6 +472,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         state.SpawnResourceToken = 0;
     }
 
+    /// <summary>decrement visible special rinka count.</summary>
     private void DecrementVisibleSpecialRinkaCount(RoomEnemySlot slot)
     {
         if (!IsSpecialRinka(slot) || slot.Properties.HasAny(EnemyProperties.Invisible))
@@ -483,12 +509,15 @@ internal sealed class RinkaBehavior : IEnemySpecies
             !EnemyMath.IsNegative16(position.X - _rinkaCamera.X - 256);
     }
 
+    /// <summary>is special rinka.</summary>
     private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Parameter1 != 0;
 
+    /// <summary>require rinka state.</summary>
     private RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>
         _rinkaStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rinka state.");
 
+    /// <summary>register rinka bomb reactions.</summary>
     internal void RegisterRinkaBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
@@ -499,6 +528,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rinka initialization ai.</summary>
     internal void RegisterRinkaInitializationAi(EnemyAiTable table)
     {
 
@@ -508,6 +538,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rinka main ai.</summary>
     internal void RegisterRinkaMainAi(EnemyAiTable table)
     {
 
@@ -517,6 +548,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rinka owned instructions.</summary>
     internal void RegisterRinkaOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -526,6 +558,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rinka power bomb reactions.</summary>
     internal void RegisterRinkaPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
@@ -537,6 +570,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rinka shot reactions.</summary>
     internal void RegisterRinkaShotReactions(EnemyAiTable table)
     {
         // Rinka's tail follows the damage path only; the immediate-freeze path skips it.
@@ -552,6 +586,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rinka touch.</summary>
     internal void RegisterRinkaTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
@@ -574,6 +609,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
     {
         SetRinkaCamera(frame.Camera);
     }
+    /// <summary>Defines rinka dust animation index.</summary>
     private const ushort RinkaDustAnimationIndex = 3;
     /// <summary>Allocates <c>SpawnEprojWithRoomGfx($E509, 3)</c>.</summary>
     internal void SpawnRinkaDustExplosion(Position16<RoomPixels> position)
@@ -637,6 +673,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
     }
 
 
+    /// <summary>register misc dust pre instruction.</summary>
     internal static void RegisterMiscDustPreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -645,6 +682,7 @@ internal sealed class RinkaBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.MiscDust);
     }
 
+    /// <summary>register rinka frozen preemption.</summary>
     internal void RegisterRinkaFrozenPreemption(EnemyAiTable table) =>
         table.AddFrozenPreemption(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, RunRinkaFrozenTail);
 }

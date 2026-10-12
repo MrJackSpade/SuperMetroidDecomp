@@ -3,20 +3,25 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents enemy content identity fixture verification.</summary>
 internal static class EnemyContentIdentityFixtureVerification
 {
     /// <summary>Small authored presentation data loaded through production PNG/JSON compilers.</summary>
     internal sealed class EnemyIdentityFixture(string? edit = null, bool reverse = false)
     {
+        /// <summary>Gets edits.</summary>
         public List<string> Edits { get; } = [];
+        /// <summary>Register.</summary>
         private void Register(string name)
         {
             if (!Edits.Contains(name, StringComparer.Ordinal)) Edits.Add(name);
         }
 
+        /// <summary>Json.</summary>
         public MemoryStream Json(object document) => new(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = edit == "json-indent" }));
 
+        /// <summary>Png.</summary>
         private MemoryStream Png(string name, int bytes, int seed = 0)
         {
             Register(name);
@@ -32,9 +37,11 @@ internal static class EnemyContentIdentityFixtureVerification
             return png;
         }
 
+        /// <summary>Characters.</summary>
         private RoomCharacterAtlas Characters(string name, int bytes, int seed = 0) =>
             RoomCharacterAtlas.Load(Png(name, bytes, seed), bytes);
 
+        /// <summary>Cells.</summary>
         private RoomBackgroundTilemapCell[] Cells(string name, int count)
         {
             Register(name);
@@ -45,6 +52,7 @@ internal static class EnemyContentIdentityFixtureVerification
             }).ToArray();
         }
 
+        /// <summary>Map.</summary>
         private RoomBackgroundTilemapAtlas Map(string name, int bytes) => RoomBackgroundTilemapAtlas.Load(Json(
             new RoomBackgroundTilemapDocument
             {
@@ -53,6 +61,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     new RoomBackgroundTilemapPage { Cells = Cells(name + "-page-" + page, RoomBackgroundTilemapFormat.CellsPerPage) }).ToArray(),
             }), bytes);
 
+        /// <summary>Words.</summary>
         private ushort[] Words(string name, int count)
         {
             Register(name);
@@ -61,6 +70,7 @@ internal static class EnemyContentIdentityFixtureVerification
             return words;
         }
 
+        /// <summary>Colors.</summary>
         private PaletteRgb5[] Colors(string name, int count, int seed = 0)
         {
             Register(name);
@@ -71,6 +81,7 @@ internal static class EnemyContentIdentityFixtureVerification
             }).ToArray();
         }
 
+        /// <summary>Color rows.</summary>
         private PaletteRgb5[][] ColorRows(string name, int count, int colors)
         {
             Register(name + "-order");
@@ -79,6 +90,7 @@ internal static class EnemyContentIdentityFixtureVerification
             return rows;
         }
 
+        /// <summary>Color catalog.</summary>
         private T ColorCatalog<T>(Func<Stream, T> load, params (string Name, int Rows, int Colors)[] fields)
         {
             var document = new Dictionary<string, object> { ["version"] = 1 };
@@ -90,9 +102,11 @@ internal static class EnemyContentIdentityFixtureVerification
             return load(Json(document));
         }
 
+        /// <summary>Ordered.</summary>
         private Dictionary<TKey, TValue> Ordered<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>> source) where TKey : notnull =>
             (reverse ? source.Reverse() : source).ToDictionary();
 
+        /// <summary>Build.</summary>
         public EnemyTileArtworkCatalog Build(EnemySpritemapCatalog? spritemaps = null,
             EnemyExtendedFrameCatalog? extendedFrames = null,
             EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
@@ -202,6 +216,7 @@ internal static class EnemyContentIdentityFixtureVerification
                     Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoInstructionVram = torizo, CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay, AuxiliaryColors = auxiliary });
         }
 
+        /// <summary>Melt map.</summary>
         private CrocomireMeltingTilemapDocument MeltMap(string name)
         {
             Register(name);
@@ -217,6 +232,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
 
+        /// <summary>Parts.</summary>
         private SpriteVisualPart[] Parts(string family, bool mutate)
         {
             if (mutate)
@@ -241,6 +257,7 @@ internal static class EnemyContentIdentityFixtureVerification
             return change switch { "order" => [second, first], "count" => [first], _ => [first, second] };
         }
 
+        /// <summary>Oam document.</summary>
         public EnemySpritemapDocument OamDocument()
         {
             var definitions = EnemySpritemapDefinitions.Frames.ToArray();
@@ -255,8 +272,10 @@ internal static class EnemyContentIdentityFixtureVerification
                         ? definitions.First(other => other.Bank == frame.Bank && other.Name != frame.Name).Name : frame.Name))),
             };
         }
+        /// <summary>Oam.</summary>
         public EnemySpritemapCatalog Oam() => EnemySpritemapCatalog.Load(Json(OamDocument()));
 
+        /// <summary>Extended document.</summary>
         public EnemyExtendedFrameDocument ExtendedDocument()
         {
             var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
@@ -282,8 +301,10 @@ internal static class EnemyContentIdentityFixtureVerification
                     KeyValuePair.Create(frame.Name, index == 0 && edit == "extended-binding" ? definitions[1].Name : frame.Name))),
             };
         }
+        /// <summary>Extended.</summary>
         public EnemyExtendedFrameCatalog Extended() => EnemyExtendedFrameCatalog.Load(Json(ExtendedDocument()));
 
+        /// <summary>Projectile document.</summary>
         public EnemyProjectileSpritemapDocument ProjectileDocument()
         {
             var frames = EnemyProjectileSpritemapDefinitions.Frames.ToArray();
@@ -297,8 +318,10 @@ internal static class EnemyContentIdentityFixtureVerification
                     KeyValuePair.Create(frame.Name, Parts("projectile-program", index == programs.Length - 1)))),
             };
         }
+        /// <summary>Projectiles.</summary>
         public EnemyProjectileSpritemapCatalog Projectiles() => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument()));
 
+        /// <summary>Bg2.</summary>
         private MemoryStream Bg2(string family, EnemyBg2FrameDefinitionSequence definitions)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);

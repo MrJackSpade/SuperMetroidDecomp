@@ -278,6 +278,7 @@ internal static class SamusPoseInputDefinitions
     /// <summary>Pose $64, TransitionTable pointer at $91:9FAA: preserved native input-dispatch identity.</summary>
     private const SamusPoseId NativePose64 = (SamusPoseId)0x64;
 
+    /// <summary>Attempts to get pointer.</summary>
     internal static bool TryGetPointer(SamusPoseId pose, out SamusPoseInputList pointer)
     {
         // Indexes past the 253 native poses read adjacent bank-$91 code, not a graph.
@@ -379,14 +380,17 @@ internal static class SamusPoseInputDefinitions
         return true;
     }
 
+    /// <summary>Match.</summary>
     internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, ushort held, ushort newlyPressed) =>
         (ushort)pointer < LaterListsBegin
             ? SamusPoseInputRulesEarly.Match(pointer, held, newlyPressed)
             : SamusPoseInputRulesLate.Match(pointer, held, newlyPressed);
 
+    /// <summary>Has.</summary>
     internal static bool Has(ushort input, CanonicalPoseButtons required) =>
         (input & (ushort)required) == (ushort)required;
 
+    /// <summary>Accept.</summary>
     internal static SamusPoseInputMatch Accept(SamusPoseId target) =>
         new(new(target), HasConditions: true);
 }

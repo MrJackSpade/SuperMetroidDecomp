@@ -16,21 +16,35 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed class ControllerInputRecorder : IDisposable
 {
+    /// <summary>Defines flush interval frames.</summary>
     private const int FlushIntervalFrames = 120;
+    /// <summary>Defines recording directory name.</summary>
     private const string RecordingDirectoryName = "input-recordings";
 
+    /// <summary>Stores gate.</summary>
     private readonly Lock gate = new();
+    /// <summary>Stores rom sha256.</summary>
     private readonly byte[] romSha256;
+    /// <summary>Stores initial save ram.</summary>
     private readonly byte[] initialSaveRam;
+    /// <summary>Stores game options.</summary>
     private readonly SuperMetroidGameOptions gameOptions;
+    /// <summary>Stores content identity.</summary>
     private readonly GameContentIdentitySnapshot? contentIdentity;
+    /// <summary>Stores started utc.</summary>
     private readonly DateTimeOffset startedUtc;
+    /// <summary>Stores inputs.</summary>
     private readonly List<ushort> inputs = [];
+    /// <summary>Stores process exit handler.</summary>
     private readonly EventHandler processExitHandler;
+    /// <summary>Stores flush task.</summary>
     private Task flushTask = Task.CompletedTask;
+    /// <summary>Stores frame count at last scheduled flush.</summary>
     private int frameCountAtLastScheduledFlush;
+    /// <summary>Stores disposed.</summary>
     private bool disposed;
 
+    /// <summary>Initializes a new controller input recorder instance.</summary>
     private ControllerInputRecorder(
         string path,
         byte[] romSha256,
@@ -90,6 +104,7 @@ internal sealed class ControllerInputRecorder : IDisposable
             contentIdentity);
     }
 
+    /// <summary>Starts core.</summary>
     private static ControllerInputRecorder StartCore(
         string recordingDirectory,
         byte[] romDigest,
@@ -140,6 +155,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         }
     }
 
+    /// <summary>Schedules flush.</summary>
     private void ScheduleFlush(ushort[] snapshot)
     {
         // Publication under the same lock as RecordFrame prevents a second caller from
@@ -151,6 +167,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         }
     }
 
+    /// <summary>Creates recording.</summary>
     private ControllerInputRecording CreateRecording(ushort[] snapshot) => new()
     {
         StartedUtc = startedUtc,
@@ -185,6 +202,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         WriteAtomically(CreateRecording(snapshot));
     }
 
+    /// <summary>Writes atomically.</summary>
     private void WriteAtomically(ControllerInputRecording recording)
     {
         string temporaryPath = Path + ".tmp";
@@ -202,6 +220,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         File.Move(temporaryPath, Path, overwrite: true);
     }
 
+    /// <summary>Flush final.</summary>
     private void FlushFinal()
     {
         Task pendingFlush;
@@ -219,6 +238,7 @@ internal sealed class ControllerInputRecorder : IDisposable
         WriteAtomically(CreateRecording(snapshot));
     }
 
+    /// <summary>Dispose.</summary>
     public void Dispose()
     {
         FlushFinal();

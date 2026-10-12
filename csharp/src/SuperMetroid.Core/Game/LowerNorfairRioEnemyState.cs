@@ -26,8 +26,10 @@ public enum LowerNorfairRioEnemyFunction : ushort
 /// </summary>
 public sealed class LowerNorfairRioEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new lower norfair rio enemy state instance.</summary>
     internal LowerNorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Last bank-$A2 instruction-list identity installed for this actor, native <c>Holtz.instList</c> at <c>$7E:7800,x</c>; distinct from the advancing cursor and prevents timer resets when the same list is requested again.</summary>

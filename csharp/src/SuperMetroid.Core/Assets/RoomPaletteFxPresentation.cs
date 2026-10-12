@@ -10,12 +10,17 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
 {
+    /// <summary>Stores colors.</summary>
     internal readonly Dictionary<ushort, Bgr555> colors;
 
+    /// <summary>Stores heat inputs.</summary>
     private readonly HeatPaletteInputView heatInputs;
+    /// <summary>Stores loading inputs.</summary>
     private readonly LoadingPaletteInputView loadingInputs;
+    /// <summary>Stores gunship inputs.</summary>
     private readonly EndingGunshipPaletteInputView gunshipInputs;
 
+    /// <summary>Initializes a new room palette fx presentation instance.</summary>
     private RoomPaletteFxPresentation(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -39,6 +44,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
          (heatInputs.TryGetValue(canonical, out color) ||
           HeatPaletteColorDefinitions.TryCalculatedColor(canonical, heatInputs, out color)));
 
+    /// <summary>Inherits heat rows.</summary>
     private static bool InheritsHeatRows(RoomPaletteFxPresentationRevision revision) => revision switch
     {
         RoomPaletteFxPresentationRevision.Previous => true,
@@ -593,6 +599,7 @@ public sealed class RoomPaletteFxPresentation : IPaletteFxColorSource
         json.Write(bytes);
     }
 
+    /// <summary>Validates and compile.</summary>
     private static void ValidateAndCompile(
         string owner,
         PaletteRgb5[][]? frames,

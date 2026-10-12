@@ -13,12 +13,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents shitroid gradual acceleration verification.</summary>
 internal static class ShitroidGradualAccelerationVerification
 {
     // #1269: GradduallyAccelerateTowardsPoint ($A9:F46B) reverses with SEC; SBC #8; SBC q;
     // SBC q. From a zero velocity the first SBC borrows, so the second takes one extra:
     // 0 - 8 - (3 + 1) - 3 = $FFF1. In the 100% movie the Shitroid's first rise after
     // draining the Sidehopper (Y $9C toward $68, divisor $10) moves its Y subpixel by -$F00.
+    /// <summary>Verifies shitroid gradual acceleration.</summary>
     internal static void VerifyShitroidGradualAcceleration()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -46,6 +48,7 @@ internal static class ShitroidGradualAccelerationVerification
     // #1269: DrainingSamus ($A9:F21B) adds Samus's X at $A9:F24D with no CLC. The carry is
     // CMP #4's on Samus's Y speed ($A9:F238): a jump during the drain moves the latched
     // Shitroid one pixel right of the shake offset, as on the 100% movie's update 383,169.
+    /// <summary>Verifies shitroid drain carry.</summary>
     internal static void VerifyShitroidDrainCarry()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -73,6 +76,7 @@ internal static class ShitroidGradualAccelerationVerification
         Console.WriteLine("Shitroid drain carry: a Y speed of 4 or more adds one pixel to the latched X.");
     }
 
+    /// <summary>Shitroid drain carry command.</summary>
     [VerificationCommand("--shitroid-drain-carry")]
     internal static int ShitroidDrainCarryCommand()
     {
@@ -80,6 +84,7 @@ internal static class ShitroidGradualAccelerationVerification
         return 0;
     }
 
+    /// <summary>Shitroid gradual acceleration command.</summary>
     [VerificationCommand("--shitroid-gradual-acceleration")]
     internal static int ShitroidGradualAccelerationCommand()
     {

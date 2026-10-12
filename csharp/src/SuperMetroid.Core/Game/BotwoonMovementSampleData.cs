@@ -12,6 +12,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class BotwoonMovementSampleData
 {
+    /// <summary>Stores packed samples.</summary>
     private static readonly byte[] PackedSamples = Convert.FromBase64String(
         """
         A0NDMkNDQ0NDMkNDQ0NDMkNDQ0NDMkNDQ0NCQ0NDQ0MyQ0NDQ0NDQ0NDQ0NDQzRDQ0NDQzRDQ0M0Q0M0Q0M0Q0M0Q0RDNENEQzRD

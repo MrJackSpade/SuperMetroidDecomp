@@ -31,6 +31,7 @@ internal static class SamusProjectileOriginDefinitions
     };
 
 
+    /// <summary>Reads.</summary>
     internal static (short X, short Y) Read(bool running, ushort direction)
     {
         int offset = (direction & 0x0f) * sizeof(ushort);
@@ -39,6 +40,7 @@ internal static class SamusProjectileOriginDefinitions
         return (ReadWord(x + offset), ReadWord(y + offset));
     }
 
+    /// <summary>Reads word.</summary>
     private static short ReadWord(int address)
     {
         int offset = address - SamusProjectileRomData.Origins.DefaultX;

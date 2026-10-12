@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents cpu bus inventory generator.</summary>
 internal static class CpuBusInventoryGenerator
 {
     /// <summary>

@@ -49,6 +49,7 @@ public static class EndingTextExtractor
         return output.ToArray();
     }
 
+    /// <summary>Reads stream.</summary>
     private static string ReadStream(ISnesAddressSpace bus, ushort pointer,
         EndingTextSequence sequence, out EndingTextCharacter[] characters)
     {
@@ -113,6 +114,7 @@ public static class EndingTextExtractor
         throw new InvalidDataException($"Native {sequence} did not terminate within the bounded record count.");
     }
 
+    /// <summary>Decode row.</summary>
     private static string DecodeRow(EndingTextCell[] cells, EndingTextRegionDefinition region)
     {
         var text = new char[region.Width];
@@ -128,6 +130,7 @@ public static class EndingTextExtractor
         return new string(text).TrimEnd();
     }
 
+    /// <summary>Reads cells.</summary>
     private static EndingTextCell[] ReadCells(ISnesAddressSpace bus, ushort pointer, int count)
     {
         var result = new EndingTextCell[count];
@@ -136,6 +139,7 @@ public static class EndingTextExtractor
         return result;
     }
 
+    /// <summary>Requires marker.</summary>
     private static void RequireMarker(ISnesAddressSpace bus, ushort pointer, ushort duration)
     {
         RequireWord(ReadWord(bus, pointer), duration, "ending-text marker duration");
@@ -145,15 +149,19 @@ public static class EndingTextExtractor
         RequireWord(ReadWord(bus, EndingTextDefinitions.Native.MarkerData), EndingTextDefinitions.Native.DoNothingFunction, "ending-text marker function");
     }
 
+    /// <summary>Requires word.</summary>
     private static void RequireWord(ushort actual, ushort expected, string identity)
     {
         if (actual != expected) throw new InvalidDataException(
             $"Native {identity} is ${actual:X4}, expected ${expected:X4}.");
     }
 
+    /// <summary>Reads byte.</summary>
     private static byte ReadByte(ISnesAddressSpace bus, ushort pointer) =>
         bus.ReadCartridgeByte((int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer));
+    /// <summary>Reads word.</summary>
     private static ushort ReadWord(ISnesAddressSpace bus, ushort pointer) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank((int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer));
+    /// <summary>Adds.</summary>
     private static ushort Add(ushort pointer, int bytes) => unchecked((ushort)(pointer + bytes));
 }

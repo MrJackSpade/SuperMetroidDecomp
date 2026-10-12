@@ -9,8 +9,11 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidResumeTrace(int capacity = 300)
 {
+    /// <summary>Stores gate.</summary>
     private readonly Lock gate = new();
+    /// <summary>Stores events.</summary>
     private readonly List<string> events = new();
+    /// <summary>Record.</summary>
     public void Record(string kind, string fields)
     {
         lock (gate)
@@ -20,8 +23,10 @@ internal sealed class AndroidResumeTrace(int capacity = 300)
         }
     }
 
+    /// <summary>Gets full.</summary>
     public bool Full { get { lock (gate) return events.Count >= capacity; } }
 
+    /// <summary>Flush.</summary>
     public void Flush(Action<string> write)
     {
         lock (gate)

@@ -60,6 +60,7 @@ public sealed class XrayOverlayVisualCatalog
     {
     }
 
+    /// <summary>Initializes a new xray overlay visual catalog instance.</summary>
     private XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
         IEnumerable<(ushort Pointer, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
         bool requireCompleteInstallation)

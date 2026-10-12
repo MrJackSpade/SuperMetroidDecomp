@@ -6,12 +6,17 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents lookup station layouts verification.</summary>
 internal static class LookupStationLayoutsVerification
 {
+    /// <summary>Verifies station layout geometry.</summary>
     internal static void VerifyStationLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyStationLayoutDrawField(rom, 0);
+    /// <summary>Verifies station layout collision.</summary>
     internal static void VerifyStationLayoutCollision(SuperMetroidAddressSpace rom) => VerifyStationLayoutDrawField(rom, 1);
+    /// <summary>Verifies station layout visuals.</summary>
     internal static void VerifyStationLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyStationLayoutDrawField(rom, 2);
 
+    /// <summary>Verifies station layout draw field.</summary>
     private static void VerifyStationLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9f25,0x9f6d,0x9f91,0x9f31,0x9f79,0x9f9d,0x9f3d,0x9f85,0x9fa9,0x9a3f,0x9a9f,0x9a6f,0x9f49,0x9f55,0x9f5b,0x9f67,0x9fb5,0x9fbb,0x9fc1,0x9fc7];

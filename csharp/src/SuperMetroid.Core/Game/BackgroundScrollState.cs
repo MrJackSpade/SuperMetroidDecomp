@@ -301,6 +301,7 @@ public sealed class BackgroundScrollState
         return requests;
     }
 
+    /// <summary>Calculates gameplay scrolls.</summary>
     private void CalculateGameplayScrolls()
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
@@ -320,12 +321,14 @@ public sealed class BackgroundScrollState
         }
     }
 
+    /// <summary>Calculates scroll registers.</summary>
     private void CalculateScrollRegisters()
     {
         Bg1Scroll = Layer1Position + Bg1Offset;
         Bg2Scroll = Layer2Position + Bg2Offset;
     }
 
+    /// <summary>Copies current blocks to previous.</summary>
     private void CopyCurrentBlocksToPrevious()
     {
         PreviousLayer1Block = Layer1Block;
@@ -340,6 +343,7 @@ public sealed class BackgroundScrollState
         PreviousLayer2Block += bias;
     }
 
+    /// <summary>Calculates blocks and updates.</summary>
     private List<BackgroundUpdateRequest> CalculateBlocksAndUpdates()
     {
         CalculateBlockCoordinates();
@@ -409,6 +413,7 @@ public sealed class BackgroundScrollState
         Layer2Block = Layer2Position.ToSourceBlocks();
     }
 
+    /// <summary>Tries to calculate layer2 position.</summary>
     private static bool TryCalculateLayer2Position(ushort layer1Position, byte scrollMode, out ushort result)
     {
         if (scrollMode == 1)
@@ -431,6 +436,7 @@ public sealed class BackgroundScrollState
         return true;
     }
 
+    /// <summary>Signed difference.</summary>
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 }
 

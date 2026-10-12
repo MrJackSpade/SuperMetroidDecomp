@@ -35,6 +35,7 @@ public readonly record struct RecordedPauseAudioResult(
 /// </summary>
 public static class AudioInputReplaySmokeTest
 {
+    /// <summary>Stores neutral tail frames.</summary>
     private const int NeutralTailFrames = 360;
 
     /// <summary>Replays a ROM-validated journal through managed gameplay/audio until its first door completes, checking projectile firing and the power-beam acknowledgement.</summary>
@@ -267,25 +268,37 @@ public static class AudioInputReplaySmokeTest
         return completed;
     }
 
+    /// <summary>Represents pause accumulator.</summary>
     private sealed class PauseAccumulator
     {
+        /// <summary>Stores minimum rms.</summary>
         private double minimumRms = double.MaxValue;
+        /// <summary>Stores maximum rms.</summary>
         private double maximumRms;
+        /// <summary>Stores sum rms.</summary>
         private double sumRms;
+        /// <summary>Stores paused frames.</summary>
         private int pausedFrames;
+        /// <summary>Stores command trace.</summary>
         private readonly List<string> commandTrace = [];
 
+        /// <summary>Initializes a new pause accumulator instance.</summary>
         public PauseAccumulator(int entryFrame, ushort roomPointer)
         {
             EntryFrame = entryFrame;
             RoomPointer = roomPointer;
         }
 
+        /// <summary>Gets entry frame.</summary>
         public int EntryFrame { get; }
+        /// <summary>Gets room pointer.</summary>
         public ushort RoomPointer { get; }
+        /// <summary>Gets or sets pause owned frames.</summary>
         public int PauseOwnedFrames { get; set; }
+        /// <summary>Gets or sets audio commands.</summary>
         public int AudioCommands { get; set; }
 
+        /// <summary>Adds paused frame.</summary>
         public void AddPausedFrame(ReadOnlySpan<short> samples)
         {
             double squareSum = 0;
@@ -298,6 +311,7 @@ public static class AudioInputReplaySmokeTest
             pausedFrames++;
         }
 
+        /// <summary>Record commands.</summary>
         public void RecordCommands(
             int frameIndex,
             SuperMetroidGameState state,
@@ -312,6 +326,7 @@ public static class AudioInputReplaySmokeTest
             commandTrace.Add($"{frameIndex}/{state}={formatted}");
         }
 
+        /// <summary>Complete.</summary>
         public RecordedPauseAudioResult Complete(int resumeFrame)
         {
             if (pausedFrames == 0)
@@ -329,6 +344,7 @@ public static class AudioInputReplaySmokeTest
         }
     }
 
+    /// <summary>Writes capture.</summary>
     private static void WriteCapture(Rgba32[]? pixels, string directory, string fileName)
     {
         if (pixels is null)

@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresDestructionArtworkCatalog
 {
+    /// <summary>Initializes a new ceres destruction artwork catalog instance.</summary>
     private CeresDestructionArtworkCatalog(byte[] ceresMaps,
         RoomBackgroundTilemapAtlas zebesMap, RoomCharacterAtlas zebesCharacters,
         CeresDestructionSpritePresentation sprites, CeresRevealActorLayout revealActors,
@@ -93,6 +94,7 @@ public sealed class CeresDestructionArtworkCatalog
         json.Write(bytes);
     }
 
+    /// <summary>read map.</summary>
     private static CeresDestructionMapDocument ReadMap(Stream json)
     {
         CeresDestructionMapDocument document;

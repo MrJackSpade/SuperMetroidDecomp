@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy death instruction program definitions verification.</summary>
 internal static class EnemyDeathInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify enemy death instruction program definitions.</summary>
     internal static void VerifyEnemyDeathInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyDeathInstructionProgramDefinitions), () => VerifyEnemyDeathInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>verify enemy death instruction program definitions.</summary>
     internal static void VerifyEnemyDeathInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -159,6 +162,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>probe enemy death instruction mechanics allocation.</summary>
     private static int ProbeEnemyDeathInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -172,6 +176,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new enemy death instruction read guard.</summary>
     private static CartridgeReadGuard NewEnemyDeathInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(EnemyDeathInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -179,6 +184,7 @@ internal static class EnemyDeathInstructionProgramDefinitionsVerification
             .ObserveWords(EnemyProjectileCodePointers.BankBase, EnemyDeathInstructionProgramDefinitions.PresentationWordCount,
                 EnemyDeathInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>enemy death instruction mechanics command.</summary>
     [VerificationCommand("--enemy-death-instruction-mechanics")]
     internal static int EnemyDeathInstructionMechanicsCommand()
     {

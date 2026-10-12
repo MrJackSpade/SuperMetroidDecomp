@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents samus atmospheric effect definitions verification.</summary>
 internal static class SamusAtmosphericEffectDefinitionsVerification
 {
+    /// <summary>Verifies samus atmospheric effect definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric effect definitions")]
     internal static void VerifySamusAtmosphericEffectDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -64,6 +66,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             "Samus atmospheric definitions: 28 splash selectors, 10 running-contact flags, both 16-byte Crateria policy copies, and all production handoffs pass with source tables forbidden.");
     }
 
+    /// <summary>Verifies production water splash selection.</summary>
     private static void VerifyProductionWaterSplashSelection()
     {
         MethodInfo spawn = typeof(SamusLiquidPhysicsState).GetMethod(
@@ -89,6 +92,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         }
     }
 
+    /// <summary>Verifies production running contacts.</summary>
     private static void VerifyProductionRunningContacts(
         ISnesAddressSpace guarded,
         SamusPoseId pose)
@@ -115,6 +119,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         }
     }
 
+    /// <summary>Verifies production crateria policies.</summary>
     private static void VerifyProductionCrateriaPolicies(
         ISnesAddressSpace guarded,
         SamusPoseId pose)
@@ -164,6 +169,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         }
     }
 
+    /// <summary>Advances to foot contact tick.</summary>
     private static void AdvanceToFootContactTick(
         SamusState samus,
         ISnesAddressSpace bus)
@@ -177,6 +183,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             samus.Presentation.AnimateNoFx(bus, new SamusAnimationStep());
     }
 
+    /// <summary>Creates samus atmospheric policy read guard.</summary>
     private static CartridgeReadGuard NewSamusAtmosphericPolicyReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x9081a4 and < 0x9081c0 or
                 >= 0x90a424 and < 0x90a42e or

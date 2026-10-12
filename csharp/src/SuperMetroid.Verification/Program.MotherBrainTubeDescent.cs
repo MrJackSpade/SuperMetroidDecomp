@@ -12,8 +12,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents mother brain tube descent verification.</summary>
 internal static class MotherBrainTubeDescentVerification
 {
+    /// <summary>Verifies mother brain tube descent.</summary>
     internal static int VerifyMotherBrainTubeDescent()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -60,6 +62,7 @@ internal static class MotherBrainTubeDescentVerification
         return 0;
     }
 
+    /// <summary>Mother brain tube descent command.</summary>
     [VerificationCommand("--mother-brain-tube-descent")]
     internal static int MotherBrainTubeDescentCommand()
     {

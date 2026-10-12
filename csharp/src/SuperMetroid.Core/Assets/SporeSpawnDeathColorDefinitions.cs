@@ -28,6 +28,7 @@ internal static class SporeSpawnDeathColorDefinitions
         Bgr555.FromWord(0x26a9), Bgr555.FromWord(0x25e9), Bgr555.FromWord(0x1542), Bgr555.FromWord(0x26a9), Bgr555.FromWord(0x0082), Bgr555.FromWord(0x2771),
     ];
 
+    /// <summary>Initial level color.</summary>
     internal static Bgr555 InitialLevelColor(int color) => color switch
     {
         >= 1 and <= 6 => InitialRoomLevelColors[color - 1],
@@ -51,6 +52,7 @@ internal static class SporeSpawnDeathColorDefinitions
         value = Interpolate(InitialLevelColor(color), finalColor, frame + 1);
         return true;
     }
+    /// <summary>Initial background color.</summary>
     internal static Bgr555 InitialBackgroundColor(int color) => color switch
     {
         >= 1 and <= 11 => InitialRoomBackgroundColors[color - 1],
@@ -69,6 +71,7 @@ internal static class SporeSpawnDeathColorDefinitions
         return Interpolate(InitialBackgroundColor(color), finalColor, frame + 1);
     }
 
+    /// <summary>Interpolate.</summary>
     private static Bgr555 Interpolate(Bgr555 initial, Bgr555 finalColor, int step)
     {
         int intervals = SporeSpawnColorRomData.DeathSceneFrameCount;

@@ -14,6 +14,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents draygon instruction program definitions verification.</summary>
 internal static class DraygonInstructionProgramDefinitionsVerification
 {
     /// <summary>
@@ -133,6 +134,7 @@ internal static class DraygonInstructionProgramDefinitionsVerification
             "operands, four physical owners, atomic list handoff, and both HUD IRQ opcodes pass.");
     }
 
+    /// <summary>Probe draygon instruction mechanics allocation.</summary>
     private static int ProbeDraygonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -144,11 +146,13 @@ internal static class DraygonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New draygon instruction read guard.</summary>
     private static CartridgeReadGuard NewDraygonInstructionReadGuard() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Draygon mechanics attempted cartridge read ${address:X6}.")
             .RejectWrites(address => $"Draygon mechanics attempted cartridge write ${address:X6}.");
 
+    /// <summary>Draygon instruction mechanics command.</summary>
     [VerificationCommand("--draygon-instruction-mechanics")]
     internal static int DraygonInstructionMechanicsCommand()
     {

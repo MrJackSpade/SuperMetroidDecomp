@@ -21,7 +21,9 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] IntroductionHolds = [3, 3, 4, 3, 1];
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 27;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 19;
 
     /// <summary>
@@ -57,6 +59,7 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -65,10 +68,12 @@ internal abstract class KiHunterAcidSpitInstructionProgramDefinitions
         int start = index >= 12 ? Right : Left;
         return (ushort)(start + 2 + pose * 4 + (pose >= 5 ? 4 : 0));
     }
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.KiHunterAcidSpitLeft or
         RoomEnemyProjectileKind.KiHunterAcidSpitRight;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

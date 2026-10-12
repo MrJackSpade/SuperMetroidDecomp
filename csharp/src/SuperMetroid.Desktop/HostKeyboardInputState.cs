@@ -27,6 +27,7 @@ internal sealed class HostKeyboardInputState
         SystemKeyUp = 0x0105,
     }
 
+    /// <summary>Stores held keys.</summary>
     private readonly HashSet<Keys> heldKeys = [];
 
     /// <summary>
@@ -57,6 +58,7 @@ internal sealed class HostKeyboardInputState
         }
     }
 
+    /// <summary>clear.</summary>
     public void Clear() => heldKeys.Clear();
 
     /// <summary>Merges the keyboard producer into an already-polled gamepad word.</summary>
@@ -81,6 +83,7 @@ internal sealed class HostKeyboardInputState
         return (ushort)input;
     }
 
+    /// <summary>is gameplay key.</summary>
     private static bool IsGameplayKey(Keys key) => key is
         Keys.Left or Keys.Right or Keys.Up or Keys.Down or
         Keys.Z or Keys.X or Keys.Space or Keys.A or Keys.S or Keys.Q or Keys.W or
@@ -99,6 +102,7 @@ internal sealed class HostKeyboardInputState
 /// </remarks>
 internal sealed class HostInputActivationGate
 {
+    /// <summary>Stores suppressed until neutral.</summary>
     private bool suppressedUntilNeutral;
 
     /// <summary>Suppresses subsequent input until every host control has been released.</summary>

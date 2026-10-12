@@ -23,6 +23,7 @@ internal static class EyeDoorPlmProgramDefinitions
     /// <summary>$84:A9E3, DrawInst_EyeDoorEyeFacingRight, replacement blue-cap draw.</summary>
     private const ushort RightBlueCapDraw = 0xa9e3;
 
+    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -31,6 +32,7 @@ internal static class EyeDoorPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -39,6 +41,7 @@ internal static class EyeDoorPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Byte at.</summary>
     private static byte ByteAt(int address)
     {
         int orientation = (address - FirstAddress) / OrientationBytes;
@@ -62,6 +65,7 @@ internal static class EyeDoorPlmProgramDefinitions
         return (byte)(EyeWord(start, wordOffset, orientation != 0) >> ((local - wordOffset) * 8));
     }
 
+    /// <summary>Component word.</summary>
     private static ushort ComponentWord(int start, int offset, bool right, int component)
     {
         int draw = ComponentDrawFirst + (right ? DrawMirrorBytes : 0) + component * 18;
@@ -92,6 +96,7 @@ internal static class EyeDoorPlmProgramDefinitions
         };
     }
 
+    /// <summary>Eye word.</summary>
     private static ushort EyeWord(int start, int offset, bool right)
     {
         int eye = EyeDrawFirst + (right ? DrawMirrorBytes : 0);

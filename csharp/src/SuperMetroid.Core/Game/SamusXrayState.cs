@@ -111,10 +111,10 @@ public sealed class SamusXrayState
     /// <summary>WRAM `$0AD0`, the shared five-frame palette cadence timer.</summary>
     public ushort CommonPaletteTimer { get; private set; }
 
-    /// <summary>Set by command five when sound-library-one effect nine would be queued.</summary>
+    /// <summary>Sets by command five when sound-library-one effect nine would be queued.</summary>
     public bool ActivationSoundRequested { get; private set; }
 
-    /// <summary>Set by state five when sound-library-one effect ten would be queued.</summary>
+    /// <summary>Sets by state five when sound-library-one effect ten would be queued.</summary>
     public bool DeactivationSoundRequested { get; private set; }
 
     /// <summary>Consumes visor startup's native <c>QueueSfx1_Max6($09)</c> call.</summary>
@@ -210,6 +210,7 @@ public sealed class SamusXrayState
         return true;
     }
 
+    /// <summary>Begin admitted beam.</summary>
     private void BeginAdmittedBeam(bool facingLeft)
     {
         // `$91:E217-$E28A` runs inside XraySetup itself, before UpdateSamusPose
@@ -232,6 +233,7 @@ public sealed class SamusXrayState
         DeactivationSoundRequested = false;
     }
 
+    /// <summary>Install samus control.</summary>
     private void InstallSamusControl(ISnesAddressSpace bus, SamusState samus, SamusPoseId targetPose)
     {
         samus.Pose = targetPose;
@@ -577,6 +579,7 @@ public sealed class SamusXrayState
         return true;
     }
 
+    /// <summary>Moves angle up.</summary>
     private void MoveAngleUp()
     {
         if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
@@ -613,6 +616,7 @@ public sealed class SamusXrayState
             Angle = SnesAngle.NormalizeTableIndex(SnesAngle.TableUnitsPerTurn - AngularWidth);
     }
 
+    /// <summary>Moves angle down.</summary>
     private void MoveAngleDown()
     {
         if (Angle.RawValue < SnesAngle.HalfTurn.RawValue)
@@ -652,6 +656,7 @@ public sealed class SamusXrayState
                 SnesAngle.HalfTurn.TableIndex + AngularWidth);
     }
 
+    /// <summary>Finish.</summary>
     private void Finish(ISnesAddressSpace bus, SamusState samus)
     {
         // `$91:E2AD` intentionally classifies turning type `$0E` as standing. Releasing
@@ -695,6 +700,7 @@ public sealed class SamusXrayState
         DeactivationSoundRequested = true;
     }
 
+    /// <summary>Applies xray pose change.</summary>
     private static void ApplyXrayPoseChange(
         ISnesAddressSpace bus,
         SamusState samus,
@@ -708,6 +714,7 @@ public sealed class SamusXrayState
         samus.CommitPoseHistory(bus);
     }
 
+    /// <summary>Classify allowed movement.</summary>
     private static XrayPosture ClassifyAllowedMovement(SamusMovementType movementType) => movementType switch
     {
         SamusMovementType.Standing or
@@ -728,22 +735,28 @@ public sealed class SamusXrayState
         _ => throw new InvalidOperationException($"Undefined SamusMovementType {movementType}."),
     };
 
+    /// <summary>Snapshot beam step.</summary>
     private static XrayBeamStepResult SnapshotBeamStep(
         XrayBeamPhase phaseAtStart,
         bool completed) => new(
             phaseAtStart,
             completed);
 
+    /// <summary>Ensures active.</summary>
     private void EnsureActive()
     {
         if (!IsActive)
             throw new InvalidOperationException("X-ray has no installed Samus handler.");
     }
 
+    /// <summary>Represents xray posture.</summary>
     private enum XrayPosture
     {
+        /// <summary>Identifies disallowed.</summary>
         Disallowed,
+        /// <summary>Identifies standing.</summary>
         Standing,
+        /// <summary>Identifies crouching.</summary>
         Crouching,
     }
 }

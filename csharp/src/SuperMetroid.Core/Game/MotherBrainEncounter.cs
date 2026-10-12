@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -12,9 +12,12 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class MotherBrainEncounter
 {
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Initializes a new mother brain encounter instance.</summary>
     internal MotherBrainEncounter(EnemyPresentation presentation, EnemyRoomBinding room)
     {
         _presentation = presentation;
@@ -30,6 +33,7 @@ internal sealed class MotherBrainEncounter
     /// </summary>
     public bool MotherBrainDeletedHdmaObjects { get; internal set; }
 
+    /// <summary>apply mother brain rainbow tile transfer.</summary>
     [PpuLayoutBoundary("codec: Mother Brain sprite tile transfer requests' native VRAM destinations")]
     internal void ApplyMotherBrainRainbowTileTransfer(
         MotherBrainSpriteTileTransferRequest transfer)

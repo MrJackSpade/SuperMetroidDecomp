@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
@@ -9,11 +9,16 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayWindowRegisters
 {
+    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Stores projectiles.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
 
+    /// <summary>Initializes a new gameplay window registers instance.</summary>
     internal GameplayWindowRegisters(RoomEnemySystem enemies, SamusProjectileSystem projectiles, ActiveRoomState room, RoomLayer3FxState roomLayer3Fx)
     {
         _enemies = enemies;
@@ -29,6 +34,7 @@ internal sealed class GameplayWindowRegisters
     public GameplayWindowRegisterSnapshot DisplayedGameplayWindowRegisters =>
         Cache.Displayed;
 
+    /// <summary>Gets cache.</summary>
     [field: NonSerialized]
     internal GameplayWindowRegisterCache Cache
     {

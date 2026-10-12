@@ -14,7 +14,9 @@ public sealed class EnemyPaletteSheet
 
     /// <summary>Sixteen RGB5 colors in a complete four-bit OBJ palette, including its color-zero entry.</summary>
     public const int ColorCount = 16;
+    /// <summary>Stores colors.</summary>
     private readonly Bgr555[] colors;
+    /// <summary>Initializes a new enemy palette sheet instance.</summary>
     private EnemyPaletteSheet(Bgr555[] colors) => this.colors = colors;
 
     /// <summary>Loads a version-one palette document with exactly sixteen non-null RGB5 colors, rejecting duplicate or unknown properties and channels outside 0..31; JSON property names are matched case-insensitively.</summary>
@@ -62,6 +64,7 @@ public sealed class EnemyPaletteSheet
     /// <param name="destination">The sixteen-colour OBJ palette row the room graphics-set record selects.</param>
     public void LoadTo(CgramPalette destination) => destination.CopyFrom(colors);
 
+    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -70,6 +73,7 @@ public sealed class EnemyPaletteSheet
         WriteIndented = true,
     };
 
+    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
             name => new InvalidDataException($"Duplicate enemy palette property {name}."));

@@ -16,8 +16,10 @@ using static LookupElevatubeVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents maridia elevatube plm verification.</summary>
 internal static class MaridiaElevatubePlmVerification
 {
+    /// <summary>Verifies maridia elevatube plm.</summary>
     internal static void VerifyMaridiaElevatubePlm()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -62,6 +64,7 @@ internal static class MaridiaElevatubePlmVerification
             "Maridia elevatube PLM: native delay, draw, sound, and delete pass with source reads forbidden.");
     }
 
+    /// <summary>Creates maridia elevatube source guard.</summary>
     internal static CartridgeReadGuard NewMaridiaElevatubeSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
         {
@@ -73,6 +76,7 @@ internal static class MaridiaElevatubePlmVerification
                   pointer < MaridiaElevatubePlmDefinitions.DrawPointer + 6));
         }, address => $"Elevatube PLM reread compiled source ${address:X6}.");
 
+    /// <summary>Maridia elevatube plm command.</summary>
     [VerificationCommand("--maridia-elevatube-plm")]
     internal static int MaridiaElevatubePlmCommand()
     {
@@ -80,6 +84,7 @@ internal static class MaridiaElevatubePlmVerification
         return 0;
     }
 
+    /// <summary>Runs the stream4 elevatube lookup command.</summary>
     [VerificationCommand("--lookup-stream-4-elevatube")]
     internal static int LookupStream4ElevatubeCommand()
     {

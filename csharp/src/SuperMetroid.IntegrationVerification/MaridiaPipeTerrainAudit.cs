@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 /// <summary>Compares the displayed tube tilemap words with the authored room allocation.</summary>
 internal static class MaridiaPipeTerrainAudit
 {
+    /// <summary>observe.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     public static void Observe(SuperMetroidRuntime runtime, RenderFrameSnapshot snapshot, int frame, bool requireAuthoredTerrain = false)
     {

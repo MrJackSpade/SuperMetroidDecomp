@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusArmCannonState
 {
+    /// <summary>Stores previous selected hud item.</summary>
     private ushort _previousSelectedHudItem;
 
     /// <summary>Host-owned visual data; rebound after a restored debugger state.</summary>
@@ -144,6 +145,7 @@ public sealed class SamusArmCannonState
         return new SamusArmCannonDrawResult();
     }
 
+    /// <summary>Attempts to start transition.</summary>
     private bool TryStartTransition(ushort selectedHudItem)
     {
         if (ToggleFlag < 2)
@@ -162,14 +164,17 @@ public sealed class SamusArmCannonState
         return true;
     }
 
+    /// <summary>Pose drawing data.</summary>
     private ushort PoseDrawingData(int pose) =>
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).PoseDrawingData(pose);
 
+    /// <summary>Reads drawing byte.</summary>
     private byte ReadDrawingByte(ushort address) =>
         (Artwork ?? throw new InvalidOperationException(
             "Arm cannon requires installed drawing definitions.")).ReadDrawingByte(address);
 
+    /// <summary>Advances frame.</summary>
     private void AdvanceFrame()
     {
         if (OpenFlag != 0)

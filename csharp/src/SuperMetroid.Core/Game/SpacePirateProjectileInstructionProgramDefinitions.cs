@@ -33,7 +33,9 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
     /// <summary>Laser startup dwell at $86:9F41/9F45/9F49 and right-facing equivalents. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort LaserStartupFrames = 2;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 58;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 42;
 
     /// <summary>
@@ -77,6 +79,7 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -90,10 +93,12 @@ internal abstract class SpacePirateProjectileInstructionProgramDefinitions
         return (ushort)(loop + (index - 26) % 8 * 4 + 2);
     }
 
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PirateMotherBrainLaser or
         RoomEnemyProjectileKind.PirateClaw;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

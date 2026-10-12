@@ -18,6 +18,7 @@ using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents spacetime beam verification.</summary>
 internal static class SpacetimeBeamVerification
 {
     /// <summary>
@@ -158,6 +159,7 @@ internal static class SpacetimeBeamVerification
             "equipment retention and SRAM persistence match the retail probe.");
     }
 
+    /// <summary>verify spacetime copy source against retail rom.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the bounded SpaceTime copy-source definition")]
     private static void VerifySpacetimeCopySourceAgainstRetailRom(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
@@ -196,6 +198,7 @@ internal static class SpacetimeBeamVerification
             bus.WriteByte(SaveRamLayout.ProgressionPaddingWramAddress + index, value);
     }
 
+    /// <summary>read table.</summary>
     private static byte[] ReadTable(WorkRamByteTable table)
     {
         var bytes = new byte[table.Length];
@@ -203,6 +206,7 @@ internal static class SpacetimeBeamVerification
         return bytes;
     }
 
+    /// <summary>verify spacetime save restart frontend.</summary>
     private static void VerifySpacetimeSaveRestartFrontend()
     {
         SuperMetroidSaveSnapshot CreateResetSnapshot()
@@ -303,6 +307,7 @@ internal static class SpacetimeBeamVerification
             AssertTrue(predicate(), context);
         }
     }
+    /// <summary>verify spacetime beam graphics.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: the SpaceTime palette pointer $90:19FF reads live enemy-projectile WRAM at $7E:19FF")]
     private static void VerifySpacetimeBeamGraphics()
@@ -350,6 +355,7 @@ internal static class SpacetimeBeamVerification
     }
 
     // No cartridge byte is readable while the production projectile path executes.
+    /// <summary>new spacetime mutable only bus.</summary>
     private static MutableCartridgeReadGuard NewSpacetimeMutableOnlyBus(SuperMetroidAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -358,6 +364,7 @@ internal static class SpacetimeBeamVerification
         return guard;
     }
 
+    /// <summary>spacetime beam command.</summary>
     [VerificationCommand("--spacetime-beam")]
     internal static int SpacetimeBeamCommand()
     {

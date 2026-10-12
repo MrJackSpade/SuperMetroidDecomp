@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 
+/// <summary>Represents cinematic text glow verification.</summary>
 internal static class CinematicTextGlowVerification
 {
+    /// <summary>Verifies cinematic text glow.</summary>
     internal static void VerifyCinematicTextGlow()
     {
         var glow = new CinematicTextGlowSystem();

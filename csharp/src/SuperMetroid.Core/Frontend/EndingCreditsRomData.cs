@@ -263,12 +263,19 @@ public static class EndingCreditsRomData
         /// <summary>$8B:DDC1..DDC8: selected following two positive slow steps before the terminal negative step.</summary>
         private const int SlowSecondPositiveRun = 2;
 
+        /// <summary>Defines fast run period.</summary>
         private const int FastRunPeriod = FastPositiveRun + FastNegativeRun;
+        /// <summary>Defines fast complete run count.</summary>
         private const int FastCompleteRunCount = PlanetFastPatternLength / FastRunPeriod;
+        /// <summary>Defines fast final positive run.</summary>
         private const int FastFinalPositiveRun = PlanetFastPatternLength % FastRunPeriod - FastNegativeRun;
+        /// <summary>Defines fast positive steps.</summary>
         private const int FastPositiveSteps = FastCompleteRunCount * FastPositiveRun + FastFinalPositiveRun;
+        /// <summary>Defines slow positive steps.</summary>
         private const int SlowPositiveSteps = SlowFirstPositiveRun + SlowSecondPositiveRun;
+        /// <summary>Defines planet fast shake amplitude.</summary>
         private const int PlanetFastShakeAmplitude = PlanetCycleDisplacement16Point16 / (2 * FastPositiveSteps - PlanetFastPatternLength);
+        /// <summary>Defines planet slow shake amplitude.</summary>
         private const int PlanetSlowShakeAmplitude = PlanetCycleDisplacement16Point16 / (2 * SlowPositiveSteps - PlanetSlowPatternLength);
         /// <summary>$8B:DD02..DD41: repeated positive/negative shake runs and the shorter final positive run.</summary>
         /// <remarks>Repeated samples, fixed-point sign assembly and amplitudes from the common cycle displacement calculate. The

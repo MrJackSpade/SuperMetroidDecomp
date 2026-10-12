@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,18 +6,24 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Puyo species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PuyoBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Initializes a new puyo behavior instance.</summary>
     internal PuyoBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Stores quadratic speed record size.</summary>
     private const int QuadraticSpeedRecordSize = 8;
+    /// <summary>Stores maximum puyo yspeed table index.</summary>
     private const ushort MaximumPuyoYSpeedTableIndex = 0x4000;
 
+    /// <summary>Stores puyo states.</summary>
     internal readonly PuyoEnemyState?[] _puyoStates =
         new PuyoEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -402,6 +408,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
         SetPuyoInstructionList(slot, instructionList);
     }
 
+    /// <summary>Opposite.</summary>
     private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
     {
         PuyoDirection.Right => PuyoDirection.Left,
@@ -410,6 +417,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
             $"Puyo direction {(ushort)direction} is outside the two-entry ROM domain."),
     };
 
+    /// <summary>Sets puyo instruction list.</summary>
     private static void SetPuyoInstructionList(RoomEnemySlot slot, ushort instructionList)
     {
         slot.CurrentInstruction = instructionList;
@@ -417,10 +425,12 @@ internal sealed class PuyoBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Requires puyo state.</summary>
     private PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
         _puyoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Puyo state.");
 
+    /// <summary>Registers puyo initialization ai.</summary>
     internal void RegisterPuyoInitializationAi(EnemyAiTable table)
     {
 
@@ -430,6 +440,7 @@ internal sealed class PuyoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers puyo main ai.</summary>
     internal void RegisterPuyoMainAi(EnemyAiTable table)
     {
 

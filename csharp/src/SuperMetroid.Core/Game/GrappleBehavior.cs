@@ -1,15 +1,20 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Grapple species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class GrappleBehavior
 {
+    /// <summary>Stores dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Initializes a new grapple behavior instance.</summary>
     internal GrappleBehavior(IEnemyDispatch dispatch, EnemyRoomBinding room, EnemySlotTable slotTable, EnemyDeathsAndDrops deathsAndDrops)
     {
         _dispatch = dispatch;
@@ -143,14 +148,23 @@ internal sealed class GrappleBehavior
     /// </summary>
     internal sealed class GrappleWrappedAiFrame(IEnemyAiFrame frame) : IEnemyAiFrame
     {
+        /// <summary>Gets camera.</summary>
         public Position16<RoomPixels> Camera => frame.Camera;
+        /// <summary>Gets samus.</summary>
         public SamusState? Samus => frame.Samus;
+        /// <summary>Gets newly pressed controller input.</summary>
         public ushort NewlyPressedControllerInput => frame.NewlyPressedControllerInput;
+        /// <summary>Gets controller input.</summary>
         public ushort ControllerInput => frame.ControllerInput;
+        /// <summary>Gets level.</summary>
         public RoomLevelData? Level => frame.Level;
+        /// <summary>Gets samus projectiles.</summary>
         public SamusProjectileSystem? SamusProjectiles => null;
+        /// <summary>Gets mode7 transform.</summary>
         public SamusMode7Transform? Mode7Transform => null;
+        /// <summary>Gets shared projectiles.</summary>
         public SamusBombProjectileSystem? SharedProjectiles => null;
+        /// <summary>Gets vram write queue.</summary>
         public VramWriteQueue? VramWriteQueue => null;
     }
 }

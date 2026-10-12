@@ -6,8 +6,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using static PowerBombFixedColorsVerification;
 
+/// <summary>Represents ceres explosion verification.</summary>
 internal static class CeresExplosionVerification
 {
+    /// <summary>Verifies ceres explosion timeline.</summary>
     internal static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

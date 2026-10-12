@@ -8,11 +8,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Versioned editable map cells; exploration rules are supplied by the application.</summary>
 public sealed class AreaMapPresentationAsset : IAreaMapView
 {
+    /// <summary>Stores cells.</summary>
     private readonly MapTileWord[] cells;
+    /// <summary>Stores discoverable.</summary>
     private readonly bool[] discoverable, station, revealsAbove;
     /// <summary>Area shared by the validated presentation document and its separately supplied exploration rules.</summary>
     public AreaId Area { get; }
 
+    /// <summary>Initializes a new area map presentation asset instance.</summary>
     private AreaMapPresentationAsset(MapTileWord[] cells, IAreaMapView rules)
     {
         this.cells = cells;
@@ -110,6 +113,7 @@ public sealed class AreaMapPresentationAsset : IAreaMapView
         }, MapPresentationFormat.JsonOptions);
     }
 
+    /// <summary>Index.</summary>
     private static int Index(Position16<MapTiles> cell)
     {
         _ = AreaMapLayout.GetTilemapWordIndex(cell); // Shared coordinate validation; storage here is row-major.
@@ -164,6 +168,7 @@ public static class MapPresentationFormat
     public const int FlipXBit = 0x4000;
     /// <summary>$8000, SNES BG character vertical-mirror mask at bit 15, preserved when exporting or compiling map cells.</summary>
     public const int FlipYBit = 0x8000;
+    /// <summary>Stores json options.</summary>
     internal static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,

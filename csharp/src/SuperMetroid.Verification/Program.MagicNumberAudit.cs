@@ -13,6 +13,7 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.SourceAudit;
 
+/// <summary>Represents magic number audit verification.</summary>
 internal static class MagicNumberAuditVerification
 {
     /// <summary>
@@ -83,6 +84,7 @@ internal static class MagicNumberAuditVerification
             $"retired {repositoryAudit.RetiredBaselineEntries}.");
     }
 
+    /// <summary>Magic number audit command.</summary>
     [VerificationCommand("--magic-number-audit")]
     internal static int MagicNumberAuditCommand()
     {

@@ -11,11 +11,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class CeresDoorEscapeSurfacePaintDefinitions
 {
+    /// <summary>Defines blue tint.</summary>
     private const int BlueTint = 3, BevelShadeStep = 5, MaximumChannel = (1 << 5) - 1;
+    /// <summary>Stores highlight and edge levels.</summary>
     private readonly int[] highlightAndEdgeLevels;
+    /// <summary>Stores bevel peak.</summary>
     private readonly int bevelPeak, bevelShadow, middleBevelBlue;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, Bgr555> edits = [];
 
+    /// <summary>Initializes a new ceres door escape surface paint definitions instance.</summary>
     internal CeresDoorEscapeSurfacePaintDefinitions(ReadOnlySpan<Bgr555> colors)
     {
         Ensure.LengthEqual(colors, 8);
@@ -28,12 +33,14 @@ internal sealed class CeresDoorEscapeSurfacePaintDefinitions
             if (Calculate(index) != colors[index]) edits.Add(index, colors[index]);
     }
 
+    /// <summary>Color at.</summary>
     internal Bgr555 ColorAt(int index)
     {
         if ((uint)index >= 8) throw new IndexOutOfRangeException();
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 
+    /// <summary>Calculate.</summary>
     private Bgr555 Calculate(int index)
     {
         int level = index < 4 ? highlightAndEdgeLevels[index] : Math.Max(bevelShadow, bevelPeak - BevelShadeStep * (index - 4));

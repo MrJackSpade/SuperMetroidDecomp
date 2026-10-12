@@ -14,10 +14,12 @@ using static MapPresentationVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents map load anchors verification.</summary>
 internal static class MapLoadAnchorsVerification
 {
     // Original compiled coordinate table from5b23a2aa, verification-only. Expected
     // outputs are independent literals, not the replacement projection formula.
+    /// <summary>Stores original map load anchors.</summary>
     private static readonly (AreaId Area, int Station, ushort X, ushort Y)[] originalMapLoadAnchors =
     [
         (AreaId.Crateria, 0, 216, 40),
@@ -56,6 +58,7 @@ internal static class MapLoadAnchorsVerification
         (AreaId.Tourian, 8, 160, 96),
     ];
 
+    /// <summary>Verifies file select map area cases.</summary>
     internal static void VerifyFileSelectMapAreaCases(ISnesAddressSpace bus)
     {
         for (int displayIndex = 0; displayIndex < 6; displayIndex++)
@@ -66,9 +69,12 @@ internal static class MapLoadAnchorsVerification
                 "unsupported menu area identity is not clamped or narrowed");
     }
 
+    /// <summary>Verifies map load anchor x.</summary>
     internal static void VerifyMapLoadAnchorX(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: false);
+    /// <summary>Verifies map load anchor y.</summary>
     internal static void VerifyMapLoadAnchorY(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: true);
 
+    /// <summary>Verifies map load anchor field.</summary>
     private static void VerifyMapLoadAnchorField(ISnesAddressSpace bus, bool vertical)
     {
         int anchors = 0;
@@ -102,6 +108,7 @@ internal static class MapLoadAnchorsVerification
                 "unsupported map-load area remains rejected");
     }
 
+    /// <summary>Verifies map load anchors.</summary>
     internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
@@ -203,6 +210,7 @@ internal static class MapLoadAnchorsVerification
             (value.Scroll, value.Minimum, value.Maximum, value.Direction);
     }
 
+    /// <summary>Reads native map load anchor.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native map load-station anchors")]
     private static Position16<MapPixels> ReadNativeMapLoadAnchor(ISnesAddressSpace bus, AreaId area, int station)
     {

@@ -19,8 +19,10 @@ using static ObjSubscreenVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ending dma verification.</summary>
 internal static class EndingDmaVerification
 {
+    /// <summary>verify ending dma.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending escape and reward VRAM DMA")]
     internal static void VerifyEndingDma()
     {
@@ -59,6 +61,7 @@ internal static class EndingDmaVerification
             "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");
     }
 
+    /// <summary>ending dma command.</summary>
     [VerificationCommand("--ending-dma")]
     internal static int EndingDmaCommand()
     {

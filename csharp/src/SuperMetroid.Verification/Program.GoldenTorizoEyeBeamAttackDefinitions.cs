@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents golden torizo eye beam attack definitions verification.</summary>
 internal static class GoldenTorizoEyeBeamAttackDefinitionsVerification
 {
+    /// <summary>verify golden torizo eye beam attack definitions.</summary>
     internal static void VerifyGoldenTorizoEyeBeamAttackDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -64,6 +66,7 @@ internal static class GoldenTorizoEyeBeamAttackDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>golden torizo eye beam attack definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo eye beam attack definitions")]
     private static byte GoldenTorizoEyeBeamAttackDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

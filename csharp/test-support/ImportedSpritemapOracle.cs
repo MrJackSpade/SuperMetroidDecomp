@@ -11,6 +11,7 @@ using SuperMetroid.Core.Spatial;
 [CpuBusBoundary("exact bus test: reference decoder of ROM packed spritemaps compared against installed OAM output")]
 internal static class ImportedSpritemapOracle
 {
+    /// <summary>Draws generic.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     public static void DrawGeneric(IImportCartridgeSource source, OamBuffer oam,
         int address, Position16<OamPixels> origin, ushort paletteBits,
@@ -45,11 +46,13 @@ internal static class ImportedSpritemapOracle
         oam.AddEnemySpritemap(ReadEnemyParts(source, draw.Bank, draw.Pointer), draw.Origin,
             draw.PaletteBits, draw.BaseTileIndex, draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
 
+    /// <summary>Draws enemy projectile.</summary>
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
         DrawEnemy(source, oam, new EnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
 
+    /// <summary>Reads enemy parts.</summary>
     private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
         byte bank, ushort pointer)
     {

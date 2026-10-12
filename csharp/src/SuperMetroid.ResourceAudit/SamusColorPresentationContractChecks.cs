@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Source-only confirmation of the identified complete player color domains and rejected constants.</summary>
 internal static class SamusColorPresentationContractChecks
 {
+    /// <summary>Runs.</summary>
     internal static void Run()
     {
         var trees = SamusColorClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -84,6 +85,7 @@ internal static class SamusColorPresentationContractChecks
             "an unsupported queried visor offset is valid false, not a demanded resource");
     }
 
+    /// <summary>Requires.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Samus color provider confirmation failed: " + reason);

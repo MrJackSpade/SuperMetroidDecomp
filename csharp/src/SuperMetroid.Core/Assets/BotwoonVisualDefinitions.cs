@@ -85,12 +85,14 @@ internal static class BotwoonVisualDefinitions
 
     // The body and head programs share one layout: up-left, left, down-left, an unused
     // down-facing-left slot, then down through up.
+    /// <summary>Body physical slot.</summary>
     private static int BodyPhysicalSlot(BotwoonFacing facing)
     {
         int index = Array.IndexOf(PhysicalOrder, facing);
         return index < 3 ? index : index + 1;
     }
 
+    /// <summary>Closed mouth.</summary>
     private static ushort ClosedMouth(BotwoonFacing facing) => facing switch
     {
         // Spritemaps_Botwoon_MouthClosed_Priority2_Aiming* at $B3:E329-$E389; the unused down-facing-left map is skipped.
@@ -105,6 +107,7 @@ internal static class BotwoonVisualDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
+    /// <summary>Open mouth.</summary>
     private static ushort OpenMouth(BotwoonFacing facing) => facing switch
     {
         // Spritemaps_Botwoon_MouthOpen_Priority2_Aiming* at $B3:E3A1-$E415; diagonal maps carry a third piece.

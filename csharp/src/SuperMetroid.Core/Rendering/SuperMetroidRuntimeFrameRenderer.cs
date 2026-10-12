@@ -202,6 +202,7 @@ public static class SuperMetroidRuntimeFrameRenderer
         return frame;
     }
 
+    /// <summary>Adds shake.</summary>
     private static ushort AddShake(ushort scroll, short displacement) =>
         unchecked((ushort)(scroll + displacement));
 }

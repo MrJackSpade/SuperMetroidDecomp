@@ -18,8 +18,10 @@ using static LookupElevatubeStockVerification;
 using static MaridiaElevatubePlmVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents maridia elevatube visuals verification.</summary>
 internal static class MaridiaElevatubeVisualsVerification
 {
+    /// <summary>Verifies maridia elevatube visuals.</summary>
     internal static void VerifyMaridiaElevatubeVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -125,6 +127,7 @@ internal static class MaridiaElevatubeVisualsVerification
             "Maridia elevatube visuals: native tile, live edit, physical/sound isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Maridia elevatube visuals command.</summary>
     [VerificationCommand("--maridia-elevatube-visuals")]
     internal static int MaridiaElevatubeVisualsCommand()
     {

@@ -11,13 +11,20 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal sealed class DesktopSessionLog : IDisposable
 {
+    /// <summary>Stores gate.</summary>
     private readonly Lock gate = new();
+    /// <summary>Stores original output.</summary>
     private readonly TextWriter originalOutput;
+    /// <summary>Stores original error.</summary>
     private readonly TextWriter originalError;
+    /// <summary>Stores journal.</summary>
     private readonly StreamWriter journal;
+    /// <summary>Stores journal failed.</summary>
     private bool journalFailed;
+    /// <summary>Stores disposed.</summary>
     private bool disposed;
 
+    /// <summary>Initializes a new desktop session log instance.</summary>
     private DesktopSessionLog(string executableDirectory)
     {
         originalOutput = Console.Out;
@@ -67,6 +74,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Disposes.</summary>
     public void Dispose()
     {
         lock (gate)
@@ -103,6 +111,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Attempts to archive.</summary>
     private bool TryArchive()
     {
         string temporary = ArchivePath + ".tmp";
@@ -132,6 +141,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Writes.</summary>
     internal void Write(TextWriter console, ReadOnlySpan<char> text)
     {
         lock (gate)
@@ -149,6 +159,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Flush.</summary>
     internal void Flush(TextWriter console)
     {
         lock (gate)
@@ -166,6 +177,7 @@ internal sealed class DesktopSessionLog : IDisposable
         }
     }
 
+    /// <summary>Report log failure.</summary>
     private void ReportLogFailure(Exception error)
     {
         // Bypass the tee: writing another error through a failed journal would recurse.

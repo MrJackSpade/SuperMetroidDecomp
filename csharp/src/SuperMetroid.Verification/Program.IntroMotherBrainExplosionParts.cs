@@ -3,8 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Represents intro mother brain explosion parts verification.</summary>
 internal static class IntroMotherBrainExplosionPartsVerification
 {
+    /// <summary>verify intro mother brain explosion parts.</summary>
     internal static void VerifyIntroMotherBrainExplosionParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrainExplosion", value.AppendIdentity);
@@ -56,6 +58,7 @@ internal static class IntroMotherBrainExplosionPartsVerification
             }
         }
     }
+    /// <summary>check ceres blast loader.</summary>
     internal static void CheckCeresBlastLoader(ushort pointer, SpriteVisualPart[] visual)
     {
         var definition = CeresDestructionSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);

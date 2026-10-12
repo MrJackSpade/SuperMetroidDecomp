@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Represents nuclear waffle definitions verification.</summary>
 internal static class NuclearWaffleDefinitionsVerification
 {
+    /// <summary>verify nuclear waffle definitions.</summary>
     internal static void VerifyNuclearWaffleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int endpointTable = 0xa695f6;
@@ -159,6 +161,7 @@ internal static class NuclearWaffleDefinitionsVerification
             "runtime ROM reads forbidden; 12 executed selectors match the cartridge.");
     }
 
+    /// <summary>probe nuclear waffle instruction mechanics allocation.</summary>
     private static int ProbeNuclearWaffleInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -170,17 +173,20 @@ internal static class NuclearWaffleDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new nuclear waffle definition read guard.</summary>
     private static CartridgeReadGuard NewNuclearWaffleDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa695f6 and < 0xa6960e,
                 address => $"Nuclear Waffle attempted migrated geometry read ${address:X6}.");
 
+    /// <summary>new nuclear waffle program read guard.</summary>
     private static CartridgeReadGuard NewNuclearWaffleProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Nuclear Waffle mechanics byte ${address:X6}.")
             .ObserveWords(0xa60000, NuclearWaffleInstructionProgramDefinitions.PresentationWordCount, NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>nuclear waffle instruction mechanics command.</summary>
     [VerificationCommand("--nuclear-waffle-instruction-mechanics")]
     internal static int NuclearWaffleInstructionMechanicsCommand()
     {

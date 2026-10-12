@@ -25,8 +25,10 @@ using static SuiteTimingVerification;
 using static TorizoFallingLeftDefinitionsVerification;
 using static TorizoJumpBackDefinitionsVerification;
 
+/// <summary>Represents golden torizo initial definitions verification.</summary>
 internal static class GoldenTorizoInitialDefinitionsVerification
 {
+    /// <summary>Verifies golden torizo initial definitions.</summary>
     internal static void VerifyGoldenTorizoInitialDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
@@ -83,9 +85,11 @@ internal static class GoldenTorizoInitialDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Golden torizo initial definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo initial definitions")]
     private static byte GoldenTorizoInitialDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies golden torizo awakening definitions.</summary>
     internal static void VerifyGoldenTorizoAwakeningDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -195,9 +199,11 @@ internal static class GoldenTorizoInitialDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Golden torizo awakening definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo awakening definitions")]
     private static byte GoldenTorizoAwakeningDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Runs the stream2 golden awakening layout lookup command.</summary>
     [VerificationCommand("--lookup-stream2-golden-awakening-layout")]
     internal static int LookupStream2GoldenAwakeningLayoutCommand()
     {

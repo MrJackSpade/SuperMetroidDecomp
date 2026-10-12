@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms only the identified closed-provider adapter contracts, without gameplay or asset files.</summary>
 internal static class ClosedPresentationContractChecks
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run()
     {
         string root = Directory.GetCurrentDirectory();
@@ -122,6 +123,7 @@ internal static class ClosedPresentationContractChecks
             "an unreviewed use of the mutable definition array must invalidate closure");
     }
 
+    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Closed provider confirmation failed: " + reason);

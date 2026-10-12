@@ -14,6 +14,7 @@ internal static class ChargeFlareAnimationDefinitions
     internal const ushort GrappleInitialFrame = 16;
     /// <summary>$9B:C04F, HandleGrappleBeamFlare: counter one seeds three before the ordinary decrement.</summary>
     internal const ushort GrappleInitialDelay = 3;
+    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(int address)
     {
         int pointerByte = address - SamusProjectileRomData.Beams.ChargeFlareDelayListPointers;
@@ -48,6 +49,7 @@ internal static class ChargeFlareAnimationDefinitions
         return true;
     }
 
+    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(int address) =>
         SnesLittleEndian.Word(ReadByte(address), ReadByte(SnesAddressMath.AddWithinBank(address, 1)));
 }

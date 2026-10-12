@@ -16,8 +16,10 @@ using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents file menu snapshot tests verification.</summary>
 internal static class FileMenuSnapshotTestsVerification
 {
+    /// <summary>verify file menu render snapshots.</summary>
     internal static void VerifyFileMenuRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -102,6 +104,7 @@ internal static class FileMenuSnapshotTestsVerification
         }
     }
 
+    /// <summary>menu fixtures command.</summary>
     [VerificationCommand("--menu-fixtures")]
     internal static int MenuFixturesCommand()
     {

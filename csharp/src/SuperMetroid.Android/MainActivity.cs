@@ -21,10 +21,15 @@ namespace SuperMetroid.Android;
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
 public sealed class MainActivity : Activity
 {
+    /// <summary>Stores session.</summary>
     private AndroidGameSession? session;
+    /// <summary>Stores resumed.</summary>
     private bool resumed;
+    /// <summary>Stores focused.</summary>
     private bool focused;
+    /// <summary>Stores destroyed.</summary>
     private bool destroyed;
+    /// <summary>Stores setup stopping.</summary>
     private readonly CancellationTokenSource setupStopping = new();
 
     /// <summary>Initializes immersive display and host focus services, then starts cancellable installation repair or cartridge setup.</summary>
@@ -39,6 +44,7 @@ public sealed class MainActivity : Activity
         _ = PrepareAssets(status);
     }
 
+    /// <summary>Prepares assets.</summary>
     private async Task PrepareAssets(TextView status)
     {
         try
@@ -149,15 +155,19 @@ public sealed class MainActivity : Activity
         base.OnDestroy();
     }
 
+    /// <summary>Stores controller preferences.</summary>
     private AndroidControllerPreferences controllerPreferences = new();
+    /// <summary>Gets controller preferences path.</summary>
     private string ControllerPreferencesPath => Path.Combine(FilesDir!.AbsolutePath, "controller-bindings.json");
 
+    /// <summary>Loads controller preferences.</summary>
     private void LoadControllerPreferences()
     {
         if (File.Exists(ControllerPreferencesPath))
             controllerPreferences = AndroidControllerPreferences.Parse(File.ReadAllText(ControllerPreferencesPath));
     }
 
+    /// <summary>Show controller settings.</summary>
     private void ShowControllerSettings()
     {
         menuOpen = true;
@@ -194,6 +204,7 @@ public sealed class MainActivity : Activity
             .SetCancelable(false)!.Show();
     }
 
+    /// <summary>Saves controller preferences.</summary>
     private void SaveControllerPreferences(AndroidControllerPreferences updated)
     {
         // Persist before publishing the new mapping. A failed write cannot leave the
@@ -206,6 +217,7 @@ public sealed class MainActivity : Activity
         controllerPreferences = updated;
     }
 
+    /// <summary>Choose diagnostic export.</summary>
     private void ChooseDiagnosticExport()
     {
         menuOpen = true;
@@ -262,6 +274,7 @@ public sealed class MainActivity : Activity
     }
 #pragma warning restore CS0672, CS0618
 
+    /// <summary>Export diagnostics.</summary>
     private async Task<string> ExportDiagnostics(global::Android.Net.Uri uri)
     {
         string temporary = Path.Combine(CacheDir!.AbsolutePath, $"diagnostics-{Guid.NewGuid():N}.zip");
@@ -283,12 +296,19 @@ public sealed class MainActivity : Activity
         }
     }
 
+    /// <summary>Stores audio manager.</summary>
     private AudioManager? audioManager;
+    /// <summary>Stores audio focus request.</summary>
     private AudioFocusRequestClass? audioFocusRequest;
+    /// <summary>Stores host focus listener.</summary>
     private HostFocusListener? hostFocusListener;
+    /// <summary>Stores input manager.</summary>
     private InputManager? inputManager;
+    /// <summary>Stores host handler.</summary>
     private Handler? hostHandler;
+    /// <summary>Stores audio focus requested.</summary>
     private bool audioFocusRequested;
+    /// <summary>Stores audio focus granted.</summary>
     private bool audioFocusGranted;
 #if ANDROID_HOST_PROBES
     // Opt-in device probe builds only (AndroidHostProbes=true); normal APKs compile none of this.
@@ -304,10 +324,13 @@ public sealed class MainActivity : Activity
     }
 #endif
 
+    /// <summary>Gets audio enabled.</summary>
     private bool AudioEnabled => session?.EffectiveOptions?.AudioEnabled ?? true;
+    /// <summary>Gets can run.</summary>
     private bool CanRun => AndroidRunPolicy.CanRun(resumed, focused, menuOpen, destroyed,
         AudioEnabled, audioFocusGranted);
 
+    /// <summary>Initializes host focus.</summary>
     private void InitializeHostFocus()
     {
         audioManager = (AudioManager?)GetSystemService(AudioService)
@@ -326,6 +349,7 @@ public sealed class MainActivity : Activity
         inputManager.RegisterInputDeviceListener(hostFocusListener, hostHandler);
     }
 
+    /// <summary>Refresh run gate.</summary>
     private void RefreshRunGate(bool requestFocus = false)
     {
         if (session is not null && requestFocus && resumed && focused && !menuOpen && !destroyed && AudioEnabled &&
@@ -339,6 +363,7 @@ public sealed class MainActivity : Activity
         session?.SetActive(CanRun);
     }
 
+    /// <summary>Release audio focus.</summary>
     private void ReleaseAudioFocus()
     {
         // Clear ownership first: a delayed callback after abandon must not restart a
@@ -348,6 +373,7 @@ public sealed class MainActivity : Activity
             audioManager.AbandonAudioFocusRequest(audioFocusRequest);
     }
 
+    /// <summary>Disposes host focus.</summary>
     private void DisposeHostFocus()
     {
         ReleaseAudioFocus();
@@ -357,9 +383,11 @@ public sealed class MainActivity : Activity
         hostHandler?.Dispose();
     }
 
+    /// <summary>Represents host focus listener.</summary>
     private sealed class HostFocusListener(MainActivity owner) : Java.Lang.Object,
         AudioManager.IOnAudioFocusChangeListener, InputManager.IInputDeviceListener
     {
+        /// <summary>On audio focus change.</summary>
         public void OnAudioFocusChange(AudioFocus change)
         {
             if (owner.destroyed || !owner.audioFocusRequested) return;
@@ -374,10 +402,14 @@ public sealed class MainActivity : Activity
 #endif
         }
 
+        /// <summary>On input device added.</summary>
         public void OnInputDeviceAdded(int deviceId) => ClearInput(deviceId, "added");
+        /// <summary>On input device changed.</summary>
         public void OnInputDeviceChanged(int deviceId) => ClearInput(deviceId, "changed");
+        /// <summary>On input device removed.</summary>
         public void OnInputDeviceRemoved(int deviceId) => ClearInput(deviceId, "removed");
 
+        /// <summary>Clear input.</summary>
         private void ClearInput(int deviceId, string reason)
         {
             owner.session?.Input.Clear();
@@ -385,6 +417,7 @@ public sealed class MainActivity : Activity
         }
     }
 
+    /// <summary>Choose import.</summary>
     private void ChooseImport(bool state)
     {
         menuOpen = true;
@@ -409,6 +442,7 @@ public sealed class MainActivity : Activity
             .SetCancelable(false)!.Show();
     }
 
+    /// <summary>Imports document.</summary>
     private async Task<string> ImportDocument(global::Android.Net.Uri uri, bool state)
     {
         string temporary = Path.Combine(CacheDir!.AbsolutePath, $"import-{Guid.NewGuid():N}.tmp");
@@ -424,6 +458,7 @@ public sealed class MainActivity : Activity
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
 
+    /// <summary>Show rom setup.</summary>
     private void ShowRomSetup(string? error = null)
     {
         if (destroyed) return;
@@ -461,6 +496,7 @@ public sealed class MainActivity : Activity
         choose.RequestFocus();
     }
 
+    /// <summary>Imports rom document.</summary>
     private async Task ImportRomDocument(global::Android.Net.Uri uri)
     {
         var status = new TextView(this) { Text = "Checking ROM…", TextSize = 18 };
@@ -486,6 +522,7 @@ public sealed class MainActivity : Activity
         }
     }
 
+    /// <summary>Start installed game.</summary>
     private void StartInstalledGame(string root)
     {
         if (destroyed || session is not null) return;
@@ -498,6 +535,7 @@ public sealed class MainActivity : Activity
         RefreshRunGate(requestFocus: true);
     }
 
+    /// <summary>Show ini settings.</summary>
     private void ShowIniSettings()
     {
         menuOpen = true;
@@ -538,7 +576,9 @@ public sealed class MainActivity : Activity
         catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
     }
 
+    /// <summary>Stores menu open.</summary>
     private bool menuOpen;
+    /// <summary>Stores selected slot.</summary>
     private int selectedSlot;
 
     /// <summary>
@@ -572,6 +612,7 @@ public sealed class MainActivity : Activity
             .Show();
     }
 
+    /// <summary>Choose state slot.</summary>
     private void ChooseStateSlot()
     {
         menuOpen = true;
@@ -587,6 +628,7 @@ public sealed class MainActivity : Activity
             .SetOnCancelListener(new MenuCancelled(this))!.Show();
     }
 
+    /// <summary>Show state result.</summary>
     private async Task ShowStateResult(Task<string> operation)
     {
         menuOpen = true;
@@ -603,8 +645,10 @@ public sealed class MainActivity : Activity
             .SetCancelable(false)!.Show();
     }
 
+    /// <summary>Represents menu cancelled.</summary>
     private sealed class MenuCancelled(MainActivity owner) : Java.Lang.Object, global::Android.Content.IDialogInterfaceOnCancelListener
     {
+        /// <summary>On cancel.</summary>
         public void OnCancel(global::Android.Content.IDialogInterface? dialog)
         {
             owner.menuOpen = false;

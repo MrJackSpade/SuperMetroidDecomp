@@ -20,6 +20,7 @@ internal abstract class AtomicInstructionProgramDefinitions
     /// <summary><c>$A8:E364</c>, spinning down-right.</summary>
     internal const ushort DownRight = 0xe364;
 
+    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (UpRight + 2);

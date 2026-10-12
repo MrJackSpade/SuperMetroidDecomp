@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,10 +7,15 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(SporeSpawnProjectileInstructionProgramDefinitions))]
 internal abstract class SporeSpawnProjectileInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => SporeSpawnProjectileInstructionProgramDefinitions.MechanicsWordCount;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index) => SporeSpawnProjectileInstructionProgramDefinitions.MechanicsWord(index);
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;

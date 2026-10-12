@@ -12,6 +12,7 @@ internal static class DeadTourianCorpseVisualDefinitions
     /// <summary>The native corpse instruction and OAM bank, $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>Stores entries.</summary>
     private static readonly (ushort Operand, ushort Frame, string Name)[] Entries =
     [
         (0xecf7, 0xed79, "dead_zoomer_corpse_0"),
@@ -24,6 +25,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         (0xed21, 0xede1, "dead_skree_corpse_4"),
     ];
 
+    /// <summary>Stores sidehopper selectors.</summary>
     private static readonly (ushort Operand, ushort Frame)[] SidehopperSelectors =
     [
         (0xecae, 0xee3c), (0xecb2, 0xee61),
@@ -34,6 +36,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         (0xecf1, 0xed4f),
     ];
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
     [
         .. Entries.Select(entry => new EnemySpritemapDefinition(
@@ -45,6 +48,7 @@ internal static class DeadTourianCorpseVisualDefinitions
         new(Bank, 0xed4f, "dead_sidehopper_initially_dead"),
     ];
 
+    /// <summary>Frame at.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         foreach ((ushort operand, ushort frame, _) in Entries)
@@ -56,6 +60,7 @@ internal static class DeadTourianCorpseVisualDefinitions
             $"Dead Tourian corpse visual selector $A9:{operandAddress:X4} is not compiled.");
     }
 
+    /// <summary>Sidehopper frame at.</summary>
     internal static ushort SidehopperFrameAt(ushort operandAddress)
     {
         foreach ((ushort operand, ushort frame) in SidehopperSelectors)

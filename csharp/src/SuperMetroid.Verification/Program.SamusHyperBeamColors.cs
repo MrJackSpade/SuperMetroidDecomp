@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 
+/// <summary>Represents samus hyper beam colors verification.</summary>
 internal static class SamusHyperBeamColorsVerification
 {
+    /// <summary>Verifies samus hyper beam colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hyper beam colors")]
     internal static void VerifySamusHyperBeamColors()
@@ -396,6 +398,7 @@ internal static class SamusHyperBeamColorsVerification
         Console.WriteLine("  Hyper Beam: both native palette views, independent edits and guarded runtime cycles pass.");
     }
 
+    /// <summary>Verifies samus hyper beam color override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
@@ -450,6 +453,7 @@ internal static class SamusHyperBeamColorsVerification
         Console.WriteLine("Hyper Beam override: edited frame reaches CGRAM and stock restores.");
     }
 
+    /// <summary>New forbidden hyper beam color bus.</summary>
     private static CartridgeReadGuard NewForbiddenHyperBeamColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -464,6 +468,7 @@ internal static class SamusHyperBeamColorsVerification
             },
             address => $"Installed Hyper Beam read native artwork ${address:X6}.");
 
+    /// <summary>Samus hyper beam colors command.</summary>
     [VerificationCommand("--samus-hyper-beam-colors")]
     internal static int SamusHyperBeamColorsCommand()
     {

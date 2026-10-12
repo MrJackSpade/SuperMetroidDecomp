@@ -19,6 +19,7 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents collectibles verification.</summary>
 internal static class CollectiblesVerification
 {
     /// <summary>
@@ -213,6 +214,7 @@ internal static class CollectiblesVerification
             "  Permanent collectibles: 63 ROM headers, all 21 effects, three presentations, SRAM bits, bank-$85 messages, and suit transformations agree.");
     }
 
+    /// <summary>verify morph ball pickup collision.</summary>
     internal static void VerifyMorphBallPickupCollision()
     {
         var bus = new TestAddressSpace();
@@ -250,6 +252,7 @@ internal static class CollectiblesVerification
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
     }
 
+    /// <summary>load collectible.</summary>
     internal static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomLayer3FxState? roomFx = null, CollectibleRoomLayout layout = default)
     {
         const ushort population = 0x9000;
@@ -287,6 +290,7 @@ internal static class CollectiblesVerification
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }
 
+    /// <summary>seed collectible rom.</summary>
     internal static void SeedCollectibleRom(TestAddressSpace bus)
     {
         const ushort sharedDynamicList = 0xf100;
@@ -330,6 +334,7 @@ internal static class CollectiblesVerification
         }
     }
 
+    /// <summary>write one block draw.</summary>
     internal static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
         SeedPlmProgramBytes(bus, unchecked((ushort)pointer), [
             0x01, 0x00,
@@ -337,6 +342,7 @@ internal static class CollectiblesVerification
             0x00, 0x00,
         ]);
 
+    /// <summary>assert permanent collectible effect.</summary>
     private static void AssertPermanentCollectibleEffect(
         InWorldCollectibleKind kind,
         SamusState samus)
@@ -404,6 +410,7 @@ internal static class CollectiblesVerification
             $"{kind} enters equipped beam word");
     }
 
+    /// <summary>verify collected item save round trip.</summary>
     private static void VerifyCollectedItemSaveRoundTrip()
     {
         var bus = new TestAddressSpace();
@@ -455,6 +462,7 @@ internal static class CollectiblesVerification
             "equipped beam word round-trips independently from collected beams");
     }
 
+    /// <summary>verify permanent item message box.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyPermanentItemMessageBox()
     {
@@ -639,6 +647,7 @@ internal static class CollectiblesVerification
             "unsupported message identifies numeric ID and source context");
     }
 
+    /// <summary>verify suit pickup transformation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifySuitPickupTransformation()
     {
@@ -732,6 +741,7 @@ internal static class CollectiblesVerification
             "normal suit palette loader gives Gravity priority over Varia");
     }
 
+    /// <summary>verify suit pickup history.</summary>
     private static void VerifySuitPickupHistory(TestAddressSpace bus, SamusSuitColorCatalog suitColors)
     {
         foreach (SamusSuitPickupKind kind in new[] { SamusSuitPickupKind.Varia, SamusSuitPickupKind.Gravity })
@@ -767,6 +777,7 @@ internal static class CollectiblesVerification
         }
     }
 
+    /// <summary>Represents collectible fixture.</summary>
     internal readonly record struct CollectibleFixture(
         RoomPlmSystem Plms,
         RoomLevelData Level,
@@ -791,6 +802,7 @@ internal static class CollectiblesVerification
         return bus;
     }
 
+    /// <summary>morph ball pickup collision command.</summary>
     [VerificationCommand("--morph-ball-pickup-collision")]
     internal static int MorphBallPickupCollisionCommand()
     {
@@ -798,6 +810,7 @@ internal static class CollectiblesVerification
         return 0;
     }
 
+    /// <summary>permanent collectibles fixture command.</summary>
     [VerificationCommand("--permanent-collectibles-fixture")]
     internal static int PermanentCollectiblesFixtureCommand()
     {

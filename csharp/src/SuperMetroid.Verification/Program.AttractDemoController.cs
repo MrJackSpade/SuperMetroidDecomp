@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Input;
 
+/// <summary>Represents attract demo controller verification.</summary>
 internal static class AttractDemoControllerVerification
 {
+    /// <summary>verify attract demo controller override.</summary>
     internal static void VerifyAttractDemoControllerOverride()
     {
         var controller = new ControllerInputState(4, 2);

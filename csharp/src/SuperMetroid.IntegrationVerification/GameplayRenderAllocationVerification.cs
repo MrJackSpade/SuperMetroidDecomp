@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents gameplay render allocation verification.</summary>
 internal static class GameplayRenderAllocationVerification
 {
+    /// <summary>Run.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     public static int Run()
     {

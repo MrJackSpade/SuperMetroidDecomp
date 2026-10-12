@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -12,11 +12,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyProcessingWindow
 {
+    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Stores morph ball eye behavior.</summary>
     private readonly MorphBallEyeBehavior _morphBallEyeBehavior;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new enemy processing window instance.</summary>
     internal EnemyProcessingWindow(EnemyFrameContext frameContext, MorphBallEyeBehavior morphBallEyeBehavior, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _frameContext = frameContext;
@@ -24,7 +29,9 @@ internal sealed class EnemyProcessingWindow
         _room = room;
         _slotTable = slotTable;
     }
+    /// <summary>Stores active enemy indexes.</summary>
     internal readonly List<ushort> _activeEnemyIndexes = new();
+    /// <summary>Stores interactive enemy indexes.</summary>
     internal readonly List<ushort> _interactiveEnemyIndexes = new();
 
     /// <summary>
@@ -47,6 +54,7 @@ internal sealed class EnemyProcessingWindow
         DetermineWhichEnemiesToProcess(camera);
     }
 
+    /// <summary>determine which enemies to process.</summary>
     internal void DetermineWhichEnemiesToProcess(Position16<RoomPixels> camera)
     {
         _activeEnemyIndexes.Clear();
@@ -74,6 +82,7 @@ internal sealed class EnemyProcessingWindow
         }
     }
 
+    /// <summary>enemy is within processing window.</summary>
     private static bool EnemyIsWithinProcessingWindow(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
@@ -104,6 +113,7 @@ internal sealed class EnemyProcessingWindow
         return EnemyMath.IsNegative16(fromCamera) || !EnemyMath.IsNegative16(fromCamera - 0x100 - slot.Radius.X);
     }
 
+    /// <summary>enemy with normal sprites is off screen.</summary>
     internal static bool EnemyWithNormalSpritesIsOffScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>

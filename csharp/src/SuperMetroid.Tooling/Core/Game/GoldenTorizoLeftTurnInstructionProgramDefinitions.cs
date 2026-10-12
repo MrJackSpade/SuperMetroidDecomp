@@ -1,4 +1,4 @@
-﻿using static SuperMetroid.Core.Game.InstructionItem;
+using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
@@ -22,8 +22,10 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    /// <summary>Gets the cartridge bank containing this instruction program.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>Stores layout.</summary>
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd1f1),
         Entry(Dodge),
@@ -38,14 +40,19 @@ internal abstract class GoldenTorizoLeftTurnInstructionProgramDefinitions : IIns
         Op((ushort)TorizoInstruction.Instruction_Torizo_SetTorizoTurningAroundFlag),
         Frame(8));
 
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

@@ -17,31 +17,54 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroCinematicObjectSystem
 {
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram vram;
+    /// <summary>Stores text tilemap.</summary>
     private readonly ushort[] textTilemap;
+    /// <summary>Stores eye instruction pointer.</summary>
     private ushort eyeInstructionPointer = CinematicCodePointers.BackgroundLists.SamusBlinking;
+    /// <summary>Stores eye instruction timer.</summary>
     private ushort eyeInstructionTimer = 1;
+    /// <summary>Stores text instruction pointer.</summary>
     private ushort textInstructionPointer;
+    /// <summary>Stores text instruction timer.</summary>
     private ushort textInstructionTimer;
+    /// <summary>Stores narration presentation.</summary>
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
+    /// <summary>Stores eye artwork.</summary>
     [NonSerialized] private IntroEyeTilemapPresentation? eyeArtwork;
+    /// <summary>Stores current eye frame pointer.</summary>
     private ushort currentEyeFramePointer;
+    /// <summary>Stores current eye packed position.</summary>
     private ushort currentEyePackedPosition;
+    /// <summary>Stores narration program.</summary>
     [NonSerialized] private IntroNarrationCharacter[]? narrationProgram;
+    /// <summary>Stores narration page.</summary>
     private IntroNarrationPageId? narrationPage;
+    /// <summary>Stores narration character index.</summary>
     private int narrationCharacterIndex;
+    /// <summary>Stores narration initial marker pending.</summary>
     private bool narrationInitialMarkerPending;
+    /// <summary>Stores narration final hold started.</summary>
     private bool narrationFinalHoldStarted;
+    /// <summary>Stores sprite instruction pointer.</summary>
     private ushort spriteInstructionPointer =
         CinematicCodePointers.Lists.IntroTextCaret;
+    /// <summary>Stores sprite instruction timer.</summary>
     private ushort spriteInstructionTimer = 1;
+    /// <summary>Stores typewriter sound toggle.</summary>
     private bool typewriterSoundToggle;
     // Created when the first character glows.
+    /// <summary>Stores text glow.</summary>
     private CinematicTextGlowSystem? textGlow;
+    /// <summary>Stores subtitles.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
 
+    /// <summary>Initializes a new intro cinematic object system instance.</summary>
     public IntroCinematicObjectSystem(
         ISnesAddressSpace bus,
         SnesVram vram,
@@ -61,22 +84,22 @@ internal sealed class IntroCinematicObjectSystem
         Ensure.LengthEqual(textTilemap, IntroCinematicRomData.Layers.TextTilemapWordCount);
     }
 
-    /// <summary>Set when opcode $8B:AE5B reaches the English page-one input marker.</summary>
+    /// <summary>Sets when opcode $8B:AE5B reaches the English page-one input marker.</summary>
     public bool PageOneAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:AE91 reaches the English page-two input marker.</summary>
+    /// <summary>Sets when opcode $8B:AE91 reaches the English page-two input marker.</summary>
     public bool PageTwoAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:B08C completes English page three.</summary>
+    /// <summary>Sets when opcode $8B:B08C completes English page three.</summary>
     public bool PageThreeAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:B0CB completes English page four.</summary>
+    /// <summary>Sets when opcode $8B:B0CB completes English page four.</summary>
     public bool PageFourAwaitingInput { get; private set; }
 
-    /// <summary>Set when opcode $8B:B1B3 completes English page five.</summary>
+    /// <summary>Sets when opcode $8B:B1B3 completes English page five.</summary>
     public bool PageFiveAwaitingInput { get; private set; }
 
-    /// <summary>Set by $8B:B240 after page six's final 128-frame hold.</summary>
+    /// <summary>Sets by $8B:B240 after page six's final 128-frame hold.</summary>
     public bool IntroFinishRequested { get; private set; }
 
     /// <summary>The bank-$8C spritemap selected by the current sprite timing record.</summary>
@@ -215,6 +238,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Starts narration.</summary>
     private void StartNarration(IntroNarrationPageId page)
     {
         textInstructionTimer = IntroNarrationDefinitions.InitialMarkerDelayFrames;
@@ -230,6 +254,7 @@ internal sealed class IntroCinematicObjectSystem
         textInstructionPointer = 0;
     }
 
+    /// <summary>Steps installed narration.</summary>
     private void StepInstalledNarration()
     {
         if (textInstructionTimer-- != 1)
@@ -297,6 +322,7 @@ internal sealed class IntroCinematicObjectSystem
         narrationPage = null;
     }
 
+    /// <summary>Finish installed narration.</summary>
     private void FinishInstalledNarration(IntroNarrationPageId page)
     {
         if (page == IntroNarrationPageId.Page6)
@@ -312,6 +338,7 @@ internal sealed class IntroCinematicObjectSystem
             MarkAwaitingInput(page);
     }
 
+    /// <summary>Mark awaiting input.</summary>
     private void MarkAwaitingInput(IntroNarrationPageId page)
     {
         switch (page)
@@ -325,6 +352,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Steps sprite object.</summary>
     private void StepSpriteObject()
     {
         if (spriteInstructionPointer == 0 || spriteInstructionTimer-- != 1)
@@ -372,6 +400,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Steps bg object.</summary>
     private void StepBgObject(ref ushort instructionPointer, ref ushort instructionTimer)
     {
         if (instructionPointer == 0 || instructionTimer-- != 1)
@@ -476,6 +505,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Process tile data.</summary>
     private void ProcessTileData(
         ushort packedPosition,
         ushort dataPointer)
@@ -499,9 +529,11 @@ internal sealed class IntroCinematicObjectSystem
     }
 
     // A native BG record packs the tile column in the low byte and the row in the high byte.
+    /// <summary>Unpack cell.</summary>
     private static Position16<TilemapCells> UnpackCell(ushort packedPosition) =>
         new(checked((ushort)(packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask)), checked((ushort)(SnesLittleEndian.HighByte(packedPosition))));
 
+    /// <summary>Copies rectangle to portrait.</summary>
     private void CopyRectangleToPortrait(Position16<TilemapCells> destination, Extent16<TilemapCells> size,
         ReadOnlySpan<ushort> source)
     {
@@ -516,6 +548,7 @@ internal sealed class IntroCinematicObjectSystem
         }
     }
 
+    /// <summary>Resets caret.</summary>
     private void ResetCaret()
     {
         // RestIntroTextCaret ($8B:ADEE) moves the persistent slot back from Y=$F8 before
@@ -525,6 +558,7 @@ internal sealed class IntroCinematicObjectSystem
         spriteInstructionTimer = 1;
     }
 
+    /// <summary>Sets caret blinking.</summary>
     private void SetCaretBlinking()
     {
         // Instruction_SetCaretToBlink points the existing slot at $CC03 and primes timer
@@ -533,6 +567,7 @@ internal sealed class IntroCinematicObjectSystem
         spriteInstructionTimer = 1;
     }
 
+    /// <summary>Validates rectangle.</summary>
     private static void ValidateRectangle(Position16<TilemapCells> origin, Extent16<TilemapCells> size)
     {
         if (origin.X + size.X > IntroCinematicRomData.Layers.TilemapWidth ||
@@ -541,20 +576,24 @@ internal sealed class IntroCinematicObjectSystem
                 $"Cinematic rectangle ({origin.X},{origin.Y}) {size.X}x{size.Y} leaves its 32x32 tilemap.");
     }
 
+    /// <summary>Reads bank8 b.</summary>
     private static ushort ReadBank8B(ushort pointer) =>
         IntroCaretInstructionDefinitions.TryReadWord(pointer, out ushort word)
             ? word
             : throw new InvalidDataException(
                 $"Cinematic caret instruction $8B:{pointer:X4} is not compiled.");
 
+    /// <summary>Reads bank8 c.</summary>
     private static ushort ReadBank8C(ushort pointer) =>
         IntroEyeAnimationDefinitions.TryReadWord(pointer, out ushort word)
             ? word
             : throw new InvalidDataException(
                 $"Cinematic eye instruction $8C:{pointer:X4} is not compiled.");
 
+    /// <summary>Add.</summary>
     private static ushort Add(ushort pointer, int byteCount) => unchecked((ushort)(pointer + byteCount));
 
+    /// <summary>Unsupported.</summary>
     private static InvalidDataException Unsupported(string kind, ushort opcode, ushort pointer) =>
         new($"Cinematic {kind} opcode $8B:{opcode:X4}, read from ${pointer:X4}, is invalid for the active retail stream.");
 }

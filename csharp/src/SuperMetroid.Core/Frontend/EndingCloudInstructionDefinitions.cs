@@ -13,6 +13,7 @@ internal static class EndingCloudInstructionDefinitions
     internal const ushort Start = 0xeced;
     /// <summary>$8B:ED1D, exclusive end after the sixth cloud list.</summary>
     internal const ushort End = 0xed1d;
+    /// <summary>Stores list bytes.</summary>
     private const int ListBytes = 8;
 
     /// <summary>Reads only the complete words belonging to these six bounded lists.</summary>

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 
+/// <summary>Represents fireflea movement definitions verification.</summary>
 internal static class FirefleaMovementDefinitionsVerification
 {
+    /// <summary>Verifies fireflea movement definitions.</summary>
     internal static void VerifyFirefleaMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const ushort radiusTable = 0x8d1d;
@@ -41,6 +43,7 @@ internal static class FirefleaMovementDefinitionsVerification
             "Fireflea movement radii: all eight native words and production initializers pass with table reads forbidden.");
     }
 
+    /// <summary>Fireflea movement definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Fireflea movement definitions")]
     private static byte FirefleaMovementDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

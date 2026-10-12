@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents compact walk off collision verification.</summary>
 internal static class CompactWalkOffCollisionVerification
 {
+    /// <summary>verify compact walk off collision.</summary>
     internal static void VerifyCompactWalkOffCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

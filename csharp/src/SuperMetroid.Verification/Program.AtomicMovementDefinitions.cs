@@ -16,8 +16,10 @@ using SuperMetroid.Core.Assets;
 using static AssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents atomic movement definitions verification.</summary>
 internal static class AtomicMovementDefinitionsVerification
 {
+    /// <summary>Verifies atomic initial program selection.</summary>
     private static void VerifyAtomicInitialProgramSelection(SuperMetroidAddressSpace rom)
     {
         for (ushort selector = 0; selector < 4; selector++)
@@ -28,6 +30,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic invalid direction selector");
     }
 
+    /// <summary>Verifies atomic mechanics mapping.</summary>
     private static void VerifyAtomicMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
@@ -76,6 +79,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic mechanics ordinal bounds");
     }
 
+    /// <summary>Atomic presentation address oracle.</summary>
     private static ushort[] AtomicPresentationAddressOracle() =>
         [
             0xe312, 0xe316, 0xe31a, 0xe31e, 0xe322, 0xe326,
@@ -84,6 +88,7 @@ internal static class AtomicMovementDefinitionsVerification
             0xe366, 0xe36a, 0xe36e, 0xe372, 0xe376, 0xe37a,
         ];
 
+    /// <summary>Verifies atomic presentation addresses.</summary>
     private static void VerifyAtomicPresentationAddresses()
     {
         ushort[] expected = AtomicPresentationAddressOracle();
@@ -101,6 +106,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic presentation ordinal bounds");
     }
 
+    /// <summary>Verifies atomic visual selectors.</summary>
     private static void VerifyAtomicVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = AtomicPresentationAddressOracle();
@@ -128,6 +134,7 @@ internal static class AtomicMovementDefinitionsVerification
                 "Atomic distant invalid visual operand");
     }
 
+    /// <summary>Verifies atomic movement definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for atomic movement definitions")]
     internal static void VerifyAtomicMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -219,10 +226,12 @@ internal static class AtomicMovementDefinitionsVerification
             "and 24 visual-selector source reads forbidden.");
     }
 
+    /// <summary>New atomic instruction read guard.</summary>
     private static CartridgeReadGuard NewAtomicInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa8e380 and < 0xa8e388,
             address => $"Atomic initializer attempted migrated instruction read ${address:X6}.");
 
+    /// <summary>New atomic program read guard.</summary>
     private static CartridgeReadGuard NewAtomicProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(AtomicInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -231,6 +240,7 @@ internal static class AtomicMovementDefinitionsVerification
                 AtomicInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Atomic instruction byte ${address:X6}.");
 
+    /// <summary>Atomic instruction mechanics command.</summary>
     [VerificationCommand("--atomic-instruction-mechanics")]
     internal static int AtomicInstructionMechanicsCommand()
     {

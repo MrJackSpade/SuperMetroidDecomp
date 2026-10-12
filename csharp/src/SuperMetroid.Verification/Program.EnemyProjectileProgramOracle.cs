@@ -2,6 +2,7 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents enemy projectile program oracle verification.</summary>
 internal static class EnemyProjectileProgramOracleVerification
 {
     /// <summary>

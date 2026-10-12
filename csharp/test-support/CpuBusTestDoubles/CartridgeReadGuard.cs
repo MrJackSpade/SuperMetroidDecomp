@@ -13,14 +13,18 @@ using SuperMetroid.Core.Hardware;
 [CpuBusBoundary("exact bus test: guard double that forbids, observes and counts reads of declared CPU-bus ranges")]
 internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
 {
+    /// <summary>Stores source.</summary>
     private readonly ISnesAddressSpace? source;
+    /// <summary>Stores read rules.</summary>
     private readonly List<ReadRule> readRules = [];
+    /// <summary>Stores write rules.</summary>
     private readonly List<WriteRule> writeRules = [];
 
     /// <summary>Guards <paramref name="source"/>, which serves every read and write no rule rejects.</summary>
     internal CartridgeReadGuard(ISnesAddressSpace source) =>
         this.source = Ensure.NotNull(source);
 
+    /// <summary>Initializes a new cartridge read guard instance.</summary>
     private CartridgeReadGuard()
     {
     }
@@ -152,6 +156,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
     private protected ISnesAddressSpace Source => source ?? throw new InvalidOperationException(
         "Unbacked bus guard has no source for an unrejected read.");
 
+    /// <summary>find word.</summary>
     private static ushort? FindWord(int address, int bankBase, int count, Func<int, ushort> wordAddress)
     {
         if ((SnesAddressMath.BankBase(address)) != bankBase)
@@ -166,8 +171,10 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
         return null;
     }
 
+    /// <summary>Represents read rule.</summary>
     private sealed record ReadRule(Func<int, bool> Match, Func<int, Exception>? Failure, Action<int>? Observe);
 
+    /// <summary>Represents write rule.</summary>
     private sealed record WriteRule(Func<int, bool> Match, Func<int, Exception> Failure);
 }
 

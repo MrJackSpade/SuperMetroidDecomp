@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents samus arm cannon definitions verification.</summary>
 internal static class SamusArmCannonDefinitionsVerification
 {
+    /// <summary>verify samus arm cannon definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus arm cannon definitions")]
     internal static void VerifySamusArmCannonDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -75,11 +77,13 @@ internal static class SamusArmCannonDefinitionsVerification
             "Arm-cannon policy: all six HUD selections match the cartridge and the real update path rejects runtime policy-table reads.");
     }
 
+    /// <summary>new arm cannon policy read guard.</summary>
     private static CartridgeReadGuard NewArmCannonPolicyReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address >= SamusArmCannonDefinitions.OpenFlagTable &&
                 address < SamusArmCannonDefinitions.OpenFlagTable + SamusArmCannonDefinitions.HudItemCount,
             _ => "Runtime arm-cannon HUD policy read from cartridge ROM.");
 
+    /// <summary>arm cannon definitions command.</summary>
     [VerificationCommand("--arm-cannon-definitions")]
     internal static int ArmCannonDefinitionsCommand()
     {

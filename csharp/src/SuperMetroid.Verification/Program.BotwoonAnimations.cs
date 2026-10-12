@@ -23,6 +23,7 @@ using SuperMetroid.Core.Hardware;
 /// </summary>
 internal static class BotwoonAnimationsVerification
 {
+    /// <summary>Defines botwoon flags.</summary>
     private const BindingFlags BotwoonFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
     /// <summary><c>InstListPointers_Botwoon</c> at $B3:946B: moving lists, then eight hidden duplicates.</summary>
@@ -43,7 +44,9 @@ internal static class BotwoonAnimationsVerification
         [0x94d7] = (12, 12), [0x94f7] = (12, 12), [0x9527] = (12, 12), [0x9547] = (12, 12),
         [0x94e7] = (16, 8), [0x9537] = (16, 8),
     };
+    /// <summary>Defines botwoon set spitting flag opcode.</summary>
     private const ushort BotwoonSetSpittingFlagOpcode = 0x9567;
+    /// <summary>Defines botwoon queue spit sound opcode.</summary>
     private const ushort BotwoonQueueSpitSoundOpcode = 0x9572;
 
     /// <summary>Every head program the cartridge can select runs exactly like its native list.</summary>
@@ -190,6 +193,7 @@ internal static class BotwoonAnimationsVerification
         Console.WriteLine("  Botwoon projectile animations: 32 segment selectors and the spit match their native lists; landing hands off to the shared explosion.");
     }
 
+    /// <summary>New botwoon head.</summary>
     private static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State) NewBotwoonHead()
     {
         var enemies = new RoomEnemySystem();
@@ -200,6 +204,7 @@ internal static class BotwoonAnimationsVerification
         return (enemies, head, state);
     }
 
+    /// <summary>Compare botwoon head.</summary>
     private static void CompareBotwoonHead(SuperMetroidAddressSpace rom, ushort nativeList, BotwoonHeadProgram program, string label,
         HashSet<ushort> drawn)
     {
@@ -274,12 +279,18 @@ internal static class BotwoonAnimationsVerification
     /// <summary>A native bank-$B3 head list, read from the cartridge with the enemy interpreter's timer gate.</summary>
     internal sealed class NativeBotwoonHead(ushort cursor, ushort timer, Extent16<RoomPixels> radius)
     {
+        /// <summary>Stores cursor.</summary>
         private ushort cursor = cursor;
 
+        /// <summary>Gets or sets timer.</summary>
         internal ushort Timer { get; private set; } = timer;
+        /// <summary>Gets or sets spritemap.</summary>
         internal ushort Spritemap { get; private set; }
+        /// <summary>Gets or sets radius.</summary>
         internal Extent16<RoomPixels> Radius { get; private set; } = radius;
+        /// <summary>Gets or sets new frame.</summary>
         internal bool NewFrame { get; private set; }
+        /// <summary>Gets or sets spit frame.</summary>
         internal bool SpitFrame { get; private set; }
 
         /// <summary>Runs one update; returns whether the spit sound was queued.</summary>
@@ -320,6 +331,7 @@ internal static class BotwoonAnimationsVerification
         }
     }
 
+    /// <summary>Botwoon projectile instruction mechanics command.</summary>
     [VerificationCommand("--botwoon-projectile-instruction-mechanics")]
     internal static int BotwoonProjectileInstructionMechanicsCommand()
     {
@@ -327,6 +339,7 @@ internal static class BotwoonAnimationsVerification
         return 0;
     }
 
+    /// <summary>Botwoon instruction mechanics command.</summary>
     [VerificationCommand("--botwoon-instruction-mechanics")]
     internal static int BotwoonInstructionMechanicsCommand()
     {
@@ -334,6 +347,7 @@ internal static class BotwoonAnimationsVerification
         return 0;
     }
 
+    /// <summary>Botwoon instruction definitions command.</summary>
     [VerificationCommand("--botwoon-instruction-definitions")]
     internal static int BotwoonInstructionDefinitionsCommand()
     {

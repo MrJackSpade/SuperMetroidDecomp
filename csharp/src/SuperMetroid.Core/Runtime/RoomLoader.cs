@@ -13,42 +13,78 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class RoomLoader
 {
+    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Stores background phase.</summary>
     private readonly BackgroundScrollPhase _backgroundPhase;
+    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Stores ceres elevator shaft.</summary>
     private readonly CeresElevatorShaftRoomMainState _ceresElevatorShaft;
+    /// <summary>Stores ceres haze.</summary>
     private readonly CeresHazeState _ceresHaze;
+    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Stores controller1.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Stores door transition.</summary>
     private readonly DoorTransitionRunner _doorTransition;
+    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Stores enemy room effects.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
+    /// <summary>Stores escape effects.</summary>
     private readonly EscapeRoomEffects _escapeEffects;
+    /// <summary>Stores game time.</summary>
     private readonly GameTimeState _gameTime;
+    /// <summary>Stores hud.</summary>
     private readonly HudState _hud;
+    /// <summary>Stores hud setup.</summary>
     private readonly GameplayHudSetup _hudSetup;
+    /// <summary>Stores maridia elevatube.</summary>
     private readonly MaridiaElevatubeRoomMainState _maridiaElevatube;
+    /// <summary>Stores nmi.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Stores options.</summary>
     private readonly GameplayOptions _options;
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Stores projectiles.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Stores room palette fx.</summary>
     private readonly RoomPaletteFxSystem _roomPaletteFx;
+    /// <summary>Stores room spikes.</summary>
     private readonly RoomSpikeAnimatedTilesState _roomSpikes;
+    /// <summary>Stores room treadmills.</summary>
     private readonly RoomTreadmillAnimatedTilesState _roomTreadmills;
+    /// <summary>Stores sand animated tiles.</summary>
     private readonly RoomSandAnimatedTilesState _sandAnimatedTiles;
+    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Stores tester.</summary>
     private readonly TesterTools _tester;
+    /// <summary>Stores tourian statues.</summary>
     private readonly TourianStatueSequence _tourianStatues;
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Stores wrecked ship treadmill.</summary>
     private readonly WreckedShipTreadmillAnimatedTilesState _wreckedShipTreadmill;
+    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Initializes a new room loader instance.</summary>
     internal RoomLoader(RoomLoaderDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -89,11 +125,15 @@ internal sealed class RoomLoader
     }
     // The IRQ owns these coordinates while state $0B waits inside LoadMoreThings. Keep
     // that ownership explicit instead of reducing the native scroll to a frontend timer.
+    /// <summary>Stores door scrolling irq requests nmi.</summary>
     private bool _doorScrollingIrqRequestsNmi;
+    /// <summary>Stores door opening scroll.</summary>
     private DoorOpeningScrollState? _doorOpeningScroll;
     // An arriving elevator's placement of Samus, made by the one-step room load but due
     // when the cartridge's door loader reaches that enemy's init AI.
+    /// <summary>Stores pending loader samus placement.</summary>
     private LoaderSamusPlacement? _pendingLoaderSamusPlacement;
+    /// <summary>Stores pending door opening ppu scroll.</summary>
     private DoorOpeningPpuScroll? _pendingDoorOpeningPpuScroll;
 
     /// <summary>
@@ -692,6 +732,7 @@ internal sealed class RoomLoader
         return LoadPendingDoorDestination(RoomViewportLoadMode.StreamThroughDoor, sourceSamus);
     }
 
+    /// <summary>Loads pending door destination.</summary>
     private InitialViewportResult LoadPendingDoorDestination(
         RoomViewportLoadMode viewportLoadMode, FixedPosition<RoomPixels>? sourcePosition = null)
     {

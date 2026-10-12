@@ -10,9 +10,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessagePanelPresentation
 {
+    /// <summary>Stores panels.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledPanel> panels;
+    /// <summary>Stores border.</summary>
     private readonly ushort[] border;
 
+    /// <summary>Initializes a new gameplay message panel presentation instance.</summary>
     private GameplayMessagePanelPresentation(
         Dictionary<GameplayMessageId, CompiledPanel> panels,
         ushort[] border,
@@ -155,6 +158,7 @@ public sealed class GameplayMessagePanelPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Represents compiled panel.</summary>
     private sealed record CompiledPanel(
         string Title,
         int Palette,

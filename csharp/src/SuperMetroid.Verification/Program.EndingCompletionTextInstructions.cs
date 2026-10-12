@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 
+/// <summary>Represents ending completion text instructions verification.</summary>
 internal static class EndingCompletionTextInstructionsVerification
 {
+    /// <summary>Verifies ending completion text instructions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending completion text instructions")]
     internal static void VerifyEndingCompletionTextInstructions(ISnesAddressSpace bus)
     {
@@ -105,6 +107,7 @@ internal static class EndingCompletionTextInstructionsVerification
         }
     }
 
+    /// <summary>Verifies ending completion text parts.</summary>
     private static void VerifyEndingCompletionTextParts(ISnesAddressSpace bus, int frame, EndingCompletionTextSpriteFrameDefinition definition)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus, definition.Pointer, definition.StockPartCount, definition.Name);

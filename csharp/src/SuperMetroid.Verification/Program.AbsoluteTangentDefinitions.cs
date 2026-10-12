@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents absolute tangent definitions verification.</summary>
 internal static class AbsoluteTangentDefinitionsVerification
 {
+    /// <summary>verify compiled absolute tangent.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled absolute tangent")]
     internal static void VerifyCompiledAbsoluteTangent(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
@@ -71,10 +73,12 @@ internal static class AbsoluteTangentDefinitionsVerification
         Console.WriteLine("Absolute tangent: 129 native words, all direct caller endpoints, 768 X-ray directions and 520 window builds reject runtime tangent reads.");
     }
 
+    /// <summary>new tangent read guard.</summary>
     private static CartridgeReadGuard NewTangentReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x91c9d4 and < 0x91cad6,
             _ => "Runtime absolute-tangent ROM read.");
 
+    /// <summary>absolute tangent runtime command.</summary>
     [VerificationCommand("--absolute-tangent-runtime")]
     internal static int AbsoluteTangentRuntimeCommand()
     {

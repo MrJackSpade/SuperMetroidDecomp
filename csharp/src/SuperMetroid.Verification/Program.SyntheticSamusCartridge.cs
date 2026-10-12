@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents synthetic samus cartridge verification.</summary>
 internal static class SyntheticSamusCartridgeVerification
 {
 

@@ -449,6 +449,7 @@ public static class EndingObjectArtworkFiles
     /// <param name="directory">Installed stock ending object-artwork directory.</param>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -456,6 +457,7 @@ public static class EndingObjectArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Represents manifest.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

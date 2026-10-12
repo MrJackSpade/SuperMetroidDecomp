@@ -6,8 +6,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents enemy tile artwork mother brain death colors verification.</summary>
 internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 {
+    /// <summary>Verifies installed mother brain death colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Mother Brain death colors and selectors")]
     internal static void VerifyInstalledMotherBrainDeathColors(

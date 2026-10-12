@@ -5,12 +5,15 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Development-tool members of <see cref="CompiledEnemyVisualSelectors"/>; never linked by player hosts.</summary>
 internal static class CompiledEnemyVisualSelectorsTooling
 {
+    /// <summary>Gets calculated count.</summary>
     internal static int CalculatedCount => BombTorizoStatueInstructionProgramDefinitions.PresentationWordCount + BombTorizoDroolInstructionProgramDefinitions.PresentationWordCount + BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.PresentationWordCount + BeetomInstructionProgramDefinitionsTooling.PresentationWordCount + PlatformInstructionProgramDefinitionsTooling.PresentationWordCount + ElevatorInstructionProgramDefinitionsTooling.PresentationWordCount + GrowingShutterInstructionProgramDefinitionsTooling.PresentationWordCount + HorizontalShutterInstructionProgramDefinitionsTooling.PresentationWordCount + (VerticalShutterInstructionProgramDefinitionsTooling.PresentationWordCount - 1) + AlcoonFireballInstructionProgramDefinitions.PresentationWordCount + FuneNamiheFireballInstructionProgramDefinitions.PresentationWordCount + BoyonInstructionProgramDefinitionsTooling.PresentationWordCount +
         BoulderInstructionProgramDefinitionsTooling.PresentationWordCount +
         FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount +
         KraidNailInstructionProgramDefinitions.PresentationWordCount + PhantoonInstructionProgramDefinitions.PresentationWordCount +
         FuneNamiheInstructionProgramDefinitionsTooling.PresentationWordCount + AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount + AtomicInstructionProgramDefinitionsTooling.PresentationWordCount;
+    /// <summary>Gets count.</summary>
     internal static int Count => CompiledEnemyVisualSelectors.Entries.Length + CalculatedCount;
+    /// <summary>At.</summary>
     internal static CompiledEnemyVisualSelector At(int index)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();
@@ -35,6 +38,7 @@ internal static class CompiledEnemyVisualSelectorsTooling
         }
         return CompiledEnemyVisualSelectors.Entries[index - low];
     }
+    /// <summary>Calculated at.</summary>
     internal static CompiledEnemyVisualSelector CalculatedAt(int index)
     {
         if (index < AlcoonFireballInstructionProgramDefinitions.PresentationWordCount)

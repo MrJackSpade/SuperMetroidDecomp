@@ -26,8 +26,10 @@ public enum NorfairLavaJumpingEnemyFunction : ushort
 /// </summary>
 public sealed class NorfairLavaJumpingEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new norfair lava jumping enemy state instance.</summary>
     internal NorfairLavaJumpingEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

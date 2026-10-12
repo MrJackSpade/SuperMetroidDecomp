@@ -52,11 +52,17 @@ public enum RoomCollisionType : byte
 /// </remarks>
 public readonly record struct RoomLevelWord(ushort Raw)
 {
+    /// <summary>Stores visual block index mask.</summary>
     private const ushort VisualBlockIndexMask = 0x03ff;
+    /// <summary>Stores visual flip mask.</summary>
     private const ushort VisualFlipMask = 0x0c00;
+    /// <summary>Stores visual bits mask.</summary>
     private const ushort VisualBitsMask = VisualBlockIndexMask | VisualFlipMask;
+    /// <summary>Stores collision type mask.</summary>
     private const ushort CollisionTypeMask = 0xf000;
+    /// <summary>Stores solid probe mask.</summary>
     private const ushort SolidProbeMask = 0x8000;
+    /// <summary>Stores collision type shift.</summary>
     private const int CollisionTypeShift = 12;
 
     /// <summary>Low ten bits selecting a visual 16×16 block definition.</summary>
@@ -130,12 +136,14 @@ public readonly record struct RoomLevelWord(ushort Raw)
             (Raw & ~CollisionTypeMask) | ((ushort)collisionType << CollisionTypeShift))));
     }
 
+    /// <summary>Validates visual block index.</summary>
     private static void ValidateVisualBlockIndex(ushort visualBlockIndex)
     {
         if ((visualBlockIndex & ~VisualBlockIndexMask) != 0)
             throw new ArgumentOutOfRangeException(nameof(visualBlockIndex));
     }
 
+    /// <summary>Validates visual flip flags.</summary>
     private static void ValidateVisualFlipFlags(LevelBlockFlipFlags visualFlipFlags)
     {
         const LevelBlockFlipFlags All =
@@ -144,6 +152,7 @@ public readonly record struct RoomLevelWord(ushort Raw)
             throw new ArgumentOutOfRangeException(nameof(visualFlipFlags));
     }
 
+    /// <summary>Validates collision type.</summary>
     private static void ValidateCollisionType(RoomCollisionType collisionType)
     {
         if ((byte)collisionType > 0x0f)

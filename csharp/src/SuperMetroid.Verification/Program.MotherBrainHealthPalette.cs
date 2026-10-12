@@ -13,8 +13,10 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents mother brain health palette verification.</summary>
 internal static class MotherBrainHealthPaletteVerification
 {
+    /// <summary>verify mother brain health palette.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain health palette")]
     internal static void VerifyMotherBrainHealthPalette(string romPath)
@@ -46,6 +48,7 @@ internal static class MotherBrainHealthPaletteVerification
         Console.WriteLine("Mother Brain health palettes: all strict thresholds, ROM copies and neighboring colors verified.");
     }
 
+    /// <summary>mother brain health command.</summary>
     [VerificationCommand("--mother-brain-health", "argument1")]
     internal static int MotherBrainHealthCommand(string[] args)
     {

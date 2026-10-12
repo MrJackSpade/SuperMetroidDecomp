@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ceres ridley projectile instruction program definitions verification.</summary>
 internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies ceres ridley projectile instruction program definitions.</summary>
     internal static void VerifyCeresRidleyProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyCeresRidleyProjectileInstructionProgramDefinitions), () => VerifyCeresRidleyProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies ceres ridley projectile instruction program definitions.</summary>
     internal static void VerifyCeresRidleyProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -227,6 +230,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
         }
     }
 
+    /// <summary>Probes ceres ridley projectile instruction mechanics allocation.</summary>
     private static int ProbeCeresRidleyProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -240,6 +244,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
         return checksum;
     }
 
+    /// <summary>Creates ceres ridley projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewCeresRidleyProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CeresRidleyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -247,6 +252,7 @@ internal static class CeresRidleyProjectileInstructionProgramDefinitionsVerifica
                 address => $"Production read compiled Ceres Ridley mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordCount, CeresRidleyProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Ceres ridley projectile instruction mechanics command.</summary>
     [VerificationCommand("--ceres-ridley-projectile-instruction-mechanics")]
     internal static int CeresRidleyProjectileInstructionMechanicsCommand()
     {

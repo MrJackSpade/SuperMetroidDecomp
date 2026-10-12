@@ -6,8 +6,10 @@ using SuperMetroid.Desktop;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents grapple pose refire verification.</summary>
 internal static class GrapplePoseRefireVerification
 {
+    /// <summary>verify grapple pose refire.</summary>
     internal static void VerifyGrapplePoseRefire()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -29,6 +29,7 @@ public static class IndexedPng
         catch (EndOfStreamException error) { throw new InvalidDataException("Indexed PNG is truncated.", error); }
     }
 
+    /// <summary>read core.</summary>
     private static IndexedPngImage ReadCore(Stream input, Extent16<ImagePixels> size)
     {
         Span<byte> signature = stackalloc byte[8];
@@ -110,6 +111,7 @@ public static class IndexedPng
         }
     }
 
+    /// <summary>decode rows.</summary>
     private static IndexedPngImage DecodeRows(MemoryStream compressed, Extent16<ImagePixels> size, int depth, Rgba32[] palette)
     {
         compressed.Position = 0;
@@ -187,12 +189,14 @@ public static class IndexedPng
         PngWriter.WriteChunk(output, "IEND", []);
     }
 
+    /// <summary>paeth.</summary>
     private static int Paeth(int a, int b, int c)
     {
         int p = a + b - c, pa = Math.Abs(p - a), pb = Math.Abs(p - b), pc = Math.Abs(p - c);
         return pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
     }
 
+    /// <summary>validate dimensions.</summary>
     private static void ValidateDimensions(Extent16<ImagePixels> size)
     {
         if (size.X < 1 || size.Y < 1 ||

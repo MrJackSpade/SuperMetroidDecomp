@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 
@@ -14,8 +14,10 @@ internal sealed class ProjectileSlotTable
     // tables as eight-byte animation records: the first bogus "spritemap" was the real
     // list pointer, producing unrelated OBJ fragments, and no delete opcode was reached.
 
+    /// <summary>Stores slots.</summary>
     internal readonly SamusProjectileSlot[] _slots =
         Enumerable.Range(0, SamusProjectileSystem.SlotCount).Select(index => new SamusProjectileSlot(index)).ToArray();
+    /// <summary>Stores trail slots.</summary>
     internal readonly SamusProjectileTrailSlot[] _trailSlots =
         Enumerable.Range(0, SamusProjectileSystem.TrailSlotCount).Select(index => new SamusProjectileTrailSlot(index)).ToArray();
 

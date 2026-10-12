@@ -57,6 +57,7 @@ public enum CrocomireFightFunction : ushort
 /// </summary>
 public sealed class CrocomireEnemyState
 {
+    /// <summary>Initializes a new crocomire enemy state instance.</summary>
     internal CrocomireEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Physical $DDBF body record owning the fight/death state words and room-pixel coordinates; BG2 body artwork follows this actor.</summary>

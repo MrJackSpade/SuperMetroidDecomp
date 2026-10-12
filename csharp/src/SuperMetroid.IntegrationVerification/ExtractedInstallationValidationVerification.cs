@@ -10,6 +10,7 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class ExtractedInstallationValidationVerification
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     internal static int Run(string sourceRoot)
     {
         GameInstallation source = GameAssetInstallerTooling.ValidateExtractedContent(sourceRoot);
@@ -81,6 +82,7 @@ internal static class ExtractedInstallationValidationVerification
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
+    /// <summary>verify rejection.</summary>
     private static void VerifyRejection<T>(GameInstallation fixture, string failingPath, string scenario) where T : Exception
     {
         Dictionary<string, string> damaged = Snapshot(fixture.ContentDirectory);
@@ -90,6 +92,7 @@ internal static class ExtractedInstallationValidationVerification
         AssertUnchanged(damaged, fixture, scenario);
     }
 
+    /// <summary>reject.</summary>
     private static void Reject<T>(string root, string failingPath) where T : Exception
     {
         try { GameAssetInstallerTooling.ValidateExtractedContent(root); }
@@ -102,6 +105,7 @@ internal static class ExtractedInstallationValidationVerification
         throw new InvalidDataException($"Strict validation accepted defective content; expected {typeof(T).Name} for {failingPath}.");
     }
 
+    /// <summary>with edited file.</summary>
     private static void WithEditedFile(string path, Action edit, Action verify)
     {
         byte[] original = File.ReadAllBytes(path);
@@ -109,12 +113,15 @@ internal static class ExtractedInstallationValidationVerification
         finally { File.WriteAllBytes(path, original); }
     }
 
+    /// <summary>read object.</summary>
     private static JsonObject ReadObject(string path) => JsonNode.Parse(File.ReadAllText(path))?.AsObject()
         ?? throw new InvalidDataException($"Expected JSON object at {path}.");
 
+    /// <summary>snapshot.</summary>
     private static Dictionary<string, string> Snapshot(string root) => Directory.GetFiles(root, "*", SearchOption.AllDirectories)
         .ToDictionary(path => Path.GetRelativePath(root, path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
+    /// <summary>assert unchanged.</summary>
     private static void AssertUnchanged(Dictionary<string, string> expected, GameInstallation fixture, string scenario)
     {
         Dictionary<string, string> actual = Snapshot(fixture.ContentDirectory);
@@ -123,6 +130,7 @@ internal static class ExtractedInstallationValidationVerification
         Assert(!File.Exists(fixture.RomPath), scenario + ": no cartridge was created");
     }
 
+    /// <summary>assert.</summary>
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);

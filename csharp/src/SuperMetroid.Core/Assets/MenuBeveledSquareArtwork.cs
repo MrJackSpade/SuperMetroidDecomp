@@ -9,10 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// selection is explicit; no per-pixel table or generated tile cache remains.</summary>
 internal sealed class MenuBeveledSquareArtwork
 {
+    /// <summary>Stores tile count.</summary>
     internal const int TileCount = 2;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, byte>? edits;
+    /// <summary>Contains.</summary>
     internal static bool Contains(int tile) => tile is 0x98 or 0x99;
 
+    /// <summary>Initializes a new menu beveled square artwork instance.</summary>
     internal MenuBeveledSquareArtwork(IndexedPngImage image)
     {
         for (int tile = 0x98; tile <= 0x99; tile++)
@@ -24,12 +28,14 @@ internal sealed class MenuBeveledSquareArtwork
         }
     }
 
+    /// <summary>Pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Basis.</summary>
     private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         if (point.X is 0 or 7 || point.Y is 0 or 7) return 0;

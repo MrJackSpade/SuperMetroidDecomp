@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Audio;
 
+/// <summary>Represents queued pcm sink verification.</summary>
 internal static class QueuedPcmSinkVerification
 {
+    /// <summary>Verifies queued pcm sink.</summary>
     internal static void VerifyQueuedPcmSink()
     {
         using var entered = new ManualResetEventSlim();

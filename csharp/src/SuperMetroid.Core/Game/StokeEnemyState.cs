@@ -38,8 +38,10 @@ public enum StokeAiFunction : ushort
 /// </summary>
 public sealed class StokeEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new stoke enemy state instance.</summary>
     internal StokeEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Fractional half of the positive 16.16 walking displacement.</summary>

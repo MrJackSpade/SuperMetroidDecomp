@@ -6,8 +6,10 @@ using SuperMetroid.Rendering.Direct3D11;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Represents form close tests.</summary>
 internal static class FormCloseTests
 {
+    /// <summary>verify form close.</summary>
     internal static async Task VerifyFormClose(RendererSelection renderer, bool duringStartup)
     {
         using var directoryScratch = new TestScratchDirectory("desktop-renderer");

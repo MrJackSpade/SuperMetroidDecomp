@@ -71,6 +71,7 @@ internal static class CrocomirePaintDefinitions
     /// <summary>$A4:B92D/B92F/B937: three additional copied spike-palette accent paints; no visible-role claim is made for this fragment fixture.</summary>
     private static readonly Bgr555 SpikeAccent = Bgr555.FromWord(0x0bb1), SpikeWarmAccent = Bgr555.FromWord(0x48fb), SpikeCoolAccent = Bgr555.FromWord(0x44e5);
 
+    /// <summary>Fight body.</summary>
     internal static Bgr555 FightBody(int ink) => ink switch
     {
         0 => Bgr555.Black,
@@ -81,6 +82,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Initial wall.</summary>
     internal static Bgr555 InitialWall(int ink) => ink switch
     {
         0 or 16 => Transparent,
@@ -93,6 +95,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Initial projectile.</summary>
     internal static Bgr555 InitialProjectile(int ink) => ink switch
     {
         0 or 16 => Transparent,
@@ -110,6 +113,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Skeleton arm.</summary>
     internal static Bgr555 SkeletonArm(int ink) => ink switch
     {
         0 => Transparent, 1 => White, 2 or 7 => BoneHighlight,
@@ -124,6 +128,7 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Wall spikes.</summary>
     internal static Bgr555 WallSpikes(int ink) => ink switch
     {
         0 => Transparent,
@@ -135,33 +140,39 @@ internal static class CrocomirePaintDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(ink)),
     };
 
+    /// <summary>Hide shade.</summary>
     private static Bgr555 HideShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => HideMiddleRed, 2 => HideDeepRed, _ => HideOutlineRed };
         int green = HideGreenPeak - shade;
         return Rgb(red, green, Math.Min(HideBlueCap, (green + 1) / 2));
     }
+    /// <summary>Bone shade.</summary>
     private static Bgr555 BoneShade(int shade)
     {
         int red = Nearest(BoneLightRed, BoneDarkRed, shade, 3);
         int blue = shade switch { 0 => BoneBlueLight, 1 => BoneBlueMiddle, 2 => BoneBlueDeep, _ => BoneBlueDark };
         return Rgb(red, Math.Max(BoneGreenFloor, red - BoneGreenTint), blue);
     }
+    /// <summary>Violet shade.</summary>
     private static Bgr555 VioletShade(int shade)
     {
         int red = Nearest(31 - VioletBlueTint, VioletDarkRed, shade, 2);
         return Rgb(red, 0, red + VioletBlueTint);
     }
+    /// <summary>Green shade.</summary>
     private static Bgr555 GreenShade(int shade)
     {
         int green = shade switch { 0 => 31, 1 => FloorGammaMidpoint(31, GreenDark), _ => GreenDark };
         return Rgb(0, green, green * GreenBluePeak / 31);
     }
+    /// <summary>Neutral shade.</summary>
     private static Bgr555 NeutralShade(int shade)
     {
         int value = Nearest(ProjectileNeutralLight, ProjectileNeutralDark, shade, 2);
         return Rgb(value, value, value);
     }
+    /// <summary>Gold shade.</summary>
     private static Bgr555 GoldShade(int shade)
     {
         int red = shade switch { 0 => 31, 1 => SpikeGoldMiddleRed, _ => SpikeGoldDarkRed };
@@ -169,19 +180,26 @@ internal static class CrocomirePaintDefinitions
             (SpikeGoldLightGreen - SpikeGoldDarkGreen) / (31 - SpikeGoldDarkRed);
         return Rgb(red, green, 0);
     }
+    /// <summary>Steel shade.</summary>
     private static Bgr555 SteelShade(int shade)
     {
         int level = (SteelLight * (3 - shade) + SteelDark * shade) / 3;
         return Rgb(level, level, level + SteelBlueTint);
     }
+    /// <summary>Nearest.</summary>
     private static int Nearest(int from, int to, int step, int count) =>
         (from * (count - step) + to * step + count / 2) / count;
     // Squared midpoint of square-root intensity; endpoints remain their exact RGB5 values.
     // This is the selected material's exact gamma-two shade rule, not a historical-tool claim.
+    /// <summary>Floor gamma midpoint.</summary>
     private static int FloorGammaMidpoint(int from, int to) =>
         (int)Math.Floor((from + to + 2 * Math.Sqrt(from * to)) / 4);
+    /// <summary>Rgb.</summary>
     private static Bgr555 Rgb(int red, int green, int blue) => new Bgr555(red, green, blue);
+    /// <summary>Gets transparent.</summary>
     private static Bgr555 Transparent => Rgb(0, 0, TransparentBlue);
+    /// <summary>Gets white.</summary>
     private static Bgr555 White => Rgb(31, 31, 31);
+    /// <summary>Gets bone highlight.</summary>
     private static Bgr555 BoneHighlight => Rgb(BoneLightRed, BoneLightGreen, BoneLightBlue);
 }

@@ -7,14 +7,22 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Non-debug map landmarks and elevator destinations from the cartridge icon lists.</summary>
 public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
 {
+    /// <summary>Stores sprites.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapSpriteCatalog? sprites;
+    /// <summary>Binds sprites.</summary>
     internal void BindSprites(SuperMetroid.Core.Assets.MapSpriteCatalog? catalog) => sprites = catalog;
+    /// <summary>Stores stations.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapStationLayout? stations;
+    /// <summary>Binds stations.</summary>
     internal void BindStations(SuperMetroid.Core.Assets.MapStationLayout? layout) => stations = layout;
+    /// <summary>Stores landmarks.</summary>
     [NonSerialized] private SuperMetroid.Core.Assets.MapLandmarkLayout? landmarks;
+    /// <summary>Binds landmarks.</summary>
     internal void BindLandmarks(SuperMetroid.Core.Assets.MapLandmarkLayout? layout) => landmarks = layout;
     // The exploration owner these icons already retain; the menu reads it rather than holding a second copy.
+    /// <summary>Gets map system.</summary>
     internal Bank80SystemState MapSystem => system;
+    /// <summary>Gets map area.</summary>
     internal AreaId MapArea => area;
 
     /// <summary>Shared $82:B892 boss-marker drawing used by pause and file-select maps.</summary>
@@ -93,6 +101,7 @@ public sealed class FileSelectMapIcons(Bank80SystemState system, AreaId area)
                 elevatorLayout.Get(label.Id), scroll, 0);
         }
     }
+    /// <summary>Add.</summary>
     private void Add(OamBuffer oam, MapSpriteId id, Position16<MapPixels> position, Position16<MapPixels> scroll, ushort palette)
     {
         (sprites ?? throw new InvalidOperationException(

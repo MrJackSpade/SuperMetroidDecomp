@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents ending glyph mapping verification.</summary>
 internal static class EndingGlyphMappingVerification
 {
+    /// <summary>Verifies ending text regions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending text regions")]
     internal static void VerifyEndingTextRegions(ISnesAddressSpace bus)
     {
@@ -55,6 +57,7 @@ internal static class EndingGlyphMappingVerification
         Line(0x8ce0b5, EndingTextDefinitions.FinalMessage, "SEE YOU NEXT MISSION", EndingTextStyle.FinalLarge);
     }
 
+    /// <summary>Verifies ending glyph mapping.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending glyph mapping")]
     internal static void VerifyEndingGlyphMapping(ISnesAddressSpace bus)
     {

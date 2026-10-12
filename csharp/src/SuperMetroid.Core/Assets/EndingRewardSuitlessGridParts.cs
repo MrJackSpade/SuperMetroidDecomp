@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Assets;
 /// separately positioned arm strips in the jumping pose.</summary>
 internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates replacement sprite parts when the pointer matches this artwork series; otherwise returns the supplied composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusLowerBody))
@@ -18,6 +19,7 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusJumping));
         return supplied;
     }
+    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => pose switch
     {
         Pose.SuitlessSamusLowerBody => 14,
@@ -26,6 +28,7 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 
+    /// <summary>Accesses a value by index or range.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -79,10 +82,12 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

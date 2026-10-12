@@ -13,6 +13,7 @@ public static class ProjectilePresentationFiles
     public const string ManifestFileName = "projectile-manifest.json";
     /// <summary>Current projectile manifest schema version covering all projectile, beam, flare, trail, and Grapple visual assets.</summary>
     public const int Version = 15;
+    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -132,6 +133,7 @@ public static class ProjectilePresentationFiles
             selectedFrameBindings.Compile(ProjectileFrameBindingCatalog.Load));
     }
 
+    /// <summary>read stock.</summary>
     private static ProjectileFile ReadStock(string directory, string name, string? expectedHash)
     {
         string path = Path.Combine(directory, name);
@@ -144,6 +146,7 @@ public static class ProjectilePresentationFiles
     /// <summary>Retains a file's identity through codec admission without hiding the original failure.</summary>
     private sealed record ProjectileFile(string Path, byte[] Bytes)
     {
+        /// <summary>compile.</summary>
         internal T Compile<T>(Func<Stream, T> compile)
         {
             using var stream = new MemoryStream(Bytes, writable: false);
@@ -154,6 +157,7 @@ public static class ProjectilePresentationFiles
             }
         }
 
+        /// <summary>select.</summary>
         internal ProjectileFile Select(string? directory)
         {
             string? replacement = directory is null ? null : System.IO.Path.Combine(directory, System.IO.Path.GetFileName(Path));
@@ -162,7 +166,9 @@ public static class ProjectilePresentationFiles
         }
     }
 
+    /// <summary>hash.</summary>
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
+    /// <summary>identity.</summary>
     private static string Identity(ProjectilePresentationSourceFiles files)
     {
         // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
@@ -171,6 +177,7 @@ public static class ProjectilePresentationFiles
             hashes += Hash(files.Beams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i))].Bytes);
         return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(files.Palettes.Bytes) + Hash(files.HyperBeamFxColors.Bytes) + Hash(files.Trails.Bytes) + Hash(files.TrailTiles.Bytes) + Hash(files.FlarePlacement.Bytes) + Hash(files.FlareCompositions.Bytes) + Hash(files.GrappleTiles.Bytes) + Hash(files.GrappleSprites.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
     }
+    /// <summary>Represents manifest.</summary>
     private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string HyperBeamFxColorsSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256, string GrappleSpritesSha256, string GrappleFlareSha256, string GrappleSwingSha256, string FrameBindingsSha256);
 
     /// <summary>The extracted projectile presentation files whose contents form the presentation identity (#633).</summary>

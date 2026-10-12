@@ -16,6 +16,7 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class IntroMotherBrainExplosionSystem
 {
+    /// <summary>Stores actors.</summary>
     private readonly List<ExplosionActor> actors = [];
 
     /// <summary>
@@ -57,11 +58,15 @@ internal sealed class IntroMotherBrainExplosionSystem
         }
     }
 
+    /// <summary>Represents explosion actor.</summary>
     private sealed class ExplosionActor
     {
+        /// <summary>Stores instruction pointer.</summary>
         private ushort instructionPointer;
+        /// <summary>Stores instruction timer.</summary>
         private ushort instructionTimer;
 
+        /// <summary>Initializes a new explosion actor instance.</summary>
         private ExplosionActor(
             Position16<ScreenPixels> position,
             ushort instructionPointer,
@@ -72,12 +77,16 @@ internal sealed class IntroMotherBrainExplosionSystem
             this.instructionTimer = instructionTimer;
         }
 
+        /// <summary>Gets position.</summary>
         public Position16<ScreenPixels> Position { get; }
 
+        /// <summary>Gets or sets sprite map pointer.</summary>
         public ushort SpriteMapPointer { get; private set; }
 
+        /// <summary>Gets or sets is active.</summary>
         public bool IsActive { get; private set; } = true;
 
+        /// <summary>Creates big.</summary>
         public static ExplosionActor CreateBig(ushort parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
@@ -88,6 +97,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 instructionTimer: placement.StartTimer);
         }
 
+        /// <summary>Creates small.</summary>
         public static ExplosionActor CreateSmall(ushort parameter)
         {
             IntroMotherBrainExplosionPlacement placement =
@@ -98,6 +108,7 @@ internal sealed class IntroMotherBrainExplosionSystem
                 instructionTimer: placement.StartTimer);
         }
 
+        /// <summary>Steps.</summary>
         public void Step(ushort introCrossfadeTimer)
         {
             if (!IsActive)
@@ -150,6 +161,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             }
         }
 
+        /// <summary>Adds.</summary>
         private static ushort Add(ushort pointer, int byteCount) =>
             unchecked((ushort)(pointer + byteCount));
 

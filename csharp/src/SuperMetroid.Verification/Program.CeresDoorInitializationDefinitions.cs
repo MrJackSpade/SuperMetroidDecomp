@@ -15,8 +15,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents ceres door initialization definitions verification.</summary>
 internal static class CeresDoorInitializationDefinitionsVerification
 {
+    /// <summary>Verifies ceres door initialization definitions.</summary>
     internal static void VerifyCeresDoorInitializationDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa6f52c;
@@ -62,11 +64,13 @@ internal static class CeresDoorInitializationDefinitionsVerification
             "Ceres door initialization definitions: all fourteen native selector words and seven production initializers pass with both source tables forbidden.");
     }
 
+    /// <summary>New ceres door initialization read guard.</summary>
     private static CartridgeReadGuard NewCeresDoorInitializationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa6f52c and < 0xa6f53a or >= 0xa6f72b and < 0xa6f739,
                 address => $"Ceres door attempted migrated initialization-table read ${address:X6}.");
 
+    /// <summary>Ceres door initialization definitions command.</summary>
     [VerificationCommand("--ceres-door-initialization-definitions")]
     internal static int CeresDoorInitializationDefinitionsCommand()
     {

@@ -122,6 +122,7 @@ public sealed class MotherBrainCorpseRottingState
             DustRequests: dustRequests);
     }
 
+    /// <summary>Copies or move pixel row.</summary>
     private static void CopyOrMovePixelRow(WorkRamByteTable tiles, ushort yOffset, bool move)
     {
         // Divide by eight to choose the tile row, then multiply the remaining pixel index

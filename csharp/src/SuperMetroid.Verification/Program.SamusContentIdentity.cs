@@ -13,6 +13,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using static ColorWordsVerification;
 
+/// <summary>Represents samus content identity verification.</summary>
 internal static class SamusContentIdentityVerification
 {
     /// <summary>Direct, authored fixtures cover every selected Samus visual-data family.</summary>
@@ -49,6 +50,7 @@ internal static class SamusContentIdentityVerification
             "canonical spritemap order and host aggregate/warnings pass without a ROM.");
     }
 
+    /// <summary>Creates samus identity fixture.</summary>
     internal static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null, bool reverseMaps = false)
     {
         int firstPointer = SamusBodyDefinitionLayout.EndOffset -
@@ -145,6 +147,7 @@ internal static class SamusContentIdentityVerification
         }
     }
 
+    /// <summary>Samus content identity command.</summary>
     [VerificationCommand("--samus-content-identity")]
     internal static int SamusContentIdentityCommand()
     {

@@ -5,8 +5,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Represents samus eater plm definitions verification.</summary>
 internal static class SamusEaterPlmDefinitionsVerification
 {
+    /// <summary>Verifies samus eater plm definitions.</summary>
     internal static void VerifySamusEaterPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
@@ -65,12 +67,15 @@ internal static class SamusEaterPlmDefinitionsVerification
             "Samus Eater PLMs: both header/list identities, 128 compiled control bytes, and real aligned spawns match cartridge.");
     }
 
+    /// <summary>Verifies samus eater header instruction mapping.</summary>
     private static void VerifySamusEaterHeaderInstructionMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, false));
 
+    /// <summary>Verifies samus eater mounting mapping.</summary>
     private static void VerifySamusEaterMountingMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterHeaderField), () => VerifySamusEaterHeaderField(rom, true));
 
+    /// <summary>Verifies samus eater header field.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater header field")]
     private static void VerifySamusEaterHeaderField(SuperMetroidAddressSpace rom, bool mounting)
     {
@@ -104,6 +109,7 @@ internal static class SamusEaterPlmDefinitionsVerification
         }
     }
 
+    /// <summary>Verifies samus eater program controls.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater program controls")]
     private static void VerifySamusEaterProgramControls(SuperMetroidAddressSpace rom)
     {
@@ -130,6 +136,7 @@ internal static class SamusEaterPlmDefinitionsVerification
         }
     }
 
+    /// <summary>Verifies samus eater program draws.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater program draws")]
     private static void VerifySamusEaterProgramDraws(SuperMetroidAddressSpace rom)
     {
@@ -147,6 +154,7 @@ internal static class SamusEaterPlmDefinitionsVerification
         }
     }
 
+    /// <summary>Verifies samus eater program sound.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater program sound")]
     private static void VerifySamusEaterProgramSound(SuperMetroidAddressSpace rom)
     {
@@ -157,6 +165,7 @@ internal static class SamusEaterPlmDefinitionsVerification
         }
     }
 
+    /// <summary>Reads samus eater plm word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater PLM words")]
     internal static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);

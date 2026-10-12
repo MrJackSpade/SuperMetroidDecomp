@@ -7,10 +7,13 @@ using SuperMetroid.EnsureAnalyzer;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Represents analyzer tests.</summary>
 internal static class AnalyzerTests
 {
+    /// <summary>Stores references.</summary>
     internal static readonly MetadataReference[] References = BuildReferences();
 
+    /// <summary>verify analyzer.</summary>
     internal static void VerifyAnalyzer()
     {
         VerifySnippet("using System; class C { public void M(object value) { ArgumentNullException.ThrowIfNull(value); } }",
@@ -41,6 +44,7 @@ internal static class AnalyzerTests
         VerifySnippet("using System; class C { public void M(int width, int height) { if (width <= 0 || height <= 0) throw new ArgumentOutOfRangeException(nameof(width)); } }");
     }
 
+    /// <summary>verify snippet.</summary>
     internal static void VerifySnippet(string source, string? expectedId = null, string? expectedMessage = null,
         DiagnosticAnalyzer? analyzer = null)
     {
@@ -112,6 +116,7 @@ internal static class AnalyzerTests
         Expect(api + "[CpuBusBoundary(\"exact bus test double\")] sealed class Fake : IBus { public void WriteByte(int a, byte v) { } public byte ReadWorkRamByte(int a) => 0; }");
     }
 
+    /// <summary>verify ppu layout access analyzer.</summary>
     internal static void VerifyPpuLayoutAccessAnalyzer()
     {
         var analyzer = new PpuLayoutAccessAnalyzer();
@@ -144,6 +149,7 @@ internal static class AnalyzerTests
         Expect(api + "[PpuLayoutBoundary(\"exact hardware test\")] sealed class Sink : IOamSink { public void Write(int offset, byte value) { } }");
     }
 
+    /// <summary>verify dsp register access analyzer.</summary>
     internal static void VerifyDspRegisterAccessAnalyzer()
     {
         var analyzer = new DspRegisterAccessAnalyzer();
@@ -166,6 +172,7 @@ internal static class AnalyzerTests
         Expect(api + "class Driver { void M(Dsp dsp) => dsp.Cycle(); }");
     }
 
+    /// <summary>verify spc memory access analyzer.</summary>
     internal static void VerifySpcMemoryAccessAnalyzer()
     {
         var analyzer = new SpcMemoryAccessAnalyzer();
@@ -184,6 +191,7 @@ internal static class AnalyzerTests
         Expect(api + "byte M(ref ushort pointer) => Next(ref pointer); }");
     }
 
+    /// <summary>verify spatial clump analyzer.</summary>
     internal static void VerifySpatialClumpAnalyzer()
     {
         var analyzer = new SpatialClumpAnalyzer();
@@ -343,6 +351,7 @@ internal static class AnalyzerTests
         Expect(domain + " class C { int[] table = new int[3]; int M(Mode m) { int index = (int)m; return table[index] + index; } }");
     }
 
+    /// <summary>build references.</summary>
     private static MetadataReference[] BuildReferences()
     {
         string assemblies = (string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")

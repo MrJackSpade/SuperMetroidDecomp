@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms;
 /// <summary>Portable #51 seed for the reported Blue Brinstar eye, isolated from player saves.</summary>
 internal static class ReportedEyeStateFixture
 {
+    /// <summary>Export.</summary>
     public static int Export(string destination)
     {
         string root = Path.GetFullPath(destination);

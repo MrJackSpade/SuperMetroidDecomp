@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents dragon instruction program definitions verification.</summary>
 internal static class DragonInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify dragon instruction program definitions.</summary>
     internal static void VerifyDragonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>verify dragon instruction program definitions.</summary>
     internal static void VerifyDragonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -132,6 +135,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>probe dragon instruction mechanics allocation.</summary>
     private static int ProbeDragonInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -143,6 +147,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new dragon instruction program read guard.</summary>
     private static CartridgeReadGuard NewDragonInstructionProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(DragonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -150,6 +155,7 @@ internal static class DragonInstructionProgramDefinitionsVerification
             .ObserveWords(0xa20000, DragonInstructionProgramDefinitions.PresentationWordCount,
                 DragonInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>dragon instruction mechanics command.</summary>
     [VerificationCommand("--dragon-instruction-mechanics")]
     internal static int DragonInstructionMechanicsCommand()
     {

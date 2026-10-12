@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 
+/// <summary>Represents ending logo sprite artwork verification.</summary>
 internal static class EndingLogoSpriteArtworkVerification
 {
+    /// <summary>Verifies ending logo sprite artwork.</summary>
     internal static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -38,6 +40,7 @@ internal static class EndingLogoSpriteArtworkVerification
         }
     }
 
+    /// <summary>Loads edited ending logo artwork.</summary>
     internal static EndingObjectArtworkCatalog LoadEditedEndingLogoArtwork(
         GameInstallation installation)
     {

@@ -7,10 +7,14 @@ namespace SuperMetroid.Core.Assets;
 /// and lower highlight8 bands directly; only independently supplied pixel edits remain.</summary>
 internal sealed class MenuPanelTileArtwork
 {
+    /// <summary>Stores tile count.</summary>
     internal const int TileCount = 4;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, byte>? edits;
+    /// <summary>Contains.</summary>
     internal static bool Contains(int tile) => tile is >= 0x57 and <= 0x5a;
 
+    /// <summary>Initializes a new menu panel tile artwork instance.</summary>
     internal MenuPanelTileArtwork(IndexedPngImage image)
     {
         for (int tile = 0x57; tile <= 0x5a; tile++)
@@ -22,12 +26,14 @@ internal sealed class MenuPanelTileArtwork
         }
     }
 
+    /// <summary>Pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Basis.</summary>
     private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         int row = point.Y + (tile >= 0x59 ? 8 : 0);

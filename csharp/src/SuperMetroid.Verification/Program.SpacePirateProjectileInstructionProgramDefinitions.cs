@@ -16,12 +16,15 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents space pirate projectile instruction program definitions verification.</summary>
 internal static class SpacePirateProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify space pirate projectile instruction program definitions.</summary>
     internal static void VerifySpacePirateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>verify space pirate projectile instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate projectile instruction program definitions")]
     internal static void VerifySpacePirateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -181,6 +184,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         }
     }
 
+    /// <summary>probe space pirate projectile instruction mechanics allocation.</summary>
     private static int ProbeSpacePirateProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -194,6 +198,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
         return checksum;
     }
 
+    /// <summary>new space pirate projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewSpacePirateProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => SpacePirateProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -201,6 +206,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
                 address => $"Production read compiled Space Pirate mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount, SpacePirateProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>space pirate projectile instruction mechanics command.</summary>
     [VerificationCommand("--space-pirate-projectile-instruction-mechanics")]
     internal static int SpacePirateProjectileInstructionMechanicsCommand()
     {

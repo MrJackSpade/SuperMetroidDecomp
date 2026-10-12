@@ -81,7 +81,9 @@ public static class SamusChargePalettePointerDefinitions
         return true;
     }
 
+    /// <summary>Valid suit.</summary>
     private static bool ValidSuit(ushort offset) => offset <= 4 && (offset & 1) == 0;
+    /// <summary>Valid charge phase.</summary>
     private static bool ValidChargePhase(ushort offset) =>
         offset <= LastChargePhaseByteOffset && (offset & 1) == 0;
 }

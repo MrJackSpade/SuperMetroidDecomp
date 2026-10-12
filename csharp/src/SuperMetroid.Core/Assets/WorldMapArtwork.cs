@@ -8,14 +8,20 @@ public sealed class WorldMapArtwork
 {
     // Reviewed drawings, letter contours, ink roles and mechanical shading;
     // calculated geometry and independent supplied differences stay separate.
+    /// <summary>Stores foreground.</summary>
     private readonly Dictionary<int, byte> foreground;
+    /// <summary>Stores font fill.</summary>
     private readonly Dictionary<int, ulong> fontFill = new();
     // Exact remaining BG3 font/icon contours and selected edge decisions, plus
     // independent supplied differences from the calculated primitive/outline view.
+    /// <summary>Stores background.</summary>
     private readonly Dictionary<int, byte> background;
+    /// <summary>Stores digit fill.</summary>
     private readonly Dictionary<int, ulong> digitFill = new();
     // One delegate for the per-pixel font derivation, rather than one per pixel.
+    /// <summary>Stores font mask.</summary>
     private readonly Func<int, ulong> fontMask;
+    /// <summary>Initializes a new world map artwork instance.</summary>
     private WorldMapArtwork(byte[] foreground, byte[] background)
     {
         fontMask = FontMask;
@@ -90,11 +96,14 @@ public sealed class WorldMapArtwork
             SnesPlanarTileEncoder.Encode(pixels, new(WorldMapArtworkFormat.Width, WorldMapArtworkFormat.BackgroundHeight), 2));
     }
 
+    /// <summary>tile pixel.</summary>
     private static int TilePixel(int tile, Position16<CharacterPixels> point) =>
         (tile / WorldMapArtworkFormat.TileColumns * 8 + point.Y) * WorldMapArtworkFormat.Width +
         tile % WorldMapArtworkFormat.TileColumns * 8 + point.X;
+    /// <summary>pixel tile.</summary>
     private static int PixelTile(int index) => index / WorldMapArtworkFormat.Width / 8 *
         WorldMapArtworkFormat.TileColumns + index % WorldMapArtworkFormat.Width / 8;
+    /// <summary>font mask.</summary>
     private ulong FontMask(int tile)
     {
         if (fontFill.TryGetValue(tile, out ulong mask)) return mask;
@@ -102,6 +111,7 @@ public sealed class WorldMapArtwork
         int sourceTile = source < 0 ? tile : PixelTile(source);
         return sourceTile == tile ? 0 : FontMask(sourceTile);
     }
+    /// <summary>foreground pixel.</summary>
     private byte ForegroundPixel(int index)
     {
         if (foreground.TryGetValue(index, out byte value)) return value;
@@ -112,6 +122,7 @@ public sealed class WorldMapArtwork
             : throw new InvalidDataException("World foreground source pixel is unavailable.");
     }
 
+    /// <summary>try background default.</summary>
     private bool TryBackgroundDefault(int index, out byte value)
     {
         int x = index % WorldMapArtworkFormat.Width, y = index / WorldMapArtworkFormat.Width;

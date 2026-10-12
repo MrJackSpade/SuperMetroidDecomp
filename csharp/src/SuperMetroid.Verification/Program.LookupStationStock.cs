@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup station stock verification.</summary>
 internal static class LookupStationStockVerification
 {
+    /// <summary>Verifies station stock mapping.</summary>
     internal static void VerifyStationStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmStationVisualCatalog installed)
     {
@@ -81,6 +83,7 @@ internal static class LookupStationStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmStationVisualCatalog(entries), "Station visual bits only");
     }
 
+    /// <summary>Station stock mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for station stock mapping")]
     private static byte StationStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

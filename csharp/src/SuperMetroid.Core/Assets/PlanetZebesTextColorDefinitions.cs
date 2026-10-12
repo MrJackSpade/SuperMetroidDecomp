@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Native $8D:C914..C95E and C96A..C9B4 PLANET ZEBES text colors from three independently required bright endpoints.</summary>
 internal static class PlanetZebesTextColorDefinitions
 {
+    /// <summary>Tries to coordinates.</summary>
     internal static bool TryCoordinates(ushort pointer, out PlanetZebesTextPaletteFxProgramOwner owner, out int frame, out int color)
     {
         foreach (var program in PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All)

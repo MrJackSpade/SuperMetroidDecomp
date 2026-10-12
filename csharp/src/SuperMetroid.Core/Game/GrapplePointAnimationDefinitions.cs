@@ -11,11 +11,14 @@ internal static class GrapplePointAnimationDefinitions
     internal const ushort FrameStride = 0x0200;
     /// <summary>$9B:BFC6/C645 NTSC delay: five, decremented through zero for a six-call interval.</summary>
     internal const ushort Delay = 5;
+    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = (EndPointer - BeginPointer) / FrameStride;
 
+    /// <summary>Source address.</summary>
     internal static int SourceAddress(byte frame) => SamusGrappleRomData.Banks.CharacterData |
         unchecked((ushort)(BeginPointer + frame * FrameStride));
 
+    /// <summary>Advances.</summary>
     internal static void Advance(SamusGrappleState state)
     {
         state.PointAnimationTimer = unchecked((ushort)(state.PointAnimationTimer - 1));

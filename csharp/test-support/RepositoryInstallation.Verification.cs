@@ -11,20 +11,27 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Installation fixtures only the verifiers use; the developer tools link only the shared part.</summary>
 internal static class InstalledFixtures
 {
+    /// <summary>Stores room assets.</summary>
     private static readonly Lazy<RoomAssetCatalogs> roomAssets = new(() => new RoomAssetCatalogs(
         RepositoryInstallation.Installation.LoadRoomCharacters(), RepositoryInstallation.Installation.LoadRoomPalettes(),
         RepositoryInstallation.Installation.LoadRoomMetatiles(), RepositoryInstallation.Installation.LoadRoomVisualLayouts()));
 
+    /// <summary>Stores maps.</summary>
     private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
 
+    /// <summary>Stores enemy tiles.</summary>
     private static readonly Lazy<EnemyTileArtworkCatalog> enemyTiles = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
 
+    /// <summary>Stores projectiles.</summary>
     private static readonly Lazy<InstalledProjectilePresentation> projectiles = new(() => RepositoryInstallation.Installation.LoadProjectiles());
 
+    /// <summary>Stores samus body.</summary>
     private static readonly Lazy<SamusBodyArtworkCatalog> samusBody = new(() => RepositoryInstallation.Installation.LoadSamusBodyArt());
 
+    /// <summary>Stores intro artwork.</summary>
     private static readonly Lazy<IntroCinematicArtworkCatalog> introArtwork = new(() => RepositoryInstallation.Installation.LoadIntroCinematicArt());
 
+    /// <summary>Stores game bindings.</summary>
     private static readonly Lazy<Action<SuperMetroidGame>> gameBindings =
         new(() => InstalledGameBindings.Create(RepositoryInstallation.Installation));
 
@@ -48,13 +55,17 @@ internal static class InstalledFixtures
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>
     internal static InstalledProjectilePresentation Projectiles => projectiles.Value;
 
+    /// <summary>Gets samus body.</summary>
     internal static SamusBodyArtworkCatalog SamusBody => samusBody.Value;
 
+    /// <summary>Gets intro artwork.</summary>
     internal static IntroCinematicArtworkCatalog IntroArtwork => introArtwork.Value;
 
+    /// <summary>Creates projectile system.</summary>
     internal static SamusProjectileSystem CreateProjectileSystem() =>
         new() { Animation = { FrameBindings = Projectiles.FrameBindings } };
 
+    /// <summary>Creates bomb system.</summary>
     internal static SamusBombProjectileSystem CreateBombSystem() =>
         new() { FrameBindings = Projectiles.FrameBindings, PowerBombExplosion = { PresentationColors = Maps.PowerBombFixedColors } };
 
@@ -74,12 +85,15 @@ internal static class InstalledFixtures
         return samus;
     }
 
+    /// <summary>Creates samus.</summary>
     internal static SamusState CreateSamus() => BindSamus(new SamusState());
 
+    /// <summary>Creates destruction.</summary>
     internal static CeresDestructionCinematicState CreateDestruction(ISnesAddressSpace bus,
         CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
         new(bus, audio, Maps.PowerBombFixedColors, artwork ?? IntroArtwork, Maps.RoomPaletteFx);
 
+    /// <summary>Creates intro.</summary>
     internal static IntroCinematicState CreateIntro(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null)
@@ -96,6 +110,7 @@ internal static class InstalledFixtures
         return intro;
     }
 
+    /// <summary>Creates ending.</summary>
     internal static EndingCreditsState CreateEnding(ISnesAddressSpace bus, CartridgeAudioState audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
@@ -110,9 +125,11 @@ internal static class InstalledFixtures
         return ending;
     }
 
+    /// <summary>Creates file select area map.</summary>
     internal static FileSelectAreaMapGraphics CreateFileSelectAreaMap(ISnesAddressSpace bus, int selectedArea) =>
         FileSelectAreaMapGraphics.FromPresentation(bus, selectedArea, Maps);
 
+    /// <summary>Creates title.</summary>
     internal static TitleSequenceState CreateTitle(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
@@ -120,6 +137,7 @@ internal static class InstalledFixtures
         new(bus, audio, titleGradientPresentation ?? Maps.TitleGradient,
             titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics);
 
+    /// <summary>Creates pause.</summary>
     internal static PauseMenuState CreatePause(ISnesAddressSpace bus, PauseMenuEntry entry) =>
         new(bus, new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayVram = entry.GameplayVram, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps });
 
@@ -145,8 +163,10 @@ internal static class InstalledFixtures
 /// <summary>A disposable copy of an installation root in a test scratch directory.</summary>
 internal sealed class PrivateInstallationCopy : IDisposable
 {
+    /// <summary>Stores scratch.</summary>
     private readonly TestScratchDirectory scratch = new("installation-copy");
 
+    /// <summary>Initializes a new private installation copy instance.</summary>
     internal PrivateInstallationCopy(string sourceRoot)
     {
         Root = scratch.Root;
@@ -157,9 +177,12 @@ internal sealed class PrivateInstallationCopy : IDisposable
             File.Copy(file, Path.Combine(Root, Path.GetRelativePath(sourceRoot, file)));
     }
 
+    /// <summary>Gets root.</summary>
     internal string Root { get; }
 
+    /// <summary>Gets installation.</summary>
     internal GameInstallation Installation => new(Root);
 
+    /// <summary>Disposes.</summary>
     public void Dispose() => scratch.Dispose();
 }

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents spike damage boost verification.</summary>
 internal static class SpikeDamageBoostVerification
 {
+    /// <summary>Verifies morphed spike release.</summary>
     internal static void VerifyMorphedSpikeRelease()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

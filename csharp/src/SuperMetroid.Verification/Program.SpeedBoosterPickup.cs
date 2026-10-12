@@ -16,9 +16,11 @@ using static CollectiblesVerification;
 using static RoomFxRetailInventoryVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents speed booster pickup verification.</summary>
 internal static class SpeedBoosterPickupVerification
 {
     // GR-2: the Chozo pickup must arm native lava motion only on message return.
+    /// <summary>Verifies speed booster pickup continuation.</summary>
     internal static void VerifySpeedBoosterPickupContinuation()
     {
         var cartridge = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -80,6 +82,7 @@ internal static class SpeedBoosterPickupVerification
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");
     }
 
+    /// <summary>Speed booster pickup command.</summary>
     [VerificationCommand("--speed-booster-pickup")]
     internal static int SpeedBoosterPickupCommand()
     {

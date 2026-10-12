@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Represents mochtroid visuals verification.</summary>
 internal static class MochtroidVisualsVerification
 {
+    /// <summary>Verifies installed mochtroid visuals.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
     internal static void VerifyInstalledMochtroidVisuals(

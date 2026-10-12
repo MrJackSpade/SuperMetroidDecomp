@@ -5,15 +5,19 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static PaletteJsonContractsVerification;
 
+/// <summary>Represents palette json contracts fixtures verification.</summary>
 internal static class PaletteJsonContractsFixturesVerification
 {
+    /// <summary>Palette contract colors.</summary>
     private static PaletteRgb5[] PaletteContractColors(int count, int seed = 0) => Enumerable.Range(0, count)
         .Select(index => new PaletteRgb5 { Red = (index + seed) % 32, Green = (index * 3 + seed) % 32,
             Blue = (index * 7 + seed) % 32 }).ToArray();
 
+    /// <summary>Palette contract rows.</summary>
     private static PaletteRgb5[][] PaletteContractRows(int rows, int colors) => Enumerable.Range(0, rows)
         .Select(row => PaletteContractColors(colors, row)).ToArray();
 
+    /// <summary>Palette json contracts.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
     {

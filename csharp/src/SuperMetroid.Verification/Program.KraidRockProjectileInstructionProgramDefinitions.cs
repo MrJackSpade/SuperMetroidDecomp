@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static KraidRockGeneratedProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid rock projectile instruction program definitions verification.</summary>
 internal static class KraidRockProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies kraid rock projectile instruction program definitions.</summary>
     internal static void VerifyKraidRockProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidRockProjectileInstructionProgramDefinitions), () => VerifyKraidRockProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies kraid rock projectile instruction program definitions.</summary>
     internal static void VerifyKraidRockProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -201,6 +204,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
         }
     }
 
+    /// <summary>Probe kraid rock projectile instruction mechanics allocation.</summary>
     private static int ProbeKraidRockProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -214,6 +218,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
         return checksum;
     }
 
+    /// <summary>New kraid rock projectile instruction guard.</summary>
     private static CartridgeReadGuard NewKraidRockProjectileInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -222,6 +227,7 @@ internal static class KraidRockProjectileInstructionProgramDefinitionsVerificati
                 address => $"Production read compiled Kraid-rock mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KraidRockProjectileInstructionProgramDefinitions.PresentationWordCount, KraidRockProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Kraid rock projectile instruction mechanics command.</summary>
     [VerificationCommand("--kraid-rock-projectile-instruction-mechanics")]
     internal static int KraidRockProjectileInstructionMechanicsCommand()
     {

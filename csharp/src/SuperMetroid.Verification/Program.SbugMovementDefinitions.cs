@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static AssertionsVerification;
 
+/// <summary>Represents sbug movement definitions verification.</summary>
 internal static class SbugMovementDefinitionsVerification
 {
+    /// <summary>verify sbug movement definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Sbug movement definitions")]
     internal static void VerifySbugMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -171,6 +173,7 @@ internal static class SbugMovementDefinitionsVerification
             "and all 32 visual-selector reads forbidden.");
     }
 
+    /// <summary>probe sbug instruction mechanics allocation.</summary>
     private static int ProbeSbugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -182,16 +185,19 @@ internal static class SbugMovementDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new sbug movement read guard.</summary>
     private static CartridgeReadGuard NewSbugMovementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3a111 and < 0xa3a12f,
             address => $"Sbug movement attempted migrated selector read ${address:X6}.");
 
+    /// <summary>new sbug program read guard.</summary>
     private static CartridgeReadGuard NewSbugProgramReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SbugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Sbug mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, SbugInstructionProgramDefinitions.PresentationWordCount, SbugInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>sbug instruction mechanics command.</summary>
     [VerificationCommand("--sbug-instruction-mechanics")]
     internal static int SbugInstructionMechanicsCommand()
     {

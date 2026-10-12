@@ -16,12 +16,16 @@ internal sealed class FixtureEventFlags : IGlobalEventFlags
     /// <summary>Receives event clears.</summary>
     public Action<EventNumber>? ClearEvent { get; init; }
 
+    /// <summary>Has.</summary>
     public bool Has(EventNumber eventNumber) => (HasEvent ?? throw Missing("read"))(eventNumber);
 
+    /// <summary>Sets.</summary>
     public void Set(EventNumber eventNumber) => (SetEvent ?? throw Missing("set"))(eventNumber);
 
+    /// <summary>Clear.</summary>
     public void Clear(EventNumber eventNumber) => (ClearEvent ?? throw Missing("clear"))(eventNumber);
 
+    /// <summary>Missing.</summary>
     private static InvalidOperationException Missing(string operation) =>
         new($"The enemy fixture did not install an event {operation}.");
 }
@@ -47,6 +51,7 @@ internal sealed class FixtureAreaBossFlags : IAreaBossFlags
     /// <summary>Receives the area-Torizo set.</summary>
     public Action? SetTorizoDefeated { get; init; }
 
+    /// <summary>Checks whether the enemy is defeated.</summary>
     public bool IsDefeated(BossBits bits) => (bits switch
     {
         BossBits.AreaBoss => IsBossDefeated,
@@ -55,6 +60,7 @@ internal sealed class FixtureAreaBossFlags : IAreaBossFlags
         _ => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI queries one boss kind at a time."),
     } ?? throw new InvalidOperationException($"The enemy fixture did not install a {bits} query."))();
 
+    /// <summary>Sets defeated.</summary>
     public void SetDefeated(BossBits bits) => (bits switch
     {
         BossBits.AreaBoss => SetBossDefeated,
@@ -67,8 +73,10 @@ internal sealed class FixtureAreaBossFlags : IAreaBossFlags
 /// <summary>Room scroll-zone writes a focused enemy fixture records (#633).</summary>
 internal sealed class FixtureRoomScroll(Action<int, RoomScrollState> write) : IRoomScrollZoneAccess
 {
+    /// <summary>Reads.</summary>
     public RoomScrollState Read(int index) =>
         throw new InvalidOperationException("The enemy fixture did not install room scroll reads.");
 
+    /// <summary>Writes.</summary>
     public void Write(int index, RoomScrollState state) => write(index, state);
 }

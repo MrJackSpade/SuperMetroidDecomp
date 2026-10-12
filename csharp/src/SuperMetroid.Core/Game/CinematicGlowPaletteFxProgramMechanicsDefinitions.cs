@@ -42,9 +42,12 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
     /// <summary>$01FE: CGRAM byte destination of the cinematic gunship glow.</summary>
     private const ushort GunshipColorByte = 0x01fe;
 
+    /// <summary>Represents program entries.</summary>
     private sealed class ProgramEntries : IReadOnlyList<CinematicGlowPaletteFxProgramDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 2;
+        /// <summary>Gets an indexed value.</summary>
         public CinematicGlowPaletteFxProgramDefinition this[int index] =>
             (CinematicGlowPaletteFxProgramOwner)index switch
             {
@@ -58,11 +61,13 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
                     colorsPerFrame: 1, frameDuration: 5),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
+        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<CinematicGlowPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The old-Mother-Brain and gunship glow programs in definition order.</summary>
@@ -85,6 +90,7 @@ public static class CinematicGlowPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete cinematic glow control program.</summary>
 public sealed class CinematicGlowPaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new cinematic glow palette fx program definition instance.</summary>
     internal CinematicGlowPaletteFxProgramDefinition(
         CinematicGlowPaletteFxProgramOwner owner,
         ushort definitionPointer,

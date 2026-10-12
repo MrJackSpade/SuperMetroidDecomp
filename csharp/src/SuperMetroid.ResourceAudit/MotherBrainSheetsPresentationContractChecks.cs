@@ -9,6 +9,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms identified special-sheet admission gaps with constructed zero artwork, not gameplay.</summary>
 internal static class MotherBrainSheetsPresentationContractChecks
 {
+    /// <summary>Run.</summary>
     internal static void Run()
     {
         RoomCharacterAtlas Sheet(int count)
@@ -84,6 +85,7 @@ internal static class MotherBrainSheetsPresentationContractChecks
             "removing page-size admission must revoke the provider proof");
     }
 
+    /// <summary>Require.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Mother Brain sheet confirmation failed: " + reason);

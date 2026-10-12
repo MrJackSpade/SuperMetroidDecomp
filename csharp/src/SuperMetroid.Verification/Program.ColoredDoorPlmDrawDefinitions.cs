@@ -11,8 +11,10 @@ using static LookupColoredDoorStockVerification;
 using static LookupColoredProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents colored door plm draw definitions verification.</summary>
 internal static class ColoredDoorPlmDrawDefinitionsVerification
 {
+    /// <summary>Verifies colored door plm draw definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for colored door PLM draw definitions")]
     internal static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -170,6 +172,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             "  Colored doors: 1164 compiled program bytes, 12 close/hit/open/reload paths, 48 physical draws, and editable visual blocks pass with source reads blocked.");
     }
 
+    /// <summary>Verifies colored door program definitions.</summary>
     private static void VerifyColoredDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredProgramControls), () => VerifyColoredProgramControls(rom));
@@ -180,6 +183,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyColoredProgramCallback), () => VerifyColoredProgramCallback(rom));
     }
 
+    /// <summary>Verifies colored door visual installation.</summary>
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("colored-door-visual");
@@ -238,6 +242,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>Creates colored door draw read guard.</summary>
     private static CartridgeReadGuard NewColoredDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>

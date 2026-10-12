@@ -21,10 +21,14 @@ public static class RoomPlmDynamicCollectibleArtFiles
     public const string PaletteFileName = "palettes.json";
     /// <summary>Stock manifest filename recording version-one format, cartridge provenance, and hashes for seventeen item PNGs plus palette-selector JSON.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 1;
+    /// <summary>Defines width.</summary>
     private const int Width = 64;
+    /// <summary>Defines height.</summary>
     private const int Height = 8;
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -175,6 +179,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>read stock.</summary>
     private static byte[] ReadStock(string directory, ArtManifest manifest,
         string name)
     {
@@ -187,6 +192,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return bytes;
     }
 
+    /// <summary>read tiles.</summary>
     private static byte[] ReadTiles(byte[] png, string path)
     {
         try
@@ -202,6 +208,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         }
     }
 
+    /// <summary>parse palettes.</summary>
     private static byte[][] ParsePalettes(PaletteDocument document)
     {
         if (document.Version != FormatVersion || document.Entries is null ||
@@ -234,6 +241,7 @@ public static class RoomPlmDynamicCollectibleArtFiles
         return result;
     }
 
+    /// <summary>read json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -247,11 +255,15 @@ public static class RoomPlmDynamicCollectibleArtFiles
         }
     }
 
+    /// <summary>sha.</summary>
     private static string Sha(byte[] bytes) =>
         Convert.ToHexString(SHA256.HashData(bytes));
 
+    /// <summary>Represents art manifest.</summary>
     private sealed record ArtManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> Hashes);
+    /// <summary>Represents palette document.</summary>
     private sealed record PaletteDocument(int Version, PaletteEntry[] Entries);
+    /// <summary>Represents palette entry.</summary>
     private sealed record PaletteEntry(string Id, int[] Offsets);
 }

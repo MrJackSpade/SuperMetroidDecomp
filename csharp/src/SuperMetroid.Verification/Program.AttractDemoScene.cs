@@ -18,8 +18,10 @@ using static FrontendVerification;
 using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents attract demo scene verification.</summary>
 internal static class AttractDemoSceneVerification
 {
+    /// <summary>Verifies attract demo scene.</summary>
     internal static void VerifyAttractDemoScene()
     {
         Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
@@ -89,6 +91,7 @@ internal static class AttractDemoSceneVerification
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
 
+    /// <summary>Verifies stock attract scenes.</summary>
     internal static void VerifyStockAttractScenes()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -114,6 +117,7 @@ internal static class AttractDemoSceneVerification
         Console.WriteLine($"Compiled attract scenes: {total} records and four sentinels match cartridge data.");
     }
 
+    /// <summary>Verifies attract command definitions and playback.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for attract demo command definitions and playback")]
     private static void VerifyAttractCommandDefinitionsAndPlayback(
         ISnesAddressSpace retail,
@@ -204,6 +208,7 @@ internal static class AttractDemoSceneVerification
         }
     }
 
+    /// <summary>Verifies compiled attract input.</summary>
     private static void VerifyCompiledAttractInput(ISnesAddressSpace bus, AttractDemoScene scene)
     {
         // Run well beyond each displayed scene: this also checks script tails that ordinary
@@ -232,12 +237,14 @@ internal static class AttractDemoSceneVerification
             $"{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
     }
 
+    /// <summary>Attract input fixtures command.</summary>
     [VerificationCommand("--attract-input-fixtures")]
     internal static int AttractInputFixturesCommand()
     {
      VerifyAttractDemoScene(); VerifyGrappleDemoTrajectory(); return 0; 
     }
 
+    /// <summary>Stock attract scenes command.</summary>
     [VerificationCommand("--stock-attract-scenes")]
     internal static int StockAttractScenesCommand()
     {

@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static IntroMotherBrainExplosionPartsVerification;
 using static MapSpritesVerification;
 
+/// <summary>Represents zebes planet band parts verification.</summary>
 internal static class ZebesPlanetBandPartsVerification
 {
+    /// <summary>Verifies zebes planet band parts.</summary>
     internal static void VerifyZebesPlanetBandParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ZebesPlanetBand", value.AppendIdentity);

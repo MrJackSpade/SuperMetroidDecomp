@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents zoa animation definitions verification.</summary>
 internal static class ZoaAnimationDefinitionsVerification
 {
+    /// <summary>verify zoa animation definitions.</summary>
     internal static void VerifyZoaAnimationDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         for (int index = 0; index < 4; index++)
@@ -36,6 +38,7 @@ internal static class ZoaAnimationDefinitionsVerification
             "Zoa animation definitions: four native selectors, all four installs, and both complete live facing/rise/shoot handoffs pass with the pointer table forbidden.");
     }
 
+    /// <summary>verify all zoa animation handoffs.</summary>
     private static void VerifyAllZoaAnimationHandoffs()
     {
         for (int index = 0; index < 4; index++)
@@ -54,6 +57,7 @@ internal static class ZoaAnimationDefinitionsVerification
         }
     }
 
+    /// <summary>verify live zoa animation handoffs.</summary>
     private static void VerifyLiveZoaAnimationHandoffs(
         SuperMetroidAddressSpace rom,
         bool facingRight)
@@ -89,6 +93,7 @@ internal static class ZoaAnimationDefinitionsVerification
             facingRight ? "live right-facing Zoa shoot" : "live left-facing Zoa shoot");
     }
 
+    /// <summary>new zoa animation slot.</summary>
     private static RoomEnemySlot NewZoaAnimationSlot() => new(0)
     {
         CurrentInstruction = 0x7777,
@@ -96,6 +101,7 @@ internal static class ZoaAnimationDefinitionsVerification
         Timer = 0x3333,
     };
 
+    /// <summary>assert zoa animation handoff.</summary>
     private static void AssertZoaAnimationHandoff(
         RoomEnemySlot slot,
         ZoaEnemyState state,
@@ -113,6 +119,7 @@ internal static class ZoaAnimationDefinitionsVerification
         AssertEqual(0, slot.Timer, $"{context} loop timer");
     }
 
+    /// <summary>new zoa animation read guard.</summary>
     private static CartridgeReadGuard NewZoaAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3b40d and < 0xa3b415,
             address => $"Zoa attempted migrated animation-selector read ${address:X6}.");

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
 
@@ -54,8 +54,11 @@ internal interface IEnemyProjectileHandlerSource
 /// </summary>
 internal sealed class EnemyProjectileHandlerTable
 {
+    /// <summary>Stores pre instructions.</summary>
     private readonly Dictionary<EnemyProjectilePreInstruction, EnemyProjectilePreInstructionHandler> _preInstructions = [];
+    /// <summary>Stores pre instruction interceptors.</summary>
     private readonly List<EnemyProjectilePreInstructionInterceptor> _preInstructionInterceptors = [];
+    /// <summary>Stores instruction interceptors.</summary>
     private readonly List<EnemyProjectileInstructionInterceptor> _instructionInterceptors = [];
 
     /// <summary>Adds a pre-instruction interceptor; interceptors run in registration order before the closed decode.</summary>
@@ -99,6 +102,7 @@ internal sealed class EnemyProjectileHandlerTable
         }
     }
 
+    /// <summary>Stores instructions.</summary>
     private readonly Dictionary<EnemyProjectileInstruction, List<(Func<RoomEnemyProjectileSlot, bool>? Applies, EnemyProjectileInstructionHandler Handler)>> _instructions = [];
 
     /// <summary>

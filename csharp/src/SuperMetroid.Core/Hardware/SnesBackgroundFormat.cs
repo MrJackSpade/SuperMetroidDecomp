@@ -117,6 +117,7 @@ public sealed class BgCharacterFormat
     /// <summary>Bytes of one plane pair across the character's eight rows; the next pair starts this far on.</summary>
     public const int BytesPerPlanePair = SnesPpuLayout.BackgroundTileSizePixels * BytesPerPlanePairRow;
 
+    /// <summary>Initializes a new bg character format instance.</summary>
     private BgCharacterFormat(int bitsPerPixel) => BitsPerPixel = bitsPerPixel;
 
     /// <summary>Two bits per pixel: four colors per palette (BG3 in mode 1).</summary>
@@ -125,6 +126,7 @@ public sealed class BgCharacterFormat
     /// <summary>Four bits per pixel: sixteen colors per palette (BG1 and BG2 in mode 1).</summary>
     public static BgCharacterFormat FourBitsPerPixel { get; } = new(FourBitsPerPixelDepth);
 
+    /// <summary>Stores four bits per pixel depth.</summary>
     private const int FourBitsPerPixelDepth = 4;
 
     /// <summary>Bit planes per pixel.</summary>

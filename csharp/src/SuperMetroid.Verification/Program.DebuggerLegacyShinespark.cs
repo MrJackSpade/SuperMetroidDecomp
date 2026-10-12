@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
+/// <summary>Represents debugger legacy shinespark verification.</summary>
 internal static class DebuggerLegacyShinesparkVerification
 {
+    /// <summary>Verifies legacy shinespark graph.</summary>
     private static void VerifyLegacyShinesparkGraph()
     {
         foreach (var phase in new[] { ShinesparkPhase.Inactive, ShinesparkPhase.Crash, ShinesparkPhase.CrashEchoCircle, ShinesparkPhase.CrashFinish })

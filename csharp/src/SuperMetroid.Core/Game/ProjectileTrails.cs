@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -8,13 +8,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Projectile trails: spawning a trail behind a shot, its animation frame, and drawing each side.</summary>
 internal sealed class ProjectileTrails
 {
+    /// <summary>Stores slot table.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
+    /// <summary>Initializes a new projectile trails instance.</summary>
     internal ProjectileTrails(ProjectileSlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>Spawns trail.</summary>
     internal void SpawnTrail(ISnesAddressSpace bus, SamusProjectileSlot projectile)
     {
         int pointerIndex;
@@ -88,6 +91,7 @@ internal sealed class ProjectileTrails
         trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
     }
 
+    /// <summary>Gets trail animation frame.</summary>
     private static ushort GetTrailAnimationFrame(SamusProjectileSlot projectile)
     {
         // $93:81D8-$81E3 unconditionally reads (instruction pointer - 8) + 6.
@@ -96,9 +100,11 @@ internal sealed class ProjectileTrails
         return SamusProjectileInstructionDefinitions.ReadWord(SamusProjectileRomData.Banks.Projectile | frameAddress);
     }
 
+    /// <summary>Adds signed offset.</summary>
     private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>
         unchecked((ushort)(origin + unchecked((sbyte)encodedOffset) + constant));
 
+    /// <summary>Handles trail side and draw.</summary>
     internal static void HandleTrailSideAndDraw(
         ISnesAddressSpace bus,
         OamBuffer oam,

@@ -14,8 +14,10 @@ using static CeresFlightActorMetadataVerification;
 using static CeresFlightProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ceres flight actor definitions verification.</summary>
 internal static class CeresFlightActorDefinitionsVerification
 {
+    /// <summary>verify ceres flight actor definitions.</summary>
     internal static void VerifyCeresFlightActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -45,6 +47,7 @@ internal static class CeresFlightActorDefinitionsVerification
 
     }
 
+    /// <summary>new ceres flight actor definition read guard.</summary>
     private static CartridgeReadGuard NewCeresFlightActorDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x8bbe84 and < 0x8bbe86 or
@@ -83,6 +86,7 @@ internal static class CeresFlightActorDefinitionsVerification
                     >= 0x8bcf39 and < 0x8bcf3f,
                 address => $"Ceres flight reread compiled actor byte ${address:X6}.");
 
+    /// <summary>ceres flight actor definitions command.</summary>
     [VerificationCommand("--ceres-flight-actor-definitions")]
     internal static int CeresFlightActorDefinitionsCommand()
     {

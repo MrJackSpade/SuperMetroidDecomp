@@ -16,6 +16,7 @@ internal static class IntroCaretInstructionDefinitions
     /// <summary>$8B:CC0F, exclusive end after the blank-frame blink loop.</summary>
     internal const ushort EndPointer = 0xcc0f;
 
+    /// <summary>Program word.</summary>
     private static ushort ProgramWord(int word)
     {
         bool blink = word >= 4;
@@ -27,6 +28,7 @@ internal static class IntroCaretInstructionDefinitions
             : blink ? CinematicCodePointers.Lists.IntroTextCaretBlink : StartPointer;
     }
 
+    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -35,6 +37,7 @@ internal static class IntroCaretInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>Attempts to read word.</summary>
     internal static bool TryReadWord(ushort pointer, out ushort word)
     {
         if (pointer is < StartPointer or >= EndPointer)

@@ -10,6 +10,7 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 internal static class PlaybackFrameBatch
 {
+    /// <summary>Advances up to the requested number of frames, polling input for each and retaining the last completed frame.</summary>
     internal static (int CompletedFrames, FrontendFrame? LastFrame) Run(
         int requestedFrames,
         Func<ushort> readInput,

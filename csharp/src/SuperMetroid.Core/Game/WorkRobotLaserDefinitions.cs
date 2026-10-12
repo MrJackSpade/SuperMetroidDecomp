@@ -39,14 +39,17 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions
     /// <c>Instruction_EnemyProjectile_GotoY</c> closing the laser loop at $86:D308.
     /// </summary>
     internal const ushort LoopCommand = 0xd308;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 7;
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(Initial + 4 * index + 2);
     }
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WorkRobotLaserUpLeft or
         RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
@@ -54,6 +57,7 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitions
         RoomEnemyProjectileKind.WorkRobotLaserUpRight or
         RoomEnemyProjectileKind.WorkRobotLaserDownRight;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (address == LoopCommand)

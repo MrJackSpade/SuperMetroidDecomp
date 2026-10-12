@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
+/// <summary>Represents shader failure tests.</summary>
 internal static class ShaderFailureTests
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run(D3D11RenderDevice device)
     {
         foreach (string missing in new[] { D3D11ShaderLayout.SolidResourceName, D3D11ShaderLayout.TileResourceName,

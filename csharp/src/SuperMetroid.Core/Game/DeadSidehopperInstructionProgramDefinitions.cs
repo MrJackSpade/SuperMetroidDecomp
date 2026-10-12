@@ -29,6 +29,7 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
     /// <summary>Native program bank $A9.</summary>
     internal const byte Bank = 0xa9;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xecac),
         Entry(AliveHopping),
@@ -55,6 +56,7 @@ internal abstract class DeadSidehopperInstructionProgramDefinitions
         Frame(1),
         Op((ushort)CommonEnemyInstruction.Sleep));
 
+    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

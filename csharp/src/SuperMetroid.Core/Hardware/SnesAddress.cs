@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Hardware;
 [SnesEncodingOwner]
 public readonly record struct SnesAddress
 {
+    /// <summary>Stores maximum value.</summary>
     private const int MaximumValue = 0x00ff_ffff;
+    /// <summary>Stores upper lo rom window mask.</summary>
     private const ushort UpperLoRomWindowMask = 0x8000;
 
     /// <summary>Creates an address from its exact native bank and offset fields.</summary>
@@ -18,6 +20,7 @@ public readonly record struct SnesAddress
         Value = (bank << 16) | offset;
     }
 
+    /// <summary>Initializes a new snes address instance.</summary>
     private SnesAddress(int checkedValue)
     {
         Value = checkedValue;

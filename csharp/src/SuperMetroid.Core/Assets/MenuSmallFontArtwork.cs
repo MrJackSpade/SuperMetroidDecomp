@@ -16,10 +16,14 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class MenuSmallFontArtwork
 {
+    /// <summary>Stores first tile.</summary>
     internal const int FirstTile = 0x60, TileCount = 41;
+    /// <summary>Stores faces.</summary>
     private readonly byte[] faces = new byte[TileCount * 8];
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, byte>? edits;
 
+    /// <summary>Initializes a new menu small font artwork instance.</summary>
     internal MenuSmallFontArtwork(IndexedPngImage image)
     {
         for (int tile = FirstTile; tile < FirstTile + TileCount; tile++)
@@ -36,7 +40,9 @@ internal sealed class MenuSmallFontArtwork
         byte Source(int tile, int x, int y) => image.Pixels[(tile / 16 * 8 + y) * image.Size.X + tile % 16 * 8 + x];
     }
 
+    /// <summary>Contains.</summary>
     internal static bool Contains(int tile) => tile is >= FirstTile and < (FirstTile + TileCount);
+    /// <summary>Pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
@@ -44,6 +50,7 @@ internal sealed class MenuSmallFontArtwork
             ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Basis.</summary>
     private byte Basis(int tile, Position16<CharacterPixels> point)
     {
         int row = (tile - FirstTile) * 8 + point.Y;

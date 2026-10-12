@@ -10,14 +10,19 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
     /// <summary>Library-two sound operand at $84:CD70 and $84:CDAF.</summary>
     internal const byte BreakSoundId = 0x0a;
 
+    /// <summary>Represents program.</summary>
     private readonly record struct Program(ushort Start, bool Respawns)
     {
+        /// <summary>Gets frame count.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
+        /// <summary>Gets terminal address.</summary>
         internal ushort TerminalAddress => checked((ushort)(Start + 7 + 4 * FrameCount));
     }
 
+    /// <summary>Defines program count.</summary>
     private const int ProgramCount = 2;
 
+    /// <summary>program at.</summary>
     private static Program ProgramAt(int index) => index switch
     {
         0 => new(RoomPlmInstructionLists.RespawningBreakableGrappleBlock, true),
@@ -25,6 +30,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     };
 
+    /// <summary>try read draw pointer word.</summary>
     internal static bool TryReadDrawPointerWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -54,6 +60,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         for (int index = 0; index < ProgramCount; index++)
@@ -107,6 +114,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
         return false;
     }
 
+    /// <summary>try read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

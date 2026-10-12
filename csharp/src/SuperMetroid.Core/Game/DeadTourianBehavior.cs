@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,12 +6,17 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The dead Tourian corpse species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class DeadTourianBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Stores dead monsters.</summary>
     private readonly DeadMonsterFrame _deadMonsters;
 
+    /// <summary>Initializes a new dead tourian behavior instance.</summary>
     internal DeadTourianBehavior(EnemyRoomBinding room, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, DeadMonsterFrame deadMonsters)
     {
         _deadMonsters = deadMonsters;
@@ -20,8 +25,10 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         _projectiles = projectiles;
     }
 
+    /// <summary>Stores dead tourian corpse no operation function.</summary>
     private const ushort DeadTourianCorpseNoOperationFunction = 0xda63;
 
+    /// <summary>Stores dead zoomer profile.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadZoomerProfile = new(
         DeadTourianCorpseSpecies.Zoomer,
         WaitFunction: 0xda69,
@@ -31,6 +38,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         PowerBombFunction: 0xdced,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0940, sheetSources: SheetRun(0x0a60, 0x0060, 3)));
 
+    /// <summary>Stores dead ripper profile.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadRipperProfile = new(
         DeadTourianCorpseSpecies.Ripper,
         WaitFunction: 0xda73,
@@ -40,6 +48,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         PowerBombFunction: 0xdcfd,
         Variants: CorpseLayout(columns: 3, rows: 2, workBufferOffset: 0x0b80, sheetSources: SheetRun(0x0a00, 0x0180, 2)));
 
+    /// <summary>Stores dead skree profile.</summary>
     internal static readonly DeadTourianBehavior.DeadTourianCorpseProfile DeadSkreeProfile = new(
         DeadTourianCorpseSpecies.Skree,
         WaitFunction: 0xda6e,
@@ -85,15 +94,19 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         return sources;
     }
 
+    /// <summary>Stores dead tourian corpse states.</summary>
     internal readonly DeadTourianCorpseEnemyState?[] _deadTourianCorpseStates =
         new DeadTourianCorpseEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Resets dead tourian corpse room state.</summary>
     internal void ResetDeadTourianCorpseRoomState() =>
         Array.Clear(_deadTourianCorpseStates);
 
+    /// <summary>Indicates whether dead tourian corpse definition.</summary>
     internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionPointer) =>
         definitionPointer is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
 
+    /// <summary>Profile for dead tourian corpse.</summary>
     private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionPointer) =>
         definitionPointer switch
         {
@@ -103,6 +116,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
             _ => throw new ArgumentOutOfRangeException(nameof(definitionPointer)),
         };
 
+    /// <summary>Has dead tourian corpse touch or shot callback.</summary>
     private static bool HasDeadTourianCorpseTouchOrShotCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
@@ -111,6 +125,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
             ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShotFunction;
     }
 
+    /// <summary>Has dead tourian corpse shot callback.</summary>
     internal static bool HasDeadTourianCorpseShotCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
@@ -119,6 +134,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
             ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShotFunction;
     }
 
+    /// <summary>Has dead tourian corpse power bomb callback.</summary>
     private static bool HasDeadTourianCorpsePowerBombCallback(RoomEnemySlot slot)
     {
         if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
@@ -216,6 +232,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
             TriggerDeadTourianCorpseRotting(slot);
     }
 
+    /// <summary>Runs dead tourian corpse rotting.</summary>
     private void RunDeadTourianCorpseRotting(
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state)
@@ -232,6 +249,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         _deadMonsters.AppendVramTransfers(state.VramTablePointer);
     }
 
+    /// <summary>Initializes dead tourian corpse graphics.</summary>
     private void InitializeDeadTourianCorpseGraphics(DeadTourianCorpseVariant variant,
         ReadOnlySpan<byte> installedTiles)
     {
@@ -246,6 +264,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Copies or move dead tourian corpse pixel row.</summary>
     private void CopyOrMoveDeadTourianCorpsePixelRow(
         DeadTourianCorpseEnemyState state,
         ushort yOffset,
@@ -276,6 +295,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Finishes dead tourian corpse row.</summary>
     private void FinishDeadTourianCorpseRow(
         RoomEnemySlot slot,
         DeadTourianCorpseEnemyState state,
@@ -292,6 +312,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
             _deadMonsters.LastSoundEffect = SoundEffectLibrary2Sounds.DeadMonsterDust.Value;
     }
 
+    /// <summary>Requires dead tourian corpse state.</summary>
     private DeadTourianCorpseEnemyState RequireDeadTourianCorpseState(RoomEnemySlot slot)
     {
         DeadTourianCorpseEnemyState state = _deadTourianCorpseStates[slot.SlotIndex] ??
@@ -302,6 +323,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Represents dead tourian corpse profile.</summary>
     internal sealed record DeadTourianCorpseProfile(
         DeadTourianCorpseSpecies Species,
         ushort WaitFunction,
@@ -311,11 +333,13 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         ushort PowerBombFunction,
         DeadTourianCorpseVariant[] Variants);
 
+    /// <summary>Represents dead tourian corpse variant.</summary>
     internal sealed record DeadTourianCorpseVariant(
         ushort MaximumY,
         ushort[] ColumnWordOffsets,
         DeadTourianCorpseGraphicsCopy[] InitialGraphicsCopies);
 
+    /// <summary>Represents dead tourian corpse graphics copy.</summary>
     internal readonly record struct DeadTourianCorpseGraphicsCopy(
         int SourceOffset,
         int DestinationOffset,
@@ -332,6 +356,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
     {
     }
 
+    /// <summary>Registers dead tourian bomb reactions.</summary>
     internal void RegisterDeadTourianBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecialAfterNoOp(c => HasDeadTourianCorpseShotCallback(c.Enemy) &&
@@ -339,6 +364,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
             c => TriggerDeadTourianCorpseRotting(c.Enemy));
     }
 
+    /// <summary>Registers dead tourian initialization ai.</summary>
     internal void RegisterDeadTourianInitializationAi(EnemyAiTable table)
     {
 
@@ -354,6 +380,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         table.RegisterInitialization(EnemyAiRoutine.InitAI_CorpseSkree, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSkree, shared119);
     }
 
+    /// <summary>Registers dead tourian main ai.</summary>
     internal void RegisterDeadTourianMainAi(EnemyAiTable table)
     {
 
@@ -363,6 +390,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers dead tourian power bomb reactions.</summary>
     internal void RegisterDeadTourianPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(HasDeadTourianCorpsePowerBombCallback)
@@ -371,6 +399,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers dead tourian shot reactions.</summary>
     internal void RegisterDeadTourianShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(HasDeadTourianCorpseShotCallback)
@@ -386,6 +415,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers dead tourian touch.</summary>
     internal void RegisterDeadTourianTouch(EnemyAiTable table)
     {
         // Dead Zoomer/Ripper/Skree headers intentionally point touch and shot at the same private callback.

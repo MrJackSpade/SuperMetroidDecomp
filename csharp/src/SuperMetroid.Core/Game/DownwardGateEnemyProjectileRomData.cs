@@ -8,7 +8,10 @@ internal static class DownwardGateEnemyProjectileRomData
 
     /// <summary>One block of accumulated 8.8 motion before advancing a sleeping list.</summary>
     public const ushort OneBlockDistance = 0x1000;
+    /// <summary>Defines pixels per room block.</summary>
     public const int PixelsPerRoomBlock = 16;
+    /// <summary>Defines closed position offset pixels.</summary>
     public const int ClosedPositionOffsetPixels = 64;
+    /// <summary>Defines native bytes per room block.</summary>
     public const int NativeBytesPerRoomBlock = 2;
 }

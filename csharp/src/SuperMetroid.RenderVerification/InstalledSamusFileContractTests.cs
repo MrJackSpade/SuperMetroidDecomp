@@ -10,6 +10,7 @@ using SuperMetroid.Core.Assets;
 /// </summary>
 internal static class InstalledSamusFileContractTests
 {
+    /// <summary>Runs.</summary>
     internal static void Run(string installationRoot)
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
@@ -195,8 +196,10 @@ internal static class InstalledSamusFileContractTests
         finally { Directory.Delete(temporary, recursive: true); }
     }
 
+    /// <summary>Indicates whether overridable.</summary>
     private static bool IsOverridable(string name) => name == SamusBodyArtworkFiles.ManifestFileName ||
         (!name.EndsWith("manifest.json", StringComparison.Ordinal));
+    /// <summary>Requires.</summary>
     private static void Require(bool condition, string description)
     {
         if (!condition) throw new InvalidOperationException(description);

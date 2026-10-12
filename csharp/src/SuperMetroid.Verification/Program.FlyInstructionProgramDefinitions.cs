@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents fly instruction program definitions verification.</summary>
 internal static class FlyInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies fly instruction program definitions.</summary>
     internal static void VerifyFlyInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFlyInstructionProgramDefinitions), () => VerifyFlyInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies fly instruction program definitions.</summary>
     internal static void VerifyFlyInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -92,6 +95,7 @@ internal static class FlyInstructionProgramDefinitionsVerification
             "without instruction or presentation ROM reads.");
     }
 
+    /// <summary>Probe fly instruction mechanics allocation.</summary>
     private static int ProbeFlyInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -101,11 +105,13 @@ internal static class FlyInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads fly instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fly instruction words")]
     internal static ushort ReadFlyInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Fly instruction mechanics command.</summary>
     [VerificationCommand("--fly-instruction-mechanics")]
     internal static int FlyInstructionMechanicsCommand()
     {

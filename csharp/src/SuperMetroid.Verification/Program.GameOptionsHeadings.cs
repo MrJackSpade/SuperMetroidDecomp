@@ -15,8 +15,10 @@ using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents game options headings verification.</summary>
 internal static class GameOptionsHeadingsVerification
 {
+    /// <summary>Verifies game options headings.</summary>
     internal static void VerifyGameOptionsHeadings()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -29,6 +31,7 @@ internal static class GameOptionsHeadingsVerification
         Suite(nameof(VerifyGameOptionsHeadingAnchors), () => VerifyGameOptionsHeadingAnchors(rom, document));
     }
 
+    /// <summary>Original heading name.</summary>
     private static string OriginalHeadingName(int index) => index switch
     {
         0 => GameOptionsPresentationDefinitions.PrimaryMenu,
@@ -37,6 +40,7 @@ internal static class GameOptionsHeadingsVerification
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
+    /// <summary>Verifies game options heading ids.</summary>
     private static void VerifyGameOptionsHeadingIds(ISnesAddressSpace rom, GameOptionsPresentationDocument document)
     {
         // The original table-entry locations independently identify the native IDs;
@@ -59,6 +63,7 @@ internal static class GameOptionsHeadingsVerification
                 "heading sprite selector bounds");
     }
 
+    /// <summary>Verifies game options heading anchors.</summary>
     private static void VerifyGameOptionsHeadingAnchors(ISnesAddressSpace rom, GameOptionsPresentationDocument document)
     {
         AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, 0x82f369), "native heading common Y LDA");
@@ -79,9 +84,11 @@ internal static class GameOptionsHeadingsVerification
                 "heading anchor selector bounds");
     }
 
+    /// <summary>Game options heading anchors rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options heading anchors")]
     private static byte GameOptionsHeadingAnchorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Looks up options headings command.</summary>
     [VerificationCommand("--lookup-options-headings")]
     internal static int LookupOptionsHeadingsCommand()
     {

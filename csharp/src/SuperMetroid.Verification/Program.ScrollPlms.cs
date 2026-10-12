@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents scroll plms verification.</summary>
 internal static class ScrollPlmsVerification
 {
     /// <summary>

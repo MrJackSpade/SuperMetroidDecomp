@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents gpu timing tests.</summary>
 internal static class GpuTimingTests
 {
+    /// <summary>Runs.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, RenderFrameSnapshot frame)
     {
         VerifyTimingWindow();
@@ -39,6 +41,7 @@ internal static class GpuTimingTests
         Console.WriteLine($"{device.Kind}: bounded timestamp ring/parity passed; 16 diagnostic composition samples median={samples[8]:F3}ms max={samples[^1]:F3}ms (not a paced soak).");
     }
 
+    /// <summary>Verifies timing window.</summary>
     private static void VerifyTimingWindow()
     {
         var window = new RenderTimingWindow(capacity: 4, warmup: 2);

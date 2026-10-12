@@ -11,8 +11,10 @@ internal abstract class FuneNamiheFireballInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_NamiFuneFireball_Right</c> at $86:DEA6.</summary>
     internal const ushort Right = 0xdea6;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 6;
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -20,11 +22,13 @@ internal abstract class FuneNamiheFireballInstructionProgramDefinitions
         return (ushort)(Left + 16 * (index / 3) + 4 * (index % 3) + 2);
     }
 
+    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Left + 2);
         return (uint)offset < 32 && offset % 16 < 12 && offset % 4 == 0;
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - Left;

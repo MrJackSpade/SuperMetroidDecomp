@@ -46,6 +46,7 @@ internal static class SamusProjectileDamageDefinitions
     internal const int BeamHeaderStride = 22;
 
 
+    /// <summary>Reads.</summary>
     internal static ushort Read(int address)
     {
         int offset = address - BeamHeaderStart;
@@ -103,6 +104,7 @@ internal static class SamusProjectileDamageDefinitions
         return (charged, beam);
     }
 
+    /// <summary>Beam damage.</summary>
     private static ushort BeamDamage(int header)
     {
         var (charged, beam) = BeamIdentity(header);

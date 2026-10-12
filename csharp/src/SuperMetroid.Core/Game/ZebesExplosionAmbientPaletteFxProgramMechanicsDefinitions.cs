@@ -33,6 +33,7 @@ public enum ZebesExplosionAmbientPaletteFxProgramOwner
 /// </remarks>
 public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 {
+    /// <summary>Stores definitions.</summary>
     private static readonly ZebesExplosionAmbientPaletteFxProgramDefinition[] Definitions =
     [
         new(
@@ -69,6 +70,7 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Duration.</summary>
     internal static ushort Duration(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         int frame) => owner == ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow
@@ -81,6 +83,7 @@ public static class ZebesExplosionAmbientPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete persistent Zebes-explosion ambient palette loop.</summary>
 public sealed class ZebesExplosionAmbientPaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new zebes explosion ambient palette fx program definition instance.</summary>
     internal ZebesExplosionAmbientPaletteFxProgramDefinition(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         ushort definitionPointer,

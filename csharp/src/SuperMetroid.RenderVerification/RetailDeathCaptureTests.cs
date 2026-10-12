@@ -7,14 +7,18 @@ using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents retail death capture tests.</summary>
 internal static class RetailDeathCaptureTests
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
         => Run(device, renderer, reserveRecovery: false);
 
+    /// <summary>run reserve recovery.</summary>
     internal static void RunReserveRecovery(D3D11RenderDevice device, D3D11FrameRenderer renderer)
         => Run(device, renderer, reserveRecovery: true);
 
+    /// <summary>Runs the scoped verification checks.</summary>
     private static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer, bool reserveRecovery)
     {
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");
@@ -84,6 +88,7 @@ internal static class RetailDeathCaptureTests
     }
 }
 
+/// <summary>Represents reserve capture fixture definitions.</summary>
 internal static class ReserveCaptureFixtureDefinitions
 {
     /// <summary>One acquired reserve tank supplies 100 energy units for the focused recovery fixture.</summary>

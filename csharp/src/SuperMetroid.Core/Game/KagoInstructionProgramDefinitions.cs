@@ -11,7 +11,9 @@ internal abstract class KagoInstructionProgramDefinitions
     /// <summary><c>InstList_Kago_TakenHit_FastAnimation</c> at $A8:AB32.</summary>
     internal const ushort Fast = 0xab32;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 12;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -28,6 +30,7 @@ internal abstract class KagoInstructionProgramDefinitions
         int offset = address - Slow;
         return (uint)offset < 40 && offset % 20 < 16 && offset % 4 == 2;
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

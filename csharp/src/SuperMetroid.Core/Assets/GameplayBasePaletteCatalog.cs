@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable starting CGRAM image and common sprite colors restored on room entry.</summary>
 public sealed class GameplayBasePaletteCatalog
 {
+    /// <summary>Stores initial.</summary>
     private readonly Bgr555[] initial;
+    /// <summary>Stores common sprites.</summary>
     private readonly Bgr555[] commonSprites;
 
+    /// <summary>Initializes a new gameplay base palette catalog instance.</summary>
     private GameplayBasePaletteCatalog(Bgr555[] initial, Bgr555[] commonSprites)
     {
         this.initial = initial;
@@ -70,6 +73,7 @@ public sealed class GameplayBasePaletteCatalog
         return bytes;
     }
 
+    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int expected, string name)
     {
         if (source is null || source.Length != expected)

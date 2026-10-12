@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Represents pose collision definitions verification.</summary>
 internal static class PoseCollisionDefinitionsVerification
 {
+    /// <summary>Verifies pose collision definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose collision definitions")]
     internal static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
     {

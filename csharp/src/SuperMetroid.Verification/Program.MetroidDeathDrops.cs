@@ -12,6 +12,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents metroid death drops verification.</summary>
 internal static class MetroidDeathDropsVerification
 {
     // #1269: EnemyShot_Metroid records the drop origin ($A3:EF31), runs EnemyDeath ($A3:EF4B),
@@ -20,6 +21,7 @@ internal static class MetroidDeathDropsVerification
     // free slot and the drops follow below it, as in the 100% movie's first Metroid room.
     // #1269: $A0:A184 also does not reject a projectile an earlier enemy marked for removal
     // this pass; the movie's Super Missile hits a respawning Rinka and then the Metroid.
+    /// <summary>verify metroid death drops.</summary>
     internal static void VerifyMetroidDeathDrops()
     {
         VerifyMetroidDeathDrops(alreadyMarked: false);
@@ -27,6 +29,7 @@ internal static class MetroidDeathDropsVerification
         Console.WriteLine("Metroid death drops: the explosion precedes the five special drops, even for an already-marked missile.");
     }
 
+    /// <summary>verify metroid death drops.</summary>
     private static void VerifyMetroidDeathDrops(bool alreadyMarked)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -66,6 +69,7 @@ internal static class MetroidDeathDropsVerification
         AssertEqual(5, runtime.Enemies.MetroidDropRequests.Count, "the Metroid requests its five special drops");
     }
 
+    /// <summary>metroid death drops command.</summary>
     [VerificationCommand("--metroid-death-drops")]
     internal static int MetroidDeathDropsCommand()
     {

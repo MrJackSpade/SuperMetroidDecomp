@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents golden torizo right orb frames verification.</summary>
 internal static class GoldenTorizoRightOrbFramesVerification
 {
     /// <summary>

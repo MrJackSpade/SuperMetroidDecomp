@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents lookup quake sound selection verification.</summary>
 internal static class LookupQuakeSoundSelectionVerification
 {
+    /// <summary>Verifies quake sound selection.</summary>
     internal static void VerifyQuakeSoundSelection(ISnesAddressSpace rom)
     {
         int count = 0;

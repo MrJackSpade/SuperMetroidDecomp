@@ -13,8 +13,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents ridley collision definitions verification.</summary>
 internal static class RidleyCollisionDefinitionsVerification
 {
+    /// <summary>Verifies ridley collision definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley collision definitions")]
     internal static void VerifyRidleyCollisionDefinitions()
     {
@@ -240,11 +242,13 @@ internal static class RidleyCollisionDefinitionsVerification
         }
     }
 
+    /// <summary>New ridley collision no read bus.</summary>
     private static CartridgeReadGuard NewRidleyCollisionNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Ridley collision read cartridge byte ${address:X6}.")
             .RejectWrites(address => $"Installed Ridley collision wrote cartridge byte ${address:X6}.");
 
+    /// <summary>Verifies ridley collision command.</summary>
     [VerificationCommand("--verify-ridley-collision")]
     internal static int VerifyRidleyCollisionCommand()
     {

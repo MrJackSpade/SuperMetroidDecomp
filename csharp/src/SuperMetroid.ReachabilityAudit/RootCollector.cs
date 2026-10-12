@@ -11,6 +11,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     /// <summary>Marks a member or type that only reflection reaches (SuperMetroid.Core.AccessedByReflectionAttribute).</summary>
     public const string ReflectionMarker = "AccessedByReflectionAttribute";
 
+    /// <summary>Stores framework created attributes.</summary>
     private static readonly HashSet<string> FrameworkCreatedAttributes =
         ["ActivityAttribute", "ApplicationAttribute", "ServiceAttribute", "BroadcastReceiverAttribute",
          "ContentProviderAttribute", "DiagnosticAnalyzerAttribute", "ExportCodeFixProviderAttribute"];
@@ -21,9 +22,11 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     /// <summary>Roots of the shipped player hosts and the build-time analyzer only.</summary>
     public HashSet<string> ProductionRoots { get; } = [];
 
+    /// <summary>Has reflection marker.</summary>
     public static bool HasReflectionMarker(ISymbol symbol) =>
         symbol.GetAttributes().Any(a => a.AttributeClass?.Name == ReflectionMarker);
 
+    /// <summary>Collect.</summary>
     public void Collect(Project project, Compilation compilation, bool production)
     {
         if (compilation.GetEntryPoint(CancellationToken.None) is { } entry)
@@ -57,6 +60,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
     /// <summary>Top-level statements compile to a synthesized entry point that has no repository key.</summary>
     public string EntryPointKey(IMethodSymbol entry, string projectName) => identity.Key(entry) ?? $"ENTRY:{projectName}";
 
+    /// <summary>Adds root.</summary>
     private void AddRoot(string key, bool production)
     {
         Roots.Add(key);
@@ -64,6 +68,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
             ProductionRoots.Add(key);
     }
 
+    /// <summary>Collect dispatch.</summary>
     private void CollectDispatch(INamedTypeSymbol type, string typeKey)
     {
         foreach (var member in type.GetMembers())
@@ -98,8 +103,10 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
             }
     }
 
+    /// <summary>In source.</summary>
     private static bool InSource(ISymbol symbol) => symbol.Locations.Any(l => l.IsInSource);
 
+    /// <summary>All types.</summary>
     public static IEnumerable<INamedTypeSymbol> AllTypes(INamespaceSymbol ns)
     {
         foreach (var member in ns.GetMembers())
@@ -110,6 +117,7 @@ internal sealed class RootCollector(SymbolIdentity identity, ReachabilityGraph g
         }
     }
 
+    /// <summary>With nested.</summary>
     private static IEnumerable<INamedTypeSymbol> WithNested(INamedTypeSymbol type)
     {
         yield return type;

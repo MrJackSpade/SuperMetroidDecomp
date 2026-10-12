@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents ceres ridley wall verification.</summary>
 internal static class CeresRidleyWallVerification
 {
+    /// <summary>Verifies ceres ridley wall impact.</summary>
     internal static void VerifyCeresRidleyWallImpact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

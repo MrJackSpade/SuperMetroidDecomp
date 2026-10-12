@@ -13,6 +13,7 @@ using static ImportedSpritemapsVerification;
 using static MaridiaLargeSnailCollisionDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy extended frame artwork verification.</summary>
 internal static class EnemyExtendedFrameArtworkVerification
 {
     /// <summary>
@@ -45,6 +46,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         return draygonBg2Pointers;
     }
 
+    /// <summary>Verifies installed enemy extended frames.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyExtendedFrames(
         SuperMetroidAddressSpace rom, string stockDirectory,
@@ -1377,10 +1379,12 @@ internal static class EnemyExtendedFrameArtworkVerification
     // Historical schemas own a fixed prefix of the append-only identity catalog.
     // Select authored values by those names so later families cannot leak into
     // old overrides; retain their edited compositions and display bindings.
+    /// <summary>Historical extended entries.</summary>
     private static Dictionary<string, T> HistoricalExtendedEntries<T>(
         Dictionary<string, T> source, int count) =>
         EnemyExtendedFrameDefinitions.Frames.ToArray().Take(count)
             .ToDictionary(frame => frame.Name, frame => source[frame.Name], StringComparer.Ordinal);
+    /// <summary>Legacy extended frame name.</summary>
     private static string LegacyExtendedFrameName(string name) =>
         name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
             ? "draygon_oam_" + name["spore_spawn_oam_".Length..]
@@ -1389,6 +1393,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     // Independent native extended-spritemap OAM walker ($A0: drawing path).
     // BG2 streams are covered by their dedicated fixture; this comparison owns
     // only component offsets, clipping, and the packed sprite compositions.
+    /// <summary>Draws reference extended frame.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the reference extended-frame drawer")]
     internal static OamBuffer DrawReferenceExtendedFrame(
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin)
@@ -1413,6 +1418,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         return oam;
     }
 
+    /// <summary>Draws extended.</summary>
     private static OamBuffer DrawExtended(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
@@ -1421,6 +1427,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             pointer, position, inspect);
     }
 
+    /// <summary>Draws extended for bank.</summary>
     internal static OamBuffer DrawExtendedForBank(EnemyTileArtworkCatalog? art,
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
@@ -1449,6 +1456,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         return oam;
     }
 
+    /// <summary>Gets touch callback.</summary>
     private static ushort GetTouchCallback(EnemyTileArtworkCatalog art,
         ISnesAddressSpace bus, ushort pointer)
     {
@@ -1478,6 +1486,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         return (ushort)arguments[4]!;
     }
 
+    /// <summary>Pirate definition for frame.</summary>
     private static EnemyDefinitionId PirateDefinitionForFrame(ushort pointer)
     {
         foreach (EnemyExtendedFrameDefinition frame in EnemyExtendedFrameDefinitions.Frames)
@@ -1496,6 +1505,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             $"Extended Space Pirate frame $B2:{pointer:X4} is not installed.");
     }
 
+    /// <summary>New extended visual read guard.</summary>
     internal static CartridgeReadGuard NewExtendedVisualReadGuard(
         ISnesAddressSpace source, out Action<byte, ushort> blockFrame)
     {
@@ -1505,6 +1515,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             address => $"Installed extended enemy draw read visual ROM byte ${address:X6}.");
     }
 
+    /// <summary>Block extended visual frame.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for extended visual frame layouts the guard blocks")]
     private static void BlockExtendedVisualFrame(
         HashSet<int> blocked, ISnesAddressSpace source, byte bank, ushort pointer)

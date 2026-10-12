@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(MetroidInstructionProgramDefinitions))]
 internal abstract class MetroidInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 31;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 25;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -19,11 +22,13 @@ internal abstract class MetroidInstructionProgramDefinitionsTooling : IInstructi
         ushort address = (ushort)(start + (local < frames ? local * 4 : frames * 4 + (local - frames) * 2));
         return new(address, MetroidInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(index < 20 ? MetroidInstructionProgramDefinitions.ChasingSamus + index * 4 + 2 : MetroidInstructionProgramDefinitions.DrainingSamus + (index - 20) * 4 + 2);
     }
+    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;

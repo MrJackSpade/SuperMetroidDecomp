@@ -9,8 +9,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+/// <summary>Represents torizo landing lifetime verification.</summary>
 internal static class TorizoLandingLifetimeVerification
 {
+    /// <summary>verify torizo landing lifetime.</summary>
     internal static int VerifyTorizoLandingLifetime()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;

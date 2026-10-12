@@ -15,6 +15,7 @@ using System.Text;
 /// </summary>
 internal static class InstalledPowerBombIsolationTests
 {
+    /// <summary>Runs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(string installationRoot)
     {
@@ -129,6 +130,7 @@ internal static class InstalledPowerBombIsolationTests
         }
     }
 
+    /// <summary>Creates.</summary>
     internal static SamusPowerBombExplosionState Create(PowerBombFixedColorCatalog colors, bool crystalFlash)
     {
         var state = new SamusPowerBombExplosionState { PresentationColors = colors };
@@ -137,6 +139,7 @@ internal static class InstalledPowerBombIsolationTests
         return state;
     }
 
+    /// <summary>Requires same mechanics.</summary>
     internal static void RequireSameMechanics(SamusPowerBombExplosionState first,
         SamusPowerBombExplosionState second, string context)
     {
@@ -153,6 +156,7 @@ internal static class InstalledPowerBombIsolationTests
         }
     }
 
+    /// <summary>Requires same geometry.</summary>
     private static void RequireSameGeometry(ScanlineColorAddRenderLayer? first,
         ScanlineColorAddRenderLayer? second, string context)
     {
@@ -163,14 +167,17 @@ internal static class InstalledPowerBombIsolationTests
                 first.Windows[row].Right == second.Windows[row].Right, context + $": window row {row} differs");
     }
 
+    /// <summary>Colors.</summary>
     internal static (byte Red, byte Green, byte Blue) Colors(SamusPowerBombExplosionState state) =>
         (state.FixedColorRed, state.FixedColorGreen, state.FixedColorBlue);
 
+    /// <summary>Requires.</summary>
     internal static void Require(bool condition, string context)
     {
         if (!condition) throw new InvalidOperationException(context);
     }
 
+    /// <summary>Checks compiled lifetime operands.</summary>
     private static void CheckCompiledLifetimeOperands(PowerBombFixedColorCatalog stock)
     {
         // The pinned $88:8D85 rows are (14,14,10), (15,15,9), (16,16,8),
@@ -190,6 +197,7 @@ internal static class InstalledPowerBombIsolationTests
         throw new InvalidOperationException("The compiled Crystal Flash radius domain accepted its exclusive limit.");
     }
 
+    /// <summary>Checks state restoration.</summary>
     private static void CheckStateRestoration(PowerBombFixedColorCatalog colors)
     {
         int currentRestores = 0, legacyRestores = 0;
@@ -222,6 +230,7 @@ internal static class InstalledPowerBombIsolationTests
             "checkpoints resume with identical stock state, colors and cleanup; old layouts warn explicitly.");
     }
 
+    /// <summary>Checks edited restore.</summary>
     private static void CheckEditedRestore(SamusPowerBombExplosionState edited,
         PowerBombFixedColorCatalog reboundColors, string context)
     {
@@ -247,6 +256,7 @@ internal static class InstalledPowerBombIsolationTests
         Require(!historical.IsActive, context + ": modded legacy capture did not release HDMA");
     }
 
+    /// <summary>Compare remainder.</summary>
     private static void CompareRemainder(SamusPowerBombExplosionState state,
         SamusPowerBombExplosionState restored, PowerBombFixedColorCatalog colors, string context)
     {
@@ -263,6 +273,7 @@ internal static class InstalledPowerBombIsolationTests
         } while (baseline.IsActive);
     }
 
+    /// <summary>Restore.</summary>
     private static SamusPowerBombExplosionState Restore(SamusPowerBombExplosionState state,
         bool legacy, out string warning)
     {
@@ -280,6 +291,7 @@ internal static class InstalledPowerBombIsolationTests
         finally { Console.SetError(previous); warning = errors.ToString(); }
     }
 
+    /// <summary>Writes legacy graph.</summary>
     private static void WriteLegacyGraph(Stream destination, SamusPowerBombExplosionState state)
     {
         // Construct the exact prior field envelope while using the production codec

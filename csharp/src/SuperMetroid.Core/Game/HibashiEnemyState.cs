@@ -19,8 +19,10 @@ public enum HibashiEnemyFunction : ushort
 /// </summary>
 public sealed class HibashiEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new hibashi enemy state instance.</summary>
     internal HibashiEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Graphics part's same-bank function word in common variable A, initialized to inactive; nonzero population parts do not dispatch this state machine.</summary>

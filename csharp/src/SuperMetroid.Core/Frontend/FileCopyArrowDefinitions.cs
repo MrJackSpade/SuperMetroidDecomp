@@ -18,6 +18,7 @@ public static class FileCopyArrowDefinitions
     /// <summary>$82:BB0E: all file-copy arrows use screen X = $14.</summary>
     internal const ushort OriginX = 20;
 
+    /// <summary>select.</summary>
     internal static (int Shape, ushort Y) Select(int source, int destination)
     {
         if ((uint)source >= 3 || (uint)destination >= 3 || source == destination)
@@ -27,12 +28,15 @@ public static class FileCopyArrowDefinitions
         return (shape, (ushort)(distance == 2 ? 104 : 88 + 32 * Math.Min(source, destination)));
     }
 
+    /// <summary>parts.</summary>
     internal static ReadOnlySpan<CompiledSpritePart> Parts(int shape) => Shapes[shape];
+    /// <summary>part.</summary>
     private static CompiledSpritePart Part(Offset16<OamPixels> offset, int tile, bool flipY) => new(
         SnesSpritemapXWord.Create(offset.X, false), unchecked((byte)offset.Y),
         SnesObjAttributeWord.Create(tile, 1, 3, flipY ? SnesTileFlipFlags.Vertical : 0), true);
 
     // Native sprite order is retained, including the interleaved shaft and arrowhead tiles.
+    /// <summary>Stores shapes.</summary>
     private static readonly CompiledSpritePart[][] Shapes =
     [
         [

@@ -17,6 +17,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 
+/// <summary>Represents ceres engine palette binding verification.</summary>
 internal static class CeresEnginePaletteBindingVerification
 {
     /// <summary>
@@ -119,6 +120,7 @@ internal static class CeresEnginePaletteBindingVerification
                 .GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!).Colors.ToArray();
     }
 
+    /// <summary>Ceres engine palette binding command.</summary>
     [VerificationCommand("--ceres-engine-palette-binding")]
     internal static int CeresEnginePaletteBindingCommand()
     {

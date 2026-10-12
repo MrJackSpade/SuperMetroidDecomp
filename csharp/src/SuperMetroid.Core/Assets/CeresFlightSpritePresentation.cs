@@ -11,11 +11,13 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CeresFlightSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(CeresFlightSpritePresentation), frames);
 
+    /// <summary>Initializes a new ceres flight sprite presentation instance.</summary>
     private CeresFlightSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

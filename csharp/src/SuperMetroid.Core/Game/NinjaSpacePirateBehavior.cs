@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,14 +7,21 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The ninja space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Stores walking space pirate behavior.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
+    /// <summary>Initializes a new ninja space pirate behavior instance.</summary>
     internal NinjaSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
         _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
@@ -25,18 +32,28 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Stores ninja pirate initial dive speed.</summary>
     private const ushort NinjaPirateInitialDiveSpeed = 0x0600;
+    /// <summary>Stores ninja pirate activation distance.</summary>
     private const int NinjaPirateActivationDistance = 128;
+    /// <summary>Stores ninja pirate flinch distance.</summary>
     private const int NinjaPirateFlinchDistance = 32;
+    /// <summary>Stores ninja pirate midpoint trigger distance.</summary>
     private const int NinjaPirateMidpointTriggerDistance = 32;
+    /// <summary>Stores ninja pirate kick distance.</summary>
     private const int NinjaPirateKickDistance = 40;
+    /// <summary>Stores ninja pirate dive horizontal pixels.</summary>
     private const int NinjaPirateDiveHorizontalPixels = 5;
+    /// <summary>Stores ninja pirate return walk pixels.</summary>
     private const int NinjaPirateReturnWalkPixels = 2;
+    /// <summary>Stores ninja pirate spin vertical pixels.</summary>
     private const int NinjaPirateSpinVerticalPixels = 2;
 
+    /// <summary>Stores ninja space pirate states.</summary>
     internal readonly NinjaSpacePirateEnemyState?[] _ninjaSpacePirateStates =
         new NinjaSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Indicates whether ninja space pirate definition.</summary>
     internal static bool IsNinjaSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyNinja or
         EnemyDefinitionId.PirateGreenNinja or
@@ -164,6 +181,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             "Ninja Space Pirate decision AI requires the active Samus actor.");
     }
 
+    /// <summary>Runs ninja pirate initial.</summary>
     private static void RunNinjaPirateInitial(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -184,6 +202,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         InstallNinjaPirateInstruction(slot, active);
     }
 
+    /// <summary>Runs ninja pirate active.</summary>
     private static void RunNinjaPirateActive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -200,6 +219,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         TryNinjaPirateClawAttack(slot, state, samus);
     }
 
+    /// <summary>Attempts to ninja pirate projectile flinch.</summary>
     private static bool TryNinjaPirateProjectileFlinch(
         RoomEnemySlot slot,
         SamusState samus,
@@ -238,6 +258,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Attempts to ninja pirate standing kick.</summary>
     private static bool TryNinjaPirateStandingKick(RoomEnemySlot slot, SamusState samus)
     {
         if (Math.Abs(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole))) >=
@@ -256,6 +277,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Attempts to ninja pirate spin jump.</summary>
     private static bool TryNinjaPirateSpinJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -275,6 +297,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Attempts to ninja pirate claw attack.</summary>
     private static void TryNinjaPirateClawAttack(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -300,6 +323,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
             NinjaSpacePirateInstructionProgramDefinitions.ClawAttackRight);
     }
 
+    /// <summary>Runs ninja pirate ready to divekick.</summary>
     private void RunNinjaPirateReadyToDivekick(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -333,6 +357,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
                 : NinjaSpacePirateInstructionProgramDefinitions.DivekickLeftJump);
     }
 
+    /// <summary>Advances ninja pirate spin jump.</summary>
     private void StepNinjaPirateSpinJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -373,6 +398,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
+    /// <summary>Initializes ninja pirate dive.</summary>
     private static void InitializeNinjaPirateDive(
         NinjaSpacePirateEnemyState state,
         bool movingRight)
@@ -385,6 +411,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
                 ((ushort)(state.RightPostX - state.PostsMidpointX) >> 1)));
     }
 
+    /// <summary>Advances ninja pirate dive jump.</summary>
     private static void StepNinjaPirateDiveJump(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -406,6 +433,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         state.Speed = NinjaPirateInitialDiveSpeed;
     }
 
+    /// <summary>Advances ninja pirate dive.</summary>
     private void StepNinjaPirateDive(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -447,6 +475,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         SpawnNinjaPirateLandingDust(slot, state);
     }
 
+    /// <summary>Advances ninja pirate walk to post.</summary>
     private static void StepNinjaPirateWalkToPost(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state,
@@ -469,6 +498,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         state.Function = NinjaSpacePirateFunction.NoOperation;
     }
 
+    /// <summary>Spawns ninja pirate landing dust.</summary>
     private void SpawnNinjaPirateLandingDust(
         RoomEnemySlot slot,
         NinjaSpacePirateEnemyState state)
@@ -490,6 +520,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Spawns ninja pirate claw.</summary>
     internal void SpawnNinjaPirateClaw(
         RoomEnemySlot source,
         NinjaSpacePirateEnemyState state,
@@ -635,6 +666,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Installs ninja pirate instruction.</summary>
     private static void InstallNinjaPirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -643,10 +675,12 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Requires ninja space pirate state.</summary>
     private NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>
         _ninjaSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized ninja Space Pirate state.");
 
+    /// <summary>Registers ninja space pirate projectiles.</summary>
     internal static void RegisterNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -655,6 +689,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.PirateClaw_Left, EnemyProjectilePreInstruction.PirateClaw_Right);
     }
 
+    /// <summary>Registers ninja space pirate initialization ai.</summary>
     internal void RegisterNinjaSpacePirateInitializationAi(EnemyAiTable table)
     {
 
@@ -664,6 +699,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers ninja space pirate main ai.</summary>
     internal void RegisterNinjaSpacePirateMainAi(EnemyAiTable table)
     {
 
@@ -678,6 +714,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers ninja space pirate owned instructions.</summary>
     internal void RegisterNinjaSpacePirateOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -699,6 +736,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers gold ninja pirate bomb reactions.</summary>
     internal static void RegisterGoldNinjaPirateBombReactions(EnemyAiTable table)
     {
         table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja &&

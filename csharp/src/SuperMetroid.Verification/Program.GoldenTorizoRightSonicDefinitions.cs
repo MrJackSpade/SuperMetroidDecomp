@@ -2,8 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents golden torizo right sonic definitions verification.</summary>
 internal static class GoldenTorizoRightSonicDefinitionsVerification
 {
+    /// <summary>Verifies golden torizo right sonic definitions.</summary>
     internal static void VerifyGoldenTorizoRightSonicDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -124,6 +126,7 @@ internal static class GoldenTorizoRightSonicDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Golden torizo right sonic definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo right sonic definitions")]
     private static byte GoldenTorizoRightSonicDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

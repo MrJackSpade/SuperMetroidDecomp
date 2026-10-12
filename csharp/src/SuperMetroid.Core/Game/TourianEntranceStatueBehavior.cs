@@ -1,12 +1,16 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Tourian entrance statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Initializes a new tourian entrance statue behavior instance.</summary>
     internal TourianEntranceStatueBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
     {
         _room = room;
@@ -28,6 +32,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     /// </summary>
     public ushort TourianEntranceStatueAnimationState { get; internal set; }
 
+    /// <summary>Resets tourian entrance statue room state.</summary>
     internal void ResetTourianEntranceStatueRoomState()
     {
         TourianEntranceStatueFinished = false;
@@ -35,6 +40,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         TourianEntranceStatueVerticalOffset = 0;
     }
 
+    /// <summary>Initializes tourian entrance statue.</summary>
     internal void InitializeTourianEntranceStatue(RoomEnemySlot statue)
     {
         if (statue.Parameter1 is not (0 or 2 or 4))
@@ -74,6 +80,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
             "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation._cgram!);
     }
 
+    /// <summary>Spawns tourian entrance statue projectile.</summary>
     internal void SpawnTourianEntranceStatueProjectile(
         RoomEnemyProjectileKind kind,
         Position16<RoomPixels> position)
@@ -89,6 +96,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         projectile.Variable1 = position.Y;
     }
 
+    /// <summary>Position tourian entrance statue projectile.</summary>
     internal void PositionTourianEntranceStatueProjectile(RoomEnemyProjectileSlot projectile)
     {
         if (ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
@@ -107,6 +115,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Variable1 - TourianEntranceStatueVerticalOffset)));
     }
 
+    /// <summary>Registers tourian entrance statue projectiles.</summary>
     internal void RegisterTourianEntranceStatueProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -115,6 +124,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.TourianStatueBaseDecoration_AllowProcess, EnemyProjectilePreInstruction.TourianStatue_Ridley_Phantoon_BaseDecor);
     }
 
+    /// <summary>Registers tourian entrance statue initialization ai.</summary>
     internal void RegisterTourianEntranceStatueInitializationAi(EnemyAiTable table)
     {
 
@@ -136,6 +146,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers tourian statue main ai.</summary>
     internal static void RegisterTourianStatueMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.MainAI_TourianStatue, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.TourianStatue, (slot, frame, nmiFrameCounter8) =>

@@ -3,11 +3,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents lookup fx tilemap sources verification.</summary>
 internal static class LookupFxTilemapSourcesVerification
 {
+    /// <summary>Stores original fx tilemap types.</summary>
     internal static readonly RoomFxType[] OriginalFxTilemapTypes =
         [RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water, RoomFxType.Spores, RoomFxType.Rain, RoomFxType.Fog];
 
+    /// <summary>verify fx tilemap type enumeration.</summary>
     internal static void VerifyFxTilemapTypeEnumeration()
     {
         AssertEqual(OriginalFxTilemapTypes.Length, RoomFxLayer3TilemapFormat.Types.Count, "Original page type count");
@@ -19,6 +22,7 @@ internal static class LookupFxTilemapSourcesVerification
                 "Original read-only type list bounds");
     }
 
+    /// <summary>verify fx tilemap source addresses.</summary>
     internal static void VerifyFxTilemapSourceAddresses(ISnesAddressSpace rom)
     {
         var original = OriginalFxTilemapTypes.ToDictionary(type => type,

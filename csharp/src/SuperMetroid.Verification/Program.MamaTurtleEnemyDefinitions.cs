@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rooms;
 using static EnemyDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents mama turtle enemy definitions verification.</summary>
 internal static class MamaTurtleEnemyDefinitionsVerification
 {
     /// <summary>
@@ -65,6 +66,7 @@ internal static class MamaTurtleEnemyDefinitionsVerification
             "retail population load pass without reading 128 source bytes.");
     }
 
+    /// <summary>Reads native enemy definition.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition headers")]
     private static RoomEnemyDefinition ReadNativeEnemyDefinition(
         SuperMetroidAddressSpace bus,
@@ -77,11 +79,13 @@ internal static class MamaTurtleEnemyDefinitionsVerification
         return new RoomEnemyDefinition(CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 0), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 2), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 4), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 6), new(CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 8), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 10)), bus.ReadCartridgeByte(address + 12), bus.ReadCartridgeByte(address + 13), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 14), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 16), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 18), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 20), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 22), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 24), ClosedNativeWords.Decode<GrappleAiRoutine>(CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 26), "grapple AI routine"), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 28), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 30), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 32), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 34), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 36), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 38), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 40), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 42), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 44), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 46), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 48), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 50), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 52), Long(54), bus.ReadCartridgeByte(address + 57), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 58), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 60), CartridgeImportSource.Require(bus).ReadCartridgeWord(address + 62));
     }
 
+    /// <summary>New mama turtle definition guard.</summary>
     private static CartridgeReadGuard NewMamaTurtleDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress,
             MamaTurtleEnemyDefinitionCatalogConstants.SourceByteLength,
             address => $"Mama Turtle family still reads compiled header byte ${address:X6}.");
 
+    /// <summary>Mama turtle enemy definitions command.</summary>
     [VerificationCommand("--mama-turtle-enemy-definitions")]
     internal static int MamaTurtleEnemyDefinitionsCommand()
     {

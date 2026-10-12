@@ -10,9 +10,12 @@ using SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class SamusMechanicsSnapshot
 {
+    /// <summary>Stores fields.</summary>
     private static readonly ConcurrentDictionary<Type, FieldInfo[]> Fields = new();
+    /// <summary>Stores values.</summary>
     private readonly SortedDictionary<string, string> values = new(StringComparer.Ordinal);
 
+    /// <summary>Initializes a new samus mechanics snapshot instance.</summary>
     internal SamusMechanicsSnapshot(object root)
     {
         var references = new Dictionary<object, string>(ReferenceEqualityComparer.Instance);
@@ -48,6 +51,7 @@ internal sealed class SamusMechanicsSnapshot
         }
     }
 
+    /// <summary>Serializable fields.</summary>
     private static FieldInfo[] SerializableFields(Type type)
     {
         var result = new List<FieldInfo>();
@@ -71,6 +75,7 @@ internal sealed class SamusMechanicsSnapshot
         return result.ToArray();
     }
 
+    /// <summary>Requires same.</summary>
     internal void RequireSame(SamusMechanicsSnapshot other, string context)
     {
         foreach (string key in values.Keys.Union(other.values.Keys).Order(StringComparer.Ordinal))

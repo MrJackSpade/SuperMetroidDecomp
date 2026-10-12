@@ -16,9 +16,12 @@ using SuperMetroid.Core.Game;
 /// </remarks>
 internal sealed class SamusProjectileSlotObservation
 {
+    /// <summary>Stores occupied.</summary>
     private readonly bool[] _occupied;
+    /// <summary>Stores explosion.</summary>
     private readonly bool[] _explosion;
 
+    /// <summary>Initializes a new samus projectile slot observation instance.</summary>
     internal SamusProjectileSlotObservation(SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
@@ -60,6 +63,7 @@ internal sealed class SamusProjectileSlotObservation
         return false;
     }
 
+    /// <summary>Requires same slots.</summary>
     private void RequireSameSlots(SamusProjectileSystem projectiles)
     {
         Ensure.NotNull(projectiles);
@@ -69,8 +73,10 @@ internal sealed class SamusProjectileSlotObservation
                 $"{projectiles.Slots.Count}.");
     }
 
+    /// <summary>Checks whether the projectile slot has nonzero damage.</summary>
     private static bool IsOccupied(SamusProjectileSlot slot) => slot.Damage != 0;
 
+    /// <summary>Checks whether an active slot belongs to the beam- or missile-explosion family.</summary>
     private static bool IsLiveExplosion(SamusProjectileSlot slot) =>
         slot.IsActive && slot.PackedType.Family is
             SamusProjectileFamily.BeamExplosion or SamusProjectileFamily.MissileExplosion;

@@ -12,11 +12,13 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents refill station lock verification.</summary>
 internal static class RefillStationLockVerification
 {
     // #1269: command six ($90:F1AA) installs the bare RTL beta $90:E8D6, which neither moves
     // nor animates Samus. Underwater, the 100% movie's Maridia map station therefore spawns
     // no air bubble (and draws no RNG) while the following pause fade runs gameplay.
+    /// <summary>Verifies refill station lock.</summary>
     internal static void VerifyRefillStationLock()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -48,6 +50,7 @@ internal static class RefillStationLockVerification
         Console.WriteLine("Refill-station lock: command six's RTL beta holds Samus's animation until release.");
     }
 
+    /// <summary>Refill station lock command.</summary>
     [VerificationCommand("--refill-station-lock")]
     internal static int RefillStationLockCommand()
     {

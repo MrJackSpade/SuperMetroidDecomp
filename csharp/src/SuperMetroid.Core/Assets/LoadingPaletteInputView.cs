@@ -19,6 +19,7 @@ namespace SuperMetroid.Core.Assets;
 /// Custom differences remain nullable overrides, never generated color caches.</remarks>
 internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr555>
 {
+    /// <summary>Stores colors.</summary>
     private readonly Dictionary<ushort, Bgr555> colors;
     /// <summary>Power dim slot1, $8D:DC7E.</summary>
     private readonly Channels powerDim1;
@@ -37,6 +38,7 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
     /// <summary>Gravity dim slot2, $8D:DF4C.</summary>
     private readonly Channels gravityDim2;
 
+    /// <summary>Initializes a new loading palette input view instance.</summary>
     internal LoadingPaletteInputView(Dictionary<ushort, Bgr555> colors)
     {
         this.colors = colors;
@@ -58,10 +60,12 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
         colors.Remove((ushort)LoadingSuitColor.GravityDim2);
     }
 
+    /// <summary>normal.</summary>
     private Bgr555 Normal(ushort pointer) =>
         LoadingPaletteColorDefinitions.TryReadColor(pointer, colors, out Bgr555 value)
             ? value : throw new InvalidDataException($"Missing loading base ${pointer:X4}.");
 
+    /// <summary>expected.</summary>
     private Bgr555 Expected(LoadingSuitColor slot) => slot switch
     {
         LoadingSuitColor.PowerDim1 => LoadingPaletteColorDefinitions.TintColor(Normal(0xdb6d), 2),
@@ -76,10 +80,14 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
         _ => throw new InvalidOperationException($"Undefined loading suit color {slot}."),
     };
 
+    /// <summary>Represents channels.</summary>
     internal readonly struct Channels
     {
+        /// <summary>Stores red.</summary>
         private readonly int? red;
+        /// <summary>Stores green.</summary>
         private readonly int? green;
+        /// <summary>Stores blue.</summary>
         private readonly int? blue;
         /// <summary>Captures differing channels; independentMask bits0/1/2 always retain red/green/blue inputs.</summary>
         internal Channels(Bgr555 supplied, Bgr555 expected, int independentMask = 0)
@@ -88,9 +96,11 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
             green = (independentMask & 2) == 0 && supplied.Green == expected.Green ? null : supplied.Green;
             blue = (independentMask & 4) == 0 && supplied.Blue == expected.Blue ? null : supplied.Blue;
         }
+        /// <summary>apply.</summary>
         internal Bgr555 Apply(Bgr555 expected) => new(red ?? expected.Red, green ?? expected.Green, blue ?? expected.Blue);
     }
 
+    /// <summary>try get value.</summary>
     public bool TryGetValue(ushort pointer, out Bgr555 value)
     {
         // Pointers outside the eight tinted slots are ordinary stored colors.
@@ -112,9 +122,13 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
         value = channels.Apply(Expected(slot));
         return true;
     }
+    /// <summary>Accesses a value by index or range.</summary>
     public Bgr555 this[ushort key] => TryGetValue(key, out Bgr555 value) ? value : throw new KeyNotFoundException();
+    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => colors.Count + 8;
+    /// <summary>contains key.</summary>
     public bool ContainsKey(ushort key) => TryGetValue(key, out _);
+    /// <summary>Enumerates supplied palette keys and required loading suit colors.</summary>
     public IEnumerable<ushort> Keys
     {
         get
@@ -124,10 +138,13 @@ internal sealed class LoadingPaletteInputView : IReadOnlyDictionary<ushort, Bgr5
             yield return (ushort)LoadingSuitColor.VariaBright10; yield return (ushort)LoadingSuitColor.VariaBright11; yield return (ushort)LoadingSuitColor.VariaDim12; yield return (ushort)LoadingSuitColor.GravityDim2;
         }
     }
+    /// <summary>Gets values.</summary>
     public IEnumerable<Bgr555> Values => Keys.Select(key => this[key]);
+    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<KeyValuePair<ushort, Bgr555>> GetEnumerator()
     {
         foreach (ushort key in Keys) yield return new(key, this[key]);
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

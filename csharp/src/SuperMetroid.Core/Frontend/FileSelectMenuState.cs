@@ -22,26 +22,43 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class FileSelectMenuState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Stores object layer scratch.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Stores save ram.</summary>
     private readonly SuperMetroidSaveRam saveRam;
+    /// <summary>Stores ppu.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Stores oam.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Stores controller.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Stores map presentation.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Stores bg1 tilemap.</summary>
     private readonly ushort[] bg1Tilemap = new ushort[32 * 32];
+    /// <summary>Stores save slots.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
+    /// <summary>Stores missile animation timer.</summary>
     private int missileAnimationTimer = 1;
+    /// <summary>Stores missile animation frame.</summary>
     private int missileAnimationFrame;
+    /// <summary>Stores helmet animation timer.</summary>
     private int helmetAnimationTimer;
+    /// <summary>Stores helmet animation frame.</summary>
     private int helmetAnimationFrame;
     /// <summary>$51 INIDISP byte: forced-blank bit plus brightness nibble.</summary>
     private int brightness;
+    /// <summary>Stores screen fade.</summary>
     private readonly ScreenFade screenFade = new();
+    /// <summary>Stores current presentation page.</summary>
     private string currentPresentationPage = FileSelectPresentationDefinitions.MainEmptyPage;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
@@ -215,6 +232,7 @@ public sealed class FileSelectMenuState
         return MenuRenderSnapshotCapture.Capture(ppu, oam, 0, Brightness);
     }
 
+    /// <summary>Prepares render oam.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -279,6 +297,7 @@ public sealed class FileSelectMenuState
 
     }
 
+    /// <summary>Builds save tilemap.</summary>
     private void BuildSaveTilemap()
     {
         currentPresentationPage = HasAnySave
@@ -360,6 +379,7 @@ public sealed class FileSelectMenuState
         WriteMenuDigit(timeOrigin + 8, minutes % 10);
     }
 
+    /// <summary>Writes menu digit.</summary>
     private void WriteMenuDigit(int destinationByteOffset, int digit)
     {
         int wordIndex = destinationByteOffset >> 1;
@@ -368,12 +388,14 @@ public sealed class FileSelectMenuState
         bg1Tilemap[wordIndex] = unchecked((ushort)(FileSelectLayout.DigitTileBase + digit));
     }
 
+    /// <summary>Loads menu tilemap.</summary>
     private static void LoadMenuTilemap(int destinationByteOffset, ushort sourcePointer)
     {
         throw new InvalidOperationException(
             "File-select tilemaps require installed menu presentation assets.");
     }
 
+    /// <summary>Draws menu spritemap.</summary>
     private static void DrawMenuSpritemap(ushort spritemapId, Position16<OamPixels> position)
     {
         // `DrawMenuSpritemap` indexes a word-pointer array, so the displayed spritemap ID
@@ -401,6 +423,7 @@ public sealed class FileSelectMenuState
         helmetAnimationFrame = next;
     }
 
+    /// <summary>Steps missile animation.</summary>
     private void StepMissileAnimation()
     {
         if (--missileAnimationTimer != 0)
@@ -409,6 +432,7 @@ public sealed class FileSelectMenuState
         missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
     }
 
+    /// <summary>Applies brightness.</summary>
     private void ApplyBrightness(Span<Rgba32> pixels)
     {
         int displayed = Brightness;
@@ -428,32 +452,47 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Stores pending data mode.</summary>
     private FileSelectDataMode pendingDataMode;
+    /// <summary>Stores phase after fade in.</summary>
     private FileSelectPhase phaseAfterFadeIn;
+    /// <summary>Stores show data management screen.</summary>
     private bool showDataManagementScreen;
+    /// <summary>Stores submenu selection.</summary>
     private int submenuSelection;
+    /// <summary>Stores operation source slot.</summary>
     private int operationSourceSlot;
+    /// <summary>Stores operation destination slot.</summary>
     private int operationDestinationSlot;
+    /// <summary>Stores confirmation selection.</summary>
     private int confirmationSelection;
+    /// <summary>Stores copy arrow palette timer.</summary>
     private int copyArrowPaletteTimer;
 
+    /// <summary>Reports whether any save slot contains data.</summary>
     private bool HasAnySave => saveSlots.Any(slot => slot is not null);
 
+    /// <summary>Reports whether the main file-selection screen is active.</summary>
     private bool IsMainScreenPhase => !showDataManagementScreen;
 
+    /// <summary>Reports whether the data-management screen is copying a save.</summary>
     private bool IsCopyPhase =>
         showDataManagementScreen && pendingDataMode == FileSelectDataMode.Copy;
 
+    /// <summary>Reports whether the data-management screen is clearing a save.</summary>
     private bool IsClearPhase =>
         showDataManagementScreen && pendingDataMode == FileSelectDataMode.Clear;
 
+    /// <summary>Reports whether file selection is still entering or initializing.</summary>
     private bool IsEntryPhase => Phase is FileSelectPhase.EnterBlankScreen or
         FileSelectPhase.EnterBlankScreenAfterNmi or FileSelectPhase.LoadBackground or
         FileSelectPhase.InitializeMain or FileSelectPhase.InitializeMainAfterNmi;
 
+    /// <summary>Reports whether the selection missile is visible in the current phase.</summary>
     private bool ShouldDrawSelectionMissile => !IsEntryPhase && Phase is not
         FileSelectPhase.CopyCompleted and not FileSelectPhase.ClearCompleted;
 
+    /// <summary>Steps main menu.</summary>
     private void StepMainMenu(SnesButton pressed)
     {
         if ((pressed & SnesButton.Up) != 0)
@@ -504,9 +543,11 @@ public sealed class FileSelectMenuState
         throw new InvalidDataException($"Invalid file-select main item {SelectedItem}.");
     }
 
+    /// <summary>Moves main selection.</summary>
     private void MoveMainSelection(bool down) =>
         SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, down);
 
+    /// <summary>Steps data management fade.</summary>
     private void StepDataManagementFade()
     {
         if (Phase is FileSelectPhase.FadeOutToDataManagement or FileSelectPhase.FadeOutToMain)
@@ -536,6 +577,7 @@ public sealed class FileSelectMenuState
             Phase = phaseAfterFadeIn;
     }
 
+    /// <summary>Initializes data management screen.</summary>
     private void InitializeDataManagementScreen()
     {
         submenuSelection = FindFirstNonemptySlot();
@@ -555,6 +597,7 @@ public sealed class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
+    /// <summary>Steps data management.</summary>
     private void StepDataManagement(SnesButton pressed)
     {
         switch (Phase)
@@ -589,6 +632,7 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Steps slot selection.</summary>
     private void StepSlotSelection(SnesButton pressed, bool sourceSelection)
     {
         int occupiedSlots = 0;
@@ -626,6 +670,7 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Steps copy destination.</summary>
     private void StepCopyDestination(SnesButton pressed)
     {
         MoveSubmenuSelection(FileSelectDataNavigation.MoveCopyDestination(
@@ -655,6 +700,7 @@ public sealed class FileSelectMenuState
         Phase = FileSelectPhase.CopyConfirm;
     }
 
+    /// <summary>Steps copy arrow palette.</summary>
     private void StepCopyArrowPalette()
     {
         if (copyArrowPaletteTimer == 0 || --copyArrowPaletteTimer != 0)
@@ -668,6 +714,7 @@ public sealed class FileSelectMenuState
         arrow.Write(last, color);
     }
 
+    /// <summary>Steps confirmation.</summary>
     private void StepConfirmation(SnesButton pressed, bool copy)
     {
         if ((pressed & (SnesButton.Up | SnesButton.Down)) != 0)
@@ -711,6 +758,7 @@ public sealed class FileSelectMenuState
         SaveRamChangedThisFrame = true;
     }
 
+    /// <summary>Return from confirmation.</summary>
     private void ReturnFromConfirmation(bool copy)
     {
         submenuSelection = copy ? operationDestinationSlot : operationSourceSlot;
@@ -727,6 +775,7 @@ public sealed class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
+    /// <summary>Moves submenu selection.</summary>
     private void MoveSubmenuSelection(int next)
     {
         if (next == submenuSelection)
@@ -735,6 +784,7 @@ public sealed class FileSelectMenuState
         QueueCursorSound();
     }
 
+    /// <summary>Builds copy source tilemap.</summary>
     private void BuildCopySourceTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopySourcePage;
@@ -750,6 +800,7 @@ public sealed class FileSelectMenuState
             FileSelectLayout.CopySourcePromptDestination);
     }
 
+    /// <summary>Builds copy destination tilemap.</summary>
     private void BuildCopyDestinationTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopyDestinationPage;
@@ -767,6 +818,7 @@ public sealed class FileSelectMenuState
             unchecked((ushort)(FileSelectLayout.SamusLetterTileBase + operationSourceSlot));
     }
 
+    /// <summary>Builds copy confirmation tilemap.</summary>
     private void BuildCopyConfirmationTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopyConfirmPage;
@@ -787,6 +839,7 @@ public sealed class FileSelectMenuState
         AddConfirmationText();
     }
 
+    /// <summary>Builds copy completed tilemap.</summary>
     private void BuildCopyCompletedTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.CopyCompletedPage;
@@ -800,6 +853,7 @@ public sealed class FileSelectMenuState
         LoadMenuTilemap(FileSelectLayout.CopyCompletedDestination, FileSelectTilemaps.CopyCompleted);
     }
 
+    /// <summary>Builds clear selection tilemap.</summary>
     private void BuildClearSelectionTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.ClearSelectionPage;
@@ -815,6 +869,7 @@ public sealed class FileSelectMenuState
             FileSelectLayout.ClearPromptDestination);
     }
 
+    /// <summary>Builds clear confirmation tilemap.</summary>
     private void BuildClearConfirmationTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.ClearConfirmPage;
@@ -833,6 +888,7 @@ public sealed class FileSelectMenuState
         AddConfirmationText();
     }
 
+    /// <summary>Builds clear completed tilemap.</summary>
     private void BuildClearCompletedTilemap()
     {
         currentPresentationPage = FileSelectPresentationDefinitions.ClearCompletedPage;
@@ -847,6 +903,7 @@ public sealed class FileSelectMenuState
         DrawDataManagementSlots();
     }
 
+    /// <summary>Builds data management base.</summary>
     private void BuildDataManagementBase(
         ushort modeLabel,
         int modeDestination,
@@ -860,6 +917,7 @@ public sealed class FileSelectMenuState
         DrawDataManagementSlots();
     }
 
+    /// <summary>Draws data management slots.</summary>
     private void DrawDataManagementSlots()
     {
         LoadMenuTilemap(FileSelectLayout.DataSlotDestination(0, FileSelectSlotField.Label), FileSelectTilemaps.SlotLabel(0));
@@ -873,6 +931,7 @@ public sealed class FileSelectMenuState
         LoadMenuTilemap(FileSelectLayout.DataSlotDestination(2, FileSelectSlotField.TimeLabel), FileSelectTilemaps.Time);
     }
 
+    /// <summary>Adds confirmation text.</summary>
     private static void AddConfirmationText()
     {
         LoadMenuTilemap(FileSelectLayout.ConfirmationQuestionDestination, FileSelectTilemaps.IsThisOkay);
@@ -880,6 +939,7 @@ public sealed class FileSelectMenuState
         LoadMenuTilemap(FileSelectLayout.ConfirmationNoDestination, FileSelectTilemaps.No);
     }
 
+    /// <summary>Finds first nonempty slot.</summary>
     private int FindFirstNonemptySlot()
     {
         int slot = Array.FindIndex(saveSlots, save => save is not null);
@@ -887,6 +947,7 @@ public sealed class FileSelectMenuState
             "Data-management screen requires at least one nonempty save slot.");
     }
 
+    /// <summary>Gets selection missile position.</summary>
     private Position16<OamPixels> GetSelectionMissilePosition()
     {
         if (mapPresentation is not null)
@@ -907,9 +968,11 @@ public sealed class FileSelectMenuState
         return new(22, FileSelectLayout.DataSelectionY(submenuSelection));
     }
 
+    /// <summary>Upload bg1 tilemap.</summary>
     private void UploadBg1Tilemap() =>
         new MenuVram(ppu.Vram).Bg1Tilemap.Write(bg1Tilemap);
 
+    /// <summary>Queues cursor sound.</summary>
     private void QueueCursorSound() =>
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
 
@@ -929,6 +992,7 @@ public sealed class FileSelectMenuState
         UploadBg1Tilemap();
     }
 
+    /// <summary>Rebuild installed presentation page.</summary>
     private void RebuildInstalledPresentationPage()
     {
         FileSelectPresentation presentation = mapPresentation?.FileSelect ??
@@ -969,6 +1033,7 @@ public sealed class FileSelectMenuState
         }
     }
 
+    /// <summary>Draws installed slot.</summary>
     private void DrawInstalledSlot(
         SuperMetroid.Core.Game.SuperMetroidSaveSlot? slot,
         FileSelectSlotFieldDocument layout)

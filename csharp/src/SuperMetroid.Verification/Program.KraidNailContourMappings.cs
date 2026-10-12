@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents kraid nail contour mappings verification.</summary>
 internal static class KraidNailContourMappingsVerification
 {
+    /// <summary>Verifies kraid nail left offsets.</summary>
     internal static void VerifyKraidNailLeftOffsets(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidNailLeftOffsetsRomByte(rom, address), KraidNailLeftOffsetsRomByte(rom, address + 1)));
@@ -26,9 +28,11 @@ internal static class KraidNailContourMappingsVerification
         }
     }
 
+    /// <summary>Kraid nail left offsets rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail left offsets")]
     private static byte KraidNailLeftOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies kraid nail top boundaries.</summary>
     internal static void VerifyKraidNailTopBoundaries(SuperMetroidAddressSpace rom)
     {
         for (int record = 0; record < 6; record++)
@@ -41,6 +45,7 @@ internal static class KraidNailContourMappingsVerification
         AssertThrows<IndexOutOfRangeException>(() => KraidNailContour.TopAt(6), "Past nail top record");
     }
 
+    /// <summary>Kraid nail top boundaries rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail top boundaries")]
     private static byte KraidNailTopBoundariesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

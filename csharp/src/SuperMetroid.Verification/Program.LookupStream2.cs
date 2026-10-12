@@ -33,8 +33,10 @@ using static StatueWalkDefinitionsVerification;
 using static SuiteTimingVerification;
 using static YellowPipeBugInstructionProgramDefinitionsVerification;
 
+/// <summary>Represents lookup stream2 verification.</summary>
 internal static class LookupStream2Verification
 {
+    /// <summary>Verifies lookup stream2 yard groups.</summary>
     internal static void VerifyLookupStream2YardGroups()
     {
         var frames = YardVisualDefinitions.Frames();
@@ -46,6 +48,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Yard groups: 38 semantic program roles preserve all104 native frame identities/names/order.");
     }
 
+    /// <summary>Verifies lookup stream2 chozo foot geometry.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo foot geometry")]
     internal static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
     {
@@ -128,6 +131,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Chozo shared geometry:174 native parts,eight stock views,16 independent foot-X edits,hash/display order and existing96-word/actual carry checks pass; shape and two movement-policy inputs remain documented.");
     }
 
+    /// <summary>Verifies lookup stream2 ghost palette.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ghost palette")]
     internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
@@ -198,6 +202,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Ghost palette:16 native targets and shared-source words,actual white-flash target copy,32 full component-fade steps,and native pixel-slot usage pass; calculated channels preserve the specified source paint and transparent payload.");
     }
 
+    /// <summary>Verifies lookup stream2 tourian accent cadence.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
     {
@@ -237,6 +242,7 @@ internal static class LookupStream2Verification
         AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(15), "Accent duration upper domain");
         Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
     }
+    /// <summary>Verifies lookup stream2 ninja program layout.</summary>
     internal static void VerifyLookupStream2NinjaProgramLayout()
     {
         AssertEqual(308, NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount, "Complete native Ninja mechanics count");
@@ -262,6 +268,7 @@ internal static class LookupStream2Verification
         Suite(nameof(VerifyNinjaSpacePirateInstructionProgramDefinitions), () => VerifyNinjaSpacePirateInstructionProgramDefinitions());
     }
 
+    /// <summary>Verifies lookup stream2 projectile identity geometry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
@@ -457,6 +464,7 @@ internal static class LookupStream2Verification
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
         Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
+    /// <summary>Verifies lookup stream2 environmental catalogs.</summary>
     internal static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
         var norfair = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
@@ -493,6 +501,7 @@ internal static class LookupStream2Verification
         Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
+    /// <summary>Verifies lookup stream2 backdrop geometry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
@@ -568,6 +577,7 @@ internal static class LookupStream2Verification
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
         }
     }
+    /// <summary>Verifies lookup stream2 equipment base geometry.</summary>
     internal static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
@@ -642,6 +652,7 @@ internal static class LookupStream2Verification
         }
     }
 
+    /// <summary>Verifies lookup stream2 wireframe mirrors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for wireframe mirrors")]
     internal static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
@@ -710,6 +721,7 @@ internal static class LookupStream2Verification
         }
     }
 
+    /// <summary>Verifies lookup stream2 reserve labels.</summary>
     internal static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);
@@ -770,6 +782,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Reserve labels:22 native words/four destinations,22 independent cell edits,56 actual attribute-preserving/ordinary/moved patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
 
+    /// <summary>Verifies lookup stream2 equipment labels.</summary>
     internal static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
@@ -871,6 +884,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Pause equipment labels:115 native words/15placements,106 ordinary and five Hyper cell edits, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
     }
 
+    /// <summary>Verifies lookup stream2 equipment blank.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for equipment blank")]
     internal static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
     {
@@ -925,6 +939,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Pause equipment blank: nine native empty cells, stock/no stored payload, nine independent edits, serialized hashes and20 actual inventory/Hyper tilemap writes pass.");
     }
 
+    /// <summary>Verifies lookup stream2 dead torizo geometry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
@@ -1061,10 +1076,12 @@ internal static class LookupStream2Verification
         }
     }
 
+    /// <summary>Reads dead torizo rom bytes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Torizo artwork bytes")]
     private static byte[] ReadDeadTorizoRomBytes(ISnesAddressSpace rom, int address, int count) =>
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
+    /// <summary>Verifies lookup stream2 crawler ramps.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
     internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
@@ -1101,6 +1118,7 @@ internal static class LookupStream2Verification
         AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler parameter upper bound");
         Console.WriteLine("Crawler speed ramps: both 32 native words and 384 actual crawler/Yard velocity resets pass; irregular gaps/terminal choices remain pending.");
     }
+    /// <summary>Verifies lookup stream2 lava jumper layout.</summary>
     internal static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(rom));
@@ -1123,6 +1141,7 @@ internal static class LookupStream2Verification
         AssertEqual(14, visual, "All fourteen lava-jumper visual operands independently confirmed");
         Console.WriteLine("Lava-jumper calculated layout:23 native controls,14 native selectors, actual parent/follower programs and handshake pass; seven pose holds remain pending.");
     }
+    /// <summary>Verifies lookup stream2 chozo layout.</summary>
     internal static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(rom));
@@ -1159,6 +1178,7 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(-1), "Chozo visual lower bound");
         Console.WriteLine("Chozo calculated layouts:166 native controls,52 independently decoded native visual operands, exact list boundaries and existing allocation checks pass; hold/footstep payloads remain pending.");
     }
+    /// <summary>Verifies lookup stream2 horizontal camera targets.</summary>
     internal static void VerifyLookupStream2HorizontalCameraTargets(ISnesAddressSpace rom)
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];
@@ -1189,6 +1209,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
 
+    /// <summary>Verifies lookup stream2 torizo page dispatch.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo page dispatch")]
     internal static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
     {
@@ -1236,6 +1257,7 @@ internal static class LookupStream2Verification
         AssertThrows<IndexOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[8], "Torizo page upper bound");
         Console.WriteLine("Torizo page dispatch:eight exact ordered identities, native decoded page resolution/bounds and canonical content hash pass.");
     }
+    /// <summary>Verifies lookup stream2 kago frame geometry.</summary>
     internal static void VerifyLookupStream2KagoFrameGeometry(ISnesAddressSpace rom)
     {
         int count = 0;
@@ -1253,6 +1275,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Kago frames:three native selectors/four-part headers, stable names and installed catalog membership pass.");
     }
 
+    /// <summary>Verifies lookup stream2 kraid lint initialization.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
     internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
@@ -1288,6 +1311,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Kraid lint initialization: three native policies, actual slot writes and all 512 countdown transitions pass.");
     }
 
+    /// <summary>Verifies lookup stream2 drop selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for drop selection")]
     internal static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
     {
@@ -1315,6 +1339,7 @@ internal static class LookupStream2Verification
             "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
+    /// <summary>Verifies lookup stream2 pipe bug visual geometry.</summary>
     internal static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(rom));
@@ -1343,6 +1368,7 @@ internal static class LookupStream2Verification
         }
     }
 
+    /// <summary>Verifies lookup stream2 pipe bug formation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug formation")]
     internal static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
@@ -1390,6 +1416,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Norfair Pipe Bug formation:ten native immediates, both actual facing formations and leader-only timer resets pass.");
     }
 
+    /// <summary>Verifies lookup stream2 golden control.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo control words")]
     internal static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
     {
@@ -1426,6 +1453,7 @@ internal static class LookupStream2Verification
             "Golden landing control index boundary");
         Console.WriteLine("Golden Torizo control dispatch:7 initial words,20 landing words, native instruction positions, exact installed initial sprite and bounded ownership pass.");
     }
+    /// <summary>Verifies lookup stream2 trail appearance.</summary>
     internal static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
@@ -1467,6 +1495,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Trail appearance:42 native words,252 independent field edits and existing real OAM/lifetime/freeze proof pass; ice phase boundaries remain pending.");
     }
 
+    /// <summary>Verifies lookup stream2 trail programs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program words")]
     internal static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
@@ -1555,6 +1584,7 @@ internal static class LookupStream2Verification
         }
     }
 
+    /// <summary>Verifies lookup stream2 trail selectors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
     internal static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
@@ -1586,6 +1616,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
+    /// <summary>Verifies lookup stream2 tube ramp.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2TubeRamp(ISnesAddressSpace rom)
     {
@@ -1661,6 +1692,7 @@ internal static class LookupStream2Verification
             AssertEqual(expected, catalog.ContentIdentity, "tube canonical identity preserved");
         }
     }
+    /// <summary>Verifies lookup stream2 pause ownership.</summary>
     internal static void VerifyLookupStream2PauseOwnership(ISnesAddressSpace rom)
     {
         for (int cell = -1; cell <= PauseEquipmentBaseDefinitions.Cells; cell++)
@@ -1686,6 +1718,7 @@ internal static class LookupStream2Verification
         }
         Console.WriteLine("Pause ownership: all1024 cells plus rejected outer bounds match native label/reserve destinations, including the nine-cell Plasma overlap.");
     }
+    /// <summary>Verifies lookup stream2 dead torizo transfers.</summary>
     internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
@@ -1724,6 +1757,7 @@ internal static class LookupStream2Verification
         }
         Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, actual fourteen queued live-WRAM transfers, phase parity, enumeration and bounds pass.");
     }
+    /// <summary>Verifies lookup stream2 gunship transfers.</summary>
     internal static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
@@ -1753,6 +1787,7 @@ internal static class LookupStream2Verification
         AssertThrows<IndexOutOfRangeException>(() => _ = transfers[5], "Gunship upper transfer bound");
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
     }
+    /// <summary>Verifies lookup stream2 reserve arrow colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
@@ -1818,6 +1853,7 @@ internal static class LookupStream2Verification
         }
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
     }
+    /// <summary>Verifies lookup stream2 reserve geometry.</summary>
     internal static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
@@ -1873,6 +1909,7 @@ internal static class LookupStream2Verification
             }
         }
     }
+    /// <summary>Verifies lookup stream2 ghost and norfair.</summary>
     internal static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
@@ -1946,6 +1983,7 @@ internal static class LookupStream2Verification
         AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
     }
+    /// <summary>Verifies lookup stream2 palette mechanics.</summary>
     internal static void VerifyLookupStream2PaletteMechanics(ISnesAddressSpace rom)
     {
         int upperWords = 0, oldWords = 0, bellyWords = 0;
@@ -2021,6 +2059,7 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions.ColorPointer(0, 8), "Old Tourian upper color bound");
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
+    /// <summary>Verifies lookup stream2 crystal body.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
     {
@@ -2100,7 +2139,7 @@ internal static class LookupStream2Verification
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
         Console.WriteLine("Stream 2 Crystal Flash body: all100 body and36 bubble native colors, CGRAM application and every independent supplied edit pass; one bubble residual remains pending.");
-    }    internal static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
+    }    /** <summary>verify lookup stream2 kraid ramps.</summary> */ internal static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
     {
         PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))
             .Select(index =>
@@ -2183,6 +2222,7 @@ internal static class LookupStream2Verification
             }
         }
     }
+    /// <summary>Verifies lookup stream2 power direction bindings.</summary>
     internal static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
@@ -2284,6 +2324,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Stream2 Power bindings: 805calculated beam/effect selectors,805native operands,zero stored stock operands and805actual handler/edit paths pass.");
     }
 
+    /// <summary>Verifies lookup stream2 golden torizo foot geometry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo foot geometry")]
     internal static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
@@ -2400,6 +2441,7 @@ internal static class LookupStream2Verification
         Console.WriteLine("Golden Torizo foot geometry:20derived words,39native byte windows,220body parts/40components,10calculated views,36independent foot-X edits,display rebind/hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
     }
 
+    /// <summary>Runs the stream2 golden torizo strides lookup command.</summary>
     [VerificationCommand("--lookup-stream2-golden-torizo-strides")]
     internal static int LookupStream2GoldenTorizoStridesCommand()
     {
@@ -2407,6 +2449,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 chozo strides lookup command.</summary>
     [VerificationCommand("--lookup-stream2-chozo-strides")]
     internal static int LookupStream2ChozoStridesCommand()
     {
@@ -2414,6 +2457,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 tourian accent cadence lookup command.</summary>
     [VerificationCommand("--lookup-stream2-tourian-accent-cadence")]
     internal static int LookupStream2TourianAccentCadenceCommand()
     {
@@ -2421,6 +2465,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 ninja program layout lookup command.</summary>
     [VerificationCommand("--lookup-stream2-ninja-program-layout")]
     internal static int LookupStream2NinjaProgramLayoutCommand()
     {
@@ -2428,12 +2473,14 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 yard groups lookup command.</summary>
     [VerificationCommand("--lookup-stream2-yard-groups")]
     internal static int LookupStream2YardGroupsCommand()
     {
      VerifyLookupStream2YardGroups(); return 0; 
     }
 
+    /// <summary>Runs the stream2 power direction bindings lookup command.</summary>
     [VerificationCommand("--lookup-stream2-power-direction-bindings")]
     internal static int LookupStream2PowerDirectionBindingsCommand()
     {
@@ -2441,6 +2488,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 projectile identity geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream2-projectile-identity-geometry")]
     internal static int LookupStream2ProjectileIdentityGeometryCommand()
     {
@@ -2448,6 +2496,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 reserve labels lookup command.</summary>
     [VerificationCommand("--lookup-stream2-reserve-labels")]
     internal static int LookupStream2ReserveLabelsCommand()
     {
@@ -2455,6 +2504,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 equipment labels lookup command.</summary>
     [VerificationCommand("--lookup-stream2-equipment-labels")]
     internal static int LookupStream2EquipmentLabelsCommand()
     {
@@ -2462,6 +2512,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 equipment blank lookup command.</summary>
     [VerificationCommand("--lookup-stream2-equipment-blank")]
     internal static int LookupStream2EquipmentBlankCommand()
     {
@@ -2469,6 +2520,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 dead torizo geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream2-dead-torizo-geometry")]
     internal static int LookupStream2DeadTorizoGeometryCommand()
     {
@@ -2476,6 +2528,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 crawler ramps lookup command.</summary>
     [VerificationCommand("--lookup-stream2-crawler-ramps")]
     internal static int LookupStream2CrawlerRampsCommand()
     {
@@ -2483,6 +2536,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 reserve arrow colors lookup command.</summary>
     [VerificationCommand("--lookup-stream2-reserve-arrow-colors")]
     internal static int LookupStream2ReserveArrowColorsCommand()
     {
@@ -2490,6 +2544,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 trail appearance lookup command.</summary>
     [VerificationCommand("--lookup-stream2-trail-appearance")]
     internal static int LookupStream2TrailAppearanceCommand()
     {
@@ -2497,6 +2552,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 lava jumper layout lookup command.</summary>
     [VerificationCommand("--lookup-stream2-lava-jumper-layout")]
     internal static int LookupStream2LavaJumperLayoutCommand()
     {
@@ -2504,6 +2560,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 chozo layout lookup command.</summary>
     [VerificationCommand("--lookup-stream2-chozo-layout")]
     internal static int LookupStream2ChozoLayoutCommand()
     {
@@ -2511,6 +2568,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 torizo page dispatch lookup command.</summary>
     [VerificationCommand("--lookup-stream2-torizo-page-dispatch")]
     internal static int LookupStream2TorizoPageDispatchCommand()
     {
@@ -2518,6 +2576,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 kraid lint initialization lookup command.</summary>
     [VerificationCommand("--lookup-stream2-kraid-lint-initialization")]
     internal static int LookupStream2KraidLintInitializationCommand()
     {
@@ -2525,6 +2584,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 kago frame geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream2-kago-frame-geometry")]
     internal static int LookupStream2KagoFrameGeometryCommand()
     {
@@ -2532,6 +2592,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 pipe bug visual geometry lookup command.</summary>
     [VerificationCommand("--lookup-stream2-pipe-bug-visual-geometry")]
     internal static int LookupStream2PipeBugVisualGeometryCommand()
     {
@@ -2539,6 +2600,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 horizontal camera targets lookup command.</summary>
     [VerificationCommand("--lookup-stream2-horizontal-camera-targets")]
     internal static int LookupStream2HorizontalCameraTargetsCommand()
     {
@@ -2546,6 +2608,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 drop selection lookup command.</summary>
     [VerificationCommand("--lookup-stream2-drop-selection")]
     internal static int LookupStream2DropSelectionCommand()
     {
@@ -2553,6 +2616,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 pipe bug formation lookup command.</summary>
     [VerificationCommand("--lookup-stream2-pipe-bug-formation")]
     internal static int LookupStream2PipeBugFormationCommand()
     {
@@ -2560,6 +2624,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 golden control lookup command.</summary>
     [VerificationCommand("--lookup-stream2-golden-control")]
     internal static int LookupStream2GoldenControlCommand()
     {
@@ -2567,6 +2632,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 trail programs lookup command.</summary>
     [VerificationCommand("--lookup-stream2-trail-programs")]
     internal static int LookupStream2TrailProgramsCommand()
     {
@@ -2574,6 +2640,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 trail selectors lookup command.</summary>
     [VerificationCommand("--lookup-stream2-trail-selectors")]
     internal static int LookupStream2TrailSelectorsCommand()
     {
@@ -2581,6 +2648,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 tube ramp lookup command.</summary>
     [VerificationCommand("--lookup-stream2-tube-ramp")]
     internal static int LookupStream2TubeRampCommand()
     {
@@ -2588,6 +2656,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 pause ownership lookup command.</summary>
     [VerificationCommand("--lookup-stream2-pause-ownership")]
     internal static int LookupStream2PauseOwnershipCommand()
     {
@@ -2595,6 +2664,7 @@ internal static class LookupStream2Verification
         return 0;
     }
 
+    /// <summary>Runs the stream2 dead torizo transfers lookup command.</summary>
     [VerificationCommand("--lookup-stream2-dead-torizo-transfers")]
     internal static int LookupStream2DeadTorizoTransfersCommand()
     {

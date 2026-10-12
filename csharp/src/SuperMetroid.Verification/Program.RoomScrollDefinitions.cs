@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Represents room scroll definitions verification.</summary>
 internal static class RoomScrollDefinitionsVerification
 {
+    /// <summary>Verifies compiled room scroll definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room scroll definitions")]
     internal static void VerifyCompiledRoomScrollDefinitions()
     {
@@ -130,6 +132,7 @@ internal static class RoomScrollDefinitionsVerification
     }
 
     // The scroll buffer itself is WRAM the previous room left; implicit grids keep it.
+    /// <summary>New room scroll no read address space.</summary>
     private static MutableCartridgeReadGuard NewRoomScrollNoReadAddressSpace(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -139,6 +142,7 @@ internal static class RoomScrollDefinitionsVerification
         return guard;
     }
 
+    /// <summary>New room scroll source read guard.</summary>
     private static MutableCartridgeReadGuard NewRoomScrollSourceReadGuard(ISnesAddressSpace source, ushort scrollPointer)
     {
         int start = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
@@ -148,6 +152,7 @@ internal static class RoomScrollDefinitionsVerification
         return guard;
     }
 
+    /// <summary>Room scroll definitions command.</summary>
     [VerificationCommand("--room-scroll-definitions")]
     internal static int RoomScrollDefinitionsCommand()
     {

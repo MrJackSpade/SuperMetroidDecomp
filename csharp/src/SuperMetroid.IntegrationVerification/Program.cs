@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rendering;
 /// </summary>
 internal static class Program
 {
+    /// <summary>main.</summary>
     private static int Main(string[] args)
     {
         try
@@ -150,6 +151,7 @@ internal static class Program
         }
     }
 
+    /// <summary>advance.</summary>
     private static (uint Pixels, uint Pcm, ushort Frame) Advance(AndroidSessionData data, long sequence)
     {
         data.Game.SetAudioAcknowledgements(data.Audio.ReadAcknowledgements());

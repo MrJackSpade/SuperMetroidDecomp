@@ -20,10 +20,13 @@ public readonly record struct Bgr555
     /// <summary>The largest value of one five-bit channel.</summary>
     public const int MaxChannel = 31;
 
+    /// <summary>Stores color bits.</summary>
     private const ushort ColorBits = 0x7fff;
 
+    /// <summary>Stores word.</summary>
     private readonly ushort word;
 
+    /// <summary>Initializes a new bgr555 instance.</summary>
     private Bgr555(ushort word) => this.word = word;
 
     /// <summary>Packs three channels, each 0-<see cref="MaxChannel"/>.</summary>
@@ -122,6 +125,7 @@ public readonly record struct Bgr555
     /// <inheritdoc />
     public override string ToString() => $"BGR555(r{Red}, g{Green}, b{Blue}; ${word:X4})";
 
+    /// <summary>Pack.</summary>
     private static ushort Pack(int red, int green, int blue)
     {
         Channel(red, nameof(red));
@@ -130,6 +134,7 @@ public readonly record struct Bgr555
         return (ushort)(red | (green << 5) | (blue << 10));
     }
 
+    /// <summary>Channel.</summary>
     private static void Channel(int value, string name)
     {
         if ((uint)value > MaxChannel)
@@ -138,6 +143,7 @@ public readonly record struct Bgr555
 
     // Replicate the high three bits into the low end rather than merely shifting. This maps
     // SNES 0..31 exactly onto the full 0..255 display range, including both endpoints.
+    /// <summary>Expand.</summary>
     private static byte Expand(int channel) => (byte)((channel << 3) | (channel >> 2));
 }
 

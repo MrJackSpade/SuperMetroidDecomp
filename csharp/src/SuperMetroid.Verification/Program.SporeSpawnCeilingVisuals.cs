@@ -18,8 +18,10 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SporeSpawnCeilingPlmsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents spore spawn ceiling visuals verification.</summary>
 internal static class SporeSpawnCeilingVisualsVerification
 {
+    /// <summary>Verifies spore spawn ceiling visuals.</summary>
     internal static void VerifySporeSpawnCeilingVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -98,6 +100,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             "Spore Spawn ceiling visuals: four native frames, live 2x2 edits, physical/timing isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>Verifies spore spawn ceiling stock mapping.</summary>
     private static void VerifySporeSpawnCeilingStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmSporeSpawnCeilingVisualCatalog installed)
     {
@@ -156,6 +159,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries), "Spore ceiling visual bits only");
     }
 
+    /// <summary>Verifies spore spawn ceiling visual separation.</summary>
     private static void VerifySporeSpawnCeilingVisualSeparation(
         RoomPlmSporeSpawnCeilingVisualCatalog edited, bool clear)
     {
@@ -207,6 +211,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited draw reads no source bytes");
     }
 
+    /// <summary>Spore spawn ceiling visuals command.</summary>
     [VerificationCommand("--spore-spawn-ceiling-visuals")]
     internal static int SporeSpawnCeilingVisualsCommand()
     {

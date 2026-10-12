@@ -12,12 +12,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents mother brain raise counter verification.</summary>
 internal static class MotherBrainRaiseCounterVerification
 {
     // #1269: Function_MotherBrainBody_FakeDeath_Ascent_RaiseMotherBrain ($A9:8E4D) raises
     // Mother Brain only when NMI_FrameCounter ($05B6) & 3 is zero. The port gated on the
     // separate 8-bit $05B5, which is not aligned with it: in the 100% movie the ascent began
     // one update early, at $05B5=$68 rather than $05B6=$200.
+    /// <summary>verify mother brain raise counter.</summary>
     internal static void VerifyMotherBrainRaiseCounter()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -41,6 +43,7 @@ internal static class MotherBrainRaiseCounterVerification
         Console.WriteLine("Mother Brain raise counter: the ascent gates on NMI_FrameCounter ($05B6).");
     }
 
+    /// <summary>mother brain raise counter command.</summary>
     [VerificationCommand("--mother-brain-raise-counter")]
     internal static int MotherBrainRaiseCounterCommand()
     {

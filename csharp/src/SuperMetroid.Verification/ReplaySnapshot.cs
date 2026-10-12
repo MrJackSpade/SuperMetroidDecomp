@@ -7,8 +7,10 @@ using System.Text;
 /// </summary>
 internal sealed class ReplaySnapshot
 {
+    /// <summary>Defines signature.</summary>
     private const string Signature = "#!s9xsnp:0011\n";
 
+    /// <summary>Initializes a new replay snapshot instance.</summary>
     private ReplaySnapshot(byte[] saveRam) => SaveRam = saveRam;
 
     /// <summary>Snes9x's whole SRAM buffer (<c>SRA:</c> block); the cartridge uses its first 8 KiB.</summary>

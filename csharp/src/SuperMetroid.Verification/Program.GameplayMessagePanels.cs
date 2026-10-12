@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static GameplayMessageTitlesVerification;
 
+/// <summary>Represents gameplay message panels verification.</summary>
 internal static class GameplayMessagePanelsVerification
 {
+    /// <summary>Verifies gameplay message panels.</summary>
     internal static void VerifyGameplayMessagePanels(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -76,6 +78,7 @@ internal static class GameplayMessagePanelsVerification
             $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls, live edit/rebind and invalid glyph rejection pass.");
     }
 
+    /// <summary>Verifies gameplay message panel assets.</summary>
     internal static void VerifyGameplayMessagePanelAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -114,6 +117,7 @@ internal static class GameplayMessagePanelsVerification
             "Gameplay-message panel catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
+    /// <summary>Gameplay message panels command.</summary>
     [VerificationCommand("--gameplay-message-panels")]
     internal static int GameplayMessagePanelsCommand()
     {

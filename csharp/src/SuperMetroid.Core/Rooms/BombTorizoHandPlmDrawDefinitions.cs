@@ -25,29 +25,36 @@ internal static class BombTorizoHandPlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(BombTorizoHandDraw Pointer)
     {
+        /// <summary>Reports whether this is the cleared hand draw layout.</summary>
         internal bool IsCleared => Pointer == BombTorizoHandDraw.Cleared;
+        /// <summary>Gets run count.</summary>
         internal int RunCount => IsCleared ? 5 : 4;
+        /// <summary>Word count.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return IsCleared ? (run < 2 ? 2 : 4) : run switch { 1 => 1, 3 => 3, _ => 2 };
         }
+        /// <summary>Origin x.</summary>
         internal sbyte OriginX(int run)
         {
             CheckRun(run);
             return IsCleared ? (sbyte)(run == 0 ? 0 : -2) : (sbyte)-(run & 1);
         }
+        /// <summary>Origin y.</summary>
         internal sbyte OriginY(int run)
         {
             CheckRun(run);
             return (sbyte)(IsCleared ? run switch { 2 => 1, 3 => -2, 4 => -1, _ => 0 } :
                 run switch { 2 => -1, 3 => 1, _ => 0 });
         }
+        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return run + 1 == RunCount ? (sbyte)0 : OriginX(run + 1);
         }
+        /// <summary>Next y.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
@@ -65,12 +72,14 @@ internal static class BombTorizoHandPlmDrawDefinitions
             int firstTile = run switch { 0 => 0x65, 1 => 0x64, 2 => 0x45, _ => 0x47 };
             return (ushort)(0x8000 | (firstTile + word));
         }
+        /// <summary>Checks run.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
         }
     }
 
+    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool owned = Enum.IsDefined((BombTorizoHandDraw)pointer);
@@ -78,6 +87,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -90,6 +100,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
     }
 
     // Temporary DTOs serve artwork import/export; gameplay computes each strip directly.
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -105,9 +116,11 @@ internal static class BombTorizoHandPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<BombTorizoHandDraw>(pointer, "Bomb Torizo hand draw with a visual ID"));
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(BombTorizoHandDraw pointer) => pointer switch
     {
         BombTorizoHandDraw.Intact => "intact",
@@ -115,6 +128,7 @@ internal static class BombTorizoHandPlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined BombTorizoHandDraw {pointer}."),
     };
 
+    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

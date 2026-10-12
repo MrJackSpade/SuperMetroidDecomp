@@ -14,12 +14,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents shaktool projectile instruction program definitions verification.</summary>
 internal static class ShaktoolProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies shaktool projectile instruction program definitions.</summary>
     internal static void VerifyShaktoolProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyShaktoolProjectileInstructionProgramDefinitions), () => VerifyShaktoolProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies shaktool projectile instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool projectile instruction program definitions")]
     internal static void VerifyShaktoolProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -36,6 +39,7 @@ internal static class ShaktoolProjectileInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Probe shaktool projectile instruction mechanics allocation.</summary>
     private static int ProbeShaktoolProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -49,12 +53,14 @@ internal static class ShaktoolProjectileInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>New shaktool projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewShaktoolProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ShaktoolProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Shaktool mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, ShaktoolProjectileInstructionProgramDefinitions.PresentationWordCount, ShaktoolProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Shaktool projectile instruction mechanics command.</summary>
     [VerificationCommand("--shaktool-projectile-instruction-mechanics")]
     internal static int ShaktoolProjectileInstructionMechanicsCommand()
     {

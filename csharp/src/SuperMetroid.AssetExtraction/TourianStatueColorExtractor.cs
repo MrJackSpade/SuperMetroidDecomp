@@ -39,6 +39,7 @@ public static class TourianStatueColorExtractor
         });
     }
 
+    /// <summary>Read.</summary>
     private static PaletteRgb5[] Read(ISnesAddressSpace bus, int source, int count)
     {
         var result = new PaletteRgb5[count];

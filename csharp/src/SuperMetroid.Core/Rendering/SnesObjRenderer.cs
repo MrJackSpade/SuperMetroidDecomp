@@ -19,6 +19,7 @@ public static class SnesObjRenderer
     // Bits 7-5 of OBSEL select these small/large OBJ dimensions. Modes 6 and 7 are the
     // rectangular interlace-oriented modes; retaining them keeps the register decoder
     // honest even though ordinary Super Metroid gameplay uses mode 0 (8x8 / 16x16).
+    /// <summary>Stores size modes.</summary>
     private static readonly (int SmallWidth, int SmallHeight, int LargeWidth, int LargeHeight)[] SizeModes =
     [
         (8, 8, 16, 16),
@@ -133,6 +134,7 @@ public static class SnesObjRenderer
 
     }
 
+    /// <summary>Draws sprite.</summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     private static void DrawSprite(
         Extent16<ScreenPixels> frame,
@@ -254,6 +256,7 @@ public static class SnesObjRenderer
         return frame;
     }
 
+    /// <summary>decode4 bpp pixel.</summary>
     private static byte Decode4BppPixel(SnesVram vram, int tileByteAddress, Position16<CharacterPixels> pixel)
     {
         // Planes 0/1 are interleaved in bytes 0-15; planes 2/3 repeat that layout in

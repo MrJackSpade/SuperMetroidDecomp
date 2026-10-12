@@ -18,12 +18,18 @@ public enum SamusHurtColorVariant
 public sealed class SamusHurtColorCatalog
 {
     // Only independent installed edits are stored; native shade samples all calculate.
+    /// <summary>Stores hurt zero.</summary>
     private readonly Bgr555? hurtZero;
+    /// <summary>Stores intro zero.</summary>
     private readonly Bgr555? introZero;
+    /// <summary>Stores intro levels.</summary>
     private readonly Dictionary<int, byte> introLevels;
+    /// <summary>Stores intro overrides.</summary>
     private readonly Dictionary<int, Bgr555> introOverrides;
+    /// <summary>Stores hurt overrides.</summary>
     private readonly Dictionary<int, Bgr555> hurtOverrides;
 
+    /// <summary>Initializes a new samus hurt color catalog instance.</summary>
     private SamusHurtColorCatalog(Bgr555[] hurt, Bgr555[] intro)
     {
         hurtZero = hurt[0] == SamusHurtColorDefinitions.HurtTransparentWord ? null : hurt[0];
@@ -39,6 +45,7 @@ public sealed class SamusHurtColorCatalog
             .ToDictionary(index => index, index => hurt[index]);
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -98,9 +105,12 @@ public sealed class SamusHurtColorCatalog
             ? value : SamusHurtColorDefinitions.HurtFromIntro(Intro(index));
     }
 
+    /// <summary>Intro level.</summary>
     private byte IntroLevel(int index) => introLevels.TryGetValue(index, out byte level) ? level : SamusHurtColorDefinitions.DefaultIntroLevel(index);
+    /// <summary>Intro.</summary>
     private Bgr555 Intro(int index) => index == 0 ? introZero ?? SamusHurtColorDefinitions.IntroTransparentWord : introOverrides.TryGetValue(index, out Bgr555 value)
         ? value : SamusHurtColorDefinitions.IntroFromLevel(IntroLevel(index));
+    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusHurtColorFormat.ColorsPerPalette)
@@ -117,6 +127,7 @@ public sealed class SamusHurtColorCatalog
         return colors;
     }
 
+    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus hurt color property {name}."));

@@ -19,38 +19,67 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class TitleSequenceState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Stores object layer scratch.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
     // Gradient OBJ priority/palette planes; fully rewritten by every resolve.
+    /// <summary>Stores gradient priority scratch.</summary>
     [NonSerialized] private byte[]? gradientPriorityScratch;
+    /// <summary>Stores gradient palette scratch.</summary>
     [NonSerialized] private byte[]? gradientPaletteScratch;
 
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram vram = new();
+    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram cgram = new();
+    /// <summary>Stores console palette fx.</summary>
     private RoomPaletteFxSystem consolePaletteFx = new();
+    /// <summary>Stores oam.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Stores controller.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Stores baby metroid characters.</summary>
     private readonly byte[] babyMetroidCharacters;
+    /// <summary>Stores title gradient presentation.</summary>
     [NonSerialized] private TitleGradientPresentation? titleGradientPresentation;
+    /// <summary>Stores title palette presentation.</summary>
     [NonSerialized] private TitlePalettePresentation? titlePalettePresentation;
+    /// <summary>Stores title graphics presentation.</summary>
     [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
+    /// <summary>Stores phase timer.</summary>
     private int phaseTimer;
+    /// <summary>Stores sequence entry.</summary>
     private int sequenceEntry;
+    /// <summary>Stores sequence entry timer.</summary>
     private int sequenceEntryTimer;
+    /// <summary>Stores active spritemap.</summary>
     private ushort activeSpritemap;
+    /// <summary>Stores active origin.</summary>
     private Position16<ScreenPixels> activeOrigin;
+    /// <summary>Stores active character offset.</summary>
     private ushort activeCharacterOffset;
     // Background position; the whole words are read as signed pixels.
+    /// <summary>Stores mode7.</summary>
     private FixedPosition<Mode7Pixels> mode7;
+    /// <summary>Stores zoom.</summary>
     private int zoom;
+    /// <summary>Stores brightness.</summary>
     private int brightness;
+    /// <summary>Stores baby frame.</summary>
     private int babyFrame;
+    /// <summary>Stores baby frame timer.</summary>
     private int babyFrameTimer;
+    /// <summary>Stores mode7 background enabled.</summary>
     private bool mode7BackgroundEnabled;
+    /// <summary>Stores gradient enabled.</summary>
     private bool gradientEnabled;
+    /// <summary>Stores fading to demo.</summary>
     private bool fadingToDemo;
 
     /// <summary>Creates the native initial title setup performed by <c>$8B:9B68</c>.</summary>
@@ -64,6 +93,7 @@ public sealed class TitleSequenceState
     {
     }
 
+    /// <summary>Initializes a new title sequence state instance.</summary>
     private TitleSequenceState(
         ISnesAddressSpace bus,
         CartridgeAudioState? audio,
@@ -308,6 +338,7 @@ public sealed class TitleSequenceState
             ResetConsolePaletteFx();
     }
 
+    /// <summary>Resets console palette fx.</summary>
     private void ResetConsolePaletteFx()
     {
         consolePaletteFx = new RoomPaletteFxSystem();
@@ -380,6 +411,7 @@ public sealed class TitleSequenceState
             checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
     }
 
+    /// <summary>Resolves title gradient.</summary>
     private ReadOnlySpan<TitleGradientLine> ResolveTitleGradient()
     {
         if (titleGradientPresentation is null)
@@ -388,6 +420,7 @@ public sealed class TitleSequenceState
         return titleGradientPresentation.Resolve((ushort)zoom);
     }
 
+    /// <summary>Prepares render oam.</summary>
     private void PrepareRenderOam()
     {
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
@@ -412,6 +445,7 @@ public sealed class TitleSequenceState
         oam.FinalizeFrame();
     }
 
+    /// <summary>Steps text sequence.</summary>
     private void StepTextSequence()
     {
         if (--sequenceEntryTimer > 0)
@@ -473,6 +507,7 @@ public sealed class TitleSequenceState
         }
     }
 
+    /// <summary>Begin text sequence.</summary>
     private void BeginTextSequence(TitleTextSequenceDefinition definition)
     {
         Phase = definition.Phase;
@@ -490,6 +525,7 @@ public sealed class TitleSequenceState
         mode7BackgroundEnabled = false;
     }
 
+    /// <summary>Enter immediate title objects.</summary>
     private void EnterImmediateTitleObjects()
     {
         gradientEnabled = true;
@@ -506,6 +542,7 @@ public sealed class TitleSequenceState
         zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
 
+    /// <summary>Enter title screen.</summary>
     private void EnterTitleScreen()
     {
         EnterImmediateTitleObjects();
@@ -514,6 +551,7 @@ public sealed class TitleSequenceState
         brightness = TitleSequenceRomData.Timing.MaximumBrightness;
     }
 
+    /// <summary>Loads mode7 interleaved vram.</summary>
     private void LoadMode7InterleavedVram(byte[] characterBytes, byte[] mapBytes)
     {
         if (characterBytes.Length < TitleSequenceRomData.Vram.Mode7CharacterByteCount)
@@ -533,6 +571,7 @@ public sealed class TitleSequenceState
             mapBytes.AsSpan(0, TitleSequenceRomData.Vram.Mode7MapByteCount));
     }
 
+    /// <summary>Steps baby metroid animation.</summary>
     private void StepBabyMetroidAnimation()
     {
         if (--babyFrameTimer > 0)
@@ -543,6 +582,7 @@ public sealed class TitleSequenceState
         UpdateBabyMetroidCharacterFrame();
     }
 
+    /// <summary>Updates baby metroid character frame.</summary>
     private void UpdateBabyMetroidCharacterFrame()
     {
         // The instruction list cycles source pages 0,1,2,1 into Mode 7 destination word
@@ -557,11 +597,14 @@ public sealed class TitleSequenceState
             babyMetroidCharacters.AsSpan(source, TitleSequenceRomData.Vram.BabyCharacterPageByteCount));
     }
 
+    /// <summary>Reads word.</summary>
     private static ushort ReadWord(int address) => TitleSequenceInstructionDefinitions.ReadWord(address);
 
+    /// <summary>Adds within bank.</summary>
     private static int AddWithinBank(int address, int bytes) =>
         (int)SnesAddress.FromBusAddress(address).AddWithinBank(bytes);
 
+    /// <summary>Applies scene.</summary>
     private void ApplyScene(TitleMode7SceneDefinition definition)
     {
         Phase = definition.Phase;
@@ -571,6 +614,7 @@ public sealed class TitleSequenceState
         activeSpritemap = TitleSequenceRomData.Sprites.Blank;
     }
 
+    /// <summary>Applies brightness.</summary>
     private static Rgba32 ApplyBrightness(Rgba32 color, int level)
     {
         if (color.A == 0 || level >= TitleSequenceRomData.Timing.MaximumBrightness)

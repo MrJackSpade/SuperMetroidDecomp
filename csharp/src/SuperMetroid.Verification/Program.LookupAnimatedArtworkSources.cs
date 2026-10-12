@@ -4,8 +4,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static LookupAnimatedFramesVerification;
 
+/// <summary>Represents lookup animated artwork sources verification.</summary>
 internal static class LookupAnimatedArtworkSourcesVerification
 {
+    /// <summary>verify simple animation artwork sources.</summary>
     internal static void VerifySimpleAnimationArtworkSources(SuperMetroidAddressSpace rom)
     {
         int total = 0;

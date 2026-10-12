@@ -13,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents elevatube scrolling verification.</summary>
 internal static class ElevatubeScrollingVerification
 {
+    /// <summary>Verifies elevatube scrolling.</summary>
     internal static void VerifyElevatubeScrolling()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -68,6 +70,7 @@ internal static class ElevatubeScrollingVerification
         }
     }
 
+    /// <summary>Elevatube scrolling command.</summary>
     [VerificationCommand("--elevatube-scrolling")]
     internal static int ElevatubeScrollingCommand()
     {

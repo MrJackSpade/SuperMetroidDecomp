@@ -3,8 +3,10 @@ using SuperMetroid.Core.Rooms;
 using static DoorDefinitionsVerification;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Represents lookup retail door lists verification.</summary>
 internal static class LookupRetailDoorListsVerification
 {
+    /// <summary>verify retail door list mapping.</summary>
     internal static void VerifyRetailDoorListMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))

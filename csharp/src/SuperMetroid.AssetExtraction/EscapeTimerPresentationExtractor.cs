@@ -48,6 +48,7 @@ public static class EscapeTimerPresentationExtractor
         return output.ToArray();
     }
 
+    /// <summary>Reads spritemap.</summary>
     private static EscapeTimerVisualPart[] ReadSpritemap(ISnesAddressSpace bus, int address)
     {
         int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);

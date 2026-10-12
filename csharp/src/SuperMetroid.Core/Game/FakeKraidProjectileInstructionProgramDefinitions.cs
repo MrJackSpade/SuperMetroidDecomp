@@ -27,8 +27,10 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitions
     /// <c>Instruction_EnemyProjectile_Sleep</c> in the right-spike list at $86:9DEA.
     /// </summary>
     internal const ushort SpikeRightSleep = 0x9dea;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 3;
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -36,6 +38,7 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitions
         return (ushort)(Spit + 6 * index + 2);
     }
 
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.FakeKraidSpit or
         RoomEnemyProjectileKind.FakeKraidSpikeLeft or

@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// of the complete right wrap. References preserve independently supplied artwork.</summary>
 internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Stores source.</summary>
     private readonly SpriteComposition source;
+    /// <summary>Stores offset.</summary>
     private readonly int offset;
+    /// <summary>Stores rotate.</summary>
     private readonly bool rotate;
+    /// <summary>Initializes a new ending logo related parts instance.</summary>
     private EndingLogoRelatedParts(SpriteComposition source, int offset, int count, bool rotate)
     {
         this.source = source;
@@ -18,6 +22,7 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
         this.rotate = rotate;
     }
 
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(int frame, SpriteComposition supplied,
         SpriteComposition upper, SpriteComposition completeRight)
     {
@@ -40,7 +45,9 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
         return supplied.CalculateIfMatching(new EndingLogoRelatedParts(source, offset, count, rotate));
     }
 
+    /// <summary>Gets count.</summary>
     public int Count { get; }
+    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -56,9 +63,11 @@ internal sealed class EndingLogoRelatedParts : IReadOnlyList<CompiledSpritePart>
                     (SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical)), part.InheritPalette);
         }
     }
+    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

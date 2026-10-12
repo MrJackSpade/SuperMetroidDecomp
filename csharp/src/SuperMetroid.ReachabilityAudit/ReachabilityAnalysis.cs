@@ -24,11 +24,12 @@ internal static class ReachabilityAnalysis
     private static readonly HashSet<string> ProductionHosts =
         ["SuperMetroid.Game", "SuperMetroid.Android", "SuperMetroid.EnsureAnalyzer"];
 
-    /// <summary>Test executables; what only they reach is not used.</summary>
+    /// <summary>Tests executables; what only they reach is not used.</summary>
     private static readonly HashSet<string> VerificationProjects =
         ["SuperMetroid.Verification", "SuperMetroid.IntegrationVerification", "SuperMetroid.RenderVerification",
          "SuperMetroid.DesktopVerification", "SuperMetroid.EnsureVerification"];
 
+    /// <summary>Run.</summary>
     public static ReachabilityResult Run(LoadedSolution solution)
     {
         var identity = new SymbolIdentity(solution.RepositoryRoot);

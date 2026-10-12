@@ -5,8 +5,10 @@ using SuperMetroid.Core.Hardware;
 using static EvirInstructionProgramDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Represents evir visuals verification.</summary>
 internal static class EvirVisualsVerification
 {
+    /// <summary>verify installed evir visuals.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEvirVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -82,6 +84,7 @@ internal static class EvirVisualsVerification
             "  Evir visuals: 49 guarded native selectors and 24 editable OAM frames pass.");
     }
 
+    /// <summary>installed evir visuals rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Evir visuals")]
     private static byte InstalledEvirVisualsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

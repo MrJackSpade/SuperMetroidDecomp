@@ -17,8 +17,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents ending text presentation verification.</summary>
 internal static class EndingTextPresentationVerification
 {
+    /// <summary>Verifies ending text presentation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending font characters")]
     internal static void VerifyEndingTextPresentation(string romPath)
     {
@@ -119,6 +121,7 @@ internal static class EndingTextPresentationVerification
         Console.WriteLine("Ending font: 160 PNG tiles compile to exact native 4-bpp bytes; an indexed-pixel edit changes installed VRAM content.");
     }
 
+    /// <summary>Reads ending words.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending text presentation words")]
     internal static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
     {
@@ -129,6 +132,7 @@ internal static class EndingTextPresentationVerification
         return result;
     }
 
+    /// <summary>Verifies ending text assets.</summary>
     internal static void VerifyEndingTextAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -158,6 +162,7 @@ internal static class EndingTextPresentationVerification
         Console.WriteLine("Ending-text catalog: deterministic stock, override identity and corruption failure pass.");
     }
 
+    /// <summary>Verifies ending font assets.</summary>
     internal static void VerifyEndingFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
@@ -189,12 +194,14 @@ internal static class EndingTextPresentationVerification
         Console.WriteLine("Ending-font catalog: deterministic stock, PNG override identity and corruption failure pass.");
     }
 
+    /// <summary>New ending text read guard.</summary>
     private static CartridgeReadGuard NewEndingTextReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => SnesAddressMath.BankNumber(address) == EndingTextDefinitions.Native.Bank &&
                     (SnesAddressMath.OffsetInBank(address)) is >= EndingTextDefinitions.Native.ResultPanel and <= 0xe1e8,
                 address => $"Installed ending text read cartridge address ${address:X6}.");
 
+    /// <summary>Ending text presentation command.</summary>
     [VerificationCommand("--ending-text-presentation")]
     internal static int EndingTextPresentationCommand()
     {

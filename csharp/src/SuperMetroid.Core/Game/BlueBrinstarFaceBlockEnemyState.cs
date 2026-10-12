@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class BlueBrinstarFaceBlockEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new blue brinstar face block enemy state instance.</summary>
     internal BlueBrinstarFaceBlockEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

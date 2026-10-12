@@ -43,9 +43,12 @@ internal static class CeresEscapeVramTransferDefinitions
     /// <summary>$0D00: first door background character word.</summary>
     private const ushort DoorDestination = 0x0d00;
 
+    /// <summary>Represents transfer records.</summary>
     private sealed class TransferRecords : IReadOnlyList<CeresEscapeVramTransferDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 19;
+        /// <summary>Gets or sets an indexed value.</summary>
         public CeresEscapeVramTransferDefinition this[int index]
         {
             get
@@ -77,18 +80,23 @@ internal static class CeresEscapeVramTransferDefinitions
                     DoorSource + 0x200 * doorBlock, (ushort)(DoorDestination + 0x100 * doorBlock));
             }
         }
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<CeresEscapeVramTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Stores records.</summary>
     internal static readonly IReadOnlyList<CeresEscapeVramTransferDefinition> Records = new TransferRecords();
+    /// <summary>Checks whether terminator.</summary>
     internal static bool IsTerminator(ushort pointer) =>
         pointer is 0xc3d4 or 0xc4fc or 0xc536;
 
+    /// <summary>Tries to get.</summary>
     internal static bool TryGet(ushort pointer,
         out CeresEscapeVramTransferDefinition transfer)
     {

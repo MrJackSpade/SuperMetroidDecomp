@@ -20,6 +20,7 @@ using static PauseMenuFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents pause menu verification.</summary>
 internal static class PauseMenuVerification
 {
     /// <summary>
@@ -284,6 +285,7 @@ internal static class PauseMenuVerification
             "  Pause menu: constructed assets, map reveal modes, native centering, OAM indicators, equipment toggles, unpause transfers, and Start agree.");
     }
 
+    /// <summary>Writes rom long.</summary>
     private static void WriteRomLong(byte[] rom, int snesAddress, int value)
     {
         int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
@@ -292,9 +294,11 @@ internal static class PauseMenuVerification
         rom[offset + 2] = SnesLittleEndian.BankByte(value);
     }
 
+    /// <summary>Writes rom byte.</summary>
     private static void WriteRomByte(byte[] rom, int snesAddress, byte value) =>
         rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
 
+    /// <summary>Pauses equipment interaction fixture command.</summary>
     [VerificationCommand("--pause-equipment-interaction-fixture")]
     internal static int PauseEquipmentInteractionFixtureCommand()
     {
@@ -302,6 +306,7 @@ internal static class PauseMenuVerification
         return 0;
     }
 
+    /// <summary>Invalid beam selection command.</summary>
     [VerificationCommand("--invalid-beam-selection")]
     internal static int InvalidBeamSelectionCommand()
     {

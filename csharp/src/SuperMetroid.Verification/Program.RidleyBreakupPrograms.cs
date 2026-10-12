@@ -16,9 +16,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Represents ridley breakup programs verification.</summary>
 internal static class RidleyBreakupProgramsVerification
 {
 
+    /// <summary>Verifies ridley breakup programs.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyRidleyBreakupPrograms()
     {
@@ -112,6 +114,7 @@ internal static class RidleyBreakupProgramsVerification
         Console.WriteLine("All 29 breakup programs match native mechanics, frame selection, sleep and installed OAM.");
     }
 
+    /// <summary>Ridley breakup programs command.</summary>
     [VerificationCommand("--ridley-breakup-programs")]
     internal static int RidleyBreakupProgramsCommand()
     {

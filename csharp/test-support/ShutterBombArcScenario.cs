@@ -18,13 +18,21 @@ internal sealed class ShutterBombArcScenario
     /// <summary>Frames the scenario runs; bombs stop at frame 220.</summary>
     internal const int FrameCount = 260;
 
+    /// <summary>Gets or sets slot index.</summary>
     internal int SlotIndex { get; }
+    /// <summary>Gets or sets approach.</summary>
     internal bool Approach { get; }
+    /// <summary>Gets or sets interval.</summary>
     internal int Interval { get; }
+    /// <summary>Gets or sets roll at.</summary>
     internal int RollAt { get; }
+    /// <summary>Gets or sets duration.</summary>
     internal int Duration { get; }
+    /// <summary>Gets or sets runtime.</summary>
     internal SuperMetroidRuntime Runtime { get; }
+    /// <summary>Gets or sets samus.</summary>
     internal SamusState Samus => Runtime.Player.Samus!;
+    /// <summary>Gets or sets platform.</summary>
     internal RoomEnemySlot Platform => Runtime.Enemies.SlotTable.Slots[SlotIndex];
 
     /// <param name="runtime">A new invincible runtime bound to installed presentation assets.</param>
@@ -56,9 +64,11 @@ internal sealed class ShutterBombArcScenario
     /// <summary>The reported case: left shutter, starting on it, bombing every 8 frames, a 4-frame roll at 75.</summary>
     internal static ShutterBombArcScenario Reproduced(SuperMetroidRuntime runtime, ISnesAddressSpace bus) => new(runtime, bus, 0, false, 8, 75, 4);
 
+    /// <summary>Create.</summary>
     internal static ShutterBombArcScenario Create(SuperMetroidRuntime runtime, ISnesAddressSpace bus, int slotIndex, bool approach, int interval, int rollAt, int duration) =>
         new(runtime, bus, slotIndex, approach, interval, rollAt, duration);
 
+    /// <summary>Gets or sets toward.</summary>
     private int Toward => SlotIndex == 0 ? -1 : 1;
 
     /// <summary>Controller word for <paramref name="frame"/>: periodic bombs, an approach, then roll off and back.</summary>

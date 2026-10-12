@@ -15,6 +15,7 @@ using SuperMetroid.Core.Hardware;
 using static CrocomireTongueCollisionDefinitionsVerification;
 using static ExtendedCollisionReferenceVerification;
 
+/// <summary>Represents crocomire body collision definitions verification.</summary>
 internal static class CrocomireBodyCollisionDefinitionsVerification
 {
     /// <summary>
@@ -133,6 +134,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
             "installed path reads no ROM.");
     }
 
+    /// <summary>Verifies crocomire body collision command.</summary>
     [VerificationCommand("--verify-crocomire-body-collision")]
     internal static int VerifyCrocomireBodyCollisionCommand()
     {

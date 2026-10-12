@@ -26,6 +26,7 @@ internal static class BossOamFrameDefinitions
     /// <summary>$A5:EF3D, first of three fully-open roots after seven unused records.</summary>
     private const ushort SporeSpawnOpen = 0xef3d;
 
+    /// <summary>Ridley pointer.</summary>
     internal static ushort RidleyPointer(int index)
     {
         if ((uint)index >= EnemyExtendedFrameDefinitions.RidleyFrameCount) throw new IndexOutOfRangeException();

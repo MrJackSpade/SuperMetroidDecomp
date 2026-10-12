@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup mother brain background verification.</summary>
 internal static class LookupMotherBrainBackgroundVerification
 {
+    /// <summary>verify mother brain background geometry.</summary>
     internal static void VerifyMotherBrainBackgroundGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];
@@ -36,9 +38,11 @@ internal static class LookupMotherBrainBackgroundVerification
         }
     }
 
+    /// <summary>mother brain background geometry rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain background geometry")]
     private static byte MotherBrainBackgroundGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>verify mother brain background collision.</summary>
     internal static void VerifyMotherBrainBackgroundCollision(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];

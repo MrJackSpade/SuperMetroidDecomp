@@ -18,14 +18,18 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
     /// <summary>Blank air appearance, $84:A511.</summary>
     internal const ushort Blank = 0xa511;
 
+    /// <summary>Represents draw list.</summary>
     internal readonly record struct DrawList(ushort Pointer, ushort LevelWord)
     {
         /// <summary>Native one-word row, followed by signed zero X/Y termination.</summary>
         internal const ushort DirectionAndCount = 1;
+        /// <summary>Stores next x.</summary>
         internal const sbyte NextX = 0;
+        /// <summary>Stores next y.</summary>
         internal const sbyte NextY = 0;
     }
 
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<DrawList> All
     {
         get
@@ -54,6 +58,7 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
         Blank = RoomPlmGrappleBlockDrawDefinitions.Blank,
     }
 
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out DrawList definition)
     {
         if (!Enum.IsDefined((DrawRecord)pointer))

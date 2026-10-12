@@ -29,15 +29,20 @@ internal abstract class MorphBallEyeInstructionProgramDefinitions
     /// <summary><c>InstList_Eye_Mount_FacingUp</c> at $A8:904A.</summary>
     internal const ushort MountFacingUp = 0x904a;
 
+    /// <summary>Defines active frame count.</summary>
     internal const int ActiveFrameCount = 16;
 
     // Authored eyelid cadence (reviewed under #1165): closing uses these holds forward,
     // opening reverses them after its activation delay; the reversal is calculated.
+    /// <summary>Stores eyelid durations.</summary>
     private static readonly ushort[] EyelidDurations = [8, 48, 5];
 
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 46;
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 36;
 
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));

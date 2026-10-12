@@ -169,6 +169,7 @@ internal static class MotherBrainNeckKinematics
         return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
     }
 
+    /// <summary>Calculates lower segment.</summary>
     private static Position16<RoomPixels> CalculateLowerSegment(
         Position16<RoomPixels> reference,
         byte angle,

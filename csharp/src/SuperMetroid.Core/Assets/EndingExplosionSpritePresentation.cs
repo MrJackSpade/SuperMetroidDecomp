@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the 16 Zebes-explosion visual frames.</summary>
 public sealed class EndingExplosionSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Initializes a new ending explosion sprite presentation instance.</summary>
     private EndingExplosionSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -105,14 +107,17 @@ public static class EndingExplosionSpriteDefinitions
     /// order after the ten small planet records addressed by <see cref="PlanetPointer"/>.</summary>
     internal enum Pose
     {
-        Glow = PlanetRecordCount, SupernovaFirst = 11, SupernovaSecond = 12, Stars = 13, Silhouette = 14, Afterglow = 15,
+        /// <summary>Identifies glow.</summary>
+        Glow = PlanetRecordCount, /** <summary>Identifies supernova first.</summary> */ SupernovaFirst = 11, /** <summary>Identifies supernova second.</summary> */ SupernovaSecond = 12, /** <summary>Identifies stars.</summary> */ Stars = 13, /** <summary>Identifies silhouette.</summary> */ Silhouette = 14, /** <summary>Identifies afterglow.</summary> */ Afterglow = 15,
     }
     /// <summary>$8C:A396, ExplodingPlanetZebesFrame1; ten four-part records
     /// contain four damage poses, four flash poses and two lava poses.</summary>
     private const ushort PlanetFirst = 0xa396;
     /// <summary>$8C:A28B, ZebesBoomStarryBackground, independent of the planet record chain.</summary>
     private const ushort Starfield = 0xa28b;
+    /// <summary>Stores small parts.</summary>
     private const int SmallParts = 4, GlowParts = 12, SupernovaParts = 20;
+    /// <summary>Stores frame count.</summary>
     private const int FrameCount = 16;
     /// <summary>Four damage, four flash and two lava records precede the composite poses.</summary>
     private const int PlanetRecordCount = 10;
@@ -148,6 +153,7 @@ public static class EndingExplosionSpriteDefinitions
         };
     }
 
+    /// <summary>Gets.</summary>
     private static EndingExplosionSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -174,16 +180,22 @@ public static class EndingExplosionSpriteDefinitions
         };
     }
 
+    /// <summary>Record bytes.</summary>
     private static int RecordBytes(int parts) => sizeof(ushort) + 5 * parts;
 
+    /// <summary>Represents frame view.</summary>
     private sealed class FrameView : IReadOnlyList<EndingExplosionSpriteFrameDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => FrameCount;
+        /// <summary>Gets an indexed value.</summary>
         public EndingExplosionSpriteFrameDefinition this[int index] => Get(index);
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<EndingExplosionSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

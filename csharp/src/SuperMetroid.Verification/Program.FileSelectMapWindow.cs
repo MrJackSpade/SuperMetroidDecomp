@@ -20,8 +20,10 @@ using static RetailPresentationFixtureVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents file select map window verification.</summary>
 internal static class FileSelectMapWindowVerification
 {
+    /// <summary>Creates window label fixture.</summary>
     private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
     {
         var points = Enumerable.Range(0, 6).ToDictionary(area => ((SuperMetroid.Core.Game.AreaId)area).ToString(),
@@ -31,6 +33,7 @@ internal static class FileSelectMapWindowVerification
         stream.Position = 0;
         return WorldMapLabelLayout.Load(stream);
     }
+    /// <summary>Verifies file select map window.</summary>
     internal static void VerifyFileSelectMapWindow()
     {
         Suite(nameof(VerifyFileSelectAreaMapGraphics), () => VerifyFileSelectAreaMapGraphics());
@@ -81,6 +84,7 @@ internal static class FileSelectMapWindowVerification
         }
     }
 
+    /// <summary>Verifies file select map window composition.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyFileSelectMapWindowComposition()
     {
@@ -125,6 +129,7 @@ internal static class FileSelectMapWindowVerification
         AssertTrue(frameOnly.SequenceEqual(graphics.RenderFrameOnly()), "transition frame never samples room-map BG1 tiles");
     }
 
+    /// <summary>Verifies file select area map graphics.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     private static void VerifyFileSelectAreaMapGraphics()
     {
@@ -161,6 +166,7 @@ internal static class FileSelectMapWindowVerification
         }
     }
 
+    /// <summary>File select area map graphics rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select area map graphics")]
     private static byte FileSelectAreaMapGraphicsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
@@ -192,6 +198,7 @@ internal static class FileSelectMapWindowVerification
         return fake;
     }
 
+    /// <summary>File map fixtures command.</summary>
     [VerificationCommand("--file-map-fixtures")]
     internal static int FileMapFixturesCommand()
     {

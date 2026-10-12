@@ -4,6 +4,7 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Represents parameter contracts tests.</summary>
 internal static class ParameterContractsTests
 {
     /// <summary>
@@ -46,6 +47,7 @@ internal static class ParameterContractsTests
         Console.WriteLine("#633: parameter contracts compose child capabilities and reject unrelated or omitted ones.");
     }
 
+    /// <summary>verify contract.</summary>
     private static void VerifyContract(string description, string statement, string? expectedError = null)
     {
         string source = $$"""

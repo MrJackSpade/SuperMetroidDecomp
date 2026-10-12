@@ -17,6 +17,7 @@ internal static class MaridiaElevatubePlmDefinitions
     internal const ushort PhysicalWord = 0x8180;
 
     // Temporary artwork DTO only. Gameplay draws the single physical word directly.
+    /// <summary>Gets draw.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList Draw =>
         new(DrawPointer,
             new RoomPlmShotBlockDrawDefinitions.Run[]
@@ -24,18 +25,22 @@ internal static class MaridiaElevatubePlmDefinitions
                 new(1, new ushort[] { PhysicalWord }, new(0, 0)),
             });
 
+    /// <summary>Stores visual id.</summary>
     internal const string VisualId = "elevatube-block";
 
+    /// <summary>Gets all draws.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> AllDraws
     {
         get { yield return Draw; }
     }
 
+    /// <summary>Draws visual id.</summary>
     internal static string DrawVisualId(ushort pointer) => pointer == DrawPointer
         ? VisualId
         : throw new InvalidDataException(
             $"Maridia elevatube draw ${pointer:X4} has no visual ID.");
 
+    /// <summary>Attempts to get draw by visual id.</summary>
     internal static bool TryGetDrawByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
@@ -48,6 +53,7 @@ internal static class MaridiaElevatubePlmDefinitions
         return false;
     }
 
+    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch
@@ -62,6 +68,7 @@ internal static class MaridiaElevatubePlmDefinitions
             InstructionList + 4 or InstructionList + 7;
     }
 
+    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         if (address == InstructionList + 6)

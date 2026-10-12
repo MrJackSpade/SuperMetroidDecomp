@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
@@ -7,14 +7,22 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Chozo statue species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ChozoStatueBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Stores room fx.</summary>
     private readonly EnemyRoomFx _roomFx;
 
+    /// <summary>Initializes a new chozo statue behavior instance.</summary>
     internal ChozoStatueBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyRoomFx roomFx)
     {
         _room = room;
@@ -26,10 +34,13 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         _roomFx = roomFx;
     }
 
+    /// <summary>Stores empty bank aa spritemap.</summary>
     private const ushort EmptyBankAaSpritemap = 0x804d;
 
+    /// <summary>Stores chozo statue states.</summary>
     internal readonly ChozoStatueState?[] _chozoStatueStates =
         new ChozoStatueState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores chozo statue plm requests.</summary>
     internal readonly List<ChozoStatuePlmRequest> _chozoStatuePlmRequests = new();
 
     /// <summary>Consumes each published request once through the shared bank-$84 slot allocator.</summary>
@@ -57,6 +68,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
     /// <summary>FX base Y written by instruction $AA:E436.</summary>
     public ushort ChozoStatueFxBaseYPosition { get; private set; }
 
+    /// <summary>Resets chozo statue room state.</summary>
     internal void ResetChozoStatueRoomState(IChozoStatueRoomServices services)
     {
         Ensure.NotNull(services);
@@ -129,6 +141,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Loads chozo statue palette.</summary>
     private void LoadChozoStatuePalette(bool wreckedShip)
     {
         var colors = _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
@@ -185,6 +198,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs chozo statue main.</summary>
     private void RunChozoStatueMain(RoomEnemySlot statue, ChozoStatueState state)
     {
         switch (state.PreInstruction)
@@ -311,10 +325,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Reads chozo instruction operand.</summary>
     private static ushort ReadChozoInstructionOperand(ushort cursor) =>
         ChozoStatueInstructionProgramDefinitions.ReadMechanicsWord(
             unchecked((ushort)(cursor + 2)));
 
+    /// <summary>Processes chozo statue movement.</summary>
     internal void ProcessChozoStatueMovement(
         RoomEnemySlot statue,
         ChozoStatueState state,
@@ -343,6 +359,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + motion.SamusX)), unchecked((ushort)(statue.Position.Y.Whole + motion.SamusY))));
     }
 
+    /// <summary>Processes chozo statue footstep.</summary>
     private void ProcessChozoStatueFootstep(
         RoomEnemySlot statue,
         RoomLevelData level,
@@ -366,6 +383,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         SpawnWreckedShipChozoFootstep(statue, rawXOffset);
     }
 
+    /// <summary>Spawns wrecked ship chozo footstep.</summary>
     internal void SpawnWreckedShipChozoFootstep(RoomEnemySlot statue, ushort xOffset)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -379,6 +397,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + unchecked((short)xOffset))), unchecked((ushort)(statue.Position.Y.Whole + 28))));
     }
 
+    /// <summary>Finishes wrecked ship chozo sequence.</summary>
     private void FinishWreckedShipChozoSequence()
     {
         SetChozoStatueSamusControls(enabled: true);
@@ -395,30 +414,36 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
             new Position16<RoomBlocks>(0x17, 0x1d));
     }
 
+    /// <summary>Sets chozo statue samus controls.</summary>
     private void SetChozoStatueSamusControls(bool enabled)
     {
         ChozoStatueSamusControlsEnabled = enabled;
         _room.Services.SamusControls.SetControlsEnabled(enabled);
     }
 
+    /// <summary>Publishes hardcoded chozo plm.</summary>
     private void PublishHardcodedChozoPlm(PlmHeaderId header, Position16<RoomBlocks> block) =>
         _chozoStatuePlmRequests.Add(new ChozoStatuePlmRequest(
             header,
             block,
             IsHardcoded: true));
 
+    /// <summary>Requires chozo statue state.</summary>
     private ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>
         _chozoStatueStates[statue.SlotIndex] ?? throw new InvalidOperationException(
             $"Chozo statue slot {statue.SlotIndex} has no initialized bank-$AA state.");
 
+    /// <summary>Requires chozo samus.</summary>
     private static SamusState RequireChozoSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
             "Chozo statue movement requires the active Samus actor.");
 
+    /// <summary>Requires chozo level.</summary>
     private static RoomLevelData RequireChozoLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException(
             "Chozo statue movement requires the active room level.");
 
+    /// <summary>Registers chozo statue initialization ai.</summary>
     internal void RegisterChozoStatueInitializationAi(EnemyAiTable table)
     {
 
@@ -433,6 +458,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers chozo statue main ai.</summary>
     internal void RegisterChozoStatueMainAi(EnemyAiTable table)
     {
 
@@ -442,6 +468,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers chozo statue owned instructions.</summary>
     internal void RegisterChozoStatueOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

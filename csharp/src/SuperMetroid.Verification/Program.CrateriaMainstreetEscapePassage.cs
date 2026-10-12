@@ -12,6 +12,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents crateria mainstreet escape passage verification.</summary>
 internal static class CrateriaMainstreetEscapePassageVerification
 {
     // #1269: during the escape the Crateria mainstreet's state runs room setup $8F:9194,
@@ -19,6 +20,7 @@ internal static class CrateriaMainstreetEscapePassageVerification
     // list opens two air blocks there, moves four blocks right and opens two more. The port
     // only ran the setup's quake, so in the 100% movie Samus's spring ball hit a bombable
     // block native had already cleared.
+    /// <summary>Verifies crateria mainstreet escape passage.</summary>
     internal static void VerifyCrateriaMainstreetEscapePassage()
     {
         RoomLevelData Load(bool crittersEscaped)
@@ -49,6 +51,7 @@ internal static class CrateriaMainstreetEscapePassageVerification
         Console.WriteLine("Crateria mainstreet escape passage: setup $8F:9194 opens both pairs only after the critters escaped.");
     }
 
+    /// <summary>Crateria mainstreet escape passage command.</summary>
     [VerificationCommand("--crateria-mainstreet-escape-passage")]
     internal static int CrateriaMainstreetEscapePassageCommand()
     {

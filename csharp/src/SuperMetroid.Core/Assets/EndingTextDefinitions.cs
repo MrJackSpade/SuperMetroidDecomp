@@ -55,7 +55,9 @@ public static class EndingTextDefinitions
     /// <summary>Gets the centered region containing the final large message.</summary>
     public static EndingTextRegionDefinition FinalMessage => Centered(2, 20, EndingTextStyle.FinalLarge);
 
+    /// <summary>Stores copyright year width.</summary>
     private const int CopyrightYearWidth = 4, CopyrightCompanyWidth = 8, CopyrightGap = 2;
+    /// <summary>Gets copyright start.</summary>
     private static int CopyrightStart => CenteredColumn(CopyrightYearWidth + CopyrightGap + CopyrightCompanyWidth);
     /// <summary>Gets the large-glyph region containing the copyright year.</summary>
     public static EndingTextRegionDefinition CopyrightYear => new(0, CopyrightStart, CopyrightYearWidth, EndingTextStyle.CopyrightLarge);
@@ -64,7 +66,9 @@ public static class EndingTextDefinitions
         CopyrightCompanyWidth, EndingTextStyle.CopyrightLarge);
 
     // Odd spare columns leave the extra cell on the right, matching native tilemaps.
+    /// <summary>Centered column.</summary>
     private static int CenteredColumn(int width) => (TilemapWidth - width) / 2;
+    /// <summary>Centered.</summary>
     private static EndingTextRegionDefinition Centered(int row, int width, EndingTextStyle style) =>
         new(row, CenteredColumn(width), width, style);
 
@@ -139,6 +143,7 @@ public static class EndingTextDefinitions
             $"Ending {style} tile word ${word:X4} has no safe UTF-8 mapping.");
     }
 
+    /// <summary>Compiles large.</summary>
     private static ushort CompileLarge(int letter, ushort attributes, bool bottom)
     {
         int tile = letter < LargeSecondGroupFirstLetter

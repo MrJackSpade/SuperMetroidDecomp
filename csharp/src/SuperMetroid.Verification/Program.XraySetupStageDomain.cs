@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
+/// <summary>Represents xray setup stage domain verification.</summary>
 internal static class XraySetupStageDomainVerification
 {
     /// <summary>

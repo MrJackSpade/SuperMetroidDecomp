@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents ceres reflected star parts verification.</summary>
 internal static class CeresReflectedStarPartsVerification
 {
+    /// <summary>Verifies ceres reflected star parts.</summary>
     internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");

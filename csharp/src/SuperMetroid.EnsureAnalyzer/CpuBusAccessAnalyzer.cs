@@ -23,6 +23,7 @@ public sealed class CpuBusAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessAttrib
     /// <summary>Marks an approved CPU-bus boundary.</summary>
     public const string BoundaryAttributeName = "CpuBusBoundaryAttribute";
 
+    /// <summary>Stores raw access rule.</summary>
     private static readonly DiagnosticDescriptor RawAccessRule = new(
         RawAccessId,
         "Raw CPU-bus access outside a memory boundary",
@@ -33,6 +34,7 @@ public sealed class CpuBusAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessAttrib
         description: "Addresses, banks, widths, byte order and encodings belong to typed domain memory views, the " +
             "address-space implementation, native-layout codecs and exact bus tests, which declare [CpuBusBoundary].");
 
+    /// <summary>Stores raw implementation rule.</summary>
     private static readonly DiagnosticDescriptor RawImplementationRule = new(
         RawImplementationId,
         "Raw CPU-bus contract implemented outside a memory boundary",

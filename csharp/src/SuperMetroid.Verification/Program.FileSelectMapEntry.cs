@@ -12,8 +12,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents file select map entry verification.</summary>
 internal static class FileSelectMapEntryVerification
 {
+    /// <summary>Verifies file select map entry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyFileSelectMapEntry()
     {
@@ -70,6 +72,7 @@ internal static class FileSelectMapEntryVerification
         AssertTrue(entry.Render(scene).SequenceEqual(scene), "complete entry reveals entire scene without clipped border");
     }
 
+    /// <summary>File select map entry command.</summary>
     [VerificationCommand("--file-select-map-entry")]
     internal static int FileSelectMapEntryCommand()
     {

@@ -27,8 +27,10 @@ using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents wrap shots verification.</summary>
 internal static class WrapShotsVerification
 {
+    /// <summary>Verifies wrap shot trace.</summary>
     internal static void VerifyWrapShotTrace(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).ToArray();
@@ -82,6 +84,7 @@ internal static class WrapShotsVerification
         Console.WriteLine("PASS wrap-shot addressing: 240 original-cartridge frames, both edges and non-Wave negatives.");
     }
 
+    /// <summary>Projectile fixtures command.</summary>
     [VerificationCommand("--projectile-fixtures")]
     internal static int ProjectileFixturesCommand()
     {
@@ -102,6 +105,7 @@ internal static class WrapShotsVerification
     return 0; 
     }
 
+    /// <summary>Wrap shots command.</summary>
     [VerificationCommand("--wrap-shots")]
     internal static int WrapShotsCommand()
     {

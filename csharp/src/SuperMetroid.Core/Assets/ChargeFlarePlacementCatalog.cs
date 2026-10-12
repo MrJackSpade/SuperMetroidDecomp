@@ -8,8 +8,11 @@ namespace SuperMetroid.Core.Assets;
 public sealed class ChargeFlarePlacementCatalog
 {
     // Source kind comes from the importing file contract, never from supplied pixel/offset values.
+    /// <summary>Stores grapple.</summary>
     private readonly bool grapple;
+    /// <summary>Stores offsets.</summary>
     private readonly Dictionary<int, Offset16<RoomPixels>> offsets = new();
+    /// <summary>Initializes a new charge flare placement catalog instance.</summary>
     private ChargeFlarePlacementCatalog(Offset16<RoomPixels>[] supplied, bool grapple)
     {
         this.grapple = grapple;
@@ -17,6 +20,7 @@ public sealed class ChargeFlarePlacementCatalog
             if (supplied[index] != CalculatedOffset(index >= ChargeFlarePlacementDefinitions.DirectionCount,
                 index % ChargeFlarePlacementDefinitions.DirectionCount)) offsets.Add(index, supplied[index]);
     }
+    /// <summary>Stores options.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -33,6 +37,7 @@ public sealed class ChargeFlarePlacementCatalog
         return offsets.TryGetValue((running ? ChargeFlarePlacementDefinitions.DirectionCount : 0) + direction, out var supplied)
             ? supplied : CalculatedOffset(running, direction);
     }
+    /// <summary>Calculated offset.</summary>
     private Offset16<RoomPixels> CalculatedOffset(bool running, int direction) => grapple
         ? ChargeFlarePlacementDefinitions.GrappleOffset(running, direction)
         : ChargeFlarePlacementDefinitions.BeamOffset(running, direction);
@@ -45,6 +50,7 @@ public sealed class ChargeFlarePlacementCatalog
     /// <param name="json">UTF-8 JSON stream containing the same 32-key placement schema for Grapple flare origins.</param>
     /// <returns>The immutable placement catalog interpreted with Grapple's native origin and adjacent-row definitions.</returns>
     public static ChargeFlarePlacementCatalog LoadGrapple(Stream json) => Load(json, true);
+    /// <summary>Load.</summary>
     private static ChargeFlarePlacementCatalog Load(Stream json, bool grapple)
     {
         ChargeFlarePlacementDocument document;
@@ -79,6 +85,7 @@ public sealed class ChargeFlarePlacementCatalog
         _ = Load(new MemoryStream(bytes));
         return bytes;
     }
+    /// <summary>Validates unique.</summary>
     private static void ValidateUnique(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
             name => new InvalidDataException("Duplicate charge-flare placement property."), descendArrays: false);

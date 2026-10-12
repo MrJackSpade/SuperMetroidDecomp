@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static KraidMouthHitboxesVerification;
 
+/// <summary>Represents kraid mouth mappings verification.</summary>
 internal static class KraidMouthMappingsVerification
 {
+    /// <summary>Verifies kraid mouth shape cases.</summary>
     internal static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(KraidMouthShapeCasesRomByte(rom, address), KraidMouthShapeCasesRomByte(rom, address + 1))));
@@ -27,9 +29,11 @@ internal static class KraidMouthMappingsVerification
         }
     }
 
+    /// <summary>Kraid mouth shape cases rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid mouth shape cases")]
     private static byte KraidMouthShapeCasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies kraid low half boundary mapping.</summary>
     internal static void VerifyKraidLowHalfBoundaryMapping(SuperMetroidAddressSpace rom)
     {
         AssertEqual(7, KraidMouthHitboxes.LowHalfBoundaryLength, "Native compatibility window length");
@@ -50,6 +54,7 @@ internal static class KraidMouthMappingsVerification
                 KraidHeadInstructionDefinitions.ReadGrowthSelectionWord(bus, pointer), "Head boundary crossing uses original bytes");
     }
 
+    /// <summary>Kraid low half boundary mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid low half boundary mapping")]
     private static byte KraidLowHalfBoundaryMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

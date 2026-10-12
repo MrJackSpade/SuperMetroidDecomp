@@ -14,6 +14,7 @@ using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus aerial and liquids verification.</summary>
 internal static class SamusAerialAndLiquidsVerification
 {
 
@@ -744,6 +745,7 @@ static void SeedGrappleReleaseSpeedRecords(TestAddressSpace bus, ushort[] grappl
     }
 }
 
+/// <summary>Verifies samus liquid physics.</summary>
 internal static void VerifySamusLiquidPhysics()
 {
     TestAddressSpace bus = CreateSamusLiquidPhysicsCartridge();
@@ -1352,6 +1354,7 @@ static TestAddressSpace CreateSamusAerialMovementCartridge()
     return bus;
 }
 
+/// <summary>Seed left spin jump poses.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the spin-jump $19/$1A pose records and streams")]
 static void SeedLeftSpinJumpPoses(TestAddressSpace bus)
 {
@@ -1363,6 +1366,7 @@ static void SeedLeftSpinJumpPoses(TestAddressSpace bus)
     bus.WriteBytes(0x91c140, [0x03, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0x03, 0x02, 0xfe, 0x08]);
 }
 
+/// <summary>Seed ledge fall poses and type six speed.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the ledge-fall poses, streams and type-six speed entry")]
 static void SeedLedgeFallPosesAndTypeSixSpeed(TestAddressSpace bus)
 {
@@ -1472,6 +1476,7 @@ static TestAddressSpace CreateSamusLiquidPhysicsCartridge()
     return bus;
 }
 
+/// <summary>Seed space jump spin pose and zero spin speeds.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Space Jump spin pose and zeroed spin speed records")]
 static void SeedSpaceJumpSpinPoseAndZeroSpinSpeeds(TestAddressSpace bus)
 {
@@ -1521,18 +1526,21 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
     WriteTestByte(bus, 0x91f0f3, 1);
 }
 
+    /// <summary>Space screw fixture command.</summary>
     [VerificationCommand("--space-screw-fixture")]
     internal static int SpaceScrewFixtureCommand()
     {
      VerifySamusSpaceJumpAndScrewAttack(); return 0; 
     }
 
+    /// <summary>Samus liquid physics command.</summary>
     [VerificationCommand("--samus-liquid-physics")]
     internal static int SamusLiquidPhysicsCommand()
     {
      VerifySamusLiquidPhysics(); return 0; 
     }
 
+    /// <summary>Samus aerial movement command.</summary>
     [VerificationCommand("--samus-aerial-movement")]
     internal static int SamusAerialMovementCommand()
     {
@@ -1540,6 +1548,7 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
         return 0;
     }
 
+    /// <summary>Samus atmospheric effects command.</summary>
     [VerificationCommand("--samus-atmospheric-effects")]
     internal static int SamusAtmosphericEffectsCommand()
     {
@@ -1547,6 +1556,7 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
         return 0;
     }
 
+    /// <summary>Spin entry audio command.</summary>
     [VerificationCommand("--spin-entry-audio")]
     internal static int SpinEntryAudioCommand()
     {

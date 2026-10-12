@@ -13,6 +13,7 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     internal static ushort BombRevealWord => (ushort)(0xb000 | RoomPlmVisualBlockIndexes.SpeedBoosterParent);
 
     // Materialize records only for existing artwork import/export interfaces.
+    /// <summary>Gets bomb reveal.</summary>
     internal static RoomPlmShotBlockDrawDefinitions.DrawList BombReveal =>
         new(SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw,
             new RoomPlmShotBlockDrawDefinitions.Run[]
@@ -26,11 +27,13 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
         get { yield return BombReveal; }
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) => pointer == SpeedBoosterBlockPlmProgramDefinitions.BombRevealDraw
         ? BombRevealVisualId
         : throw new InvalidDataException(
             $"Speed Booster draw ${pointer:X4} has no visual ID.");
 
+    /// <summary>Tries to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

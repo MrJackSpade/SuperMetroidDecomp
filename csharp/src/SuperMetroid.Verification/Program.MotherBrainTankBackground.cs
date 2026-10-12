@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
 using static MotherBrainAscentCaptureVerification;
+/// <summary>Represents mother brain tank background verification.</summary>
 internal static class MotherBrainTankBackgroundVerification
 {
+    /// <summary>Verifies mother brain tank background.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
@@ -67,12 +69,14 @@ internal static class MotherBrainTankBackgroundVerification
         ushort ReadStaged(int index) => new EnemyScratchMemory(bus).EnemyBg2Tilemap[index];
     }
 
+    /// <summary>Mother brain ascent capture command.</summary>
     [VerificationCommand("--mother-brain-ascent-capture")]
     internal static int MotherBrainAscentCaptureCommand()
     {
         return VerifyMotherBrainTankBackground(ascentMaskOnly: true);
     }
 
+    /// <summary>Mother brain tank background command.</summary>
     [VerificationCommand("--mother-brain-tank-background")]
     internal static int MotherBrainTankBackgroundCommand()
     {

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class TesterTools
 {
+    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Initializes a new tester tools instance.</summary>
     internal TesterTools(SnesCgram cgram, SamusFrameState player, Bank80SystemState system, ISnesAddressSpace addressSpace)
     {
         _cgram = cgram;
@@ -19,6 +24,7 @@ internal sealed class TesterTools
         _system = system;
         _addressSpace = addressSpace;
     }
+    /// <summary>reset saved encounters.</summary>
     internal void ResetSavedEncounters()
     {
         // Run after the saved mirror is restored and before any room-state or
@@ -34,6 +40,7 @@ internal sealed class TesterTools
             doors[bit >> 3] &= unchecked((byte)~(1 << (bit & 7)));
         _system.LoadOpenedDoorBytes(doors);
     }
+    /// <summary>Stores tester inventory recipient.</summary>
     internal SamusState? testerInventoryRecipient;
     /// <summary>Whether the host's tester option grants the configured full inventory once to each initialized or restored Samus actor.</summary>
     public bool GrantAllEquipmentEnabled { get; internal set; }

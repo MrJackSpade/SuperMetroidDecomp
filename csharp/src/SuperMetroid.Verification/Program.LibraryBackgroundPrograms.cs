@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents library background programs verification.</summary>
 internal static class LibraryBackgroundProgramsVerification
 {
     /// <summary>Independently decode every pinned native command and compare typed operands.</summary>
@@ -87,6 +88,7 @@ internal static class LibraryBackgroundProgramsVerification
         }
     }
 
+    /// <summary>Compiled library background programs rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled library background programs")]
     private static byte CompiledLibraryBackgroundProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

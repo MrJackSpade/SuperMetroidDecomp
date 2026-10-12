@@ -48,6 +48,7 @@ internal abstract class CacatacInstructionProgramDefinitions
     /// </summary>
     internal const ushort UpsideDownAttack = 0x9f00;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value)) return value;
@@ -55,6 +56,7 @@ internal abstract class CacatacInstructionProgramDefinitions
             $"Cacatac instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(int address, out ushort value)
     {
         int offset = address - UpsideUpIdle;

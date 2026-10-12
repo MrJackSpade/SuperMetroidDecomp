@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents shitroid instruction program definitions verification.</summary>
 internal static class ShitroidInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies shitroid instruction program definitions.</summary>
     internal static void VerifyShitroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyShitroidInstructionProgramDefinitions), () => VerifyShitroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies shitroid instruction program definitions.</summary>
     internal static void VerifyShitroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -122,6 +125,7 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
             "bytes forbidden and zero live visual operand reads.");
     }
 
+    /// <summary>Executes shitroid program.</summary>
     private static void ExecuteShitroidProgram(SuperMetroidAddressSpace rom, HashSet<ushort> executedOperands, ShitroidInterpreter interpreter, RoomEnemySlot shitroid, ushort program, int callCount)
     {
         shitroid.CurrentInstruction = program;
@@ -139,6 +143,7 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes shitroid instruction mechanics allocation.</summary>
     private static int ProbeShitroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -152,12 +157,14 @@ internal static class ShitroidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New shitroid instruction read guard.</summary>
     private static CartridgeReadGuard NewShitroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ShitroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Shitroid mechanics byte ${address:X6}.")
             .ObserveWords(0xa90000, ShitroidInstructionProgramDefinitions.PresentationWordCount, ShitroidInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Shitroid instruction mechanics command.</summary>
     [VerificationCommand("--shitroid-instruction-mechanics")]
     internal static int ShitroidInstructionMechanicsCommand()
     {

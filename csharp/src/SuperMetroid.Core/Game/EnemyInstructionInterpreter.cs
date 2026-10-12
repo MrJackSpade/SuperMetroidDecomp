@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -12,13 +12,20 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class EnemyInstructionInterpreter
 {
+    /// <summary>Stores botwoon behavior.</summary>
     private readonly BotwoonBehavior _botwoonBehavior;
+    /// <summary>Stores crocomire behavior.</summary>
     private readonly CrocomireBehavior _crocomireBehavior;
+    /// <summary>Stores mother brain encounter.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
 
+    /// <summary>Initializes a new enemy instruction interpreter instance.</summary>
     internal EnemyInstructionInterpreter(BotwoonBehavior botwoonBehavior, CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room, IEnemyDispatch dispatch)
     {
         _botwoonBehavior = botwoonBehavior;
@@ -183,6 +190,7 @@ internal sealed class EnemyInstructionInterpreter
         new EnemyVram(_presentation._vram!).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 
+    /// <summary>Reads enemy visual selector.</summary>
     internal static ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)
     {
         if (slot.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead &&
@@ -216,6 +224,7 @@ internal sealed class EnemyInstructionInterpreter
             $"${slot.Definition.Bank:X2}:${operandAddress:X4}.");
     }
 
+    /// <summary>Process instructions.</summary>
     internal void ProcessInstructions(
         RoomEnemySlot slot,
         SamusState? samus,

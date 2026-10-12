@@ -31,6 +31,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>Power-bomb projectile type formed from HUD item index three.</summary>
     public const ushort PowerBombType = SamusBombSpreadRomData.PowerBombType;
 
+    /// <summary>Stores slots.</summary>
     private readonly SamusBombProjectileSlot[] _slots =
         Enumerable.Range(0, SlotCount).Select(index => new SamusBombProjectileSlot(index)).ToArray();
 
@@ -331,6 +332,7 @@ public sealed class SamusBombProjectileSystem
     /// <summary>$90:F4C2: the flare count from which a charging beam's loop is audible.</summary>
     private const ushort ChargeSoundFlareThreshold = 0x10;
 
+    /// <summary>Steps cooldown.</summary>
     private void StepCooldown(bool timeIsFrozen)
     {
         // $90:AC32: while time is frozen the cooldown is held at $20 instead of counting
@@ -358,6 +360,7 @@ public sealed class SamusBombProjectileSystem
             CooldownTimer = 0;
     }
 
+    /// <summary>Tries to place bomb.</summary>
     internal int? TryPlaceBomb(
         SamusState samus,
         ushort controllerInput,
@@ -433,6 +436,7 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
+    /// <summary>Handles bomb spread input.</summary>
     private BombSpreadAdmission HandleBombSpreadInput(
         SamusState samus,
         ushort controllerInput)
@@ -473,6 +477,7 @@ public sealed class SamusBombProjectileSystem
         return BombSpreadAdmission.Spawned;
     }
 
+    /// <summary>Spawn bomb spread.</summary>
     private void SpawnBombSpread(SamusState samus)
     {
         int verticalModifier =
@@ -502,6 +507,7 @@ public sealed class SamusBombProjectileSystem
         samus.ProjectileFlareCounter = 0;
     }
 
+    /// <summary>Tries to reserve bomb slot.</summary>
     private bool TryReserveBombSlot(ushort controllerNewInput, ushort shoot)
     {
         if ((controllerNewInput & shoot) == 0)
@@ -524,6 +530,7 @@ public sealed class SamusBombProjectileSystem
         return true;
     }
 
+    /// <summary>Finds free bomb slot.</summary>
     private int FindFreeBombSlot()
     {
         int slotIndex = 0;
@@ -541,6 +548,7 @@ public sealed class SamusBombProjectileSystem
         return slotIndex;
     }
 
+    /// <summary>Initializes bomb from rom.</summary>
     private static void InitializeBombFromRom(
         SamusBombProjectileSlot slot)
     {
@@ -559,6 +567,7 @@ public sealed class SamusBombProjectileSystem
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Runs bomb pre instruction.</summary>
     private bool RunBombPreInstruction(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -663,6 +672,7 @@ public sealed class SamusBombProjectileSystem
         return explosionStarted;
     }
 
+    /// <summary>Moves bomb spread.</summary>
     private static void MoveBombSpread(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -704,6 +714,7 @@ public sealed class SamusBombProjectileSystem
         slot.BombSpreadDirectionMagnitude ^= 0x8000;
     }
 
+    /// <summary>Moves bomb spread horizontally.</summary>
     private static void MoveBombSpreadHorizontally(SamusBombProjectileSlot slot)
     {
         ushort swapped = SnesLittleEndian.SwapBytes(slot.BombSpreadDirectionMagnitude);
@@ -723,6 +734,7 @@ public sealed class SamusBombProjectileSystem
             : unchecked((ushort)(slot.Position.X.Whole + wholeMagnitude + carryOrBorrow)));
     }
 
+    /// <summary>Adds fixed words.</summary>
     private static (ushort Whole, ushort Fraction) AddFixedWords(
         ushort whole,
         ushort fraction,
@@ -735,6 +747,7 @@ public sealed class SamusBombProjectileSystem
         return (whole, fraction);
     }
 
+    /// <summary>Bomb spread collides.</summary>
     private static bool BombSpreadCollides(
         RoomLevelData level,
         SamusBombProjectileSlot slot)
@@ -814,6 +827,7 @@ public sealed class SamusBombProjectileSystem
             CollectSingleBombedBlockReaction(level, new Position16<RoomBlocks>(checked((ushort)right), checked((ushort)y)), reactions, roomPlms, areaIndex, projectileType);
     }
 
+    /// <summary>Collects block explosion reactions.</summary>
     private static void CollectBlockExplosionReactions(
         RoomLevelData level,
         SamusBombProjectileSlot slot,
@@ -854,6 +868,7 @@ public sealed class SamusBombProjectileSystem
         }
     }
 
+    /// <summary>Collects single bombed block reaction.</summary>
     internal static void CollectSingleBombedBlockReaction(
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
@@ -1059,6 +1074,7 @@ public sealed class SamusBombProjectileSystem
             $"BTS ${block.Behavior:X2} at ({x},{y}).");
     }
 
+    /// <summary>Runs projectile instruction handler.</summary>
     private bool RunProjectileInstructionHandler(
         SamusBombProjectileSlot slot)
     {
@@ -1123,6 +1139,7 @@ public sealed class SamusBombProjectileSystem
         throw new InvalidDataException("Bomb projectile instruction list did not reach a timed frame within 16 operations.");
     }
 
+    /// <summary>Publish bomb jump overlap.</summary>
     private byte PublishBombJumpOverlap(SamusState samus)
     {
         byte publishedDirection = 0;
@@ -1168,6 +1185,7 @@ public sealed class SamusBombProjectileSystem
         return publishedDirection;
     }
 
+    /// <summary>Clears projectile.</summary>
     private void ClearProjectile(SamusBombProjectileSlot slot)
     {
         bool wasActive = slot.IsActive;
@@ -1187,6 +1205,7 @@ public sealed class SamusBombProjectileSystem
 /// <summary>One semantic view over a physical WRAM bomb slot.</summary>
 public sealed class SamusBombProjectileSlot
 {
+    /// <summary>Initializes a new samus bomb projectile slot instance.</summary>
     internal SamusBombProjectileSlot(int index) => Index = index;
 
     /// <summary>Logical bomb index zero through four; physical projectile index is 5+Index.</summary>
@@ -1246,6 +1265,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
     public bool IsActive => InstructionPointer != 0;
 
+    /// <summary>Clears fields.</summary>
     internal void ClearFields()
     {
         Position = FixedPosition<RoomPixels>.Zero;
@@ -1275,11 +1295,16 @@ public readonly record struct BombProjectileFrameResult(
     bool BeamChargeConsumed = false,
     IReadOnlyList<SamusSoundRequest>? SoundRequests = null);
 
+/// <summary>Represents bomb spread admission.</summary>
 internal enum BombSpreadAdmission
 {
+    /// <summary>Identifies not applicable.</summary>
     NotApplicable,
+    /// <summary>Identifies charging.</summary>
     Charging,
+    /// <summary>Identifies spawned.</summary>
     Spawned,
+    /// <summary>Identifies charge cancelled.</summary>
     ChargeCancelled,
 }
 

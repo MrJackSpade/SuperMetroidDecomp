@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BeetomInstructionProgramDefinitions))]
 internal abstract class BeetomInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 48;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 32;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -30,6 +33,7 @@ internal abstract class BeetomInstructionProgramDefinitionsTooling : IInstructio
         ushort address = (ushort)(BeetomInstructionProgramDefinitions.CrawlingLeft + BeetomInstructionProgramDefinitions.FacingStride * (index / 24) + offset);
         return new(address, BeetomInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -38,6 +42,7 @@ internal abstract class BeetomInstructionProgramDefinitionsTooling : IInstructio
             BeetomInstructionProgramDefinitions.DrainingLeft - BeetomInstructionProgramDefinitions.CrawlingLeft + 2 + 4 * (frame - 8) + (frame >= 12 ? 2 : 0);
         return (ushort)(BeetomInstructionProgramDefinitions.CrawlingLeft + BeetomInstructionProgramDefinitions.FacingStride * (index / 16) + offset);
     }
+    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;

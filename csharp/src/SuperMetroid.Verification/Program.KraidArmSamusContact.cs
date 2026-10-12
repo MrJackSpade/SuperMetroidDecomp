@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents kraid arm samus contact verification.</summary>
 internal static class KraidArmSamusContactVerification
 {
     /// <summary>
@@ -57,10 +58,12 @@ internal static class KraidArmSamusContactVerification
         Console.WriteLine("  Kraid arm Samus contact: the extended arm frame pushes Samus back and fires the bottom lint.");
     }
 
+    /// <summary>Radius boxes overlap for arm.</summary>
     private static bool RadiusBoxesOverlapForArm(RoomEnemySlot arm, SamusState samus) =>
         Math.Abs(arm.Position.X.Whole - samus.Position.X.Whole) < arm.Radius.X + samus.Kinematics.Radius.X &&
         Math.Abs(arm.Position.Y.Whole - samus.Position.Y.Whole) < arm.Radius.Y + samus.Kinematics.Radius.Y;
 
+    /// <summary>Kraid arm samus contact command.</summary>
     [VerificationCommand("--kraid-arm-samus-contact")]
     internal static int KraidArmSamusContactCommand()
     {

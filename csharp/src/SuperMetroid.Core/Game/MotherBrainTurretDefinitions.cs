@@ -3,13 +3,21 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The eight mutually exclusive directions used by Mother Brain's room turrets.</summary>
 internal enum MotherBrainTurretDirection : byte
 {
+    /// <summary>Identifies left.</summary>
     Left = 0,
+    /// <summary>Identifies down left.</summary>
     DownLeft = 1,
+    /// <summary>Identifies down.</summary>
     Down = 2,
+    /// <summary>Identifies down right.</summary>
     DownRight = 3,
+    /// <summary>Identifies right.</summary>
     Right = 4,
+    /// <summary>Identifies up right.</summary>
     UpRight = 5,
+    /// <summary>Identifies up.</summary>
     Up = 6,
+    /// <summary>Identifies up left.</summary>
     UpLeft = 7,
 }
 
@@ -145,6 +153,7 @@ internal static class MotherBrainTurretDefinitions
         return (ForTurret((ushort)(pointerOffset / DirectionCount)).AllowedDirectionMask & (1 << directionIndex)) != 0;
     }
 
+    /// <summary>sector.</summary>
     private static byte Sector(MotherBrainTurretDirection first, MotherBrainTurretDirection last) =>
         (byte)(((1 << ((int)last - (int)first + 1)) - 1) << (int)first);
 }

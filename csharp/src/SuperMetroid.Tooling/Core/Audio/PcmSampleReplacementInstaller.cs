@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text.Json;
 
 namespace SuperMetroid.Core.Audio;
@@ -130,6 +130,7 @@ public static class PcmSampleReplacementInstaller
         return updated;
     }
 
+    /// <summary>Resolves loop.</summary>
     private static int? ResolveLoop(
         AudioCanonicalSampleMetadata previous,
         int replacementSampleRate,
@@ -144,6 +145,7 @@ public static class PcmSampleReplacementInstaller
             _ => throw new InvalidDataException($"Unknown PCM loop replacement mode {replacement.Kind}."),
         };
 
+    /// <summary>Resolves contained path.</summary>
     private static string ResolveContainedPath(string root, string relativePath)
     {
         if (Path.IsPathRooted(relativePath))

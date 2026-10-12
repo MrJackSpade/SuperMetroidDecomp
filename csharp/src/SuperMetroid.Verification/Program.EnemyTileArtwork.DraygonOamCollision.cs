@@ -5,8 +5,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static FrontendRomFreeVerification;
 
+/// <summary>Represents enemy tile artwork draygon oam collision verification.</summary>
 internal static class EnemyTileArtworkDraygonOamCollisionVerification
 {
+    /// <summary>verify compiled draygon oam collision.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon OAM collision")]
     internal static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)

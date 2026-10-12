@@ -1,3 +1,4 @@
+/// <summary>Represents repository inputs verification.</summary>
 internal static class RepositoryInputsVerification
 {
     /// <summary>

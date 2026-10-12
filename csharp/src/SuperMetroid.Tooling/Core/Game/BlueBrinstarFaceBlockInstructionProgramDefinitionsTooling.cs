@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BlueBrinstarFaceBlockInstructionProgramDefinitions))]
 internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 10;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 7;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -16,12 +19,14 @@ internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitionsToolin
             : (ushort)(BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial + 4 * (index - 8));
         return new(address, BlueBrinstarFaceBlockInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return index < 6 ? (ushort)(BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft + 14 * (index / 3) + 4 * (index % 3) + 2)
             : (ushort)(BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial + 2);
     }
+    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;

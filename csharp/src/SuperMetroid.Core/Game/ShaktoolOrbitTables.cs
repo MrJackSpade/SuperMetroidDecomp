@@ -16,6 +16,7 @@ public static class ShaktoolOrbitTables
     // Twenty-four decimal Taylor terms through x^47/47! avoid platform libm.
     // The full-cycle remainder and decimal roundoff fit inside 1e-19 before scaling;
     // the one original-table proof checks both ends of that interval at every index.
+    /// <summary>Unquantized sample.</summary>
     internal static decimal UnquantizedSample(int index)
     {
         if ((uint)index >= 320) throw new IndexOutOfRangeException();

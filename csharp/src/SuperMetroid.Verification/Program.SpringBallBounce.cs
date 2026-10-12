@@ -12,12 +12,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents spring ball bounce verification.</summary>
 internal static class SpringBallBounceVerification
 {
     // #1269: Spring Ball's in-air handler ($90:A6F1) runs the morphed bouncing routine
     // ($90:91D1) while MorphBallBounceState is nonzero, not the powered jump. The jump's
     // released-button cutoff therefore cannot cancel a rebound: in the 100% movie the
     // bounce's 1.0000 upward speed carries Samus up a pixel before gravity reduces it.
+    /// <summary>Verifies spring ball bounce.</summary>
     internal static void VerifySpringBallBounce()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -55,6 +57,7 @@ internal static class SpringBallBounceVerification
         Console.WriteLine("Spring Ball bounce: a rebound in the air uses the bouncing routine, not the jump cutoff.");
     }
 
+    /// <summary>Spring ball bounce command.</summary>
     [VerificationCommand("--spring-ball-bounce")]
     internal static int SpringBallBounceCommand()
     {

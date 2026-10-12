@@ -13,6 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM extended enemy spritemap component records → enemy extended frame files")]
 internal static class EnemyExtendedFrameFiles
 {
+    /// <summary>extract.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus)
     {
         Ensure.NotNull(bus);

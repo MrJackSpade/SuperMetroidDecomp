@@ -5,16 +5,25 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Baby Metroid cutscene species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BabyMetroidCutsceneBehavior
 {
+    /// <summary>Stores dispatch.</summary>
     private readonly IEnemyDispatch _dispatch;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Stores frame context.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Stores mother brain encounter.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
+    /// <summary>Initializes a new baby metroid cutscene behavior instance.</summary>
     internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
     {
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
@@ -104,6 +113,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         LoadBabyMetroidCutsceneInitialPalette();
     }
 
+    /// <summary>Loads baby metroid cutscene initial palette.</summary>
     internal void LoadBabyMetroidCutsceneInitialPalette()
     {
         var colors = _room.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
@@ -188,6 +198,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         ApplyBabyMetroidFrameEffects(state, step);
     }
 
+    /// <summary>Copies baby metroid actor to physical slot.</summary>
     private static void CopyBabyMetroidActorToPhysicalSlot(
         RoomEnemySlot slot,
         BabyMetroidCutsceneState baby)
@@ -199,6 +210,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         slot.Health = baby.Health;
     }
 
+    /// <summary>Applies baby metroid frame effects.</summary>
     internal void ApplyBabyMetroidFrameEffects(
         MotherBrainEnemyState state,
         BabyMetroidCutsceneStepResult step)
@@ -241,6 +253,7 @@ internal sealed class BabyMetroidCutsceneBehavior
             LoadMotherBrainRecoveryLights(roomPalette);
     }
 
+    /// <summary>Loads mother brain recovery lights.</summary>
     internal void LoadMotherBrainRecoveryLights(
         MotherBrainBackgroundPaletteTransferRequest request)
     {
@@ -261,6 +274,7 @@ internal sealed class BabyMetroidCutsceneBehavior
             .ApplyRecoveryLights(_presentation._cgram!, request.PaletteIndex);
     }
 
+    /// <summary>Loads baby metroid cutscene fade palette.</summary>
     internal void LoadBabyMetroidCutsceneFadePalette(
         BabyMetroidPaletteTransferRequest palette)
     {
@@ -293,6 +307,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         };
     }
 
+    /// <summary>Registers baby metroid cutscene initialization ai.</summary>
     internal void RegisterBabyMetroidCutsceneInitializationAi(EnemyAiTable table)
     {
 
@@ -302,6 +317,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         });
     }
 
+    /// <summary>Registers baby metroid cutscene main ai.</summary>
     internal void RegisterBabyMetroidCutsceneMainAi(EnemyAiTable table)
     {
 
@@ -311,6 +327,7 @@ internal sealed class BabyMetroidCutsceneBehavior
         });
     }
 
+    /// <summary>Registers baby metroid cutscene owned instructions.</summary>
     internal static void RegisterBabyMetroidCutsceneOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

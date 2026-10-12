@@ -107,6 +107,7 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int AutoFullPalette = 7, AutoEmptyPalette = 3;
 
+    /// <summary>Auto reserve word.</summary>
     internal static ushort AutoReserveWord(int cell, bool containsEnergy)
     {
         if ((uint)cell >= AutoReserveCellCount) throw new IndexOutOfRangeException();
@@ -123,8 +124,10 @@ public static class GameplayHudDefinitions
     /// shares the canonical blank's palette/priority; glyph pixels remain separate.
     /// </summary>
     private const int MinimapTopRightCapGlyph = 0x1c;
+    /// <summary>Defines minimap visible columns.</summary>
     private const int MinimapVisibleColumns = 5;
 
+    /// <summary>Top row word.</summary>
     internal static ushort TopRowWord(int column)
     {
         if ((uint)column >= Width) throw new IndexOutOfRangeException();
@@ -149,6 +152,7 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int MinimapEmptyGlyph = 0x12, MinimapConnectorStartGlyph = 0x22;
 
+    /// <summary>Template word.</summary>
     internal static ushort TemplateWord(int index)
     {
         if ((uint)index >= CellCount) throw new IndexOutOfRangeException();
@@ -189,12 +193,14 @@ public static class GameplayHudDefinitions
     /// </summary>
     private const int MissileShaftStartGlyph = 0x49, TwoColumnItemStartGlyph = 0x34;
 
+    /// <summary>Icon width.</summary>
     internal static int IconWidth(int item)
     {
         _ = IconName(item);
         return item == 0 ? 3 : 2;
     }
 
+    /// <summary>Icon word.</summary>
     internal static ushort IconWord(int item, int cell)
     {
         int width = IconWidth(item);

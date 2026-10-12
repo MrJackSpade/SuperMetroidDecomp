@@ -117,6 +117,7 @@ internal abstract class YardInstructionProgramDefinitions
     /// <summary>Native program bank $A3.</summary>
     internal const byte Bank = 0xa3;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xc8c6),
         Entry(OutsideTurnUpsideRightMovingUp),
@@ -377,11 +378,14 @@ internal abstract class YardInstructionProgramDefinitions
         Frame(3),
         Frame(3),
         Op((ushort)CommonEnemyInstruction.Goto, AirborneFacingRightLoop));
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value : throw NotCompiled(address);
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -392,6 +396,7 @@ internal abstract class YardInstructionProgramDefinitions
     /// <summary>Tests one native operand for an installed presentation slot.</summary>
     internal static bool IsPresentationWordAddress(ushort address) => Layout.IsPresentationWord(address);
 
+    /// <summary>Not compiled.</summary>
     private static InvalidDataException NotCompiled(ushort address) =>
         new($"Yard instruction mechanics pointer $A3:{address:X4} is not compiled.");
 }

@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid draw mappings verification.</summary>
 internal static class KraidDrawMappingsVerification
 {
+    /// <summary>Verifies kraid draw owner classification.</summary>
     internal static void VerifyKraidDrawOwnerClassification(SuperMetroidAddressSpace rom)
     {
         // Independent native header/list identities from bank_84.asm B7A3..B7C1.
@@ -26,6 +28,7 @@ internal static class KraidDrawMappingsVerification
                 "Kraid visual owner classification across full header domain");
     }
 
+    /// <summary>Kraid draw oracle.</summary>
     private static (ushort Pointer, int Count, string Id)[] KraidDrawOracle() =>
     [
         (0x9367, 1, "crumble-first"), (0x936d, 1, "crumble-second"),
@@ -35,6 +38,7 @@ internal static class KraidDrawMappingsVerification
         (0x939d, 15, "clear-ceiling"), (0x93bf, 22, "clear-spikes"),
     ];
 
+    /// <summary>Verifies kraid draw addresses.</summary>
     internal static void VerifyKraidDrawAddresses()
     {
         var expected = KraidDrawOracle();
@@ -58,6 +62,7 @@ internal static class KraidDrawMappingsVerification
                 "Kraid draw ordinal bounds");
     }
 
+    /// <summary>Verifies kraid draw shapes.</summary>
     internal static void VerifyKraidDrawShapes(SuperMetroidAddressSpace rom)
     {
         var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => draw.Pointer);
@@ -78,6 +83,7 @@ internal static class KraidDrawMappingsVerification
         }
     }
 
+    /// <summary>Verifies kraid draw words.</summary>
     internal static void VerifyKraidDrawWords(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidSingleDrawWords), () => VerifyKraidSingleDrawWords(rom));
@@ -85,15 +91,19 @@ internal static class KraidDrawMappingsVerification
         Suite(nameof(VerifyKraidSpikeClearWords), () => VerifyKraidSpikeClearWords(rom));
     }
 
+    /// <summary>Verifies kraid single draw words.</summary>
     private static void VerifyKraidSingleDrawWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Take(8)));
 
+    /// <summary>Verifies kraid ceiling clear words.</summary>
     private static void VerifyKraidCeilingClearWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x939d)));
 
+    /// <summary>Verifies kraid spike clear words.</summary>
     private static void VerifyKraidSpikeClearWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidDrawWordSet), () => VerifyKraidDrawWordSet(rom, KraidDrawOracle().Where(draw => draw.Pointer == 0x93bf)));
 
+    /// <summary>Verifies kraid draw word set.</summary>
     private static void VerifyKraidDrawWordSet(SuperMetroidAddressSpace rom,
         IEnumerable<(ushort Pointer, int Count, string Id)> definitions)
     {
@@ -113,6 +123,7 @@ internal static class KraidDrawMappingsVerification
         }
     }
 
+    /// <summary>Verifies kraid draw visual ids.</summary>
     internal static void VerifyKraidDrawVisualIds()
     {
         var expected = KraidDrawOracle();

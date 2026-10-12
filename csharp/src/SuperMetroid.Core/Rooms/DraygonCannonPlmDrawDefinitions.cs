@@ -46,26 +46,32 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(bool Right, bool Shield, int Frame)
     {
+        /// <summary>Gets run count.</summary>
         internal int RunCount => Right ? 2 : 3;
+        /// <summary>Checks run.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Word count.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
             return Right || run == 2 ? 2 : 1;
         }
+        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
             return !Right && run < 2 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Next y.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return run == (Right ? 0 : 1) ? (sbyte)1 : (sbyte)0;
         }
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -78,6 +84,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         }
     }
 
+    /// <summary>Tries to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (!Enum.IsDefined((DraygonCannonDraw)pointer)) { draw = default; return false; }
@@ -100,10 +107,12 @@ internal static class DraygonCannonPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Pointers.</summary>
     private static IEnumerable<ushort> Pointers()
     {
         foreach (DraygonCannonDraw draw in Enum.GetValues<DraygonCannonDraw>()) yield return (ushort)draw;
     }
+    /// <summary>Gets or sets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -116,6 +125,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         }
     }
     // Temporary artwork DTOs. Runtime drawing calculates cells directly.
+    /// <summary>Tries to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -130,6 +140,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         list = new(pointer, runs);
         return true;
     }
+    /// <summary>Tries to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())
@@ -137,6 +148,7 @@ internal static class DraygonCannonPlmDrawDefinitions
         list = default;
         return false;
     }
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<DraygonCannonDraw>(pointer, "Draygon cannon draw with a visual ID") switch
         {

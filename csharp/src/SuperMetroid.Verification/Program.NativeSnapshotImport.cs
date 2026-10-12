@@ -11,6 +11,7 @@ using static NativeSnapshotImportPauseVerification;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents native snapshot import verification.</summary>
 internal static class NativeSnapshotImportVerification
 {
     /// <summary>

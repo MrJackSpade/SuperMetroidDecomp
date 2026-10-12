@@ -16,12 +16,15 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents torizo landing dust instruction program definitions verification.</summary>
 internal static class TorizoLandingDustInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies torizo landing dust instruction program definitions.</summary>
     internal static void VerifyTorizoLandingDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoLandingDustInstructionProgramDefinitions), () => VerifyTorizoLandingDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies torizo landing dust instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo landing dust instruction program definitions")]
     internal static void VerifyTorizoLandingDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -121,6 +124,7 @@ internal static class TorizoLandingDustInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes torizo landing dust instruction mechanics allocation.</summary>
     private static int ProbeTorizoLandingDustInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -134,12 +138,14 @@ internal static class TorizoLandingDustInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New torizo landing dust instruction read guard.</summary>
     private static CartridgeReadGuard NewTorizoLandingDustInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TorizoLandingDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo landing-dust byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoLandingDustInstructionProgramDefinitions.PresentationWordCount, TorizoLandingDustInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Torizo landing dust instruction mechanics command.</summary>
     [VerificationCommand("--torizo-landing-dust-instruction-mechanics")]
     internal static int TorizoLandingDustInstructionMechanicsCommand()
     {

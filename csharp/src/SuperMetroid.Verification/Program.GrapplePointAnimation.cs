@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rom;
 using static GrappleRopeGeometryVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents grapple point animation verification.</summary>
 internal static class GrapplePointAnimationVerification
 {
+    /// <summary>Verifies grapple point animation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple point tile pointers")]
     internal static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
     {

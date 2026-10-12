@@ -1,24 +1,33 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Wrecked Ship ghost species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WreckedShipGhostBehavior : IEnemySpecies
 {
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Initializes a new wrecked ship ghost behavior instance.</summary>
     internal WreckedShipGhostBehavior(EnemyPresentation presentation)
     {
         _presentation = presentation;
     }
 
+    /// <summary>Defines wrecked ship ghost initial delay.</summary>
     private const ushort WreckedShipGhostInitialDelay = 0x0118; // $78 + $A0 at $A8:9B17.
+    /// <summary>Defines wrecked ship ghost visible duration.</summary>
     private const ushort WreckedShipGhostVisibleDuration = 0x0078;
+    /// <summary>Defines wrecked ship ghost stable position duration.</summary>
     private const ushort WreckedShipGhostStablePositionDuration = 0x0040;
+    /// <summary>Defines wrecked ship ghost stable direction duration.</summary>
     private const ushort WreckedShipGhostStableDirectionDuration = 0x0010;
+    /// <summary>Defines wrecked ship ghost initial vertical velocity whole.</summary>
     private const ushort WreckedShipGhostInitialVerticalVelocityWhole = 1;
+    /// <summary>Defines wrecked ship ghost vertical acceleration fraction.</summary>
     private const int WreckedShipGhostVerticalAccelerationFraction = 0x1800;
 
+    /// <summary>Stores wrecked ship ghost states.</summary>
     internal readonly WreckedShipGhostEnemyState?[] _wreckedShipGhostStates =
         new WreckedShipGhostEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -379,6 +388,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         return componentsChanged;
     }
 
+    /// <summary>Steps wrecked ship ghost palette component.</summary>
     private static Bgr555 StepWreckedShipGhostPaletteComponent(
         Bgr555 current,
         Bgr555 target,
@@ -395,13 +405,16 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         return current.With(channel, currentComponent);
     }
 
+    /// <summary>Wrecked ship ghost palette.</summary>
     private CgramPalette WreckedShipGhostPalette(RoomEnemySlot slot) =>
         _presentation.CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
 
+    /// <summary>Requires wrecked ship ghost state.</summary>
     private WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
         _wreckedShipGhostStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>Register wrecked ship ghost initialization ai.</summary>
     internal void RegisterWreckedShipGhostInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_Coven, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven, (slot, level, samus, controllerInput, cameraX) =>
@@ -410,6 +423,7 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Register wrecked ship ghost main ai.</summary>
     internal void RegisterWreckedShipGhostMainAi(EnemyAiTable table)
     {
 

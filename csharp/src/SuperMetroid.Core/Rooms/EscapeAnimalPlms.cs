@@ -1,13 +1,16 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>The critters-escape PLMs: the shootable rescue wall, its reaction list, and the Crateria passage that opens only when the animals escaped.</summary>
 internal sealed class EscapeAnimalPlms
 {
+    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Initializes a new escape animal plms instance.</summary>
     internal EscapeAnimalPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;

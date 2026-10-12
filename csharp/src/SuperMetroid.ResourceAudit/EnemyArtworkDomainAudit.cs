@@ -6,6 +6,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Correlates known enemy DMA sources/definition IDs with their required native lengths.</summary>
 internal static class EnemyArtworkDomainAudit
 {
+    /// <summary>Invalid constants.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(EnemyTileArtworkCatalog).FullName) return null;

@@ -10,13 +10,20 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 internal sealed class RenderScratch : IDisposable
 {
+    /// <summary>Stores free colors.</summary>
     [ThreadStatic] private static Dictionary<int, Stack<Rgba32[]>>? freeColors;
+    /// <summary>Stores free bytes.</summary>
     [ThreadStatic] private static Dictionary<int, Stack<byte[]>>? freeBytes;
+    /// <summary>Stores free memory.</summary>
     [ThreadStatic] private static Stack<SoftwarePpuSnapshotMemory>? freeMemory;
 
+    /// <summary>Stores colors.</summary>
     private readonly List<Rgba32[]> colors = [];
+    /// <summary>Stores bytes.</summary>
     private readonly List<byte[]> bytes = [];
+    /// <summary>Stores memories.</summary>
     private readonly List<SoftwarePpuSnapshotMemory> memories = [];
+    /// <summary>Stores disposed.</summary>
     private bool disposed;
 
     /// <summary>A cleared color plane (every pixel transparent).</summary>
@@ -70,6 +77,7 @@ internal sealed class RenderScratch : IDisposable
         return new ResolvedObjFrame(pixels, priorities);
     }
 
+    /// <summary>Dispose.</summary>
     public void Dispose()
     {
         if (disposed) return;
@@ -82,9 +90,11 @@ internal sealed class RenderScratch : IDisposable
         memories.Clear();
     }
 
+    /// <summary>Take.</summary>
     private static T[] Take<T>(Dictionary<int, Stack<T[]>> free, int length) =>
         free.TryGetValue(length, out Stack<T[]>? stack) && stack.TryPop(out T[]? plane) ? plane : new T[length];
 
+    /// <summary>Give.</summary>
     private static void Give<T>(Dictionary<int, Stack<T[]>> free, T[] plane)
     {
         if (!free.TryGetValue(plane.Length, out Stack<T[]>? stack))

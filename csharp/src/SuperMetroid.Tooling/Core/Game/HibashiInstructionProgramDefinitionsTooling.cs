@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,9 +7,13 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(HibashiInstructionProgramDefinitions))]
 internal abstract class HibashiInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => HibashiInstructionProgramDefinitions.PresentationWordCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => HibashiInstructionProgramDefinitions.PresentationWordAddress(index);
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 50;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -23,6 +27,7 @@ internal abstract class HibashiInstructionProgramDefinitionsTooling : IInstructi
         };
         return new((ushort)address, HibashiInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
+    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address) =>
         (SnesAddressMath.BankBase(address)) == 0xa60000 &&
         (HibashiInstructionProgramDefinitions.TryRead((ushort)address, out _) || HibashiInstructionProgramDefinitions.TryRead((ushort)address - 1, out _));

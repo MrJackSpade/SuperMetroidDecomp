@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents crawler speeds verification.</summary>
 internal static class CrawlerSpeedsVerification
 {
+    /// <summary>verify compiled crawler speeds.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled crawler speeds")]
     internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {

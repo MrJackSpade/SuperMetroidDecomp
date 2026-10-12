@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
@@ -8,8 +8,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Reads of the cartridge pose tables for Samus: collision radii, facing and movement kind, and the per-pose metadata the movement handlers consult, including the bomb-jump direction publication.</summary>
 internal sealed class SamusPoseMetadata
 {
+    /// <summary>Stores samus.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Initializes a new samus pose metadata instance.</summary>
     internal SamusPoseMetadata(SamusState owner)
     {
         _samus = owner;

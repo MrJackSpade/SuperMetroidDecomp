@@ -38,8 +38,11 @@ internal abstract class ShitroidInstructionProgramDefinitions
     /// <summary>$A9:F95E: pose0 starts the speed-up/slow-down pulse after the remorse SFX callback.</summary>
     private const ushort RemorseSoundPulse = RemorseRandomBranchOpcode + 4;
 
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 35;
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 30;
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -63,6 +66,7 @@ internal abstract class ShitroidInstructionProgramDefinitions
     /// turning at the next pose0 after one four-pose contraction cycle.</summary>
     private static ushort RemorsePulseDuration(int frame) => (ushort)(2 + Math.Abs(frame - 4));
 
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -74,6 +78,7 @@ internal abstract class ShitroidInstructionProgramDefinitions
         index -= 4;
         return index < 8 ? (ushort)(Remorse + index * 4 + 2) : (ushort)(RemorseSoundPulse + (index - 8) * 4 + 2);
     }
+    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

@@ -9,9 +9,12 @@ namespace SuperMetroid.Core.Assets;
 /// Palette bits inherit the actor, as in the native generic spritemap loader.</summary>
 internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Stores pose.</summary>
     private readonly int pose;
+    /// <summary>Initializes a new ending explosion grid parts instance.</summary>
     private EndingExplosionGridParts(int pose) => this.pose = pose;
 
+    /// <summary>Calculates replacement sprite parts when the pointer matches this artwork series; otherwise returns the supplied composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         int offset = pointer - EndingExplosionSpriteDefinitions.PlanetPointer(0);
@@ -20,7 +23,9 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
         return supplied.CalculateIfMatching(new EndingExplosionGridParts(offset / recordBytes));
     }
 
+    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => 4;
+    /// <summary>Accesses a value by index or range.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -38,9 +43,11 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
                 unchecked((byte)((row - 1) * 16)), SnesObjAttributeWord.Create(tile, 0, 0, flips), true);
         }
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

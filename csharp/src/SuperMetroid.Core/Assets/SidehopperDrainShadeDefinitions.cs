@@ -10,9 +10,12 @@ internal static class SidehopperDrainShadeDefinitions
     /// <summary>$A9:EC72/EC7A: both lower intermediate reds are four above their own dark endpoint (5→9 and12→16). Reviewed shared material-shade offset for the shifted Sidehopper drain only.</summary>
     private const int SelectedDarkRedLift = 4;
 
+    /// <summary>Light shade red.</summary>
     private static int LightShadeRed(Bgr555 light) => light.Red - SelectedLightRedDrop;
+    /// <summary>Dark shade red.</summary>
     private static int DarkShadeRed(Bgr555 dark) => dark.Red + SelectedDarkRedLift;
 
+    /// <summary>Resolve.</summary>
     internal static Bgr555 Resolve(int color, Bgr555 bodyLight, Bgr555 detailLight, Bgr555 detailDark, Bgr555 bodyDark) => color switch
     {
         1 => bodyLight,
@@ -26,6 +29,7 @@ internal static class SidehopperDrainShadeDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(color)),
     };
 
+    /// <summary>Shade.</summary>
     private static Bgr555 Shade(Bgr555 light, Bgr555 dark, int red)
     {
         int lightRed = light.Red, darkRed = dark.Red;

@@ -7,14 +7,22 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable Mother Brain fake-death room flash and phase-two initial colors.</summary>
 public sealed class MotherBrainRoomColorPresentation
 {
+    /// <summary>Stores flash.</summary>
     internal readonly RoomFlash flash;
+    /// <summary>Stores final room.</summary>
     private readonly FinalRoomPalette finalRoom;
+    /// <summary>Stores phase two attack.</summary>
     private readonly AttackPalette phaseTwoAttack;
+    /// <summary>Stores phase two rear leg.</summary>
     private readonly Bgr555[]? phaseTwoRearLeg;
+    /// <summary>Stores initial glass shard.</summary>
     private readonly GlassPalette initialGlassShard;
+    /// <summary>Stores initial tube projectile.</summary>
     private readonly TubePalette initialTubeProjectile;
+    /// <summary>Stores recovery lights.</summary>
     private readonly RecoveryLightFade recoveryLights;
 
+    /// <summary>Initializes a new mother brain room color presentation instance.</summary>
     private MotherBrainRoomColorPresentation(Bgr555[][] flash, FinalRoomPalette finalRoom,
         Bgr555[] phaseTwoAttack, Bgr555[] phaseTwoRearLeg,
         GlassPalette initialGlassShard, TubePalette initialTubeProjectile,
@@ -122,6 +130,7 @@ public sealed class MotherBrainRoomColorPresentation
         }
     }
 
+    /// <summary>Applies room.</summary>
     private static void ApplyRoom(SnesCgram cgram, FinalRoomPalette colors)
     {
         Ensure.NotNull(cgram);
@@ -182,18 +191,24 @@ public sealed class MotherBrainRoomColorPresentation
                 : new RecoveryLightFade(CompileRecoveryLights(document.RecoveryLights), finalRoom));
     }
 
+    /// <summary>Represents final room palette.</summary>
     internal sealed class FinalRoomPalette
     {
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Gets length.</summary>
         public int Length { get; }
+        /// <summary>Initializes a new final room palette instance.</summary>
         public FinalRoomPalette(Bgr555[] colors)
         {
             Length = colors.Length;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Gets an indexed value.</summary>
         public Bgr555 this[int color] => (uint)color < Length
             ? supplied is null ? Calculate(color) : supplied[color] : throw new IndexOutOfRangeException();
+        /// <summary>Calculates.</summary>
         private static Bgr555 Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.RoomShadowFirst)
@@ -228,6 +243,7 @@ public sealed class MotherBrainRoomColorPresentation
             };
         }
 
+        /// <summary>Panel color at.</summary>
         private static Bgr555 PanelColorAt(int color)
         {
             if (!Enum.IsDefined((PanelColor)color))
@@ -268,21 +284,27 @@ public sealed class MotherBrainRoomColorPresentation
             Glow = MotherBrainRoomColorRomData.RoomGlowColor,
         }
     }
+    /// <summary>Interpolate rgb5.</summary>
     private static Bgr555 InterpolateRgb5(Bgr555 start, Bgr555 end, int step, int intervals, bool ceilingRed = false)
     {
         return start.Zip(end, (channel, a, b) => ((a * (intervals - step) + b * step + (ceilingRed && channel == ColorChannel.Red ? intervals - 1 : intervals / 2)) / intervals));
     }
     // Shared shades use their definitions only after the installed output matches.
     // The shared recovery highlight is reviewed paint; supplied edits remain independent.
+    /// <summary>Represents attack palette.</summary>
     private sealed class AttackPalette
     {
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Initializes a new attack palette instance.</summary>
         public AttackPalette(Bgr555[] colors)
         {
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Color.</summary>
         public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        /// <summary>Calculates.</summary>
         private static Bgr555 Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.AttackFlameFirst)
@@ -303,23 +325,30 @@ public sealed class MotherBrainRoomColorPresentation
                 - (color > MotherBrainRoomColorRomData.WhiteColor ? 1 : 0),
                 MotherBrainRoomColorRomData.AttackGrayLast - MotherBrainRoomColorRomData.AttackGrayFirst - 1);
         }
+        /// <summary>Interpolate shade.</summary>
         private static Bgr555 InterpolateShade(Bgr555 first, Bgr555 last, int shade, int intervals)
         {
             return first.Zip(last, (_, a, b) => ((a * (intervals - shade)
                     + b * shade + intervals / 2) / intervals));
         }
     }
+    /// <summary>Represents glass palette.</summary>
     private sealed class GlassPalette
     {
+        /// <summary>Stores room.</summary>
         private readonly FinalRoomPalette room;
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Initializes a new glass palette instance.</summary>
         public GlassPalette(Bgr555[] colors, FinalRoomPalette room)
         {
             this.room = room;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Color.</summary>
         public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        /// <summary>Calculates.</summary>
         private Bgr555 Calculate(int color)
         {
             if (color < MotherBrainRoomColorRomData.GlassRampFirst)
@@ -346,17 +375,23 @@ public sealed class MotherBrainRoomColorPresentation
             Neutral = MotherBrainRoomColorRomData.GlassNeutralColor,
         }
     }
+    /// <summary>Represents tube palette.</summary>
     private sealed class TubePalette
     {
+        /// <summary>Stores room.</summary>
         private readonly FinalRoomPalette room;
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[]? supplied;
+        /// <summary>Initializes a new tube palette instance.</summary>
         public TubePalette(Bgr555[] colors, FinalRoomPalette room)
         {
             this.room = room;
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color]) { supplied = colors; return; }
         }
+        /// <summary>Color.</summary>
         public Bgr555 Color(int color) => supplied is null ? Calculate(color) : supplied[color];
+        /// <summary>Calculates.</summary>
         private Bgr555 Calculate(int color) => color < MotherBrainRoomColorRomData.TubeNeutralCount
             ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorRomData.RoomEntryBlackColor
                 ? MotherBrainHealthPalettePresentation.StockBaseColor(false, color)
@@ -365,11 +400,15 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>
     internal sealed class RoomFlash
     {
+        /// <summary>Stores basis.</summary>
         private readonly FinalRoomPalette basis;
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[][]? supplied;
 
+        /// <summary>Gets frame count.</summary>
         public int FrameCount { get; }
 
+        /// <summary>Initializes a new room flash instance.</summary>
         public RoomFlash(Bgr555[][] rows, FinalRoomPalette finalRoom)
         {
             FrameCount = rows.Length;
@@ -380,8 +419,10 @@ public sealed class MotherBrainRoomColorPresentation
                     { supplied = rows; return; }
         }
 
+        /// <summary>Color.</summary>
         public Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Calculates.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             int strength = MotherBrainRoomPaletteProgramDefinitions.FlashStrength(frame);
@@ -399,9 +440,12 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Seven equal RGB5 intensity steps with shared room-palette endpoints.</summary>
     private sealed class RecoveryLightFade
     {
+        /// <summary>Stores final room.</summary>
         private readonly FinalRoomPalette finalRoom;
+        /// <summary>Stores supplied.</summary>
         private readonly Bgr555[][]? supplied;
 
+        /// <summary>Initializes a new recovery light fade instance.</summary>
         public RecoveryLightFade(Bgr555[][] rows, FinalRoomPalette finalRoom)
         {
             this.finalRoom = finalRoom;
@@ -411,8 +455,10 @@ public sealed class MotherBrainRoomColorPresentation
                     { supplied = rows; return; }
         }
 
+        /// <summary>Color.</summary>
         public Bgr555 Color(int frame, int color) => supplied is null ? Calculate(frame, color) : supplied[frame][color];
 
+        /// <summary>Calculates.</summary>
         private Bgr555 Calculate(int frame, int color)
         {
             Bgr555 endpoint = color switch
@@ -428,6 +474,7 @@ public sealed class MotherBrainRoomColorPresentation
                     MotherBrainRoomColorRomData.RecoveryLightsFrames));
         }
     }
+    /// <summary>Compiles recovery lights.</summary>
     private static Bgr555[][] CompileRecoveryLights(PaletteRgb5[][]? frames)
     {
         if (frames is null || frames.Length != MotherBrainRoomColorRomData.RecoveryLightsFrames)
@@ -440,6 +487,7 @@ public sealed class MotherBrainRoomColorPresentation
         return compiled;
     }
 
+    /// <summary>Compiles.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, int expectedCount, string name)
     {
         if (colors is null || colors.Length != expectedCount)

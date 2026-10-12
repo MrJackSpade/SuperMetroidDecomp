@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core;
+using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>
@@ -43,6 +43,7 @@ public static class AudioAssetOverrideInstaller
         }
     }
 
+    /// <summary>Copies directory.</summary>
     private static void CopyDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);

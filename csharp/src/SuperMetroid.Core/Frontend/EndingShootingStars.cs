@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>$8B:E7BB/E812: bounded post-credits star records, independent of explosion stars.</summary>
 internal sealed class EndingShootingStars
 {
+    /// <summary>Stores stars.</summary>
     private readonly EndingShootingStar[] stars = new EndingShootingStar[EndingShootingStarDefinitions.Count];
 
+    /// <summary>Initializes a new ending shooting stars instance.</summary>
     internal EndingShootingStars()
     {
         for (int index = 0; index < stars.Length; index++)
@@ -20,6 +22,7 @@ internal sealed class EndingShootingStars
         }
     }
 
+    /// <summary>Advances.</summary>
     internal void Step()
     {
         for (int index = 0; index < stars.Length; index++)
@@ -57,6 +60,7 @@ internal sealed class EndingShootingStars
         }
     }
 
+    /// <summary>Draws.</summary>
     internal void Draw(OamBuffer oam)
     {
         foreach (var star in stars)
@@ -68,6 +72,7 @@ internal sealed class EndingShootingStars
         }
     }
 
+    /// <summary>Resets.</summary>
     private static void Reset(ref EndingShootingStar star, ushort index) => star = new()
     {
         IndexAndFrame = index,
@@ -76,9 +81,13 @@ internal sealed class EndingShootingStars
     };
 }
 
+/// <summary>Represents ending shooting star.</summary>
 internal struct EndingShootingStar
 {
+    /// <summary>Stores index and frame.</summary>
     internal ushort IndexAndFrame, Timer;
+    /// <summary>Stores position.</summary>
     internal FixedPosition<ScreenPixels> Position;
+    /// <summary>Stores velocity.</summary>
     internal EightEightVector<ScreenPixels> Velocity;
 }

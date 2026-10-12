@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents frozen time enemy projectiles verification.</summary>
 internal static class FrozenTimeEnemyProjectilesVerification
 {
     /// <summary>
@@ -47,6 +48,7 @@ internal static class FrozenTimeEnemyProjectilesVerification
         Console.WriteLine("  Frozen-time enemy projectiles: instructions keep running under a reserve-refill freeze.");
     }
 
+    /// <summary>Frozen time enemy projectiles command.</summary>
     [VerificationCommand("--frozen-time-enemy-projectiles")]
     internal static int FrozenTimeEnemyProjectilesCommand()
     {

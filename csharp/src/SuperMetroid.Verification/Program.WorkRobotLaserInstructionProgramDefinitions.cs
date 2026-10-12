@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents work robot laser instruction program definitions verification.</summary>
 internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies work robot laser instruction program definitions.</summary>
     internal static void VerifyWorkRobotLaserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotLaserInstructionProgramDefinitions), () => VerifyWorkRobotLaserInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies work robot laser instruction program definitions.</summary>
     internal static void VerifyWorkRobotLaserInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -150,6 +153,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes work robot laser instruction mechanics allocation.</summary>
     private static int ProbeWorkRobotLaserInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -163,6 +167,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates work robot laser instruction read guard.</summary>
     private static CartridgeReadGuard NewWorkRobotLaserInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => WorkRobotLaserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -170,6 +175,7 @@ internal static class WorkRobotLaserInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Work Robot laser mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, WorkRobotLaserInstructionProgramDefinitions.PresentationWordCount, WorkRobotLaserInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Work robot laser instruction mechanics command.</summary>
     [VerificationCommand("--work-robot-laser-instruction-mechanics")]
     internal static int WorkRobotLaserInstructionMechanicsCommand()
     {

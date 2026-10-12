@@ -1,8 +1,9 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The room's layer-3 FX words that enemy AI drives directly: liquid motion commands from Ridley and the Chozo statue.</summary>
 internal sealed class EnemyRoomFx
 {
+    /// <summary>Stores layer3 fx.</summary>
     [NonSerialized] internal RoomLayer3FxState? Layer3Fx;
 
     /// <summary>
@@ -11,6 +12,7 @@ internal sealed class EnemyRoomFx
     /// </summary>
     internal void BindRoomFx(RoomLayer3FxState roomFx) => Layer3Fx = roomFx;
 
+    /// <summary>Publishes ridley liquid motion.</summary>
     internal void PublishRidleyLiquidMotion(RidleyEnemyState state, ushort target, ushort velocity, ushort delay)
     {
         state.FxTargetYPosition = target;

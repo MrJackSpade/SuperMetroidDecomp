@@ -16,15 +16,25 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class RoomLevelData
 {
+    /// <summary>Stores foreground entries.</summary>
     private readonly ushort[] _foregroundEntries;
+    /// <summary>Stores behavior bytes.</summary>
     internal readonly byte[] _behaviorBytes;
+    /// <summary>Stores background entries.</summary>
     private readonly ushort[] _backgroundEntries;
+    /// <summary>Stores block definitions.</summary>
     private readonly byte[] _blockDefinitions;
+    /// <summary>Stores streaming foreground allocation.</summary>
     private readonly ushort[] _streamingForegroundAllocation;
+    /// <summary>Stores streaming background allocation.</summary>
     private readonly ushort[] _streamingBackgroundAllocation;
+    /// <summary>Stores visual streaming foreground allocation.</summary>
     private readonly ushort[] _visualStreamingForegroundAllocation;
+    /// <summary>Stores visual streaming background allocation.</summary>
     private readonly ushort[] _visualStreamingBackgroundAllocation;
+    /// <summary>Stores plm foreground allocation.</summary>
     private readonly ushort[] _plmForegroundAllocation;
+    /// <summary>Stores plm behavior allocation.</summary>
     private readonly byte[] _plmBehaviorAllocation;
 
     /// <summary>Copies the logical BG1/BTS/BG2 planes and visual block definitions into one mutable room allocation, retaining bounded native streaming tails and prefilled PLM storage; an installed layout changes only initial visual references.</summary>

@@ -17,6 +17,7 @@ public enum DeadTourianCorpseSpecies
 /// <summary>Typed extended state for one dead Zoomer, Ripper, or Skree.</summary>
 public sealed class DeadTourianCorpseEnemyState
 {
+    /// <summary>Initializes a new dead tourian corpse enemy state instance.</summary>
     internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, ushort configurationPointer, CorpseRottingProgram rotting, DeadTourianBehavior.DeadTourianCorpseProfile profile, DeadTourianBehavior.DeadTourianCorpseVariant variant)
     {
         Slot = slot;
@@ -82,6 +83,8 @@ public sealed class DeadTourianCorpseEnemyState
 
     // Callback profiles remain assembly-internal. Public debugger state exposes only the
     // stable ROM-derived words above; actor code keeps typed access without parallel maps.
+    /// <summary>Gets profile.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseProfile Profile { get; }
+    /// <summary>Gets variant.</summary>
     internal DeadTourianBehavior.DeadTourianCorpseVariant Variant { get; }
 }

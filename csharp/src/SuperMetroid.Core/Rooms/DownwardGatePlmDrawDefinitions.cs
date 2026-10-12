@@ -14,21 +14,27 @@ internal static class DownwardGatePlmDrawDefinitions
     /// <summary>$84:A5D7: blue-left trigger; color pairs occupy twenty bytes.</summary>
     private const ushort TriggerLeftFirst = 0xa5d7;
 
+    /// <summary>Represents draw.</summary>
     internal readonly record struct Draw(bool Column, int Frame, bool Right)
     {
+        /// <summary>Gets run count.</summary>
         internal int RunCount => Column || Right ? 1 : 2;
+        /// <summary>word count.</summary>
         internal int WordCount(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return Column ? 5 : Right ? 2 : 1;
         }
+        /// <summary>direction and count.</summary>
         internal ushort DirectionAndCount(int run) =>
             (ushort)(WordCount(run) | (Column ? 0x8000 : 0));
+        /// <summary>next x.</summary>
         internal sbyte NextX(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return !Column && !Right && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>word at.</summary>
         internal ushort WordAt(int run, int word)
         {
             if ((uint)word >= WordCount(run)) throw new IndexOutOfRangeException();
@@ -59,6 +65,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return false;
     }
 
+    /// <summary>pointers.</summary>
     private static IEnumerable<ushort> Pointers()
     {
         for (int frame = 0; frame < 6; frame++) yield return (ushort)(ResidentFirst + frame * 14);
@@ -69,6 +76,7 @@ internal static class DownwardGatePlmDrawDefinitions
         }
     }
 
+    /// <summary>Enumerates the downward gate draw lists.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -81,6 +89,7 @@ internal static class DownwardGatePlmDrawDefinitions
         }
     }
 
+    /// <summary>try get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -96,6 +105,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return true;
     }
 
+    /// <summary>visual id.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (!TryDescribe(pointer, out var draw))
@@ -106,6 +116,7 @@ internal static class DownwardGatePlmDrawDefinitions
         return $"{color}-{(draw.Right ? "right" : "left")}-trigger";
     }
 
+    /// <summary>try get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (ushort pointer in Pointers())

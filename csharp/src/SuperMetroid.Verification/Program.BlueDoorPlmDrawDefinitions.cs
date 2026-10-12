@@ -10,8 +10,10 @@ using static LookupBlueDoorStockVerification;
 using static LookupBlueProgramVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents blue door plm draw definitions verification.</summary>
 internal static class BlueDoorPlmDrawDefinitionsVerification
 {
+    /// <summary>verify blue door plm draw definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Blue door PLM draw definitions")]
     internal static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -135,6 +137,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         Console.WriteLine("  Blue-door PLMs: 196 compiled program bytes, all opening/closing/closed lists, twenty physical draws and sixteen compatible visual identities pass with source reads forbidden.");
     }
 
+    /// <summary>verify blue door program definitions.</summary>
     private static void VerifyBlueDoorProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueProgramControls), () => VerifyBlueProgramControls(rom));
@@ -143,6 +146,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyBlueProgramBts), () => VerifyBlueProgramBts(rom));
     }
 
+    /// <summary>verify blue door visual installation.</summary>
     private static void VerifyBlueDoorVisualInstallation(
         SuperMetroidAddressSpace rom, ushort firstDraw)
     {
@@ -200,6 +204,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         }
     }
 
+    /// <summary>new blue door draw read guard.</summary>
     private static CartridgeReadGuard NewBlueDoorDrawReadGuard(
         ISnesAddressSpace source,
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>

@@ -9,11 +9,16 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class SidehopperCorpsePalette
 {
+    /// <summary>Stores independent or supplied.</summary>
     private readonly Bgr555[] independentOrSupplied;
+    /// <summary>Stores calculated.</summary>
     private readonly bool calculated;
+    /// <summary>Stores stock target.</summary>
     private readonly bool stockTarget;
+    /// <summary>Gets count.</summary>
     internal int Count { get; }
 
+    /// <summary>Initializes a new sidehopper corpse palette instance.</summary>
     internal SidehopperCorpsePalette(Bgr555[] colors)
     {
         Count = colors.Length;
@@ -57,6 +62,7 @@ internal sealed class SidehopperCorpsePalette
         calculated = true;
     }
 
+    /// <summary>Resolves.</summary>
     internal Bgr555 Resolve(int color)
     {
         if ((uint)color >= Count) throw new ArgumentOutOfRangeException(nameof(color));
@@ -67,6 +73,7 @@ internal sealed class SidehopperCorpsePalette
         return Interpolate(independentOrSupplied[7], independentOrSupplied[8], color - 8);
     }
 
+    /// <summary>Interpolate.</summary>
     internal static Bgr555 Interpolate(Bgr555 start, Bgr555 end, int phase)
     {
         return start.Zip(end, (_, a, b) => ((a * (7 - phase) + b * phase + 3) / 7));

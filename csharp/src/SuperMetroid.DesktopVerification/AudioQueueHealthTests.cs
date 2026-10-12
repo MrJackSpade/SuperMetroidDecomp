@@ -2,8 +2,10 @@ using SuperMetroid.Desktop;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Represents audio queue health tests.</summary>
 internal static class AudioQueueHealthTests
 {
+    /// <summary>Verifies audio queue backpressure.</summary>
     internal static void VerifyAudioQueueBackpressure()
     {
         using var device = new WaveOutAudioDevice(48000, 2, 1600, volumePercent: 0);
@@ -42,6 +44,7 @@ internal static class AudioQueueHealthTests
         Console.WriteLine("Audio backpressure: full real queue defers input/gameplay, then resumes without dropping PCM.");
     }
 
+    /// <summary>Verifies native audio queue health.</summary>
     internal static async Task VerifyNativeAudioQueueHealth()
     {
         using var device = new WaveOutAudioDevice(48000, 2, 1600, volumePercent: 0);
@@ -65,6 +68,7 @@ internal static class AudioQueueHealthTests
         Console.WriteLine("Native waveOut: silent startup, observed drain/refill, and reset exclusion passed.");
     }
 
+    /// <summary>Verifies audio queue health.</summary>
     internal static void VerifyAudioQueueHealth()
     {
         var health = new WaveOutQueueHealth();

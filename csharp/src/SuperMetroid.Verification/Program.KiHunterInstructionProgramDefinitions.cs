@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ki hunter instruction program definitions verification.</summary>
 internal static class KiHunterInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies ki hunter instruction program definitions.</summary>
     internal static void VerifyKiHunterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterInstructionProgramDefinitions), () => VerifyKiHunterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies ki hunter instruction program definitions.</summary>
     internal static void VerifyKiHunterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -204,6 +207,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes ki hunter instruction mechanics allocation.</summary>
     private static int ProbeKiHunterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -215,6 +219,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates ki hunter instruction program guard.</summary>
     private static CartridgeReadGuard NewKiHunterInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KiHunterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -223,6 +228,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 KiHunterInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled KiHunter visual byte ${address:X6}.");
 
+    /// <summary>Kihunter instruction mechanics command.</summary>
     [VerificationCommand("--kihunter-instruction-mechanics")]
     internal static int KihunterInstructionMechanicsCommand()
     {

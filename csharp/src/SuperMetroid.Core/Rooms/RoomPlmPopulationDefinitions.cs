@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Rooms;
 internal static partial class RoomPlmPopulationDefinitions
 {
 
+    /// <summary>Place.</summary>
     internal static void Place(ushort pointer, Action<PlmHeaderId, byte, byte, ushort> place)
     {
         Ensure.NotNull(place);

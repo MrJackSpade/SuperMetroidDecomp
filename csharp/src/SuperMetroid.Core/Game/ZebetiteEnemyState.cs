@@ -20,8 +20,10 @@ public enum ZebetiteAiFunction : ushort
 /// </summary>
 public sealed class ZebetiteEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new zebetite enemy state instance.</summary>
     internal ZebetiteEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native Zebetite.function in variable A ($0FA8 plus this half's slot offset): the bank-$A6 indirect main-AI entry, independent for each physical half.</summary>

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
+/// <summary>Represents verification helpers verification.</summary>
 internal static class VerificationHelpersVerification
 {
     /// <summary>Compares two memory images, reporting the first differing byte offset and values.</summary>

@@ -15,8 +15,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Represents pose input definitions verification.</summary>
 internal static class PoseInputDefinitionsVerification
 {
+    /// <summary>Verifies pose input definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose input definitions")]
     internal static void VerifyPoseInputDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -118,6 +120,7 @@ internal static class PoseInputDefinitionsVerification
         Console.WriteLine($"Pose input graph: 253 mappings, 86 lists, 598 conditions and {comparisons} complete lookup comparisons match native with ROM reads forbidden; non-authored indexes fail loudly before parsing adjacent code.");
     }
 
+    /// <summary>Pose input definitions command.</summary>
     [VerificationCommand("--pose-input-definitions")]
     internal static int PoseInputDefinitionsCommand()
     {

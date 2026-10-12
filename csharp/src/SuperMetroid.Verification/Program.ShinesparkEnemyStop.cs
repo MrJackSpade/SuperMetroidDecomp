@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents shinespark enemy stop verification.</summary>
 internal static class ShinesparkEnemyStopVerification
 {
+    /// <summary>verify shinespark enemy stop.</summary>
     internal static void VerifyShinesparkEnemyStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

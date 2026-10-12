@@ -16,8 +16,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Represents yard turn definitions verification.</summary>
 internal static class YardTurnDefinitionsVerification
 {
+    /// <summary>Verifies yard turn definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yard turn definitions")]
     internal static void VerifyYardTurnDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -75,6 +77,7 @@ internal static class YardTurnDefinitionsVerification
             "all 24 real outside/inside crawl branches pass with the complete turn table forbidden.");
     }
 
+    /// <summary>Verifies yard turn production branches.</summary>
     private static void VerifyYardTurnProductionBranches(
         SuperMetroidAddressSpace rom,
         IReadOnlyList<(YardMovementFunction Movement, bool Disabled, int Address)> records)
@@ -133,10 +136,12 @@ internal static class YardTurnDefinitionsVerification
         }
     }
 
+    /// <summary>Creates yard turn read guard.</summary>
     private static CartridgeReadGuard NewYardTurnReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3cce2 and < 0xa3cd42,
             address => $"Yard attempted migrated turn-definition read ${address:X6}.");
 
+    /// <summary>Yard turn definitions command.</summary>
     [VerificationCommand("--yard-turn-definitions")]
     internal static int YardTurnDefinitionsCommand()
     {

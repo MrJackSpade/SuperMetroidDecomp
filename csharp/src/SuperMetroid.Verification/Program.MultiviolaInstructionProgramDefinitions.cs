@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents multiviola instruction program definitions verification.</summary>
 internal static class MultiviolaInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies multiviola instruction program definitions.</summary>
     internal static void VerifyMultiviolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMultiviolaInstructionProgramDefinitions), () => VerifyMultiviolaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies multiviola instruction program definitions.</summary>
     internal static void VerifyMultiviolaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -88,6 +91,7 @@ internal static class MultiviolaInstructionProgramDefinitionsVerification
             "loop and compiled spritemap selectors pass with mechanics bytes forbidden.");
     }
 
+    /// <summary>Probe multiviola instruction mechanics allocation.</summary>
     private static int ProbeMultiviolaInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -101,12 +105,14 @@ internal static class MultiviolaInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New multiviola instruction read guard.</summary>
     private static CartridgeReadGuard NewMultiviolaInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => MultiviolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Multiviola mechanics byte ${address:X6}.")
             .ObserveWords(0xa20000, MultiviolaInstructionProgramDefinitions.PresentationWordCount, MultiviolaInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Multiviola instruction mechanics command.</summary>
     [VerificationCommand("--multiviola-instruction-mechanics")]
     internal static int MultiviolaInstructionMechanicsCommand()
     {

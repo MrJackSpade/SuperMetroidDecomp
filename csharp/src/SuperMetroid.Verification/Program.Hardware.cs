@@ -21,6 +21,7 @@ using static MapSpritesVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents hardware verification.</summary>
 internal static class HardwareVerification
 {
 
@@ -369,6 +370,7 @@ internal static void VerifyEscapeTimerStateMachine()
     Console.WriteLine("  Timer: initialization, animation, BCD borrow, and expiration agree.");
 }
 
+/// <summary>Creates running timer.</summary>
 static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseconds)
 {
     // Advancing the startup path is preferable to adding a production-only raw status
@@ -382,6 +384,7 @@ static EscapeTimer CreateRunningTimer(byte minutes, byte seconds, byte centiseco
     return timer;
 }
 
+/// <summary>Pack bcd.</summary>
 static byte PackBcd(int decimalValue) => (byte)(((decimalValue / 10) << 4) | (decimalValue % 10));
 
 /// <summary>
@@ -793,6 +796,7 @@ static void SeedRuntimeNmiDmaSource(TestAddressSpace bus)
     bus.WriteBytes(0x7e1234, [0xca, 0xfe]);
 }
 
+/// <summary>Seed two entry common spritemap.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry common spritemap at $80:8000")]
 static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
 {
@@ -803,12 +807,14 @@ static void SeedTwoEntryCommonSpritemap(TestAddressSpace bus)
     ]);
 }
 
+/// <summary>Seed vertically clipped common spritemap.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the vertically clipped common spritemap at $80:8100")]
 static void SeedVerticallyClippedCommonSpritemap(TestAddressSpace bus)
 {
     bus.WriteBytes(0x808100, [0x01, 0x00, 0x00, 0x00, 0x20, 0x01, 0x00]);
 }
 
+/// <summary>Seed two entry enemy projectile spritemap.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry enemy-projectile spritemap at $8D:9800")]
 static void SeedTwoEntryEnemyProjectileSpritemap(TestAddressSpace bus)
 {
@@ -819,6 +825,7 @@ static void SeedTwoEntryEnemyProjectileSpritemap(TestAddressSpace bus)
     ]);
 }
 
+/// <summary>Seed two entry room enemy spritemap.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the two-entry room-enemy spritemap at $A2:9000")]
 static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
 {
@@ -829,12 +836,14 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
     ]);
 }
 
+    /// <summary>Mutable memory boundary command.</summary>
     [VerificationCommand("--mutable-memory-boundary")]
     internal static int MutableMemoryBoundaryCommand()
     {
      VerifySuperMetroidAddressSpace(); return 0; 
     }
 
+    /// <summary>Oam source routing command.</summary>
     [VerificationCommand("--oam-source-routing")]
     internal static int OamSourceRoutingCommand()
     {
@@ -842,6 +851,7 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         return 0;
     }
 
+    /// <summary>Dma source routing command.</summary>
     [VerificationCommand("--dma-source-routing")]
     internal static int DmaSourceRoutingCommand()
     {
@@ -851,6 +861,7 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         return 0;
     }
 
+    /// <summary>Escape timer command.</summary>
     [VerificationCommand("--escape-timer")]
     internal static int EscapeTimerCommand()
     {

@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Named complete presentation palettes; no native offsets, palette programs or selection rules.</summary>
 public sealed class MapStaticPalettes
 {
+    /// <summary>Stores pause.</summary>
     private readonly Bgr555[] pause, fileSelect;
+    /// <summary>Stores world.</summary>
     private readonly Dictionary<AreaId, Bgr555[]> world;
+    /// <summary>Initializes a new map static palettes instance.</summary>
     private MapStaticPalettes(Bgr555[] pause, Bgr555[] fileSelect, Dictionary<AreaId, Bgr555[]> world)
     { this.pause = pause; this.fileSelect = fileSelect; this.world = world; }
 
@@ -44,6 +47,7 @@ public sealed class MapStaticPalettes
         return new(Compile(document.Pause, "pause"), Compile(document.FileSelect, "fileSelect"), world);
     }
 
+    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, string name)
     {
         if (colors is null || colors.Length != CgramPalettes.ColorCount)

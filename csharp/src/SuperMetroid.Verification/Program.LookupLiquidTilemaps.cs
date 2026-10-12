@@ -7,19 +7,26 @@ using SuperMetroid.Core.Rom;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup liquid tilemaps verification.</summary>
 internal static class LookupLiquidTilemapsVerification
 {
+    /// <summary>Verifies liquid tile characters.</summary>
     private static void VerifyLiquidTileCharacters(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x03ff));
+    /// <summary>Verifies liquid tile palettes.</summary>
     private static void VerifyLiquidTilePalettes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x1c00));
+    /// <summary>Verifies liquid tile priority.</summary>
     private static void VerifyLiquidTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x2000));
+    /// <summary>Verifies liquid tile horizontal flip.</summary>
     private static void VerifyLiquidTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x4000));
+    /// <summary>Verifies liquid tile vertical flip.</summary>
     private static void VerifyLiquidTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x8000));
 
+    /// <summary>Verifies liquid tile field.</summary>
     private static void VerifyLiquidTileField(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog, int mask)
     {
         foreach (RoomFxType type in new[] { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water })
@@ -41,6 +48,7 @@ internal static class LookupLiquidTilemapsVerification
         }
     }
 
+    /// <summary>Verifies liquid tilemap domain and storage.</summary>
     private static void VerifyLiquidTilemapDomainAndStorage(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         var valid = new HashSet<RoomFxType> { RoomFxType.Lava, RoomFxType.Acid, RoomFxType.Water };
@@ -78,9 +86,11 @@ internal static class LookupLiquidTilemapsVerification
         }
     }
 
+    /// <summary>Liquid tilemap domain and storage rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for liquid tilemap domain and storage")]
     private static byte LiquidTilemapDomainAndStorageRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies liquid tilemaps.</summary>
     internal static void VerifyLiquidTilemaps(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifyLiquidTileCharacters), () => VerifyLiquidTileCharacters(rom, stock));
@@ -91,6 +101,7 @@ internal static class LookupLiquidTilemapsVerification
         Suite(nameof(VerifyLiquidTilemapDomainAndStorage), () => VerifyLiquidTilemapDomainAndStorage(rom, stock));
     }
 
+    /// <summary>New liquid tilemap source guard.</summary>
     internal static CartridgeReadGuard NewLiquidTilemapSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0x8a8000, 0x8a98c0 - 0x8a8000,
             _ => "Liquid tilemap extraction read a converted stock page.");

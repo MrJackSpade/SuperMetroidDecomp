@@ -1,37 +1,52 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The pipe bugs species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PipeBugsBehavior : IEnemySpecies
 {
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new pipe bugs behavior instance.</summary>
     internal PipeBugsBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>Stores brinstar pipe bug emergence height.</summary>
     private const ushort BrinstarPipeBugEmergenceHeight = 16;
+    /// <summary>Stores brinstar pipe bug trigger width.</summary>
     private const ushort BrinstarPipeBugTriggerWidth = 64;
+    /// <summary>Stores brinstar pipe bug trigger top.</summary>
     private const ushort BrinstarPipeBugTriggerTop = 96;
+    /// <summary>Stores brinstar pipe bug respawn frames.</summary>
     private const ushort BrinstarPipeBugRespawnFrames = 48;
 
+    /// <summary>Stores norfair formation size.</summary>
     private const int NorfairFormationSize = 5;
 
+    /// <summary>Stores yellow pipe bug trigger distance.</summary>
     private const ushort YellowPipeBugTriggerDistance = 192;
+    /// <summary>Stores yellow pipe bug trigger height.</summary>
     private const ushort YellowPipeBugTriggerHeight = 48;
+    /// <summary>Stores yellow pipe bug emergence delay frames.</summary>
     private const ushort YellowPipeBugEmergenceDelayFrames = 24;
+    /// <summary>Stores yellow pipe bug arc trigger distance.</summary>
     private const ushort YellowPipeBugArcTriggerDistance = 48;
+    /// <summary>Stores yellow pipe bug arc counter start.</summary>
     private const ushort YellowPipeBugArcCounterStart = 40;
 
+    /// <summary>Stores pipe bug states.</summary>
     internal readonly PipeBugEnemyState?[] _pipeBugStates =
         new PipeBugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Checks whether the definition identifies a Brinstar pipe bug.</summary>
     internal static bool IsBrinstarPipeBugDefinition(EnemyDefinitionId definition) =>
         definition is EnemyDefinitionId.Zeb or
             EnemyDefinitionId.Zebbo;
 
+    /// <summary>Resets pipe bug room state.</summary>
     internal void ResetPipeBugRoomState() => Array.Clear(_pipeBugStates);
 
     /// <summary>Ports <c>BrinstarPipeBug_Init</c> at $B3:883B.</summary>
@@ -197,6 +212,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs brinstar pipe bug waiting.</summary>
     private static void RunBrinstarPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -223,6 +239,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         SelectBrinstarPipeBugAnimation(slot, state);
     }
 
+    /// <summary>Runs brinstar pipe bug emergence.</summary>
     private static void RunBrinstarPipeBugEmergence(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -247,6 +264,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.BrinstarFlyHorizontally;
     }
 
+    /// <summary>Runs brinstar pipe bug flight.</summary>
     private static void RunBrinstarPipeBugFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -269,6 +287,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.BrinstarRespawnDelay;
     }
 
+    /// <summary>Selects brinstar pipe bug animation.</summary>
     internal static void SelectBrinstarPipeBugAnimation(
         RoomEnemySlot slot,
         PipeBugEnemyState state)
@@ -283,6 +302,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Runs norfair pipe bug formation wait.</summary>
     private void RunNorfairPipeBugFormationWait(RoomEnemySlot slot, PipeBugEnemyState state)
     {
         // Only the first record has a nonzero low parameter byte. It is the formation
@@ -298,6 +318,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs norfair pipe bug samus wait.</summary>
     internal void RunNorfairPipeBugSamusWait(
         RoomEnemySlot leader,
         PipeBugEnemyState leaderState,
@@ -334,6 +355,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs norfair pipe bug rise.</summary>
     private static void RunNorfairPipeBugRise(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -353,6 +375,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 : NorfairPipeBugInstructionProgramDefinitions.RisingLeft);
     }
 
+    /// <summary>Runs norfair pipe bug vertical stagger.</summary>
     private static void RunNorfairPipeBugVerticalStagger(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -375,6 +398,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.NorfairWaitForStagger;
     }
 
+    /// <summary>Runs norfair pipe bug stagger wait.</summary>
     private static void RunNorfairPipeBugStaggerWait(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -415,6 +439,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Position = slot.Position.WithWhole(state.SpawnPosition);
     }
 
+    /// <summary>Requires norfair pipe bug formation.</summary>
     private RoomEnemySlot[] RequireNorfairPipeBugFormation(RoomEnemySlot leader)
     {
         if (leader.SlotIndex + NorfairFormationSize > RoomEnemySystem.MaximumEnemyCount)
@@ -440,6 +465,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         return formation;
     }
 
+    /// <summary>Runs yellow pipe bug waiting.</summary>
     private static void RunYellowPipeBugWaiting(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -460,6 +486,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         state.Function = PipeBugEnemyFunction.YellowEmergenceDelay;
     }
 
+    /// <summary>Runs yellow pipe bug delay.</summary>
     private static void RunYellowPipeBugDelay(RoomEnemySlot slot, PipeBugEnemyState state)
     {
         state.EmergenceDelay = unchecked((ushort)(state.EmergenceDelay - 1));
@@ -479,6 +506,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs yellow pipe bug straight flight.</summary>
     private static void RunYellowPipeBugStraightFlight(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -512,6 +540,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 : YellowPipeBugInstructionProgramDefinitions.ArcingRight);
     }
 
+    /// <summary>Runs yellow pipe bug arc.</summary>
     private static void RunYellowPipeBugArc(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -558,6 +587,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
                 : YellowPipeBugInstructionProgramDefinitions.FlyingRight);
     }
 
+    /// <summary>Resets yellow pipe bug if off screen.</summary>
     private static bool ResetYellowPipeBugIfOffScreen(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -578,6 +608,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Adds yellow pipe bug horizontal velocity.</summary>
     private static void AddYellowPipeBugHorizontalVelocity(
         RoomEnemySlot slot,
         PipeBugEnemyState state,
@@ -590,6 +621,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         AddPipeBugFixedVelocity(slot, horizontal: true, whole, fraction);
     }
 
+    /// <summary>Adds pipe bug linear velocity.</summary>
     private static void AddPipeBugLinearVelocity(
         RoomEnemySlot slot,
         bool horizontal,
@@ -599,6 +631,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         AddPipeBugFixedVelocity(slot, horizontal, unchecked((ushort)whole), fraction);
     }
 
+    /// <summary>Adds pipe bug fixed velocity.</summary>
     private static void AddPipeBugFixedVelocity(
         RoomEnemySlot slot,
         bool horizontal,
@@ -620,6 +653,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Adds pipe bug displacement.</summary>
     private static void AddPipeBugDisplacement(
         RoomEnemySlot slot,
         bool horizontal,
@@ -639,6 +673,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Creates pipe bug state.</summary>
     private PipeBugEnemyState CreatePipeBugState(RoomEnemySlot slot)
     {
         var state = new PipeBugEnemyState(slot);
@@ -646,10 +681,12 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>Requires pipe bug state.</summary>
     private PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
         _pipeBugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Pipe Bug state.");
 
+    /// <summary>Installs pipe bug instruction.</summary>
     internal static void InstallPipeBugInstruction(RoomEnemySlot slot, ushort instruction)
     {
         slot.CurrentInstruction = instruction;
@@ -657,12 +694,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Requires pipe bug samus.</summary>
     private static void RequirePipeBugSamus(SamusState? samus)
     {
         if (samus is null)
             throw new InvalidOperationException("Pipe Bug behavior requires the active Samus actor.");
     }
 
+    /// <summary>Registers pipe bugs initialization ai.</summary>
     internal void RegisterPipeBugsInitializationAi(EnemyAiTable table)
     {
 
@@ -682,6 +721,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers pipe bugs main ai.</summary>
     internal void RegisterPipeBugsMainAi(EnemyAiTable table)
     {
 

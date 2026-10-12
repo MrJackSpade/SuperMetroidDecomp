@@ -18,8 +18,10 @@ using static IntroMotherBrainExplosionProgramsVerification;
 using static IntroMotherBrainInstructionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents intro mother brain definitions verification.</summary>
 internal static class IntroMotherBrainDefinitionsVerification
 {
+    /// <summary>Verifies intro mother brain definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyIntroMotherBrainDefinitions()
     {
@@ -161,6 +163,7 @@ internal static class IntroMotherBrainDefinitionsVerification
             .GetProperty("SpriteMapPointer")!.GetValue(actor)!;
     }
 
+    /// <summary>Creates intro mother brain definition guard.</summary>
     private static CartridgeReadGuard NewIntroMotherBrainDefinitionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => address is >= 0x8bcb05 and < 0x8bcb33 or
@@ -172,6 +175,7 @@ internal static class IntroMotherBrainDefinitionsVerification
                 >= 0x8bb9fd and < 0x8bba0f,
             address => $"Intro Mother Brain reread compiled byte ${address:X6}.");
 
+    /// <summary>Intro mother brain definitions command.</summary>
     [VerificationCommand("--intro-mother-brain-definitions")]
     internal static int IntroMotherBrainDefinitionsCommand()
     {

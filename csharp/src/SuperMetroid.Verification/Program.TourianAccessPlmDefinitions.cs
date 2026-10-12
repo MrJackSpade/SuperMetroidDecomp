@@ -15,8 +15,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Represents tourian access plm definitions verification.</summary>
 internal static class TourianAccessPlmDefinitionsVerification
 {
+    /// <summary>verify tourian access plm definitions.</summary>
     internal static void VerifyTourianAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTourianAccessHeaderSelection), () => VerifyTourianAccessHeaderSelection(rom));
@@ -52,12 +54,15 @@ internal static class TourianAccessPlmDefinitionsVerification
         }
     }
 
+    /// <summary>verify tourian access header selection.</summary>
     private static void VerifyTourianAccessHeaderSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, false));
 
+    /// <summary>verify tourian access instruction selection.</summary>
     private static void VerifyTourianAccessInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessSpawnField), () => VerifyTourianAccessSpawnField(rom, true));
 
+    /// <summary>verify tourian access spawn field.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access spawn field")]
     private static void VerifyTourianAccessSpawnField(SuperMetroidAddressSpace rom, bool instruction)
     {
@@ -75,6 +80,7 @@ internal static class TourianAccessPlmDefinitionsVerification
         }
     }
 
+    /// <summary>tourian access definitions command.</summary>
     [VerificationCommand("--tourian-access-definitions")]
     internal static int TourianAccessDefinitionsCommand()
     {

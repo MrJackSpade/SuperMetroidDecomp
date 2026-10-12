@@ -11,6 +11,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class VramDmaOwnership
 {
+    /// <summary>Owns native.</summary>
     internal static bool OwnsNative(int source, int count)
     {
         if (source == HudTileAtlasFormat.SourceAddress && count == HudTileAtlasFormat.TransferByteCount) return true;
@@ -37,6 +38,7 @@ internal static class VramDmaOwnership
              ((source & 1) == 0 && count == RoomFxRomData.ScrollingSky.TilemapRowByteCount));
     }
 
+    /// <summary>Owns typed.</summary>
     internal static bool OwnsTyped(VramAssetId asset, int count)
     {
         if (asset == VramAssetId.StandardHudTiles) return count == HudTileAtlasFormat.TransferByteCount;

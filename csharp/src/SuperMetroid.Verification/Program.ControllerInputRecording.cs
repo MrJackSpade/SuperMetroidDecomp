@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using System.Buffers.Binary;
 
+/// <summary>Represents controller input recording verification.</summary>
 internal static class ControllerInputRecordingVerification
 {
     /// <summary>Proves the replay seed and every raw controller bit survive serialization.</summary>

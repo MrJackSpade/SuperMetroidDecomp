@@ -2,12 +2,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup cannon layouts verification.</summary>
 internal static class LookupCannonLayoutsVerification
 {
+    /// <summary>verify cannon layout geometry.</summary>
     internal static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 0);
+    /// <summary>verify cannon layout collision.</summary>
     internal static void VerifyCannonLayoutCollision(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 1);
+    /// <summary>verify cannon layout visuals.</summary>
     internal static void VerifyCannonLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 2);
 
+    /// <summary>verify cannon layout draw field.</summary>
     private static void VerifyCannonLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9fcd,0x9fdd,0xa02d,0xa03d,0xa04d,0xa05d,0xa0ed,0xa101,0xa165,0xa179,0xa18d,0xa1a1];

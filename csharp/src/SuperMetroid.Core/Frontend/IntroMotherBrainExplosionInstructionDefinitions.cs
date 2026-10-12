@@ -20,6 +20,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
     /// <summary>$8B:CE53, shared sprite-object delete list.</summary>
     internal const ushort DeletePointer = CinematicCodePointers.Lists.Delete;
 
+    /// <summary>program word.</summary>
     private static ushort ProgramWord(int index)
     {
         bool big = index < 16;
@@ -36,6 +37,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
         };
     }
 
+    /// <summary>read byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer == DeletePointer)
@@ -48,6 +50,7 @@ internal static class IntroMotherBrainExplosionInstructionDefinitions
         return unchecked((byte)(ProgramWord(offset / 2) >> (8 * (offset & 1))));
     }
 
+    /// <summary>read word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)

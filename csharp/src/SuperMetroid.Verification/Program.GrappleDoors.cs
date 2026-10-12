@@ -14,8 +14,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents grapple doors verification.</summary>
 internal static class GrappleDoorsVerification
 {
+    /// <summary>Verifies grapple blue doors.</summary>
     internal static void VerifyGrappleBlueDoors()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -75,6 +77,7 @@ internal static class GrappleDoorsVerification
         samus.Grapple.FireDirection = samus.PoseMetadata.ReadShotDirection(bus);
     }
 
+    /// <summary>Grapple doors command.</summary>
     [VerificationCommand("--grapple-doors")]
     internal static int GrappleDoorsCommand()
     {

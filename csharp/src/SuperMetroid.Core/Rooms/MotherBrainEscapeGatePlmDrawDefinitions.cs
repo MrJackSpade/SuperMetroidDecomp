@@ -37,6 +37,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         // Pointers outside the three gate images belong to other draw families.
@@ -45,6 +46,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -58,6 +60,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
     }
 
     // Temporary artwork DTOs; gameplay computes each cell directly.
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -68,6 +71,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<MotherBrainEscapeGateDraw>(pointer, "Mother Brain escape-gate draw") switch
         {
@@ -78,6 +82,7 @@ internal static class MotherBrainEscapeGatePlmDrawDefinitions
                 $"Undefined Mother Brain escape-gate draw ${pointer:X4}."),
         };
 
+    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

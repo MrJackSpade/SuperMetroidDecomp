@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents aerial spread transition verification.</summary>
 internal static class AerialSpreadTransitionVerification
 {
     /// <summary>
@@ -44,6 +45,7 @@ internal static class AerialSpreadTransitionVerification
             : "Aerial down-aim spread: both directions and ten input timings, through expiry.");
     }
 
+    /// <summary>Verifies turnaround spread frame.</summary>
     private static void VerifyTurnaroundSpreadFrame(SuperMetroidRuntime runtime, bool left, int delay, int frame)
     {
         var samus = runtime.Player.Samus!;
@@ -61,6 +63,7 @@ internal static class AerialSpreadTransitionVerification
             AssertEqual((ushort)0, samus.ProjectileFlareCounter, "airborne spread consumes charge");
     }
 
+    /// <summary>Verifies wall spread frame.</summary>
     private static void VerifyWallSpreadFrame(SuperMetroidRuntime runtime, bool left, int timingCase, int delay, int frame, uint previousY)
     {
         var samus = runtime.Player.Samus!;
@@ -100,6 +103,7 @@ internal static class AerialSpreadTransitionVerification
         if (frame == 299) AssertEqual((ushort)0, runtime.BombProjectiles.BombCounter, "walljump spread expires");
     }
 
+    /// <summary>Wall spread transition command.</summary>
     [VerificationCommand("--wall-spread-transition")]
     internal static int WallSpreadTransitionCommand()
     {
@@ -107,6 +111,7 @@ internal static class AerialSpreadTransitionVerification
         return 0;
     }
 
+    /// <summary>Aerial spread transition command.</summary>
     [VerificationCommand("--aerial-spread-transition")]
     internal static int AerialSpreadTransitionCommand()
     {

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static RoomMainCodeCatalogVerification;
 
+/// <summary>Represents room callback definitions verification.</summary>
 internal static class RoomCallbackDefinitionsVerification
 {
+    /// <summary>Verifies compiled room callback definitions.</summary>
     internal static void VerifyCompiledRoomCallbackDefinitions()
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -80,6 +82,7 @@ internal static class RoomCallbackDefinitionsVerification
             $"{mainCallbacks.Count} main and {setupCallbacks.Count} setup identities.");
     }
 
+    /// <summary>Room callback definitions command.</summary>
     [VerificationCommand("--room-callback-definitions")]
     internal static int RoomCallbackDefinitionsCommand()
     {

@@ -39,6 +39,7 @@ internal static class GrappleConnectionDefinitions
             stop.SamusOffset.MirroredX(), stop.Function);
     }
 
+    /// <summary>Mirror pose.</summary>
     private static SamusPoseId MirrorPose(SamusPoseId pose) => pose switch
     {
         GrappleCrouchingDownRightPose => GrappleCrouchingDownLeftPose,

@@ -1,28 +1,36 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Norfair lava-jumping enemy species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new norfair lava jumping enemy behavior instance.</summary>
     internal NorfairLavaJumpingEnemyBehavior(EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _room = room;
         _slotTable = slotTable;
     }
 
+    /// <summary>Stores norfair lava jumping enemy gravity.</summary>
     private const ushort NorfairLavaJumpingEnemyGravity = 56;
+    /// <summary>Stores norfair lava jumping enemy animation switch velocity.</summary>
     private const ushort NorfairLavaJumpingEnemyAnimationSwitchVelocity = 0xfc00;
+    /// <summary>Stores norfair lava jumping enemy jump sound.</summary>
     private const ushort NorfairLavaJumpingEnemyJumpSound = 0x000d;
 
+    /// <summary>Stores norfair lava jumping enemy states.</summary>
     internal readonly NorfairLavaJumpingEnemyState?[] _norfairLavaJumpingEnemyStates =
         new NorfairLavaJumpingEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Most recent library-two jump sound request emitted during this frame.</summary>
     public ushort? LastNorfairLavaJumpingEnemySoundEffect { get; private set; }
 
+    /// <summary>Resets norfair lava jumping enemy room state.</summary>
     internal void ResetNorfairLavaJumpingEnemyRoomState()
     {
         Array.Clear(_norfairLavaJumpingEnemyStates);
@@ -152,6 +160,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Follow norfair lava jumping enemy parent.</summary>
     private void FollowNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
@@ -184,6 +193,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         follower.Position = follower.Position.WithWholeY(parent.Position.Y.Whole);
     }
 
+    /// <summary>Gets preceding norfair lava jumping enemy slot.</summary>
     private RoomEnemySlot GetPrecedingNorfairLavaJumpingEnemySlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -195,6 +205,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         return _slotTable._slots[follower.SlotIndex - 1];
     }
 
+    /// <summary>Validates norfair lava jumping enemy parent.</summary>
     private void ValidateNorfairLavaJumpingEnemyParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairLavaJumpingEnemySlot(follower);
@@ -209,6 +220,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves norfair lava jumping enemy vertically.</summary>
     private static void MoveNorfairLavaJumpingEnemyVertically(
         RoomEnemySlot slot,
         NorfairLavaJumpingEnemyState state)
@@ -231,10 +243,12 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Requires norfair lava jumping enemy state.</summary>
     private NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>
         _norfairLavaJumpingEnemyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Norfair lava-jumping state.");
 
+    /// <summary>Registers norfair lava jumping enemy initialization ai.</summary>
     internal void RegisterNorfairLavaJumpingEnemyInitializationAi(EnemyAiTable table)
     {
 
@@ -244,6 +258,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers norfair lava jumping enemy main ai.</summary>
     internal void RegisterNorfairLavaJumpingEnemyMainAi(EnemyAiTable table)
     {
 
@@ -255,6 +270,7 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers norfair lava jumping enemy owned instructions.</summary>
     internal void RegisterNorfairLavaJumpingEnemyOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

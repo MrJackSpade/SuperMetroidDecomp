@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents map station layout verification.</summary>
 internal static class MapStationLayoutVerification
 {
+    /// <summary>verify map station layout.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -100,6 +102,7 @@ internal static class MapStationLayoutVerification
         }
     }
 
+    /// <summary>new station layout guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle walking the native missile, energy and map-station coordinate lists to forbid them")]
     private static CartridgeReadGuard NewStationLayoutGuard(ISnesAddressSpace source)
     {

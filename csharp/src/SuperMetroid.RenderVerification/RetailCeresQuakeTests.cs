@@ -6,8 +6,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents retail ceres quake tests.</summary>
 internal static class RetailCeresQuakeTests
 {
+    /// <summary>Runs.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         foreach (ushort room in new[] { RoomHeaderPointers.CeresDeadScientistRoom, RoomHeaderPointers.CeresFinalHallway })
@@ -42,6 +44,7 @@ internal static class RetailCeresQuakeTests
     }
 }
 
+/// <summary>Represents ceres quake fixture.</summary>
 internal static class CeresQuakeFixture
 {
     /// <summary>Native Ceres status word after Ridley's departure enables door earthquake producers.</summary>

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,24 +6,34 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The escape animals species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EscapeAnimalsBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Initializes a new escape animals behavior instance.</summary>
     internal EscapeAnimalsBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Stores empty bank b3 spritemap.</summary>
     private const ushort EmptyBankB3Spritemap = 0x804d;
 
+    /// <summary>Stores escape dachora pixels per callback.</summary>
     private const ushort EscapeDachoraPixelsPerCallback = 6;
+    /// <summary>Stores escape animal lava branch y.</summary>
     private const ushort EscapeAnimalLavaBranchY = 0x00ce;
+    /// <summary>Stores escape etecoon gravity.</summary>
     private const int EscapeEtecoonGravity = 1 << 16;
+    /// <summary>Stores escape etecoon uncollided exit speed.</summary>
     private const int EscapeEtecoonUncollidedExitSpeed = 0x00038000;
 
+    /// <summary>Stores escape etecoon states.</summary>
     internal readonly EscapeEtecoonEnemyState?[] _escapeEtecoonStates =
         new EscapeEtecoonEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores escape dachora states.</summary>
     private readonly EscapeDachoraEnemyState?[] _escapeDachoraStates =
         new EscapeDachoraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -237,16 +247,20 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         return false;
     }
 
+    /// <summary>Has critters escaped.</summary>
     private bool HasCrittersEscaped() => _room.Services.Events.Has(EventNumber.CrittersEscaped);
 
+    /// <summary>Escape animal lava y.</summary>
     private static ushort EscapeAnimalLavaY(SamusState? samus) =>
         samus?.LiquidPhysics.LavaAcidYPosition ?? ushort.MaxValue;
 
+    /// <summary>Reads escape animal operand.</summary>
     private static ushort ReadEscapeAnimalOperand(RoomEnemySlot slot, ushort instructionCursor) =>
         EnemyInstructionInterpreter.ReadEnemyInstructionMechanicsWord(
             slot,
             unchecked((ushort)(instructionCursor + 2)));
 
+    /// <summary>Adds escape animal x.</summary>
     private static void AddEscapeAnimalX(RoomEnemySlot slot, int displacement)
     {
         uint fixedPosition = slot.Position.X.RawValue;
@@ -254,10 +268,12 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
     }
 
+    /// <summary>Requires escape etecoon state.</summary>
     private EscapeEtecoonEnemyState RequireEscapeEtecoonState(RoomEnemySlot slot) =>
         _escapeEtecoonStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized escape-Etecoon state.");
 
+    /// <summary>Registers escape animals initialization ai.</summary>
     internal void RegisterEscapeAnimalsInitializationAi(EnemyAiTable table)
     {
 
@@ -272,6 +288,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers escape animals main ai.</summary>
     internal void RegisterEscapeAnimalsMainAi(EnemyAiTable table)
     {
 
@@ -284,6 +301,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers escape animals owned instructions.</summary>
     internal void RegisterEscapeAnimalsOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -305,6 +323,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Registers escape dachora main ai.</summary>
     internal static void RegisterEscapeDachoraMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.RTL_B3EB1A, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DachoraEscape, (slot, frame, nmiFrameCounter8) =>

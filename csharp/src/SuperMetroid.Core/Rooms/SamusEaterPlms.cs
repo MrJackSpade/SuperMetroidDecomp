@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Spatial;
 
 namespace SuperMetroid.Core.Rooms;
@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>Samus-eater plant PLMs: their spawn, the held Samus position and the pre-instruction that runs the bite.</summary>
 internal sealed class SamusEaterPlms
 {
+    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Initializes a new samus eater plms instance.</summary>
     internal SamusEaterPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
     {
         _bindings = bindings;
@@ -41,9 +44,11 @@ internal sealed class SamusEaterPlms
         // Native descending allocation simply returns when all slots are occupied.
     }
 
+    /// <summary>require plant samus.</summary>
     internal SamusState RequirePlantSamus() => _bindings.Samus?.Current
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
+    /// <summary>run samus eater pre instruction.</summary>
     internal void RunSamusEaterPreInstruction(PlmSlot slot)
     {
         if (slot.PreInstruction != SamusEaterPlmRomData.HoldPreInstruction) return;

@@ -12,8 +12,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents boost floor audit verification.</summary>
 internal static class BoostFloorAuditVerification
 {
+    /// <summary>audit boost floor.</summary>
     internal static void AuditBoostFloor()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -63,6 +65,7 @@ internal static class BoostFloorAuditVerification
         Console.WriteLine("  Boosted floor: retail half-height traversal, real wall endpoint and native slope-support latch lifetime agree.");
     }
 
+    /// <summary>boost floor audit command.</summary>
     [VerificationCommand("--boost-floor-audit")]
     internal static int BoostFloorAuditCommand()
     {

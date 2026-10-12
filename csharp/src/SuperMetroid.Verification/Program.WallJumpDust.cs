@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 using static WallJumpExpansionVerification;
 
+/// <summary>Represents wall jump dust verification.</summary>
 internal static class WallJumpDustVerification
 {
+    /// <summary>Verifies wall jump dust.</summary>
     internal static void VerifyWallJumpDust()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -53,6 +55,7 @@ internal static class WallJumpDustVerification
         Console.WriteLine("Wall-jump dust: both launch paths match native facing, liquid boundary, timer and slot-preservation outputs.");
     }
 
+    /// <summary>Wall jump dust command.</summary>
     [VerificationCommand("--wall-jump-dust")]
     internal static int WallJumpDustCommand()
     {

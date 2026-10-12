@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents vertical shutter instruction program definitions verification.</summary>
 internal static class VerticalShutterInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify vertical shutter instruction program definitions.</summary>
     internal static void VerifyVerticalShutterInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>verify vertical shutter instruction program definitions.</summary>
     internal static void VerifyVerticalShutterInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -109,6 +112,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
             "mechanics bytes forbidden.");
     }
 
+    /// <summary>verify vertical shutter mechanics mapping.</summary>
     private static void VerifyVerticalShutterMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xe9aa, 0xe9ae, 0xede7, 0xedeb, 0xedef, 0xedf3, 0xedf7, 0xedf9];
@@ -147,6 +151,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
                 "vertical shutter word ordinal bounds");
     }
 
+    /// <summary>verify vertical shutter presentation addresses.</summary>
     private static void VerifyVerticalShutterPresentationAddresses()
     {
         ushort[] addresses = [0xe9ac, 0xede9, 0xeded, 0xedf1, 0xedf5];
@@ -168,6 +173,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
                 "vertical shutter presentation ordinal bounds");
     }
 
+    /// <summary>verify kamer platform visual selectors.</summary>
     private static void VerifyKamerPlatformVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xede9, 0xeded, 0xedf1, 0xedf5];
@@ -190,6 +196,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
                 AssertEqual((ushort)0, missing, "Kamer shared missing value cleared");
             }
     }
+    /// <summary>verify vertical shutter initial function selection.</summary>
     internal static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Func<VerticalShutterEnemyState, VerticalShutterFunction> select = ShuttersBehavior.SelectInitialVerticalShutterFunction;
@@ -213,6 +220,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>verify horizontal shutter initial function selection.</summary>
     internal static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterFunction;
@@ -233,6 +241,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
             AssertEqual(HorizontalShutterFunction.Initial, state.Function, "invalid horizontal selector preserves state");
         }
     }
+    /// <summary>verify shutter visual pointer mapping.</summary>
     internal static void VerifyShutterVisualPointerMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xe99a, 0xe9a0, 0xe9a6, 0xe9ac, 0xe9d6];
@@ -273,6 +282,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
             }
         AssertThrows<InvalidDataException>(() => ShutterVisualDefinitions.FrameAt(0, 0xe9ac), "unknown shutter owner rejected");
     }
+    /// <summary>probe vertical shutter instruction mechanics allocation.</summary>
     private static int ProbeVerticalShutterInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -286,11 +296,13 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>read vertical shutter instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for vertical shutter instruction words")]
     internal static ushort ReadVerticalShutterInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>new vertical shutter instruction program read guard.</summary>
     private static CartridgeReadGuard NewVerticalShutterInstructionProgramReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source).Forbid(VerticalShutterInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -308,6 +320,7 @@ internal static class VerticalShutterInstructionProgramDefinitionsVerification
         });
     }
 
+    /// <summary>vertical shutter instruction mechanics command.</summary>
     [VerificationCommand("--vertical-shutter-instruction-mechanics")]
     internal static int VerticalShutterInstructionMechanicsCommand()
     {

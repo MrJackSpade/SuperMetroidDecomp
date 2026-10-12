@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static SuiteTimingVerification;
 
+/// <summary>Represents power bomb shape definitions verification.</summary>
 internal static class PowerBombShapeDefinitionsVerification
 {
+    /// <summary>Verifies power bomb width algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb width algorithm")]
     internal static void VerifyPowerBombWidthAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -27,6 +29,7 @@ internal static class PowerBombShapeDefinitionsVerification
                 "Power Bomb width bounds");
     }
 
+    /// <summary>Verifies power bomb top offset algorithm.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb top offset algorithm")]
     internal static void VerifyPowerBombTopOffsetAlgorithm(SuperMetroidAddressSpace rom)
     {
@@ -38,6 +41,7 @@ internal static class PowerBombShapeDefinitionsVerification
                 "Power Bomb top offset bounds");
     }
 
+    /// <summary>Verifies compiled power bomb shape.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb shape")]
     internal static void VerifyCompiledPowerBombShape(SuperMetroidAddressSpace rom)
     {
@@ -106,11 +110,13 @@ internal static class PowerBombShapeDefinitionsVerification
         Console.WriteLine($"Power Bomb compiled shape: 64 native bytes, 197120 signed scanline cases and {frames} complete clipped/HUD-preserving frames match without a bus.");
     }
 
+    /// <summary>Creates power bomb shape read guard.</summary>
     private static CartridgeReadGuard NewPowerBombShapeReadGuard() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected shape ROM read: {address:X6}.")
             .RejectWrites(_ => "Unexpected shape bus write.");
 
+    /// <summary>Power bomb shape fixture command.</summary>
     [VerificationCommand("--power-bomb-shape-fixture")]
     internal static int PowerBombShapeFixtureCommand()
     {
@@ -120,6 +126,7 @@ internal static class PowerBombShapeDefinitionsVerification
     }
 }
 
+/// <summary>Represents power bomb shape reference data.</summary>
 internal static class PowerBombShapeReferenceData
 {
     /// <summary>$88:A266, PowerBombExplosion_ShapeDefinitionTable_Unscaled_width: 32 bottom-to-center bytes.</summary>

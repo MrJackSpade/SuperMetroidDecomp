@@ -10,8 +10,10 @@ using SuperMetroid.Desktop;
 using static GraphDigestVerification;
 using static PauseEquipmentRulesVerification;
 
+/// <summary>Represents pause wireframes verification.</summary>
 internal static class PauseWireframesVerification
 {
+    /// <summary>verify pause wireframes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause wireframe artwork")]
     internal static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
@@ -137,6 +139,7 @@ internal static class PauseWireframesVerification
         }
     }
 
+    /// <summary>new pause wireframe read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause wireframe pointer table and artwork ranges")]
     private static CartridgeReadGuard NewPauseWireframeReadGuard(ISnesAddressSpace source)
     {

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup eye door stock verification.</summary>
 internal static class LookupEyeDoorStockVerification
 {
+    /// <summary>Verifies eye door stock mapping.</summary>
     internal static void VerifyEyeDoorStockMapping(SuperMetroidAddressSpace rom, RoomPlmEyeDoorVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [

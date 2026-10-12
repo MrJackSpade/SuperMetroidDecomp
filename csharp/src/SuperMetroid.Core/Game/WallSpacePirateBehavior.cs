@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,13 +6,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The wall space pirate species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WallSpacePirateBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Stores walking space pirate behavior.</summary>
     private readonly WalkingSpacePirateBehavior _walkingSpacePirateBehavior;
 
+    /// <summary>Initializes a new wall space pirate behavior instance.</summary>
     internal WallSpacePirateBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, WalkingSpacePirateBehavior walkingSpacePirateBehavior)
     {
         _walkingSpacePirateBehavior = walkingSpacePirateBehavior;
@@ -22,14 +28,20 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>Stores wall pirate samus detection band.</summary>
     private const int WallPirateSamusDetectionBand = 32;
+    /// <summary>Stores wall pirate laser muzzle yoffset.</summary>
     private const int WallPirateLaserMuzzleYOffset = 16;
+    /// <summary>Stores wall pirate laser sound.</summary>
     private const ushort WallPirateLaserSound = 0x0067;
+    /// <summary>Stores wall pirate jump sound.</summary>
     private const ushort WallPirateJumpSound = 0x0066;
 
+    /// <summary>Stores wall space pirate states.</summary>
     internal readonly WallSpacePirateEnemyState?[] _wallSpacePirateStates =
         new WallSpacePirateEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>Indicates whether wall space pirate definition.</summary>
     internal static bool IsWallSpacePirateDefinition(EnemyDefinitionId definition) => definition is
         EnemyDefinitionId.PirateGreyWall or
         EnemyDefinitionId.PirateGreenWall or
@@ -38,6 +50,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         EnemyDefinitionId.PirateMagentaWall or
         EnemyDefinitionId.PirateSilverWall;
 
+    /// <summary>Indicates whether ordinary space pirate definition.</summary>
     internal static bool IsOrdinarySpacePirateDefinition(EnemyDefinitionId definition) =>
         IsWallSpacePirateDefinition(definition) ||
         WalkingSpacePirateBehavior.IsWalkingSpacePirateDefinition(definition) ||
@@ -120,6 +133,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             "Wall Space Pirate detection requires the active Samus position.");
     }
 
+    /// <summary>Advances wall space pirate jump right.</summary>
     private static void StepWallSpacePirateJumpRight(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -136,6 +150,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         SnapWallSpacePirateXToTile(slot);
     }
 
+    /// <summary>Advances wall space pirate jump left.</summary>
     private static void StepWallSpacePirateJumpLeft(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -152,6 +167,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         SnapWallSpacePirateXToTile(slot);
     }
 
+    /// <summary>Position wall space pirate on arc.</summary>
     private static void PositionWallSpacePirateOnArc(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state)
@@ -169,10 +185,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             EnemyMath.ReadEightBitCosineProduct(state.WallJumpArcAngle, (ushort)(slot.Parameter2 >> 2)))));
     }
 
+    /// <summary>Wall space pirate can attack.</summary>
     private static bool WallSpacePirateCanAttack(RoomEnemySlot slot, SamusState samus) =>
         Math.Abs(unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole))) <
             WallPirateSamusDetectionBand;
 
+    /// <summary>Snap wall space pirate xto tile.</summary>
     private static void SnapWallSpacePirateXToTile(RoomEnemySlot slot)
     {
         // `$B2:EFFF` deliberately has two alignment grids. Nibbles 0..10 round down to an
@@ -182,6 +200,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             : unchecked((ushort)((slot.Position.X.Whole & 0xfff0) + 16)));
     }
 
+    /// <summary>Installs wall space pirate instruction.</summary>
     private static void InstallWallSpacePirateInstruction(
         RoomEnemySlot slot,
         ushort instructionPointer)
@@ -190,6 +209,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Moves wall space pirate and reverse on collision.</summary>
     private void MoveWallSpacePirateAndReverseOnCollision(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -219,6 +239,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
+    /// <summary>Randomize wall space pirate climb direction.</summary>
     private void RandomizeWallSpacePirateClimbDirection(
         WallSpacePirateEnemyState state,
         bool onRightWall,
@@ -230,6 +251,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         cursor = SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
     }
 
+    /// <summary>Selects wall space pirate climb list.</summary>
     private static ushort SelectWallSpacePirateClimbList(
         bool onRightWall,
         WallSpacePirateClimbDirection direction) => (onRightWall, direction) switch
@@ -246,6 +268,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
             $"Wall Pirate climb direction ${(ushort)direction} is not binary."),
     };
 
+    /// <summary>Prepare wall space pirate jump.</summary>
     private static void PrepareWallSpacePirateJump(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -262,6 +285,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         state.WallJumpArcAngle = jumpingRight ? (ushort)64 : (ushort)192;
     }
 
+    /// <summary>Fire wall space pirate laser.</summary>
     private void FireWallSpacePirateLaser(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
@@ -376,10 +400,12 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Requires wall space pirate state.</summary>
     private WallSpacePirateEnemyState RequireWallSpacePirateState(RoomEnemySlot slot) =>
         _wallSpacePirateStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized wall Space Pirate state.");
 
+    /// <summary>Registers wall space pirate initialization ai.</summary>
     internal void RegisterWallSpacePirateInitializationAi(EnemyAiTable table)
     {
 
@@ -389,6 +415,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers wall space pirate main ai.</summary>
     internal void RegisterWallSpacePirateMainAi(EnemyAiTable table)
     {
 
@@ -401,6 +428,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers wall space pirate owned instructions.</summary>
     internal void RegisterWallSpacePirateOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -410,12 +438,14 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers wall space pirate power bomb reactions.</summary>
     internal static void RegisterWallSpacePiratePowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.SpacePiratePowerBomb));
     }
 
+    /// <summary>Registers wall space pirate shot reactions.</summary>
     internal void RegisterWallSpacePirateShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
@@ -444,6 +474,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers wall space pirate touch.</summary>
     internal void RegisterWallSpacePirateTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.EnemyDefinitionPointer) &&

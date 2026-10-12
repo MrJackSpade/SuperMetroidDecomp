@@ -120,6 +120,7 @@ internal static class IntroEggMotionDefinitions
     /// </remarks>
     public static (ushort Whole, ushort Fraction) SlimeY(int frame, bool odd) => Curve(frame, odd ? 62 : 69, odd ? 2 : 3);
 
+    /// <summary>Curve.</summary>
     private static (ushort Whole, ushort Fraction) Curve(int frame, int count, int negativeGroups)
     {
         if ((uint)frame >= count)
@@ -132,6 +133,7 @@ internal static class IntroEggMotionDefinitions
         return Split((frame / 7 - negativeGroups) * 0x10000 + fraction);
     }
 
+    /// <summary>Split.</summary>
     private static (ushort Whole, ushort Fraction) Split(int value) =>
         (SnesFixedPosition.WholeOf(value), unchecked((ushort)value));
 }

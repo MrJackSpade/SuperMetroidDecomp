@@ -9,10 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// the remaining frame. No original pixel data or generated contour cache is kept.</summary>
 internal sealed class MenuShoulderHighlightArtwork
 {
+    /// <summary>Defines tile count.</summary>
     internal const int TileCount = 4;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, byte>? edits;
+    /// <summary>Contains.</summary>
     internal static bool Contains(int tile) => tile is 0x3c or 0x3d or 0x43 or 0x51;
 
+    /// <summary>Initializes a new menu shoulder highlight artwork instance.</summary>
     internal MenuShoulderHighlightArtwork(IndexedPngImage image)
     {
         for (int tile = 0x3c; tile <= 0x51; tile++)
@@ -27,12 +31,14 @@ internal sealed class MenuShoulderHighlightArtwork
         }
     }
 
+    /// <summary>Pixel.</summary>
     internal byte Pixel(int tile, Position16<CharacterPixels> point)
     {
         if (!Contains(tile) || (uint)point.X >= 8 || (uint)point.Y >= 8) throw new ArgumentOutOfRangeException(nameof(tile));
         return edits is not null && edits.TryGetValue(tile * 64 + point.Y * 8 + point.X, out byte pixel) ? pixel : Basis(tile, point);
     }
 
+    /// <summary>Basis.</summary>
     private static byte Basis(int tile, Position16<CharacterPixels> point)
     {
         int row = point.Y + (tile is 0x43 or 0x51 ? 8 : 0);

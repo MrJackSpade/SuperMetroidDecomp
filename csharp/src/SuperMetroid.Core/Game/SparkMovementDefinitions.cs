@@ -25,6 +25,7 @@ internal static class SparkMovementDefinitions
         };
 }
 
+/// <summary>Represents spark movement definition.</summary>
 internal readonly record struct SparkMovementDefinition(
     ushort InstructionList,
     SparkEnemyFunction Function);

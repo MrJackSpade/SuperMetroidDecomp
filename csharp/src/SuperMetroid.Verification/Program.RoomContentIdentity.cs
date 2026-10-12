@@ -16,6 +16,7 @@ using static AudioOverridesVerification;
 using static ControllerInputRecordingVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents room content identity verification.</summary>
 internal static class RoomContentIdentityVerification
 {
     /// <summary>Direct selected-data checks: no cartridge, installation, or gameplay traversal.</summary>
@@ -61,6 +62,7 @@ internal static class RoomContentIdentityVerification
             "aggregate drift, immutable snapshots and recording compatibility pass without a ROM.");
     }
 
+    /// <summary>create room identity fixture.</summary>
     private static RoomIdentityFixture CreateRoomIdentityFixture(string? edited = null, bool reverse = false)
     {
         RoomCharacterAtlas Characters(bool change)
@@ -148,15 +150,18 @@ internal static class RoomContentIdentityVerification
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
+    /// <summary>Represents room identity fixture.</summary>
     internal sealed record RoomIdentityFixture(RoomCharacterAtlasCatalog Characters,
         RoomStaticPaletteCatalog Palettes, RoomMetatileCatalog Metatiles,
         RoomBackgroundTilemapCatalog Backgrounds, RoomSkyTilemapCatalog Skies,
         RoomVisualLayoutCatalog Layouts)
     {
+        /// <summary>Gets identity.</summary>
         public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(
             Characters, Palettes, Metatiles, Backgrounds, Skies, Layouts);
     }
 
+    /// <summary>room content identity command.</summary>
     [VerificationCommand("--room-content-identity")]
     internal static int RoomContentIdentityCommand()
     {

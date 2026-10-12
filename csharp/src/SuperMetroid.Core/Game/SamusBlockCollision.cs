@@ -462,6 +462,7 @@ public static class SamusBlockCollision
             EnemyCollision: enemyCollision);
     }
 
+    /// <summary>Represents vertical terrain scan.</summary>
     private readonly record struct VerticalTerrainScan(int AcceptedDisplacement, bool Collided, bool SandContact);
 
     /// <summary>
@@ -798,6 +799,7 @@ public static class SamusBlockCollision
     private static bool CanBreakCollisionBombBlock(SamusKinematicsState state, bool explicitAdmission) =>
         explicitAdmission || state.SamusOwner?.PoseMetadata.BreaksCollisionBombBlocks == true;
 
+    /// <summary>Clips vertical to non square slope.</summary>
     private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
         ISnesAddressSpace bus,
         SamusKinematicsState state,
@@ -982,6 +984,7 @@ public static class SamusBlockCollision
         return true;
     }
 
+    /// <summary>Clips horizontal to solid.</summary>
     private static int ClipHorizontalToSolid(
         SamusKinematicsState state,
         int displacement,
@@ -1005,6 +1008,7 @@ public static class SamusBlockCollision
         }
     }
 
+    /// <summary>Clips horizontal to square slope.</summary>
     private static int ClipHorizontalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
@@ -1028,6 +1032,7 @@ public static class SamusBlockCollision
         return SnesSixteenSixteen.FromWhole(rightWhole);
     }
 
+    /// <summary>Clips vertical to solid.</summary>
     private static int ClipVerticalToSolid(
         SamusKinematicsState state,
         int displacement,
@@ -1051,6 +1056,7 @@ public static class SamusBlockCollision
         }
     }
 
+    /// <summary>Clips vertical to square slope.</summary>
     private static int ClipVerticalToSquareSlope(
         SamusKinematicsState state,
         int displacement,
@@ -1078,6 +1084,7 @@ public static class SamusBlockCollision
         return SnesSixteenSixteen.FromWhole(downWhole);
     }
 
+    /// <summary>Gets vertical block span.</summary>
     private static int GetVerticalBlockSpan(SamusKinematicsState state)
     {
         ushort alignedTop = unchecked((ushort)(state.Position.Y.Whole - state.Radius.Y));
@@ -1085,6 +1092,7 @@ public static class SamusBlockCollision
         return unchecked((ushort)(state.Radius.Y + state.Position.Y.Whole - 1 - alignedTop)) >> 4;
     }
 
+    /// <summary>Gets horizontal block span.</summary>
     private static int GetHorizontalBlockSpan(SamusKinematicsState state)
     {
         ushort alignedLeft = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
@@ -1157,6 +1165,7 @@ public static class SamusBlockCollision
             state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(bus, level, state, down: true))));
     }
 
+    /// <summary>Grapple vertical overlap.</summary>
     private static int GrappleVerticalOverlap(ISnesAddressSpace bus, RoomLevelData level, SamusKinematicsState state, bool down)
     {
         int boundary = unchecked((ushort)(state.Position.Y.Whole + (down ? state.Radius.Y - 1 : -state.Radius.Y)));

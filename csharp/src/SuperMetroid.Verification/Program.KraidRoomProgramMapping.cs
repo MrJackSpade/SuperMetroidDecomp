@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents kraid room program mapping verification.</summary>
 internal static class KraidRoomProgramMappingVerification
 {
+    /// <summary>Verifies kraid room program mapping.</summary>
     internal static void VerifyKraidRoomProgramMapping(SuperMetroidAddressSpace rom)
     {
         // Independent native lists. The byte timer shifts the loop onto even addresses;
@@ -38,6 +40,7 @@ internal static class KraidRoomProgramMappingVerification
         Console.WriteLine("Kraid room programs: 55 native words, byte timer, exact enumeration and complete address domains pass.");
     }
 
+    /// <summary>Kraid room program mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid room program mapping")]
     private static byte KraidRoomProgramMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

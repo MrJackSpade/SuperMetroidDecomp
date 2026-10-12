@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Assets;
 public sealed class BeamTileAtlas
 {
     // Unresolved artwork remains required; only the five documented Plasma pen roles have a narrow exception.
+    /// <summary>Stores pixels.</summary>
     private readonly Dictionary<int, byte> pixels = new();
+    /// <summary>Stores selection.</summary>
     private readonly SamusBeamCombination selection;
+    /// <summary>Stores shared source.</summary>
     private readonly BeamTileAtlas? sharedSource;
+    /// <summary>Stores whole sheet shared.</summary>
     private readonly bool wholeSheetShared;
 
+    /// <summary>Initializes a new beam tile atlas instance.</summary>
     private BeamTileAtlas(byte[] selectedPixels, SamusBeamCombination selection)
     {
         this.selection = selection;
@@ -28,6 +33,7 @@ public sealed class BeamTileAtlas
         }
     }
 
+    /// <summary>Initializes a new beam tile atlas instance.</summary>
     private BeamTileAtlas(Dictionary<int, byte> pixels, SamusBeamCombination selection, BeamTileAtlas sharedSource, bool wholeSheetShared)
     {
         this.pixels = pixels;
@@ -36,6 +42,7 @@ public sealed class BeamTileAtlas
         this.wholeSheetShared = wholeSheetShared;
     }
 
+    /// <summary>Share pixels from.</summary>
     internal BeamTileAtlas SharePixelsFrom(BeamTileAtlas source, bool wholeSheet)
     {
         var selected = new Dictionary<int, byte>(pixels);
@@ -53,6 +60,7 @@ public sealed class BeamTileAtlas
         Enumerable.Range(0, BeamTileAtlasDefinitions.Width * BeamTileAtlasDefinitions.Height)
             .Select(Pixel).ToArray(), new(BeamTileAtlasDefinitions.Width, BeamTileAtlasDefinitions.Height), 4);
 
+    /// <summary>Pixel.</summary>
     private byte Pixel(int pixel)
     {
         if (pixels.TryGetValue(pixel, out byte selected)) return selected;

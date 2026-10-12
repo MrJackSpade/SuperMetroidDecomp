@@ -86,14 +86,17 @@ internal static class EyeBeamWindowBuilder
         return rows;
     }
 
+    /// <summary>tangent.</summary>
     private static int Tangent(int index)
     {
         return AbsoluteTangentDefinitions.Sample(index);
     }
 
+    /// <summary>offset origin.</summary>
     private static int OffsetOrigin(int origin, bool offScreen, bool positive) =>
         !offScreen ? origin : origin + (positive ? -EyeWindowRenderDefinitions.FixedPointSpan : EyeWindowRenderDefinitions.FixedPointSpan);
 
+    /// <summary>fill off screen middle.</summary>
     private static void FillOffScreenMiddle(ushort[] rows, int up, int down, int origin,
         int upperStep, int lowerStep, bool positive)
     {
@@ -107,6 +110,7 @@ internal static class EyeBeamWindowBuilder
         do { Set(rows, top++, EyeWindowRenderDefinitions.FullWindow); } while (top <= bottom);
     }
 
+    /// <summary>preserve off screen up left entry.</summary>
     private static void PreserveOffScreenUpLeftEntry(ushort[] rows, int start, int origin, int leftStep, int rightStep)
     {
         if (rightStep == 0) return;
@@ -123,6 +127,7 @@ internal static class EyeBeamWindowBuilder
             (finalLeft & EyeWindowRenderDefinitions.FullRightEdge));
     }
 
+    /// <summary>set.</summary>
     private static void Set(ushort[] rows, int y, ushort window)
     {
         if ((uint)y < rows.Length) rows[y] = window;

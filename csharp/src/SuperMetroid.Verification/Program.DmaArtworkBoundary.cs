@@ -18,6 +18,7 @@ using static HardwareVerification;
 using static QueuedVramAssetsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents dma artwork boundary verification.</summary>
 internal static class DmaArtworkBoundaryVerification
 {
     /// <summary>
@@ -94,6 +95,7 @@ internal static class DmaArtworkBoundaryVerification
         Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background, eight BG3 transfer cases and missing-artwork rejection pass.");
     }
 
+    /// <summary>Dma artwork boundary command.</summary>
     [VerificationCommand("--dma-artwork-boundary")]
     internal static int DmaArtworkBoundaryCommand()
     {

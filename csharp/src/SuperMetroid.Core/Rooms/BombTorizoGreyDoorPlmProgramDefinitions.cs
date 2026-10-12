@@ -104,6 +104,7 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
         Delete = ResidentEnd - 1,
     }
 
+    /// <summary>Tries to read a compiled mechanics word at the given address.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -192,6 +193,7 @@ internal static class BombTorizoGreyDoorPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>owns.</summary>
     private static bool Owns(ushort address) =>
         address is >= ClosingStart and <= ClosingEnd or >= ResidentStart and <= ResidentEnd;
 }

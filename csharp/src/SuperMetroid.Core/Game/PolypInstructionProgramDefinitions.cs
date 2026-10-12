@@ -14,11 +14,14 @@ internal abstract class PolypInstructionProgramDefinitions
     /// <summary><c>Spritemap_Polyp</c> at $A2:B5FB, selected by the one stationary pose at $B51C.</summary>
     internal const ushort StationaryFrame = 0xb5fb;
 
+    /// <summary>frame at.</summary>
     internal static ushort FrameAt(ushort operandAddress) =>
         operandAddress == PresentationWord ? StationaryFrame
             : throw new InvalidDataException("Polyp visual operand is outside its stationary program.");
 
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 2;
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -26,6 +29,7 @@ internal abstract class PolypInstructionProgramDefinitions
             index == 0 ? (ushort)1 : (ushort)CommonEnemyInstruction.Sleep);
     }
 
+    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

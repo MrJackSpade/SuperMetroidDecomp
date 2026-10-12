@@ -13,9 +13,12 @@ namespace SuperMetroid.Core.Frontend;
 /// </remarks>
 internal sealed class MenuPpuState
 {
+    /// <summary>Gets object palette bits.</summary>
     public static ushort ObjectPaletteBits => SnesObjPalettes.Index7.PaletteBits;
+    /// <summary>Stores spritemap pointer table address.</summary>
     public const int SpritemapPointerTableAddress = 0x82c569;
 
+    /// <summary>Initializes a new menu ppu state instance.</summary>
     public MenuPpuState(ISnesAddressSpace bus, MapTileAtlas? mapTiles = null, MapStaticPalettes? mapPalettes = null, WorldMapArtwork? worldArtwork = null, MapSpriteCatalog? sprites = null,
         bool loadInitialBackground = true)
     {
@@ -39,14 +42,17 @@ internal sealed class MenuPpuState
             "Menu PPU requires installed world-map artwork.")).LoadTo(Vram);
     }
 
+    /// <summary>Gets vram.</summary>
     public SnesVram Vram { get; } = new();
 
+    /// <summary>Bind map tiles.</summary>
     public void BindMapTiles(MapTileAtlas? mapTiles)
     {
         (mapTiles ?? throw new InvalidOperationException(
             "Menu PPU requires installed map tiles.")).LoadTo(new MenuVram(Vram).MapCharacters);
     }
 
+    /// <summary>Bind map sprites.</summary>
     public void BindMapSprites(MapSpriteCatalog? sprites)
     {
         (sprites ?? throw new InvalidOperationException(
@@ -54,6 +60,7 @@ internal sealed class MenuPpuState
             .LoadArtworkTo(new MenuVram(Vram).ObjectCharacters);
     }
 
+    /// <summary>Bind map palettes.</summary>
     public void BindMapPalettes(MapStaticPalettes? mapPalettes)
     {
         MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException(
@@ -61,8 +68,10 @@ internal sealed class MenuPpuState
         new CgramPalettes(Cgram).LoadImage(palettes.FileSelect);
     }
 
+    /// <summary>Gets cgram.</summary>
     public SnesCgram Cgram { get; } = new();
 
+    /// <summary>Loads bg1.</summary>
     public void LoadBg1(ReadOnlySpan<byte> tilemapBytes)
     {
         Ensure.LengthEqual(tilemapBytes, 0x0800);

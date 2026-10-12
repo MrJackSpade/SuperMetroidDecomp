@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,20 +6,28 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Sbug species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SbugBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Initializes a new sbug behavior instance.</summary>
     internal SbugBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Defines sbug random seed.</summary>
     private const ushort SbugRandomSeed = 0x000b;
+    /// <summary>Defines sbug movement segment frames.</summary>
     private const ushort SbugMovementSegmentFrames = 0x0020;
+    /// <summary>Defines sbug long random lifetime.</summary>
     private const ushort SbugLongRandomLifetime = 0x0200;
+    /// <summary>Defines sbug reverse distance.</summary>
     private const int SbugReverseDistance = 0x0060;
 
+    /// <summary>Stores sbug states.</summary>
     internal readonly SbugEnemyState?[] _sbugStates = new SbugEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Sbug</c> at $A3:A14D.</summary>
@@ -148,6 +156,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs sbug wait.</summary>
     private static void RunSbugWait(RoomEnemySlot slot, SbugEnemyState state, SamusState samus)
     {
         int threshold = state.ActivationRadius;
@@ -159,6 +168,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         state.Function = SbugMovementDefinitions.ActivationFunction(state.ActivationBehavior);
     }
 
+    /// <summary>Activate sbug toward or away.</summary>
     private static void ActivateSbugTowardOrAway(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -177,6 +187,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             : SbugEnemyFunction.MoveTowardSamus;
     }
 
+    /// <summary>Runs sbug zig zag.</summary>
     private static void RunSbugZigZag(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The global enemy frame counter divides motion into alternating 16-frame diagonal
@@ -193,6 +204,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs sbug forward then wait.</summary>
     private static void RunSbugForwardThenWait(RoomEnemySlot slot, SbugEnemyState state)
     {
         state.MovementTimer = unchecked((ushort)(state.MovementTimer - 1));
@@ -205,6 +217,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         MoveSbugForward(slot, state);
     }
 
+    /// <summary>Runs sbug collision aware segment.</summary>
     private void RunSbugCollisionAwareSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -234,6 +247,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             state.Function = SbugEnemyFunction.WaitForSamus;
     }
 
+    /// <summary>Runs sbug straight reverse segment.</summary>
     private static void RunSbugStraightReverseSegment(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -260,6 +274,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         AddSbugVelocity(slot, state.CustomXVelocity, state.CustomYVelocity);
     }
 
+    /// <summary>Choose sbug random direction.</summary>
     private void ChooseSbugRandomDirection(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -277,6 +292,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             : SbugEnemyFunction.MoveRandomlyUntilCollision;
     }
 
+    /// <summary>Recalculate sbug custom direction.</summary>
     private static void RecalculateSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         CalculateSignedSbugVelocities(
@@ -291,6 +307,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
+    /// <summary>Reverse sbug custom direction.</summary>
     private static void ReverseSbugCustomDirection(RoomEnemySlot slot, SbugEnemyState state)
     {
         // The original negates pixel and subpixel words separately. For a nonzero low word
@@ -306,11 +323,13 @@ internal sealed class SbugBehavior : IEnemySpecies
         SetSbugFacing(slot, state, state.CustomInstructionIndex);
     }
 
+    /// <summary>Negate sbug words independently.</summary>
     private static SbugVelocityWords NegateSbugWordsIndependently(SbugVelocityWords value) =>
         new(
             unchecked((ushort)-value.Pixel),
             unchecked((ushort)-value.Subpixel));
 
+    /// <summary>Moves sbug forward.</summary>
     private static void MoveSbugForward(RoomEnemySlot slot, SbugEnemyState state)
     {
         // MoveEnemyAccordingToAngleAndXYSpeeds applies signs to the unsigned magnitudes by
@@ -327,6 +346,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             subtractY));
     }
 
+    /// <summary>Adds sbug velocity.</summary>
     private static void AddSbugVelocity(
         RoomEnemySlot slot,
         SbugVelocityWords xVelocity,
@@ -342,6 +362,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             subtract: false));
     }
 
+    /// <summary>Adds raw sbug velocity.</summary>
     private static SnesFixedPosition AddRawSbugVelocity(
         SnesFixedPosition position,
         uint velocity,
@@ -354,6 +375,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         return SnesFixedPosition.FromRaw(fixedPosition);
     }
 
+    /// <summary>Calculates unsigned sbug magnitude.</summary>
     internal static SbugVelocityWords CalculateUnsignedSbugMagnitude(
         byte angle,
         byte speed,
@@ -369,6 +391,7 @@ internal sealed class SbugBehavior : IEnemySpecies
             unchecked((ushort)product));
     }
 
+    /// <summary>Calculates signed sbug velocities.</summary>
     private static void CalculateSignedSbugVelocities(
         byte angle,
         byte speed,
@@ -379,6 +402,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         yVelocity = CalculateSignedSbugComponent(angle, speed, phase: 0x80);
     }
 
+    /// <summary>Calculates signed sbug component.</summary>
     internal static SbugVelocityWords CalculateSignedSbugComponent(byte angle, byte speed, int phase)
     {
         // $A0:B0DA multiplies two bytes, swaps the product's bytes into 16.16 words, then
@@ -397,9 +421,11 @@ internal sealed class SbugBehavior : IEnemySpecies
         return new SbugVelocityWords(pixel, subpixel);
     }
 
+    /// <summary>Calculates sbug instruction index.</summary>
     private static ushort CalculateSbugInstructionIndex(byte angle) =>
         unchecked((ushort)(2 * (unchecked((byte)(angle - 0x30)) >> 5)));
 
+    /// <summary>Sets sbug facing.</summary>
     private static void SetSbugFacing(
         RoomEnemySlot slot,
         SbugEnemyState state,
@@ -422,15 +448,18 @@ internal sealed class SbugBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Sets sbug random seed.</summary>
     private void SetSbugRandomSeed()
     {
         _room.Random.Seed(SbugRandomSeed);
     }
 
+    /// <summary>Requires sbug state.</summary>
     private SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
         _sbugStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");
 
+    /// <summary>Register sbug initialization ai.</summary>
     internal void RegisterSbugInitializationAi(EnemyAiTable table)
     {
 
@@ -440,6 +469,7 @@ internal sealed class SbugBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Register sbug main ai.</summary>
     internal void RegisterSbugMainAi(EnemyAiTable table)
     {
 

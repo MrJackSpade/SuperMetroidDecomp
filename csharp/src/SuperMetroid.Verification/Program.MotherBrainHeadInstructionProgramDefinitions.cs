@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents mother brain head instruction program definitions verification.</summary>
 internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
 {
+    /// <summary>Stores mother brain head regions.</summary>
     private static readonly (ushort Start, ushort End)[] MotherBrainHeadRegions =
     [
         (MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyStart,
@@ -21,6 +23,7 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
             MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
+    /// <summary>verify mother brain head instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain head instruction words")]
     internal static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
@@ -139,6 +142,7 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
             "nine ordinary-enemy entry frames and a branch loop pass.");
     }
 
+    /// <summary>new mother brain head instruction read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => (SnesAddressMath.BankNumber(address)) == 0xa9 && MotherBrainHeadRegions.Any(region =>

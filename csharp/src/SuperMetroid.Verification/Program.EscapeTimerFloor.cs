@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents escape timer floor verification.</summary>
 internal static class EscapeTimerFloorVerification
 {
+    /// <summary>Verifies escape timer floor.</summary>
     internal static void VerifyEscapeTimerFloor()
     {
         AssertTrue(SuperMetroidGameOptionsIni.Parse("").EndingTimeOverrideMinutes is null, "ending override defaults off");

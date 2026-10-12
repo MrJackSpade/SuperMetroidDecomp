@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(EnemyProjectileInstructionMechanicsDefinitions))]
 internal abstract class EnemyProjectileInstructionMechanicsDefinitionsTooling : IInstructionProgramCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount
     {
         get
@@ -21,8 +22,10 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitionsTooling : 
             return count;
         }
     }
+    /// <summary>Checks whether the address belongs to compiled mechanics data.</summary>
     public static bool IsCompiledMechanicsByte(int address) => (SnesAddressMath.BankBase(address)) == 0x860000 &&
         (EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord((ushort)address, out _) || EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord(unchecked((ushort)(address - 1)), out _));
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -30,6 +33,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitionsTooling : 
             if (index-- == 0) return new(address, EnemyProjectileInstructionMechanicsDefinitions.ReadMechanicsWord(address));
         throw new InvalidOperationException("Projectile mechanics enumeration count disagrees with its programs.");
     }
+    /// <summary>mechanics addresses.</summary>
     internal static IEnumerable<ushort> MechanicsAddresses()
     {
         for (int frame = 0; frame < EnemyProjectileInstructionMechanicsDefinitions.BlueRingRadiusCount; frame++)

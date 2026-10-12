@@ -12,6 +12,7 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents room enemy load contracts verification.</summary>
 internal static class RoomEnemyLoadContractsVerification
 {
     /// <summary>
@@ -55,6 +56,7 @@ internal static class RoomEnemyLoadContractsVerification
         AssertEqual((ushort)0x0017, seeded.Random.Read(), "installed RNG seed reads and writes share the word");
     }
 
+    /// <summary>Room enemy load contracts command.</summary>
     [VerificationCommand("--room-enemy-load-contracts")]
     internal static int RoomEnemyLoadContractsCommand()
     {

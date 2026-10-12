@@ -14,9 +14,11 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents zoa speed definitions verification.</summary>
 internal static class ZoaSpeedDefinitionsVerification
 {
 
+    /// <summary>verify compiled zoa speeds.</summary>
     internal static void VerifyCompiledZoaSpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
@@ -78,6 +80,7 @@ internal static class ZoaSpeedDefinitionsVerification
         Console.WriteLine("Zoa compiled speeds: all 17 native byte windows and 655360 real signed/subpixel integrations match without a speed-table bus.");
     }
 
+    /// <summary>zoa speeds command.</summary>
     [VerificationCommand("--zoa-speeds")]
     internal static int ZoaSpeedsCommand()
     {

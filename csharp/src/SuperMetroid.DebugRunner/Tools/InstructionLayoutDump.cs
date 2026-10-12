@@ -1,6 +1,7 @@
 using System.Text.Json;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents instruction layout dump.</summary>
 internal static class InstructionLayoutDump
 {
     /// <summary>

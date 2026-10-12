@@ -18,6 +18,7 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Pixels the camera and layer two move per IRQ call.</summary>
     private const short LayerStepPixels = 4;
 
+    /// <summary>Initializes a new door opening scroll state instance.</summary>
     private DoorOpeningScrollState(DoorOpeningScrollSetup setup)
     {
         Direction = setup.Direction;
@@ -31,11 +32,13 @@ internal sealed class DoorOpeningScrollState
         FinalSamusPosition = setup.FinalSamusPosition;
     }
 
+    /// <summary>Gets direction.</summary>
     public DoorDirection Direction { get; }
 
     /// <summary>Samus's signed 16.16 displacement for one moving IRQ call, along the travel axis.</summary>
     public FixedVector<RoomPixels> SamusIrqStep { get; }
 
+    /// <summary>Gets or sets remaining frames.</summary>
     public int RemainingFrames { get; private set; }
 
     /// <summary>The layer-one words <c>$0911/$0915</c> owned by the IRQ.</summary>
@@ -47,14 +50,19 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Samus's 16.16 position as the IRQ carries her.</summary>
     public FixedPosition<RoomPixels> SamusPosition { get; private set; }
 
+    /// <summary>Gets final camera position.</summary>
     public Position16<RoomPixels> FinalCameraPosition { get; }
 
+    /// <summary>Gets final layer2 position.</summary>
     public Position16<Bg2Pixels> FinalLayer2Position { get; }
 
+    /// <summary>Gets final samus position.</summary>
     public FixedPosition<RoomPixels> FinalSamusPosition { get; }
 
+    /// <summary>Gets or sets should stream after advance.</summary>
     public bool ShouldStreamAfterAdvance { get; private set; } = true;
 
+    /// <summary>Creates.</summary>
     public static DoorOpeningScrollState Create(
         CartridgeDoorHeader door,
         FixedPosition<RoomPixels> sourceSamus,

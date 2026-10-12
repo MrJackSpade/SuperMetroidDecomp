@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,27 +6,35 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class RioBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Initializes a new rio behavior instance.</summary>
     internal RioBehavior(EnemyRoomBinding room, EnemyTerrain terrain)
     {
         _room = room;
         _terrain = terrain;
     }
 
+    /// <summary>Defines rio trigger distance.</summary>
     private const ushort RioTriggerDistance = 0x00a0;
+    /// <summary>Defines rio dive sound.</summary>
     private const ushort RioDiveSound = 0x0065;
+    /// <summary>Defines rio gravity step.</summary>
     private const ushort RioGravityStep = 24;
 
     // These are live ROM words, not friendly host tuning constants. The retail routine
     // reads them at $A2:BBBB/$A2:BBBF immediately before a dive begins.
 
+    /// <summary>Stores rio states.</summary>
     internal readonly RioEnemyState?[] _rioStates = new RioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Most recent library-two sound request produced by Rio during this frame.</summary>
     public ushort? LastRioSoundEffect { get; private set; }
 
+    /// <summary>reset rio room state.</summary>
     internal void ResetRioRoomState()
     {
         Array.Clear(_rioStates);
@@ -232,6 +240,7 @@ internal sealed class RioBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>reverse rio vertical velocity and bounce.</summary>
     private static void ReverseRioVerticalVelocityAndBounce(RioEnemyState state)
     {
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-state.Velocity.Y.SignedRawValue)));
@@ -245,16 +254,19 @@ internal sealed class RioBehavior : IEnemySpecies
     internal static ushort ReadRioSignedSineCosineSample(byte angle) =>
         unchecked((ushort)EnemyTrigonometryTables.SignedSine(angle));
 
+    /// <summary>require rio level.</summary>
     private static void RequireRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Rio movement requires the current room level data.");
     }
 
+    /// <summary>require rio state.</summary>
     private RioEnemyState RequireRioState(RoomEnemySlot slot) =>
         _rioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Rio state.");
 
+    /// <summary>register rio initialization ai.</summary>
     internal void RegisterRioInitializationAi(EnemyAiTable table)
     {
 
@@ -264,6 +276,7 @@ internal sealed class RioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rio main ai.</summary>
     internal void RegisterRioMainAi(EnemyAiTable table)
     {
 
@@ -278,6 +291,7 @@ internal sealed class RioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register rio owned instructions.</summary>
     internal void RegisterRioOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

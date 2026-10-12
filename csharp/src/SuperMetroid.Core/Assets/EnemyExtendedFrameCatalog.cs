@@ -39,9 +39,12 @@ public sealed class EnemyExtendedFrameCatalog
             }
         });
 
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<int, EnemyExtendedDrawComponent[]> frames;
+    /// <summary>Stores display frames.</summary>
     private readonly Dictionary<int, int> displayFrames;
 
+    /// <summary>Initializes a new enemy extended frame catalog instance.</summary>
     private EnemyExtendedFrameCatalog(
         Dictionary<int, EnemyExtendedDrawComponent[]> frames,
         Dictionary<int, int> displayFrames)
@@ -50,6 +53,7 @@ public sealed class EnemyExtendedFrameCatalog
         this.displayFrames = displayFrames;
     }
 
+    /// <summary>Tries to get.</summary>
     internal bool TryGet(byte bank, ushort pointer,
         out ReadOnlyMemory<EnemyExtendedDrawComponent> components)
     {

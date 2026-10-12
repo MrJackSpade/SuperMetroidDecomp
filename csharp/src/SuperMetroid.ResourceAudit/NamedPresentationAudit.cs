@@ -5,13 +5,16 @@ using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.ResourceAudit;
 
-internal enum NamedSelectionResult { Resolved, Missing, Unresolved }
+/// <summary>Represents named selection result.</summary>
+internal enum NamedSelectionResult { /** <summary>Identifies resolved.</summary> */ Resolved, /** <summary>Identifies missing.</summary> */ Missing, /** <summary>Identifies unresolved.</summary> */ Unresolved }
+/// <summary>Represents named presentation selection.</summary>
 internal sealed record NamedPresentationSelection(string Type, string Method, string Parameter,
     string Domain, IEnumerable<string> Names);
 
 /// <summary>Finite named sets already enforced by the reviewed production loaders.</summary>
 internal static class NamedPresentationSelectionDefinitions
 {
+    /// <summary>Stores all.</summary>
     internal static readonly NamedPresentationSelection[] All =
     [
         new(nameof(FileSelectPresentation), "DynamicAnchor", "name", "file-select-dynamic-anchor",
@@ -43,12 +46,14 @@ internal static class NamedPresentationSelectionDefinitions
 /// </summary>
 internal static class NamedPresentationAudit
 {
+    /// <summary>Install.</summary>
     internal static void Install(ResourceIndex exports)
     {
         foreach (NamedPresentationSelection selection in NamedPresentationSelectionDefinitions.All)
         foreach (string name in selection.Names) exports.Add(selection.Domain, name);
     }
 
+    /// <summary>Inspect.</summary>
     internal static NamedSelectionResult? Inspect(IInvocationOperation operation, SemanticModel semantic, string owner,
         string location, ResourceIndex exports, AuditReport report)
     {
@@ -64,6 +69,7 @@ internal static class NamedPresentationAudit
             ? NamedSelectionResult.Resolved : NamedSelectionResult.Missing;
     }
 
+    /// <summary>Finite constants.</summary>
     private static string[]? FiniteConstants(IOperation operation)
     {
         if (operation.ConstantValue is { HasValue: true, Value: string value }) return [value];

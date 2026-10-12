@@ -7,8 +7,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents installed file select map verification.</summary>
 internal static class InstalledFileSelectMapVerification
 {
+    /// <summary>Verifies installed file select menu.</summary>
     internal static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
     {

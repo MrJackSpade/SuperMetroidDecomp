@@ -7,8 +7,11 @@ namespace SuperMetroid.Game;
 /// <summary>The normal reset-to-gameplay desktop shell for the translated game.</summary>
 internal sealed class GameForm : Form
 {
+    /// <summary>Stores game control.</summary>
     private readonly PlayableGameControl gameControl;
+    /// <summary>Stores closing renderer.</summary>
     private bool closingRenderer;
+    /// <summary>Stores renderer stopped.</summary>
     private bool rendererStopped;
 
     /// <summary>The normal ROM-independent host path after asset installation.</summary>
@@ -21,6 +24,7 @@ internal sealed class GameForm : Form
     {
     }
 
+    /// <summary>Initializes a new game form instance.</summary>
     private GameForm(PlayableGameControl gameControl)
     {
         Text = "Super Metroid C#";
@@ -33,12 +37,14 @@ internal sealed class GameForm : Form
         Controls.Add(gameControl);
     }
 
+    /// <summary>On shown.</summary>
     protected override async void OnShown(EventArgs e)
     {
         base.OnShown(e);
         await gameControl.InitializeRendererAsync();
     }
 
+    /// <summary>On form closing.</summary>
     protected override async void OnFormClosing(FormClosingEventArgs e)
     {
         base.OnFormClosing(e);

@@ -5,8 +5,10 @@ using SuperMetroid.Rendering.Direct3D11;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Represents async load boundary tests.</summary>
 internal static class AsyncLoadBoundaryTests
 {
+    /// <summary>Verifies async load boundary.</summary>
     internal static async Task VerifyAsyncLoadBoundary(PlayableGameControl control, bool restart = false)
     {
         var worker = Field<D3D11RenderWorker>(control, "gpuWorker");

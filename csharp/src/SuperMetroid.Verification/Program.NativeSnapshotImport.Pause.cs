@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents native snapshot import pause verification.</summary>
 internal static class NativeSnapshotImportPauseVerification
 {
     /// <summary>

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents shaktool samus contact verification.</summary>
 internal static class ShaktoolSamusContactVerification
 {
     /// <summary>
@@ -40,6 +41,7 @@ internal static class ShaktoolSamusContactVerification
         Console.WriteLine("  Shaktool Samus contact: a touching segment damages Samus through the common touch.");
     }
 
+    /// <summary>Shaktool samus contact command.</summary>
     [VerificationCommand("--shaktool-samus-contact")]
     internal static int ShaktoolSamusContactCommand()
     {

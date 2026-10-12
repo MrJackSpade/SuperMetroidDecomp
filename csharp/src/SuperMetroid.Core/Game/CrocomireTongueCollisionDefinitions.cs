@@ -47,6 +47,7 @@ internal static class CrocomireTongueCollisionDefinitions
     /// <summary>Native bank containing the selected Crocomire extended frames.</summary>
     internal const byte Bank = 0xa4;
 
+    /// <summary>Gets frame count.</summary>
     internal static int FrameCount => 9;
 
     /// <summary>Four fight frames followed by five melting frames. The native
@@ -59,6 +60,7 @@ internal static class CrocomireTongueCollisionDefinitions
             : (int)CrocomireTongueFrame.MeltingPose0 + 10 * (index - 4));
     }
 
+    /// <summary>Has frame.</summary>
     internal static bool HasFrame(ushort frame) => Enum.IsDefined((CrocomireTongueFrame)frame);
 
     /// <summary>Fight frames share a single physical component. Melting frame
@@ -67,6 +69,7 @@ internal static class CrocomireTongueCollisionDefinitions
     internal static CrocomireTongueCollisionComponent ComponentAt(ushort frame) =>
         ComponentAt(ClosedNativeWords.Decode<CrocomireTongueFrame>(frame, "Crocomire tongue frame with compiled collision"));
 
+    /// <summary>Component at.</summary>
     internal static CrocomireTongueCollisionComponent ComponentAt(CrocomireTongueFrame frame) => frame switch
     {
         CrocomireTongueFrame.Fight0 or CrocomireTongueFrame.Fight1 or
@@ -76,6 +79,7 @@ internal static class CrocomireTongueCollisionDefinitions
         _ => throw new InvalidOperationException($"Undefined CrocomireTongueFrame {frame}."),
     };
 
+    /// <summary>Hitbox count at.</summary>
     internal static int HitboxCountAt(CrocomireTongueHitboxList list) => list switch
     {
         CrocomireTongueHitboxList.Fight or CrocomireTongueHitboxList.Melting => 0,

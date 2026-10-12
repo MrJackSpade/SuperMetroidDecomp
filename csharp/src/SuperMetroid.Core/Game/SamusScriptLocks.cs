@@ -1,10 +1,12 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>Script ownership of Samus's movement: the stationary script control lock, the refill-station lock and the Rainbow Beam handlers.</summary>
 internal sealed class SamusScriptLocks
 {
+    /// <summary>Stores samus.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Initializes a new samus script locks instance.</summary>
     internal SamusScriptLocks(SamusState owner)
     {
         _samus = owner;

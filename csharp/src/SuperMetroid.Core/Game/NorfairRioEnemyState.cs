@@ -26,8 +26,10 @@ public enum NorfairRioEnemyFunction : ushort
 /// </summary>
 public sealed class NorfairRioEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new norfair rio enemy state instance.</summary>
     internal NorfairRioEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Extra word $00: last instruction list installed by function seven.</summary>

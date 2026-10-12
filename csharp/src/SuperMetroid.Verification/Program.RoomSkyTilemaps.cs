@@ -8,8 +8,10 @@ using SuperMetroid.Core.Rooms;
 using static LookupSkyChunkPointersVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents room sky tilemaps verification.</summary>
 internal static class RoomSkyTilemapsVerification
 {
+    /// <summary>verify room sky tilemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyRoomSkyTilemaps()
     {
@@ -195,10 +197,12 @@ internal static class RoomSkyTilemapsVerification
     private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus, VramWriteEntry wrappedRow) =>
         bus.WriteByte(0x7e0000 | (SnesAddressMath.OffsetInBank(wrappedRow.SourceAddress)), 0x5a);
 
+    /// <summary>read retail sky bytes.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>
         RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), address, count);
 
+    /// <summary>new sky page read guard.</summary>
     private static MutableCartridgeReadGuard NewSkyPageReadGuard(ISnesAddressSpace source, bool blockLandingList = false)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -215,12 +219,15 @@ internal static class RoomSkyTilemapsVerification
         return guard;
     }
 
+    /// <summary>Represents sky page provider.</summary>
     internal sealed class SkyPageProvider(RoomSkyTilemapCatalog art)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>resolve.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException($"Unexpected queued asset {asset}.");
 
+        /// <summary>try resolve.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) => art.TryResolve(sourceAddress, byteCount, out data);
     }

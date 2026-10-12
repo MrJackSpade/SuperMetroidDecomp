@@ -2,15 +2,20 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup downward gate program verification.</summary>
 internal static class LookupDownwardGateProgramVerification
 {
+    /// <summary>verify downward gate program controls.</summary>
     internal static void VerifyDownwardGateProgramControls(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 0);
+    /// <summary>verify downward gate program draws.</summary>
     internal static void VerifyDownwardGateProgramDraws(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 1);
+    /// <summary>verify downward gate program operands.</summary>
     internal static void VerifyDownwardGateProgramOperands(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 2);
 
+    /// <summary>verify downward gate program field.</summary>
     private static void VerifyDownwardGateProgramField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] controls = [0xbc13,0xbc17,0xbc19,0xbc1d,0xbc1f,0xbc23,0xbc27,
@@ -49,6 +54,7 @@ internal static class LookupDownwardGateProgramVerification
         }
     }
 
+    /// <summary>verify downward gate program sounds.</summary>
     internal static void VerifyDownwardGateProgramSounds(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xbc29,0xbc4c];
@@ -76,6 +82,7 @@ internal static class LookupDownwardGateProgramVerification
         }
     }
 
+    /// <summary>downward gate program sounds rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for downward gate program sounds")]
     private static byte DownwardGateProgramSoundsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

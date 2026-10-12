@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents golden torizo room setup verification.</summary>
 internal static class GoldenTorizoRoomSetupVerification
 {
     /// <summary>

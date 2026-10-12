@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,22 +6,33 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Morph Ball eye species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MorphBallEyeBehavior : IEnemySpecies
 {
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new morph ball eye behavior instance.</summary>
     internal MorphBallEyeBehavior(EnemySlotTable slotTable)
     {
         _slotTable = slotTable;
     }
 
+    /// <summary>Defines morph ball item mask.</summary>
     private const ushort MorphBallItemMask = 0x0004;
+    /// <summary>Defines eye activate xdistance.</summary>
     private const ushort EyeActivateXDistance = 0x0080;
+    /// <summary>Defines eye deactivate xdistance.</summary>
     private const ushort EyeDeactivateXDistance = 0x00b0;
+    /// <summary>Defines eye activate ydistance.</summary>
     private const ushort EyeActivateYDistance = 0x0080;
+    /// <summary>Defines eye deactivate ydistance.</summary>
     private const ushort EyeDeactivateYDistance = 0x0080;
+    /// <summary>Defines eye transition duration.</summary>
     private const ushort EyeTransitionDuration = 0x0020;
+    /// <summary>Defines eye activation sound.</summary>
     private const ushort EyeActivationSound = 0x0017;
+    /// <summary>Defines eye deactivation sound.</summary>
     private const ushort EyeDeactivationSound = 0x0071;
 
+    /// <summary>Stores morph ball eye states.</summary>
     internal readonly MorphBallEyeEnemyState?[] _morphBallEyeStates =
         new MorphBallEyeEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -100,6 +111,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>wait for samus near morph ball eye.</summary>
     private static void WaitForSamusNearMorphBallEye(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -119,6 +131,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         state.Function = MorphBallEyeAiFunction.Activating;
     }
 
+    /// <summary>advance morph ball eye activation.</summary>
     private void AdvanceMorphBallEyeActivation(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -137,6 +150,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         state.Angle = CalculateMorphBallEyeAngle(eye, samus);
     }
 
+    /// <summary>track samus with morph ball eye.</summary>
     private void TrackSamusWithMorphBallEye(
         RoomEnemySlot eye,
         MorphBallEyeEnemyState state,
@@ -168,6 +182,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         eye.InstructionTimer = 1;
     }
 
+    /// <summary>advance morph ball eye deactivation.</summary>
     private static void AdvanceMorphBallEyeDeactivation(MorphBallEyeEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.FunctionTimer);
@@ -176,10 +191,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             state.Function = MorphBallEyeAiFunction.WaitForSamus;
     }
 
+    /// <summary>calculate morph ball eye angle.</summary>
     private static SnesAngle CalculateMorphBallEyeAngle(RoomEnemySlot eye, SamusState samus) =>
         SnesAngle.FromTableIndex(EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - eye.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - eye.Position.Y.Whole)))));
 
+    /// <summary>request morph ball eye beam.</summary>
     private void RequestMorphBallEyeBeam(RoomEnemySlot eye)
     {
         // The native bank-$88 code addresses Enemy[1] and Eye.*+$40 literally. Refusing a
@@ -224,6 +241,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>initialize morph ball eye beam object.</summary>
     private void InitializeMorphBallEyeBeamObject()
     {
         RoomEnemySlot body = RequireMorphBallEyeBeamBody();
@@ -241,6 +259,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Widening;
     }
 
+    /// <summary>widen morph ball eye beam.</summary>
     private void WidenMorphBallEyeBeam()
     {
         uint deltaFraction = (uint)MorphBallEyeBeam.AngularSubwidthDelta + 0x4000u;
@@ -263,6 +282,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>step full morph ball eye beam.</summary>
     internal void StepFullMorphBallEyeBeam()
     {
         MorphBallEyeEnemyState bodyState = RequireMorphBallEyeState(RequireMorphBallEyeBeamBody());
@@ -278,6 +298,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         MorphBallEyeBeam.ColorIndex = unchecked((ushort)((colorIndex + 1) & 0x000f));
     }
 
+    /// <summary>fade morph ball eye beam.</summary>
     private void FadeMorphBallEyeBeam()
     {
         // $88:EAD6 tests green before updating the table or decrementing any component.
@@ -297,6 +318,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
             MorphBallEyeBeam.Blue--;
     }
 
+    /// <summary>require morph ball eye beam body.</summary>
     private RoomEnemySlot RequireMorphBallEyeBeamBody()
     {
         int index = MorphBallEyeBeam.BodySlotIndex;
@@ -310,10 +332,12 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         return _slotTable._slots[index];
     }
 
+    /// <summary>require morph ball eye state.</summary>
     private MorphBallEyeEnemyState RequireMorphBallEyeState(RoomEnemySlot slot) =>
         _morphBallEyeStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Morph-ball eye slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>register morph ball eye initialization ai.</summary>
     internal void RegisterMorphBallEyeInitializationAi(EnemyAiTable table)
     {
 
@@ -323,6 +347,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register morph ball eye main ai.</summary>
     internal void RegisterMorphBallEyeMainAi(EnemyAiTable table)
     {
 

@@ -7,8 +7,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable OAM compositions for the 56 completion-message glyph frames.</summary>
 public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
+    /// <summary>Initializes a new ending completion text sprite presentation instance.</summary>
     private EndingCompletionTextSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 
@@ -112,8 +114,11 @@ public static class EndingCompletionTextSpriteDefinitions
     internal const ushort ZeroMap = 0xb67b;
     /// <summary>$8C:B66F, the two-part colon frame.</summary>
     internal const ushort ColonMap = 0xb66f;
+    /// <summary>Defines operation letters.</summary>
     private const int OperationLetters = 15, CompletedLetters = 21, ClearLetters = 9;
+    /// <summary>Defines prefix count.</summary>
     private const int PrefixCount = OperationLetters + CompletedLetters + ClearLetters;
+    /// <summary>Defines frame count.</summary>
     private const int FrameCount = PrefixCount + 11;
 
     /// <summary>Stable 56-frame catalog: 15 THE OPERATION WAS prefixes at $8C:A69D, 21 COMPLETED SUCCESSFULLY prefixes at $AB6B, nine CLEAR TIME prefixes at $B49B, then ten digits at $B67B and the colon at $B66F.</summary>
@@ -122,8 +127,10 @@ public static class EndingCompletionTextSpriteDefinitions
     /// <summary>Sum preceding records: two header bytes and two five-byte OAM parts
     /// per revealed letter. Shared with the generated typewriter instructions.</summary>
     internal static ushort PrefixMap(ushort first, int prefix) => (ushort)(first + 2 * prefix + 5 * prefix * (prefix + 1));
+    /// <summary>digit map.</summary>
     internal static ushort DigitMap(int digit) => (ushort)(ZeroMap + digit * (2 + 2 * 5));
 
+    /// <summary>get.</summary>
     private static EndingCompletionTextSpriteFrameDefinition Get(int index)
     {
         if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -134,18 +141,25 @@ public static class EndingCompletionTextSpriteDefinitions
         return glyph == 10 ? new("colon-00", ColonMap, 2) : new(Key("digit", glyph), DigitMap(glyph), 2);
     }
 
+    /// <summary>prefix.</summary>
     private static EndingCompletionTextSpriteFrameDefinition Prefix(string family, ushort first, int stage) =>
         new(Key(family, stage), PrefixMap(first, stage), 2 * (stage + 1));
+    /// <summary>key.</summary>
     private static string Key(string family, int stage) => family + "-" + stage.ToString("D2", System.Globalization.CultureInfo.InvariantCulture);
 
+    /// <summary>Represents frame view.</summary>
     private sealed class FrameView : IReadOnlyList<EndingCompletionTextSpriteFrameDefinition>
     {
+        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => FrameCount;
+        /// <summary>Accesses a value by index or range.</summary>
         public EndingCompletionTextSpriteFrameDefinition this[int index] => Get(index);
+        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<EndingCompletionTextSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return Get(index);
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

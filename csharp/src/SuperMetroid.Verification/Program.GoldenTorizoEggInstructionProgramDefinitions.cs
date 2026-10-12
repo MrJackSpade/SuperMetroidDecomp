@@ -15,12 +15,15 @@ using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents golden torizo egg instruction program definitions verification.</summary>
 internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies golden torizo egg instruction program definitions.</summary>
     internal static void VerifyGoldenTorizoEggInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoEggInstructionProgramDefinitions), () => VerifyGoldenTorizoEggInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies golden torizo egg instruction program definitions.</summary>
     internal static void VerifyGoldenTorizoEggInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -221,9 +224,11 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Golden torizo egg instruction program definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo egg instruction program definitions")]
     private static byte GoldenTorizoEggInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Probe golden torizo egg instruction mechanics allocation.</summary>
     private static int ProbeGoldenTorizoEggInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -237,6 +242,7 @@ internal static class GoldenTorizoEggInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Golden torizo egg instruction mechanics command.</summary>
     [VerificationCommand("--golden-torizo-egg-instruction-mechanics")]
     internal static int GoldenTorizoEggInstructionMechanicsCommand()
     {

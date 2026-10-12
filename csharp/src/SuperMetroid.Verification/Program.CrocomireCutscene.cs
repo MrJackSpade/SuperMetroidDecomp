@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static CrocomireTongueCollisionDefinitionsVerification;
 
+/// <summary>Represents crocomire cutscene verification.</summary>
 internal static class CrocomireCutsceneVerification
 {
+    /// <summary>Verifies crocomire corpse collision.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire corpse collision")]
     internal static void VerifyCrocomireCorpseCollision()
     {
@@ -82,6 +84,7 @@ internal static class CrocomireCutsceneVerification
     private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
         Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
 
+    /// <summary>Verifies crocomire cutscene camera.</summary>
     internal static void VerifyCrocomireCutsceneCamera()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -161,6 +164,7 @@ internal static class CrocomireCutsceneVerification
         Console.WriteLine("Left skeleton cutscene: existing code locks X=512 for both directions and unlocks at completion; reported overrun not reproduced.");
     }
 
+    /// <summary>Crocomire cutscene camera command.</summary>
     [VerificationCommand("--crocomire-cutscene-camera")]
     internal static int CrocomireCutsceneCameraCommand()
     {
@@ -168,6 +172,7 @@ internal static class CrocomireCutsceneVerification
         return 0;
     }
 
+    /// <summary>Crocomire corpse collision command.</summary>
     [VerificationCommand("--crocomire-corpse-collision")]
     internal static int CrocomireCorpseCollisionCommand()
     {

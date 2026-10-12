@@ -25,6 +25,7 @@ internal static class IntroMotherBrainCollisionDefinitions
     /// restate or alter the chosen level mask. See introMotherBrainCollisionContourDisposition.</summary>
     private static ReadOnlySpan<byte> LeftContourWidths => [6, 6, 5, 6, 4, 4, 4, 6, 7, 7, 7];
 
+    /// <summary>Block.</summary>
     private static ushort Block(int row, int column)
     {
         if (row is CeilingRow or FloorRow) return Solid;

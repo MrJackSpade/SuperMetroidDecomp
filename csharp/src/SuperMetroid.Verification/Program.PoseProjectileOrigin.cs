@@ -18,8 +18,10 @@ using static RetailRuntimeFixtureVerification;
 using static SamusContentIdentityVerification;
 using static WordSamplesVerification;
 
+/// <summary>Represents pose projectile origin verification.</summary>
 internal static class PoseProjectileOriginVerification
 {
+    /// <summary>verify pose projectile origin.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose projectile origin")]
     internal static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
@@ -91,6 +93,7 @@ internal static class PoseProjectileOriginVerification
         Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
     }
 
+    /// <summary>pose projectile origins command.</summary>
     [VerificationCommand("--pose-projectile-origins")]
     internal static int PoseProjectileOriginsCommand()
     {

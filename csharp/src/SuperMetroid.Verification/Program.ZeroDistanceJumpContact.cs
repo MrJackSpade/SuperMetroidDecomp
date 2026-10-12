@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents zero distance jump contact verification.</summary>
 internal static class ZeroDistanceJumpContactVerification
 {
+    /// <summary>Verifies zero distance jump contact.</summary>
     internal static void VerifyZeroDistanceJumpContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

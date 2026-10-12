@@ -18,6 +18,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static MapSpritesVerification;
 
+/// <summary>Represents generic sprite artwork verification.</summary>
 internal static class GenericSpriteArtworkVerification
 {
     /// <summary>
@@ -168,6 +169,7 @@ internal static class GenericSpriteArtworkVerification
         }
     }
 
+    /// <summary>generic sprite artwork command.</summary>
     [VerificationCommand("--generic-sprite-artwork")]
     internal static int GenericSpriteArtworkCommand()
     {

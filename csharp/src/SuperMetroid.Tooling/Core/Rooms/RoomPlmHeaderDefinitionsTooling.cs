@@ -1,9 +1,11 @@
-﻿namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Development-tool members of <see cref="RoomPlmHeaderDefinitions"/>; never linked by player hosts.</summary>
 internal static class RoomPlmHeaderDefinitionsTooling
 {
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmHeaderDefinition> All => Enumerate();
+    /// <summary>Enumerate.</summary>
     internal static IEnumerable<RoomPlmHeaderDefinition> Enumerate()
     {
         yield return RoomPlmHeaderDefinitions.Get(PlmHeaderId.RightwardsScrollExtension);

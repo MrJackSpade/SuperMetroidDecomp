@@ -24,6 +24,7 @@ internal static class CrocomireSkeletonVisualDefinitions
     private const ushort SingleComponentStart = ThreeComponentCollapse + 2 + 8 * 3;
 
 
+    /// <summary>Checks whether frame.</summary>
     internal static bool IsFrame(byte bank, ushort pointer)
     {
         if (bank != Bank) return false;
@@ -50,6 +51,7 @@ internal static class CrocomireSkeletonVisualDefinitions
         };
     }
 
+    /// <summary>Frame.</summary>
     internal static EnemyExtendedFrameDefinition Frame(int index)
     {
         ushort pointer = FramePointer(index);

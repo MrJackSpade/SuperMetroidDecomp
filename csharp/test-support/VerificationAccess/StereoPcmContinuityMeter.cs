@@ -6,11 +6,16 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal sealed class StereoPcmContinuityMeter
 {
+    /// <summary>Stores has previous frame.</summary>
     private bool hasPreviousFrame;
+    /// <summary>Stores previous left.</summary>
     private short previousLeft;
+    /// <summary>Stores previous right.</summary>
     private short previousRight;
 
+    /// <summary>Gets or sets maximum within buffer delta.</summary>
     public int MaximumWithinBufferDelta { get; private set; }
+    /// <summary>Gets or sets maximum boundary delta.</summary>
     public int MaximumBoundaryDelta { get; private set; }
 
     /// <summary>

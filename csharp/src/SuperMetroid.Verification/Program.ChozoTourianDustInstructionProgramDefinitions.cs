@@ -15,12 +15,15 @@ using static DoorDefinitionsVerification;
 using static EnemyProjectileProgramOracleVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents chozo tourian dust instruction program definitions verification.</summary>
 internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies chozo tourian dust instruction program definitions.</summary>
     internal static void VerifyChozoTourianDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies chozo tourian dust instruction program definitions.</summary>
     internal static void VerifyChozoTourianDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -151,6 +154,7 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes chozo tourian dust instruction mechanics allocation.</summary>
     private static int ProbeChozoTourianDustInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -164,12 +168,14 @@ internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates chozo tourian dust instruction read guard.</summary>
     private static CartridgeReadGuard NewChozoTourianDustInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(ChozoTourianDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Chozo/Tourian dust mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount, ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Chozo tourian dust instruction mechanics command.</summary>
     [VerificationCommand("--chozo-tourian-dust-instruction-mechanics")]
     internal static int ChozoTourianDustInstructionMechanicsCommand()
     {

@@ -16,15 +16,22 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class RoomPaletteFxSystem
 {
+    /// <summary>Defines slot count.</summary>
     private const int SlotCount = 8;
 
+    /// <summary>Stores slots.</summary>
     private readonly PaletteFxSlot[] slots = Enumerable.Range(0, SlotCount)
         .Select(_ => new PaletteFxSlot())
         .ToArray();
+    /// <summary>Stores sound requests.</summary>
     private readonly List<PaletteFxSoundRequest> soundRequests = [];
+    /// <summary>Stores audio power bomb.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    /// <summary>Stores music requests.</summary>
     private readonly List<PaletteFxMusicRequest> musicRequests = [];
+    /// <summary>Stores samus in heat palette index.</summary>
     private ushort samusInHeatPaletteIndex;
+    /// <summary>Stores previous samus in heat palette index.</summary>
     private ushort previousSamusInHeatPaletteIndex;
 
     /// <summary>
@@ -79,6 +86,7 @@ public sealed class RoomPaletteFxSystem
         bool areaMiniBossDefeated) =>
         LoadRoomCore(bus, fxPointer, doorPointer, area, equippedItems, areaMiniBossDefeated, null);
 
+    /// <summary>Loads room core.</summary>
     private void LoadRoomCore(ISnesAddressSpace bus, ushort fxPointer, ushort doorPointer,
         AreaId area, ushort equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
@@ -152,6 +160,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>Spawn.</summary>
     private void Spawn(
         ushort definition,
         ushort equippedItems,
@@ -211,6 +220,7 @@ public sealed class RoomPaletteFxSystem
         }
     }
 
+    /// <summary>Runs pre instruction.</summary>
     private void RunPreInstruction(PaletteFxSlot slot, int slotIndex, PaletteFxConditions conditions)
     {
         var preInstruction = (PaletteFxPreInstruction)slot.PreInstruction;
@@ -316,6 +326,7 @@ public sealed class RoomPaletteFxSystem
             samusInHeatPaletteIndex);
     }
 
+    /// <summary>Execute program.</summary>
     private void ExecuteProgram(
         SnesCgram cgram,
         IPaletteFxColorSource colors,
@@ -437,6 +448,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
+    /// <summary>Writes palette record.</summary>
     [PpuLayoutBoundary("codec: palette-FX instruction colour-index operands ($8D SetColorIndex)")]
     private static void WritePaletteRecord(
         SnesCgram cgram,
@@ -526,6 +538,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} did not terminate its color record.");
     }
 
+    /// <summary>Reads bank8d word.</summary>
     private static ushort ReadBank8dWord(ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsWord(
@@ -555,6 +568,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX word $8D:{pointer:X4} has no compiled mechanics or installed color definition.");
     }
 
+    /// <summary>Reads bank8d byte.</summary>
     private static byte ReadBank8dByte(ushort pointer)
     {
         if (RoomPaletteFxProgramMechanicsDefinitions.TryReadMechanicsByte(
@@ -568,15 +582,23 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX byte $8D:{pointer:X4} has no compiled mechanics definition.");
     }
 
+    /// <summary>Represents palette fx slot.</summary>
     private sealed class PaletteFxSlot
     {
+        /// <summary>Gets or sets id.</summary>
         public ushort Id { get; set; }
+        /// <summary>Gets or sets color byte index.</summary>
         public ushort ColorByteIndex { get; set; }
+        /// <summary>Gets or sets pre instruction.</summary>
         public ushort PreInstruction { get; set; }
+        /// <summary>Gets or sets instruction pointer.</summary>
         public ushort InstructionPointer { get; set; }
+        /// <summary>Gets or sets instruction timer.</summary>
         public ushort InstructionTimer { get; set; }
+        /// <summary>Gets or sets timer.</summary>
         public ushort Timer { get; set; }
 
+        /// <summary>Clear.</summary>
         public void Clear()
         {
             Id = 0;

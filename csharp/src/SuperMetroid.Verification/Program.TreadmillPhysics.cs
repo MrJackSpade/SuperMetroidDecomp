@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
+/// <summary>Represents treadmill physics verification.</summary>
 internal static class TreadmillPhysicsVerification
 {
+    /// <summary>verify treadmill physics.</summary>
     internal static void VerifyTreadmillPhysics()
     {
         var bus = new TestAddressSpace();

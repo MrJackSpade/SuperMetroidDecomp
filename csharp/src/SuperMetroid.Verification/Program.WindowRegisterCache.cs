@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents window register cache verification.</summary>
 internal static class WindowRegisterCacheVerification
 {
+    /// <summary>Verifies window register cache.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyWindowRegisterCache()
     {

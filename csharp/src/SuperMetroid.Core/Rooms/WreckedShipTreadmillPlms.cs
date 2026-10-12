@@ -1,12 +1,14 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Wrecked Ship treadmill and Maridia elevatube PLMs: the conveyor rows they write and step.</summary>
 internal sealed class WreckedShipTreadmillPlms
 {
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Initializes a new wrecked ship treadmill plms instance.</summary>
     internal WreckedShipTreadmillPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;
@@ -151,6 +153,7 @@ internal sealed class WreckedShipTreadmillPlms
         return true;
     }
 
+    /// <summary>Ensure horizontal range fits.</summary>
     private static void EnsureHorizontalRangeFits(
         RoomLevelData level,
         int origin,

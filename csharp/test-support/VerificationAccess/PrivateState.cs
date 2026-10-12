@@ -6,35 +6,44 @@ using System.Reflection;
 /// </summary>
 internal static class PrivateState
 {
+    /// <summary>Includes declared public and private members in reflection searches.</summary>
     private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Static |
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
+    /// <summary>Reads a named instance field, including fields declared on base types.</summary>
     internal static T Field<T>(object owner, string name) => (T)FieldInfo(owner.GetType(), name).GetValue(owner)!;
 
+    /// <summary>Reads a named static field, including fields declared on base types.</summary>
     internal static T StaticField<T>(Type type, string name) => (T)FieldInfo(type, name).GetValue(null)!;
 
+    /// <summary>Assigns a named instance field after converting compatible primitive values.</summary>
     internal static void SetField(object owner, string name, object? value)
     {
         FieldInfo field = FieldInfo(owner.GetType(), name);
         field.SetValue(owner, Assignable(field.FieldType, value));
     }
 
+    /// <summary>Assigns a named static field after converting compatible primitive values.</summary>
     internal static void SetStaticField(Type type, string name, object? value)
     {
         FieldInfo field = FieldInfo(type, name);
         field.SetValue(null, Assignable(field.FieldType, value));
     }
 
+    /// <summary>Reads a named instance property through its getter.</summary>
     internal static T Property<T>(object owner, string name) => (T)Get(PropertyInfo(owner.GetType(), name), owner)!;
 
+    /// <summary>Reads a named static property through its getter.</summary>
     internal static T StaticProperty<T>(Type type, string name) => (T)Get(PropertyInfo(type, name), null)!;
 
+    /// <summary>Assigns a named instance property through its setter.</summary>
     internal static void SetProperty(object owner, string name, object? value)
     {
         PropertyInfo property = PropertyInfo(owner.GetType(), name);
         Set(property, owner, Assignable(property.PropertyType, value));
     }
 
+    /// <summary>Assigns a named static property through its setter.</summary>
     internal static void SetStaticProperty(Type type, string name, object? value)
     {
         PropertyInfo property = PropertyInfo(type, name);
@@ -50,9 +59,11 @@ internal static class PrivateState
             ? value
             : Convert.ChangeType(value, memberType, System.Globalization.CultureInfo.InvariantCulture);
 
+    /// <summary>Invokes the matching named instance method, including optional parameters.</summary>
     internal static object? Invoke(object owner, string name, params object?[] arguments) =>
         Call(MethodInfo(owner.GetType(), name, arguments), owner, arguments);
 
+    /// <summary>Invokes the matching named static method, including optional parameters.</summary>
     internal static object? InvokeStatic(Type type, string name, params object?[] arguments) =>
         Call(MethodInfo(type, name, arguments), null, arguments);
 
@@ -64,6 +75,7 @@ internal static class PrivateState
     internal static object? InvokeStaticWithOut(Type type, string name, object?[] arguments) =>
         Call(MethodInfo(type, name, arguments), null, arguments);
 
+    /// <summary>Represents the span getter callback.</summary>
     private delegate ReadOnlySpan<T> SpanGetter<T>();
 
     /// <summary>A private static span property, read through a typed delegate because spans cannot be boxed.</summary>
@@ -97,6 +109,7 @@ internal static class PrivateState
             ?? throw new TypeLoadException($"No loaded assembly declares {fullName}.");
 
     // Members throw exactly what a direct call throws, never a TargetInvocationException wrapper.
+    /// <summary>Invokes a reflected member without wrapping its exception and supplies optional defaults.</summary>
     private static object? Call(MethodBase method, object? owner, object?[] arguments)
     {
         ParameterInfo[] parameters = method.GetParameters();
@@ -109,6 +122,7 @@ internal static class PrivateState
         return result;
     }
 
+    /// <summary>Invokes a reflected constructor, supplying optional argument defaults.</summary>
     private static object Construct(ConstructorInfo constructor, object?[] arguments)
     {
         ParameterInfo[] parameters = constructor.GetParameters();
@@ -116,12 +130,15 @@ internal static class PrivateState
         return constructor.Invoke(BindingFlags.DoNotWrapExceptions, null, complete, null);
     }
 
+    /// <summary>Invokes a property getter or throws if the property has none.</summary>
     private static object? Get(PropertyInfo property, object? owner) =>
         Call(property.GetMethod ?? throw new MissingMethodException(property.DeclaringType?.FullName, property.Name + ".get"), owner, []);
 
+    /// <summary>Invokes a property setter or throws if the property has none.</summary>
     private static void Set(PropertyInfo property, object? owner, object? value) =>
         Call(property.SetMethod ?? throw new MissingMethodException(property.DeclaringType?.FullName, property.Name + ".set"), owner, [value]);
 
+    /// <summary>Finds a named field on the type or its base types.</summary>
     private static FieldInfo FieldInfo(Type type, string name)
     {
         for (Type? current = type; current is not null; current = current.BaseType)
@@ -130,6 +147,7 @@ internal static class PrivateState
         throw new MissingFieldException(type.FullName, name);
     }
 
+    /// <summary>Finds a named property on the type or its base types.</summary>
     private static PropertyInfo PropertyInfo(Type type, string name)
     {
         for (Type? current = type; current is not null; current = current.BaseType)
@@ -154,11 +172,13 @@ internal static class PrivateState
         throw new MissingMethodException(type.FullName, name);
     }
 
+    /// <summary>Checks whether the supplied arguments fit the parameters and omitted defaults.</summary>
     private static bool Accepts(ParameterInfo[] parameters, object?[] arguments) =>
         arguments.Length <= parameters.Length &&
         parameters.Skip(arguments.Length).All(parameter => parameter.IsOptional) &&
         parameters.Zip(arguments).All(pair => Accepts(pair.First, pair.Second));
 
+    /// <summary>Checks whether an argument fits a parameter, including out and nullable values.</summary>
     private static bool Accepts(ParameterInfo parameter, object? argument)
     {
         if (parameter.IsOut)

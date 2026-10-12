@@ -70,6 +70,7 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions
     /// <summary>Native program bank $B4.</summary>
     internal const byte Bank = 0xb4;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xbe24),
         Frame(6),
@@ -604,9 +605,12 @@ internal abstract class RoomSpriteObjectInstructionProgramDefinitions
         Frame(10),
         Frame(10),
         Op((ushort)RoomSpriteObjectInstruction.Goto, SpriteObject3CEvirFacingRight));
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

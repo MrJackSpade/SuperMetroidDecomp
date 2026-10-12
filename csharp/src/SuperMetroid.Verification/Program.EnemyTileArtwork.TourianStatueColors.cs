@@ -9,8 +9,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents enemy tile artwork tourian statue colors verification.</summary>
 internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
+    /// <summary>Verifies installed tourian statue colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Tourian statue palette sources")]
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
@@ -235,6 +237,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
     }
 
+    /// <summary>New tourian statue color guard.</summary>
     private static MutableCartridgeReadGuard NewTourianStatueColorGuard(ISnesAddressSpace source,
         HashSet<int> forbidden)
     {
@@ -244,6 +247,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         return guard;
     }
 
+    /// <summary>Checks only differences.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void CheckOnlyDifferences(SnesCgram reference, SnesCgram edited,
         IReadOnlyList<(int Index, int Mask)> differences, string context)

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Typed projection of Dead Torizo's bank-$A9 extended WRAM fields.</summary>
 public sealed class DeadTorizoEnemyState
 {
+    /// <summary>Initializes a new dead torizo enemy state instance.</summary>
     internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRottingProgram rotting)
     {
         Slot = slot;

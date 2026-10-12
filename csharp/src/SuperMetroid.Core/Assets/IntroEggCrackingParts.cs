@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Progressive replacement of intact cells with the matching cracked atlas patch.</summary>
 internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates replacement sprite parts when the pointer matches this artwork series; otherwise returns the supplied composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int stage = 0; stage < 6; stage++)
@@ -13,8 +14,10 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 return supplied.CalculateIfMatching(new IntroEggCrackingParts(stage));
         return supplied;
     }
+    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => 9;
 
+    /// <summary>ordered cells.</summary>
     private IEnumerable<IntroEggCell> OrderedCells()
     {
         // Native lists publish the newly exposed region before the remaining shell.
@@ -38,6 +41,7 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
         if (stage < 2) yield return IntroEggCell.MiddleLeft;
     }
 
+    /// <summary>Accesses a value by index or range.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -64,21 +68,27 @@ internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledS
                 unchecked((byte)(-12 + 8 * row)), SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
 /// <summary>Mutually exclusive cells in the egg three-by-three grid,in row-major order.</summary>
 internal enum IntroEggCell
 {
-    TopLeft, TopMiddle, TopRight,
-    MiddleLeft, Center, MiddleRight,
-    BottomLeft, BottomMiddle, BottomRight,
+    /// <summary>Identifies top left.</summary>
+    TopLeft, /** <summary>Identifies top middle.</summary> */ TopMiddle, /** <summary>Identifies top right.</summary> */ TopRight,
+    /// <summary>Identifies middle left.</summary>
+    MiddleLeft, /** <summary>Identifies center.</summary> */ Center, /** <summary>Identifies middle right.</summary> */ MiddleRight,
+    /// <summary>Identifies bottom left.</summary>
+    BottomLeft, /** <summary>Identifies bottom middle.</summary> */ BottomMiddle, /** <summary>Identifies bottom right.</summary> */ BottomRight,
 }
 
+/// <summary>Represents intro egg cracking atlas.</summary>
 internal static class IntroEggCrackingAtlas
 {
     /// <summary>Tile$102,upper-left of the three-by-two cracked shell patch.</summary>

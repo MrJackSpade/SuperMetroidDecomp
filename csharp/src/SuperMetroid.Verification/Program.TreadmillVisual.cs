@@ -15,8 +15,10 @@ using System.Text.Json;
 using SuperMetroid.Core.Rendering;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents treadmill visual verification.</summary>
 internal static class TreadmillVisualVerification
 {
+    /// <summary>Verifies treadmill visual.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     internal static void VerifyTreadmillVisual()
     {
@@ -75,6 +77,7 @@ internal static class TreadmillVisualVerification
         }
     }
 
+    /// <summary>Treadmill visual command.</summary>
     [VerificationCommand("--treadmill-visual")]
     internal static int TreadmillVisualCommand()
     {

@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents xray controls verification.</summary>
 internal static class XrayControlsVerification
 {
+    /// <summary>Verifies xray controls.</summary>
     internal static void VerifyXrayControls()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -101,6 +103,7 @@ internal static class XrayControlsVerification
         }
     }
 
+    /// <summary>Xray controls command.</summary>
     [VerificationCommand("--xray-controls")]
     internal static int XrayControlsCommand()
     {

@@ -13,8 +13,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents enemy projectile instruction owner coverage verification.</summary>
 internal static class EnemyProjectileInstructionOwnerCoverageVerification
 {
+    /// <summary>Verifies enemy projectile instruction owner coverage.</summary>
     internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -91,11 +93,13 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
             "fallback; unknown entries fail explicitly.");
     }
 
+    /// <summary>New enemy projectile mechanics fallback forbidden bus.</summary>
     private static CartridgeReadGuard NewEnemyProjectileMechanicsFallbackForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Projectile mechanics attempted forbidden cartridge read ${address:X6}.")
             .RejectWrites(address => $"Projectile mechanics attempted unexpected write ${address:X6}.");
 
+    /// <summary>Enemy projectile instruction owner coverage command.</summary>
     [VerificationCommand("--enemy-projectile-instruction-owner-coverage")]
     internal static int EnemyProjectileInstructionOwnerCoverageCommand()
     {

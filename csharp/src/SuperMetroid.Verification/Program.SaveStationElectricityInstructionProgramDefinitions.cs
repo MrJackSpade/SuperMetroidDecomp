@@ -16,12 +16,15 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents save station electricity instruction program definitions verification.</summary>
 internal static class SaveStationElectricityInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies save station electricity instruction program definitions.</summary>
     internal static void VerifySaveStationElectricityInstructionProgramDefinitions() =>
         Suite(nameof(VerifySaveStationElectricityInstructionProgramDefinitions), () => VerifySaveStationElectricityInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies save station electricity instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for save station electricity instruction program definitions")]
     internal static void VerifySaveStationElectricityInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -144,6 +147,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
         }
     }
 
+    /// <summary>Probes save station electricity instruction mechanics allocation.</summary>
     private static int ProbeSaveStationElectricityInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -157,6 +161,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
         return checksum;
     }
 
+    /// <summary>Creates save station electricity instruction read guard.</summary>
     internal static CartridgeReadGuard NewSaveStationElectricityInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -168,6 +173,7 @@ internal static class SaveStationElectricityInstructionProgramDefinitionsVerific
                 SaveStationElectricityInstructionProgramDefinitions.PresentationWordCount,
                 SaveStationElectricityInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Saves station electricity instruction mechanics command.</summary>
     [VerificationCommand("--save-station-electricity-instruction-mechanics")]
     internal static int SaveStationElectricityInstructionMechanicsCommand()
     {

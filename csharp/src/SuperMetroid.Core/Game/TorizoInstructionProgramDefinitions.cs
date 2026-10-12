@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class TorizoInstructionProgramDefinitions
 {
+    /// <summary>Defines bank.</summary>
     internal const byte Bank = 0xaa;
 
     /// <summary><c>InstList_Torizo_SpecialCallable_BlowUpBombTorizosGut</c> at $AA:B0E5; native instruction-list identity.</summary>
@@ -398,11 +399,15 @@ internal abstract class TorizoInstructionProgramDefinitions
     /// <summary><c>Function_GoldenTorizo_NormalMovement</c> at $AA:D5E6; native instruction callback operand.</summary>
     private const ushort Function_GoldenTorizo_NormalMovement = 0xd5e6;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         [.. SharedItems, .. BombLeftItems, .. BombRightItems, .. GoldenLeftItems, .. GoldenRightItems]);
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

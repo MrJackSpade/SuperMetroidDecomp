@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents controller button lookups verification.</summary>
 internal static class ControllerButtonLookupsVerification
 {
+    /// <summary>Verifies assignable controller buttons.</summary>
     internal static void VerifyAssignableControllerButtons(ISnesAddressSpace rom)
     {
         // Independent original bytes, never the replacement cases, supply both directions.
@@ -48,6 +50,7 @@ internal static class ControllerButtonLookupsVerification
             "duplicate button invalidates permutation");
     }
 
+    /// <summary>Verifies default controller buttons.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for default controller buttons")]
     internal static void VerifyDefaultControllerButtons(ISnesAddressSpace rom)
     {

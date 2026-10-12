@@ -14,8 +14,10 @@ using SuperMetroid.Core.Game;
 using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents file select sound verification.</summary>
 internal static class FileSelectSoundVerification
 {
+    /// <summary>Verifies file select sound.</summary>
     internal static void VerifyFileSelectSound()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -48,6 +50,7 @@ internal static class FileSelectSoundVerification
             VerifyFullFrontendFileSelectSound(existingSave, accept);
     }
 
+    /// <summary>Verifies full frontend file select sound.</summary>
     private static void VerifyFullFrontendFileSelectSound(bool existingSave, SnesButton accept)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -95,6 +98,7 @@ internal static class FileSelectSoundVerification
         Console.WriteLine($"Full frontend existing={existingSave} accept={accept}: {writes} requests at tick {firstSoundTick}; PCM begins {firstDifferenceTick}; {differentSamples} samples differ.");
     }
 
+    /// <summary>File select sound command.</summary>
     [VerificationCommand("--file-select-sound")]
     internal static int FileSelectSoundCommand()
     {

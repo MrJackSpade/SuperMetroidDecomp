@@ -53,22 +53,28 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
     private static readonly CrateriaEscapeLightningPaletteFxProgramDefinition CreBlockPixel = new(
         CrateriaEscapeLightningPaletteOwner.CreBlockPixel, CreBlockPixelDefinitionPointer,
         CreBlockPixelProgramStart, 0x00ae, 5);
+    /// <summary>Stores programs.</summary>
     private static readonly ProgramList Programs = new();
 
     /// <summary>The yellow-lightning and CRE-pixel programs in definition order.</summary>
     public static IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition> All => Programs;
 
+    /// <summary>Represents program list.</summary>
     private sealed class ProgramList : IReadOnlyList<CrateriaEscapeLightningPaletteFxProgramDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 2;
+        /// <summary>Gets an indexed value.</summary>
         public CrateriaEscapeLightningPaletteFxProgramDefinition this[int index] => index switch
         {
             0 => YellowLightning,
             1 => CreBlockPixel,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<CrateriaEscapeLightningPaletteFxProgramDefinition> GetEnumerator()
         { yield return YellowLightning; yield return CreBlockPixel; }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Resolves one compiled mechanics word across both programs.</summary>
@@ -89,6 +95,7 @@ public static class CrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete late-Crateria escape palette control program.</summary>
 public sealed class CrateriaEscapeLightningPaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new crateria escape lightning palette fx program definition instance.</summary>
     internal CrateriaEscapeLightningPaletteFxProgramDefinition(
         CrateriaEscapeLightningPaletteOwner owner,
         ushort definitionPointer,

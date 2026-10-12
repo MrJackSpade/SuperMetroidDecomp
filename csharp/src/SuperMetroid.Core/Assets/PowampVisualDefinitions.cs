@@ -10,10 +10,12 @@ internal static class PowampVisualDefinitions
     /// <summary>Six Powamp body and balloon compositions at $A8:C675..C698.</summary>
     internal const int FrameCount = 6;
 
+    /// <summary>Operands.</summary>
     internal static ushort[] Operands() => Enumerable.Range(0,
         PowampInstructionProgramDefinitions.PresentationWordCount)
         .Select(PowampInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "powamp");
 }

@@ -18,9 +18,12 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
     /// <summary>Reset/randomize loop at $86:AF18, after the initial loop counter.</summary>
     internal const ushort TourianLoop = TourianDescentDust + 4;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 31;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 14;
 
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -64,6 +67,7 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
         return new((ushort)(TourianDescentDust + 28 + 2 * (dust - 10)), control);
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -71,11 +75,13 @@ internal abstract class ChozoTourianDustInstructionProgramDefinitions
         if (index < 10) return (ushort)(SpikeClearingExplosions + 8 + 4 * (index - 4));
         return (ushort)(TourianDescentDust + 14 + 4 * (index - 10));
     }
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
         RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or
         RoomEnemyProjectileKind.TourianStatueDescentDust;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

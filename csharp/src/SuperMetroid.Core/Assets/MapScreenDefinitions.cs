@@ -30,6 +30,7 @@ public static class MapScreenDefinitions
     /// <param name="area">A playable Zebes area from zero through five.</param>
     /// <returns>The area's <c>Room.*</c> page identity.</returns>
     public static string RoomFrame(AreaId area) => "Room." + AreaName(area);
+    /// <summary>area name.</summary>
     private static string AreaName(AreaId area) => (uint)area < ZebesAreas
         ? area.ToString() : throw new ArgumentOutOfRangeException(nameof(area));
 

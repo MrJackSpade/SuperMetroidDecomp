@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 
+/// <summary>Represents ending setup nmi waits verification.</summary>
 internal static class EndingSetupNmiWaitsVerification
 {
     // #1269: MainGameLoop calls GenerateRandomNumber ($82:894F) before every state dispatch.
@@ -20,6 +21,7 @@ internal static class EndingSetupNmiWaitsVerification
     // waits ($8B:D484-$D48C) before its scene setup, so calls two to ten resume inside it and
     // make no main-loop RNG call; every later call makes one. The port never advanced the RNG
     // in the ending and ran the setup at once, so in the 100% movie the RNG fell behind.
+    /// <summary>Verifies ending setup nmi waits.</summary>
     internal static void VerifyEndingSetupNmiWaits()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -53,6 +55,7 @@ internal static class EndingSetupNmiWaitsVerification
         Console.WriteLine("Ending setup NMI waits: nine resumed calls skip the main-loop RNG and precede the scene setup.");
     }
 
+    /// <summary>Ending setup nmi waits command.</summary>
     [VerificationCommand("--ending-setup-nmi-waits")]
     internal static int EndingSetupNmiWaitsCommand()
     {

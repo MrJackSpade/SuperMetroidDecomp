@@ -6,17 +6,23 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup spore tilemap verification.</summary>
 internal static class LookupSporeTilemapVerification
 {
+    /// <summary>verify spore tile palette.</summary>
     private static void VerifySporeTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x1c00));
+    /// <summary>verify spore tile priority.</summary>
     private static void VerifySporeTilePriority(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x2000));
+    /// <summary>verify spore tile horizontal flip.</summary>
     private static void VerifySporeTileHorizontalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x4000));
+    /// <summary>verify spore tile vertical flip.</summary>
     private static void VerifySporeTileVerticalFlip(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x8000));
 
+    /// <summary>verify spore tile attribute.</summary>
     private static void VerifySporeTileAttribute(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock, int mask)
     {
         ReadOnlySpan<byte> installed = stock.Resolve(RoomFxType.Spores).Span;
@@ -30,6 +36,7 @@ internal static class LookupSporeTilemapVerification
         }
     }
 
+    /// <summary>verify spore attribute storage and edits.</summary>
     private static void VerifySporeAttributeStorageAndEdits(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         object page = typeof(RoomFxLayer3TilemapCatalog).GetField("spores", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -59,9 +66,11 @@ internal static class LookupSporeTilemapVerification
             AssertThrows<ArgumentException>(() => new RoomFxSporeTilemap(new byte[length]), "Incomplete spore page rejects");
     }
 
+    /// <summary>spore attribute storage and edits rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for spore attribute storage and edits")]
     private static byte SporeAttributeStorageAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>verify spore tilemap attributes.</summary>
     internal static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifySporeTilePalette), () => VerifySporeTilePalette(rom, stock));

@@ -13,12 +13,16 @@ public sealed class SnesVram
     /// <summary>Two bytes per word gives the physical 64 KiB storage size.</summary>
     public const int ByteCount = SnesPpuLayout.VramByteCount;
 
+    /// <summary>Stores bytes.</summary>
     private readonly byte[] _bytes = new byte[ByteCount];
 
     // Every mutator below bumps this before writing, so a render capture can tell whether
     // the image changed since its last immutable copy. Neither field is saved state.
+    /// <summary>Stores write generation.</summary>
     [NonSerialized] private long writeGeneration;
+    /// <summary>Stores captured image.</summary>
     [NonSerialized] private byte[]? capturedImage;
+    /// <summary>Stores captured generation.</summary>
     [NonSerialized] private long capturedGeneration;
 
     /// <summary>

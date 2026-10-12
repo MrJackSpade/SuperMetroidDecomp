@@ -2,8 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents phantoon flame spawns verification.</summary>
 internal static class PhantoonFlameSpawnsVerification
 {
+    /// <summary>Verifies compiled phantoon flame spawns.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon flame spawns")]
     internal static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
     {
@@ -62,6 +64,7 @@ internal static class PhantoonFlameSpawnsVerification
         Console.WriteLine("Phantoon flame spawns: 33 native bytes and 507 real initializers reject migrated table reads.");
     }
 
+    /// <summary>New phantoon flame spawn read guard.</summary>
     private static CartridgeReadGuard NewPhantoonFlameSpawnReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x8698b4 and < 0x8698c4 or >= 0x8698f7 and < 0x869900 or >= 0x869979 and < 0x869981,

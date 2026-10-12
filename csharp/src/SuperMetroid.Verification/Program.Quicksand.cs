@@ -16,8 +16,10 @@ using static AssertionsVerification;
 using static BabyMetroidRouteDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents quicksand verification.</summary>
 internal static class QuicksandVerification
 {
+    /// <summary>Verifies quicksand.</summary>
     internal static void VerifyQuicksand()
     {
         var bus = new TestAddressSpace();
@@ -68,6 +70,7 @@ internal static class QuicksandVerification
         Console.WriteLine("  Quicksand: suit/direction branches, sinking contact, pose clearance, and sandfall forces agree.");
     }
 
+    /// <summary>Verifies quicksand definitions.</summary>
     internal static void VerifyQuicksandDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySpecialAirInsideHeaderMapping), () => VerifySpecialAirInsideHeaderMapping(rom));
@@ -140,12 +143,15 @@ internal static class QuicksandVerification
             "Special-air/quicksand definitions: all 224 retail area dispatch records, eight quicksand setup/list pairs, and six physical words match the cartridge; real inside and collision paths run with every migrated source forbidden.");
     }
 
+    /// <summary>Verifies quicksand setup mapping.</summary>
     private static void VerifyQuicksandSetupMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, false));
 
+    /// <summary>Verifies quicksand instruction mapping.</summary>
     private static void VerifyQuicksandInstructionMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandReactionField), () => VerifyQuicksandReactionField(rom, true));
 
+    /// <summary>Verifies quicksand reaction field.</summary>
     private static void VerifyQuicksandReactionField(SuperMetroidAddressSpace rom, bool instruction)
     {
         // Original non-clone sand PLM headers, independent of the replacement's named cases.
@@ -170,15 +176,19 @@ internal static class QuicksandVerification
         }
     }
 
+    /// <summary>Verifies quicksand moving displacement.</summary>
     private static void VerifyQuicksandMovingDisplacement(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48b, physics => physics.MovingDisplacement));
 
+    /// <summary>Verifies quicksand stationary displacement.</summary>
     private static void VerifyQuicksandStationaryDisplacement(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b48f, physics => physics.StationaryDisplacement));
 
+    /// <summary>Verifies quicksand upward limit.</summary>
     private static void VerifyQuicksandUpwardLimit(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyQuicksandPhysicsField), () => VerifyQuicksandPhysicsField(rom, 0x84b493, physics => physics.UpwardSpeedLimit));
 
+    /// <summary>Verifies quicksand physics field.</summary>
     private static void VerifyQuicksandPhysicsField(SuperMetroidAddressSpace rom, int address,
         Func<QuicksandSurfacePhysics, ushort> field)
     {
@@ -188,18 +198,23 @@ internal static class QuicksandVerification
                 $"quicksand physics {address:X6} suit {suit}");
     }
 
+    /// <summary>Verifies special air inside header mapping.</summary>
     private static void VerifySpecialAirInsideHeaderMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, false));
 
+    /// <summary>Verifies special air inside setup mapping.</summary>
     private static void VerifySpecialAirInsideSetupMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveInside, 0x949b06, true));
 
+    /// <summary>Verifies special air collision header mapping.</summary>
     private static void VerifySpecialAirCollisionHeaderMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, false));
 
+    /// <summary>Verifies special air collision setup mapping.</summary>
     private static void VerifySpecialAirCollisionSetupMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpecialAirField), () => VerifySpecialAirField(rom, SpecialAirReactionDefinitions.ResolveCollision, 0x9492d9, true));
 
+    /// <summary>Verifies special air field.</summary>
     private static void VerifySpecialAirField(SuperMetroidAddressSpace rom,
         Func<AreaId, byte, SpecialAirReactionDefinition> resolve, int nativePointers, bool setup)
     {
@@ -235,6 +250,7 @@ internal static class QuicksandVerification
         }
     }
 
+    /// <summary>Creates quicksand definition read guard.</summary>
     private static CartridgeReadGuard NewQuicksandDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0x9491d9 and < 0x9492e7 or
                 >= 0x949a06 and < 0x949b14 or
@@ -256,6 +272,7 @@ internal static class QuicksandVerification
                 0x84d6f2 or 0x84d6f3,
             address => $"Quicksand attempted migrated definition read ${address:X6}.");
 
+    /// <summary>Quicksand definitions command.</summary>
     [VerificationCommand("--quicksand-definitions")]
     internal static int QuicksandDefinitionsCommand()
     {

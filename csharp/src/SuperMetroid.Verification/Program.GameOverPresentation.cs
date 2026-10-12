@@ -6,8 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static MapPresentationVerification;
 
+/// <summary>Represents game over presentation verification.</summary>
 internal static class GameOverPresentationVerification
 {
+    /// <summary>Verifies game over presentation assets.</summary>
     internal static void VerifyGameOverPresentationAssets(
         ISnesAddressSpace bus,
         string stock,

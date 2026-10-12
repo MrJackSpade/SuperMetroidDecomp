@@ -12,11 +12,13 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using static EnemyDropsVerification;
 
+/// <summary>Represents power bomb death radius verification.</summary>
 internal static class PowerBombDeathRadiusVerification
 {
     // #1269: `$A0:A306` keeps its horizontal radius in `$12`, which EnemyDeath overwrites
     // with the dying actor's respawn bit. The 100% movie's Ki-Hunter therefore survives
     // the frame on which a higher slot dies, and takes the hit one frame later.
+    /// <summary>Verifies power bomb death radius.</summary>
     internal static void VerifyPowerBombDeathRadius()
     {
         const ushort explosionX = 128;
@@ -69,6 +71,7 @@ internal static class PowerBombDeathRadiusVerification
         }
     }
 
+    /// <summary>Power bomb death radius command.</summary>
     [VerificationCommand("--power-bomb-death-radius")]
     internal static int PowerBombDeathRadiusCommand()
     {

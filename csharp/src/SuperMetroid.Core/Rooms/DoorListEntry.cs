@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public readonly record struct DoorListEntry
 {
+    /// <summary>Initializes a new door list entry instance.</summary>
     private DoorListEntry(ushort pointer, CartridgeDoorHeader? door)
     {
         Pointer = pointer;

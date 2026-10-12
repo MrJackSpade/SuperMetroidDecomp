@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidFootCoordinateMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid foot collision definitions verification.</summary>
 internal static class KraidFootCollisionDefinitionsVerification
 {
+    /// <summary>Verifies kraid foot collision definitions.</summary>
     internal static void VerifyKraidFootCollisionDefinitions()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -146,14 +148,17 @@ internal static class KraidFootCollisionDefinitionsVerification
         ];
     }
 
+    /// <summary>Kraid foot collision definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot collision definitions")]
     private static byte KraidFootCollisionDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>New kraid foot collision no read bus.</summary>
     private static CartridgeReadGuard NewKraidFootCollisionNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Kraid-foot collision read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Kraid-foot collision wrote byte ${address:X6}.");
 
+    /// <summary>Kraid foot collision command.</summary>
     [VerificationCommand("--kraid-foot-collision")]
     internal static int KraidFootCollisionCommand()
     {

@@ -8,8 +8,10 @@ using SuperMetroid.Desktop;
 /// <summary>Verification views of private desktop audio and error-reporting state.</summary>
 internal static class DesktopAccess
 {
+    /// <summary>Provides verification helpers for <see cref="WaveOutAudioDevice"/>.</summary>
     extension(WaveOutAudioDevice device)
     {
+        /// <summary>Gets prepared buffer count for verification.</summary>
         internal int PreparedBufferCountForVerification
         {
             get
@@ -19,6 +21,7 @@ internal static class DesktopAccess
             }
         }
 
+        /// <summary>Gets native queued buffer count for verification.</summary>
         internal int NativeQueuedBufferCountForVerification
         {
             get
@@ -47,6 +50,7 @@ internal static class DesktopAccess
         }
     }
 
+    /// <summary>Provides verification helpers for <see cref="GitHubErrorReporter"/>.</summary>
     extension(GitHubErrorReporter reporter)
     {
         /// <summary>Queues a flush marker behind every pending report and waits for the worker to reach it.</summary>
@@ -81,6 +85,7 @@ internal static class DesktopAccess
         string? dataDirectory = null) =>
         new(InstallationFor(romPath, dataDirectory), gameOptions, replay, errorReporter, audioDirectory);
 
+    /// <summary>Installation for.</summary>
     internal static GameInstallation InstallationFor(string romPath, string? dataDirectory = null)
     {
         if (dataDirectory is not null)
@@ -91,6 +96,7 @@ internal static class DesktopAccess
         return GameAssetInstaller.OpenOrRepair(root) ?? GameAssetInstaller.Install(fullRomPath, root);
     }
 
+    /// <summary>Slots.</summary>
     private static IEnumerable<object> Slots(WaveOutAudioDevice device) =>
         PrivateState.Field<Array>(device, "slots").Cast<object>();
 }
@@ -100,6 +106,7 @@ namespace SuperMetroid.Desktop
     /// <summary>Finds extracted audio beside the working or executable directory for verification hosts.</summary>
     internal static class ExtractedAudioAssetLocator
     {
+        /// <summary>Finds audio directory.</summary>
         internal static string FindAudioDirectory()
         {
             foreach (string start in new[] { Environment.CurrentDirectory, AppContext.BaseDirectory })

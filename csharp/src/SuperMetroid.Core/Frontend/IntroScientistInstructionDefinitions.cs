@@ -22,6 +22,7 @@ internal static class IntroScientistInstructionDefinitions
     /// <summary>$8B:CC0F, subtitle-arrow loop included in the original examination view.</summary>
     private const ushort ArrowStart = 0xcc0f;
 
+    /// <summary>actor word.</summary>
     private static ushort ActorWord(bool examination, int word)
     {
         ushort start = examination ? ExaminationStart : DeliveryStart;
@@ -38,6 +39,7 @@ internal static class IntroScientistInstructionDefinitions
         return IntroScientistSpriteDefinitions.FramePointer((examination ? 6 : 3) + frame);
     }
 
+    /// <summary>arrow word.</summary>
     private static ushort ArrowWord(int word)
     {
         if (word < 8)
@@ -51,6 +53,7 @@ internal static class IntroScientistInstructionDefinitions
         };
     }
 
+    /// <summary>read byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is >= DeletePointer and < (DeletePointer + 2))
@@ -75,6 +78,7 @@ internal static class IntroScientistInstructionDefinitions
         return unchecked((byte)(word >> (8 * (offset & 1))));
     }
 
+    /// <summary>read word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer == DeletePointer)

@@ -2,6 +2,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
+/// <summary>Represents spatial values verification.</summary>
 internal static class SpatialValuesVerification
 {
     /// <summary>
@@ -16,6 +17,7 @@ internal static class SpatialValuesVerification
         Console.WriteLine("  Samus spatial values: displacement words, carry/wrap, half-word updates agree.");
     }
 
+    /// <summary>Verifies extra displacement arithmetic.</summary>
     private static void VerifyExtraDisplacementArithmetic()
     {
         FixedVector<RoomPixels> zero = FixedVector<RoomPixels>.Zero;
@@ -63,6 +65,7 @@ internal static class SpatialValuesVerification
             "clear, add, then whole-word assignment keeps the producer's fraction");
     }
 
+    /// <summary>Verifies fixed position operations.</summary>
     private static void VerifyFixedPositionOperations()
     {
         var position = new FixedPosition<RoomPixels>(new SnesFixedPosition(0x0100, 0xffff), new SnesFixedPosition(0x0200, 0x0001));

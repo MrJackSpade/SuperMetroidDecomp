@@ -5,6 +5,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents lookup dachora colors verification.</summary>
 internal static class LookupDachoraColorsVerification
 {
     /// <summary>
@@ -64,6 +65,7 @@ internal static class LookupDachoraColorsVerification
         }
     }
 
+    /// <summary>Looks up dachora colors rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup Dachora colors")]
     private static byte LookupDachoraColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

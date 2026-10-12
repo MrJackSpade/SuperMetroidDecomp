@@ -51,6 +51,7 @@ public static class PhantoonPatternDefinitions
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

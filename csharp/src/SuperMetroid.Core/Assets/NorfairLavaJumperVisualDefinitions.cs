@@ -11,8 +11,10 @@ internal static class NorfairLavaJumperVisualDefinitions
 {
     /// <summary>Native Norfair lava-jumper spritemap bank $A2.</summary>
     internal const byte Bank = 0xa2;
+    /// <summary>Defines frame count.</summary>
     internal const int FrameCount = 11;
 
+    /// <summary>frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

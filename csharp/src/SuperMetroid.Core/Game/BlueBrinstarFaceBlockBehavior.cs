@@ -1,13 +1,17 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The blue Brinstar face block species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Stores elevator behavior.</summary>
     private readonly ElevatorBehavior _elevatorBehavior;
 
+    /// <summary>Initializes a new blue brinstar face block behavior instance.</summary>
     internal BlueBrinstarFaceBlockBehavior(EnemyRoomBinding room, EnemyPresentation presentation, ElevatorBehavior elevatorBehavior)
     {
         _elevatorBehavior = elevatorBehavior;
@@ -15,21 +19,31 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         _presentation = presentation;
     }
 
+    /// <summary>Stores blue brinstar face block morph ball item mask.</summary>
     private const ushort BlueBrinstarFaceBlockMorphBallItemMask = 0x0004;
+    /// <summary>Stores blue brinstar face block palette period.</summary>
     private const ushort BlueBrinstarFaceBlockPalettePeriod = 16;
+    /// <summary>Stores blue brinstar face block palette frame count.</summary>
     private const int BlueBrinstarFaceBlockPaletteFrameCount = 8;
+    /// <summary>Stores blue brinstar face block animated color count.</summary>
     private const int BlueBrinstarFaceBlockAnimatedColorCount = 4;
+    /// <summary>Stores first animated face block palette color.</summary>
     private const int FirstAnimatedFaceBlockPaletteColor = 9;
 
+    /// <summary>Stores blue brinstar face block states.</summary>
     internal readonly BlueBrinstarFaceBlockEnemyState?[] _blueBrinstarFaceBlockStates =
         new BlueBrinstarFaceBlockEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     // The cartridge stores this animation in the shared enemy-graphics-drawn hook words,
     // not per enemy. Multiple blocks repeatedly select the same graphics-set palette during
     // main AI, and whichever eligible block runs last therefore owns this one shared base.
+    /// <summary>Stores blue brinstar face block palette hook installed.</summary>
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
+    /// <summary>Stores blue brinstar face block palette timer.</summary>
     private ushort _blueBrinstarFaceBlockPaletteTimer;
+    /// <summary>Stores blue brinstar face block palette frame.</summary>
     private ushort _blueBrinstarFaceBlockPaletteFrame;
+    /// <summary>Stores blue brinstar face block palette row.</summary>
     private int _blueBrinstarFaceBlockPaletteRow;
 
     /// <summary>Clears actor and singleton graphics-hook state at room-load time.</summary>
@@ -114,6 +128,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         _blueBrinstarFaceBlockPaletteTimer = BlueBrinstarFaceBlockPalettePeriod;
     }
 
+    /// <summary>Has collected morph ball.</summary>
     private static bool HasCollectedMorphBall(SamusState? samus) =>
         samus is not null &&
         (samus.CollectedItems & BlueBrinstarFaceBlockMorphBallItemMask) != 0;
@@ -125,6 +140,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
     private static ushort AbsoluteFaceBlockDelta(ushort delta) =>
         unchecked((short)delta) < 0 ? unchecked((ushort)-delta) : delta;
 
+    /// <summary>Installs blue brinstar face block palette hook.</summary>
     private void InstallBlueBrinstarFaceBlockPaletteHook(RoomEnemySlot slot)
     {
         _blueBrinstarFaceBlockPaletteHookInstalled = true;
@@ -171,11 +187,13 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
             (BlueBrinstarFaceBlockPaletteFrameCount - 1)));
     }
 
+    /// <summary>Requires blue brinstar face block state.</summary>
     private BlueBrinstarFaceBlockEnemyState RequireBlueBrinstarFaceBlockState(
         RoomEnemySlot slot) =>
         _blueBrinstarFaceBlockStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Blue Brinstar face-block state.");
 
+    /// <summary>Registers blue brinstar face block initialization ai.</summary>
     internal void RegisterBlueBrinstarFaceBlockInitializationAi(EnemyAiTable table)
     {
 
@@ -185,6 +203,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers blue brinstar face block main ai.</summary>
     internal void RegisterBlueBrinstarFaceBlockMainAi(EnemyAiTable table)
     {
 

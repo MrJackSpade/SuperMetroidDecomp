@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents lookup tourian spawn verification.</summary>
 internal static class LookupTourianSpawnVerification
 {
+    /// <summary>verify tourian statue spawn order.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue spawn order")]
     internal static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
     {

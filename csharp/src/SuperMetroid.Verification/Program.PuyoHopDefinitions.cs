@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents puyo hop definitions verification.</summary>
 internal static class PuyoHopDefinitionsVerification
 {
+    /// <summary>Verifies compiled puyo hops.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo hops")]
     internal static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {

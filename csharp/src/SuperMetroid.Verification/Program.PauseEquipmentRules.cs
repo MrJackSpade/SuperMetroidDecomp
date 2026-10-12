@@ -7,6 +7,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Represents pause equipment rules verification.</summary>
 internal static class PauseEquipmentRulesVerification
 {
     /// <summary>Native $82:C04C/$C056/$C062 beam, suit/misc and boot upgrade-mask tables.</summary>
@@ -18,10 +19,14 @@ internal static class PauseEquipmentRulesVerification
         _ => throw new ArgumentOutOfRangeException(nameof(category)),
     };
 
+    /// <summary>Verifies pause beam masks.</summary>
     internal static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Beams, PauseMaskTableAddress(PauseEquipmentCategory.Beams), 5);
+    /// <summary>Verifies pause suit masks.</summary>
     internal static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Suits, PauseMaskTableAddress(PauseEquipmentCategory.Suits), 6);
+    /// <summary>Verifies pause boot masks.</summary>
     internal static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
 
+    /// <summary>Verifies pause mask cases.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause mask cases")]
     private static void VerifyPauseMaskCases(ISnesAddressSpace rom, PauseEquipmentCategory category, int address, int count)
     {
@@ -48,6 +53,7 @@ internal static class PauseEquipmentRulesVerification
         }
     }
 
+    /// <summary>Verifies pause wireframe selection.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause wireframe selection")]
     internal static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
     {
@@ -65,6 +71,7 @@ internal static class PauseEquipmentRulesVerification
         }
     }
 
+    /// <summary>Verifies compiled pause equipment rules.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment set, mask and reserve-transfer tables")]
     internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
@@ -149,6 +156,7 @@ internal static class PauseEquipmentRulesVerification
             : new SamusState { CollectedItems = owned, EquippedItems = owned };
     }
 
+    /// <summary>New pause rules read guard.</summary>
     private static CartridgeReadGuard NewPauseRulesReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => (uint)(address - PauseMenuRomData.EquipmentSetTable) < 8 ||

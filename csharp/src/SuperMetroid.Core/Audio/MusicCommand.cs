@@ -22,6 +22,7 @@ public enum MusicCommandKind : byte
 /// </summary>
 public readonly record struct MusicCommand
 {
+    /// <summary>Initializes a new music command instance.</summary>
     private MusicCommand(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The exact word stored in the cartridge's eight-entry music queue.</summary>
@@ -89,6 +90,7 @@ public readonly record struct MusicCommand
 /// </summary>
 public readonly record struct MusicCommandDelay
 {
+    /// <summary>Initializes a new music command delay instance.</summary>
     private MusicCommandDelay(ushort frames) => Frames = frames;
 
     /// <summary>Effective native countdown frames.</summary>

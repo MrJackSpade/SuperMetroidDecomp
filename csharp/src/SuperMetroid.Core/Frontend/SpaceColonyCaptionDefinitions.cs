@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Frontend;
 /// Tile words select the high-priority BG plane; no per-letter layout table.</summary>
 internal static class SpaceColonyCaptionDefinitions
 {
+    /// <summary>Stores text.</summary>
     private const string Text = "SPACE COLONY";
+    /// <summary>Gets letter count.</summary>
     internal static int LetterCount => Text.Length - 1;
 
+    /// <summary>Letter.</summary>
     internal static (int Column, ushort Tile) Letter(int index)
     {
         if ((uint)index >= LetterCount) throw new ArgumentOutOfRangeException(nameof(index));

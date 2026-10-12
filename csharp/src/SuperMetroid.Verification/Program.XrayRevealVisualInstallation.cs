@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 
+/// <summary>Represents xray reveal visual installation verification.</summary>
 internal static class XrayRevealVisualInstallationVerification
 {
 

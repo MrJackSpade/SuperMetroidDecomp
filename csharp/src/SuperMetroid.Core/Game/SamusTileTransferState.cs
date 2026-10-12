@@ -79,6 +79,7 @@ public sealed class SamusTileTransferState
         // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
     }
 
+    /// <summary>Execute installed definition.</summary>
     private static void ExecuteInstalledDefinition(SamusBodyTileDefinition definition,
         VramRegion first, VramRegion second)
     {

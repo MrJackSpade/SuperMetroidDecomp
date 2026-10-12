@@ -86,3 +86,6 @@ dotnet_diagnostic.SME6202.severity = error
 
 # #223: 16-bit and 24-bit values are read through the canonical word reads, not rebuilt from bytes.
 dotnet_diagnostic.SME6350.severity = error
+
+# Every handwritten type and member, including private and static declarations, has XML documentation.
+dotnet_diagnostic.SME6370.severity = error

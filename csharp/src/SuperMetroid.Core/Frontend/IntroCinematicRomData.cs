@@ -145,7 +145,9 @@ public static class IntroCinematicRomData
         /// <summary>Ordered scene operations, selected without a stored region table.</summary>
         public sealed class Regions : System.Collections.Generic.IReadOnlyList<IntroPaletteSpan>
         {
+            /// <summary>Stores scene.</summary>
             private readonly Scene scene;
+            /// <summary>Initializes a new regions instance.</summary>
             internal Regions(Scene scene) => this.scene = scene;
             /// <summary>Gets the number of palette spans in the selected scene.</summary>
             public int Count => scene switch
@@ -186,6 +188,7 @@ public static class IntroCinematicRomData
             {
                 for (int index = 0; index < Count; index++) yield return this[index];
             }
+            /// <summary>Gets enumerator.</summary>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
         }
 

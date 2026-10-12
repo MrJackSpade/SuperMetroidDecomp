@@ -6,7 +6,9 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Byte-oriented $A6:C2A7 text interpreter; each accepted call writes at most one glyph.</summary>
 public sealed class EscapeTypewriterState
 {
+    /// <summary>Stores tile base.</summary>
     private readonly ushort tileBase;
+    /// <summary>Stores installed program.</summary>
     [NonSerialized] private EscapeTypewriterProgram? installedProgram;
 
     /// <summary>Creates an unbound warning-text state retaining the native source identity; attach host text with <see cref="BindProgram"/> before interpreting it.</summary>
@@ -82,6 +84,7 @@ public sealed class EscapeTypewriterState
         return StepInstalled(program, vram);
     }
 
+    /// <summary>Steps installed.</summary>
     private bool StepInstalled(EscapeTypewriterProgram program, SnesVram vram)
     {
         DelayTimer = Delay;
@@ -109,6 +112,7 @@ public sealed class EscapeTypewriterState
         return Completed = true;
     }
 
+    /// <summary>Writes character.</summary>
     [PpuLayoutBoundary("codec: escape typewriter programs' native VRAM destinations")]
     private void WriteCharacter(byte character, SnesVram vram)
     {

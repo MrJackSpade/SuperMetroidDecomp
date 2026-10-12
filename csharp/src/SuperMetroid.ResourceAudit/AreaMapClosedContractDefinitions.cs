@@ -3,6 +3,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>The atomic seven-area install and its deliberately small VRAM source domain.</summary>
 internal static class AreaMapClosedContractDefinitions
 {
+    /// <summary>Stores all.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Assets.AreaMapPresentationCatalog", "map-atomic-seven-areas-and-owned-uploads", ["Get", "Resolve"],

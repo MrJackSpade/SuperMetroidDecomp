@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents space colony caption verification.</summary>
 internal static class SpaceColonyCaptionVerification
 {
+    /// <summary>verify space colony caption.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Colony caption")]
     internal static void VerifySpaceColonyCaption(ISnesAddressSpace rom)
     {

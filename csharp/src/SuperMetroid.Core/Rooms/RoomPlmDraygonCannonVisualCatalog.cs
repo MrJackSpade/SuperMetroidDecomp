@@ -31,6 +31,7 @@ public sealed class RoomPlmDraygonCannonVisualCatalog
         }
     });
 
+    /// <summary>Stores custom blocks.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete reachable cannon-frame coverage and copies visual differences without changing shield damage, hit thresholds, control writes, or draw geometry.</summary>

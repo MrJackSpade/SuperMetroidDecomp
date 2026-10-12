@@ -24,6 +24,7 @@ public static class GrappleSpriteDefinitions
     /// <summary>$94:B18D-$B199 common OBJ priority three for rope segments.</summary>
     private const int SegmentPriority = 3;
 
+    /// <summary>Stock segment.</summary>
     internal static ushort StockSegment(int frame) => SnesObjAttributeWord.Create(
         FirstSegmentTile + frame, SegmentPalette, SegmentPriority, default).Raw;
 
@@ -47,6 +48,7 @@ public static class GrappleSpriteDefinitions
             for (int index = 0; index < SegmentFrameCount; index++)
                 yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

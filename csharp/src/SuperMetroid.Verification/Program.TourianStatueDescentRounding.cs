@@ -13,12 +13,14 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents tourian statue descent rounding verification.</summary>
 internal static class TourianStatueDescentRoundingVerification
 {
     // #1269: the statues' BG2 descent ($88:DC69) adds $FFFF:C000 to HDMAObject_Var1:Var0.
     // As a signed 16.16 value its whole word floors, so the first quarter-pixel step already
     // reads -1, and $88:DC90's $FF10 test unlocks Tourian three quarter-steps before 240.0.
     // In the 100% movie the port's truncating offset lowered every statue a frame late.
+    /// <summary>verify tourian statue descent rounding.</summary>
     internal static void VerifyTourianStatueDescentRounding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -50,6 +52,7 @@ internal static class TourianStatueDescentRoundingVerification
         Console.WriteLine("Tourian statue descent rounding: the signed 16.16 descent floors and unlocks at $FF10.");
     }
 
+    /// <summary>tourian statue descent rounding command.</summary>
     [VerificationCommand("--tourian-statue-descent-rounding")]
     internal static int TourianStatueDescentRoundingCommand()
     {

@@ -19,6 +19,7 @@ public sealed class SamusAtmosphericEffectsState
     /// <summary>Four shared slots, represented by four words in each native timer, X, Y, and packed frame/type array.</summary>
     public const int SlotCount = 4;
 
+    /// <summary>Stores slots.</summary>
     private readonly SamusAtmosphericEffectSlot[] _slots =
     [
         new(),
@@ -174,6 +175,7 @@ public sealed class SamusAtmosphericEffectsState
         }
     }
 
+    /// <summary>Draws direct small sprite.</summary>
     private static void DrawDirectSmallSprite(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -195,9 +197,11 @@ public sealed class SamusAtmosphericEffectsState
         oam.AddRawSmallSprite(new Position16<OamPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), attributes);
     }
 
+    /// <summary>Reads type two work ram attributes.</summary>
     private static ushort ReadTypeTwoWorkRamAttributes(ISnesAddressSpace bus, byte frame) =>
         new SamusOverreadMemory(bus).AtmosphericTypeTwoAttributes(frame);
 
+    /// <summary>Resolves installed attributes.</summary>
     private static ushort ResolveInstalledAttributes(
         SamusAtmosphericArtworkCatalog? artwork, byte type, byte frame)
     {
@@ -210,6 +214,7 @@ public sealed class SamusAtmosphericEffectsState
         return attributes;
     }
 
+    /// <summary>Draws samus table spritemap.</summary>
     private static void DrawSamusTableSpritemap(
         ISnesAddressSpace bus,
         OamBuffer oam,
@@ -235,6 +240,7 @@ public sealed class SamusAtmosphericEffectsState
                 "Samus atmospheric spritemap requires installed artwork."));
     }
 
+    /// <summary>Validates slot index.</summary>
     private static void ValidateSlotIndex(int slotIndex)
     {
         if ((uint)slotIndex >= SlotCount)
@@ -264,6 +270,7 @@ public sealed class SamusAtmosphericEffectSlot
     /// </summary>
     public Position16<RoomPixels> Position { get; internal set; }
 
+    /// <summary>Clears.</summary>
     internal void Clear()
     {
         FrameAndType = 0;

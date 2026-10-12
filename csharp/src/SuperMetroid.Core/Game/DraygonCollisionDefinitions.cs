@@ -34,6 +34,7 @@ internal static class DraygonCollisionDefinitions
     private const ushort FirstLeftBodyFrame = 0xa31b;
     /// <summary>$A5:A643, ExtendedSpritemap_Draygon_3A: first right-facing BG2 body frame.</summary>
     private const ushort FirstRightBodyFrame = 0xa643;
+    /// <summary>Stores first body hitboxes.</summary>
     private static readonly DraygonCollisionHitbox[] FirstBodyHitboxes =
     [
         new(-17, -16, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
@@ -46,6 +47,7 @@ internal static class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
+    /// <summary>Stores second body hitboxes.</summary>
     private static readonly DraygonCollisionHitbox[] SecondBodyHitboxes =
     [
         new(-18, -7, 18, 30, EnemyAiCodePointers.BankA0.NoOp,
@@ -58,13 +60,16 @@ internal static class DraygonCollisionDefinitions
             EnemyAiCodePointers.BankA0.DudShot),
     ];
 
+    /// <summary>Represents component sequence.</summary>
     internal readonly record struct ComponentSequence(bool HasComponent, DraygonHitboxList HitboxPointer)
         : IEnumerable<DraygonCollisionComponent>
     {
+        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<DraygonCollisionComponent> GetEnumerator()
         {
             if (HasComponent) yield return new(Offset16<RoomPixels>.Zero, HitboxPointer);
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -89,6 +94,7 @@ internal static class DraygonCollisionDefinitions
         return new(true, hitboxes);
     }
 
+    /// <summary>hitboxes at.</summary>
     internal static ReadOnlySpan<DraygonCollisionHitbox> HitboxesAt(
         DraygonHitboxList pointer) => pointer switch
     {
@@ -115,6 +121,7 @@ internal static class DraygonCollisionDefinitions
     /// <summary><c>ExtendedSpritemap_Draygon_60</c> at $A5:A7F7: mirrored growing component frames and terminal eight-component frame.</summary>
     private const ushort RightExpandingFrames = 0xa7f7;
 
+    /// <summary>is empty oam frame.</summary>
     internal static bool IsEmptyOamFrame(ushort pointer) =>
         InFixedFrames(pointer, LeftSingleFrames, 6, 1) ||
         InFixedFrames(pointer, RightSingleFrames, 6, 1) ||
@@ -125,6 +132,7 @@ internal static class DraygonCollisionDefinitions
         InExpandingFrames(pointer, LeftExpandingFrames) ||
         InExpandingFrames(pointer, RightExpandingFrames);
 
+    /// <summary>in fixed frames.</summary>
     private static bool InFixedFrames(ushort pointer, ushort first, int frames, int components)
     {
         int stride = 2 + components * 8;
@@ -132,6 +140,7 @@ internal static class DraygonCollisionDefinitions
         return offset >= 0 && offset < frames * stride && offset % stride == 0;
     }
 
+    /// <summary>in expanding frames.</summary>
     private static bool InExpandingFrames(ushort pointer, ushort first)
     {
         // Two-byte counts and eight-byte components; the component count starts
@@ -142,6 +151,7 @@ internal static class DraygonCollisionDefinitions
                 return true;
         return false;
     }
+    /// <summary>oam components at.</summary>
     private static ReadOnlySpan<DraygonCollisionComponent> OamComponentsAt(
         ushort pointer)
     {

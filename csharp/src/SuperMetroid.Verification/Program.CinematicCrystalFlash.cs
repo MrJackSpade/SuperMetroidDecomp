@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents cinematic crystal flash verification.</summary>
 internal static class CinematicCrystalFlashVerification
 {
+    /// <summary>verify cinematic crystal flash.</summary>
     internal static void VerifyCinematicCrystalFlash(string nativeTracePath)
     {
         Suite(nameof(VerifyNativeCinematicFlashOwnership), () => VerifyNativeCinematicFlashOwnership(nativeTracePath));
@@ -187,6 +189,7 @@ internal static class CinematicCrystalFlashVerification
             "Cinematic Crystal Flash: native ownership, Mother Brain beta suspension/resume, Super Metroid success/failure, immobility/X-Ray recovery and Ceres replacement pass.");
     }
 
+    /// <summary>verify native cinematic flash ownership.</summary>
     private static void VerifyNativeCinematicFlashOwnership(string path)
     {
         string[] lines = File.ReadAllLines(path);
@@ -244,6 +247,7 @@ internal static class CinematicCrystalFlashVerification
             "native post-crouch Flash restores ordinary input");
     }
 
+    /// <summary>create cinematic flash runtime.</summary>
     private static (SuperMetroidAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus)
         CreateCinematicFlashRuntime(int movementCalls, bool admitFlash = true)
     {
@@ -280,6 +284,7 @@ internal static class CinematicCrystalFlashVerification
         return (bus, runtime, samus);
     }
 
+    /// <summary>cinematic flash command.</summary>
     [VerificationCommand("--cinematic-flash")]
     internal static int CinematicFlashCommand()
     {

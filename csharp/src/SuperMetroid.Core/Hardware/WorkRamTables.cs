@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Hardware;
 [CpuBusBoundary("domain view: bounded WRAM byte buffer bound to one catalog cell")]
 public readonly struct WorkRamByteTable
 {
+    /// <summary>Stores bytes.</summary>
     private readonly WramBytes bytes;
 
     /// <summary>Binds the buffer to a WRAM range <paramref name="cell"/>.</summary>
@@ -60,6 +61,7 @@ public readonly struct WorkRamByteTable
 [CpuBusBoundary("domain view: bounded WRAM word table bound to one catalog cell")]
 public readonly struct WorkRamWordTable
 {
+    /// <summary>Stores words.</summary>
     private readonly WramWords words;
 
     /// <summary>Binds the table to a WRAM word-table <paramref name="cell"/>.</summary>

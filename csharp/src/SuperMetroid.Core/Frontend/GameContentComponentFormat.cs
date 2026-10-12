@@ -69,6 +69,7 @@ public static class GameContentComponentFormat
         return components;
     }
 
+    /// <summary>Validates name.</summary>
     private static void ValidateName(string name)
     {
         if (string.IsNullOrEmpty(name) || name.Length > MaximumNameByteCount ||

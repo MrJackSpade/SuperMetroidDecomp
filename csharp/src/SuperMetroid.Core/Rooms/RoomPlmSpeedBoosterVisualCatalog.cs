@@ -17,6 +17,7 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmSpeedBoosterVisualCatalog),
         content => content.Append("visual word", visualWord));
 
+    /// <summary>Stores visual word.</summary>
     private readonly ushort visualWord;
 
     /// <summary>Validates and captures the single bomb-reveal appearance while preserving compiled Speed Booster collision and timing.</summary>

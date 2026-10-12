@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents xray tilemap verification.</summary>
 internal static class XrayTilemapVerification
 {
+    /// <summary>Verifies xray tilemap.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyXrayTilemap()
     {

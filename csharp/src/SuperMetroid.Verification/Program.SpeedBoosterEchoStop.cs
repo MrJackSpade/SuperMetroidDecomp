@@ -15,8 +15,10 @@ using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
 using static SuiteTimingVerification;
 
+/// <summary>Represents speed booster echo stop verification.</summary>
 internal static class SpeedBoosterEchoStopVerification
 {
+    /// <summary>Verifies speed booster echo stop.</summary>
     internal static void VerifySpeedBoosterEchoStop()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -76,6 +78,7 @@ internal static class SpeedBoosterEchoStopVerification
         Console.WriteLine("Speed Booster echo: one start, no premature stop, one wall-cancellation stop, then SPC/PCM silence.");
     }
 
+    /// <summary>Verifies echo flag ownership.</summary>
     private static void VerifyEchoFlagOwnership(ISnesAddressSpace bus)
     {
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
@@ -118,6 +121,7 @@ internal static class SpeedBoosterEchoStopVerification
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "quicksand silently suppresses the post-draw stop");
     }
 
+    /// <summary>Speed booster echo stop command.</summary>
     [VerificationCommand("--speed-booster-echo-stop")]
     internal static int SpeedBoosterEchoStopCommand()
     {

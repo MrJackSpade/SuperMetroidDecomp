@@ -26,6 +26,7 @@ public sealed class RoomPlmBlueDoorVisualCatalog
         }
     });
 
+    /// <summary>Stores custom blocks.</summary>
     private readonly Dictionary<ushort, ushort[]>? customBlocks;
 
     /// <summary>Validates complete canonical blue-door frame coverage and retains owned copies only for visual words differing from the compiled draw shapes.</summary>

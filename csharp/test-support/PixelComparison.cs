@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 /// <summary>Exact diagnostic comparison shared by GPU fixtures; failures preserve all reproduction inputs.</summary>
 internal static class PixelComparison
 {
+    /// <summary>verify.</summary>
     internal static void Verify(RenderFrameSnapshot packet, Rgba32[] expected, Rgba32[] actual, string context)
     {
         if (expected.Length != packet.Size.X * packet.Size.Y || actual.Length != expected.Length)

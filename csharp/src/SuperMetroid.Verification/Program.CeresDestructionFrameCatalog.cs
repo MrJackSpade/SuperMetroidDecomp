@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents ceres destruction frame catalog verification.</summary>
 internal static class CeresDestructionFrameCatalogVerification
 {
+    /// <summary>verify ceres destruction frame catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction frame catalog")]
     internal static void VerifyCeresDestructionFrameCatalog(ISnesAddressSpace rom)
     {

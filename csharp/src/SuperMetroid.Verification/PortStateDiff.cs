@@ -10,13 +10,18 @@ using System.Runtime.CompilerServices;
 /// </summary>
 internal sealed class PortStateDiff
 {
+    /// <summary>Stores instance fields.</summary>
     private const BindingFlags InstanceFields =
         BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
+    /// <summary>Stores visited.</summary>
     private readonly HashSet<(object, object)> visited = new(PairComparer.Instance);
+    /// <summary>Stores differences.</summary>
     private readonly List<string> differences = [];
+    /// <summary>Stores exclude path.</summary>
     private readonly Func<string, bool> excludePath;
 
+    /// <summary>Initializes a new port state diff instance.</summary>
     private PortStateDiff(Func<string, bool> excludePath) => this.excludePath = excludePath;
 
     /// <summary>Lists every differing leaf between <paramref name="expected"/> and <paramref name="actual"/>.</summary>
@@ -31,6 +36,7 @@ internal sealed class PortStateDiff
         return diff.differences;
     }
 
+    /// <summary>Visit.</summary>
     private void Visit(string path, object? expected, object? actual)
     {
         if (excludePath(path))
@@ -110,14 +116,17 @@ internal sealed class PortStateDiff
             }
     }
 
+    /// <summary>Indicates whether leaf.</summary>
     private static bool IsLeaf(Type type) =>
         type.IsPrimitive || type.IsEnum || type == typeof(string) || type == typeof(decimal);
 
+    /// <summary>Member name.</summary>
     private static string MemberName(FieldInfo field) =>
         field.Name.StartsWith('<') && field.Name.EndsWith(">k__BackingField", StringComparison.Ordinal)
             ? field.Name[1..field.Name.IndexOf('>')]
             : field.Name;
 
+    /// <summary>Describe.</summary>
     private static string Describe(object? value) => value switch
     {
         null => "null",
@@ -126,13 +135,17 @@ internal sealed class PortStateDiff
         _ => value.ToString() ?? value.GetType().Name,
     };
 
+    /// <summary>Represents pair comparer.</summary>
     private sealed class PairComparer : IEqualityComparer<(object, object)>
     {
+        /// <summary>Stores instance.</summary>
         public static readonly PairComparer Instance = new();
 
+        /// <summary>Equals.</summary>
         public bool Equals((object, object) x, (object, object) y) =>
             ReferenceEquals(x.Item1, y.Item1) && ReferenceEquals(x.Item2, y.Item2);
 
+        /// <summary>Gets hash code.</summary>
         public int GetHashCode((object, object) pair) =>
             HashCode.Combine(RuntimeHelpers.GetHashCode(pair.Item1), RuntimeHelpers.GetHashCode(pair.Item2));
     }

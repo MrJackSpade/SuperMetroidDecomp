@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -9,8 +9,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Samus's presentation: spritemap selection, tile transfers, suit, cycle and charge palettes, and the animation-frame sequencing that drives them.</summary>
 internal sealed class SamusPresentation
 {
+    /// <summary>Stores samus.</summary>
     private readonly SamusState _samus;
 
+    /// <summary>Initializes a new samus presentation instance.</summary>
     internal SamusPresentation(SamusState owner)
     {
         _samus = owner;
@@ -235,6 +237,7 @@ internal sealed class SamusPresentation
         _samus.AnimationFrameTimer = timer;
     }
 
+    /// <summary>Handles animation delay.</summary>
     private void HandleAnimationDelay(ISnesAddressSpace bus, ushort controllerInput,
         SamusPoseId? prospectiveInputPose = null, bool demoPoseInput = false,
         Func<ushort>? queueEchoSound = null)
@@ -441,6 +444,7 @@ internal sealed class SamusPresentation
         _samus.AnimationFrameTimer = unchecked((ushort)(_samus.AnimationFrameBuffer + selectedDelay));
     }
 
+    /// <summary>Ensure animation initialized.</summary>
     private void EnsureAnimationInitialized()
     {
         int expectedList = ResolveAnimationDelayList();
@@ -451,12 +455,14 @@ internal sealed class SamusPresentation
         }
     }
 
+    /// <summary>Resolves animation delay list.</summary>
     internal int ResolveAnimationDelayList()
     {
         ushort pointer = SamusAnimationDelayDefinitions.PointerForPose(_samus.Pose);
         return SamusMovementRomData.Banks.Pose | pointer;
     }
 
+    /// <summary>Reads animation byte.</summary>
     private byte ReadAnimationByte(ISnesAddressSpace bus, ushort byteIndex) =>
         SamusAnimationDelayDefinitions.ReadAnimationByte(bus,
             unchecked((ushort)_samus.AnimationDelayListAddress), byteIndex);
@@ -818,6 +824,7 @@ internal sealed class SamusPresentation
         }
     }
 
+    /// <summary>Draws active speed booster echo.</summary>
     private void DrawActiveSpeedBoosterEcho(
         ISnesAddressSpace bus,
         OamBuffer oam,

@@ -16,12 +16,15 @@ using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents golden torizo super missile instruction program definitions verification.</summary>
 internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies golden torizo super missile instruction program definitions.</summary>
     internal static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions), () => VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies golden torizo super missile instruction program definitions.</summary>
     internal static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -207,9 +210,11 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
         }
     }
 
+    /// <summary>Golden torizo super missile instruction program definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo super missile instruction program definitions")]
     private static byte GoldenTorizoSuperMissileInstructionProgramDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Probe golden torizo super missile instruction mechanics allocation.</summary>
     private static int ProbeGoldenTorizoSuperMissileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -223,6 +228,7 @@ internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerif
         return checksum;
     }
 
+    /// <summary>Golden torizo super missile instruction mechanics command.</summary>
     [VerificationCommand("--golden-torizo-super-missile-instruction-mechanics")]
     internal static int GoldenTorizoSuperMissileInstructionMechanicsCommand()
     {

@@ -8,8 +8,10 @@ using static DoorDefinitionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents map save marker coordinates verification.</summary>
 internal static class MapSaveMarkerCoordinatesVerification
 {
+    /// <summary>Verifies map save marker coordinates.</summary>
     internal static void VerifyMapSaveMarkerCoordinates(ISnesAddressSpace rom)
     {
         var points = new Dictionary<string, Position16<MapPixels>>();
@@ -35,11 +37,14 @@ internal static class MapSaveMarkerCoordinatesVerification
         Suite(nameof(VerifyMapSaveMarkerY), () => VerifyMapSaveMarkerY(original, extracted));
     }
 
+    /// <summary>Verifies map save marker x.</summary>
     private static void VerifyMapSaveMarkerX(MapSaveMarkerDocument original, byte[] extracted) =>
         Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: false));
+    /// <summary>Verifies map save marker y.</summary>
     private static void VerifyMapSaveMarkerY(MapSaveMarkerDocument original, byte[] extracted) =>
         Suite(nameof(VerifyMapSaveMarkerCoordinateField), () => VerifyMapSaveMarkerCoordinateField(original, extracted, vertical: true));
 
+    /// <summary>Verifies map save marker coordinate field.</summary>
     private static void VerifyMapSaveMarkerCoordinateField(MapSaveMarkerDocument original, byte[] extracted, bool vertical)
     {
         MapSaveMarkerLayout stock = MapSaveMarkerLayout.Load(new MemoryStream(extracted, writable: false));

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -15,6 +15,7 @@ internal sealed class EnemyProjectileEngine
 {
     // Handler sources are serialized object references; the delegate table is rebuilt from them on first use,
     // so debugger states never hold compiler-generated handler identities.
+    /// <summary>Stores handler sources.</summary>
     private readonly List<IEnemyProjectileHandlerSource> _handlerSources = [];
 
     /// <summary>
@@ -23,9 +24,11 @@ internal sealed class EnemyProjectileEngine
     /// </summary>
     internal void AddHandlerSource(IEnemyProjectileHandlerSource source) => _handlerSources.Add(source);
 
+    /// <summary>Gets handlers.</summary>
     [field: NonSerialized]
     private EnemyProjectileHandlerTable Handlers => field ??= BuildHandlers();
 
+    /// <summary>build handlers.</summary>
     private EnemyProjectileHandlerTable BuildHandlers()
     {
         var table = new EnemyProjectileHandlerTable();
@@ -58,11 +61,16 @@ internal sealed class EnemyProjectileEngine
         return table;
     }
 
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
 
+    /// <summary>Initializes a new enemy projectile engine instance.</summary>
     internal EnemyProjectileEngine(EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, RoomEarthquake earthquake, EnemyAudioQueue audio)
     {
         _room = room;
@@ -72,8 +80,10 @@ internal sealed class EnemyProjectileEngine
     }
     // Super Metroid reserves native indexes $00..$22, in steps of two, for eighteen enemy
     // projectiles. Keeping the same capacity exposes saturation and spawn failure honestly.
+    /// <summary>Defines room enemy projectile slot count.</summary>
     private const int RoomEnemyProjectileSlotCount = 18;
 
+    /// <summary>Stores enemy projectiles.</summary>
     private readonly RoomEnemyProjectileSlot[] _enemyProjectiles =
         Enumerable.Range(0, RoomEnemyProjectileSlotCount)
             .Select(index => new RoomEnemyProjectileSlot(index))
@@ -174,6 +184,7 @@ internal sealed class EnemyProjectileEngine
     }
 
     // Standalone audits that supply no NMI counter advance this projectile clock instead.
+    /// <summary>Stores standalone frame counter8.</summary>
     private byte _standaloneFrameCounter8;
 
     /// <summary>Discards every projectile and restarts the standalone clock when a room loads.</summary>
@@ -308,6 +319,7 @@ internal sealed class EnemyProjectileEngine
             EnemyProjectileDrawPriority.Low, timeIsFrozen);
     }
 
+    /// <summary>draw enemy projectile pass.</summary>
     internal void DrawEnemyProjectilePass(
         OamBuffer oam,
         Position16<RoomPixels> camera,
@@ -344,6 +356,7 @@ internal sealed class EnemyProjectileEngine
         }
     }
 
+    /// <summary>allocate enemy projectile.</summary>
     internal RoomEnemyProjectileSlot? AllocateEnemyProjectile()
     {
         // SpawnEnemyProjectile searches from native index $22 toward zero.
@@ -390,6 +403,7 @@ internal sealed class EnemyProjectileEngine
         projectile.GraphicsIndex = graphicsIndex;
     }
 
+    /// <summary>run enemy projectile pre instruction.</summary>
     private void RunEnemyProjectilePreInstruction(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -408,6 +422,7 @@ internal sealed class EnemyProjectileEngine
         handler(new EnemyProjectilePreInstructionContext(projectile, level, samus, camera, nmiFrameCounter8, samusBombs));
     }
 
+    /// <summary>move projectile axis.</summary>
     internal static bool MoveProjectileAxis(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
@@ -488,6 +503,7 @@ internal sealed class EnemyProjectileEngine
         return false;
     }
 
+    /// <summary>projectile axis probe hits room.</summary>
     private static bool ProjectileAxisProbeHitsRoom(
         RoomLevelData level,
         RoomEnemyProjectileSlot projectile,
@@ -613,6 +629,7 @@ internal sealed class EnemyProjectileEngine
     internal static bool NonAirBlockAt(RoomLevelData level, Position16<RoomPixels> pixel) =>
         level.GetCollisionBlock(new(unchecked((ushort)(pixel.X >> 4)), unchecked((ushort)(pixel.Y >> 4)))).CollisionType != RoomCollisionType.Air;
 
+    /// <summary>resolve enemy projectile samus collision.</summary>
     internal static ushort? ResolveEnemyProjectileSamusCollision(
         RoomEnemyProjectileSlot projectile,
         SamusState samus)
@@ -661,6 +678,7 @@ internal sealed class EnemyProjectileEngine
         return knockbackXDirection;
     }
 
+    /// <summary>process enemy projectile instructions.</summary>
     internal void ProcessEnemyProjectileInstructions(
         RoomEnemyProjectileSlot projectile,
         SamusState? samus,
@@ -1004,6 +1022,7 @@ internal sealed class EnemyProjectileEngine
                         $"Enemy projectile visual operand $86:{operandAddress:X4} has no compiled selector.");
     }
 
+    /// <summary>read enemy projectile instruction mechanics word.</summary>
     internal static ushort ReadEnemyProjectileInstructionMechanicsWord(
         RoomEnemyProjectileSlot projectile,
         ushort address)
@@ -1319,6 +1338,7 @@ internal sealed class EnemyProjectileEngine
         _ = _spriteObjects.SpawnRoomSpriteObject(new(x, y), kind, graphicsIndex: 0);
     }
 
+    /// <summary>move enemy projectile randomly within radius.</summary>
     private void MoveEnemyProjectileRandomlyWithinRadius(
         RoomEnemyProjectileSlot projectile,
         ushort instructionPointer)
@@ -1580,6 +1600,7 @@ internal sealed class EnemyProjectileEngine
     }
 
 
+    /// <summary>register metal skree particle pre instruction.</summary>
     internal static void RegisterMetalSkreeParticlePreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -1595,6 +1616,7 @@ internal sealed class EnemyProjectileEngine
     }
 
 
+    /// <summary>register ceres falling tile pre instruction.</summary>
     internal void RegisterCeresFallingTilePreInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -1612,6 +1634,7 @@ internal sealed class EnemyProjectileEngine
     }
 
 
+    /// <summary>register probability goto instruction.</summary>
     internal void RegisterProbabilityGotoInstruction(EnemyProjectileHandlerTable table)
     {
         table.RegisterInstruction(EnemyProjectileInstruction.GotoY_Probability_1_4, null,

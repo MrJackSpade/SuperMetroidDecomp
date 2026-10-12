@@ -16,8 +16,10 @@ using static LookupCrocomireProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents crocomire arena plms verification.</summary>
 internal static class CrocomireArenaPlmsVerification
 {
+    /// <summary>Verifies compiled crocomire arena plms.</summary>
     internal static void VerifyCompiledCrocomireArenaPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -43,6 +45,7 @@ internal static class CrocomireArenaPlmsVerification
 
     }
 
+    /// <summary>Wall word.</summary>
     private static ushort WallWord(Position16<RoomBlocks> cell, bool solid)
     {
         ushort value = cell.Y switch
@@ -56,6 +59,7 @@ internal static class CrocomireArenaPlmsVerification
         return solid ? (ushort)(value | 0x8000) : value;
     }
 
+    /// <summary>Verifies crocomire mutation.</summary>
     private static void VerifyCrocomireMutation(PlmHeaderId header,
         Func<Position16<RoomBlocks>, ushort> expectedWord)
     {
@@ -85,6 +89,7 @@ internal static class CrocomireArenaPlmsVerification
             $"Crocomire header ${(int)header:X4} reads no migrated ROM records");
     }
 
+    /// <summary>Creates crocomire source guard.</summary>
     internal static CartridgeReadGuard NewCrocomireSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -97,6 +102,7 @@ internal static class CrocomireArenaPlmsVerification
                       pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive));
             }, address => $"Crocomire PLM reread compiled source ${address:X6}.");
 
+    /// <summary>Crocomire arena plms command.</summary>
     [VerificationCommand("--crocomire-arena-plms")]
     internal static int CrocomireArenaPlmsCommand()
     {

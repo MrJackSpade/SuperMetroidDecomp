@@ -12,10 +12,12 @@ internal static class KraidLintVisualDefinitions
     /// <summary>Initial and post-growth ordinary OAM frames at $A7:A5DF and $A7:8C6C.</summary>
     internal const int FrameCount = 2;
 
+    /// <summary>operands.</summary>
     internal static ushort[] Operands() => Enumerable.Range(0,
         KraidLintInstructionProgramDefinitions.PresentationWordCount)
         .Select(KraidLintInstructionProgramDefinitions.PresentationWordAddress).ToArray();
 
+    /// <summary>frames.</summary>
     internal static EnemySpritemapDefinition[] Frames() =>
         CompiledEnemyCompositionDefinitions.Frames(Bank, Operands(), FrameCount, "kraid_lint");
 }

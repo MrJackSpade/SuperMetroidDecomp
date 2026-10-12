@@ -12,6 +12,7 @@ using System.Collections;
 /// <summary>Verification access to <see cref="AreaAnimatedTileObjectDefinitions"/> members production does not use.</summary>
 internal static class AreaAnimatedTileObjectDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>AreaAnimatedTileObjectDefinitions</c>.</summary>
     extension(AreaAnimatedTileObjectDefinitions)
     {
         /// <summary>Calculates a native list identity as AC76+20h*area, for indices0..7.</summary>
@@ -40,6 +41,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
             return ((ushort)(PrivateState.InvokeStatic(typeof(AreaAnimatedTileObjectDefinitions), "SelectObject", (int)(nativeAreaIndex), (int)(bit)))!);
         }
 
+        /// <summary>Validate native area index.</summary>
         internal static void ValidateNativeAreaIndex(int nativeAreaIndex)
         {
             if ((uint)nativeAreaIndex >= AreaAnimatedTileObjectDefinitions.NativeAreaCount)
@@ -55,6 +57,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
 /// <summary>Verification access to <see cref="BabyMetroidCutsceneState"/> members production does not use.</summary>
 internal static class BabyMetroidCutsceneStateAccess
 {
+    /// <summary>Provides extension members for <c>BabyMetroidCutsceneState</c>.</summary>
     extension(BabyMetroidCutsceneState self)
     {
         /// <summary>True when enemy property `$0100` suppresses the Baby's spritemap.</summary>
@@ -65,6 +68,7 @@ internal static class BabyMetroidCutsceneStateAccess
 /// <summary>Verification access to <see cref="Bank80SystemState"/> members production does not use.</summary>
 internal static class Bank80SystemStateAccess
 {
+    /// <summary>Provides extension members for <c>Bank80SystemState</c>.</summary>
     extension(Bank80SystemState)
     {
         /// <summary>
@@ -75,10 +79,12 @@ internal static class Bank80SystemStateAccess
         internal static uint Multiply16By16(ushort left, ushort right) => (uint)left * right;
     }
 
+    /// <summary>Room chozo bit.</summary>
     private static (int ByteIndex, byte BitMask) RoomChozoBit(int bitIndex) =>
         ((int, byte))PrivateState.InvokeStatic(typeof(Bank80SystemState), "ResolvePersistentRoomBit", bitIndex,
             Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.")!;
 
+    /// <summary>Provides extension members for <c>Bank80SystemState</c>.</summary>
     extension(Bank80SystemState self)
     {
         /// <summary>Whether the room's Chozo-statue bit is set in the native 64-byte table.</summary>
@@ -104,6 +110,7 @@ internal static class Bank80SystemStateAccess
 /// <summary>Verification access to <see cref="BrinstarBlueSporePaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class BrinstarBlueSporePaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>BrinstarBlueSporePaletteFxProgramDefinition</c>.</summary>
     extension(BrinstarBlueSporePaletteFxProgramDefinition self)
     {
         /// <summary>Native palette-FX definitions $8D:F775 (standard) and $8D:F779 (Spore Spawn).</summary>
@@ -114,8 +121,10 @@ internal static class BrinstarBlueSporePaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="CeresBabyInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class CeresBabyInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>CeresBabyInstructionProgramDefinitions</c>.</summary>
     extension(CeresBabyInstructionProgramDefinitions)
     {
+        /// <summary>Is compiled spritemap byte.</summary>
         internal static bool IsCompiledSpritemapByte(int address)
         {
             if ((SnesAddressMath.BankBase(address)) != 0xa60000)
@@ -130,6 +139,7 @@ internal static class CeresBabyInstructionProgramDefinitionsAccess
             return false;
         }
 
+        /// <summary>Is compiled palette byte.</summary>
         internal static bool IsCompiledPaletteByte(int address)
         {
             if ((SnesAddressMath.BankBase(address)) != 0xa60000)
@@ -149,8 +159,10 @@ internal static class CeresBabyInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="CeresDoorInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class CeresDoorInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>CeresDoorInstructionProgramDefinitions</c>.</summary>
     extension(CeresDoorInstructionProgramDefinitions)
     {
+        /// <summary>Presentation word frame.</summary>
         internal static ushort PresentationWordFrame(int index) => (((ushort Address, ushort Frame))(PrivateState.InvokeStatic(typeof(CeresDoorInstructionProgramDefinitions), "PresentationWord", (int)(index)))!).Frame;
     }
 }
@@ -158,8 +170,10 @@ internal static class CeresDoorInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="CeresEscapeVramTransferDefinitions"/> members production does not use.</summary>
 internal static class CeresEscapeVramTransferDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>CeresEscapeVramTransferDefinitions</c>.</summary>
     extension(CeresEscapeVramTransferDefinitions)
     {
+        /// <summary>Is descriptor byte address.</summary>
         internal static bool IsDescriptorByteAddress(int address)
         {
             if ((SnesAddressMath.BankBase(address)) != 0xa60000)
@@ -177,8 +191,10 @@ internal static class CeresEscapeVramTransferDefinitionsAccess
 /// <summary>Verification access to <see cref="CeresMode7TransferDefinitions.TileSequence"/> members production does not use.</summary>
 internal static class CeresMode7TransferDefinitionsTileSequenceAccess
 {
+    /// <summary>Provides extension members for <c>CeresMode7TransferDefinitions.TileSequence</c>.</summary>
     extension(CeresMode7TransferDefinitions.TileSequence self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.Count;
     }
 }
@@ -186,8 +202,10 @@ internal static class CeresMode7TransferDefinitionsTileSequenceAccess
 /// <summary>Verification access to <see cref="CeresSteamCollisionDefinitions"/> members production does not use.</summary>
 internal static class CeresSteamCollisionDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>CeresSteamCollisionDefinitions</c>.</summary>
     extension(CeresSteamCollisionDefinitions)
     {
+        /// <summary>Gets or sets hitbox pointers.</summary>
         internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<CeresSteamCollisionHitbox>>(typeof(CeresSteamCollisionDefinitions), "Lists").Pointers;
     }
 }
@@ -195,8 +213,10 @@ internal static class CeresSteamCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="CeresSteamCollisionDefinitions.ComponentSequence"/> members production does not use.</summary>
 internal static class CeresSteamCollisionDefinitionsComponentSequenceAccess
 {
+    /// <summary>Provides extension members for <c>CeresSteamCollisionDefinitions.ComponentSequence</c>.</summary>
     extension(CeresSteamCollisionDefinitions.ComponentSequence self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.Count;
     }
 }
@@ -204,6 +224,7 @@ internal static class CeresSteamCollisionDefinitionsComponentSequenceAccess
 /// <summary>Verification access to <see cref="CinematicGlowPaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class CinematicGlowPaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>CinematicGlowPaletteFxProgramDefinition</c>.</summary>
     extension(CinematicGlowPaletteFxProgramDefinition self)
     {
         /// <summary>The complete loop duration in frames.</summary>
@@ -215,8 +236,10 @@ internal static class CinematicGlowPaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="CommonEnemyProjectileInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class CommonEnemyProjectileInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>CommonEnemyProjectileInstructionProgramDefinitions</c>.</summary>
     extension(CommonEnemyProjectileInstructionProgramDefinitions)
     {
+        /// <summary>Read mechanics word.</summary>
         internal static ushort ReadMechanicsWord(ushort address)
         {
             if (CommonEnemyProjectileInstructionProgramDefinitions.TryReadMechanicsWord(address, out ushort value))
@@ -232,6 +255,7 @@ internal static class CommonEnemyProjectileInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="CorpseRottingTableProcessor"/> members production does not use.</summary>
 internal static class CorpseRottingTableProcessorAccess
 {
+    /// <summary>Provides extension members for <c>CorpseRottingTableProcessor</c>.</summary>
     extension(CorpseRottingTableProcessor)
     {
         /// <summary>Reads one native table record without inventing a parallel host state.</summary>
@@ -243,13 +267,16 @@ internal static class CorpseRottingTableProcessorAccess
 /// <summary>Verification access to <see cref="CrateriaLightningPaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class CrateriaLightningPaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>CrateriaLightningPaletteFxProgramDefinition</c>.</summary>
     extension(CrateriaLightningPaletteFxProgramDefinition self)
     {
         /// <summary>$8D:F765 live surface-lightning definition or $F769 unused dark-lightning definition.</summary>
         internal ushort DefinitionPointer => PrivateState.Property<bool>(self, "IsSurface") ? (ushort)0xf765 : (ushort)0xf769;
 
+        /// <summary>Gets or sets cycle frames.</summary>
         internal int CycleFrames => 240 * (1 + PrivateState.Property<int>(self, "NeutralCount")) + 2 * 9 + 5;
 
+        /// <summary>Gets or sets displayed records per cycle.</summary>
         internal int DisplayedRecordsPerCycle => 1 + 14 + PrivateState.Property<int>(self, "NeutralCount") + 4 + 1;
     }
 }
@@ -257,8 +284,10 @@ internal static class CrateriaLightningPaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="CrocomireBg2ScrollDefinitions"/> members production does not use.</summary>
 internal static class CrocomireBg2ScrollDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>CrocomireBg2ScrollDefinitions</c>.</summary>
     extension(CrocomireBg2ScrollDefinitions)
     {
+        /// <summary>Gets or sets entry count.</summary>
         internal static int EntryCount => 17;
 
         /// <summary>Native pointer order: twelve charge/step-back frames followed by
@@ -276,6 +305,7 @@ internal static class CrocomireBg2ScrollDefinitionsAccess
 /// <summary>Verification access to <see cref="CrocomireDeathState"/> members production does not use.</summary>
 internal static class CrocomireDeathStateAccess
 {
+    /// <summary>Provides extension members for <c>CrocomireDeathState</c>.</summary>
     extension(CrocomireDeathState self)
     {
         /// <summary>Resultant per-column erase heights, exposed read-only to the debugger.</summary>
@@ -286,6 +316,7 @@ internal static class CrocomireDeathStateAccess
 /// <summary>Verification access to <see cref="CrocomireMeltingPassSequence"/> members production does not use.</summary>
 internal static class CrocomireMeltingPassSequenceAccess
 {
+    /// <summary>Provides extension members for <c>CrocomireMeltingPassSequence</c>.</summary>
     extension(CrocomireMeltingPassSequence self)
     {
         /// <summary>The two native melt passes, in header order; the indexer rejects any other index.</summary>
@@ -300,8 +331,10 @@ internal static class CrocomireMeltingPassSequenceAccess
 /// <summary>Verification access to <see cref="CrocomireMeltingUploadSequence"/> members production does not use.</summary>
 internal static class CrocomireMeltingUploadSequenceAccess
 {
+    /// <summary>Provides extension members for <c>CrocomireMeltingUploadSequence</c>.</summary>
     extension(CrocomireMeltingUploadSequence self)
     {
+        /// <summary>Get enumerator.</summary>
         internal IEnumerator<CrocomireMeltingUpload> GetEnumerator()
         {
             for (int index = 0; index < self.Length; index++)
@@ -313,6 +346,7 @@ internal static class CrocomireMeltingUploadSequenceAccess
 /// <summary>Verification access to <see cref="DachoraColorRomData"/> members production does not use.</summary>
 internal static class DachoraColorRomDataAccess
 {
+    /// <summary>Provides extension members for <c>DachoraColorRomData</c>.</summary>
     extension(DachoraColorRomData)
     {
         /// <summary>Returns the authored color source for a cartridge-selected phase/frame.</summary>
@@ -345,10 +379,13 @@ internal static class DachoraInstructionProgramDefinitionsAccess
         DachoraInstructionProgramDefinitions.FallingRight,
     ];
 
+    /// <summary>Provides extension members for <c>DachoraInstructionProgramDefinitions</c>.</summary>
     extension(DachoraInstructionProgramDefinitions)
     {
+        /// <summary>Gets or sets program count.</summary>
         internal static int ProgramCount => ProgramEntries.Length;
 
+        /// <summary>Program.</summary>
         internal static DachoraInstructionProgram Program(int index)
         {
             ushort entry = ProgramEntries[index];
@@ -361,8 +398,10 @@ internal static class DachoraInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="DeadMonsterRottingDefinitions.TransferRows"/> members production does not use.</summary>
 internal static class DeadMonsterRottingDefinitionsTransferRowsAccess
 {
+    /// <summary>Provides extension members for <c>DeadMonsterRottingDefinitions.TransferRows</c>.</summary>
     extension(DeadMonsterRottingDefinitions.TransferRows self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.Count;
     }
 }
@@ -370,8 +409,10 @@ internal static class DeadMonsterRottingDefinitionsTransferRowsAccess
 /// <summary>Verification access to <see cref="DeadTorizoVramTransferDefinitions.PhaseRows"/> members production does not use.</summary>
 internal static class DeadTorizoVramTransferDefinitionsPhaseRowsAccess
 {
+    /// <summary>Provides extension members for <c>DeadTorizoVramTransferDefinitions.PhaseRows</c>.</summary>
     extension(DeadTorizoVramTransferDefinitions.PhaseRows self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.Count;
     }
 }
@@ -379,8 +420,10 @@ internal static class DeadTorizoVramTransferDefinitionsPhaseRowsAccess
 /// <summary>Verification access to <see cref="DeadTourianCorpseInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class DeadTourianCorpseInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>DeadTourianCorpseInstructionProgramDefinitions</c>.</summary>
     extension(DeadTourianCorpseInstructionProgramDefinitions)
     {
+        /// <summary>Sleep word address.</summary>
         internal static ushort SleepWordAddress(int index) => (ushort)(DeadTourianCorpseInstructionProgramDefinitions.Program(index)+4);
     }
 }
@@ -388,8 +431,10 @@ internal static class DeadTourianCorpseInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="DraygonCollisionDefinitions"/> members production does not use.</summary>
 internal static class DraygonCollisionDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>DraygonCollisionDefinitions</c>.</summary>
     extension(DraygonCollisionDefinitions)
     {
+        /// <summary>Gets or sets empty oam frame count.</summary>
         internal static int EmptyOamFrameCount => 2 * (6 + 4 + 7 + 7);
     }
 }
@@ -397,8 +442,10 @@ internal static class DraygonCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="DraygonCollisionDefinitions.ComponentSequence"/> members production does not use.</summary>
 internal static class DraygonCollisionDefinitionsComponentSequenceAccess
 {
+    /// <summary>Provides extension members for <c>DraygonCollisionDefinitions.ComponentSequence</c>.</summary>
     extension(DraygonCollisionDefinitions.ComponentSequence self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.HasComponent ? 1 : 0;
     }
 }
@@ -406,11 +453,13 @@ internal static class DraygonCollisionDefinitionsComponentSequenceAccess
 /// <summary>Verification access to <see cref="EnemyProjectileInstructionMechanicsDefinitions"/> members production does not use.</summary>
 internal static class EnemyProjectileInstructionMechanicsDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>EnemyProjectileInstructionMechanicsDefinitions</c>.</summary>
     extension(EnemyProjectileInstructionMechanicsDefinitions)
     {
         /// <summary>Native $86:E42C selector domain, including its final two out-of-order roots.</summary>
         internal static int MiscDustProgramCount => 30;
 
+        /// <summary>Is visual operand.</summary>
         internal static bool IsVisualOperand(ushort address)
         {
             int offset = address - EnemyProjectileInstructionMechanicsDefinitions.MotherBrainBlueRingInitial;
@@ -457,12 +506,15 @@ internal static class EnemyPropertyFlagExtensionsAccess
         return flags;
     }
 
+    /// <summary>Has any.</summary>
     internal static bool HasAny(this ushort word, EnemyProperties flags) =>
         (word.ReadFlagsChecked() & flags) != 0;
 
+    /// <summary>Has all.</summary>
     internal static bool HasAll(this ushort word, EnemyProperties flags) =>
         (word.ReadFlagsChecked() & flags) == flags;
 
+    /// <summary>Has all.</summary>
     internal static bool HasAll(this ushort word, EnemyExtraProperties flags)
     {
         PrivateState.InvokeStatic(typeof(EnemyPropertyFlagExtensions), "ValidateKnown", (EnemyExtraProperties)(flags));
@@ -473,6 +525,7 @@ internal static class EnemyPropertyFlagExtensionsAccess
 /// <summary>Verification access to <see cref="GameplayMessageIds"/> members production does not use.</summary>
 internal static class GameplayMessageIdsAccess
 {
+    /// <summary>Provides extension members for <c>GameplayMessageIds</c>.</summary>
     extension(GameplayMessageIds)
     {
         /// <summary>
@@ -498,8 +551,10 @@ internal static class GameplayMessageIdsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoAwakeningInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoAwakeningInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoAwakeningInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoAwakeningInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value)
         {
             for (int index = 0; index < GoldenTorizoAwakeningInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
@@ -518,8 +573,10 @@ internal static class GoldenTorizoAwakeningInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoEyeBeamAttackInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoEyeBeamAttackInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoEyeBeamAttackInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -528,8 +585,10 @@ internal static class GoldenTorizoEyeBeamAttackInstructionProgramDefinitionsAcce
 /// <summary>Verification access to <see cref="GoldenTorizoInitialInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoInitialInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoInitialInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoInitialInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value)
         {
             for (int index = 0; index < GoldenTorizoInitialInstructionProgramDefinitions.MechanicsWordCount; index++)
@@ -550,8 +609,10 @@ internal static class GoldenTorizoInitialInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoJumpLandingInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoJumpLandingInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoJumpLandingInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoJumpLandingInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value)
         {
             for (int index = 0; index < GoldenTorizoJumpLandingInstructionProgramDefinitions.MechanicsWordCount; index++)
@@ -570,8 +631,10 @@ internal static class GoldenTorizoJumpLandingInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoLeftFootOrbInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoLeftFootOrbInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoLeftFootOrbInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoLeftFootOrbInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftFootOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -580,8 +643,10 @@ internal static class GoldenTorizoLeftFootOrbInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoLeftOrbInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoLeftOrbInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoLeftOrbInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoLeftOrbInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -590,8 +655,10 @@ internal static class GoldenTorizoLeftOrbInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoLeftTurnInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoLeftTurnInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoLeftTurnInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoLeftTurnInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoLeftTurnInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -600,8 +667,10 @@ internal static class GoldenTorizoLeftTurnInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoRightOrbInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoRightOrbInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoRightOrbInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightOrbInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -610,8 +679,10 @@ internal static class GoldenTorizoRightOrbInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoRightSonicInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoRightSonicInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoRightSonicInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightSonicInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -620,8 +691,10 @@ internal static class GoldenTorizoRightSonicInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoRightwardInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoRightwardInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoRightwardInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoRightwardInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoRightwardInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -630,8 +703,10 @@ internal static class GoldenTorizoRightwardInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoStunnedInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoStunnedInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoStunnedInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoStunnedInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoStunnedInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -640,8 +715,10 @@ internal static class GoldenTorizoStunnedInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GoldenTorizoWalkingInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GoldenTorizoWalkingInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GoldenTorizoWalkingInstructionProgramDefinitions</c>.</summary>
     extension(GoldenTorizoWalkingInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(GoldenTorizoWalkingInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -650,8 +727,10 @@ internal static class GoldenTorizoWalkingInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GrowingShutterInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GrowingShutterInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GrowingShutterInstructionProgramDefinitions</c>.</summary>
     extension(GrowingShutterInstructionProgramDefinitions)
     {
+        /// <summary>Gets or sets program count.</summary>
         internal static int ProgramCount => 4;
 
         /// <summary>Each growth stage owns a six-byte duration/visual/sleep program.</summary>
@@ -666,8 +745,10 @@ internal static class GrowingShutterInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="GunshipDustInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class GunshipDustInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>GunshipDustInstructionProgramDefinitions</c>.</summary>
     extension(GunshipDustInstructionProgramDefinitions)
     {
+        /// <summary>Initial for parameter.</summary>
         internal static ushort InitialForParameter(ushort parameter) => parameter switch
         {
             0 => GunshipDustInstructionProgramDefinitions.Index0,
@@ -685,6 +766,7 @@ internal static class GunshipDustInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="HyperBeamPaletteFxState"/> members production does not use.</summary>
 internal static class HyperBeamPaletteFxStateAccess
 {
+    /// <summary>Provides extension members for <c>HyperBeamPaletteFxState</c>.</summary>
     extension(HyperBeamPaletteFxState self)
     {
         /// <summary>Current bank-$8D instruction pointer, exposed for exact-step debugging.</summary>
@@ -695,6 +777,7 @@ internal static class HyperBeamPaletteFxStateAccess
 /// <summary>Verification access to <see cref="InstructionProgramLayout"/> members production does not use.</summary>
 internal static class InstructionProgramLayoutAccess
 {
+    /// <summary>Provides extension members for <c>InstructionProgramLayout</c>.</summary>
     extension(InstructionProgramLayout self)
     {
         /// <summary>
@@ -741,6 +824,7 @@ internal static class KraidArmCollisionDefinitionsAccess
     /// <summary>A single-component frame: a two-byte count and one eight-byte hitbox.</summary>
     private const int SingleComponentFrameBytes = 2 + 8;
 
+    /// <summary>Provides extension members for <c>KraidArmCollisionDefinitions</c>.</summary>
     extension(KraidArmCollisionDefinitions)
     {
         /// <summary>Calculates the ordered physical frame roots from native component-record sizes.</summary>
@@ -759,8 +843,10 @@ internal static class KraidArmCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="KraidArmHitboxSequence"/> members production does not use.</summary>
 internal static class KraidArmHitboxSequenceAccess
 {
+    /// <summary>Provides extension members for <c>KraidArmHitboxSequence</c>.</summary>
     extension(KraidArmHitboxSequence self)
     {
+        /// <summary>To array.</summary>
         internal KraidArmCollisionHitbox[] ToArray()
         {
             var result = new KraidArmCollisionHitbox[self.Length];
@@ -773,8 +859,10 @@ internal static class KraidArmHitboxSequenceAccess
 /// <summary>Verification access to <see cref="KraidEnemyState"/> members production does not use.</summary>
 internal static class KraidEnemyStateAccess
 {
+    /// <summary>Provides extension members for <c>KraidEnemyState</c>.</summary>
     extension(KraidEnemyState self)
     {
+        /// <summary>Health quarter threshold.</summary>
         internal ushort HealthQuarterThreshold(int index) => KraidHealthThresholdDefinitions.Quarter(self.InitialHealth, index);
     }
 }
@@ -782,8 +870,10 @@ internal static class KraidEnemyStateAccess
 /// <summary>Verification access to <see cref="KraidFootCollisionDefinitions"/> members production does not use.</summary>
 internal static class KraidFootCollisionDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>KraidFootCollisionDefinitions</c>.</summary>
     extension(KraidFootCollisionDefinitions)
     {
+        /// <summary>Frame pointer.</summary>
         internal static ushort FramePointer(int index) =>
             checked((ushort)(KraidFootCollisionDefinitions.FirstFrame + index * PrivateState.StaticField<int>(typeof(KraidFootCollisionDefinitions), "FrameByteCount")));
     }
@@ -792,8 +882,10 @@ internal static class KraidFootCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="KraidFootHitboxSequence"/> members production does not use.</summary>
 internal static class KraidFootHitboxSequenceAccess
 {
+    /// <summary>Provides extension members for <c>KraidFootHitboxSequence</c>.</summary>
     extension(KraidFootHitboxSequence self)
     {
+        /// <summary>To array.</summary>
         internal KraidFootCollisionHitbox[] ToArray() => [self[0]];
     }
 }
@@ -801,6 +893,7 @@ internal static class KraidFootHitboxSequenceAccess
 /// <summary>Verification access to <see cref="KraidHealthThresholdDefinitions"/> members production does not use.</summary>
 internal static class KraidHealthThresholdDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>KraidHealthThresholdDefinitions</c>.</summary>
     extension(KraidHealthThresholdDefinitions)
     {
         /// <summary>$A7:AA23-AA43: truncate health/4, then accumulate four multiples.</summary>
@@ -815,6 +908,7 @@ internal static class KraidHealthThresholdDefinitionsAccess
 /// <summary>Verification access to <see cref="LayerBlendingConfigurations"/> members production does not use.</summary>
 internal static class LayerBlendingConfigurationsAccess
 {
+    /// <summary>Provides extension members for <c>LayerBlendingConfigurations</c>.</summary>
     extension(LayerBlendingConfigurations)
     {
         /// <summary>Rejects undefined configuration values supplied by host-side callers.</summary>
@@ -911,6 +1005,7 @@ internal static class MamaTurtleEnemyDefinitionCatalogAccess
 /// <summary>Verification access to <see cref="MamaTurtleShellContourDefinitions"/> members production does not use.</summary>
 internal static class MamaTurtleShellContourDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MamaTurtleShellContourDefinitions</c>.</summary>
     extension(MamaTurtleShellContourDefinitions)
     {
         /// <summary>Returns one raw word by native table index for cartridge parity checks.</summary>
@@ -926,6 +1021,7 @@ internal static class MamaTurtleShellContourDefinitionsAccess
 /// <summary>Verification access to <see cref="MaridiaEnvironmentalPaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class MaridiaEnvironmentalPaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>MaridiaEnvironmentalPaletteFxProgramDefinition</c>.</summary>
     extension(MaridiaEnvironmentalPaletteFxProgramDefinition self)
     {
         /// <summary>Native four-byte definition identity selected by environmental owner.</summary>
@@ -939,8 +1035,10 @@ internal static class MaridiaEnvironmentalPaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="MaridiaLargeSnailCollisionDefinitions"/> members production does not use.</summary>
 internal static class MaridiaLargeSnailCollisionDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MaridiaLargeSnailCollisionDefinitions</c>.</summary>
     extension(MaridiaLargeSnailCollisionDefinitions)
     {
+        /// <summary>Gets or sets hitbox pointers.</summary>
         internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<MaridiaLargeSnailCollisionHitbox>>(typeof(MaridiaLargeSnailCollisionDefinitions), "Lists").Pointers;
     }
 }
@@ -948,6 +1046,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainContactHitboxDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainContactHitboxDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MotherBrainContactHitboxDefinitions</c>.</summary>
     extension(MotherBrainContactHitboxDefinitions)
     {
         /// <summary>Returns the pinned list address used only for parity diagnostics.</summary>
@@ -965,6 +1064,7 @@ internal static class MotherBrainContactHitboxDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainCorpseRottingState"/> members production does not use.</summary>
 internal static class MotherBrainCorpseRottingStateAccess
 {
+    /// <summary>Provides extension members for <c>MotherBrainCorpseRottingState</c>.</summary>
     extension(MotherBrainCorpseRottingState)
     {
         /// <summary>Reads one native four-byte table entry for debugger and verification use.</summary>
@@ -984,6 +1084,7 @@ internal static class MotherBrainFallingTubePopulationDefinitionsAccess
     private static readonly ushort[] RecordPointers =
         [.. Enumerable.Range(0, 5).Select(index => (ushort)(MotherBrainFallingTubePopulationDefinitions.BottomLeft + index * 8 * sizeof(ushort)))];
 
+    /// <summary>Provides extension members for <c>MotherBrainFallingTubePopulationDefinitions</c>.</summary>
     extension(MotherBrainFallingTubePopulationDefinitions)
     {
         /// <summary>Ordered native population identities, calculated from the eight-word record format.</summary>
@@ -994,16 +1095,20 @@ internal static class MotherBrainFallingTubePopulationDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainHandBeamInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainHandBeamInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MotherBrainHandBeamInstructionProgramDefinitions</c>.</summary>
     extension(MotherBrainHandBeamInstructionProgramDefinitions)
     {
+        /// <summary>Gets or sets external call count.</summary>
         internal static int ExternalCallCount => PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageCount");
 
+        /// <summary>External call instruction.</summary>
         internal static ushort ExternalCallInstruction(int index)
         {
             if ((uint)index >= MotherBrainHandBeamInstructionProgramDefinitions.ExternalCallCount) throw new ArgumentOutOfRangeException(nameof(index));
             return (ushort)(((int)(PrivateState.InvokeStatic(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageStart", (int)(index)))!) + PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "FrameBytes"));
         }
 
+        /// <summary>Is presentation byte.</summary>
         internal static bool IsPresentationByte(int address)
         {
             if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
@@ -1019,6 +1124,7 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainHeadInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainHeadInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MotherBrainHeadInstructionProgramDefinitions</c>.</summary>
     extension(MotherBrainHeadInstructionProgramDefinitions)
     {
         /// <summary>The precise pointer windows executed by the dedicated head interpreter.</summary>
@@ -1032,6 +1138,7 @@ internal static class MotherBrainHeadInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainRainbowBeamAttackSequence"/> members production does not use.</summary>
 internal static class MotherBrainRainbowBeamAttackSequenceAccess
 {
+    /// <summary>Provides extension members for <c>MotherBrainRainbowBeamAttackSequence</c>.</summary>
     extension(MotherBrainRainbowBeamAttackSequence self)
     {
         /// <summary>
@@ -1120,8 +1227,10 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
 /// <summary>Verification access to <see cref="MotherBrainRoomPaletteProgramDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MotherBrainRoomPaletteProgramDefinitions</c>.</summary>
     extension(MotherBrainRoomPaletteProgramDefinitions)
     {
+        /// <summary>Mechanics word.</summary>
         internal static InstructionMechanicsWord MechanicsWord(int index)
         {
             if ((uint)index >= MotherBrainRoomPaletteProgramDefinitions.MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -1131,6 +1240,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
                     index == MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount ? MotherBrainRoomPaletteProgramDefinitions.GotoInstruction : MotherBrainRoomPaletteProgramDefinitions.FlashStart);
         }
 
+        /// <summary>Is compiled mechanics byte.</summary>
         internal static bool IsCompiledMechanicsByte(int address)
         {
             if ((SnesAddressMath.BankBase(address)) != 0xa90000) return false;
@@ -1139,6 +1249,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
                 offset >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 && offset < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 + 4;
         }
 
+        /// <summary>Try get presentation word.</summary>
         internal static bool TryGetPresentationWord(int address, out ushort wordAddress)
         {
             wordAddress = 0;
@@ -1154,16 +1265,21 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="MotherBrainTurretInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class MotherBrainTurretInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MotherBrainTurretInstructionProgramDefinitions</c>.</summary>
     extension(MotherBrainTurretInstructionProgramDefinitions)
     {
+        /// <summary>Gets or sets direction count.</summary>
         internal static int DirectionCount => 8;
 
+        /// <summary>Turret program.</summary>
         internal static ushort TurretProgram(MotherBrainTurretDirection direction) =>
             MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(MotherBrainTurretInstructionProgramDefinitions.TurretLeft, direction);
 
+        /// <summary>Bullet program.</summary>
         internal static ushort BulletProgram(MotherBrainTurretDirection direction) =>
             MotherBrainTurretInstructionProgramDefinitions.DirectionProgram(PrivateState.StaticField<ushort>(typeof(MotherBrainTurretInstructionProgramDefinitions), "BulletLeft"), direction);
 
+        /// <summary>Direction program.</summary>
         internal static ushort DirectionProgram(ushort first, MotherBrainTurretDirection direction)
         {
             int index = (byte)direction;
@@ -1178,6 +1294,7 @@ internal static class MotherBrainTurretInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="PaletteFxHeatInstructionListDefinitions"/> members production does not use.</summary>
 internal static class PaletteFxHeatInstructionListDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>PaletteFxHeatInstructionListDefinitions</c>.</summary>
     extension(PaletteFxHeatInstructionListDefinitions)
     {
         /// <summary>Returns the native bank-$8D selector-word address for parity verification.</summary>
@@ -1201,6 +1318,7 @@ internal static class PaletteFxHeatInstructionListDefinitionsAccess
 /// <summary>Verification access to <see cref="PaletteFxHeatProgramFrameDefinition"/> members production does not use.</summary>
 internal static class PaletteFxHeatProgramFrameDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>PaletteFxHeatProgramFrameDefinition</c>.</summary>
     extension(PaletteFxHeatProgramFrameDefinition self)
     {
         /// <summary>The terminal wait command after fifteen live BGR555 colors.</summary>
@@ -1212,8 +1330,10 @@ internal static class PaletteFxHeatProgramFrameDefinitionAccess
 /// <summary>Verification access to <see cref="PhantoonCasualFlameDefinitions.Schedule"/> members production does not use.</summary>
 internal static class PhantoonCasualFlameDefinitionsScheduleAccess
 {
+    /// <summary>Provides extension members for <c>PhantoonCasualFlameDefinitions.Schedule</c>.</summary>
     extension(PhantoonCasualFlameDefinitions.Schedule self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.Count;
     }
 }
@@ -1221,8 +1341,10 @@ internal static class PhantoonCasualFlameDefinitionsScheduleAccess
 /// <summary>Verification access to <see cref="PhantoonCollisionDefinitions.ComponentSequence"/> members production does not use.</summary>
 internal static class PhantoonCollisionDefinitionsComponentSequenceAccess
 {
+    /// <summary>Provides extension members for <c>PhantoonCollisionDefinitions.ComponentSequence</c>.</summary>
     extension(PhantoonCollisionDefinitions.ComponentSequence self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.Count;
     }
 }
@@ -1230,8 +1352,10 @@ internal static class PhantoonCollisionDefinitionsComponentSequenceAccess
 /// <summary>Verification access to <see cref="PhantoonCollisionDefinitions.HitboxSequence"/> members production does not use.</summary>
 internal static class PhantoonCollisionDefinitionsHitboxSequenceAccess
 {
+    /// <summary>Provides extension members for <c>PhantoonCollisionDefinitions.HitboxSequence</c>.</summary>
     extension(PhantoonCollisionDefinitions.HitboxSequence self)
     {
+        /// <summary>Gets or sets length.</summary>
         internal int Length => self.Count;
     }
 }
@@ -1239,8 +1363,10 @@ internal static class PhantoonCollisionDefinitionsHitboxSequenceAccess
 /// <summary>Verification access to <see cref="PhantoonWaveHdmaState"/> members production does not use.</summary>
 internal static class PhantoonWaveHdmaStateAccess
 {
+    /// <summary>Provides extension members for <c>PhantoonWaveHdmaState</c>.</summary>
     extension(PhantoonWaveHdmaState self)
     {
+        /// <summary>Gets or sets scroll cycle.</summary>
         internal ReadOnlySpan<ushort> ScrollCycle => PrivateState.Field<ushort[]>(self, "_cycle").AsSpan(0, PrivateState.Field<int>(self, "_cycleLength"));
     }
 }
@@ -1248,6 +1374,7 @@ internal static class PhantoonWaveHdmaStateAccess
 /// <summary>Verification access to <see cref="PlanetZebesTextPaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class PlanetZebesTextPaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>PlanetZebesTextPaletteFxProgramDefinition</c>.</summary>
     extension(PlanetZebesTextPaletteFxProgramDefinition self)
     {
         /// <summary>Native four-byte definition identity selected by fade direction.</summary>
@@ -1258,6 +1385,7 @@ internal static class PlanetZebesTextPaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="RidleyCollisionDefinitions"/> members production does not use.</summary>
 internal static class RidleyCollisionDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>RidleyCollisionDefinitions</c>.</summary>
     extension(RidleyCollisionDefinitions)
     {
         /// <summary>The eleven side-facing body frames, `$32` bytes apart from the leftmost.</summary>
@@ -1272,6 +1400,7 @@ internal static class RidleyCollisionDefinitionsAccess
             }
         }
 
+        /// <summary>Gets or sets hitbox pointers.</summary>
         internal static IEnumerable<ushort> HitboxPointers => PrivateState.StaticField<CollisionRecordRuns<RidleyCollisionHitbox>>(typeof(RidleyCollisionDefinitions), "Lists").Pointers;
     }
 }
@@ -1279,6 +1408,7 @@ internal static class RidleyCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomEnemyAuxiliaryDefinitionCatalog"/> members production does not use.</summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalogAccess
 {
+    /// <summary>Provides extension members for <c>RoomEnemyAuxiliaryDefinitionCatalog</c>.</summary>
     extension(RoomEnemyAuxiliaryDefinitionCatalog)
     {
         /// <summary>The five auxiliary header identities missing from room lists.</summary>
@@ -1289,6 +1419,7 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalogAccess
 /// <summary>Verification access to <see cref="RoomEnemyDefinitionCatalog"/> members production does not use.</summary>
 internal static class RoomEnemyDefinitionCatalogAccess
 {
+    /// <summary>Provides extension members for <c>RoomEnemyDefinitionCatalog</c>.</summary>
     extension(RoomEnemyDefinitionCatalog)
     {
         /// <summary>Enumerates every compiled native definition pointer for ROM-oracle tests.</summary>
@@ -1299,6 +1430,7 @@ internal static class RoomEnemyDefinitionCatalogAccess
 /// <summary>Verification access to <see cref="RoomEnemyPopulationDefinitions"/> members production does not use.</summary>
 internal static class RoomEnemyPopulationDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>RoomEnemyPopulationDefinitions</c>.</summary>
     extension(RoomEnemyPopulationDefinitions)
     {
         /// <summary>Enumerates every compiled population identity for ROM-oracle tests.</summary>
@@ -1309,6 +1441,7 @@ internal static class RoomEnemyPopulationDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomEnemySystem"/> members production does not use.</summary>
 internal static class RoomEnemySystemAccess
 {
+    /// <summary>Provides extension members for <c>RoomEnemySystem</c>.</summary>
     extension(RoomEnemySystem self)
     {
         /// <summary>
@@ -1370,6 +1503,7 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed actor extensions in fixed native slot order.</summary>
         internal IReadOnlyList<ElevatorEnemyState?> ElevatorStates => self.ElevatorBehavior._elevatorStates;
 
+        /// <summary>Gets or sets kago states.</summary>
         internal IReadOnlyList<KagoEnemyState?> KagoStates => self.KagoBehavior._kagoStates;
 
         /// <summary>Typed Waver state for all 32 physical enemy slots.</summary>
@@ -1411,6 +1545,7 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed Stoke state for each of the 32 physical enemy slots.</summary>
         internal IReadOnlyList<StokeEnemyState?> StokeStates => self.StokeBehavior._stokeStates;
 
+        /// <summary>Gets or sets fake kraid states.</summary>
         internal IReadOnlyList<FakeKraidEnemyState?> FakeKraidStates => self.FakeKraidBehavior._fakeKraidStates;
 
         /// <summary>Typed state for every physical slot currently owned by this family.</summary>
@@ -1433,6 +1568,7 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<EscapeEtecoonEnemyState?> EscapeEtecoonStates =>
             self.EscapeAnimalsBehavior._escapeEtecoonStates;
 
+        /// <summary>Gets or sets nuclear waffle states.</summary>
         internal IReadOnlyList<NuclearWaffleEnemyState?> NuclearWaffleStates =>
             self.NuclearWaffleBehavior._nuclearWaffleStates;
 
@@ -1460,17 +1596,21 @@ internal static class RoomEnemySystemAccess
         /// <summary>Typed state for every physical enemy slot currently owned by a Rinka.</summary>
         internal IReadOnlyList<RinkaEnemyState?> RinkaStates => self.RinkaBehavior._rinkaStates;
 
+        /// <summary>Gets or sets walking space pirate states.</summary>
         internal IReadOnlyList<WalkingSpacePirateEnemyState?> WalkingSpacePirateStates =>
             self.WalkingSpacePirateBehavior._walkingSpacePirateStates;
 
+        /// <summary>Gets or sets wall space pirate states.</summary>
         internal IReadOnlyList<WallSpacePirateEnemyState?> WallSpacePirateStates =>
             self.WallSpacePirateBehavior._wallSpacePirateStates;
 
+        /// <summary>Gets or sets magdollite states.</summary>
         internal IReadOnlyList<MagdolliteEnemyState?> MagdolliteStates => self.MagdolliteBehavior._magdolliteStates;
 
         /// <summary>Typed state for each physical enemy slot currently owned by a Metroid.</summary>
         internal IReadOnlyList<MetroidEnemyState?> MetroidStates => self.MetroidBehavior._metroidStates;
 
+        /// <summary>Gets or sets shitroid.</summary>
         internal ShitroidEnemyState? Shitroid => self.ShitroidBehavior._shitroid;
 
         /// <summary>Native $40-byte slot offsets selected by the most recent activity scan.</summary>
@@ -1533,6 +1673,7 @@ internal static class RoomEnemySystemAccess
         internal TorizoEnemyState? BombTorizo =>
             self.BombTorizoBehavior._torizoState is { IsGolden: false } ? self.BombTorizoBehavior._torizoState : null;
 
+        /// <summary>Gets or sets growing shutter states.</summary>
         internal IReadOnlyList<GrowingShutterEnemyState?> GrowingShutterStates => self.ShuttersBehavior._growingShutterStates;
 
         /// <summary>Pickup requests emitted by shot Chozo orbs during this room load.</summary>
@@ -1584,6 +1725,7 @@ internal static class RoomEnemySystemAccess
 /// <summary>Verification access to <see cref="RoomFxAnimatedTileFrameDefinition"/> members production does not use.</summary>
 internal static class RoomFxAnimatedTileFrameDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>RoomFxAnimatedTileFrameDefinition</c>.</summary>
     extension(RoomFxAnimatedTileFrameDefinition self)
     {
         /// <summary>Native artwork-operand identity immediately after this compiled control word.</summary>
@@ -1594,6 +1736,7 @@ internal static class RoomFxAnimatedTileFrameDefinitionAccess
 /// <summary>Verification access to <see cref="RoomFxRecordDefinition"/> members production does not use.</summary>
 internal static class RoomFxRecordDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>RoomFxRecordDefinition</c>.</summary>
     extension(RoomFxRecordDefinition self)
     {
         /// <summary>Exposes one native byte for consumers that use offset-based FX fields.</summary>
@@ -1618,6 +1761,7 @@ internal static class RoomFxRecordDefinitionAccess
             _ => throw new ArgumentOutOfRangeException(nameof(offset)),
         };
 
+        /// <summary>Read word.</summary>
         internal ushort ReadWord(int offset)
         {
             if ((uint)offset > RoomFxRomData.Record.ByteCount - sizeof(ushort))
@@ -1630,6 +1774,7 @@ internal static class RoomFxRecordDefinitionAccess
 /// <summary>Verification access to <see cref="RoomFxRecordDefinitions"/> members production does not use.</summary>
 internal static class RoomFxRecordDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>RoomFxRecordDefinitions</c>.</summary>
     extension(RoomFxRecordDefinitions)
     {
         /// <summary>Enumerates every selected record in ascending native identity order without a stored cache.</summary>
@@ -1648,6 +1793,7 @@ internal static class RoomFxRecordDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomLayer3FxState"/> members production does not use.</summary>
 internal static class RoomLayer3FxStateAccess
 {
+    /// <summary>Provides extension members for <c>RoomLayer3FxState</c>.</summary>
     extension(RoomLayer3FxState self)
     {
         /// <summary>Loads an explicit immutable FX definition through the normal room-load path.</summary>
@@ -1670,6 +1816,7 @@ internal static class RoomLayer3FxStateAccess
 /// <summary>Verification access to <see cref="RoomPaletteFxDefinitions"/> members production does not use.</summary>
 internal static class RoomPaletteFxDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>RoomPaletteFxDefinitions</c>.</summary>
     extension(RoomPaletteFxDefinitions)
     {
         /// <summary>Calculates a native palette-FX area-list identity for index0..7.</summary>
@@ -1689,6 +1836,7 @@ internal static class RoomPaletteFxDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomPaletteFxSystem"/> members production does not use.</summary>
 internal static class RoomPaletteFxSystemAccess
 {
+    /// <summary>Provides extension members for <c>RoomPaletteFxSystem</c>.</summary>
     extension(RoomPaletteFxSystem self)
     {
         /// <summary>
@@ -1716,6 +1864,7 @@ internal static class RoomPaletteFxSystemAccess
 /// <summary>Verification access to <see cref="RoomSandAnimatedTilesState"/> members production does not use.</summary>
 internal static class RoomSandAnimatedTilesStateAccess
 {
+    /// <summary>Provides extension members for <c>RoomSandAnimatedTilesState</c>.</summary>
     extension(RoomSandAnimatedTilesState self)
     {
         /// <summary>Number of sand objects selected by the current room/door FX bitset.</summary>
@@ -1726,6 +1875,7 @@ internal static class RoomSandAnimatedTilesStateAccess
 /// <summary>Verification access to <see cref="RoomScrollGrid"/> members production does not use.</summary>
 internal static class RoomScrollGridAccess
 {
+    /// <summary>Provides extension members for <c>RoomScrollGrid</c>.</summary>
     extension(RoomScrollGrid self)
     {
         /// <summary>
@@ -1740,8 +1890,10 @@ internal static class RoomScrollGridAccess
 /// <summary>Verification access to <see cref="RoomSpriteObjectInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class RoomSpriteObjectInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>RoomSpriteObjectInstructionProgramDefinitions</c>.</summary>
     extension(RoomSpriteObjectInstructionProgramDefinitions)
     {
+        /// <summary>Try get presentation word.</summary>
         internal static bool TryGetPresentationWord(int address, out ushort wordAddress) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(RoomSpriteObjectInstructionProgramDefinitions), "Layout").TryGetPresentationWord(address, out wordAddress);
     }
@@ -1750,6 +1902,7 @@ internal static class RoomSpriteObjectInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="RoomTreadmillAnimatedTilesState"/> members production does not use.</summary>
 internal static class RoomTreadmillAnimatedTilesStateAccess
 {
+    /// <summary>Provides extension members for <c>RoomTreadmillAnimatedTilesState</c>.</summary>
     extension(RoomTreadmillAnimatedTilesState self)
     {
         /// <summary>Number of treadmill objects selected by the current room/door FX bitset.</summary>
@@ -1760,6 +1913,7 @@ internal static class RoomTreadmillAnimatedTilesStateAccess
 /// <summary>Verification access to <see cref="SamusAerialMovement"/> members production does not use.</summary>
 internal static class SamusAerialMovementAccess
 {
+    /// <summary>Provides extension members for <c>SamusAerialMovement</c>.</summary>
     extension(SamusAerialMovement)
     {
         /// <summary>
@@ -1797,8 +1951,10 @@ internal static class SamusAerialMovementAccess
 /// <summary>Verification access to <see cref="SamusAnimationDelayPrograms"/> members production does not use.</summary>
 internal static class SamusAnimationDelayProgramsAccess
 {
+    /// <summary>Provides extension members for <c>SamusAnimationDelayPrograms</c>.</summary>
     extension(SamusAnimationDelayPrograms)
     {
+        /// <summary>Gets or sets segments.</summary>
         internal static ReadOnlySpan<SamusAnimationSegment> Segments => PrivateState.StaticField<SamusAnimationSegment[]>(typeof(SamusAnimationDelayPrograms), "segments");
     }
 }
@@ -1809,6 +1965,7 @@ internal static class SamusBeamLoadoutWordAccess
     /// <summary>Low four bits of the beam word select the combination.</summary>
     private const ushort CombinationMask = 0x000f;
 
+    /// <summary>Provides extension members for <c>SamusBeamLoadoutWord</c>.</summary>
     extension(SamusBeamLoadoutWord self)
     {
         /// <summary>
@@ -1827,6 +1984,7 @@ internal static class SamusBeamLoadoutWordAccess
 /// <summary>Verification access to <see cref="SamusBombProjectileSlot"/> members production does not use.</summary>
 internal static class SamusBombProjectileSlotAccess
 {
+    /// <summary>Provides extension members for <c>SamusBombProjectileSlot</c>.</summary>
     extension(SamusBombProjectileSlot self)
     {
         /// <summary>
@@ -1840,6 +1998,7 @@ internal static class SamusBombProjectileSlotAccess
 /// <summary>Verification access to <see cref="SamusDrainedState"/> members production does not use.</summary>
 internal static class SamusDrainedStateAccess
 {
+    /// <summary>Provides extension members for <c>SamusDrainedState</c>.</summary>
     extension(SamusDrainedState self)
     {
         /// <summary>
@@ -1853,9 +2012,11 @@ internal static class SamusDrainedStateAccess
 /// <summary>Verification access to <see cref="SamusEquipmentFlagExtensions"/> members production does not use.</summary>
 internal static class SamusEquipmentFlagExtensionsAccess
 {
+    /// <summary>Has all.</summary>
     internal static bool HasAll(this ushort word, SamusEquipmentFlags flags) =>
         ((SamusEquipmentFlags)word & flags) == flags;
 
+    /// <summary>Has all.</summary>
     internal static bool HasAll(this ushort word, SamusBeamFlags flags) =>
         ((SamusBeamFlags)word & flags) == flags;
 
@@ -1879,12 +2040,14 @@ internal static class SamusEquipmentFlagExtensionsAccess
     internal static ushort Without(this ushort word, SamusBeamFlags flags) =>
         (ushort)(word & ~(ushort)flags);
 
+    /// <summary>To native word.</summary>
     internal static ushort ToNativeWord(this SamusEquipmentFlags flags) => (ushort)flags;
 }
 
 /// <summary>Verification access to <see cref="SamusGrappleMovement"/> members production does not use.</summary>
 internal static class SamusGrappleMovementAccess
 {
+    /// <summary>Provides extension members for <c>SamusGrappleMovement</c>.</summary>
     extension(SamusGrappleMovement)
     {
         /// <summary>
@@ -1959,6 +2122,7 @@ internal static class SamusGrappleMovementAccess
 /// <summary>Verification access to <see cref="SamusKinematicsState"/> members production does not use.</summary>
 internal static class SamusKinematicsStateAccess
 {
+    /// <summary>Provides extension members for <c>SamusKinematicsState</c>.</summary>
     extension(SamusKinematicsState self)
     {
         /// <summary>
@@ -1972,6 +2136,7 @@ internal static class SamusKinematicsStateAccess
 /// <summary>Verification access to <see cref="SamusLiquidPhysicsState"/> members production does not use.</summary>
 internal static class SamusLiquidPhysicsStateAccess
 {
+    /// <summary>Provides extension members for <c>SamusLiquidPhysicsState</c>.</summary>
     extension(SamusLiquidPhysicsState self)
     {
         /// <summary>
@@ -1997,6 +2162,7 @@ internal static class SamusLiquidPhysicsStateAccess
 /// <summary>Verification access to <see cref="SamusPoseTransitionTable"/> members production does not use.</summary>
 internal static class SamusPoseTransitionTableAccess
 {
+    /// <summary>Provides extension members for <c>SamusPoseTransitionTable</c>.</summary>
     extension(SamusPoseTransitionTable)
     {
         /// <summary>
@@ -2022,6 +2188,7 @@ internal static class SamusPoseTransitionTableAccess
 /// <summary>Verification access to <see cref="SamusProjectileSystem"/> members production does not use.</summary>
 internal static class SamusProjectileSystemAccess
 {
+    /// <summary>Provides extension members for <c>SamusProjectileSystem</c>.</summary>
     extension(SamusProjectileSystem self)
     {
         /// <summary>
@@ -2038,10 +2205,13 @@ internal static class SamusProjectileSystemAccess
 /// <summary>Verification access to <see cref="SamusProjectileTrailSlot"/> members production does not use.</summary>
 internal static class SamusProjectileTrailSlotAccess
 {
+    /// <summary>Provides extension members for <c>SamusProjectileTrailSlot</c>.</summary>
     extension(SamusProjectileTrailSlot self)
     {
+        /// <summary>Gets or sets native byte index.</summary>
         internal int NativeByteIndex => self.SlotIndex * 2;
 
+        /// <summary>Gets or sets is active.</summary>
         internal bool IsActive => self.Left.InstructionTimer != 0;
     }
 }
@@ -2049,8 +2219,10 @@ internal static class SamusProjectileTrailSlotAccess
 /// <summary>Verification access to <see cref="SamusProjectileTypeWord"/> members production does not use.</summary>
 internal static class SamusProjectileTypeWordAccess
 {
+    /// <summary>Provides extension members for <c>SamusProjectileTypeWord</c>.</summary>
     extension(SamusProjectileTypeWord self)
     {
+        /// <summary>Gets or sets is live.</summary>
         internal bool IsLive => (self.Raw & PrivateState.StaticField<ushort>(typeof(SamusProjectileTypeWord), "LiveMarker")) != 0;
     }
 }
@@ -2058,6 +2230,7 @@ internal static class SamusProjectileTypeWordAccess
 /// <summary>Verification access to <see cref="SamusRunningCadenceDefinitions"/> members production does not use.</summary>
 internal static class SamusRunningCadenceDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>SamusRunningCadenceDefinitions</c>.</summary>
     extension(SamusRunningCadenceDefinitions)
     {
         /// <summary>Returns one byte from the complete bounded native cadence catalog.</summary>
@@ -2075,6 +2248,7 @@ internal static class SamusRunningCadenceDefinitionsAccess
 /// <summary>Verification access to <see cref="SamusShinesparkState"/> members production does not use.</summary>
 internal static class SamusShinesparkStateAccess
 {
+    /// <summary>Provides extension members for <c>SamusShinesparkState</c>.</summary>
     extension(SamusShinesparkState self)
     {
         /// <summary>Number of enabled departing echo drawings, independent of slot ownership.</summary>
@@ -2102,6 +2276,7 @@ internal static class SamusShinesparkStateAccess
 /// <summary>Verification access to <see cref="SamusSlopePhysics"/> members production does not use.</summary>
 internal static class SamusSlopePhysicsAccess
 {
+    /// <summary>Provides extension members for <c>SamusSlopePhysics</c>.</summary>
     extension(SamusSlopePhysics)
     {
         /// <summary>
@@ -2119,6 +2294,7 @@ internal static class SamusSlopePhysicsAccess
 /// <summary>Verification access to <see cref="SamusState"/> members production does not use.</summary>
 internal static class SamusStateAccess
 {
+    /// <summary>Provides extension members for <c>SamusState</c>.</summary>
     extension(SamusState self)
     {
         /// <summary>Typed view of <see cref="SamusState.Pose"/>; casting preserves undefined cartridge bytes.</summary>
@@ -2178,6 +2354,7 @@ internal static class SamusStateAccess
 /// <summary>Verification access to <see cref="SamusTileTransferState"/> members production does not use.</summary>
 internal static class SamusTileTransferStateAccess
 {
+    /// <summary>Provides extension members for <c>SamusTileTransferState</c>.</summary>
     extension(SamusTileTransferState self)
     {
         /// <summary>Clears both transfer flags as the game-state reset routines do.</summary>
@@ -2192,6 +2369,7 @@ internal static class SamusTileTransferStateAccess
 /// <summary>Verification access to <see cref="SamusXrayState"/> members production does not use.</summary>
 internal static class SamusXrayStateAccess
 {
+    /// <summary>Provides extension members for <c>SamusXrayState</c>.</summary>
     extension(SamusXrayState self)
     {
         /// <summary>True after Reserve recovery has stranded X-Ray's subsystem disables.</summary>
@@ -2203,8 +2381,10 @@ internal static class SamusXrayStateAccess
 /// <summary>Verification access to <see cref="ScrollBoundaryCamera"/> members production does not use.</summary>
 internal static class ScrollBoundaryCameraAccess
 {
+    /// <summary>Provides extension members for <c>ScrollBoundaryCamera</c>.</summary>
     extension(ScrollBoundaryCamera)
     {
+        /// <summary>Require distance.</summary>
         internal static void RequireDistance(ushort pixelDistance)
         {
             if (pixelDistance is 0 or >= 0x8000)
@@ -2212,6 +2392,7 @@ internal static class ScrollBoundaryCameraAccess
         }
     }
 
+    /// <summary>Provides extension members for <c>ScrollBoundaryCamera</c>.</summary>
     extension(ScrollBoundaryCamera self)
     {
         /// <summary>
@@ -2271,6 +2452,7 @@ internal static class ScrollBoundaryCameraAccess
 /// <summary>Verification access to <see cref="ShitroidEnemyState"/> members production does not use.</summary>
 internal static class ShitroidEnemyStateAccess
 {
+    /// <summary>Provides extension members for <c>ShitroidEnemyState</c>.</summary>
     extension(ShitroidEnemyState self)
     {
         /// <summary>The independent 256-color target palette written during initialization.</summary>
@@ -2281,8 +2463,10 @@ internal static class ShitroidEnemyStateAccess
 /// <summary>Verification access to <see cref="SkreeMetareeInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class SkreeMetareeInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>SkreeMetareeInstructionProgramDefinitions</c>.</summary>
     extension(SkreeMetareeInstructionProgramDefinitions)
     {
+        /// <summary>Is compiled mechanics byte.</summary>
         internal static bool IsCompiledMechanicsByte(int address)
         {
             if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
@@ -2301,15 +2485,20 @@ internal static class SkreeMetareeInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="SpacePirateCollisionDefinitions"/> members production does not use.</summary>
 internal static class SpacePirateCollisionDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>SpacePirateCollisionDefinitions</c>.</summary>
     extension(SpacePirateCollisionDefinitions)
     {
+        /// <summary>Gets or sets frame count.</summary>
         internal static int FrameCount => PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").Count;
 
+        /// <summary>Gets or sets list count.</summary>
         internal static int ListCount => PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").Count;
 
+        /// <summary>Frame.</summary>
         internal static SpacePirateCollisionFrame Frame(int index) =>
             new(PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").PointerAt(index), PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionComponent>>(typeof(SpacePirateCollisionDefinitions), "Frames").RecordAt(index));
 
+        /// <summary>List.</summary>
         internal static SpacePirateCollisionList List(int index) =>
             new(PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").PointerAt(index), PrivateState.StaticField<CollisionRecordRuns<SpacePirateCollisionHitbox>>(typeof(SpacePirateCollisionDefinitions), "Lists").RecordAt(index));
     }
@@ -2335,10 +2524,13 @@ internal static class SporeSpawnCollisionDefinitionsAccess
         (ushort)SporeSpawnHitboxList.MovingHead5,
     ];
 
+    /// <summary>Provides extension members for <c>SporeSpawnCollisionDefinitions</c>.</summary>
     extension(SporeSpawnCollisionDefinitions)
     {
+        /// <summary>Gets or sets frame count.</summary>
         internal static int FrameCount => 12;
 
+        /// <summary>Gets or sets list count.</summary>
         internal static int ListCount => ListPointers.Length;
     }
 }
@@ -2346,6 +2538,7 @@ internal static class SporeSpawnCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="SporeSpawnEnemyState"/> members production does not use.</summary>
 internal static class SporeSpawnEnemyStateAccess
 {
+    /// <summary>Provides extension members for <c>SporeSpawnEnemyState</c>.</summary>
     extension(SporeSpawnEnemyState self)
     {
         /// <summary>
@@ -2360,6 +2553,7 @@ internal static class SporeSpawnEnemyStateAccess
 /// <summary>Verification access to <see cref="SuperMetroidSaveSlot"/> members production does not use.</summary>
 internal static class SuperMetroidSaveSlotAccess
 {
+    /// <summary>Provides extension members for <c>SuperMetroidSaveSlot</c>.</summary>
     extension(SuperMetroidSaveSlot self)
     {
         /// <summary>Creates the complete translated snapshot accepted by the SRAM encoder.</summary>
@@ -2411,6 +2605,7 @@ internal static class SuperMetroidSaveSlotAccess
 /// <summary>Verification access to <see cref="TitleScreenAmbientPaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class TitleScreenAmbientPaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>TitleScreenAmbientPaletteFxProgramDefinition</c>.</summary>
     extension(TitleScreenAmbientPaletteFxProgramDefinition self)
     {
         /// <summary>Native palette definitions $8D:E1A0 (tube) / $E1A4 (displays).</summary>
@@ -2430,8 +2625,10 @@ internal static class TorizoCollisionDefinitionsAccess
         0x87c7, 0x87e8, 0x87f6, 0x8804, 0x8812, 0x8820, 0x882e, 0x883c, 0x884a, 0x8858, 0x885a, 0x886a, 0x887a, 0x888a, 0x889a, 0x88aa, 0x88ba, 0x88bc, 0x88cc, 0x88dc, 0x88ec, 0x88fc, 0x890c, 0x891c, 0x892a, 0x8946, 0x8954, 0x8962, 0x8970, 0x897e, 0x898c, 0x899a, 0x89a8, 0x89b6, 0x89b8, 0x89c8, 0x89d8, 0x89e8, 0x89f8, 0x8a08, 0x8a18, 0x8a1a, 0x8a2a, 0x8a3a, 0x8a4a, 0x8a5a, 0x8a6a, 0x8a7a, 0x8a88,
     ];
 
+    /// <summary>Provides extension members for <c>TorizoCollisionDefinitions</c>.</summary>
     extension(TorizoCollisionDefinitions)
     {
+        /// <summary>Gets or sets frame count.</summary>
         internal static int FrameCount => 2 + PrivateState.StaticProperty<int>(typeof(TorizoCollisionDefinitions), "MirroredCount") * 2 + PrivateState.StaticField<GoldenTorizoCollisionComponent[][]>(typeof(TorizoCollisionDefinitions), "JumpBackFrames").Length;
 
         /// <summary>Every frame pointer, derived from the four runs.</summary>
@@ -2467,10 +2664,13 @@ internal static class TorizoCollisionDefinitionsAccess
             }
         }
 
+        /// <summary>Gets or sets hitbox pointers.</summary>
         internal static IEnumerable<ushort> HitboxPointers => ListPointers;
 
+        /// <summary>Has frame.</summary>
         internal static bool HasFrame(ushort frame) => TorizoCollisionDefinitions.TryGetComponents(frame, out _);
 
+        /// <summary>Try get components.</summary>
         internal static bool TryGetComponents(ushort frame, out TorizoCollisionComponents components)
         {
             foreach (ushort pointer in TorizoCollisionDefinitions.FramePointers)
@@ -2488,8 +2688,10 @@ internal static class TorizoCollisionDefinitionsAccess
 /// <summary>Verification access to <see cref="TorizoFallingLeftInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class TorizoFallingLeftInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>TorizoFallingLeftInstructionProgramDefinitions</c>.</summary>
     extension(TorizoFallingLeftInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoFallingLeftInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -2498,8 +2700,10 @@ internal static class TorizoFallingLeftInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="TorizoInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class TorizoInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>TorizoInstructionProgramDefinitions</c>.</summary>
     extension(TorizoInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -2508,8 +2712,10 @@ internal static class TorizoInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="TorizoInstructionVramTransferDefinitions"/> members production does not use.</summary>
 internal static class TorizoInstructionVramTransferDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>TorizoInstructionVramTransferDefinitions</c>.</summary>
     extension(TorizoInstructionVramTransferDefinitions)
     {
+        /// <summary>Gets or sets all.</summary>
         internal static ReadOnlySpan<TorizoInstructionVramTransferDefinition> All => PrivateState.StaticField<TorizoInstructionVramTransferDefinition[]>(typeof(TorizoInstructionVramTransferDefinitions), "Entries");
     }
 }
@@ -2517,8 +2723,10 @@ internal static class TorizoInstructionVramTransferDefinitionsAccess
 /// <summary>Verification access to <see cref="TorizoJumpBackInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class TorizoJumpBackInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>TorizoJumpBackInstructionProgramDefinitions</c>.</summary>
     extension(TorizoJumpBackInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoJumpBackInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -2527,8 +2735,10 @@ internal static class TorizoJumpBackInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="TorizoJumpBackLeftInstructionProgramDefinitions"/> members production does not use.</summary>
 internal static class TorizoJumpBackLeftInstructionProgramDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>TorizoJumpBackLeftInstructionProgramDefinitions</c>.</summary>
     extension(TorizoJumpBackLeftInstructionProgramDefinitions)
     {
+        /// <summary>Try read mechanics word.</summary>
         internal static bool TryReadMechanicsWord(ushort address, out ushort value) =>
             PrivateState.StaticField<InstructionProgramLayout>(typeof(TorizoJumpBackLeftInstructionProgramDefinitions), "Layout").TryReadMechanicsWord(address, out value);
     }
@@ -2537,6 +2747,7 @@ internal static class TorizoJumpBackLeftInstructionProgramDefinitionsAccess
 /// <summary>Verification access to <see cref="TourianEscapeRedFlashPaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class TourianEscapeRedFlashPaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>TourianEscapeRedFlashPaletteFxProgramDefinition</c>.</summary>
     extension(TourianEscapeRedFlashPaletteFxProgramDefinition self)
     {
         /// <summary>Frames from the first record through the next first record.</summary>
@@ -2548,6 +2759,7 @@ internal static class TourianEscapeRedFlashPaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="WreckedShipTreadmillMechanicsDefinitions"/> members production does not use.</summary>
 internal static class WreckedShipTreadmillMechanicsDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>WreckedShipTreadmillMechanicsDefinitions</c>.</summary>
     extension(WreckedShipTreadmillMechanicsDefinitions)
     {
         /// <summary>Both named directions in native header order, without a stored roster.</summary>
@@ -2565,6 +2777,7 @@ internal static class WreckedShipTreadmillMechanicsDefinitionsAccess
 /// <summary>Verification access to <see cref="WreckedShipTreadmillObjectDefinition"/> members production does not use.</summary>
 internal static class WreckedShipTreadmillObjectDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>WreckedShipTreadmillObjectDefinition</c>.</summary>
     extension(WreckedShipTreadmillObjectDefinition self)
     {
         /// <summary>The four timed frame-control addresses in execution order.</summary>
@@ -2576,6 +2789,7 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
 /// <summary>Verification access to <see cref="ZebesExplosionLayerFadePaletteFxProgramDefinition"/> members production does not use.</summary>
 internal static class ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess
 {
+    /// <summary>Provides extension members for <c>ZebesExplosionLayerFadePaletteFxProgramDefinition</c>.</summary>
     extension(ZebesExplosionLayerFadePaletteFxProgramDefinition self)
     {
         /// <summary>The complete one-shot fade duration in frames.</summary>
@@ -2588,6 +2802,7 @@ internal static class ZebesExplosionLayerFadePaletteFxProgramDefinitionAccess
 /// <summary>Verification access to <see cref="MagdollitePhaseDefinitions"/> members production does not use.</summary>
 internal static class MagdollitePhaseDefinitionsAccess
 {
+    /// <summary>Provides extension members for <c>MagdollitePhaseDefinitions</c>.</summary>
     extension(MagdollitePhaseDefinitions)
     {
         /// <summary>Number of enemy slots covered by <see cref="MagdollitePhaseDefinitions.ApexThreshold"/>.</summary>

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents compression verification.</summary>
 internal static class CompressionVerification
 {
+    /// <summary>Verifies sm compression format.</summary>
     internal static void VerifySmCompressionFormat()
     {
         // All eight three-bit command codes are named members.

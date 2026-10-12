@@ -26,8 +26,10 @@ public enum FuneNamiheEnemyFunction : ushort
 /// </summary>
 public sealed class FuneNamiheEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new fune namihe enemy state instance.</summary>
     internal FuneNamiheEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

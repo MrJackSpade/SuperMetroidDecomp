@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy fireball launch definitions verification.</summary>
 internal static class EnemyFireballLaunchDefinitionsVerification
 {
+    /// <summary>verify alcoon vertical launch mapping.</summary>
     private static void VerifyAlcoonVerticalLaunchMapping(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 4; offset += 2)
@@ -15,12 +17,15 @@ internal static class EnemyFireballLaunchDefinitionsVerification
                 "Alcoon rejects odd, out-of-range and high-byte selectors");
     }
 
+    /// <summary>verify nami fune left launch mapping.</summary>
     private static void VerifyNamiFuneLeftLaunchMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNamiFuneLaunchField), () => VerifyNamiFuneLaunchField(rom, left: true));
 
+    /// <summary>verify nami fune right launch mapping.</summary>
     private static void VerifyNamiFuneRightLaunchMapping(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNamiFuneLaunchField), () => VerifyNamiFuneLaunchField(rom, left: false));
 
+    /// <summary>verify nami fune launch field.</summary>
     private static void VerifyNamiFuneLaunchField(SuperMetroidAddressSpace rom, bool left)
     {
         for (int high = 0; high < 256; high++)
@@ -38,6 +43,7 @@ internal static class EnemyFireballLaunchDefinitionsVerification
         }
     }
 
+    /// <summary>verify compiled enemy fireball launches.</summary>
     internal static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyAlcoonVerticalLaunchMapping), () => VerifyAlcoonVerticalLaunchMapping(rom));

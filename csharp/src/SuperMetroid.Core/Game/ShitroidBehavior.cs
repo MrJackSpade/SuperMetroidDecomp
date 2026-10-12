@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -8,14 +8,20 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Baby Metroid (Shitroid) species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class ShitroidBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Stores dead sidehopper behavior.</summary>
     private readonly DeadSidehopperBehavior _deadSidehopperBehavior;
 
+    /// <summary>Stores zebetite behavior.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
 
+    /// <summary>Initializes a new shitroid behavior instance.</summary>
     internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, DeadSidehopperBehavior deadSidehopperBehavior, ZebetiteBehavior zebetiteBehavior)
     {
         _zebetiteBehavior = zebetiteBehavior;
@@ -71,11 +77,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies
 
 
     // `frameCounter & 6` selects one of these four authored jitter offsets.
+    /// <summary>Stores shitroid shake offsets.</summary>
     private static readonly Offset16<RoomPixels>[] ShitroidShakeOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
+    /// <summary>Stores shitroid plm requests.</summary>
     private readonly List<ShitroidPlmRequest> _shitroidPlmRequests = [];
+    /// <summary>Stores shitroid.</summary>
     internal ShitroidEnemyState? _shitroid;
+    /// <summary>Stores shitroid camera.</summary>
     private Position16<RoomPixels> _shitroidCamera;
 
     /// <summary>Frame-local wall mutations requested by the current Shitroid state.</summary>
@@ -90,6 +100,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
     /// <summary>Last delayed music command queued during this Shitroid frame.</summary>
     public ShitroidMusicRequest? LastShitroidMusicRequest { get; private set; }
 
+    /// <summary>reset shitroid room state.</summary>
     internal void ResetShitroidRoomState()
     {
         _shitroid = null;
@@ -100,6 +111,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         _shitroidCamera = Position16<RoomPixels>.Zero;
     }
 
+    /// <summary>begin shitroid frame.</summary>
     internal void BeginShitroidFrame()
     {
         _shitroidPlmRequests.Clear();
@@ -158,6 +170,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             ShitroidColorRomData.DeadSidehopperDestination);
     }
 
+    /// <summary>copy shitroid target palette.</summary>
     private void CopyShitroidTargetPalette(
         ShitroidEnemyState state,
         ShitroidColorTarget target,
@@ -195,6 +208,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             StepShitroidNormalPalette(state);
     }
 
+    /// <summary>dispatch shitroid state.</summary>
     private void DispatchShitroidState(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -412,6 +426,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>wait for shitroid camera.</summary>
     private void WaitForShitroidCamera(ShitroidEnemyState state)
     {
         if (unchecked((short)(_shitroidCamera.X - 513)) >= 0)
@@ -427,6 +442,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         state.CryEnabled = 1;
     }
 
+    /// <summary>set shitroid scroll pair.</summary>
     private void SetShitroidScrollPair(RoomScrollState highState)
     {
         RoomScrollState scroll0 = _room.Services.RoomScroll.Read(0);
@@ -437,12 +453,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         _room.Services.RoomScroll.Write(3, highState);
     }
 
+    /// <summary>queue shitroid wall plms.</summary>
     private void QueueShitroidWallPlms(PlmHeaderId header)
     {
         _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(0x30, 0x03), header));
         _shitroidPlmRequests.Add(new ShitroidPlmRequest(new(0x1f, 0x03), header));
     }
 
+    /// <summary>attach shitroid to sidehopper.</summary>
     private void AttachShitroidToSidehopper(RoomEnemySlot slot, ShitroidEnemyState state)
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
@@ -459,6 +477,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         state.StateTimer = 320;
     }
 
+    /// <summary>drain shitroid victim.</summary>
     private void DrainShitroidVictim(RoomEnemySlot slot, ShitroidEnemyState state)
     {
         RoomEnemySlot victim = RequireShitroidVictim(slot);
@@ -475,6 +494,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>hover shitroid near samus.</summary>
     private void HoverShitroidNearSamus(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -497,6 +517,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             0x0400);
     }
 
+    /// <summary>select shitroid hover y.</summary>
     private ushort SelectShitroidHoverY(ShitroidEnemyState state, ushort followedY)
     {
         if (state.HoverTimer != 0)
@@ -509,6 +530,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         return 80;
     }
 
+    /// <summary>drain samus with shitroid.</summary>
     private void DrainSamusWithShitroid(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -557,6 +579,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             : unchecked((ushort)(samus.Health - damage));
     }
 
+    /// <summary>follow released samus.</summary>
     private bool FollowReleasedSamus(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -576,6 +599,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             unchecked((short)(samus.Position.X.Whole - 128)) < 0;
     }
 
+    /// <summary>update shitroid horizontal lock.</summary>
     private static void UpdateShitroidHorizontalLock(
         ShitroidEnemyState state,
         ushort currentX,
@@ -595,6 +619,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>gradually accelerate shitroid.</summary>
     private void GraduallyAccelerateShitroid(
         RoomEnemySlot slot,
         ShitroidEnemyState state,
@@ -613,6 +638,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             slot.Position.Y.Whole, target.Y, state.Velocity.Y.RawValue, divisor)));
     }
 
+    /// <summary>shitroid is off screen.</summary>
     private bool ShitroidIsOffScreen(RoomEnemySlot slot)
     {
         if (unchecked((short)slot.Position.Y.Whole) < 0)
@@ -626,6 +652,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         return screenX is < 0 or >= 288;
     }
 
+    /// <summary>accelerate shitroid exactly.</summary>
     private static bool AccelerateShitroidExactly(
         ShitroidEnemyState state,
         ushort acceleration,
@@ -646,6 +673,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         return xArrived && yArrived;
     }
 
+    /// <summary>accelerate shitroid axis.</summary>
     private static (bool Arrived, ushort Velocity) AccelerateShitroidAxis(
         ushort current,
         ushort target,
@@ -670,12 +698,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         return (crossed, velocityWord);
     }
 
+    /// <summary>shitroid actors overlap.</summary>
     private static bool ShitroidActorsOverlap(RoomEnemySlot left, RoomEnemySlot right) =>
         Math.Abs(unchecked((short)(right.Position.X.Whole - left.Position.X.Whole))) <
             left.Radius.X + right.Radius.X + 1 &&
         Math.Abs(unchecked((short)(right.Position.Y.Whole - left.Position.Y.Whole))) <
             left.Radius.Y + right.Radius.Y + 1;
 
+    /// <summary>shitroid overlaps rectangle.</summary>
     private static bool ShitroidOverlapsRectangle(
         RoomEnemySlot slot,
         Position16<RoomPixels> center,
@@ -772,6 +802,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             state.Function = ShitroidAiFunction.BeginExit;
     }
 
+    /// <summary>step shitroid normal palette.</summary>
     internal void StepShitroidNormalPalette(ShitroidEnemyState state)
     {
         byte timer = SnesLittleEndian.HighByte(state.PaletteTimerAndPhase);
@@ -804,6 +835,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>set shitroid instruction.</summary>
     private static void SetShitroidInstruction(RoomEnemySlot slot, ushort pointer)
     {
         slot.CurrentInstruction = pointer;
@@ -811,6 +843,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>require shitroid victim.</summary>
     internal RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
     {
         int victimIndex = slot.SlotIndex + 1;
@@ -819,6 +852,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         return _slotTable._slots[victimIndex];
     }
 
+    /// <summary>require shitroid state.</summary>
     private ShitroidEnemyState RequireShitroidState(RoomEnemySlot slot)
     {
         ShitroidEnemyState state = _shitroid ??
@@ -828,9 +862,11 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         return state;
     }
 
+    /// <summary>require shitroid samus.</summary>
     private static SamusState RequireShitroidSamus(SamusState? samus) => samus ??
         throw new InvalidOperationException("The active Shitroid state requires Samus.");
 
+    /// <summary>predecrement shitroid timer became negative.</summary>
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state)
     {
         NativeWordCounterStep timer = NativeWordCounter.Decrement(state.StateTimer);
@@ -838,6 +874,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         return timer.IsNegative;
     }
 
+    /// <summary>register shitroid bomb reactions.</summary>
     internal void RegisterShitroidBombReactions(EnemyAiTable table)
     {
         // `$A9:F842` reads damage from the selected physical projectile slot, but always reads aim coordinates from
@@ -848,6 +885,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
             c => ResolveShitroidShot(c.Enemy, c.Bomb.Damage, c.OrdinaryProjectiles.Slots[0]));
     }
 
+    /// <summary>register shitroid initialization ai.</summary>
     internal void RegisterShitroidInitializationAi(EnemyAiTable table)
     {
 
@@ -857,6 +895,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register shitroid main ai.</summary>
     internal void RegisterShitroidMainAi(EnemyAiTable table)
     {
 
@@ -866,6 +905,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register shitroid owned instructions.</summary>
     internal void RegisterShitroidOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -875,6 +915,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register shitroid power bomb reactions.</summary>
     internal void RegisterShitroidPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
@@ -884,6 +925,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register shitroid shot reactions.</summary>
     internal void RegisterShitroidShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
@@ -900,6 +942,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register shitroid touch.</summary>
     internal void RegisterShitroidTouch(EnemyAiTable table)
     {
         // `$A9:F789` replaces normal touch damage entirely. Depending on its current cutscene state, contact either

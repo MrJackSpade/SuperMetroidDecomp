@@ -16,8 +16,10 @@ using static XrayTilemapVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 
+/// <summary>Represents xray room display verification.</summary>
 internal static class XrayRoomDisplayVerification
 {
+    /// <summary>Verifies xray room display rules.</summary>
     internal static void VerifyXrayRoomDisplayRules()
     {
         // Keep the literal native comparisons independent of the production catalog.
@@ -45,6 +47,7 @@ internal static class XrayRoomDisplayVerification
         Console.WriteLine("  X-ray room rules: all room/boss words and Fireflea precedence agree with native comparisons.");
     }
 
+    /// <summary>Looks up stream5 xray room rules command.</summary>
     [VerificationCommand("--lookup-stream5-xray-room-rules")]
     internal static int LookupStream5XrayRoomRulesCommand()
     {
@@ -52,6 +55,7 @@ internal static class XrayRoomDisplayVerification
         return 0;
     }
 
+    /// <summary>Xray reveal command.</summary>
     [VerificationCommand("--xray-reveal")]
     internal static int XrayRevealCommand()
     {

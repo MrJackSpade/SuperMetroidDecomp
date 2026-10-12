@@ -2,17 +2,27 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup glass program verification.</summary>
 internal static class LookupGlassProgramVerification
 {
+    /// <summary>Verifies glass controls.</summary>
     internal static void VerifyGlassControls(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 0);
+    /// <summary>Verifies glass draws.</summary>
     internal static void VerifyGlassDraws(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 1);
+    /// <summary>Verifies glass targets.</summary>
     internal static void VerifyGlassTargets(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 2);
+    /// <summary>Verifies glass callback.</summary>
     internal static void VerifyGlassCallback(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 3);
+    /// <summary>Verifies glass events.</summary>
     internal static void VerifyGlassEvents(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 4);
+    /// <summary>Verifies glass boss mask.</summary>
     internal static void VerifyGlassBossMask(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 5);
+    /// <summary>Verifies glass thresholds.</summary>
     internal static void VerifyGlassThresholds(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 6);
+    /// <summary>Verifies glass shard arguments.</summary>
     internal static void VerifyGlassShardArguments(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 7);
 
+    /// <summary>Verifies glass field.</summary>
     private static void VerifyGlassField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand boundaries. Values come only from original ROM.
@@ -56,6 +66,7 @@ internal static class LookupGlassProgramVerification
             "Glass independent field byte count");
     }
 
+    /// <summary>Glass field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for glass field")]
     private static byte GlassFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

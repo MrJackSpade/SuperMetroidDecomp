@@ -6,13 +6,20 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable, bounded post-credit labels with cinematic behavior kept in code.</summary>
 public sealed class EndingTextPresentation
 {
+    /// <summary>Stores result overrides.</summary>
     private readonly Dictionary<int, ushort> resultOverrides = new();
+    /// <summary>Stores result text.</summary>
     private readonly string resultText;
+    /// <summary>Stores copyright panel.</summary>
     private readonly ushort[] copyrightPanel;
+    /// <summary>Stores subtitle overrides.</summary>
     private readonly Dictionary<int, ushort> subtitleOverrides = new();
+    /// <summary>Stores percentage.</summary>
     private readonly EndingTextCharacter[] percentage;
+    /// <summary>Stores final message.</summary>
     private readonly EndingTextCharacter[] finalMessage;
 
+    /// <summary>Initializes a new ending text presentation instance.</summary>
     private EndingTextPresentation(
         ushort[] resultPanel,
         ushort[] copyrightPanel,
@@ -53,7 +60,9 @@ public sealed class EndingTextPresentation
     /// <summary>Calculated subtitle cells, with independent supplied edits taking precedence.</summary>
     public readonly struct SubtitleSequence : IReadOnlyList<ushort>
     {
+        /// <summary>Stores owner.</summary>
         private readonly EndingTextPresentation owner;
+        /// <summary>Initializes a new subtitle sequence instance.</summary>
         internal SubtitleSequence(EndingTextPresentation owner) => this.owner = owner;
         /// <summary>Number of row-major subtitle tilemap words: two rows of 32 cells.</summary>
         public int Count => EndingTextLayoutDefinitions.SubtitleCellCount;
@@ -80,6 +89,7 @@ public sealed class EndingTextPresentation
         {
             for (int cell = 0; cell < Count; cell++) yield return this[cell];
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Gets the precompiled glyph placements for the item-percentage labels ($8C:DFDB) or final message ($8C:E0AF); dynamic percentage digits and cinematic timing are supplied by the frontend.</summary>
@@ -156,6 +166,7 @@ public sealed class EndingTextPresentation
         output.Write(bytes);
     }
 
+    /// <summary>apply.</summary>
     private static void Apply(ushort[] target, string text,
         EndingTextRegionDefinition region, int rows, string identity)
     {
@@ -171,6 +182,7 @@ public sealed class EndingTextPresentation
         }
     }
 
+    /// <summary>compile.</summary>
     private static EndingTextCharacter[] Compile(string text,
         EndingTextRegionDefinition region, string identity)
     {

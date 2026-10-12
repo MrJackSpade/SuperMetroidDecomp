@@ -8,6 +8,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Finite adapter for the identified palette-program coverage gap; no ROM or gameplay reads.</summary>
 internal static class MotherBrainRoomFlashAudit
 {
+    /// <summary>Installs.</summary>
     internal static void Install(ResourceIndex exports)
     {
         // The importer maps each declared pointer operand to a JSON row; the
@@ -19,13 +20,16 @@ internal static class MotherBrainRoomFlashAudit
             exports.Add(ResourceDomains.MotherBrainRoomFlash, Key(pointer));
     }
 
+    /// <summary>Extracts declaration document.</summary>
     internal static byte[] ExtractDeclarationDocument() =>
         MotherBrainRoomColorExtractor.Extract(ConstructedColorSource());
 
+    /// <summary>Inspect.</summary>
     internal static void Inspect(string source, ResourceIndex exports, AuditReport report) =>
         RequireOperands(Enumerable.Range(0, MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             .Select(MotherBrainRoomPaletteProgramDefinitions.PresentationWordAddress).ToArray(), source, exports, report);
 
+    /// <summary>Requires operands.</summary>
     internal static void RequireOperands(ReadOnlySpan<ushort> operands, string source,
         ResourceIndex exports, AuditReport report)
     {
@@ -37,6 +41,7 @@ internal static class MotherBrainRoomFlashAudit
             exports.Count(ResourceDomains.MotherBrainRoomFlash)));
     }
 
+    /// <summary>Key.</summary>
     private static string Key(ushort pointer) => ResourceIndex.Address(
         MotherBrainRoomColorRomData.SourceBank >> 16, pointer);
 

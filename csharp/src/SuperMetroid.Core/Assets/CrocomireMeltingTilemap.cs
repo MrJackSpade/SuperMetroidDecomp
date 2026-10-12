@@ -13,11 +13,16 @@ internal sealed class CrocomireMeltingTilemap
     private const ushort Blank = 0x0338;
     /// <summary>Both native illustrations use BG palette7 and priority1, with no reflections.</summary>
     private const ushort IllustrationStyle = 0x3c00;
+    /// <summary>Defines atlas columns.</summary>
     private const int AtlasColumns = 16;
+    /// <summary>Defines bg columns.</summary>
     private const int BgColumns = 32;
+    /// <summary>Stores second.</summary>
     private readonly bool second;
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<int, ushort> edits = [];
 
+    /// <summary>Initializes a new crocomire melting tilemap instance.</summary>
     internal CrocomireMeltingTilemap(bool second, ReadOnlySpan<ushort> supplied)
     {
         this.second = second;
@@ -27,6 +32,7 @@ internal sealed class CrocomireMeltingTilemap
             if (supplied[index] != Calculate(index)) edits.Add(index, supplied[index]);
     }
 
+    /// <summary>Words.</summary>
     internal ushort[] Words()
     {
         var words = new ushort[CrocomireMeltingArtworkFormat.TilemapCellCount];
@@ -38,6 +44,7 @@ internal sealed class CrocomireMeltingTilemap
     /// <summary>Increasing atlas rows are contiguous source strips, sixteen tiles apart.</summary>
     private static int Strip(int first, int column, int start) => first + (column - start) * AtlasColumns;
 
+    /// <summary>Calculate.</summary>
     private ushort Calculate(int index)
     {
         int row = index / BgColumns, column = index % BgColumns;

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -12,11 +12,13 @@ namespace SuperMetroid.Core.Game;
 internal sealed class EnemySlotTable
 {
 
+    /// <summary>Stores slots.</summary>
     internal readonly RoomEnemySlot[] _slots = new RoomEnemySlot[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>All 32 physical enemy slots, including unused zero-pointer slots.</summary>
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
 
+    /// <summary>slot from native index.</summary>
     internal RoomEnemySlot SlotFromNativeIndex(ushort nativeIndex)
     {
         if ((nativeIndex & (RoomEnemySystem.NativeSlotSize - 1)) != 0 || nativeIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize)

@@ -149,6 +149,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         return WallLoopWord((ushort)(RidleyEscapeMode7LeftWall + 10 * (index / 4)), index % 4);
     }
 
+    /// <summary>Wall loop word.</summary>
     private static InstructionMechanicsWord WallLoopWord(ushort start, int index) => index switch
     {
         0 => new(start, (ushort)CeresDoorInstruction.SetAsIntangible),
@@ -157,6 +158,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         _ => new((ushort)(start + 8), (ushort)(start + 2)),
     };
 
+    /// <summary>Normal door word.</summary>
     private static InstructionMechanicsWord NormalDoorWord(int index, int facing)
     {
         int start = NormalFacingRight + facing * (NormalFacingLeft - NormalFacingRight);
@@ -192,6 +194,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
         return new((ushort)(start + offset), value);
     }
 
+    /// <summary>Ridley word.</summary>
     private static InstructionMechanicsWord RidleyWord(int index)
     {
         if (index is >= 5 and < 9)
@@ -224,7 +227,9 @@ internal abstract class CeresDoorInstructionProgramDefinitions
     /// <summary>Spritemap_CeresDoor_RidleyEscapeMode7RightWall at $A6:FB2F.</summary>
     private const ushort RightWallSpritemap = 0xfb2f;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 97;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 33;
 
     /// <summary>
@@ -243,6 +248,7 @@ internal abstract class CeresDoorInstructionProgramDefinitions
             Math.Min(openingPhase, 2) * wideRecord + Math.Max(openingPhase - 2, 0) * narrowRecord);
     }
 
+    /// <summary>Presentation word.</summary>
     internal static (ushort Address, ushort Frame) PresentationWord(int index)
     {
         if ((uint)index >= PresentationWordCount)

@@ -13,6 +13,7 @@ internal static class BombTorizoMovementDefinitions
     // no second stock sequence is stored (see residualScalarInputsReview).
     private static readonly short[] LeftPostureX = [-9, -6, -7, 5, -16, -7, 0, 0];
 
+    /// <summary>Stores posture y.</summary>
     private static readonly short[] PostureY =
         [0, -6, -6, -7, 0, 0, 0, 0];
 

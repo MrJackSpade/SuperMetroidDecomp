@@ -9,10 +9,14 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable BG3 tile references for the six cartridge room-FX pages.</summary>
 public sealed class RoomFxLayer3TilemapCatalog
 {
+    /// <summary>Stores lava.</summary>
     private readonly byte[]? lava, acid, water;
+    /// <summary>Stores spores.</summary>
     private readonly RoomFxSporeTilemap spores;
+    /// <summary>Stores rain.</summary>
     private readonly RoomFxAtmosphereTilemap rain, fog;
 
+    /// <summary>Initializes a new room fx layer3 tilemap catalog instance.</summary>
     private RoomFxLayer3TilemapCatalog(byte[] lava, byte[] acid, byte[] water,
         byte[] spores, byte[] rain, byte[] fog)
     {
@@ -94,6 +98,7 @@ public sealed class RoomFxLayer3TilemapCatalog
         _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
     };
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -137,9 +142,12 @@ public static class RoomFxLayer3TilemapFormat
     /// </summary>
     public static IReadOnlyList<RoomFxType> Types { get; } = new CalculatedTypes();
 
+    /// <summary>Represents calculated types.</summary>
     private sealed class CalculatedTypes : IReadOnlyList<RoomFxType>
     {
+        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => 6;
+        /// <summary>Accesses a value by index or range.</summary>
         public RoomFxType this[int index] => index switch
         {
             0 => RoomFxType.Lava,
@@ -151,11 +159,13 @@ public static class RoomFxLayer3TilemapFormat
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
 
+        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<RoomFxType> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
 
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

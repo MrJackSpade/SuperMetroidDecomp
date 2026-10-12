@@ -17,6 +17,7 @@ using SuperMetroid.AssetExtraction;
 /// </summary>
 internal static class AndroidBundleReplay
 {
+    /// <summary>Runs.</summary>
     public static int Run(string bundlePath, string recordingName)
     {
         if (Path.GetFileName(recordingName) != recordingName || !recordingName.EndsWith(".smrec", StringComparison.Ordinal))
@@ -90,6 +91,7 @@ internal static class AndroidBundleReplay
         }
     }
 
+    /// <summary>Required.</summary>
     private static ZipArchiveEntry Required(ZipArchive bundle, string name)
     {
         var entries = bundle.Entries.Where(entry => entry.FullName == name).ToArray();

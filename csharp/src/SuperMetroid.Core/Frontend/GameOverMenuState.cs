@@ -10,22 +10,37 @@ namespace SuperMetroid.Core.Frontend;
 public sealed class GameOverMenuState
 {
     // OBJ layer reused across renders; the span overload clears it first. Never saved state.
+    /// <summary>Stores object layer scratch.</summary>
     [NonSerialized] private Rgba32[]? objectLayerScratch;
     // Final frame, reused by every render: a returned frame is valid until this scene renders again.
+    /// <summary>Stores frame buffer.</summary>
     [NonSerialized] private Rgba32[]? frameBuffer;
 
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState audio;
+    /// <summary>Stores ppu.</summary>
     private readonly MenuPpuState ppu;
+    /// <summary>Stores oam.</summary>
     private readonly OamBuffer oam = new();
+    /// <summary>Stores controller.</summary>
     private readonly ControllerInputState controller = new();
+    /// <summary>Stores brightness.</summary>
     private int brightness;
+    /// <summary>Stores missile timer.</summary>
     private int missileTimer = 1;
+    /// <summary>Stores missile frame.</summary>
     private int missileFrame;
+    /// <summary>Stores baby instruction pointer.</summary>
     private ushort babyInstructionPointer;
+    /// <summary>Stores baby instruction timer.</summary>
     private ushort babyInstructionTimer;
+    /// <summary>Stores baby spritemap.</summary>
     private ushort babySpritemap = GameOverRomData.BabyAnimation.InitialSpritemap;
+    /// <summary>Stores continue loads ceres arrival.</summary>
     private readonly bool continueLoadsCeresArrival;
+    /// <summary>Stores map presentation.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
 
     /// <summary>Creates the game-over scene with installed artwork and its BG1 tilemap, leaving music, animation, and fade initialization for the first update.</summary>
@@ -231,6 +246,7 @@ public sealed class GameOverMenuState
         return output;
     }
 
+    /// <summary>load game over tilemap.</summary>
     private void LoadGameOverTilemap(GameOverPresentation presentation) =>
         presentation.LoadTilemapTo(new MenuVram(ppu.Vram).Bg1Tilemap);
 
@@ -245,6 +261,7 @@ public sealed class GameOverMenuState
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
+    /// <summary>prepare render oam.</summary>
     private void PrepareRenderOam()
     {
         oam.BeginFrame();
@@ -265,6 +282,7 @@ public sealed class GameOverMenuState
         StepCompiledBabyMetroid();
     }
 
+    /// <summary>step compiled baby metroid.</summary>
     private void StepCompiledBabyMetroid()
     {
         if (babyInstructionTimer == 0)
@@ -292,6 +310,7 @@ public sealed class GameOverMenuState
         mapPresentation!.GameOver.ApplyBabyPalette(ppu.Cgram, current.Palette);
     }
 
+    /// <summary>queue compiled baby sound.</summary>
     private void QueueCompiledBabySound(GameOverBabySound sound)
     {
         SoundEffectId effect = sound switch
@@ -304,6 +323,7 @@ public sealed class GameOverMenuState
         audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);
     }
 
+    /// <summary>step missile animation.</summary>
     private void StepMissileAnimation()
     {
         if (--missileTimer != 0)

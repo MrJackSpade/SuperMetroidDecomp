@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -8,26 +8,40 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Maridia large snail species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
 {
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
 
+    /// <summary>Initializes a new maridia large snail behavior instance.</summary>
     internal MaridiaLargeSnailBehavior(EnemyTerrain terrain, EnemyCollision collision)
     {
         _terrain = terrain;
         _collision = collision;
     }
 
+    /// <summary>Stores maridia large snail pushing xdistance.</summary>
     private const ushort MaridiaLargeSnailPushingXDistance = 0x0018;
+    /// <summary>Stores maridia large snail pushing ydistance.</summary>
     private const ushort MaridiaLargeSnailPushingYDistance = 0x0020;
+    /// <summary>Stores maridia large snail attack xdistance.</summary>
     private const ushort MaridiaLargeSnailAttackXDistance = 0x0020;
+    /// <summary>Stores maridia large snail initial attack cooldown.</summary>
     private const ushort MaridiaLargeSnailInitialAttackCooldown = 0x0080;
+    /// <summary>Stores maridia large snail initial bounce count.</summary>
     private const ushort MaridiaLargeSnailInitialBounceCount = 3;
+    /// <summary>Stores maridia large snail bounce acceleration.</summary>
     private const ushort MaridiaLargeSnailBounceAcceleration = 0x0180;
+    /// <summary>Stores maridia large snail maximum fall index.</summary>
     private const ushort MaridiaLargeSnailMaximumFallIndex = 0x4000;
+    /// <summary>Stores maridia large snail impact index loss.</summary>
     private const ushort MaridiaLargeSnailImpactIndexLoss = 0x1000;
+    /// <summary>Stores maridia large snail splash sound.</summary>
     private const ushort MaridiaLargeSnailSplashSound = 0x000e;
+    /// <summary>Stores maridia large snail shot sound.</summary>
     private const ushort MaridiaLargeSnailShotSound = 0x0057;
 
+    /// <summary>Stores maridia large snail states.</summary>
     internal readonly MaridiaLargeSnailEnemyState?[] _maridiaLargeSnailStates =
         new MaridiaLargeSnailEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -37,6 +51,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     /// </summary>
     public ushort? LastMaridiaLargeSnailSoundEffect { get; private set; }
 
+    /// <summary>Resets maridia large snail room state.</summary>
     internal void ResetMaridiaLargeSnailRoomState()
     {
         Array.Clear(_maridiaLargeSnailStates);
@@ -111,6 +126,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         UpdateMaridiaLargeSnailInputStop(slot, state, controllerInput);
     }
 
+    /// <summary>Runs maridia large snail idle.</summary>
     private void RunMaridiaLargeSnailIdle(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -145,6 +161,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
+    /// <summary>Runs maridia large snail rolling.</summary>
     private void RunMaridiaLargeSnailRolling(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -202,6 +219,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         MoveMaridiaLargeSnailHorizontally(slot, state, level);
     }
 
+    /// <summary>Runs maridia large snail attack.</summary>
     private static void RunMaridiaLargeSnailAttack(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
@@ -216,6 +234,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         state.Function = MaridiaLargeSnailEnemyFunction.Rolling;
     }
 
+    /// <summary>Runs maridia large snail bounce.</summary>
     private void RunMaridiaLargeSnailBounce(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -278,6 +297,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves maridia large snail horizontally.</summary>
     private void MoveMaridiaLargeSnailHorizontally(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -316,6 +336,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         InstallMaridiaLargeSnailInstructionList(slot, state);
     }
 
+    /// <summary>Updates maridia large snail samus proximity.</summary>
     private static void UpdateMaridiaLargeSnailSamusProximity(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -339,6 +360,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         state.SamusIsLeft = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
     }
 
+    /// <summary>Carry samus with maridia large snail.</summary>
     private static void CarrySamusWithMaridiaLargeSnail(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -364,6 +386,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(deltaX)), 0);
     }
 
+    /// <summary>Updates maridia large snail input stop.</summary>
     private static void UpdateMaridiaLargeSnailInputStop(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state,
@@ -459,6 +482,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Installs maridia large snail instruction list.</summary>
     internal static void InstallMaridiaLargeSnailInstructionList(
         RoomEnemySlot slot,
         MaridiaLargeSnailEnemyState state)
@@ -503,10 +527,12 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
         LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
 
+    /// <summary>Requires maridia large snail state.</summary>
     private MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>
         _maridiaLargeSnailStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Maridia Large Snail state.");
 
+    /// <summary>Registers maridia large snail bomb reactions.</summary>
     internal void RegisterMaridiaLargeSnailBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
@@ -516,6 +542,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers maridia large snail initialization ai.</summary>
     internal void RegisterMaridiaLargeSnailInitializationAi(EnemyAiTable table)
     {
 
@@ -525,6 +552,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers maridia large snail main ai.</summary>
     internal void RegisterMaridiaLargeSnailMainAi(EnemyAiTable table)
     {
 
@@ -539,6 +567,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers maridia large snail owned instructions.</summary>
     internal void RegisterMaridiaLargeSnailOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -548,6 +577,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers maridia large snail shot reactions.</summary>
     internal void RegisterMaridiaLargeSnailShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
@@ -577,6 +607,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers maridia large snail touch.</summary>
     internal void RegisterMaridiaLargeSnailTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&

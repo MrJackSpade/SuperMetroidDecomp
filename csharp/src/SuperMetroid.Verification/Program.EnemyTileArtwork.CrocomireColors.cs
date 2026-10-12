@@ -7,8 +7,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy tile artwork crocomire colors verification.</summary>
 internal static class EnemyTileArtworkCrocomireColorsVerification
 {
+    /// <summary>Verifies installed crocomire colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire palette bands")]
     internal static void VerifyInstalledCrocomireColors(

@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Four editable 3x2 Samus-eye BG2 rectangles; blink timing stays in code.</summary>
 public sealed class IntroEyeTilemapPresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly EyeRectangle[] frames;
 
+    /// <summary>Initializes a new intro eye tilemap presentation instance.</summary>
     private IntroEyeTilemapPresentation(ushort[][] frames) => this.frames = frames.Select((words, index) => new EyeRectangle(words, index)).ToArray();
 
     /// <summary>Identity of every selected eye rectangle in its compiled blink-selector order.</summary>
@@ -26,10 +28,14 @@ public sealed class IntroEyeTilemapPresentation
         return frames[index].Words;
     }
 
+    /// <summary>Represents eye rectangle.</summary>
     private sealed class EyeRectangle
     {
+        /// <summary>Stores frame.</summary>
         private readonly int frame;
+        /// <summary>Stores supplied.</summary>
         private readonly ushort[]? supplied;
+        /// <summary>Initializes a new eye rectangle instance.</summary>
         internal EyeRectangle(ushort[] words, int frame)
         {
             this.frame = frame;
@@ -40,8 +46,10 @@ public sealed class IntroEyeTilemapPresentation
                 break;
             }
         }
+        /// <summary>Calculate.</summary>
         private ushort Calculate(int cell) => unchecked((ushort)(IntroEyeTilemapFormat.FirstWord(frame) +
             cell % IntroEyeTilemapFormat.Columns + cell / IntroEyeTilemapFormat.Columns * IntroEyeTilemapFormat.NativeRowStride));
+        /// <summary>Gets or sets words.</summary>
         internal ReadOnlySpan<ushort> Words
         {
             get
@@ -143,6 +151,7 @@ public static class IntroEyeTilemapFormat
     private const int ClosedTile = 0x33a;
     /// <summary>$8C:D785-D7BF: selected portrait palette three, no priority or flips.</summary>
     private const int PortraitPalette = 3;
+    /// <summary>First word.</summary>
     internal static ushort FirstWord(int frame)
     {
         int tile = frame switch

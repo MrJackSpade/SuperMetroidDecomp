@@ -21,6 +21,7 @@ namespace SuperMetroid.Core.Hardware;
 [SnesEncodingOwner]
 public static class CartridgeWordReads
 {
+    /// <summary>Provides cartridge word-reading operations for asset extraction.</summary>
     extension(IImportCartridgeSource cartridge)
     {
         /// <summary>Reads the little-endian cartridge word at <paramref name="cpuAddress"/> on the linear 24-bit bus.</summary>

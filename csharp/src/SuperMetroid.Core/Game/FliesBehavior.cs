@@ -1,18 +1,23 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Flies species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FliesBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Initializes a new flies behavior instance.</summary>
     internal FliesBehavior(EnemyRoomBinding room)
     {
         _room = room;
     }
 
+    /// <summary>Defines fly attack horizontal range.</summary>
     private const int FlyAttackHorizontalRange = 0x70;
+    /// <summary>Stores fly states.</summary>
     internal readonly FlyEnemyState?[] _flyStates = new FlyEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
+    /// <summary>initialize fly.</summary>
     internal void InitializeFly(RoomEnemySlot slot)
     {
         var state = new FlyEnemyState(slot)
@@ -26,6 +31,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>run fly main.</summary>
     private void RunFlyMain(RoomEnemySlot slot, SamusState? samus)
     {
         if (samus is null)
@@ -61,6 +67,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>run fly circle.</summary>
     private static void RunFlyCircle(
         RoomEnemySlot slot,
         FlyEnemyState state,
@@ -88,6 +95,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>set fly to attack samus.</summary>
     private static void SetFlyToAttackSamus(
         RoomEnemySlot slot,
         FlyEnemyState state,
@@ -102,6 +110,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         state.Function = FlyEnemyFunction.AttackSamus;
     }
 
+    /// <summary>run fly attack.</summary>
     private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
@@ -117,6 +126,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         state.Function = FlyEnemyFunction.Retreat;
     }
 
+    /// <summary>move fly according to angle.</summary>
     private static void MoveFlyAccordingToAngle(RoomEnemySlot slot, FlyEnemyState state)
     {
         int tableIndex = state.Angle >> 1;
@@ -124,11 +134,13 @@ internal sealed class FliesBehavior : IEnemySpecies
         slot.Position = slot.Position.AdvanceY(new SnesSignedEightEight(unchecked((ushort)ReadSignedSineCosine(tableIndex))).ToSixteenSixteenDelta());
     }
 
+    /// <summary>move fly according to velocities.</summary>
     private static void MoveFlyAccordingToVelocities(RoomEnemySlot slot, FlyEnemyState state)
     {
         slot.Position = slot.Position.Advance(state.Velocity.ToSixteenSixteen());
     }
 
+    /// <summary>read signed sine cosine.</summary>
     internal static short ReadSignedSineCosine(int index)
     {
         // The backing table begins with negative cosine at index zero, sine at index 64,
@@ -136,10 +148,12 @@ internal sealed class FliesBehavior : IEnemySpecies
         return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
     }
 
+    /// <summary>require fly state.</summary>
     private FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
         _flyStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized fly state.");
 
+    /// <summary>register flies initialization ai.</summary>
     internal void RegisterFliesInitializationAi(EnemyAiTable table)
     {
 
@@ -149,6 +163,7 @@ internal sealed class FliesBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register flies main ai.</summary>
     internal void RegisterFliesMainAi(EnemyAiTable table)
     {
 

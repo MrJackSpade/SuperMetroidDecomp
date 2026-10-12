@@ -63,7 +63,9 @@ public sealed record WordReadMatch(
 /// <summary>Recognizes adjacent byte reads combined into a little-endian word (#223).</summary>
 public static class WordReadMatcher
 {
+    /// <summary>Stores byte methods.</summary>
     private static readonly string[] ByteMethods = ["ReadCartridgeByte", "ReadWorkRamByte", "ReadSaveRamByte"];
+    /// <summary>Stores sources.</summary>
     private static readonly string[] Sources =
         ["SuperMetroid.Core.Hardware.IImportCartridgeSource", "SuperMetroid.Core.Hardware.ISnesMutableMemory"];
 
@@ -112,6 +114,7 @@ public static class WordReadMatcher
     }
 
     // The low word of a 24-bit value: an already canonical cartridge word read.
+    /// <summary>canonical word read.</summary>
     private static ByteReadCall? CanonicalWordRead(ExpressionSyntax expression, SemanticModel model)
     {
         if (expression is not InvocationExpressionSyntax
@@ -139,9 +142,11 @@ public static class WordReadMatcher
         return new(receiver, "ReadCartridgeByte", invocation.ArgumentList.Arguments[0].Expression, viaAddressSpace, progression);
     }
 
+    /// <summary>is combine.</summary>
     private static bool IsCombine(BinaryExpressionSyntax expression) =>
         expression.IsKind(SyntaxKind.BitwiseOrExpression) || expression.IsKind(SyntaxKind.AddExpression);
 
+    /// <summary>flatten.</summary>
     private static void Flatten(ExpressionSyntax expression, SyntaxKind kind, List<ExpressionSyntax> operands)
     {
         if (expression is BinaryExpressionSyntax binary && binary.IsKind(kind))
@@ -155,6 +160,7 @@ public static class WordReadMatcher
         }
     }
 
+    /// <summary>unwrap.</summary>
     private static ExpressionSyntax Unwrap(ExpressionSyntax expression)
     {
         while (true)
@@ -177,6 +183,7 @@ public static class WordReadMatcher
     }
 
     // A covering (ushort) cast or unchecked(...) around the whole combination belongs to the replacement.
+    /// <summary>covering.</summary>
     private static ExpressionSyntax Covering(ExpressionSyntax expression)
     {
         while (expression.Parent is ParenthesizedExpressionSyntax or CheckedExpressionSyntax or
@@ -187,9 +194,11 @@ public static class WordReadMatcher
         return expression;
     }
 
+    /// <summary>Represents byte read call.</summary>
     private sealed record ByteReadCall(ExpressionSyntax Receiver, string Method, ExpressionSyntax Address, bool ViaAddressSpace,
         WordReadProgression? WordProgression = null);
 
+    /// <summary>byte read.</summary>
     private static ByteReadCall? ByteRead(ExpressionSyntax expression, SemanticModel model)
     {
         if (expression is not InvocationExpressionSyntax
@@ -213,9 +222,11 @@ public static class WordReadMatcher
         return OwnsByteRead(method) ? new(member.Expression, name, address, ViaAddressSpace: false) : null;
     }
 
+    /// <summary>Stores address space import extensions.</summary>
     private const string AddressSpaceImportExtensions = "SuperMetroid.Core.Hardware.SnesCartridgeImportExtensions";
 
     // The byte read must be the source interface's own member or an implementation of it.
+    /// <summary>owns byte read.</summary>
     private static bool OwnsByteRead(IMethodSymbol method)
     {
         INamedTypeSymbol owner = method.ContainingType;
@@ -233,6 +244,7 @@ public static class WordReadMatcher
         return false;
     }
 
+    /// <summary>progression.</summary>
     private static WordReadProgression? Progression(ExpressionSyntax low, ExpressionSyntax high, int distance, SemanticModel model)
     {
         low = StripParentheses(low);
@@ -262,9 +274,11 @@ public static class WordReadMatcher
         return null;
     }
 
+    /// <summary>Represents bank offset.</summary>
     private sealed record BankOffset(ExpressionSyntax Bank, ExpressionSyntax Offset, bool Wrapped);
 
     // bank | offset, or CartridgeBankWindow.At(window, offset); the offset may be wrapped to 16 bits.
+    /// <summary>bank relative.</summary>
     private static BankOffset? BankRelative(ExpressionSyntax address, SemanticModel model)
     {
         address = StripParentheses(address);
@@ -281,9 +295,11 @@ public static class WordReadMatcher
     }
 
     // The constant distance from one address to another when both share their non-constant terms.
+    /// <summary>distance.</summary>
     private static long? Distance(ExpressionSyntax from, ExpressionSyntax to, SemanticModel model) =>
         Normalize(from, model) is { } a && Normalize(to, model) is { } b && a.Terms == b.Terms ? b.Constant - a.Constant : null;
 
+    /// <summary>normalize.</summary>
     private static (string Terms, long Constant)? Normalize(ExpressionSyntax expression, SemanticModel model)
     {
         var terms = new List<string>();
@@ -315,11 +331,14 @@ public static class WordReadMatcher
         return (string.Join(" ", terms), constant);
     }
 
+    /// <summary>is integral.</summary>
     private static bool IsIntegral(object value) => value is byte or sbyte or short or ushort or int or uint or long;
 
     // Structural equality that ignores trivia: `a` and the `a ` of `a + 1` are the same address.
+    /// <summary>same.</summary>
     private static bool Same(SyntaxNode left, SyntaxNode right) => SyntaxFactory.AreEquivalent(left, right, topLevel: false);
 
+    /// <summary>strip parentheses.</summary>
     private static ExpressionSyntax StripParentheses(ExpressionSyntax expression)
     {
         while (expression is ParenthesizedExpressionSyntax parenthesized)
@@ -328,6 +347,7 @@ public static class WordReadMatcher
     }
 
     // unchecked((ushort)(x)), (ushort)(x), or x & 0xffff: a 16-bit wrapped offset.
+    /// <summary>wrapped16.</summary>
     private static ExpressionSyntax? Wrapped16(ExpressionSyntax expression, SemanticModel model)
     {
         expression = StripParentheses(expression);
@@ -355,6 +375,7 @@ public sealed class WordReadAnalyzer : DiagnosticAnalyzer
     /// <summary>A word rebuilt from two byte reads.</summary>
     public const string ReconstructedWordId = "SME6350";
 
+    /// <summary>Stores reconstructed word rule.</summary>
     private static readonly DiagnosticDescriptor ReconstructedWordRule = new(
         ReconstructedWordId,
         "Read the word through its canonical operation",
@@ -376,6 +397,7 @@ public sealed class WordReadAnalyzer : DiagnosticAnalyzer
         context.RegisterSyntaxNodeAction(Analyze, SyntaxKind.BitwiseOrExpression, SyntaxKind.AddExpression);
     }
 
+    /// <summary>analyze.</summary>
     private static void Analyze(SyntaxNodeAnalysisContext context)
     {
         for (INamedTypeSymbol? owner = context.ContainingSymbol?.ContainingType; owner is not null; owner = owner.ContainingType)

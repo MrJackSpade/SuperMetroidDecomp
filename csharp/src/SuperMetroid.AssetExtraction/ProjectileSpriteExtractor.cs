@@ -21,6 +21,7 @@ public static class ProjectileSpriteExtractor
         return json;
     }
 
+    /// <summary>Extracts frames.</summary>
     internal static byte[] ExtractFrames(ISnesAddressSpace bus, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();

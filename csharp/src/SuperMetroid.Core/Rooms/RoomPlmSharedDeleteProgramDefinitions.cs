@@ -11,6 +11,7 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
     /// <summary>$84:AAE4, high byte of the same sole opcode.</summary>
     internal const ushort End = Start + 1;
 
+    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == Start)
@@ -22,6 +23,7 @@ internal static class RoomPlmSharedDeleteProgramDefinitions
         return false;
     }
 
+    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         // The low then high byte of the sole opcode word.

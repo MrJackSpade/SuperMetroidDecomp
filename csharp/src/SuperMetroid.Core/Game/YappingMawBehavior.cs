@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,11 +6,16 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Yapping Maw species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class YappingMawBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Stores scroll cap.</summary>
     private readonly SamusScrollCap _scrollCap;
 
+    /// <summary>Initializes a new yapping maw behavior instance.</summary>
     internal YappingMawBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap)
     {
         _room = room;
@@ -63,12 +68,18 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Stores yapping maw grab safety distance.</summary>
     private const ushort YappingMawGrabSafetyDistance = 32;
+    /// <summary>Stores yapping maw maximum curl.</summary>
     private const ushort YappingMawMaximumCurl = 128;
+    /// <summary>Stores yapping maw grab cooldown frames.</summary>
     private const ushort YappingMawGrabCooldownFrames = 48;
+    /// <summary>Stores yapping maw retracted delay frames.</summary>
     private const ushort YappingMawRetractedDelayFrames = 64;
+    /// <summary>Stores yapping maw attack sound.</summary>
     private const ushort YappingMawAttackSound = 0x002f;
 
+    /// <summary>Stores yapping maw states.</summary>
     internal readonly YappingMawEnemyState?[] _yappingMawStates =
         new YappingMawEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -335,6 +346,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
             PositionSamusInYappingMaw(slot, state, samus);
     }
 
+    /// <summary>Adds with carry.</summary>
     private static ushort AddWithCarry(ushort value, ushort addend, ref int carry)
     {
         int sum = value + addend + carry;
@@ -446,6 +458,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         ReleaseSamusFromYappingMaw(state, samus);
     }
 
+    /// <summary>Release samus from yapping maw.</summary>
     private static void ReleaseSamusFromYappingMaw(
         YappingMawEnemyState state,
         SamusState? samus)
@@ -480,6 +493,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Selects yapping maw frozen palette.</summary>
     private static ushort SelectYappingMawFrozenPalette(
         ushort originalPaletteBits,
         ushort frozenTimer)
@@ -502,12 +516,14 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         state.HeldSamusOffset = YappingMawRomData.HeldSamusOffset(directionIndex);
     }
 
+    /// <summary>Play yapping maw attack sound.</summary>
     private void PlayYappingMawAttackSound(YappingMawEnemyState state)
     {
         if (!state.IsOffScreen)
             LastYappingMawSoundEffect = YappingMawAttackSound;
     }
 
+    /// <summary>Position yapping maw body projectile.</summary>
     private static void PositionYappingMawBodyProjectile(
         YappingMawEnemyState state,
         int index,
@@ -523,6 +539,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
     private static Position16<RoomPixels> YappingMawLinkPosition(YappingMawEnemyState state, int segment) =>
         state.Origin + state.SegmentOffsets[segment];
 
+    /// <summary>Indicates whether yapping maw point off screen.</summary>
     private static bool IsYappingMawPointOffScreen(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera) =>
@@ -585,10 +602,12 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | 0xff00));
     }
 
+    /// <summary>Requires yapping maw state.</summary>
     internal YappingMawEnemyState RequireYappingMawState(RoomEnemySlot slot) =>
         _yappingMawStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Yapping Maw slot {slot.SlotIndex} has no initialized native state.");
 
+    /// <summary>Registers yapping maw bomb reactions.</summary>
     internal void RegisterYappingMawBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
@@ -598,6 +617,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers yapping maw initialization ai.</summary>
     internal void RegisterYappingMawInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_YappingMaw, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw, (slot, level, samus, controllerInput, cameraX) =>
@@ -606,6 +626,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers yapping maw main ai.</summary>
     internal void RegisterYappingMawMainAi(EnemyAiTable table)
     {
 
@@ -619,6 +640,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers yapping maw owned instructions.</summary>
     internal void RegisterYappingMawOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>
@@ -628,6 +650,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers yapping maw shot reactions.</summary>
     internal void RegisterYappingMawShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
@@ -637,6 +660,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers yapping maw touch.</summary>
     internal void RegisterYappingMawTouch(EnemyAiTable table)
     {
         // $A8:A799 replaces common contact damage entirely. A qualifying overlap transfers Samus input/position
@@ -665,6 +689,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies
         audio.QueueLegacySound(LastYappingMawSoundEffect, library: SoundEffectLibrary.Library2, maximumQueued: 6);
     }
 
+    /// <summary>Registers yapping maw frozen ai.</summary>
     internal void RegisterYappingMawFrozenAi(EnemyAiTable table) =>
         table.AddFrozen(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw,
             slot => RunYappingMawFrozen(slot, RequireYappingMawState(slot)));

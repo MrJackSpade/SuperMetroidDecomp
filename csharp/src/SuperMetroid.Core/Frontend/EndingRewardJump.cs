@@ -7,17 +7,28 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Native reward jump/landing actor owner, ending at F604's screen-shot request.</summary>
 internal sealed class EndingRewardJump
 {
+    /// <summary>Stores bus.</summary>
     private readonly ISnesAddressSpace bus;
+    /// <summary>Stores helmeted.</summary>
     private readonly bool helmeted;
+    /// <summary>Stores queue graphics upload.</summary>
     private readonly Action<int> queueGraphicsUpload;
+    /// <summary>Stores body.</summary>
     private readonly IntroDiscoverySprite body;
+    /// <summary>Stores head.</summary>
     private readonly IntroDiscoverySprite? head;
+    /// <summary>Stores velocity.</summary>
     private int velocity;
+    /// <summary>Stores uploads.</summary>
     private int uploads;
+    /// <summary>Gets or sets shot requested.</summary>
     public bool ShotRequested { get; private set; }
+    /// <summary>Gets or sets object selection.</summary>
     public byte ObjectSelection { get; private set; }
+    /// <summary>Gets body y.</summary>
     public short BodyY => unchecked((short)body.WholePosition.Y);
 
+    /// <summary>Initializes a new ending reward jump instance.</summary>
     public EndingRewardJump(ISnesAddressSpace bus, EndingReward reward, Action<int> queueGraphicsUpload)
     {
         this.bus = bus;
@@ -28,6 +39,7 @@ internal sealed class EndingRewardJump
         body = Spawn(reward == EndingReward.Suitless ? EndingRewardActor.JumpSuitlessBody : EndingRewardActor.JumpSuitedBody);
     }
 
+    /// <summary>Steps.</summary>
     public void Step(Func<ushort, ushort>? instructionWord = null)
     {
         // Native fixed slots put the head above the body in the descending handler.
@@ -67,6 +79,7 @@ internal sealed class EndingRewardJump
         body.Step<EndingRewardJumpInstruction>(Instruction, instructionWord);
     }
 
+    /// <summary>Draws.</summary>
     public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
     {
         var oam = destination ?? new OamBuffer();
@@ -77,6 +90,7 @@ internal sealed class EndingRewardJump
         return oam;
     }
 
+    /// <summary>Moves.</summary>
     private void Move(IntroDiscoverySprite actor)
     {
         velocity = unchecked(velocity + EndingRewardJumpDefinitions.Gravity);
@@ -84,6 +98,7 @@ internal sealed class EndingRewardJump
         actor.Position = actor.Position.WithY(IntroCinematicMotion.Unpacked(position));
     }
 
+    /// <summary>Instruction.</summary>
     private ushort Instruction(EndingRewardJumpInstruction instruction, ushort cursor)
     {
         switch (instruction)
@@ -111,7 +126,9 @@ internal sealed class EndingRewardJump
         CinematicInstructionWords.TryDecode(actor.PreInstructionPointer, out EndingRewardJumpPreInstruction installed)
             ? installed : null;
 
+    /// <summary>Requires head.</summary>
     private IntroDiscoverySprite RequireHead() => head ?? throw new InvalidDataException("Suited jump requested a missing head actor.");
+    /// <summary>Spawns.</summary>
     private static IntroDiscoverySprite Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);

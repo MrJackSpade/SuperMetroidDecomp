@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(BrinstarPipeBugInstructionProgramDefinitions))]
 internal abstract class BrinstarPipeBugInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 60;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 44;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -25,6 +28,7 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -38,6 +42,7 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitionsTooling : II
         }
         throw new IndexOutOfRangeException();
     }
+    /// <summary>Checks whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address) =>
         (SnesAddressMath.BankBase(address)) == 0xb30000 &&
         (BrinstarPipeBugInstructionProgramDefinitions.TryRead((ushort)address, out _) || BrinstarPipeBugInstructionProgramDefinitions.TryRead((ushort)address - 1, out _));

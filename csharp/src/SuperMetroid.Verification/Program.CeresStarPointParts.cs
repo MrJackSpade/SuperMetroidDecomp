@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents ceres star point parts verification.</summary>
 internal static class CeresStarPointPartsVerification
 {
+    /// <summary>Verifies ceres star point parts.</summary>
     internal static void VerifyCeresStarPointParts(ISnesAddressSpace rom)
     {
         foreach (bool reflected in new[] { false, true })

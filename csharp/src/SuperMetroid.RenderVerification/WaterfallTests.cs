@@ -4,10 +4,12 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents waterfall tests.</summary>
 internal static class WaterfallTests
 {
     // GR-3: native TM=$11, TS=$06, CGADSUB=$B1. Distinct colors make
     // an omitted plane, wrong priority, opaque overlay or halving observable.
+    /// <summary>Run.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

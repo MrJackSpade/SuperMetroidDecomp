@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -13,11 +13,16 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class HdmaObjectPhase
 {
+    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Stores system.</summary>
     private readonly Bank80SystemState _system;
+    /// <summary>Stores tourian statues.</summary>
     private readonly TourianStatueSequence _tourianStatues;
 
+    /// <summary>Initializes a new hdma object phase instance.</summary>
     internal HdmaObjectPhase(GameplayTimeFreeze freeze, RoomLayer3FxState roomLayer3Fx, Bank80SystemState system, TourianStatueSequence tourianStatues)
     {
         _freeze = freeze;

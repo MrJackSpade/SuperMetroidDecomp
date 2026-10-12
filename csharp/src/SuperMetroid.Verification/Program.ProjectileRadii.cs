@@ -17,8 +17,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents projectile radii verification.</summary>
 internal static class ProjectileRadiiVerification
 {
+    /// <summary>verify projectile radii.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile radii")]
     internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
@@ -172,6 +174,7 @@ internal static class ProjectileRadiiVerification
     private static byte ReadMurderBeamRadiusMirrorByte(SuperMetroidAddressSpace memory, int address) =>
         memory.ReadWorkRamByte(address);
 
+    /// <summary>new projectile radius read guard.</summary>
     private static CartridgeReadGuard NewProjectileRadiusReadGuard(ISnesAddressSpace source, int[] addresses)
     {
         HashSet<int> radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
@@ -179,6 +182,7 @@ internal static class ProjectileRadiiVerification
             address => new InvalidDataException($"Projectile collision still reads ROM ${address:X6}."));
     }
 
+    /// <summary>projectile radius instruction fixtures command.</summary>
     [VerificationCommand("--projectile-radius-instruction-fixtures")]
     internal static int ProjectileRadiusInstructionFixturesCommand()
     {

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Game;
 [ToolingFor(typeof(YellowPipeBugInstructionProgramDefinitions))]
 internal abstract class YellowPipeBugInstructionProgramDefinitionsTooling : IInstructionProgramCatalog, IPresentationOperandCatalog, ICompiledMechanicsByteProbe
 {
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 24;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 16;
     /// <summary>Each loop displays four timed records followed by Goto and its target; all records calculate on demand.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
@@ -19,12 +21,14 @@ internal abstract class YellowPipeBugInstructionProgramDefinitionsTooling : IIns
         ushort address = (ushort)(YellowPipeBugInstructionProgramDefinitions.FlyingLeft + 20 * program + (record < 4 ? 4 * record : 16 + 2 * (record - 4)));
         return new(address, YellowPipeBugInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
             throw new IndexOutOfRangeException();
         return (ushort)(YellowPipeBugInstructionProgramDefinitions.FlyingLeft + 20 * (index / 4) + 4 * (index % 4) + 2);
     }
+    /// <summary>Checks whether an address identifies a compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address)
     {
         if ((SnesAddressMath.BankBase(address)) != 0xb30000)

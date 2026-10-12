@@ -70,17 +70,25 @@ internal enum DspGlobalRegister : byte
 [DspRegisterAccess]
 internal static class SnesDspRegisterMap
 {
+    /// <summary>Stores register file size.</summary>
     internal const int RegisterFileSize = 0x80;
+    /// <summary>Stores voice stride.</summary>
     internal const int VoiceStride = 0x10;
+    /// <summary>Stores voice register mask.</summary>
     internal const int VoiceRegisterMask = VoiceStride - 1;
+    /// <summary>Stores voice index mask.</summary>
     internal const int VoiceIndexMask = 7;
 
     /// <summary>Voice register offsets for address arithmetic (voice block + offset).</summary>
     internal static class Voice
     {
+        /// <summary>Stores adsr1.</summary>
         internal const int Adsr1 = (int)DspVoiceRegister.Adsr1;
+        /// <summary>Stores adsr2.</summary>
         internal const int Adsr2 = (int)DspVoiceRegister.Adsr2;
+        /// <summary>Stores envelope output.</summary>
         internal const int EnvelopeOutput = (int)DspVoiceRegister.EnvelopeOutput;
+        /// <summary>Stores sample output.</summary>
         internal const int SampleOutput = (int)DspVoiceRegister.SampleOutput;
     }
 
@@ -98,23 +106,40 @@ internal static class SnesDspRegisterMap
     internal static DspGlobalRegister? GlobalRegisterAt(byte address) =>
         Enum.IsDefined((DspGlobalRegister)address) ? (DspGlobalRegister)address : null;
 
+    /// <summary>Represents fields.</summary>
     internal static class Fields
     {
+        /// <summary>Stores pitch mask.</summary>
         internal const int PitchMask = 0x3fff;
+        /// <summary>Stores adsr attack mask.</summary>
         internal const int AdsrAttackMask = 0x0f;
+        /// <summary>Stores adsr decay mask.</summary>
         internal const int AdsrDecayMask = 0x70;
+        /// <summary>Stores adsr decay shift.</summary>
         internal const int AdsrDecayShift = 4;
+        /// <summary>Stores adsr enabled.</summary>
         internal const int AdsrEnabled = 0x80;
+        /// <summary>Stores adsr sustain rate mask.</summary>
         internal const int AdsrSustainRateMask = 0x1f;
+        /// <summary>Stores adsr sustain level mask.</summary>
         internal const int AdsrSustainLevelMask = 0xe0;
+        /// <summary>Stores adsr sustain level shift.</summary>
         internal const int AdsrSustainLevelShift = 5;
+        /// <summary>Stores gain mode mask.</summary>
         internal const int GainModeMask = 0x60;
+        /// <summary>Stores gain mode shift.</summary>
         internal const int GainModeShift = 5;
+        /// <summary>Stores gain value mask.</summary>
         internal const int GainValueMask = 0x7f;
+        /// <summary>Stores reset.</summary>
         internal const int Reset = 0x80;
+        /// <summary>Stores mute.</summary>
         internal const int Mute = 0x40;
+        /// <summary>Stores echo write disable.</summary>
         internal const int EchoWriteDisable = 0x20;
+        /// <summary>Stores noise rate mask.</summary>
         internal const int NoiseRateMask = 0x1f;
+        /// <summary>Stores echo delay mask.</summary>
         internal const int EchoDelayMask = 0x0f;
     }
 }

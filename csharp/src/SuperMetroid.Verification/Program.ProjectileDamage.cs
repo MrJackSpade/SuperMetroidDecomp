@@ -6,8 +6,10 @@ using SuperMetroid.Core.Input;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents projectile damage verification.</summary>
 internal static class ProjectileDamageVerification
 {
+    /// <summary>Verifies projectile damage.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
     internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
@@ -104,6 +106,7 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Projectile initialization: 357 selection words, 40 damage headers, loud non-catalog rejection and all seven initializer paths pass with selection/damage reads forbidden.");
     }
 
+    /// <summary>Verifies combo mechanics definitions.</summary>
     private static void VerifyComboMechanicsDefinitions(
         SuperMetroidAddressSpace rom,
         Func<int, ushort> readWord)
@@ -113,6 +116,7 @@ internal static class ProjectileDamageVerification
         Suite(nameof(VerifyComboMotionAndActivation), () => VerifyComboMotionAndActivation(rom));
     }
 
+    /// <summary>Verifies combo power bomb cost algorithm.</summary>
     internal static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
     {
         for (int beam = 0; beam < 12; beam++)
@@ -128,6 +132,7 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }
 
+    /// <summary>Verifies combo origin angle algorithm.</summary>
     internal static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
     {
         for (int slot = 0; slot < 4; slot++)
@@ -143,6 +148,7 @@ internal static class ProjectileDamageVerification
         Console.WriteLine("Combo origin algorithm: all four original angle words and bounds match.");
     }
 
+    /// <summary>Verifies combo sine offset alias.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for combo sine offset alias")]
     internal static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
     {
@@ -169,6 +175,7 @@ internal static class ProjectileDamageVerification
 
     }
 
+    /// <summary>Verifies combo motion and activation.</summary>
     private static void VerifyComboMotionAndActivation(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyComboSineOffsetAlias), () => VerifyComboSineOffsetAlias(rom));
@@ -220,6 +227,7 @@ internal static class ProjectileDamageVerification
             "  Special beam mechanics: twelve costs, four origin angles and 65,536 sine offsets match cartridge data; all four producers avoid those ROM tables.");
     }
 
+    /// <summary>New projectile damage read guard.</summary>
     private static MutableCartridgeReadGuard NewProjectileDamageReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -228,6 +236,7 @@ internal static class ProjectileDamageVerification
         return guard;
     }
 
+    /// <summary>New combo mechanics read guard.</summary>
     private static MutableCartridgeReadGuard NewComboMechanicsReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

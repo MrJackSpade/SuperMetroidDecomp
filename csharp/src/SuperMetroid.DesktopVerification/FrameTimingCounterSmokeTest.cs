@@ -59,6 +59,7 @@ public static class FrameTimingCounterSmokeTest
             snapshot.LateFrames);
     }
 
+    /// <summary>Asserts near.</summary>
     private static void AssertNear(double actual, double expected, string subject)
     {
         if (Math.Abs(actual - expected) > 0.000_001)

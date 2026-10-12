@@ -28,7 +28,9 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
 
     /// <summary><c>PreInst_EnemyProjectile_BombTorizoLowHealthDrool_Falling</c> at $86:A887.</summary>
     internal const ushort FallingPreInstruction = 0xa887;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 7;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -40,6 +42,7 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
             _ => (ushort)((ushort)BombTorizoDroolProgram.FloorImpact + 4 + 4 * (index - 4)),
         };
     }
+    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int impact = address - ((ushort)BombTorizoDroolProgram.FloorImpact + 4);
@@ -50,6 +53,7 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitions
             ((uint)impact < 12 && impact % 4 == 0);
     }
 
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
         RoomEnemyProjectileKind.BombTorizoInitialDrool;

@@ -18,8 +18,10 @@ using static LookupMotherBrainRegularDrawsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents mother brain fake death plms verification.</summary>
 internal static class MotherBrainFakeDeathPlmsVerification
 {
+    /// <summary>Verifies compiled mother brain fake death plms.</summary>
     internal static void VerifyCompiledMotherBrainFakeDeathPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -82,6 +84,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             "Mother Brain fake-death PLMs: 66 instruction words, 22 full draws, and 20 reachable production mutations match ROM without source reads.");
     }
 
+    /// <summary>Verifies mother brain fake death mutation.</summary>
     private static void VerifyMotherBrainFakeDeathMutation(
         PlmHeaderId header, ushort program)
     {
@@ -131,6 +134,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             $"Mother Brain mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
+    /// <summary>Creates mother brain fake death source guard.</summary>
     internal static CartridgeReadGuard NewMotherBrainFakeDeathSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
         {
@@ -144,6 +148,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
                              4 + run.LevelWords.Length * 2)));
         }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");
 
+    /// <summary>Mother brain fake death plms command.</summary>
     [VerificationCommand("--mother-brain-fake-death-plms")]
     internal static int MotherBrainFakeDeathPlmsCommand()
     {

@@ -17,6 +17,7 @@ using static SuiteTimingVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents draygon cannon plms verification.</summary>
 internal static class DraygonCannonPlmsVerification
 {
     /// <summary>
@@ -102,6 +103,7 @@ internal static class DraygonCannonPlmsVerification
             "  Draygon cannons: retail slot order, setup, missile thresholds, terrain, and firing flags agree.");
     }
 
+    /// <summary>Seed draygon cannon fixture.</summary>
     private static void SeedDraygonCannonFixture(TestAddressSpace bus)
     {
         SeedRoomPlmPopulation(bus, 0x9000, [
@@ -119,6 +121,7 @@ internal static class DraygonCannonPlmsVerification
         SeedShieldedCannonList(bus, new ShieldedCannonLists { List = 0x0500, HitList = 0x0520, DestroyedList = 0x0540, DamageInstruction = (ushort)RoomPlmInstruction.DamageDraygonCannonFacingLeft, IdleDraw = 0xf100, HitDraw = 0xf110, DestroyedDraw = 0xf120 });
     }
 
+    /// <summary>Seed shielded cannon list.</summary>
     private static void SeedShieldedCannonList(TestAddressSpace bus, ShieldedCannonLists lists)
     {
         SeedPlmProgramBytes(bus, lists.List, [
@@ -143,6 +146,7 @@ internal static class DraygonCannonPlmsVerification
         WriteOneBlockDraw(bus, lists.DestroyedDraw, 0xa003);
     }
 
+    /// <summary>Settle draygon cannon hit.</summary>
     private static void SettleDraygonCannonHit(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -153,6 +157,7 @@ internal static class DraygonCannonPlmsVerification
             StepDraygonCannonPlms(plms, bus, level, streamer);
     }
 
+    /// <summary>Steps draygon cannon plms.</summary>
     private static void StepDraygonCannonPlms(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -160,6 +165,7 @@ internal static class DraygonCannonPlmsVerification
         BackgroundTilemapStreamer streamer) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
+    /// <summary>Asserts destroyed cannon.</summary>
     private static void AssertDestroyedCannon(
         RoomLevelData level,
         int blockIndex,
@@ -176,6 +182,7 @@ internal static class DraygonCannonPlmsVerification
         }
     }
 
+    /// <summary>Draygon cannon plms command.</summary>
     [VerificationCommand("--draygon-cannon-plms")]
     internal static int DraygonCannonPlmsCommand()
     {

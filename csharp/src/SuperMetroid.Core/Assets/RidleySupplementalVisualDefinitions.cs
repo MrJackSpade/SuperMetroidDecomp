@@ -49,6 +49,7 @@ internal static class RidleySupplementalVisualDefinitions
     /// <summary>$A6:DCBA..DCD8 selects one frame for each sixteenth-turn sector.</summary>
     internal const int TailTipPointerCount = 16;
 
+    /// <summary>Wing frame at.</summary>
     internal static ushort WingFrameAt(int index)
     {
         if ((uint)index >= WingPointerCount)
@@ -65,11 +66,13 @@ internal static class RidleySupplementalVisualDefinitions
         };
         return (ushort)((int)pose + index / WingCycleLength * RightWingFrameOffset);
     }
+    /// <summary>Tail tip frame at.</summary>
     internal static ushort TailTipFrameAt(int index) =>
         (uint)index < TailTipPointerCount
             ? (ushort)(FirstTailTipFrame + ((LeftTailTipDirection - index) & (TailTipPointerCount - 1)) * TailTipFrameBytes)
             : throw new InvalidDataException($"Ridley tail-tip direction {index} is outside the native table.");
 
+    /// <summary>Segment frame at.</summary>
     internal static ushort SegmentFrameAt(int index) => index switch
     {
         0 or 1 => LargeSegment,
@@ -78,6 +81,7 @@ internal static class RidleySupplementalVisualDefinitions
         _ => throw new InvalidDataException($"Ridley tail segment {index} is outside six drawn links."),
     };
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var pointers = new SortedSet<ushort>

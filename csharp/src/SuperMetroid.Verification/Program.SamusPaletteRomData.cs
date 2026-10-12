@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SamusMovementRomDataVerification;
 
+/// <summary>Represents samus palette rom data verification.</summary>
 internal static class SamusPaletteRomDataVerification
 {
     /// <summary>

@@ -29,13 +29,16 @@ internal abstract class CacatacProjectileInstructionProgramDefinitions
 
     /// <summary>Ten six-byte direction programs: one-frame drawing followed by sleep.</summary>
     internal const int ProgramCount = 10;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => ProgramCount;
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= ProgramCount) throw new IndexOutOfRangeException();
         return (ushort)(LeftFacingUp + 6 * index + 2);
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int offset = address - LeftFacingUp;

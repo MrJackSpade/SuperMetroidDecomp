@@ -16,27 +16,35 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
+    /// <summary>Stores power.</summary>
     private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power);
+    /// <summary>Stores varia.</summary>
     private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia);
+    /// <summary>Stores gravity.</summary>
     private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity);
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
     public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = new ProgramList();
 
+    /// <summary>Represents program list.</summary>
     private sealed class ProgramList : IReadOnlyList<PaletteFxHeatProgramDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 3;
+        /// <summary>Gets an indexed value.</summary>
         public PaletteFxHeatProgramDefinition this[int index] => index switch
         {
             0 => Power, 1 => Varia, 2 => Gravity,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<PaletteFxHeatProgramDefinition> GetEnumerator()
         {
             yield return Power;
             yield return Varia;
             yield return Gravity;
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -57,6 +65,7 @@ public sealed class PaletteFxHeatProgramDefinition
     /// <summary>Fifteen BGR555 colors follow every timed duration word.</summary>
     public const int ColorsPerFrame = 15;
 
+    /// <summary>Initializes a new palette fx heat program definition instance.</summary>
     internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit)
     {
         Suit = suit;
@@ -88,9 +97,12 @@ public sealed class PaletteFxHeatProgramDefinition
     /// <summary>The sixteen timed records, calculated on access without stored rows.</summary>
     public IReadOnlyList<PaletteFxHeatProgramFrameDefinition> Frames { get; }
 
+    /// <summary>Represents frame list.</summary>
     private sealed class FrameList(PaletteFxHeatSuit suit) : IReadOnlyList<PaletteFxHeatProgramFrameDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 16;
+        /// <summary>Gets an indexed value.</summary>
         public PaletteFxHeatProgramFrameDefinition this[int index]
         {
             get
@@ -99,10 +111,12 @@ public sealed class PaletteFxHeatProgramDefinition
                 return new(PaletteFxHeatInstructionListDefinitions.Resolve(suit, (ushort)index));
             }
         }
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<PaletteFxHeatProgramFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

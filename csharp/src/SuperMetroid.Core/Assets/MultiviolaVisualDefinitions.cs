@@ -10,8 +10,10 @@ internal static class MultiviolaVisualDefinitions
 {
     /// <summary>Native Multiviola spritemap bank $A2.</summary>
     internal const byte Bank = 0xa2;
+    /// <summary>Stores frame count.</summary>
     internal const int FrameCount = 8;
 
+    /// <summary>Frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new EnemySpritemapDefinition[FrameCount];

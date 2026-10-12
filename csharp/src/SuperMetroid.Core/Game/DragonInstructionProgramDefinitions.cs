@@ -25,9 +25,12 @@ internal abstract class DragonInstructionProgramDefinitions
     /// <summary><c>$A2:E5D7</c>, five-frame attack body sequence facing right.</summary>
     internal const ushort AttackingFacingRight = 0xe5d7;
 
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 26;
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 16;
 
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount)
@@ -58,6 +61,7 @@ internal abstract class DragonInstructionProgramDefinitions
         return new((ushort)(attack + (attackWord < 6 ? 4 * attackWord : 22)), value);
     }
 
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)

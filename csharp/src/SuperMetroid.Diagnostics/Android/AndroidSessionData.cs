@@ -14,15 +14,24 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidSessionData : IDisposable
 {
+    /// <summary>Stores root.</summary>
     private readonly string root;
+    /// <summary>Stores save path.</summary>
     private readonly string savePath;
+    /// <summary>Stores assets.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
+    /// <summary>Stores maps.</summary>
     private readonly SuperMetroid.Core.Assets.AreaMapPresentationCatalog maps;
+    /// <summary>Stores projectiles.</summary>
     private readonly SuperMetroid.AssetExtraction.InstalledProjectilePresentation projectiles;
+    /// <summary>Stores artwork.</summary>
     private readonly GameArtwork artwork;
+    /// <summary>Stores states.</summary>
     private readonly DebuggerSaveStateStore states;
+    /// <summary>Stores recorder.</summary>
     private ControllerInputRecorder recorder;
 
+    /// <summary>Initializes a new android session data instance.</summary>
     public AndroidSessionData(string root, string? cartridgePath = null, string? audioDirectory = null)
     {
         this.root = root;
@@ -68,26 +77,39 @@ internal sealed class AndroidSessionData : IDisposable
         WriteRecordingMetadata(seedFile: null);
     }
 
+    /// <summary>Gets options.</summary>
     public SuperMetroidGameOptions Options { get; }
+    /// <summary>Gets or sets bus.</summary>
     public SuperMetroidAddressSpace Bus { get; private set; }
+    /// <summary>Gets or sets game.</summary>
     public SuperMetroidGame Game { get; private set; }
+    /// <summary>Gets or sets audio.</summary>
     public CartridgeAudioRenderer Audio { get; private set; }
+    /// <summary>Gets content identity.</summary>
     public SuperMetroid.AssetExtraction.GameContentIdentity ContentIdentity { get; }
+    /// <summary>Gets or sets generation.</summary>
     public long Generation { get; private set; } = 1;
 
+    /// <summary>Record.</summary>
     public void Record(ushort input) => recorder.RecordFrame(input);
+    /// <summary>Persist save.</summary>
     public void PersistSave() => GameSaveFileStore.WriteAtomic(Bus, savePath, maps);
+    /// <summary>Flush recording.</summary>
     public void FlushRecording() => recorder.FlushAfterFrameFailure();
 
+    /// <summary>Imports state.</summary>
     public string ImportState(string path, int slot) =>
         AndroidFileImport.ImportState(root, path, slot);
+    /// <summary>Imports save.</summary>
     public string ImportSave(string path) =>
         AndroidFileImport.StageRegularSave(root, path);
 
+    /// <summary>Saves completed door.</summary>
     public void SaveCompletedDoor(SuperMetroidGameState previousState) =>
         DoorTransitionAutosave.TrySave(Options.DoorTransitionAutosave, replay: false,
             previousState, states, Bus, Game, Audio.Player);
 
+    /// <summary>Saves slot.</summary>
     public string SaveSlot(int slot)
     {
         if (slot == DebuggerStateFormat.AutomaticSlot)
@@ -97,6 +119,7 @@ internal sealed class AndroidSessionData : IDisposable
         return $"Saved slot {slot}, frame {metadata.FrameNumber}, room {metadata.RoomPointer:X4}.";
     }
 
+    /// <summary>Loads slot.</summary>
     public string LoadSlot(int slot)
     {
         if (!states.TryLoad(slot, out DebuggerSaveStateLoadResult loaded))
@@ -121,6 +144,7 @@ internal sealed class AndroidSessionData : IDisposable
             (loaded.Warnings.Count == 0 ? "" : "\nWARNING: " + string.Join("\n", loaded.Warnings));
     }
 
+    /// <summary>Writes recording metadata.</summary>
     private void WriteRecordingMetadata(string? seedFile)
     {
         // The recording embeds installed-content identity. This sidecar additionally
@@ -139,6 +163,7 @@ internal sealed class AndroidSessionData : IDisposable
         FlushRecording();
     }
 
+    /// <summary>Start recorder.</summary>
     private ControllerInputRecorder StartRecorder() =>
         ControllerInputRecorder.StartInstalled(
             root,
@@ -146,5 +171,6 @@ internal sealed class AndroidSessionData : IDisposable
             Options,
             ContentIdentity);
 
+    /// <summary>Disposes.</summary>
     public void Dispose() => recorder.Dispose();
 }

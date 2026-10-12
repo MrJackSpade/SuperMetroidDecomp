@@ -69,7 +69,8 @@ internal static class RoomPlmStationDrawDefinitions
         StationDraw.ResourceLeftRetracted, StationDraw.ResourceLeftExtended,
     ];
 
-    internal enum LayoutKind { Map, Energy, Missile, Save, MapAccess, ResourceAccess }
+    /// <summary>Represents layout kind.</summary>
+    internal enum LayoutKind { /** <summary>Identifies map.</summary> */ Map, /** <summary>Identifies energy.</summary> */ Energy, /** <summary>Identifies missile.</summary> */ Missile, /** <summary>Identifies save.</summary> */ Save, /** <summary>Identifies map access.</summary> */ MapAccess, /** <summary>Identifies resource access.</summary> */ ResourceAccess }
 
     /// <summary>
     /// Native station runs are horizontal. Map displays write origin then left;
@@ -85,6 +86,7 @@ internal static class RoomPlmStationDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false)
     {
+        /// <summary>Gets run count.</summary>
         internal int RunCount => Kind switch
         {
             LayoutKind.Save => 6,
@@ -93,11 +95,14 @@ internal static class RoomPlmStationDrawDefinitions
             LayoutKind.Map or LayoutKind.Energy or LayoutKind.Missile => 2,
             _ => throw new InvalidOperationException($"Undefined LayoutKind {Kind}."),
         };
+        /// <summary>Checks run.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
+        /// <summary>Word count.</summary>
         internal int WordCount(int run) { CheckRun(run); return Kind == LayoutKind.Save ? 2 : 1; }
+        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             CheckRun(run);
@@ -105,12 +110,14 @@ internal static class RoomPlmStationDrawDefinitions
             return Kind == LayoutKind.Map ? (sbyte)-1 : Kind == LayoutKind.MapAccess && !Extended
                 ? Left ? (sbyte)3 : (sbyte)-3 : (sbyte)0;
         }
+        /// <summary>Next y.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return Kind == LayoutKind.Save ? run < 5 ? (sbyte)(-run - 1) : (sbyte)0
                 : Kind is LayoutKind.Energy or LayoutKind.Missile && run == 0 ? (sbyte)-1 : (sbyte)0;
         }
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -177,6 +184,7 @@ internal static class RoomPlmStationDrawDefinitions
         };
         return true;
     }
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -189,6 +197,7 @@ internal static class RoomPlmStationDrawDefinitions
         }
     }
     // Temporary artwork DTOs; runtime draws calculate cells directly.
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -235,6 +244,7 @@ internal static class RoomPlmStationDrawDefinitions
             _ => throw new InvalidOperationException($"Undefined station draw list ${pointer:X4}."),
         };
 
+    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

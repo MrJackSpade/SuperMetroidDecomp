@@ -7,11 +7,13 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable baby-Metroid OAM art for the two scientist scenes only.</summary>
 public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePresentation
 {
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
     public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroScientistSpritePresentation), frames);
 
+    /// <summary>Initializes a new intro scientist sprite presentation instance.</summary>
     private IntroScientistSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
         this.frames = frames;
 

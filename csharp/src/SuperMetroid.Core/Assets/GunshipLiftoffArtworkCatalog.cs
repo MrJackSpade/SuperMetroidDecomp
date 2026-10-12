@@ -9,6 +9,7 @@ internal readonly record struct GunshipLiftoffTransferDefinition(
 /// <summary>Compiled $A2:AC07/$A2:AC11 transfer pairs for the five gunship takeoff uploads.</summary>
 internal static class GunshipLiftoffTransferDefinitions
 {
+    /// <summary>Stores byte count.</summary>
     internal const ushort ByteCount = 0x0400;
     /// <summary>$94:C800, first gunship takeoff character chunk selected by $A2:AC07.</summary>
     private const int FirstSourceAddress = 0x94c800;
@@ -24,19 +25,25 @@ internal static class GunshipLiftoffTransferDefinitions
             VramAssetId.GunshipLiftoffFirstTiles + index);
     }
 
+    /// <summary>Gets frames.</summary>
     internal static TransferSequence Frames => default;
 
     /// <summary>Calculated view over the five contiguous character transfers; no records are cached.</summary>
     internal readonly struct TransferSequence : IReadOnlyList<GunshipLiftoffTransferDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 5;
+        /// <summary>Gets length.</summary>
         public int Length => Count;
+        /// <summary>Gets an indexed value.</summary>
         public GunshipLiftoffTransferDefinition this[int index] => Frame(index);
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<GunshipLiftoffTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return Frame(index);
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
@@ -52,8 +59,10 @@ public sealed class GunshipLiftoffArtworkCatalog
                 content.Append("tiles", frame.Transfer.Span);
         });
 
+    /// <summary>Stores frames.</summary>
     private readonly RoomCharacterAtlas[] frames;
 
+    /// <summary>Initializes a new gunship liftoff artwork catalog instance.</summary>
     internal GunshipLiftoffArtworkCatalog(RoomCharacterAtlas[] frames)
     {
         Ensure.NotNull(frames);

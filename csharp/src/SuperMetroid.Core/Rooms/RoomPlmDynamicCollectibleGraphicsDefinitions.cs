@@ -16,9 +16,12 @@ public sealed record RoomPlmDynamicCollectibleGraphic(
 /// </summary>
 internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
 {
+    /// <summary>Stores first kind.</summary>
     internal const int FirstKind = (int)InWorldCollectibleKind.Bombs;
+    /// <summary>Stores graphic count.</summary>
     internal const int GraphicCount = RoomPlmHeaders.PermanentCollectibleKindCount - FirstKind;
 
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmDynamicCollectibleGraphic> All
     {
         get
@@ -28,6 +31,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         }
     }
 
+    /// <summary>Gets.</summary>
     internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
         int index = (int)kind - FirstKind;
@@ -84,6 +88,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
     internal static ushort GraphicsPointer(InWorldCollectibleKind kind) =>
         checked((ushort)(0x8000 + (int)GraphicFor(kind) * 0x100));
 
+    /// <summary>Graphic for.</summary>
     private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => ItemGraphic.Bombs,

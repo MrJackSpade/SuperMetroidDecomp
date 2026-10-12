@@ -17,6 +17,7 @@ internal static class IntroMotherBrainInstructionDefinitions
     /// <summary>$8B:CB1F, first frame record after the page-two handoff callbacks.</summary>
     internal const ushort PageTwoLoopPointer = 0xcb1f;
 
+    /// <summary>Program word.</summary>
     private static ushort ProgramWord(int word)
     {
         if (word is >= 10 and <= 12)
@@ -38,6 +39,7 @@ internal static class IntroMotherBrainInstructionDefinitions
             : pageTwo ? PageTwoLoopPointer : StartPointer;
     }
 
+    /// <summary>Reads byte.</summary>
     internal static byte ReadByte(ushort pointer)
     {
         if (pointer is < StartPointer or >= EndPointer)
@@ -46,6 +48,7 @@ internal static class IntroMotherBrainInstructionDefinitions
         return (byte)(ProgramWord(offset / 2) >> (8 * (offset & 1)));
     }
 
+    /// <summary>Reads word.</summary>
     internal static ushort ReadWord(ushort pointer)
     {
         if (pointer is < StartPointer or >= (EndPointer - 1))

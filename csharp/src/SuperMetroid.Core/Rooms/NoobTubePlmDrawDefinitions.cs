@@ -37,6 +37,7 @@ internal static class NoobTubePlmDrawDefinitions
     /// </summary>
     internal readonly record struct Draw(NoobTubeDraw Pointer)
     {
+        /// <summary>Gets run count.</summary>
         internal int RunCount => Pointer switch
         {
             NoobTubeDraw.Cleared or NoobTubeDraw.BrokenFull => 4,
@@ -45,11 +46,13 @@ internal static class NoobTubePlmDrawDefinitions
             _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Pointer}."),
         };
 
+        /// <summary>Checks run.</summary>
         private void CheckRun(int run)
         {
             if ((uint)run >= (uint)RunCount) throw new IndexOutOfRangeException();
         }
 
+        /// <summary>Word count.</summary>
         internal int WordCount(int run)
         {
             CheckRun(run);
@@ -57,6 +60,7 @@ internal static class NoobTubePlmDrawDefinitions
                 (Pointer is NoobTubeDraw.BrokenLate or NoobTubeDraw.BrokenFull && run == 0) ? 1 : 12;
         }
 
+        /// <summary>Row.</summary>
         private int Row(int run) => Pointer switch
         {
             NoobTubeDraw.BrokenLate => run + 3,
@@ -66,12 +70,14 @@ internal static class NoobTubePlmDrawDefinitions
             _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {Pointer}."),
         };
 
+        /// <summary>Next y.</summary>
         internal sbyte NextY(int run)
         {
             CheckRun(run);
             return run == RunCount - 1 ? (sbyte)0 : (sbyte)Row(run + 1);
         }
 
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int cell)
         {
             if ((uint)cell >= (uint)WordCount(run)) throw new IndexOutOfRangeException();
@@ -101,6 +107,7 @@ internal static class NoobTubePlmDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         bool owned = Enum.IsDefined((NoobTubeDraw)pointer);
@@ -108,6 +115,7 @@ internal static class NoobTubePlmDrawDefinitions
         return owned;
     }
 
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -120,6 +128,7 @@ internal static class NoobTubePlmDrawDefinitions
         }
     }
 
+    /// <summary>Pointers.</summary>
     private static IEnumerable<NoobTubeDraw> Pointers()
     {
         yield return NoobTubeDraw.Intact;
@@ -132,6 +141,7 @@ internal static class NoobTubePlmDrawDefinitions
     }
 
     // Temporary artwork import/export DTOs; gameplay calculates cells directly.
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
@@ -147,9 +157,11 @@ internal static class NoobTubePlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         VisualId(ClosedNativeWords.Decode<NoobTubeDraw>(pointer, "n00b-tube draw with a visual ID"));
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(NoobTubeDraw pointer) => pointer switch
     {
         NoobTubeDraw.Intact => "intact",
@@ -162,6 +174,7 @@ internal static class NoobTubePlmDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined NoobTubeDraw {pointer}."),
     };
 
+    /// <summary>Attempts to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (NoobTubeDraw pointer in Pointers())

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Waver species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class WaverBehavior : IEnemySpecies
 {
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Initializes a new waver behavior instance.</summary>
     internal WaverBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
@@ -35,9 +37,12 @@ internal sealed class WaverBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Defines waver horizontal speed fixed.</summary>
     private const int WaverHorizontalSpeedFixed = 0x00018000;
+    /// <summary>Defines waver vertical radius.</summary>
     private const int WaverVerticalRadius = 4;
 
+    /// <summary>Stores waver states.</summary>
     internal readonly WaverEnemyState?[] _waverStates =
         new WaverEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -129,6 +134,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>set waver instruction list.</summary>
     internal static void SetWaverInstructionList(RoomEnemySlot slot, WaverEnemyState state)
     {
         WaverAnimationSelector requested = state.RequestedInstructionListIndex;
@@ -141,10 +147,12 @@ internal sealed class WaverBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>require waver state.</summary>
     private WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>
         _waverStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Waver state.");
 
+    /// <summary>register waver initialization ai.</summary>
     internal void RegisterWaverInitializationAi(EnemyAiTable table)
     {
 
@@ -154,6 +162,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register waver main ai.</summary>
     internal void RegisterWaverMainAi(EnemyAiTable table)
     {
 
@@ -163,6 +172,7 @@ internal sealed class WaverBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register waver owned instructions.</summary>
     internal void RegisterWaverOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

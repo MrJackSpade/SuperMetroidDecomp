@@ -9,7 +9,9 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class GameplayAudioFramePublication(CartridgeAudioState audio)
 {
+    /// <summary>Stores room sounds.</summary>
     private int roomSounds, paletteSounds, paletteMusic, liquidSounds;
+    /// <summary>Stores selection published.</summary>
     private bool selectionPublished;
 
     /// <summary>

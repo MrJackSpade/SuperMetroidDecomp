@@ -17,6 +17,7 @@ internal static class BotwoonWallPlmProgramDefinitions
     /// <summary>Native duration of one appearance in the crumble sequence.</summary>
     internal const ushort CrumbleFrameDuration = 4;
 
+    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address is >= (Crumble + 8) and < (Crumble + 24))
@@ -58,6 +59,7 @@ internal static class BotwoonWallPlmProgramDefinitions
         return word.HasValue;
     }
 
+    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         byte? operand = (address - Crumble) switch

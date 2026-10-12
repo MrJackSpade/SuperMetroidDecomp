@@ -9,11 +9,17 @@ internal sealed record Finding(string Category, Declaration Declaration);
 /// </summary>
 internal static class ReachabilityFindings
 {
+    /// <summary>Defines unreachable type.</summary>
     public const string UnreachableType = "unreachable-type";
+    /// <summary>Defines unreachable member.</summary>
     public const string UnreachableMember = "unreachable-member";
+    /// <summary>Defines unreferenced field.</summary>
     public const string UnreferencedField = "unreferenced-field";
+    /// <summary>Defines unreferenced enum member.</summary>
     public const string UnreferencedEnumMember = "unreferenced-enum-member";
+    /// <summary>Defines serialization only.</summary>
     public const string SerializationOnly = "serialization-only";
+    /// <summary>Defines reached only by tools.</summary>
     public const string ReachedOnlyByTools = "production-reached-only-by-tools";
     /// <summary>Unused by tools in a source file verification projects also compile: unlink it from the tool.</summary>
     public const string TestSupportUnusedByTools = "test-support-unused-by-tools";
@@ -23,6 +29,7 @@ internal static class ReachabilityFindings
         ["SuperMetroid.Core", "SuperMetroid.AssetExtraction", "SuperMetroid.Diagnostics", "SuperMetroid.Desktop",
          "SuperMetroid.Rendering.Direct3D11", "SuperMetroid.Game", "SuperMetroid.Android"];
 
+    /// <summary>Classify.</summary>
     public static IReadOnlyList<Finding> Classify(ReachabilityResult result)
     {
         var declarations = result.Declarations;
@@ -59,6 +66,7 @@ internal static class ReachabilityFindings
         return findings;
     }
 
+    /// <summary>Containers.</summary>
     private static IEnumerable<string> Containers(IReadOnlyDictionary<string, Declaration> declarations, Declaration declaration)
     {
         for (string key = declaration.ContainingTypeKey; key.Length > 0;

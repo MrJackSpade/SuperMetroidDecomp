@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents cpu operand open bus verification.</summary>
 internal static class CpuOperandOpenBusVerification
 {
+    /// <summary>Verifies cpu operand open bus.</summary>
     [CpuBusBoundary("exact bus test: absolute-indexed and indirect-long operand reads, open-bus MDR retention and region routing")]
     internal static void VerifyCpuOperandOpenBus()
     {
@@ -41,13 +43,19 @@ internal static class CpuOperandOpenBusVerification
             "indirect long operand cannot read cartridge bytes through the gameplay bus");
     }
 
+    /// <summary>Represents operand read witness.</summary>
     [CpuBusBoundary("exact bus test: witness answering every WRAM, SRAM, cartridge and peripheral operand read with a marker byte")]
     internal sealed class OperandReadWitness : ISnesMemoryBus, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
+        /// <summary>Reads work ram byte.</summary>
         public byte ReadWorkRamByte(int address) => 0xab;
+        /// <summary>Reads save ram byte.</summary>
         public byte ReadSaveRamByte(int address) => 0xab;
+        /// <summary>Reads cartridge byte.</summary>
         public byte ReadCartridgeByte(int address) => 0xab;
+        /// <summary>Reads peripheral byte.</summary>
         public byte ReadPeripheralByte(int address) => 0xab;
+        /// <summary>Writes byte.</summary>
         public void WriteByte(int address, byte value) => throw new NotSupportedException();
     }
 }

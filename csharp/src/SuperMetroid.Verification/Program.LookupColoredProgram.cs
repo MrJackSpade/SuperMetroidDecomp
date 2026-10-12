@@ -2,16 +2,24 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup colored program verification.</summary>
 internal static class LookupColoredProgramVerification
 {
+    /// <summary>Verifies colored program controls.</summary>
     internal static void VerifyColoredProgramControls(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 0);
+    /// <summary>Verifies colored program draws.</summary>
     internal static void VerifyColoredProgramDraws(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 1);
+    /// <summary>Verifies colored program targets.</summary>
     internal static void VerifyColoredProgramTargets(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 2);
+    /// <summary>Verifies colored program sounds.</summary>
     internal static void VerifyColoredProgramSounds(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 3);
+    /// <summary>Verifies colored program hit count.</summary>
     internal static void VerifyColoredProgramHitCount(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 4);
 
+    /// <summary>Verifies colored program callback.</summary>
     internal static void VerifyColoredProgramCallback(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 5);
 
+    /// <summary>Verifies colored program field.</summary>
     private static void VerifyColoredProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Independent native operand locations, not outputs of the proposed decoder.
@@ -64,6 +72,7 @@ internal static class LookupColoredProgramVerification
             "Colored program independent field byte count");
     }
 
+    /// <summary>Colored program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for colored program field")]
     private static byte ColoredProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

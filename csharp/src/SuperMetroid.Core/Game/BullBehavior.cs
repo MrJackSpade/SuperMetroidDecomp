@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
@@ -6,17 +6,28 @@ namespace SuperMetroid.Core.Game;
 internal sealed class BullBehavior : IEnemySpecies
 {
 
+    /// <summary>Stores bull acceleration delta.</summary>
     private const ushort BullAccelerationDelta = 0x0018;
+    /// <summary>Stores bull movement delay frames.</summary>
     private const ushort BullMovementDelayFrames = 0x0010;
 
+    /// <summary>Stores bull states.</summary>
     internal readonly BullEnemyState?[] _bullStates = new BullEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull max speeds.</summary>
     internal readonly ushort[] _bullMaxSpeeds = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull angles to samus.</summary>
     internal readonly ushort[] _bullAnglesToSamus = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull angles.</summary>
     internal readonly ushort[] _bullAngles = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull shot reaction disable flags.</summary>
     internal readonly ushort[] _bullShotReactionDisableFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull acceleration timer resets.</summary>
     internal readonly ushort[] _bullAccelerationTimerResets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull deceleration timer resets.</summary>
     internal readonly ushort[] _bullDecelerationTimerResets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull shot reaction disable timers.</summary>
     internal readonly ushort[] _bullShotReactionDisableTimers = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores bull previous health.</summary>
     internal readonly ushort[] _bullPreviousHealth = new ushort[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
@@ -102,10 +113,12 @@ internal sealed class BullBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Calculates bull angle to samus.</summary>
     private static ushort CalculateBullAngleToSamus(RoomEnemySlot slot, SamusState samus) =>
         unchecked((byte)(EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))) - 0x40));
 
+    /// <summary>Accelerate bull.</summary>
     private static void AccelerateBull(BullEnemyState state)
     {
         state.AccelerationIntervalTimer = unchecked((ushort)(
@@ -119,6 +132,7 @@ internal sealed class BullBehavior : IEnemySpecies
         state.Speed = unchecked((ushort)(state.Speed + state.Acceleration));
     }
 
+    /// <summary>Decelerate bull.</summary>
     private static void DecelerateBull(BullEnemyState state)
     {
         state.AccelerationIntervalTimer = unchecked((ushort)(
@@ -132,6 +146,7 @@ internal sealed class BullBehavior : IEnemySpecies
         state.Speed = unchecked((ushort)(state.Speed - state.Acceleration));
     }
 
+    /// <summary>Trigger bull deceleration if off target.</summary>
     private static void TriggerBullDecelerationIfOffTarget(
         RoomEnemySlot slot,
         BullEnemyState state,
@@ -155,6 +170,7 @@ internal sealed class BullBehavior : IEnemySpecies
         state.AccelerationDelta = BullAccelerationDelta;
     }
 
+    /// <summary>Moves bull.</summary>
     internal static void MoveBull(RoomEnemySlot slot, BullEnemyState state)
     {
         slot.Position = slot.Position.WithX(AddBullComponent(
@@ -167,9 +183,11 @@ internal sealed class BullBehavior : IEnemySpecies
             state.Speed));
     }
 
+    /// <summary>Reads bull signed sine.</summary>
     internal static short ReadBullSignedSine(byte angle) =>
         EnemyTrigonometryTables.SignedSixteenBitSine(angle);
 
+    /// <summary>Adds bull component.</summary>
     private static SnesFixedPosition AddBullComponent(
         SnesFixedPosition position,
         short sine,
@@ -220,10 +238,12 @@ internal sealed class BullBehavior : IEnemySpecies
         state.ShotReactionDisabled = true;
     }
 
+    /// <summary>Requires bull state.</summary>
     private BullEnemyState RequireBullState(RoomEnemySlot slot) =>
         _bullStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Bull state.");
 
+    /// <summary>Registers bull bomb reactions.</summary>
     internal void RegisterBullBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&
@@ -239,6 +259,7 @@ internal sealed class BullBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers bull initialization ai.</summary>
     internal void RegisterBullInitializationAi(EnemyAiTable table)
     {
 
@@ -248,6 +269,7 @@ internal sealed class BullBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers bull main ai.</summary>
     internal void RegisterBullMainAi(EnemyAiTable table)
     {
 
@@ -257,6 +279,7 @@ internal sealed class BullBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers bull shot reactions.</summary>
     internal void RegisterBullShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&

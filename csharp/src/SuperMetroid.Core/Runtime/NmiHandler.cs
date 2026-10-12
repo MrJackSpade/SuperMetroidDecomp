@@ -13,24 +13,42 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class NmiHandler
 {
+    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Stores controller1.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Stores displayed oam.</summary>
     private readonly OamBuffer _displayedOam;
+    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Stores gameplay windows.</summary>
     private readonly GameplayWindowRegisters _gameplayWindows;
+    /// <summary>Stores nmi.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Stores oam.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Stores options.</summary>
     private readonly GameplayOptions _options;
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Stores tourian statues.</summary>
     private readonly TourianStatueSequence _tourianStatues;
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Stores xray.</summary>
     private readonly XrayReveal _xray;
+    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Initializes a new nmi handler instance.</summary>
     internal NmiHandler(NmiHandlerDependencies dependencies)
     {
         _artwork = dependencies.Artwork;

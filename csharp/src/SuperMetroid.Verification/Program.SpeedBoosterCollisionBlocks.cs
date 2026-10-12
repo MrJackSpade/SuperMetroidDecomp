@@ -16,6 +16,7 @@ using static SpeedBoosterPlmProgramsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents speed booster collision blocks verification.</summary>
 internal static class SpeedBoosterCollisionBlocksVerification
 {
     /// <summary>
@@ -35,6 +36,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "  Speed Booster blocks: contact gating, all five PLMs, sound, crumble, and respawn agree.");
     }
 
+    /// <summary>Verifies inactive speed block remains solid.</summary>
     private static void VerifyInactiveSpeedBlockRemainsSolid()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -52,6 +54,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "rejected setup synchronously releases its temporary PLM slot");
     }
 
+    /// <summary>Verifies boosted floor contact runs respawning plm.</summary>
     private static void VerifyBoostedFloorContactRunsRespawningPlm()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -95,6 +98,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "respawning list restores synthesized visual parent $0B6");
     }
 
+    /// <summary>Verifies boosted wall contact runs permanent plm.</summary>
     private static void VerifyBoostedWallContactRunsPermanentPlm()
     {
         (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int blockIndex) =
@@ -120,6 +124,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             "permanent speed-block list does not restore collision");
     }
 
+    /// <summary>Verifies brinstar area table variants.</summary>
     private static void VerifyBrinstarAreaTableVariants()
     {
         var cases = new (byte Bts, SpeedBoosterBlockPlmDefinition Definition)[]
@@ -150,6 +155,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         }
     }
 
+    /// <summary>Creates speed booster block fixture.</summary>
     internal static (TestAddressSpace Bus, RoomLevelData Level, RoomPlmSystem Plms, int BlockIndex)
         CreateSpeedBoosterBlockFixture(RoomBlockBehavior bts, AreaId area)
     {
@@ -176,6 +182,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return (bus, level, plms, blockIndex);
     }
 
+    /// <summary>Creates speed booster collision samus.</summary>
     internal static SamusState CreateSpeedBoosterCollisionSamus(bool active)
     {
         var samus = new SamusState
@@ -190,6 +197,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return samus;
     }
 
+    /// <summary>Seed speed booster block cartridge.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Speed Booster block PLM instruction lists and an empty room population")]
     private static void SeedSpeedBoosterBlockCartridge(TestAddressSpace bus, ushort emptyPopulation)
     {
@@ -207,6 +215,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         bus.WriteBytes(0x84c9e4, CreatePermanentSpeedList(1, drawPointer));
     }
 
+    /// <summary>Creates respawning speed list.</summary>
     private static byte[] CreateRespawningSpeedList(ushort crumbleDelay, ushort drawPointer)
     {
         var bytes = new List<byte> { 0x79, 0x8c, 0x06 };
@@ -225,6 +234,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return bytes.ToArray();
     }
 
+    /// <summary>Creates permanent speed list.</summary>
     private static byte[] CreatePermanentSpeedList(ushort crumbleDelay, ushort drawPointer)
     {
         var bytes = new List<byte> { 0x79, 0x8c, 0x06 };
@@ -241,6 +251,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         return bytes.ToArray();
     }
 
+    /// <summary>Steps speed booster plm.</summary>
     private static void StepSpeedBoosterPlm(
         RoomPlmSystem plms,
         TestAddressSpace bus,
@@ -248,6 +259,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
         BackgroundTilemapStreamer streamer) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
 
+    /// <summary>Speed booster block plms command.</summary>
     [VerificationCommand("--speed-booster-block-plms")]
     internal static int SpeedBoosterBlockPlmsCommand()
     {

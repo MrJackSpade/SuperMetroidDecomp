@@ -13,8 +13,10 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents spc pan interpolation verification.</summary>
 internal static class SpcPanInterpolationVerification
 {
+    /// <summary>Verifies spc pan interpolation.</summary>
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan interpolation")]
     internal static void VerifySpcPanInterpolation()
@@ -98,6 +100,7 @@ internal static class SpcPanInterpolationVerification
         }
     }
 
+    /// <summary>Runs the spc pan interpolation lookup command.</summary>
     [VerificationCommand("--lookup-spc-pan-interpolation")]
     internal static int LookupSpcPanInterpolationCommand()
     {

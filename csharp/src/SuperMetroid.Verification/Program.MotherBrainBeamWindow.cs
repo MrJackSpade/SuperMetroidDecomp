@@ -13,8 +13,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using static AssertionsVerification;
 
+/// <summary>Represents mother brain beam window verification.</summary>
 internal static class MotherBrainBeamWindowVerification
 {
+    /// <summary>verify mother brain beam window.</summary>
     internal static void VerifyMotherBrainBeamWindow()
     {
         var bus = new TestAddressSpace();
@@ -91,6 +93,7 @@ internal static class MotherBrainBeamWindowVerification
         Console.WriteLine("  Mother Brain beam: native apex, HDMA split, HUD exclusion, color stride/reset and owned capture agree.");
     }
 
+    /// <summary>mother brain beam fixture command.</summary>
     [VerificationCommand("--mother-brain-beam-fixture")]
     internal static int MotherBrainBeamFixtureCommand()
     {

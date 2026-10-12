@@ -49,10 +49,14 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
     private const ushort RailingsColorByteIndex = (6 * 16 + 9) * sizeof(ushort);
     /// <summary>$8D:FC5F selects $00AA: palette-five/color-five panels.</summary>
     private const ushort PanelsColorByteIndex = (5 * 16 + 5) * sizeof(ushort);
+    /// <summary>Stores definitions.</summary>
     private static readonly ProgramDefinitions Definitions = new();
+    /// <summary>Represents program definitions.</summary>
     private sealed class ProgramDefinitions : IReadOnlyList<OldTourianEscapeAccentPaletteFxProgramDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 2;
+        /// <summary>Gets an indexed value.</summary>
         public OldTourianEscapeAccentPaletteFxProgramDefinition this[int index] => index switch
         {
             (int)OldTourianEscapeAccentPaletteOwner.OrangeRailings => new(OldTourianEscapeAccentPaletteOwner.OrangeRailings,
@@ -61,10 +65,12 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
                 YellowPanelsDefinitionPointer, YellowPanelsProgramStart, PanelsColorByteIndex),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<OldTourianEscapeAccentPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The orange-railing and yellow-panel programs in definition order.</summary>
@@ -84,6 +90,7 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
         return false;
     }
 
+    /// <summary>Duration.</summary>
     internal static ushort Duration(int frame)
     {
         if ((uint)frame >= FrameCount) throw new IndexOutOfRangeException();
@@ -96,6 +103,7 @@ public static class OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete old-Tourian escape accent control program.</summary>
 public sealed class OldTourianEscapeAccentPaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new old tourian escape accent palette fx program definition instance.</summary>
     internal OldTourianEscapeAccentPaletteFxProgramDefinition(
         OldTourianEscapeAccentPaletteOwner owner,
         ushort definitionPointer,

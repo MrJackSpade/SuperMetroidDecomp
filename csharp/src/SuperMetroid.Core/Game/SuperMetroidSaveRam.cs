@@ -25,7 +25,9 @@ public sealed class SuperMetroidSaveRam
     /// <summary>The global SRAM offset of the selected-slot word used by the file-select menu.</summary>
     public const int SelectedSlotOffset = SaveRamLayout.SelectedSlotOffset;
 
+    /// <summary>Stores map presentation.</summary>
     [NonSerialized] private AreaMapPresentationCatalog? mapPresentation;
+    /// <summary>Stores bus.</summary>
     private readonly ISnesMemoryBus bus;
 
     /// <summary>Creates an SRAM codec over a mutable SNES address space.</summary>
@@ -41,8 +43,10 @@ public sealed class SuperMetroidSaveRam
             throw new ArgumentException("Save slots require an SRAM-capable address space.", nameof(bus));
     }
 
+    /// <summary>Gets image.</summary>
     private SramBytes Image => new(bus, SaveRamLayout.Image);
 
+    /// <summary>bind map presentation.</summary>
     internal void BindMapPresentation(AreaMapPresentationCatalog? maps) => mapPresentation = maps;
 
     /// <summary>
@@ -342,6 +346,7 @@ public sealed class SuperMetroidSaveRam
         return slot < SlotCount && unchecked((ushort)~slot) == complement ? slot : 0;
     }
 
+    /// <summary>calculate checksum.</summary>
     private ushort CalculateChecksum(int slotOffset)
     {
         ushort checksum = 0;
@@ -350,27 +355,33 @@ public sealed class SuperMetroidSaveRam
         return checksum;
     }
 
+    /// <summary>copy directory word.</summary>
     private void CopyDirectoryWord(int directoryOffset, int sourceSlot, int destinationSlot) =>
         WriteSramWord(
             directoryOffset + destinationSlot * 2,
             ReadSramWord(directoryOffset + sourceSlot * 2));
 
+    /// <summary>get slot offset.</summary>
     private static int GetSlotOffset(int slot)
     {
         ValidateSlot(slot);
         return SaveRamLayout.SlotOffset(slot);
     }
 
+    /// <summary>validate slot.</summary>
     private static void ValidateSlot(int slot)
     {
         if ((uint)slot >= SlotCount)
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Save slot must be A, B, or C (0-2).");
     }
 
+    /// <summary>read sram byte.</summary>
     private byte ReadSramByte(int offset) => Image.Read(offset);
 
+    /// <summary>read sram word.</summary>
     private ushort ReadSramWord(int offset) => Image.ReadWord(offset);
 
+    /// <summary>read sram bytes.</summary>
     private byte[] ReadSramBytes(int offset, int count)
     {
         var bytes = new byte[count];
@@ -379,10 +390,13 @@ public sealed class SuperMetroidSaveRam
         return bytes;
     }
 
+    /// <summary>write sram byte.</summary>
     private void WriteSramByte(int offset, byte value) => Image.Write(offset, value);
 
+    /// <summary>write sram word.</summary>
     private void WriteSramWord(int offset, ushort value) => Image.WriteWord(offset, value);
 
+    /// <summary>pack explored map.</summary>
     private byte[] PackExploredMap(ReadOnlySpan<byte> exploredMap)
     {
         int expectedByteCount =
@@ -413,6 +427,7 @@ public sealed class SuperMetroidSaveRam
         return compressed;
     }
 
+    /// <summary>unpack explored map.</summary>
     private byte[] UnpackExploredMap(ReadOnlySpan<byte> compressed)
     {
         if (compressed.Length != SaveRamLayout.CompressedMapDataByteCount)
@@ -439,6 +454,7 @@ public sealed class SuperMetroidSaveRam
         return explored;
     }
 
+    /// <summary>write word.</summary>
     private static void WriteWord(Span<byte> destination, int offset, ushort value)
     {
         destination[offset] = unchecked((byte)value);

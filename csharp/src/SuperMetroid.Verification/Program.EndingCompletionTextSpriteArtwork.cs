@@ -9,8 +9,10 @@ using SuperMetroid.Core.Rom;
 using static MapSpritesVerification;
 using static RetailGameFixtureVerification;
 
+/// <summary>Represents ending completion text sprite artwork verification.</summary>
 internal static class EndingCompletionTextSpriteArtworkVerification
 {
+    /// <summary>Verifies ending completion text sprite artwork.</summary>
     internal static void VerifyEndingCompletionTextSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
@@ -42,6 +44,7 @@ internal static class EndingCompletionTextSpriteArtworkVerification
         }
     }
 
+    /// <summary>Verifies ending completion text visual override.</summary>
     internal static void VerifyEndingCompletionTextVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {

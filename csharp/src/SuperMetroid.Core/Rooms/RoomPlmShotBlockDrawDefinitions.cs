@@ -35,10 +35,13 @@ internal static class RoomPlmShotBlockDrawDefinitions
         ReadOnlyMemory<ushort> LevelWords,
         Offset16<RoomBlocks> Next);
 
+    /// <summary>Represents draw list.</summary>
     internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs);
 
+    /// <summary>Stores draw count.</summary>
     internal const int DrawCount = 19;
-    internal enum Shape { Single, Horizontal, Vertical, Square }
+    /// <summary>Represents shape.</summary>
+    internal enum Shape { /** <summary>Identifies single.</summary> */ Single, /** <summary>Identifies horizontal.</summary> */ Horizontal, /** <summary>Identifies vertical.</summary> */ Vertical, /** <summary>Identifies square.</summary> */ Square }
 
     /// <summary>Bounded native draw: four breakup stages per shape at $84:A345-$A3DC,
     /// or parent/child restoration at $84:A47B-$A49A. Breakup uses consecutive
@@ -46,10 +49,14 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// consecutive columns and a 32-index row stride, with native collision links.</summary>
     internal readonly record struct Draw(ushort Pointer, Shape Layout, int Frame, bool Restore)
     {
+        /// <summary>Gets run count.</summary>
         internal int RunCount => Layout == Shape.Square ? 2 : 1;
+        /// <summary>Gets words per run.</summary>
         internal int WordsPerRun => Layout == Shape.Single ? 1 : 2;
+        /// <summary>Gets vertical.</summary>
         internal bool Vertical => Layout == Shape.Vertical;
 
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
@@ -70,6 +77,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to get.</summary>
     internal static bool TryGet(ushort pointer, out Draw draw)
     {
         if (TryFrames(pointer, SingleFrame0, 6, Shape.Single, out draw) ||
@@ -93,6 +101,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
         return true;
     }
 
+    /// <summary>Attempts to frames.</summary>
     private static bool TryFrames(ushort pointer, ushort first, int stride, Shape shape, out Draw draw)
     {
         int relative = pointer - first;
@@ -107,6 +116,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
 
     // Preserve the published interleaved export order; materialize DTOs only for
     // asset tooling. Runtime uses the calculated draw directly.
+    /// <summary>Gets calculated.</summary>
     internal static IEnumerable<Draw> Calculated
     {
         get
@@ -124,14 +134,17 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<DrawList> All => Calculated.Select(Export);
 
+    /// <summary>Describe.</summary>
     private static Draw Describe(ushort pointer)
     {
         if (!TryGet(pointer, out Draw draw)) throw new InvalidDataException($"Unknown shot-block draw ${pointer:X4}.");
         return draw;
     }
 
+    /// <summary>Export.</summary>
     private static DrawList Export(Draw draw)
     {
         var runs = new Run[draw.RunCount];

@@ -18,8 +18,10 @@ using static BotwoonWallPlmsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents botwoon wall visuals verification.</summary>
 internal static class BotwoonWallVisualsVerification
 {
+    /// <summary>verify botwoon wall stock mapping.</summary>
     internal static void VerifyBotwoonWallStockMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] native = new ushort[9];
@@ -55,6 +57,7 @@ internal static class BotwoonWallVisualsVerification
         Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(custom));
     }
 
+    /// <summary>verify botwoon wall visual id mapping.</summary>
     internal static void VerifyBotwoonWallVisualIdMapping()
     {
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -64,6 +67,7 @@ internal static class BotwoonWallVisualsVerification
                 AssertThrows<InvalidDataException>(() => BotwoonWallPlmDrawDefinitions.VisualId((ushort)pointer), "Botwoon visual ID accepts only the clear draw");
     }
 
+    /// <summary>verify botwoon wall visuals.</summary>
     internal static void VerifyBotwoonWallVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -139,6 +143,7 @@ internal static class BotwoonWallVisualsVerification
             "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation, stock repair and strict failures pass.");
     }
 
+    /// <summary>verify botwoon wall visual separation.</summary>
     internal static void VerifyBotwoonWallVisualSeparation(
         RoomPlmBotwoonWallVisualCatalog edited)
     {
@@ -178,6 +183,7 @@ internal static class BotwoonWallVisualsVerification
             "edited Botwoon wall draw reads no source bytes");
     }
 
+    /// <summary>botwoon wall visuals command.</summary>
     [VerificationCommand("--botwoon-wall-visuals")]
     internal static int BotwoonWallVisualsCommand()
     {

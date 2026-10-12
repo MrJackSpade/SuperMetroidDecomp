@@ -6,6 +6,7 @@ internal static class BotwoonWallPlmDrawDefinitions
     /// <summary><c>$84:930F</c>: clear nine consecutive wall blocks.</summary>
     internal const ushort ClearPointer = 0x930f;
 
+    /// <summary>Defines block count.</summary>
     internal const int BlockCount = 9;
 
     /// <summary>$84:9311-$9322: nine identical air blocks; indexed only within
@@ -17,6 +18,7 @@ internal static class BotwoonWallPlmDrawDefinitions
     }
 
     // Export DTOs are materialized only for asset tooling; gameplay evaluates the fill.
+    /// <summary>Gets or sets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -30,6 +32,7 @@ internal static class BotwoonWallPlmDrawDefinitions
         }
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) => pointer == ClearPointer
         ? "clear-wall"
         : throw new InvalidDataException(

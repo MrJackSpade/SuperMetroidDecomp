@@ -24,6 +24,7 @@ internal static class EndingWavySamusDefinitions
     /// <summary>$8B:E193 / CinematicFunction_PostCredits_WavySamus advances BG3Y by two per call.</summary>
     private const int VerticalStep = 2;
 
+    /// <summary>Scrolls at age.</summary>
     internal static Position16<BgPlanePixels>[] ScrollsAtAge(int age)
     {
         var result = new Position16<BgPlanePixels>[224];

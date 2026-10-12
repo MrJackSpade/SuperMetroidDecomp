@@ -16,12 +16,15 @@ using static DoorDefinitionsVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents torizo explosion instruction program definitions verification.</summary>
 internal static class TorizoExplosionInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify torizo explosion instruction program definitions.</summary>
     internal static void VerifyTorizoExplosionInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoExplosionInstructionProgramDefinitions), () => VerifyTorizoExplosionInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>verify torizo explosion instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo explosion instruction program definitions")]
     internal static void VerifyTorizoExplosionInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -221,6 +224,7 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>probe torizo explosion instruction mechanics allocation.</summary>
     private static int ProbeTorizoExplosionInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -234,12 +238,14 @@ internal static class TorizoExplosionInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new torizo explosion instruction read guard.</summary>
     private static CartridgeReadGuard NewTorizoExplosionInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TorizoExplosionInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo explosion byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoExplosionInstructionProgramDefinitions.PresentationWordCount, TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>torizo explosion instruction mechanics command.</summary>
     [VerificationCommand("--torizo-explosion-instruction-mechanics")]
     internal static int TorizoExplosionInstructionMechanicsCommand()
     {

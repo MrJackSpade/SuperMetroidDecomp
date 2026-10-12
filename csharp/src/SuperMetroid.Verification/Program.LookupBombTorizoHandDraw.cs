@@ -2,12 +2,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup bomb torizo hand draw verification.</summary>
 internal static class LookupBombTorizoHandDrawVerification
 {
+    /// <summary>Verifies bomb torizo hand draw geometry.</summary>
     internal static void VerifyBombTorizoHandDrawGeometry(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 0);
+    /// <summary>Verifies bomb torizo hand draw collision.</summary>
     internal static void VerifyBombTorizoHandDrawCollision(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 1);
+    /// <summary>Verifies bomb torizo hand draw visuals.</summary>
     internal static void VerifyBombTorizoHandDrawVisuals(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 2);
 
+    /// <summary>Verifies bomb torizo hand draw field.</summary>
     private static void VerifyBombTorizoHandDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9877,0x989d];
@@ -109,6 +114,7 @@ internal static class LookupBombTorizoHandDrawVerification
         AssertEqual(24, cells, "Torizo hand complete native cell domain");
     }
 
+    /// <summary>Bomb torizo hand draw field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for bomb Torizo hand draw field")]
     private static byte BombTorizoHandDrawFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

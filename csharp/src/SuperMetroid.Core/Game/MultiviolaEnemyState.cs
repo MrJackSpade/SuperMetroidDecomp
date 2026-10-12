@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class MultiviolaEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new multiviola enemy state instance.</summary>
     internal MultiviolaEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

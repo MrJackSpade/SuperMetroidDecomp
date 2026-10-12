@@ -14,6 +14,7 @@ using static AssertionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus turns and knockback verification.</summary>
 internal static class SamusTurnsAndKnockbackVerification
 {
 
@@ -972,6 +973,7 @@ static void SeedKnockbackDryVerticalRows(TestAddressSpace bus)
 // Exercises the bank-$9B/$94 connected-pendulum order with deliberately tiny ROM tables.
 // Hard-coded positions and velocities make this independent of production helper formulas.
 
+    /// <summary>Samus aerial turns walljump command.</summary>
     [VerificationCommand("--samus-aerial-turns-walljump")]
     internal static int SamusAerialTurnsWalljumpCommand()
     {

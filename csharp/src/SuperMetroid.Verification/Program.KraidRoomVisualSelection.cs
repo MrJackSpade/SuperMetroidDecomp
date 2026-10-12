@@ -12,8 +12,10 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents kraid room visual selection verification.</summary>
 internal static class KraidRoomVisualSelectionVerification
 {
+    /// <summary>Verifies kraid room visual selection.</summary>
     internal static void VerifyKraidRoomVisualSelection()
     {
         // Independent published pointer/ID/shape contract, not production enumeration.
@@ -82,6 +84,7 @@ internal static class KraidRoomVisualSelectionVerification
         Console.WriteLine("Kraid room visual selection: ten roles, all 45 blocks, legacy identity, copied data and validation pass.");
     }
 
+    /// <summary>Runs the kraid room visual selection lookup command.</summary>
     [VerificationCommand("--lookup-kraid-room-visual-selection")]
     internal static int LookupKraidRoomVisualSelectionCommand()
     {

@@ -10,6 +10,7 @@ internal static class EnemyVisualProgramSpecializations
     private const ushort MotherBrainGotoNeutralPhaseThree = 0x9d21;
 
     // Owners whose programs contain only control words: no visual selector operands to resolve.
+    /// <summary>Stores control only.</summary>
     private static readonly HashSet<string> ControlOnly =
     [
         nameof(CommonEnemyProjectileInstructionProgramDefinitions),
@@ -19,13 +20,16 @@ internal static class EnemyVisualProgramSpecializations
         nameof(TourianEntranceStatueInstructionProgramDefinitions),
     ];
 
+    /// <summary>Checks whether the instruction controls flow without drawing artwork.</summary>
     internal static bool IsControlOnly(Type type) => ControlOnly.Contains(type.Name);
 
+    /// <summary>Checks whether the program belongs to Mother Brain.</summary>
     internal static bool IsMotherBrain(Type type) => type == typeof(MotherBrainBodyInstructionProgramDefinitions) ||
         type == typeof(MotherBrainHeadInstructionProgramDefinitions) ||
         type == typeof(MotherBrainHandBeamBodyInstructionDefinitions) ||
         type == typeof(MotherBrainFallingTubeInstructionDefinitions);
 
+    /// <summary>Attempts to resolve operands.</summary>
     internal static bool TryOperands(Type type, HashSet<ushort> operands)
     {
         if (type == typeof(MotherBrainBodyInstructionProgramDefinitions))
@@ -70,6 +74,7 @@ internal static class EnemyVisualProgramSpecializations
         return true;
     }
 
+    /// <summary>Stores head regions.</summary>
     private static readonly (ushort Start, ushort End)[] HeadRegions =
     [
         (MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyStart, MotherBrainHeadInstructionProgramDefinitionsTooling.EarlyEnd),
@@ -80,11 +85,13 @@ internal static class EnemyVisualProgramSpecializations
         (MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeStart, MotherBrainHeadInstructionProgramDefinitionsTooling.RainbowChargeEnd),
     ];
 
+    /// <summary>Head command bytes.</summary>
     private static int HeadCommandBytes(ushort opcode) =>
         opcode is Instruction_CommonA9_Sleep or MotherBrainGotoNeutralPhaseThree ? 2
         : Enum.IsDefined((MotherBrainInstruction)opcode) ? HeadCommandBytes((MotherBrainInstruction)opcode)
         : throw new InvalidDataException($"Unknown Mother Brain head command ${opcode:X4}; static layout needs review.");
 
+    /// <summary>Head command bytes.</summary>
     private static int HeadCommandBytes(MotherBrainInstruction opcode) => opcode switch
     {
         MotherBrainInstruction.MotherBrain_GotoX or MotherBrainInstruction.MotherBrainHead_EnableNeckMovement_GotoX or
@@ -101,6 +108,7 @@ internal static class EnemyVisualProgramSpecializations
         _ => throw new InvalidDataException($"{opcode} is not a Mother Brain head command; static layout needs review."),
     };
 
+    /// <summary>Attempts to resolve.</summary>
     internal static bool TryResolve(Type type, ushort operand, out ushort pointer)
     {
         if (type == typeof(MotherBrainBodyInstructionProgramDefinitions))

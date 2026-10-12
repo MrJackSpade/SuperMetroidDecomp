@@ -8,7 +8,9 @@ public readonly record struct RoomEnemyGraphicsSetHeader(EnemyDefinitionId Defin
 /// <summary>One immutable terminated bank-$B4 enemy graphics set.</summary>
 public sealed class RoomEnemyGraphicsSetDefinition
 {
+    /// <summary>Stores records.</summary>
     private readonly RoomEnemyGraphicsSetHeader[] records;
+    /// <summary>Initializes a new room enemy graphics set definition instance.</summary>
     internal RoomEnemyGraphicsSetDefinition(ushort pointer, RoomEnemyGraphicsSetHeader[] records)
     {
         Pointer = pointer;
@@ -28,6 +30,7 @@ public sealed class RoomEnemyGraphicsSetDefinition
 /// </remarks>
 public static class RoomEnemyGraphicsSetDefinitions
 {
+    /// <summary>Stores definitions.</summary>
     private static readonly RoomEnemyGraphicsSetDefinition[] Definitions =
     [
         ..BuildSegment0(),
@@ -39,6 +42,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>Total four-byte member records across all compiled retail lists, excluding terminators and trailing metadata; not a count of unique enemy definitions or artwork images.</summary>
     public const int RecordCount = 425;
 
+    /// <summary>Initializes a new room enemy graphics set definitions instance.</summary>
     static RoomEnemyGraphicsSetDefinitions()
     {
         if (Definitions.Length != ListCount || Definitions.Sum(list => list.Records.Length) != RecordCount)
@@ -71,6 +75,7 @@ public static class RoomEnemyGraphicsSetDefinitions
     /// <summary>Enumerates every compiled set identity for ROM-oracle tests.</summary>
     public static IEnumerable<ushort> Pointers => Definitions.Select(list => list.Pointer);
 
+    /// <summary>build segment0.</summary>
     private static RoomEnemyGraphicsSetDefinition[] BuildSegment0() =>
     [
         new(0x8000, [
@@ -591,6 +596,7 @@ public static class RoomEnemyGraphicsSetDefinitions
         ]),
     ];
 
+    /// <summary>build segment1.</summary>
     private static RoomEnemyGraphicsSetDefinition[] BuildSegment1() =>
     [
         new(0x897d, [

@@ -1,20 +1,26 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Polyp species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class PolypBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Initializes a new polyp behavior instance.</summary>
     internal PolypBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _room = room;
         _projectiles = projectiles;
     }
 
+    /// <summary>Stores polyp proximity.</summary>
     private const ushort PolypProximity = 0x0040;
+    /// <summary>Stores polyp random seed.</summary>
     private const ushort PolypRandomSeed = 0x0011;
 
+    /// <summary>Stores polyp states.</summary>
     internal readonly PolypEnemyState?[] _polypStates =
         new PolypEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -105,10 +111,12 @@ internal sealed class PolypBehavior : IEnemySpecies
         return unchecked((short)(magnitude - PolypProximity)) < 0;
     }
 
+    /// <summary>Requires polyp state.</summary>
     private PolypEnemyState RequirePolypState(RoomEnemySlot slot) =>
         _polypStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Polyp state.");
 
+    /// <summary>Registers polyp projectiles.</summary>
     internal static void RegisterPolypProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -118,6 +126,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.PolypRock);
     }
 
+    /// <summary>Registers polyp initialization ai.</summary>
     internal void RegisterPolypInitializationAi(EnemyAiTable table)
     {
 
@@ -127,6 +136,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers polyp main ai.</summary>
     internal void RegisterPolypMainAi(EnemyAiTable table)
     {
 
@@ -135,9 +145,12 @@ internal sealed class PolypBehavior : IEnemySpecies
             RunPolypMain(slot, RequirePolypState(slot), frame.Samus);
         });
     }
+    /// <summary>Stores polyp rock pre instruction.</summary>
     private const ushort PolypRockPreInstruction =
         (ushort)EnemyProjectilePreInstruction.PolypRock;
+    /// <summary>Stores polyp rock gravity step.</summary>
     private const ushort PolypRockGravityStep = 2;
+    /// <summary>Stores polyp rock terminal speed index.</summary>
     private const ushort PolypRockTerminalSpeedIndex = 0x0040;
 
     /// <summary>
@@ -185,6 +198,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         CacatacBehavior.DeleteEnemyProjectileIfOutsideInclusiveViewport(projectile, camera);
     }
 
+    /// <summary>Advances rising polyp rock.</summary>
     private static void StepRisingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
@@ -209,6 +223,7 @@ internal sealed class PolypBehavior : IEnemySpecies
         MovePolypRockHorizontally(projectile);
     }
 
+    /// <summary>Advances falling polyp rock.</summary>
     private static void StepFallingPolypRock(RoomEnemyProjectileSlot projectile)
     {
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(

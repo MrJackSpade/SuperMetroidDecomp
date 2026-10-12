@@ -15,18 +15,25 @@ internal static class IntroCaretSpriteDefinitions
     /// <summary>$8C:8D68: the one-part visible caret; blink control selects visibility separately.</summary>
     internal static IntroCaretFrameDefinition Visible => new(Still, "caret-visible", 1);
 
+    /// <summary>Gets frames.</summary>
     internal static IReadOnlyList<IntroCaretFrameDefinition> Frames { get; } = new VisibleFrameList();
 
+    /// <summary>Represents visible frame list.</summary>
     private sealed class VisibleFrameList : IReadOnlyList<IntroCaretFrameDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 1;
+        /// <summary>Gets an indexed value.</summary>
         public IntroCaretFrameDefinition this[int index] => index == 0 ? Visible : throw new IndexOutOfRangeException();
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<IntroCaretFrameDefinition> GetEnumerator()
         {
             yield return Visible;
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 
+/// <summary>Represents intro caret frame definition.</summary>
 internal readonly record struct IntroCaretFrameDefinition(ushort Pointer, string Name, int StockPartCount);

@@ -22,6 +22,7 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
     /// <summary><c>UNUSED_InstList_Skree_StopAnimating_A3C694</c> at $A3:C694.</summary>
     internal const ushort SkreeStopAnimating = 0xc694;
 
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     internal static InstructionMechanicsWord MechanicsWord(bool metaree, int index)
     {
         if ((uint)index >= 20) throw new IndexOutOfRangeException();
@@ -61,9 +62,12 @@ internal abstract class SkreeMetareeInstructionProgramDefinitions
         });
     }
 
+    /// <summary>read metaree mechanics word.</summary>
     internal static ushort ReadMetareeMechanicsWord(ushort address) => ReadMechanicsWord(true, address);
+    /// <summary>read skree mechanics word.</summary>
     internal static ushort ReadSkreeMechanicsWord(ushort address) => ReadMechanicsWord(false, address);
 
+    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     private static ushort ReadMechanicsWord(bool metaree, ushort address)
     {
         for (int index = 0; index < 20; index++)

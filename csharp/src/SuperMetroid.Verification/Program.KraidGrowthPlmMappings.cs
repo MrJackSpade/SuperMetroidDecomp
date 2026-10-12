@@ -2,17 +2,22 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid growth plm mappings verification.</summary>
 internal static class KraidGrowthPlmMappingsVerification
 {
+    /// <summary>Verifies kraid growth plm columns.</summary>
     internal static void VerifyKraidGrowthPlmColumns(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 4, request => request.Block.X));
 
+    /// <summary>Verifies kraid growth plm rows.</summary>
     internal static void VerifyKraidGrowthPlmRows(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 5, request => request.Block.Y));
 
+    /// <summary>Verifies kraid growth plm headers.</summary>
     internal static void VerifyKraidGrowthPlmHeaders(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 6, request => (ushort)request.Header));
 
+    /// <summary>Verifies kraid growth plm field.</summary>
     private static void VerifyKraidGrowthPlmField(SuperMetroidAddressSpace rom, int offset,
         Func<KraidPlmRequest, ushort> field)
     {
@@ -32,6 +37,7 @@ internal static class KraidGrowthPlmMappingsVerification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = requests[invalid], "Growth request list bounds");
     }
 
+    /// <summary>Kraid growth plm field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth PLM field")]
     private static byte KraidGrowthPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

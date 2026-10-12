@@ -15,8 +15,11 @@ namespace SuperMetroid.Core.Rooms;
 /// </remarks>
 public sealed class BackgroundTilemapStreamer
 {
+    /// <summary>Stores level entries.</summary>
     private readonly ushort[] _levelEntries;
+    /// <summary>Stores background entries.</summary>
     private readonly ushort[] _backgroundEntries;
+    /// <summary>Stores block definitions.</summary>
     private readonly byte[] _blockDefinitions;
 
     /// <summary>Copies BG1/BG2 source allocations and the combined metatile table used to produce camera-stream and PLM redraw descriptors; construction does not write VRAM.</summary>
@@ -141,6 +144,7 @@ public sealed class BackgroundTilemapStreamer
         };
     }
 
+    /// <summary>Builds column.</summary>
     private TilemapStreamUpdate BuildColumn(BackgroundUpdateRequest request)
     {
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
@@ -192,6 +196,7 @@ public sealed class BackgroundTilemapStreamer
         return new TilemapStreamUpdate(segments);
     }
 
+    /// <summary>Builds row.</summary>
     private TilemapStreamUpdate BuildRow(BackgroundUpdateRequest request)
     {
         ReadOnlySpan<ushort> source = SelectSource(request.Layer);
@@ -246,6 +251,7 @@ public sealed class BackgroundTilemapStreamer
         return new TilemapStreamUpdate(segments);
     }
 
+    /// <summary>Selects source.</summary>
     private ReadOnlySpan<ushort> SelectSource(BackgroundLayer layer) => layer switch
     {
         BackgroundLayer.Level => _levelEntries,
@@ -253,6 +259,7 @@ public sealed class BackgroundTilemapStreamer
         _ => throw new ArgumentOutOfRangeException(nameof(layer)),
     };
 
+    /// <summary>Source index.</summary>
     private int SourceIndex(Position16<RoomBlocks> block)
     {
         // $80:A9E5/$80:AB7F use the SNES 8x8 multiplier for Y*roomWidth, then add the
@@ -260,6 +267,7 @@ public sealed class BackgroundTilemapStreamer
         return unchecked((byte)block.Y * RoomWidthInBlocks + block.X);
     }
 
+    /// <summary>Reads source.</summary>
     private static ushort ReadSource(
         ReadOnlySpan<ushort> source,
         int index,

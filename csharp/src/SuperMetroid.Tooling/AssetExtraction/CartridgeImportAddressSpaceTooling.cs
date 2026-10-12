@@ -1,10 +1,11 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction;
 
 /// <summary>Development-tool members of <see cref="CartridgeImportAddressSpace"/>; never linked by player hosts.</summary>
 internal static class CartridgeImportAddressSpaceTooling
 {
+    /// <summary>Loads retail rom.</summary>
     public static CartridgeImportAddressSpace LoadRetailRom(string path)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
@@ -31,8 +32,10 @@ internal static class CartridgeImportAddressSpaceTooling
 /// <summary>Development-tool instance members of <see cref="CartridgeImportAddressSpace"/>.</summary>
 internal static class CartridgeImportAddressSpaceToolingExtensions
 {
+    /// <summary>Provides cartridge import address-space helpers for tooling.</summary>
     extension(CartridgeImportAddressSpace self)
     {
+        /// <summary>Gets rom.</summary>
         public ReadOnlySpan<byte> Rom => self._rom;
     }
 }

@@ -2,16 +2,25 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup bomb torizo hand program verification.</summary>
 internal static class LookupBombTorizoHandProgramVerification
 {
+    /// <summary>verify hand program controls.</summary>
     internal static void VerifyHandProgramControls(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 0);
+    /// <summary>verify hand program draws.</summary>
     internal static void VerifyHandProgramDraws(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 1);
+    /// <summary>verify hand program callback.</summary>
     internal static void VerifyHandProgramCallback(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 2);
+    /// <summary>verify hand program debris arguments.</summary>
     internal static void VerifyHandProgramDebrisArguments(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 3);
+    /// <summary>verify hand program transfer size.</summary>
     internal static void VerifyHandProgramTransferSize(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 4);
+    /// <summary>verify hand program transfer source.</summary>
     internal static void VerifyHandProgramTransferSource(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 5);
+    /// <summary>verify hand program transfer destination.</summary>
     internal static void VerifyHandProgramTransferDestination(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 6);
 
+    /// <summary>verify hand program field.</summary>
     private static void VerifyHandProgramField(SuperMetroidAddressSpace rom, int field)
     {
         // Actual supported-ROM boundaries, including the alignment change after
@@ -62,6 +71,7 @@ internal static class LookupBombTorizoHandProgramVerification
         }
     }
 
+    /// <summary>hand program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for hand program field")]
     private static byte HandProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

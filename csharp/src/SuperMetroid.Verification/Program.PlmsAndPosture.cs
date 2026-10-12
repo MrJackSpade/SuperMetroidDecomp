@@ -15,6 +15,7 @@ using static AssertionsVerification;
 using static SyntheticRoomCartridgeFixturesVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents plms and posture verification.</summary>
 internal static class PlmsAndPostureVerification
 {
 
@@ -239,6 +240,7 @@ internal static void VerifyBreakableGrapplePlms()
     Console.WriteLine("  Movement PLMs: grapple and collision-bomb ROM timing, multi-block terrain, sound, VRAM, and respawn agree.");
 }
 
+/// <summary>write definition word.</summary>
 static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort value)
 {
     int offset = block * 8 + tile * 2;
@@ -246,6 +248,7 @@ static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort 
     definitions[offset + 1] = SnesLittleEndian.HighByte(value);
 }
 
+/// <summary>verify samus posture movement.</summary>
 internal static void VerifySamusPostureMovement()
 {
     TestAddressSpace bus = CreateSamusPostureCartridge();
@@ -598,6 +601,7 @@ static TestAddressSpace CreateBreakableGrappleCartridge()
     return bus;
 }
 
+/// <summary>seed bomb block plm programs.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bomb-block PLM collision heads, tails and draw records")]
 static void SeedBombBlockPlmPrograms(TestAddressSpace bus)
 {
@@ -714,6 +718,7 @@ static void SeedAimedTransitionPoseDefinitions(
     ]);
 }
 
+/// <summary>seed dry air jump table zero.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the dry-air jump and gravity table-zero words")]
 static void SeedDryAirJumpTableZero(TestAddressSpace bus)
 {
@@ -725,6 +730,7 @@ static void SeedDryAirJumpTableZero(TestAddressSpace bus)
     bus.WriteBytes(0x909ea7, [0x00, 0x00]);
 }
 
+    /// <summary>samus posture movement command.</summary>
     [VerificationCommand("--samus-posture-movement")]
     internal static int SamusPostureMovementCommand()
     {

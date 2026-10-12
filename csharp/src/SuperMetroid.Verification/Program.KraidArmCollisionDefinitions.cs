@@ -6,8 +6,10 @@ using static KraidArmInstructionProgramDefinitionsVerification;
 using static KraidArmPhysicalFrameMappingsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid arm collision definitions verification.</summary>
 internal static class KraidArmCollisionDefinitionsVerification
 {
+    /// <summary>Verifies kraid arm collision definitions.</summary>
     internal static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -25,6 +27,7 @@ internal static class KraidArmCollisionDefinitionsVerification
             "and 24 rectangles/callback pairs match the retail ROM.");
     }
 
+    /// <summary>Verifies kraid arm hitbox list selection.</summary>
     internal static void VerifyKraidArmHitboxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native arm-list identities, independently transcribed from bank_A7.asm.

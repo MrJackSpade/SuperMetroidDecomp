@@ -28,8 +28,10 @@ public readonly record struct NuclearWaffleOrientation(
 /// </summary>
 public sealed class NuclearWaffleEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new nuclear waffle enemy state instance.</summary>
     internal NuclearWaffleEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native variable A ($0FA8 plus slot byte index): current bank-$A6 inactive/active dispatcher pointer.</summary>
@@ -95,6 +97,8 @@ public sealed class NuclearWaffleEnemyState
     public RoomSpriteObjectSlot?[] SpriteSegments { get; } =
         new RoomSpriteObjectSlot?[3];
 
+    /// <summary>Gets projectile orientation states.</summary>
     internal ushort[] ProjectileOrientationStates { get; } = new ushort[4];
+    /// <summary>Gets sprite orientation states.</summary>
     internal ushort[] SpriteOrientationStates { get; } = new ushort[3];
 }

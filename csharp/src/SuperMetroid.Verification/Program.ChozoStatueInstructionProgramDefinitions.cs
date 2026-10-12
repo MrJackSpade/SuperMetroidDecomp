@@ -13,14 +13,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents chozo statue instruction program definitions verification.</summary>
 internal static class ChozoStatueInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify chozo statue instruction program definitions.</summary>
     internal static void VerifyChozoStatueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>verify chozo statue instruction program definitions.</summary>
     internal static void VerifyChozoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -63,6 +66,7 @@ internal static class ChozoStatueInstructionProgramDefinitionsVerification
             "programs; 52 spritemap selectors bind separately installed presentation data.");
     }
 
+    /// <summary>probe chozo statue instruction mechanics allocation.</summary>
     private static int ProbeChozoStatueInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -74,6 +78,7 @@ internal static class ChozoStatueInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>chozo statue instruction mechanics command.</summary>
     [VerificationCommand("--chozo-statue-instruction-mechanics")]
     internal static int ChozoStatueInstructionMechanicsCommand()
     {

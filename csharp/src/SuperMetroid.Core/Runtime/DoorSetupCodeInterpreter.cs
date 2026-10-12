@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>Pure scroll-byte portion of translated bank-$8F door setup programs.</summary>
 internal static class DoorSetupCodeInterpreter
 {
+    /// <summary>Applies scroll writes.</summary>
     public static void ApplyScrollWrites(
         DoorSetupCode setupCodePointer,
         ushort doorPointer,

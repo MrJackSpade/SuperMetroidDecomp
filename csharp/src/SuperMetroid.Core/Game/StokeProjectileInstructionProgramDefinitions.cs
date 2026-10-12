@@ -10,19 +10,24 @@ internal abstract class StokeProjectileInstructionProgramDefinitions
     internal const ushort Initial = 0xdb0c;
 
     // The shared 16-tick pose cadence is authored animation timing (reviewed under #1165); the interpreter only loads it into the instruction timer.
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 4;
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 2;
+    /// <summary>Gets the compiled mechanics word at the given index.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return new((ushort)(Initial + (index < 3 ? 4 * index : 10)),
             index < 2 ? (ushort)16 : index == 2 ? (ushort)EnemyProjectileInstruction.GotoY : Initial);
     }
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 2 + 4 * index);
     }
+    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

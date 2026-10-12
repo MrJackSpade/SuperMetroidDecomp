@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents lookup station visual ids verification.</summary>
 internal static class LookupStationVisualIdsVerification
 {
+    /// <summary>Verifies station visual ids.</summary>
     internal static void VerifyStationVisualIds()
     {
         // Original exported identity contract, independent of the replacement naming code.

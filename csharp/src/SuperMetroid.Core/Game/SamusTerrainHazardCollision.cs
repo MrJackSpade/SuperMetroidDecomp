@@ -66,6 +66,7 @@ public static class SamusTerrainHazardCollision
         PublishDamage(bus, samus, damage);
     }
 
+    /// <summary>Visit inside point.</summary>
     private static void VisitInsidePoint(
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -91,6 +92,7 @@ public static class SamusTerrainHazardCollision
         PublishDamage(bus, samus, SamusTerrainHazardRomData.LightSpikeDamage);
     }
 
+    /// <summary>Publish damage.</summary>
     private static void PublishDamage(
         ISnesAddressSpace bus,
         SamusState samus,

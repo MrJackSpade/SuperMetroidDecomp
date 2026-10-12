@@ -19,6 +19,7 @@ using static CeresSaveStartupVerification;
 using static FrontendRomFreeVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents gunship installed compositions verification.</summary>
 internal static class GunshipInstalledCompositionsVerification
 {
     /// <summary>
@@ -118,6 +119,7 @@ internal static class GunshipInstalledCompositionsVerification
         Console.WriteLine("#1154: reported first Landing Site fade-in draw completes with installed enemy compositions (RAM-only gameplay).");
     }
 
+    /// <summary>gunship landing compositions command.</summary>
     [VerificationCommand("--gunship-landing-compositions")]
     internal static int GunshipLandingCompositionsCommand()
     {

@@ -22,6 +22,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public sealed class SamusSuitPickupState
 {
+    /// <summary>Stores transformation sound pending.</summary>
     private bool _transformationSoundPending;
     /// <summary>Native queue guard captured at suit setup, before deferred host publication.</summary>
     public bool TransformationSoundSuppressed { get; private set; }
@@ -33,6 +34,7 @@ public sealed class SamusSuitPickupState
         _transformationSoundPending = false;
         return pending;
     }
+    /// <summary>Stores window table.</summary>
     private readonly ushort[] _windowTable =
         new ushort[SamusSpecialSequenceRomData.SuitPickup.WindowScanlineCount];
 
@@ -199,6 +201,7 @@ public sealed class SamusSuitPickupState
         samus.DraygonGrabbed.SetSharedEscapeCounter(Substate);
     }
 
+    /// <summary>Steps light beam appears.</summary>
     private void StepLightBeamAppears()
     {
         LightBeamPosition = unchecked((ushort)(LightBeamPosition + 8));
@@ -217,6 +220,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Steps uniform widening.</summary>
     private void StepUniformWidening()
     {
         byte amount = unchecked((byte)(SnesEightEight.WholeOf(LightBeamWideningSpeed)));
@@ -234,6 +238,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Steps curved widening.</summary>
     private void StepCurvedWidening()
     {
         AdvanceColorTowardWhite();
@@ -286,6 +291,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Reveal suit.</summary>
     private void RevealSuit(ISnesAddressSpace bus, SamusState samus, SnesCgram cgram)
     {
         ushort mask = Kind == SamusSuitPickupKind.Varia
@@ -303,6 +309,7 @@ public sealed class SamusSuitPickupState
         Substate++;
     }
 
+    /// <summary>Steps light beam shrinks.</summary>
     private void StepLightBeamShrinks()
     {
         if (Kind == SamusSuitPickupKind.Gravity)
@@ -338,6 +345,7 @@ public sealed class SamusSuitPickupState
         }
     }
 
+    /// <summary>Steps light beam dissipates.</summary>
     private void StepLightBeamDissipates()
     {
         byte left = unchecked((byte)(LightBeamPosition + 8));
@@ -348,6 +356,7 @@ public sealed class SamusSuitPickupState
             Substate++;
     }
 
+    /// <summary>Finish.</summary>
     private void Finish(SamusState samus)
     {
         FixedColorRed = SamusPaletteRomData.SuitPickup.ResetRed;
@@ -363,6 +372,7 @@ public sealed class SamusSuitPickupState
         IsActive = false;
     }
 
+    /// <summary>Advances color toward white.</summary>
     private void AdvanceColorTowardWhite()
     {
         FixedColorRed = AddTwoAndClamp(FixedColorRed, SamusPaletteRomData.SuitPickup.WhiteRed);
@@ -370,11 +380,13 @@ public sealed class SamusSuitPickupState
         FixedColorBlue = AddTwoAndClamp(FixedColorBlue, SamusPaletteRomData.SuitPickup.WhiteBlue);
     }
 
+    /// <summary>Advances color toward orange.</summary>
     private void AdvanceColorTowardOrange() => StepColorDownToward(
         SamusPaletteRomData.SuitPickup.WhiteRed,
         SamusPaletteRomData.SuitPickup.VariaOrangeGreen,
         SamusPaletteRomData.SuitPickup.VariaOrangeBlue);
 
+    /// <summary>Advances color toward blue.</summary>
     private void AdvanceColorTowardBlue() => StepColorDownToward(
         SamusPaletteRomData.SuitPickup.InitialRed,
         SamusPaletteRomData.SuitPickup.GravityGreen,
@@ -388,6 +400,7 @@ public sealed class SamusSuitPickupState
         if (FixedColorBlue != blue) FixedColorBlue--;
     }
 
+    /// <summary>Adds two and clamp.</summary>
     private static byte AddTwoAndClamp(byte value, byte target)
     {
         if (value == target)

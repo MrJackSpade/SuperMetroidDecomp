@@ -7,8 +7,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static CeresEscapeTileArtworkVerification;
 
+/// <summary>Represents ceres escape overlay tilemaps verification.</summary>
 internal static class CeresEscapeOverlayTilemapsVerification
 {
+    /// <summary>Verifies ceres escape overlay tilemaps.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
     internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
@@ -140,13 +142,16 @@ internal static class CeresEscapeOverlayTilemapsVerification
         }
     }
 
+    /// <summary>Represents ceres escape overlay provider.</summary>
     internal sealed class CeresEscapeOverlayProvider(EnemyTileArtworkCatalog art)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>Resolve.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidOperationException(
                 $"Ceres overlay fixture did not expect asset {asset}.");
 
+        /// <summary>Tries to resolve.</summary>
         public bool TryResolve(int sourceAddress, int byteCount,
             out ReadOnlyMemory<byte> data) =>
             art.TryResolve(sourceAddress, byteCount, out data);

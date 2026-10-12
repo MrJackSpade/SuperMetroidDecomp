@@ -12,8 +12,10 @@ using SuperMetroid.Core.Runtime;
 using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 
+/// <summary>Represents ini editing verification.</summary>
 internal static class IniEditingVerification
 {
+    /// <summary>verify ini editing.</summary>
     internal static void VerifyIniEditing()
     {
         string original = "; preserved comment\r\n[Audio]\r\nMasterVolumePercent=37\r\n[Game]\r\nInvincibility=false\r\n";
@@ -45,6 +47,7 @@ internal static class IniEditingVerification
         Console.WriteLine("INI edits: preservation, existing/missing keys, section insertion, and invalid input checks pass.");
     }
 
+    /// <summary>ini edit command.</summary>
     [VerificationCommand("--ini-edit")]
     internal static int IniEditCommand()
     {

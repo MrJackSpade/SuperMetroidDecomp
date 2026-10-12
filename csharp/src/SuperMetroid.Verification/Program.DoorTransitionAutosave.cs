@@ -17,8 +17,10 @@ using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents door transition autosave verification.</summary>
 internal static class DoorTransitionAutosaveVerification
 {
+    /// <summary>Verifies door transition autosave.</summary>
     internal static void VerifyDoorTransitionAutosave()
     {
         AssertTrue(new SuperMetroidGameOptions().DoorTransitionAutosave, "new sessions enable door recovery");
@@ -177,6 +179,7 @@ internal static class DoorTransitionAutosaveVerification
         }
     }
 
+    /// <summary>Door autosave command.</summary>
     [VerificationCommand("--door-autosave")]
     internal static int DoorAutosaveCommand()
     {

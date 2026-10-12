@@ -15,8 +15,10 @@ using static EnemyAnimationIsolationFixtureVerification;
 using static EnemyEffectsFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy effect resources verification.</summary>
 internal static class EnemyEffectResourcesVerification
 {
+    /// <summary>Verifies enemy effect resources.</summary>
     internal static void VerifyEnemyEffectResources()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -46,6 +48,7 @@ internal static class EnemyEffectResourcesVerification
         Console.WriteLine("  Enemy effect resources: missing/unknown art fails before changing WRAM, phases, actors, graphics or VRAM.");
     }
 
+    /// <summary>Verifies dead tourian missing artwork.</summary>
     private static void VerifyDeadTourianMissingArtwork()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -69,6 +72,7 @@ internal static class EnemyEffectResourcesVerification
         }
     }
 
+    /// <summary>Checks crocomire resource failure.</summary>
     private static void CheckCrocomireResourceFailure(CrocomireMeltingArtwork? art,
         Action<CrocomireEffectFixture> operation, string context, bool invalidHeader = false)
     {
@@ -82,6 +86,7 @@ internal static class EnemyEffectResourcesVerification
         AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
     }
 
+    /// <summary>Verifies crocomire melt json.</summary>
     internal static void VerifyCrocomireMeltJson()
     {
         string valid = MeltEffectJson();
@@ -100,6 +105,7 @@ internal static class EnemyEffectResourcesVerification
         Console.WriteLine("  Crocomire melt JSON: valid schema/casing preserved; unknown, duplicate and case-aliased root/cell fields rejected.");
     }
 
+    /// <summary>Enemy effect resources command.</summary>
     [VerificationCommand("--enemy-effect-resources")]
     internal static int EnemyEffectResourcesCommand()
     {
@@ -107,6 +113,7 @@ internal static class EnemyEffectResourcesVerification
         return 0;
     }
 
+    /// <summary>Crocomire melt json command.</summary>
     [VerificationCommand("--crocomire-melt-json")]
     internal static int CrocomireMeltJsonCommand()
     {

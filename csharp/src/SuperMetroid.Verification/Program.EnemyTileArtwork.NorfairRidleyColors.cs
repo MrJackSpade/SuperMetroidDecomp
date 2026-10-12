@@ -7,8 +7,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents enemy tile artwork norfair ridley colors verification.</summary>
 internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
+    /// <summary>verify installed norfair ridley colors.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Norfair Ridley colors and reveal pointers")]
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,

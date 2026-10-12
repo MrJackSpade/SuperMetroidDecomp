@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kago bug projectile instruction program definitions verification.</summary>
 internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies kago bug projectile instruction program definitions.</summary>
     internal static void VerifyKagoBugProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKagoBugProjectileInstructionProgramDefinitions), () => VerifyKagoBugProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies kago bug projectile instruction program definitions.</summary>
     internal static void VerifyKagoBugProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -150,6 +153,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probe kago bug projectile instruction mechanics allocation.</summary>
     private static int ProbeKagoBugProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -163,6 +167,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New kago bug projectile instruction guard.</summary>
     private static CartridgeReadGuard NewKagoBugProjectileInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -172,6 +177,7 @@ internal static class KagoBugProjectileInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Kago-bug projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KagoBugProjectileInstructionProgramDefinitions.PresentationWordCount, KagoBugProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Kago bug projectile instruction mechanics command.</summary>
     [VerificationCommand("--kago-bug-projectile-instruction-mechanics")]
     internal static int KagoBugProjectileInstructionMechanicsCommand()
     {

@@ -34,13 +34,17 @@ public static class CreditsPresentationDefinitions
     /// <summary>Font-3 tile used by the lower half of the credits period.</summary>
     public const ushort LargePeriodBottom = 0x007e;
 
+    /// <summary>Stores roles.</summary>
     private static readonly CreditRoles Roles = new();
     /// <summary>Calculated read-only view of all 67 required credit roles in native order, with fixed one-/two-row styles and preceding blank-row counts; wording remains editable content.</summary>
     public static IReadOnlyList<CreditsLineDefinition> Lines => Roles;
 
+    /// <summary>Represents credit roles.</summary>
     private sealed class CreditRoles : IReadOnlyList<CreditsLineDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 67;
+        /// <summary>Gets or sets an indexed value.</summary>
         public CreditsLineDefinition this[int index]
         {
             get
@@ -53,13 +57,16 @@ public static class CreditsPresentationDefinitions
                 return new(id, heading ? CreditsLineStyle.Small : CreditsLineStyle.Large, blankRows);
             }
         }
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<CreditsLineDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>Role id.</summary>
     private static string RoleId(int index) => index switch
     {
         0 => "staff-heading",
@@ -92,6 +99,7 @@ public static class CreditsPresentationDefinitions
         _ => "general-manager-name",
     };
 
+    /// <summary>Programming role.</summary>
     private static string ProgrammingRole(int index) => index switch
     {
         0 => "program-director",

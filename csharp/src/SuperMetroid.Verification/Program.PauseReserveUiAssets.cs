@@ -7,8 +7,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 
+/// <summary>Represents pause reserve ui assets verification.</summary>
 internal static class PauseReserveUiAssetsVerification
 {
+    /// <summary>Verifies pause reserve ui assets.</summary>
     internal static void VerifyPauseReserveUiAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
     {
@@ -111,6 +113,7 @@ internal static class PauseReserveUiAssetsVerification
         }
     }
 
+    /// <summary>Creates pause reserve ui read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve UI tilemap ranges")]
     private static CartridgeReadGuard NewPauseReserveUiReadGuard(ISnesAddressSpace source)
     {

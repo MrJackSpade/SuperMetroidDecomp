@@ -13,8 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents shutter embedding verification.</summary>
 internal static class ShutterEmbeddingVerification
 {
+    /// <summary>Verifies shutter embedding.</summary>
     internal static void VerifyShutterEmbedding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -68,6 +70,7 @@ internal static class ShutterEmbeddingVerification
         Console.WriteLine($"126 shutter approach sequences: {activatedCases} activate the shutter, {carriedCases} reach upward carry; minimum support gap={minimumGap}.");
     }
 
+    /// <summary>Shutter embedding command.</summary>
     [VerificationCommand("--shutter-embedding")]
     internal static int ShutterEmbeddingCommand()
     {

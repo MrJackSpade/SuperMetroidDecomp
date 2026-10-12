@@ -28,10 +28,14 @@ namespace SuperMetroid.Core.Assets;
 /// other selectors/timing require their own dispositions.</remarks>
 public sealed class SamusChargeColorCatalog
 {
+    /// <summary>Stores charged beam.</summary>
     private readonly ChargeInputs chargedBeam;
+    /// <summary>Stores pseudo screw.</summary>
     private readonly ChargeInputs pseudoScrew;
+    /// <summary>Stores hyper shot.</summary>
     private readonly SamusHyperBeamColorCatalog hyperShot;
 
+    /// <summary>Initializes a new samus charge color catalog instance.</summary>
     private SamusChargeColorCatalog(ChargeInputs chargedBeam,
         ChargeInputs pseudoScrew, SamusHyperBeamColorCatalog hyperShot)
     {
@@ -40,6 +44,7 @@ public sealed class SamusChargeColorCatalog
         this.hyperShot = hyperShot;
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -118,10 +123,14 @@ public sealed class SamusChargeColorCatalog
     /// inputs. All bright transparent words share Power normal color0.</remarks>
     private sealed class ChargeInputs
     {
+        /// <summary>Stores pseudo.</summary>
         private readonly bool pseudo;
+        /// <summary>Stores colors.</summary>
         private readonly Dictionary<int, Bgr555> colors = new();
+        /// <summary>Stores fade inputs.</summary>
         private readonly Dictionary<int, LoadingPaletteInputView.Channels> fadeInputs = new();
 
+        /// <summary>Initializes a new charge inputs instance.</summary>
         internal ChargeInputs(Bgr555[][][] source, bool pseudo)
         {
             this.pseudo = pseudo;
@@ -150,6 +159,7 @@ public sealed class SamusChargeColorCatalog
             }
         }
 
+        /// <summary>Resolve.</summary>
         internal Bgr555 Resolve(int suit, int phase, int color)
         {
             if ((uint)suit >= SamusChargeColorFormat.SuitCount) throw new ArgumentOutOfRangeException(nameof(suit));
@@ -170,6 +180,7 @@ public sealed class SamusChargeColorCatalog
         }
     }
 
+    /// <summary>Apply.</summary>
     private static void Apply(SnesCgram cgram, ChargeInputs source, int suit, int phase)
     {
         Ensure.NotNull(cgram);
@@ -177,6 +188,7 @@ public sealed class SamusChargeColorCatalog
             new SamusPalettes(cgram).Suit.Write(color,
                 source.Resolve(suit, phase, color));
     }
+    /// <summary>Compile charge.</summary>
     private static ChargeInputs CompileCharge(PaletteRgb5[][][]? source, string name, bool pseudo)
     {
         if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
@@ -209,6 +221,7 @@ public sealed class SamusChargeColorCatalog
             cycleOrder[source.Length - 1 - frame] = source[frame];
         return SamusHyperBeamColorCatalog.FromFrames(cycleOrder);
     }
+    /// <summary>Compile colors.</summary>
     private static Bgr555[] CompileColors(PaletteRgb5[]? source, string name)
     {
         if (source is null || source.Length != SamusChargeColorFormat.ColorsPerPalette)
@@ -225,6 +238,7 @@ public sealed class SamusChargeColorCatalog
         return result;
     }
 
+    /// <summary>Reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Samus charge color property {name}."));

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
@@ -7,19 +7,26 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Boulder species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BoulderBehavior : IEnemySpecies
 {
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
+    /// <summary>Initializes a new boulder behavior instance.</summary>
     internal BoulderBehavior(EnemyTerrain terrain, EnemyProjectileEngine projectiles)
     {
         _terrain = terrain;
         _projectiles = projectiles;
     }
 
+    /// <summary>Defines boulder impact sound.</summary>
     private const ushort BoulderImpactSound = 0x0042;
+    /// <summary>Defines boulder break sound.</summary>
     private const ushort BoulderBreakSound = 0x0043;
+    /// <summary>Defines boulder dust animation index.</summary>
     private const ushort BoulderDustAnimationIndex = 0x0011;
 
+    /// <summary>Stores boulder states.</summary>
     internal readonly BoulderEnemyState?[] _boulderStates =
         new BoulderEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -103,6 +110,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>run boulder waiting.</summary>
     private static void RunBoulderWaiting(RoomEnemySlot slot, BoulderEnemyState state, SamusState samus)
     {
         short deltaY = unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole));
@@ -121,6 +129,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
             : BoulderAiFunction.InitialFall;
     }
 
+    /// <summary>run boulder initial fall.</summary>
     private static void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: false);
@@ -138,6 +147,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
         state.BounceSpeedAccumulator = 0x2000;
     }
 
+    /// <summary>run boulder rebound.</summary>
     private static void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
     {
         AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: true);
@@ -156,6 +166,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
             0x5000);
     }
 
+    /// <summary>run boulder falling.</summary>
     internal void RunBoulderFalling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = EnemyMath.ReadQuadraticEnemySpeed(
@@ -198,6 +209,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
             0x5000);
     }
 
+    /// <summary>run boulder rolling.</summary>
     private void RunBoulderRolling(RoomEnemySlot slot, BoulderEnemyState state, RoomLevelData level)
     {
         int verticalDisplacement = unchecked(
@@ -239,6 +251,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
         state.PreviousYSubposition = slot.Position.Y.Fraction;
     }
 
+    /// <summary>add boulder horizontal velocity.</summary>
     private static void AddBoulderHorizontalVelocity(RoomEnemySlot slot, BoulderEnemyState state)
     {
         int displacement = ReadBoulderHorizontalDisplacement(state);
@@ -247,11 +260,13 @@ internal sealed class BoulderBehavior : IEnemySpecies
         slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
+    /// <summary>read boulder horizontal displacement.</summary>
     private static int ReadBoulderHorizontalDisplacement(BoulderEnemyState state) =>
         EnemyMath.ReadQuadraticEnemySpeed(
             unchecked((byte)(SnesEightEight.WholeOf(state.TravelSpeedAccumulator))),
             negative: state.DirectionSelector != 0);
 
+    /// <summary>add boulder vertical velocity.</summary>
     private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, ushort accumulator, bool negative)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
@@ -262,16 +277,19 @@ internal sealed class BoulderBehavior : IEnemySpecies
         slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
     }
 
+    /// <summary>add and cap unsigned.</summary>
     private static ushort AddAndCapUnsigned(ushort value, ushort increment, ushort maximum)
     {
         ushort result = unchecked((ushort)(value + increment));
         return unchecked((short)(result - maximum)) < 0 ? result : maximum;
     }
 
+    /// <summary>require boulder state.</summary>
     private BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
         _boulderStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Boulder state.");
 
+    /// <summary>register boulder initialization ai.</summary>
     internal void RegisterBoulderInitializationAi(EnemyAiTable table)
     {
 
@@ -281,6 +299,7 @@ internal sealed class BoulderBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register boulder main ai.</summary>
     internal void RegisterBoulderMainAi(EnemyAiTable table)
     {
 

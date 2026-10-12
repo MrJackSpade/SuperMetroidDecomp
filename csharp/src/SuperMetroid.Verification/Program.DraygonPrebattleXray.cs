@@ -13,8 +13,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents draygon prebattle xray verification.</summary>
 internal static class DraygonPrebattleXrayVerification
 {
+    /// <summary>Verifies draygon prebattle xray.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Draygon offscreen HDMA table")]
     internal static void VerifyDraygonPrebattleXray()
     {
@@ -86,6 +88,7 @@ internal static class DraygonPrebattleXrayVerification
         }
     }
 
+    /// <summary>Draygon prebattle xray command.</summary>
     [VerificationCommand("--draygon-prebattle-xray")]
     internal static int DraygonPrebattleXrayCommand()
     {

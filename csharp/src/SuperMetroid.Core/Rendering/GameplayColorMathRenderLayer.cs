@@ -32,6 +32,7 @@ public enum SnesColorMathControl : byte
 /// </summary>
 public sealed record GameplayColorMathRenderLayer : RenderLayer
 {
+    /// <summary>Stores lines.</summary>
     private readonly XrayWindowLine[] lines;
     /// <summary>Gets the ordinary gameplay planes and OAM composed before color math.</summary>
     public OrdinaryGameplayRenderLayer Gameplay { get; }

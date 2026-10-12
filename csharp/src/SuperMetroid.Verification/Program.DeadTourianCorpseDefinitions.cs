@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static LookupStream5Verification;
 
+/// <summary>Represents dead tourian corpse definitions verification.</summary>
 internal static class DeadTourianCorpseDefinitionsVerification
 {
+    /// <summary>Verifies dead tourian corpse definitions.</summary>
     internal static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
@@ -63,6 +65,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             "Dead Tourian corpse definitions: 16 selectors, 64 configuration words, eight derived wrap offsets, and all eight real initializers pass with migrated metadata reads forbidden.");
     }
 
+    /// <summary>Verifies dead tourian corpse configuration.</summary>
     private static void VerifyDeadTourianCorpseConfiguration(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
@@ -93,6 +96,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} wrap offset");
     }
 
+    /// <summary>Verifies dead tourian corpse production initialization.</summary>
     private static void VerifyDeadTourianCorpseProductionInitialization(
         SuperMetroidAddressSpace rom,
         DeadTourianCorpseSpecies species,
@@ -141,6 +145,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
             $"dead {species} variant {variantIndex} wrap offset");
     }
 
+    /// <summary>Creates dead tourian corpse definition read guard.</summary>
     private static CartridgeReadGuard NewDeadTourianCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -153,6 +158,7 @@ internal static class DeadTourianCorpseDefinitionsVerification
                     >= 0xa9e25a and < 0xa9e25c,
                 address => $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.");
 
+    /// <summary>Dead tourian corpse definitions command.</summary>
     [VerificationCommand("--dead-tourian-corpse-definitions")]
     internal static int DeadTourianCorpseDefinitionsCommand()
     {

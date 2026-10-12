@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents walking space pirate instruction program definitions verification.</summary>
 internal static class WalkingSpacePirateInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies walking space pirate instruction program definitions.</summary>
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWalkingSpacePirateInstructionProgramDefinitions), () => VerifyWalkingSpacePirateInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies walking space pirate instruction program definitions.</summary>
     internal static void VerifyWalkingSpacePirateInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -174,6 +177,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Probes walking space pirate instruction mechanics allocation.</summary>
     private static int ProbeWalkingSpacePirateInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -185,6 +189,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>New walking space pirate instruction read guard.</summary>
     private static CartridgeReadGuard NewWalkingSpacePirateInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(WalkingSpacePirateInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -192,6 +197,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             .ForbidWords(0xb20000, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordCount, WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Production read compiled walking Pirate frame selector ${address:X6}.");
 
+    /// <summary>Walking space pirate instruction mechanics command.</summary>
     [VerificationCommand("--walking-space-pirate-instruction-mechanics")]
     internal static int WalkingSpacePirateInstructionMechanicsCommand()
     {

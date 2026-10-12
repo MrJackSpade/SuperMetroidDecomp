@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents lookup crocomire draws verification.</summary>
 internal static class LookupCrocomireDrawsVerification
 {
+    /// <summary>Verifies crocomire physical draw mapping.</summary>
     internal static void VerifyCrocomirePhysicalDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x9b5b, 0x9b73, 0x9b79, 0x9b7f, 0x9bbb];
@@ -79,6 +81,7 @@ internal static class LookupCrocomireDrawsVerification
         ushort ReadWord(int address) => (ushort)(SnesLittleEndian.Word(CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | address), CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | (address + 1))));
     }
 
+    /// <summary>Crocomire physical draw mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire physical draw mapping")]
     private static byte CrocomirePhysicalDrawMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

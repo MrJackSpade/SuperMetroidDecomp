@@ -35,12 +35,18 @@ public sealed class DraygonColorCatalog
             }
         });
 
+    /// <summary>Stores intro.</summary>
     private readonly DraygonIntroPaintDefinitions intro;
+    /// <summary>Stores background.</summary>
     private readonly DraygonMaterialPaintDefinitions background;
+    /// <summary>Stores sprite.</summary>
     private readonly DraygonMaterialPaintDefinitions sprite;
+    /// <summary>Stores white flash.</summary>
     private readonly Dictionary<int, Bgr555> whiteFlash = new();
+    /// <summary>Stores health bands.</summary>
     private readonly DraygonHealthPaintDefinitions healthBands;
 
+    /// <summary>Initializes a new draygon color catalog instance.</summary>
     private DraygonColorCatalog(Bgr555[] intro, Bgr555[] background, Bgr555[] sprite,
         Bgr555[] whiteFlash, Bgr555[][] healthBands)
     {
@@ -52,6 +58,7 @@ public sealed class DraygonColorCatalog
         this.healthBands = new(healthBands);
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -156,15 +163,18 @@ public sealed class DraygonColorCatalog
         return bytes;
     }
 
+    /// <summary>Checks band.</summary>
     private static int CheckBand(int band) =>
         (uint)band < DraygonColorRomData.HealthBandCount
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
+    /// <summary>Applies calculated.</summary>
     private static void ApplyCalculated(CgramPalette destination, int count, Func<int, Bgr555> resolve)
     {
         for (int color = 0; color < count; color++) destination.Write(color, resolve(color));
     }
+    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -182,6 +192,7 @@ public sealed class DraygonColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Draygon color property {name}."));

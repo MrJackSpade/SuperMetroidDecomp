@@ -48,10 +48,14 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
     private const ushort GeneralColorByte = 0x00a8;
     /// <summary>CGRAM byte $E8: Arkanoid-block and red-orb flash destination.</summary>
     private const ushort ArkanoidColorByte = 0x00e8;
+    /// <summary>Stores definitions.</summary>
     internal static readonly IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> Definitions = new ProgramEntries();
+    /// <summary>Represents program entries.</summary>
     private sealed class ProgramEntries : IReadOnlyList<TourianEscapeSharedRedFlashPaletteFxProgramDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 2;
+        /// <summary>Gets an indexed value.</summary>
         public TourianEscapeSharedRedFlashPaletteFxProgramDefinition this[int index] =>
             (TourianEscapeSharedRedFlashPaletteOwner)index switch
             {
@@ -63,11 +67,13 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
                     ArkanoidDefinitionPointer, ArkanoidProgramStart, ArkanoidColorByte, usesGoto: false),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };
+        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<TourianEscapeSharedRedFlashPaletteFxProgramDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++)
                 yield return this[index];
         }
+        /// <summary>Returns an enumerator over this sequence.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -127,6 +133,7 @@ public static class TourianEscapeSharedRedFlashPaletteFxProgramMechanicsDefiniti
 /// <summary>One entry into Tourian's shared escape red-flash loop.</summary>
 public sealed class TourianEscapeSharedRedFlashPaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new tourian escape shared red flash palette fx program definition instance.</summary>
     internal TourianEscapeSharedRedFlashPaletteFxProgramDefinition(
         TourianEscapeSharedRedFlashPaletteOwner owner,
         ushort definitionPointer,

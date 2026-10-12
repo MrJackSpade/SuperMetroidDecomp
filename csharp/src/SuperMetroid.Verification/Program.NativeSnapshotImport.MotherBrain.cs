@@ -2,6 +2,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 
+/// <summary>Represents native snapshot import mother brain verification.</summary>
 internal static class NativeSnapshotImportMotherBrainVerification
 {
     /// <summary>

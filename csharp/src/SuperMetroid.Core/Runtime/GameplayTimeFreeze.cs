@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -12,8 +12,10 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class GameplayTimeFreeze
 {
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
 
+    /// <summary>Initializes a new gameplay time freeze instance.</summary>
     internal GameplayTimeFreeze(SamusFrameState player)
     {
         _player = player;

@@ -55,6 +55,7 @@ internal static class EndingLogoInstructionDefinitions
         };
     }
 
+    /// <summary>Wrap frame.</summary>
     private static ushort WrapFrame(bool right, int stage) =>
         EndingLogoSpriteDefinitions.FramePointer((right ? 2 : 5) + stage);
 }

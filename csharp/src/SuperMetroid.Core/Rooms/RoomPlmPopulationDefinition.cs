@@ -29,6 +29,7 @@ public sealed record RoomPlmPlacement(
 /// </summary>
 public sealed class RoomPlmPopulationDefinition
 {
+    /// <summary>Stores placements.</summary>
     private readonly RoomPlmPlacement[] placements;
 
     /// <summary>Bank-$8F native population-list pointer retained as identity and diagnostic context, not as a runtime bus-read capability.</summary>
@@ -67,6 +68,7 @@ public sealed class RoomPlmPopulationDefinition
         return new RoomPlmPopulationDefinition(pointer, records);
     }
 
+    /// <summary>Copies placement.</summary>
     private static RoomPlmPlacement CopyPlacement(RoomPlmPlacement placement)
     {
         Ensure.NotNull(placement);

@@ -44,9 +44,13 @@ internal enum ChootFallingPath : ushort
 /// <summary>Compiled physical paths used by Choot after reaching its jump apex.</summary>
 internal static class ChootFallingPathDefinitions
 {
+    /// <summary>Stores positive plateau index.</summary>
     private const int PositivePlateauIndex = 28;
+    /// <summary>Stores negative plateau index.</summary>
     private const int NegativePlateauIndex = 63;
+    /// <summary>Stores slow plateau frames.</summary>
     private const int SlowPlateauFrames = 10;
+    /// <summary>Stores very slow plateau frames.</summary>
     private const int VerySlowPlateauFrames = 30;
 
     /// <summary>
@@ -184,6 +188,7 @@ internal static class ChootFallingPathDefinitions
             unchecked((short)path[wordIndex]), unchecked((short)path[wordIndex + 1])));
     }
 
+    /// <summary>Collapse expanded plateaus.</summary>
     private static int CollapseExpandedPlateaus(int frameIndex, int expandedFrames)
     {
         if (frameIndex < 0)

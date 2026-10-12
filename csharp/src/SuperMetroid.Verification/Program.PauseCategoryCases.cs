@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents pause category cases verification.</summary>
 internal static class PauseCategoryCasesVerification
 {
+    /// <summary>Verifies pause category cases.</summary>
     internal static void VerifyPauseCategoryCases(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyPauseCategoryOffsets), () => VerifyPauseCategoryOffsets(rom));
@@ -20,6 +22,7 @@ internal static class PauseCategoryCasesVerification
                 "undefined pause category is rejected at the typed boundary");
     }
 
+    /// <summary>Verifies pause category offsets.</summary>
     private static void VerifyPauseCategoryOffsets(ISnesAddressSpace rom)
     {
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
@@ -27,6 +30,7 @@ internal static class PauseCategoryCasesVerification
                 PauseEquipmentCategories.Get(category).OffsetTableAddress, "native category tilemap-offset pointer");
     }
 
+    /// <summary>Verifies pause category tilemap pointers.</summary>
     private static void VerifyPauseCategoryTilemapPointers(ISnesAddressSpace rom)
     {
         foreach (PauseEquipmentCategory category in PauseEquipmentCategories.InventoryCategories)
@@ -34,6 +38,7 @@ internal static class PauseCategoryCasesVerification
                 PauseEquipmentCategories.Get(category).TilemapPointerTableAddress, "native category tilemap-list pointer");
     }
 
+    /// <summary>Verifies pause category item counts.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause category item counts")]
     private static void VerifyPauseCategoryItemCounts(ISnesAddressSpace rom)
     {
@@ -46,6 +51,7 @@ internal static class PauseCategoryCasesVerification
         }
     }
 
+    /// <summary>Verifies pause category copy lengths.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause category copy lengths")]
     private static void VerifyPauseCategoryCopyLengths(ISnesAddressSpace rom)
     {

@@ -24,8 +24,10 @@ internal static class DeadTorizoStationaryCompositionDefinitions
     private const int BodyTile = 0x128, BodyColumns = 4, BodyRows = 5;
     /// <summary>$A9:D75C-D760: the large rear-foot part uses tile $1A6 at(-32,28).</summary>
     private const int FootTile = 0x1a6;
+    /// <summary>Stores large extent.</summary>
     private const int LargeExtent = 2;
 
+    /// <summary>Part.</summary>
     internal static DeadTorizoStockPart Part(int index)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();

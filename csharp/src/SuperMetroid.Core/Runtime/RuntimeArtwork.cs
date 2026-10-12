@@ -11,23 +11,37 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource
 {
+    /// <summary>Resolves an installed artwork address range for a transfer request.</summary>
     bool IInstalledArtworkTransferSource.TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>
         TryResolveInstalledArtwork(sourceAddress, byteCount, out data);
 
+    /// <summary>Resolves a named VRAM asset from the installed artwork catalogs.</summary>
     ReadOnlyMemory<byte> IVramAssetProvider.Resolve(VramAssetId asset) => ResolveVramAsset(asset);
 
+    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Stores hud.</summary>
     private readonly HudState _hud;
+    /// <summary>Stores message box.</summary>
     private readonly GameplayMessageBoxState _messageBox;
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Stores projectiles.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
 
+    /// <summary>Initializes a new runtime artwork instance.</summary>
     internal RuntimeArtwork(RuntimeArtworkDependencies dependencies)
     {
         _bombProjectiles = dependencies.BombProjectiles;
@@ -45,6 +59,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>Installed colors used at construction and on each room-entry palette restore.</summary>
     [field: NonSerialized]
     public GameplayBasePaletteCatalog? InitialPaletteArt { get; set; }
+    /// <summary>Stores hud artwork refresh pending.</summary>
     [NonSerialized] private bool hudArtworkRefreshPending;
     /// <summary>Gets or binds the host-owned presentation catalog used by maps, HUD, messages, room effects, Samus/enemy colors, and named VRAM assets.</summary>
     /// <remarks>Binding nonnull artwork schedules an initialized HUD refresh and rebinds compiled bus-source identities; assigning null removes presentation owners without rewriting already published VRAM.</remarks>
@@ -109,6 +124,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _player.Samus.ArmCannon.Artwork = SamusBodyArt?.ArmCannon;
     }
 
+    /// <summary>Publishes rebound hud artwork.</summary>
     internal void PublishReboundHudArtwork()
     {
         if (!hudArtworkRefreshPending) return;
@@ -122,6 +138,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         MapPresentation!.HudTiles.LoadCharactersTo(_display.HudCharactersAtCurrentBase(_vram));
         hudArtworkRefreshPending = false;
     }
+    /// <summary>Attempts to resolve installed artwork.</summary>
     internal bool TryResolveInstalledArtwork(int sourceAddress, int byteCount,
         out ReadOnlyMemory<byte> data)
     {
@@ -196,6 +213,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         get;
         set { field = value; value?.RebindPendingWrites(_vramWrites); BindGrapplePresentation(); }
     }
+    /// <summary>Bind grapple presentation.</summary>
     internal void BindGrapplePresentation()
     {
         if (_player.Samus is not null)
@@ -205,6 +223,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         }
     }
 
+    /// <summary>Stores trail artwork refresh pending.</summary>
     [NonSerialized] private bool trailArtworkRefreshPending;
     /// <summary>Current projectile-trail tiles and visual compositions; rebinding refreshes installed tiles at the next display boundary.</summary>
     [field: NonSerialized]     public ProjectileTrailCatalog? TrailArtwork
@@ -213,6 +232,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         set { field = value; trailArtworkRefreshPending = value?.Tiles is not null; }
     }
 
+    /// <summary>Stores beam artwork refresh pending.</summary>
     [NonSerialized] private bool beamArtworkRefreshPending;
 
     /// <summary>Current beam tiles. Rebinding changes the next accepted display, not the retained frame.</summary>
@@ -222,6 +242,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         set { field = value; beamArtworkRefreshPending = value is not null; }
     }
 
+    /// <summary>Resolves vram asset.</summary>
     internal ReadOnlyMemory<byte> ResolveVramAsset(VramAssetId asset) =>
         asset is VramAssetId.GunshipLiftoffFirstTiles or
             VramAssetId.GunshipLiftoffSecondTiles or
@@ -243,6 +264,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
             ? (MapPresentation ?? throw new InvalidOperationException("Map presentation artwork is not bound.")).Resolve(asset)
             : (BeamArtwork ?? throw new InvalidOperationException("Beam artwork is not bound.")).Resolve(asset);
 
+    /// <summary>Publishes rebound trail artwork.</summary>
     internal void PublishReboundTrailArtwork()
     {
         if (!trailArtworkRefreshPending) return;
@@ -252,6 +274,7 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         trailArtworkRefreshPending = false;
     }
 
+    /// <summary>Publishes rebound beam artwork.</summary>
     internal void PublishReboundBeamArtwork()
     {
         if (!beamArtworkRefreshPending || _player.Samus is null) return;

@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Centered flashes followed by mirrored explosion quadrants in native OAM order.</summary>
 internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int index = 0; index < 12; index++)
@@ -13,7 +14,9 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 return supplied.CalculateIfMatching(new IntroMotherBrainExplosionParts(index >= 6, index % 6));
         return supplied;
     }
+    /// <summary>Gets count.</summary>
     public int Count => frame < (big ? 1 : 2) ? 1 : 4;
+    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -48,13 +51,16 @@ internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IRea
                 SnesObjAttributeWord.Create(tile, 0, 3, flips), true);
         }
     }
+    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 
+/// <summary>Represents intro mother brain explosion atlas.</summary>
 internal static class IntroMotherBrainExplosionAtlas
 {
     /// <summary>Tile$53, initial centered small explosion flash in8C:97F7.</summary>

@@ -51,8 +51,10 @@ public enum KiHunterWingFunction : ushort
 /// </summary>
 public sealed class KiHunterEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new ki hunter enemy state instance.</summary>
     internal KiHunterEnemyState(RoomEnemySlot slot)
     {
         _slot = slot;

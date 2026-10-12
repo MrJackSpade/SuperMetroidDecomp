@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -16,8 +16,10 @@ internal sealed class EnemyPresentation
     [field: NonSerialized]
     internal EscapeTypewriterPresentation? EscapeTypewriterPresentation { get; set; }
 
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>Initializes a new enemy presentation instance.</summary>
     internal EnemyPresentation(EnemyRoomBinding room)
     {
         _room = room;
@@ -39,7 +41,9 @@ internal sealed class EnemyPresentation
 
     /// <summary>The bound CGRAM's hardware banks and rows, for actors whose palette row is selected at run time.</summary>
     internal CgramPalettes CgramRows => new(_cgram!);
+    /// <summary>Stores vram.</summary>
     internal SnesVram? _vram;
+    /// <summary>Stores cgram.</summary>
     internal SnesCgram? _cgram;
 
     /// <summary>
@@ -64,6 +68,7 @@ internal sealed class EnemyPresentation
     [field: NonSerialized]
     public HudTileAtlas? HudTileArtwork { get; set; }
 
+    /// <summary>draw enemy spritemap.</summary>
     internal void DrawEnemySpritemap(OamBuffer oam, EnemySpritemapDraw draw)
     {
         if (_room.Artwork?.Spritemaps?.TryGetDisplay(draw.Bank, draw.Pointer,

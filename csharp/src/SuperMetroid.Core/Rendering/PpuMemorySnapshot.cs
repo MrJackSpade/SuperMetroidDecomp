@@ -15,8 +15,11 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("codec: immutable VRAM/CGRAM/OAM render snapshot")]
 public sealed class PpuMemorySnapshot
 {
+    /// <summary>Stores vram.</summary>
     private readonly byte[] vram;
+    /// <summary>Stores cgram.</summary>
     private readonly Bgr555[] cgram;
+    /// <summary>Stores oam.</summary>
     private readonly byte[] oam;
 
     /// <summary>Physical VRAM bytes, including Mode 7's interleaved map/characters.</summary>

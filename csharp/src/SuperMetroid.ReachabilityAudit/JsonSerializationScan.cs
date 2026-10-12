@@ -9,10 +9,14 @@ namespace SuperMetroid.ReachabilityAudit;
 /// </summary>
 internal sealed class JsonSerializationScan(SymbolIdentity identity)
 {
+    /// <summary>Stores payload types.</summary>
     private readonly Dictionary<string, INamedTypeSymbol> payloadTypes = [];
+    /// <summary>Stores generic helpers.</summary>
     private readonly HashSet<(IMethodSymbol Helper, int Ordinal)> genericHelpers = new(HelperComparer.Instance);
+    /// <summary>Stores generic invocations.</summary>
     private readonly List<IMethodSymbol> genericInvocations = [];
 
+    /// <summary>Observe invocation.</summary>
     public void ObserveInvocation(SemanticModel model, InvocationExpressionSyntax invocation, IMethodSymbol method)
     {
         if (method.IsGenericMethod && IsRepositorySymbol(method.OriginalDefinition))
@@ -59,6 +63,7 @@ internal sealed class JsonSerializationScan(SymbolIdentity identity)
         return accessed;
     }
 
+    /// <summary>Adds payload.</summary>
     private void AddPayload(ITypeSymbol? type)
     {
         switch (type)
@@ -82,6 +87,7 @@ internal sealed class JsonSerializationScan(SymbolIdentity identity)
         }
     }
 
+    /// <summary>Resolves generic helpers.</summary>
     private void ResolveGenericHelpers()
     {
         var resolved = new HashSet<(IMethodSymbol, int)>(HelperComparer.Instance);
@@ -94,15 +100,20 @@ internal sealed class JsonSerializationScan(SymbolIdentity identity)
             }
     }
 
+    /// <summary>Checks whether the symbol belongs to this repository.</summary>
     private static bool IsRepositorySymbol(ISymbol symbol) => symbol.Locations.Any(l => l.IsInSource);
 
+    /// <summary>Represents helper comparer.</summary>
     private sealed class HelperComparer : IEqualityComparer<(IMethodSymbol Helper, int Ordinal)>
     {
+        /// <summary>Stores instance.</summary>
         public static readonly HelperComparer Instance = new();
 
+        /// <summary>Equals.</summary>
         public bool Equals((IMethodSymbol Helper, int Ordinal) x, (IMethodSymbol Helper, int Ordinal) y) =>
             SymbolEqualityComparer.Default.Equals(x.Helper, y.Helper) && x.Ordinal == y.Ordinal;
 
+        /// <summary>Gets hash code.</summary>
         public int GetHashCode((IMethodSymbol Helper, int Ordinal) value) =>
             HashCode.Combine(SymbolEqualityComparer.Default.GetHashCode(value.Helper), value.Ordinal);
     }

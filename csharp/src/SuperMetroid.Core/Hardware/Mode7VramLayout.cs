@@ -48,6 +48,7 @@ public readonly struct Mode7Vram(SnesVram vram)
         vram.LoadMode7CharacterBytes(pixels, (ushort)(Mode7VramLayout.Characters.Offset + pixel));
     }
 
+    /// <summary>Check.</summary>
     private static void Check(int start, int count)
     {
         if (start < 0 || count < 0 || start + count > Mode7VramLayout.PlaneWordCount)

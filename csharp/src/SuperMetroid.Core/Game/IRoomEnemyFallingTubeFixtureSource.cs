@@ -7,5 +7,6 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal interface IRoomEnemyFallingTubeFixtureSource
 {
+    /// <summary>Reads falling tube population.</summary>
     RoomEnemyPopulationRecord ReadFallingTubePopulation(ushort pointer);
 }

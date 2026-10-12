@@ -18,8 +18,10 @@ using static SamusEaterPlmDefinitionsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus eater visuals verification.</summary>
 internal static class SamusEaterVisualsVerification
 {
+    /// <summary>Verifies samus eater visuals.</summary>
     internal static void VerifySamusEaterVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -93,6 +95,7 @@ internal static class SamusEaterVisualsVerification
         Console.WriteLine("Samus Eater visuals: eight exact native draw lists, editable live floor/ceiling art, physical isolation, stock integrity and repair pass.");
     }
 
+    /// <summary>Verifies samus eater stock visual mapping.</summary>
     private static void VerifySamusEaterStockVisualMapping(SuperMetroidAddressSpace rom,
         RoomPlmSamusEaterVisualCatalog installed)
     {
@@ -171,12 +174,15 @@ internal static class SamusEaterVisualsVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmSamusEaterVisualCatalog(entries), "plant collision bits rejected");
     }
 
+    /// <summary>Verifies samus eater draw geometry.</summary>
     private static void VerifySamusEaterDrawGeometry(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, false));
 
+    /// <summary>Verifies samus eater draw words.</summary>
     private static void VerifySamusEaterDrawWords(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySamusEaterDrawField), () => VerifySamusEaterDrawField(rom, true));
 
+    /// <summary>Verifies samus eater draw field.</summary>
     private static void VerifySamusEaterDrawField(SuperMetroidAddressSpace rom, bool words)
     {
         ushort[] pointers = [0x9e0d, 0x9e45, 0x9e61, 0x9e7d, 0x9e99, 0x9ed1, 0x9eed, 0x9f09];
@@ -242,6 +248,7 @@ internal static class SamusEaterVisualsVerification
         }
     }
 
+    /// <summary>Verifies samus eater live draw.</summary>
     private static void VerifySamusEaterLiveDraw(
         SuperMetroidAddressSpace rom, RoomPlmSamusEaterVisualCatalog visuals, ushort pointer,
         ushort physicalWord, ushort visualWord)
@@ -287,11 +294,13 @@ internal static class SamusEaterVisualsVerification
             "compiled Samus Eater draw never reads ROM at runtime");
     }
 
+    /// <summary>New samus eater visual source guard.</summary>
     private static CartridgeReadGuard NewSamusEaterVisualSourceGuard() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Samus Eater drew from native ROM ${address:X6}.")
             .RejectWrites(_ => "Samus Eater draw wrote to CPU bus.");
 
+    /// <summary>Samus eater visuals command.</summary>
     [VerificationCommand("--samus-eater-visuals")]
     internal static int SamusEaterVisualsCommand()
     {

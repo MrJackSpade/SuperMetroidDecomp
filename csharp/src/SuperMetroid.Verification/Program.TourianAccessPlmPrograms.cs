@@ -17,8 +17,10 @@ using static SuiteTimingVerification;
 using static TourianAccessPlmDefinitionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents tourian access plm programs verification.</summary>
 internal static class TourianAccessPlmProgramsVerification
 {
+    /// <summary>Verifies compiled tourian access plm programs.</summary>
     internal static void VerifyCompiledTourianAccessPlmPrograms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -38,9 +40,11 @@ internal static class TourianAccessPlmProgramsVerification
             "Tourian access PLMs: both native programs and five draws match ROM; complete clear and six-row crumble run without source reads.");
     }
 
+    /// <summary>Verifies tourian access program controls.</summary>
     private static void VerifyTourianAccessProgramControls(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, false));
 
+    /// <summary>Verifies tourian access program draws.</summary>
     private static void VerifyTourianAccessProgramDraws(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTourianAccessProgramField), () => VerifyTourianAccessProgramField(rom, true));
@@ -53,6 +57,7 @@ internal static class TourianAccessPlmProgramsVerification
                 "Tourian access frame selector bounds");
     }
 
+    /// <summary>Verifies tourian access program field.</summary>
     private static void VerifyTourianAccessProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xaae5,0xaae8,0xaaec,0xaaf0,0xaaf4,0xaaf8,0xaafa,0xaafc,0xaafe,0xab0c,0xab10];
@@ -76,6 +81,7 @@ internal static class TourianAccessPlmProgramsVerification
         }
     }
 
+    /// <summary>Verifies tourian access program loop count.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access program loop count")]
     private static void VerifyTourianAccessProgramLoopCount(SuperMetroidAddressSpace rom)
     {
@@ -89,6 +95,7 @@ internal static class TourianAccessPlmProgramsVerification
         }
     }
 
+    /// <summary>Verifies tourian access physical draw mapping.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian access physical draw mapping")]
     private static void VerifyTourianAccessPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
@@ -150,6 +157,7 @@ internal static class TourianAccessPlmProgramsVerification
 
     }
 
+    /// <summary>Verifies floor.</summary>
     private static void VerifyFloor(bool clear)
     {
         const int width = 16;
@@ -187,6 +195,7 @@ internal static class TourianAccessPlmProgramsVerification
             $"Tourian {(clear ? "clear" : "crumble")} reads no migrated ROM bytes");
     }
 
+    /// <summary>New tourian access source guard.</summary>
     internal static CartridgeReadGuard NewTourianAccessSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
@@ -201,6 +210,7 @@ internal static class TourianAccessPlmProgramsVerification
             },
             address => $"Tourian access PLM reread compiled source ${address:X6}.");
 
+    /// <summary>Tourian access plms command.</summary>
     [VerificationCommand("--tourian-access-plms")]
     internal static int TourianAccessPlmsCommand()
     {

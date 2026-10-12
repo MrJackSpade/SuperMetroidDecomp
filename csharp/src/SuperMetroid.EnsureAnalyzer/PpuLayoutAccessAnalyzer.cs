@@ -24,6 +24,7 @@ public sealed class PpuLayoutAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessAtt
     /// <summary>Marks an approved PPU layout boundary.</summary>
     public const string BoundaryAttributeName = "PpuLayoutBoundaryAttribute";
 
+    /// <summary>Stores raw access rule.</summary>
     private static readonly DiagnosticDescriptor RawAccessRule = new(
         RawAccessId,
         "Raw PPU layout access outside a rendering boundary",
@@ -34,6 +35,7 @@ public sealed class PpuLayoutAccessAnalyzer() : LayoutBoundaryAnalyzer(AccessAtt
         description: "Register numbers, VRAM addresses, CGRAM slots, OAM tables and their encodings belong to typed " +
             "rendering views, the PPU backend, snapshot/DMA codecs and exact hardware tests, which declare [PpuLayoutBoundary].");
 
+    /// <summary>Stores raw implementation rule.</summary>
     private static readonly DiagnosticDescriptor RawImplementationRule = new(
         RawImplementationId,
         "Raw PPU contract implemented outside a rendering boundary",

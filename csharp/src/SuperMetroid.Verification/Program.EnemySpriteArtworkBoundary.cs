@@ -17,6 +17,7 @@ using static HardwareVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy sprite artwork boundary verification.</summary>
 internal static class EnemySpriteArtworkBoundaryVerification
 {
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
@@ -120,6 +121,7 @@ internal static class EnemySpriteArtworkBoundaryVerification
         }
     }
 
+    /// <summary>Enemy sprite artwork boundary command.</summary>
     [VerificationCommand("--enemy-sprite-artwork-boundary")]
     internal static int EnemySpriteArtworkBoundaryCommand()
     {

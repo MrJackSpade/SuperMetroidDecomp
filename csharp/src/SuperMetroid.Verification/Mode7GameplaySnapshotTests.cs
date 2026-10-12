@@ -9,8 +9,10 @@ using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents mode7 gameplay snapshot tests verification.</summary>
 internal static class Mode7GameplaySnapshotTestsVerification
 {
+    /// <summary>verify mode7 gameplay snapshots.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyMode7GameplaySnapshots()
     {

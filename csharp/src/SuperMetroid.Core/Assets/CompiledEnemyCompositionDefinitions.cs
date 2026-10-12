@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Builds named ordinary artwork declarations from an explicitly owned finite program.</summary>
 internal static class CompiledEnemyCompositionDefinitions
 {
+    /// <summary>frames.</summary>
     internal static EnemySpritemapDefinition[] Frames(byte bank, ReadOnlySpan<ushort> operands,
         int expectedCount, string name)
     {

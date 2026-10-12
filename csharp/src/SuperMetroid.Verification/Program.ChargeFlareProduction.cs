@@ -9,8 +9,10 @@ using SuperMetroid.Core.Runtime;
 using static GraphDigestVerification;
 using static MapPresentationVerification;
 
+/// <summary>Represents charge flare production verification.</summary>
 internal static class ChargeFlareProductionVerification
 {
+    /// <summary>verify charge flare production.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
@@ -138,6 +140,7 @@ internal static class ChargeFlareProductionVerification
         }
     }
 
+    /// <summary>new charge flare composition guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native charge-flare spritemap extents the guard forbids")]
     internal static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
     {

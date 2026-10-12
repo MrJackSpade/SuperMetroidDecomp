@@ -9,9 +9,13 @@ namespace SuperMetroid.Core.Assets;
 /// opposite-side geometry is calculated separately from those pose choices.</summary>
 internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Stores stage.</summary>
     private readonly int stage;
+    /// <summary>Stores moving.</summary>
     private readonly (int X, int Y)[]? moving;
+    /// <summary>Stores forearm anchor.</summary>
     private readonly (int X, int Y) forearmAnchor;
+    /// <summary>Initializes a new ending reward hair parts instance.</summary>
     private EndingRewardHairParts(int stage, SpriteComposition supplied)
     {
         this.stage = stage;
@@ -27,9 +31,11 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
             moving = positions[1] == OppositeForearm(forearmAnchor) ? null : positions;
         }
     }
+    /// <summary>opposite forearm.</summary>
     internal static (int X, int Y) OppositeForearm((int X, int Y) anchor)
         // Reflect the sixteen-pixel piece about x=0.5; the right cel sits one pixel higher.
         => (1 - 16 - anchor.X, anchor.Y - 1);
+    /// <summary>Calculates replacement sprite parts when the pointer matches this artwork series; otherwise returns the supplied composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         for (int stage = 0; stage < EndingRewardSpriteFrameSeries.HairOpening.Count; stage++)
@@ -41,6 +47,7 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         }
         return supplied;
     }
+    /// <summary>part count.</summary>
     private static int PartCount(int stage) => stage switch
     {
         0 or 4 => 9,
@@ -49,7 +56,9 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
         7 => 13,
         _ => throw new ArgumentOutOfRangeException(nameof(stage)),
     };
+    /// <summary>Gets the number of items in this collection.</summary>
     public int Count => PartCount(stage);
+    /// <summary>Accesses a value by index or range.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -141,10 +150,12 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
                 SnesObjAttributeWord.Create(tile, 0, 3, 0), true);
         }
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns an enumerator over this collection.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

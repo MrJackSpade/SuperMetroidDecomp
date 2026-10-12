@@ -14,14 +14,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using static SuiteTimingVerification;
 
+/// <summary>Represents cacatac instruction program definitions verification.</summary>
 internal static class CacatacInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies cacatac instruction program definitions.</summary>
     internal static void VerifyCacatacInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies cacatac instruction program definitions.</summary>
     internal static void VerifyCacatacInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -166,6 +169,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes cacatac instruction mechanics allocation.</summary>
     private static int ProbeCacatacInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -177,6 +181,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New cacatac instruction program read guard.</summary>
     private static CartridgeReadGuard NewCacatacInstructionProgramReadGuard(ISnesAddressSpace source)
     {
         static string Message(int address) => $"Production read compiled Cacatac instruction ${address:X6}.";
@@ -185,6 +190,7 @@ internal static class CacatacInstructionProgramDefinitionsVerification
             .ForbidWords(0xa20000, CacatacInstructionProgramDefinitionsTooling.PresentationWordCount, CacatacInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
     }
 
+    /// <summary>Cacatac instruction mechanics command.</summary>
     [VerificationCommand("--cacatac-instruction-mechanics")]
     internal static int CacatacInstructionMechanicsCommand()
     {

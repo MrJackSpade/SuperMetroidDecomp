@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents skree metaree particle instruction program definitions verification.</summary>
 internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies skree metaree particle instruction program definitions.</summary>
     internal static void VerifySkreeMetareeParticleInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeParticleInstructionProgramDefinitions), () => VerifySkreeMetareeParticleInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies skree metaree particle instruction program definitions.</summary>
     internal static void VerifySkreeMetareeParticleInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -173,6 +176,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
         }
     }
 
+    /// <summary>Probes skree metaree particle instruction mechanics allocation.</summary>
     private static int ProbeSkreeMetareeParticleInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -186,6 +190,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
         return checksum;
     }
 
+    /// <summary>New skree metaree particle instruction read guard.</summary>
     internal static CartridgeReadGuard NewSkreeMetareeParticleInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -196,6 +201,7 @@ internal static class SkreeMetareeParticleInstructionProgramDefinitionsVerificat
                 SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordCount,
                 SkreeMetareeParticleInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Skree metaree particle instruction mechanics command.</summary>
     [VerificationCommand("--skree-metaree-particle-instruction-mechanics")]
     internal static int SkreeMetareeParticleInstructionMechanicsCommand()
     {

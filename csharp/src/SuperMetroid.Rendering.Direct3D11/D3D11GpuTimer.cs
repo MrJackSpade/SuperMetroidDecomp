@@ -6,12 +6,18 @@ namespace SuperMetroid.Rendering.Direct3D11;
 /// <summary>Owner-thread timestamp ring. Full rings skip telemetry, never wait for the GPU.</summary>
 internal sealed class D3D11GpuTimer : IDisposable
 {
+    /// <summary>Stores owner.</summary>
     private readonly D3D11RenderDevice owner;
+    /// <summary>Stores slots.</summary>
     private readonly Slot[] slots;
+    /// <summary>Stores head.</summary>
     private int head, tail, pending;
+    /// <summary>Stores active.</summary>
     private bool active, disposed;
+    /// <summary>Gets or sets skipped samples.</summary>
     internal long SkippedSamples { get; private set; }
 
+    /// <summary>Initializes a new d3 d11 gpu timer instance.</summary>
     internal D3D11GpuTimer(D3D11RenderDevice owner, int capacity = 8)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
@@ -25,6 +31,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         catch { foreach (var slot in slots) slot?.Dispose(); throw; }
     }
 
+    /// <summary>try begin.</summary>
     internal bool TryBegin(RenderFrameIdentity identity)
     {
         CheckOwner();
@@ -49,6 +56,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         slots[head].HasCompositionBoundary = true;
     }
 
+    /// <summary>end.</summary>
     internal void End()
     {
         CheckOwner();
@@ -61,6 +69,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         pending++;
     }
 
+    /// <summary>try read.</summary>
     internal bool TryRead(out GpuTimingSample sample)
     {
         CheckOwner();
@@ -79,6 +88,7 @@ internal sealed class D3D11GpuTimer : IDisposable
         return true;
     }
 
+    /// <summary>read.</summary>
     private unsafe bool Read<T>(ID3D11Query query, out T data) where T : unmanaged
     {
         T value = default;
@@ -88,12 +98,14 @@ internal sealed class D3D11GpuTimer : IDisposable
         return result.Code == 0; // S_FALSE is pending, not a zero-duration measurement.
     }
 
+    /// <summary>check owner.</summary>
     private void CheckOwner()
     {
         owner.VerifyOwner();
         ObjectDisposedException.ThrowIf(disposed, this);
     }
 
+    /// <summary>Releases resources held by this instance.</summary>
     public void Dispose()
     {
         owner.VerifyOwner();
@@ -102,11 +114,16 @@ internal sealed class D3D11GpuTimer : IDisposable
         disposed = true;
     }
 
+    /// <summary>Represents slot.</summary>
     private sealed class Slot : IDisposable
     {
+        /// <summary>Stores disjoint.</summary>
         internal readonly ID3D11Query Disjoint, Start, Finish, CompositionFinished;
+        /// <summary>Stores has composition boundary.</summary>
         internal bool HasCompositionBoundary;
+        /// <summary>Stores identity.</summary>
         internal RenderFrameIdentity Identity;
+        /// <summary>Initializes a new slot instance.</summary>
         internal Slot(D3D11RenderDevice owner)
         {
             Disjoint = owner.Device.CreateQuery(new QueryDescription(QueryType.TimestampDisjoint));
@@ -123,8 +140,10 @@ internal sealed class D3D11GpuTimer : IDisposable
             }
             catch { Disjoint.Dispose(); throw; }
         }
+        /// <summary>Releases resources held by this instance.</summary>
         public void Dispose() { CompositionFinished.Dispose(); Finish.Dispose(); Start.Dispose(); Disjoint.Dispose(); }
     }
 }
 
+/// <summary>Represents gpu timing sample.</summary>
 internal readonly record struct GpuTimingSample(bool Valid, double Milliseconds, double CompositionMilliseconds);

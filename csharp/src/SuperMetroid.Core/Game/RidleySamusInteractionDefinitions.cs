@@ -8,7 +8,8 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal static class RidleySamusInteractionDefinitions
 {
-    private enum GrabPolicy { Immune, Ordinary, Morphed }
+    /// <summary>Represents grab policy.</summary>
+    private enum GrabPolicy { /** <summary>Identifies immune.</summary> */ Immune, /** <summary>Identifies ordinary.</summary> */ Ordinary, /** <summary>Identifies morphed.</summary> */ Morphed }
 
     /// <summary>$A6:BD04..BD1F dispatches by the named Samus movement handler; unknown byte values retain the managed no-grab/default-release boundary.</summary>
     private static GrabPolicy Policy(SamusMovementType movement) => movement switch

@@ -17,6 +17,7 @@ namespace SuperMetroid.Core.Assets;
 /// </remarks>
 internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != CeresFlightSpriteDefinitions.SmallAsteroids || supplied.PartCount != 16) return supplied;
@@ -30,7 +31,9 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
         if (anchors[2].X > 247 || anchors[3].X > 247 || anchors[5].X > 247 || anchors[6].X > 247) return supplied;
         return supplied.CalculateIfMatching(new CeresSmallAsteroidParts(anchors));
     }
+    /// <summary>Gets count.</summary>
     public int Count => 16;
+    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -70,12 +73,15 @@ internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadO
                 SnesObjAttributeWord.Create(tile, 0, 0, flip ? SnesTileFlipFlags.Vertical : 0), true);
         }
     }
+    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
+/// <summary>Represents ceres small asteroid atlas.</summary>
 internal static class CeresSmallAsteroidAtlas
 {
     /// <summary>Tile16E, top of the overlapping vertical asteroid pair in8C:90FE.</summary>

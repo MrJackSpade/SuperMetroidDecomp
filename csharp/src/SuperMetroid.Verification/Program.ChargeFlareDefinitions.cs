@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents charge flare definitions verification.</summary>
 internal static class ChargeFlareDefinitionsVerification
 {
+    /// <summary>Verifies charge flare definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled charge-flare cadence words and the native cadence reference")]
     internal static void VerifyChargeFlareDefinitions(SuperMetroidAddressSpace bus)
     {

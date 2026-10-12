@@ -13,8 +13,10 @@ namespace SuperMetroid.SourceAudit;
 /// </summary>
 internal static partial class ProductionMagicNumberAudit
 {
+    /// <summary>Stores baseline relative path.</summary>
     private const string BaselineRelativePath = "csharp/magic-number-baseline.txt";
 
+    /// <summary>Stores production source roots.</summary>
     private static readonly string[] ProductionSourceRoots =
     [
         "csharp/src/SuperMetroid.Core",
@@ -49,9 +51,11 @@ internal static partial class ProductionMagicNumberAudit
         "Words.cs",
     ];
 
+    /// <summary>Hex literal regex.</summary>
     [GeneratedRegex(@"0[xX][0-9a-fA-F_]+(?:[uUlL]{0,2})", RegexOptions.CultureInvariant)]
     private static partial Regex HexLiteralRegex();
 
+    /// <summary>Raw case regex.</summary>
     [GeneratedRegex(@"\bcase\s+0[xX]", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
     private static partial Regex RawCaseRegex();
 
@@ -143,6 +147,7 @@ internal static partial class ProductionMagicNumberAudit
         return findings;
     }
 
+    /// <summary>Audits file.</summary>
     private static void AuditFile(
         string repositoryRoot,
         string path,
@@ -152,6 +157,7 @@ internal static partial class ProductionMagicNumberAudit
         AuditLines(relativePath, File.ReadLines(path), findings);
     }
 
+    /// <summary>Finds repository root from.</summary>
     private static string? FindRepositoryRootFrom(string startingPath)
     {
         for (DirectoryInfo? directory = new(Path.GetFullPath(startingPath));
@@ -170,6 +176,7 @@ internal static partial class ProductionMagicNumberAudit
         return null;
     }
 
+    /// <summary>Audits lines.</summary>
     private static void AuditLines(
         string relativePath,
         IEnumerable<string> lines,
@@ -213,6 +220,7 @@ internal static partial class ProductionMagicNumberAudit
         }
     }
 
+    /// <summary>Classify.</summary>
     private static MagicNumberCategory? Classify(string code, ulong value)
     {
         string lower = code.ToLowerInvariant();
@@ -276,9 +284,11 @@ internal static partial class ProductionMagicNumberAudit
         return null;
     }
 
+    /// <summary>Checks whether the value contains any supplied fragment.</summary>
     private static bool ContainsAny(string value, params string[] fragments) =>
         fragments.Any(fragment => value.Contains(fragment, StringComparison.Ordinal));
 
+    /// <summary>Checks whether the line contains a reasoned exemption for this category.</summary>
     private static bool HasReviewedInlineExemption(
         string line,
         MagicNumberCategory category)
@@ -289,12 +299,14 @@ internal static partial class ProductionMagicNumberAudit
         return line.Contains(marker, StringComparison.OrdinalIgnoreCase);
     }
 
+    /// <summary>Parses hex literal.</summary>
     private static ulong ParseHexLiteral(string literal)
     {
         string digits = literal[2..].TrimEnd('u', 'U', 'l', 'L').Replace("_", string.Empty);
         return ulong.Parse(digits, NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture);
     }
 
+    /// <summary>Reads baseline.</summary>
     private static HashSet<string> ReadBaseline(string path)
     {
         if (!File.Exists(path))
@@ -315,6 +327,7 @@ internal static partial class ProductionMagicNumberAudit
         return fingerprints;
     }
 
+    /// <summary>Removes comments and quoted text.</summary>
     private static string RemoveCommentsAndQuotedText(string line, ref bool insideBlockComment)
     {
         var result = new StringBuilder(line.Length);
@@ -362,21 +375,34 @@ internal static partial class ProductionMagicNumberAudit
     }
 }
 
+/// <summary>Represents magic number category.</summary>
 internal enum MagicNumberCategory
 {
+    /// <summary>Identifies rom address.</summary>
     RomAddress,
+    /// <summary>Identifies callback pointer.</summary>
     CallbackPointer,
+    /// <summary>Identifies domain discriminator.</summary>
     DomainDiscriminator,
+    /// <summary>Identifies collision type.</summary>
     CollisionType,
+    /// <summary>Identifies block behavior.</summary>
     BlockBehavior,
+    /// <summary>Identifies pose or movement.</summary>
     PoseOrMovement,
+    /// <summary>Identifies projectile family.</summary>
     ProjectileFamily,
+    /// <summary>Identifies audio id.</summary>
     AudioId,
+    /// <summary>Identifies controller bits.</summary>
     ControllerBits,
+    /// <summary>Identifies packed ppu word.</summary>
     PackedPpuWord,
+    /// <summary>Identifies sram offset.</summary>
     SramOffset,
 }
 
+/// <summary>Represents magic number finding.</summary>
 internal sealed record MagicNumberFinding(
     string RelativePath,
     int LineNumber,
@@ -385,8 +411,10 @@ internal sealed record MagicNumberFinding(
     string Source,
     string Signature)
 {
+    /// <summary>Gets baseline fingerprint.</summary>
     public string BaselineFingerprint => Signature[..16];
 
+    /// <summary>Creates.</summary>
     public static MagicNumberFinding Create(
         string relativePath,
         int lineNumber,
@@ -406,10 +434,12 @@ internal sealed record MagicNumberFinding(
             signature);
     }
 
+    /// <summary>Gets diagnostic.</summary>
     public string Diagnostic =>
         $"{RelativePath}:{LineNumber}: raw {Literal} [{Category}]. " +
         $"Expected {ExpectedContainer(Category)}. {Remediation(Category)} Source: {Source}";
 
+    /// <summary>Expected container.</summary>
     private static string ExpectedContainer(MagicNumberCategory category) => category switch
     {
         MagicNumberCategory.RomAddress => "a named ROM address/range catalog",
@@ -426,11 +456,13 @@ internal sealed record MagicNumberFinding(
         _ => throw new ArgumentOutOfRangeException(nameof(category), category, "Undefined magic-number category."),
     };
 
+    /// <summary>Remediation.</summary>
     private static string Remediation(MagicNumberCategory category) =>
         $"Move the value to the {ExpectedContainer(category)} and reference that symbol; " +
         $"if it is intrinsic algorithm data, add a reviewed same-line allow({category}) reason.";
 }
 
+/// <summary>Represents magic number audit result.</summary>
 internal sealed record MagicNumberAuditResult(
     int CurrentFindingCount,
     int BaselineCount,
@@ -438,5 +470,6 @@ internal sealed record MagicNumberAuditResult(
     IReadOnlyList<MagicNumberFinding> CurrentFindings,
     IReadOnlyList<MagicNumberFinding> NewFindings)
 {
+    /// <summary>Gets passed.</summary>
     public bool Passed => NewFindings.Count == 0;
 }

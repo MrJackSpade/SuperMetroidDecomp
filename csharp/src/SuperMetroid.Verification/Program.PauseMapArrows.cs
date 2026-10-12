@@ -18,8 +18,10 @@ using SuperMetroid.Core.Spatial;
 using static MapSpritesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents pause map arrows verification.</summary>
 internal static class PauseMapArrowsVerification
 {
+    /// <summary>verify pause map arrows.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map arrow tiles, palette and spritemaps")]
     internal static void VerifyPauseMapArrows()
@@ -113,6 +115,7 @@ internal static class PauseMapArrowsVerification
         T Get<T>(string name) => (T)typeof(PauseMenuState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pause)!;
     }
 
+    /// <summary>pause map arrows command.</summary>
     [VerificationCommand("--pause-map-arrows")]
     internal static int PauseMapArrowsCommand()
     {

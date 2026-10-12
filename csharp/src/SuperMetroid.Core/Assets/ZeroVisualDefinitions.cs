@@ -13,6 +13,7 @@ internal static class ZeroVisualDefinitions
     /// <summary>Sixteen selected Spritemap_Zero records at $A3:995B..9B6A.</summary>
     internal const int FrameCount = 16;
 
+    /// <summary>frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var frames = new List<EnemySpritemapDefinition>(FrameCount);
@@ -31,6 +32,7 @@ internal static class ZeroVisualDefinitions
         return [.. frames];
     }
 
+    /// <summary>frame at.</summary>
     internal static ushort FrameAt(ushort operandAddress)
     {
         for (int index = 0; index < ZeroInstructionProgramDefinitions.PresentationWordCount; index++)

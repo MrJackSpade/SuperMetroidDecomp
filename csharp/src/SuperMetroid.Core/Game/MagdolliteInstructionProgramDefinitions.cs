@@ -54,6 +54,7 @@ internal abstract class MagdolliteInstructionProgramDefinitions
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xac9c),
         Entry(LeftIdle),
@@ -203,6 +204,7 @@ internal abstract class MagdolliteInstructionProgramDefinitions
     /// <summary>Whether an address is one of the 53 authored visual operands.</summary>
     internal static bool IsPresentationWord(ushort address) => Layout.IsPresentationWord(address);
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

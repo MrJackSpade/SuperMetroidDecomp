@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
 {
+    /// <summary>Stores start.</summary>
     internal const ushort Start = 0xcc99;
 
     /// <summary><c>InstList_GoldenTorizo_SpewChozoOrb_FacingLeft_RightFootFwd_1</c> at $AA:CCB9.</summary>
@@ -21,6 +22,7 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xcc99),
         Entry(Start),
@@ -42,6 +44,8 @@ internal abstract class GoldenTorizoRightOrbInstructionProgramDefinitions
         Frame(3),
         Op((ushort)TorizoInstruction.Instruction_CommonAA_Enemy0FB2_InY, TorizoMovementWalkingFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 }

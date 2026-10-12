@@ -29,11 +29,14 @@ internal sealed class EnemyBg2FrameCatalog
             }
         });
 
+    /// <summary>Stores frames.</summary>
     private readonly Dictionary<ushort, EnemyBg2TilemapWrite[]> frames;
 
+    /// <summary>Initializes a new enemy bg2 frame catalog instance.</summary>
     private EnemyBg2FrameCatalog(Dictionary<ushort, EnemyBg2TilemapWrite[]> frames) =>
         this.frames = frames;
 
+    /// <summary>Attempts to get.</summary>
     internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
     {
         if (frames.TryGetValue(pointer, out EnemyBg2TilemapWrite[]? found))
@@ -45,6 +48,7 @@ internal sealed class EnemyBg2FrameCatalog
         return false;
     }
 
+    /// <summary>Loads.</summary>
     internal static EnemyBg2FrameCatalog Load(Stream json,
         EnemyBg2FrameDefinitionSequence definitions, int version, string family)
     {

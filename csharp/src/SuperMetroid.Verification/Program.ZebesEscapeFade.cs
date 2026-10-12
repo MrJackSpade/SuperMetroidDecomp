@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 
+/// <summary>Represents zebes escape fade verification.</summary>
 internal static class ZebesEscapeFadeVerification
 {
     // #1269: gunship function $A2:AD0E only writes game state $26 and zeroes the fade delay
@@ -20,6 +21,7 @@ internal static class ZebesEscapeFadeVerification
     // dims one step per call and blanks on the fifteenth, handing off on that same call. The
     // port froze time on the transition and dimmed every second call, so in the 100% movie
     // Samus stopped rising into the gunship and the RNG stopped advancing.
+    /// <summary>verify zebes escape fade.</summary>
     internal static void VerifyZebesEscapeFade()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -46,6 +48,7 @@ internal static class ZebesEscapeFadeVerification
         Console.WriteLine("Zebes escape fade: state $26 runs unfrozen gameplay and hands off after 15 calls.");
     }
 
+    /// <summary>zebes escape fade command.</summary>
     [VerificationCommand("--zebes-escape-fade")]
     internal static int ZebesEscapeFadeCommand()
     {

@@ -17,12 +17,15 @@ using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents torizo sonic boom instruction program definitions verification.</summary>
 internal static class TorizoSonicBoomInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies torizo sonic boom instruction program definitions.</summary>
     internal static void VerifyTorizoSonicBoomInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoSonicBoomInstructionProgramDefinitions), () => VerifyTorizoSonicBoomInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies torizo sonic boom instruction program definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo sonic boom instruction program definitions")]
     internal static void VerifyTorizoSonicBoomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
@@ -218,6 +221,7 @@ internal static class TorizoSonicBoomInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes torizo sonic boom instruction mechanics allocation.</summary>
     private static int ProbeTorizoSonicBoomInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -231,12 +235,14 @@ internal static class TorizoSonicBoomInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates torizo sonic boom instruction read guard.</summary>
     private static CartridgeReadGuard NewTorizoSonicBoomInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(TorizoSonicBoomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo sonic-boom byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount, TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Torizo sonic boom instruction mechanics command.</summary>
     [VerificationCommand("--torizo-sonic-boom-instruction-mechanics")]
     internal static int TorizoSonicBoomInstructionMechanicsCommand()
     {

@@ -26,6 +26,7 @@ public sealed class PartialTypeAnalyzer : DiagnosticAnalyzer
     /// <summary>A partial type with no generated declaration to justify the modifier.</summary>
     public const string UngeneratedId = "SME6361";
 
+    /// <summary>Stores split rule.</summary>
     private static readonly DiagnosticDescriptor SplitRule = new(
         SplitId,
         "Hand-written type split across partial declarations",
@@ -35,6 +36,7 @@ public sealed class PartialTypeAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Split responsibilities into owned types instead of spreading one type over several files (#621).");
 
+    /// <summary>Stores ungenerated rule.</summary>
     private static readonly DiagnosticDescriptor UngeneratedRule = new(
         UngeneratedId,
         "Partial type without a generated declaration",
@@ -57,6 +59,7 @@ public sealed class PartialTypeAnalyzer : DiagnosticAnalyzer
         context.RegisterSymbolAction(AnalyzeType, SymbolKind.NamedType);
     }
 
+    /// <summary>analyze type.</summary>
     private static void AnalyzeType(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;

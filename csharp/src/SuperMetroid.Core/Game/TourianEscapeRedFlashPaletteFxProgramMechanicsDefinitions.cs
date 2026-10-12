@@ -32,6 +32,7 @@ public static class TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
     /// <summary>Both loops contain fourteen timed records.</summary>
     public const int FrameCount = 14;
 
+    /// <summary>Stores definitions.</summary>
     private static readonly TourianEscapeRedFlashPaletteFxProgramDefinition[] Definitions =
     [
         new(TourianEscapeRedFlashPaletteOwner.Shutter,
@@ -60,6 +61,7 @@ public static class TourianEscapeRedFlashPaletteFxProgramMechanicsDefinitions
 /// <summary>One complete early Tourian escape red-flash control program.</summary>
 public sealed class TourianEscapeRedFlashPaletteFxProgramDefinition
 {
+    /// <summary>Initializes a new tourian escape red flash palette fx program definition instance.</summary>
     internal TourianEscapeRedFlashPaletteFxProgramDefinition(
         TourianEscapeRedFlashPaletteOwner owner,
         ushort definitionPointer,

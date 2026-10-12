@@ -13,6 +13,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents fireflea double death verification.</summary>
 internal static class FirefleaDoubleDeathVerification
 {
     // #1269: EnemyTouch_Fireflea ($A3:8E6B) calls CommonA3_NormalEnemyTouchAI and then
@@ -20,6 +21,7 @@ internal static class FirefleaDoubleDeathVerification
     // EnemyDeath runs on the cleared slot: a small explosion spawns at (0,0) with header zero
     // and a second kill is counted. The 100% movie's screw attack through Lower Norfair's
     // Fireflea room shows that explosion in the next lower projectile slot.
+    /// <summary>verify fireflea double death.</summary>
     internal static void VerifyFirefleaDoubleDeath()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -53,6 +55,7 @@ internal static class FirefleaDoubleDeathVerification
         Console.WriteLine("Fireflea double death: a killing touch also spawns the cleared-slot small explosion.");
     }
 
+    /// <summary>fireflea double death command.</summary>
     [VerificationCommand("--fireflea-double-death")]
     internal static int FirefleaDoubleDeathCommand()
     {

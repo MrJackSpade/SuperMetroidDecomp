@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents room plm instruction list catalog verification.</summary>
 internal static class RoomPlmInstructionListCatalogVerification
 {
     /// <summary>

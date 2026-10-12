@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Represents maridia large snail instruction definitions verification.</summary>
 internal static class MaridiaLargeSnailInstructionDefinitionsVerification
 {
+    /// <summary>verify maridia large snail instruction definitions.</summary>
     internal static void VerifyMaridiaLargeSnailInstructionDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -173,6 +175,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             "effects, and sixty executed selectors match cartridge data with runtime reads forbidden.");
     }
 
+    /// <summary>execute maridia large snail program.</summary>
     private static void ExecuteMaridiaLargeSnailProgram(
         ISnesAddressSpace rom,
         HashSet<ushort> executedOperands,
@@ -192,6 +195,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         }
     }
 
+    /// <summary>probe maridia large snail instruction mechanics allocation.</summary>
     private static int ProbeMaridiaLargeSnailInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -207,6 +211,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>new maridia large snail instruction read guard.</summary>
     private static CartridgeReadGuard NewMaridiaLargeSnailInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2cb77 and < 0xa2cb87 ||
@@ -216,6 +221,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordCount,
                 MaridiaLargeSnailInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>maridia large snail instruction definitions command.</summary>
     [VerificationCommand("--maridia-large-snail-instruction-definitions")]
     internal static int MaridiaLargeSnailInstructionDefinitionsCommand()
     {

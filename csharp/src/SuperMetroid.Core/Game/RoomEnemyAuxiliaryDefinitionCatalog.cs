@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal static class RoomEnemyAuxiliaryDefinitionCatalog
 {
+    /// <summary>Stores definitions.</summary>
     private static readonly Dictionary<EnemyDefinitionId, RoomEnemyDefinition> Definitions =
         new Dictionary<EnemyDefinitionId, RoomEnemyDefinition>
     {

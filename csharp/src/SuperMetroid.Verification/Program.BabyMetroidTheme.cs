@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static BabyMetroidFixtureHeadVerification;
 
+/// <summary>Represents baby metroid theme verification.</summary>
 internal static class BabyMetroidThemeVerification
 {
+    /// <summary>Verifies baby metroid theme.</summary>
     internal static int VerifyBabyMetroidTheme()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -56,6 +58,7 @@ internal static class BabyMetroidThemeVerification
         return 0;
     }
 
+    /// <summary>Baby metroid theme command.</summary>
     [VerificationCommand("--baby-metroid-theme")]
     internal static int BabyMetroidThemeCommand()
     {

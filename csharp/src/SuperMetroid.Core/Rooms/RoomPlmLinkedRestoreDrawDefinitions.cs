@@ -9,10 +9,12 @@ namespace SuperMetroid.Core.Rooms;
 /// </summary>
 internal static class RoomPlmLinkedRestoreDrawDefinitions
 {
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         RoomPlmBombBlockRestoreDrawDefinitions.All.Concat(
             RoomPlmContactCrumbleRestoreDrawDefinitions.All);
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer)
     {
         if (Enum.IsDefined((BombBlockRestoreDraw)pointer))
@@ -34,6 +36,7 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
         };
     }
 
+    /// <summary>Tries to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {

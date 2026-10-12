@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy pickup instruction program definitions verification.</summary>
 internal static class EnemyPickupInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies enemy pickup instruction program definitions.</summary>
     internal static void VerifyEnemyPickupInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies enemy pickup instruction program definitions.</summary>
     internal static void VerifyEnemyPickupInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -157,6 +160,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes enemy pickup instruction mechanics allocation.</summary>
     private static int ProbeEnemyPickupInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -170,6 +174,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Creates enemy pickup instruction read guard.</summary>
     private static CartridgeReadGuard NewEnemyPickupInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(EnemyPickupInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -177,6 +182,7 @@ internal static class EnemyPickupInstructionProgramDefinitionsVerification
             .ObserveWords(EnemyProjectileCodePointers.BankBase, EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
                 EnemyPickupInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Enemy pickup instruction mechanics command.</summary>
     [VerificationCommand("--enemy-pickup-instruction-mechanics")]
     internal static int EnemyPickupInstructionMechanicsCommand()
     {

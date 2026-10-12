@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 
+/// <summary>Represents magdollite phase definitions verification.</summary>
 internal static class MagdollitePhaseDefinitionsVerification
 {
+    /// <summary>Verifies magdollite phase definitions.</summary>
     internal static void VerifyMagdollitePhaseDefinitions(SuperMetroidAddressSpace rom)
     {
         const int thresholdTable = 0xa8af55;
@@ -116,10 +118,12 @@ internal static class MagdollitePhaseDefinitionsVerification
             "Magdollite phase definitions: 27 native words and real initialization, rise, fall and overlay consumers pass with table reads forbidden.");
     }
 
+    /// <summary>Reads magdollite word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Magdollite words")]
     internal static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
+    /// <summary>Creates magdollite phase guard.</summary>
     private static CartridgeReadGuard NewMagdollitePhaseGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0xa8af55, 0xa8af8b - 0xa8af55,
             address => $"Magdollite attempted migrated phase read ${address:X6}.");

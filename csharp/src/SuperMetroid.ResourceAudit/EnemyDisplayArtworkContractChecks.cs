@@ -11,6 +11,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms the identified display-binding availability contracts, not enemy behavior.</summary>
 internal static class EnemyDisplayArtworkContractChecks
 {
+    /// <summary>Run.</summary>
     internal static void Run()
     {
         var simpleFrames = EnemySpritemapDefinitions.Frames.ToArray().ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>());
@@ -42,6 +43,7 @@ internal static class EnemyDisplayArtworkContractChecks
         ConfirmStaticCalls(simpleId, extendedId);
     }
 
+    /// <summary>Confirm static calls.</summary>
     private static void ConfirmStaticCalls(EnemySpritemapDefinition simple, EnemyExtendedFrameDefinition extended)
     {
         var trees = EnemyDisplayArtworkClosedContractDefinitions.All.SelectMany(contract => contract.Sources)
@@ -115,6 +117,7 @@ internal static class EnemyDisplayArtworkContractChecks
             "additional generator declaration must revoke extended availability");
     }
 
+    /// <summary>Reject.</summary>
     private static void Reject(Action action, string reason)
     {
         try { action(); }
@@ -122,6 +125,7 @@ internal static class EnemyDisplayArtworkContractChecks
         throw new InvalidOperationException("Enemy display confirmation did not reject " + reason);
     }
 
+    /// <summary>Require.</summary>
     private static void Require(bool valid, string reason)
     {
         if (!valid) throw new InvalidOperationException("Enemy display confirmation failed: " + reason);

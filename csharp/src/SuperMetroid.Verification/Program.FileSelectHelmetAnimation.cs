@@ -2,8 +2,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents file select helmet animation verification.</summary>
 internal static class FileSelectHelmetAnimationVerification
 {
+    /// <summary>Verifies file select helmet animation.</summary>
     internal static void VerifyFileSelectHelmetAnimation(ISnesAddressSpace rom)
     {
         AssertEqual(9, FileSelectHelmetAnimation.NativeEntryCount, "complete native helmet mapping");
@@ -24,6 +26,7 @@ internal static class FileSelectHelmetAnimationVerification
                 "unsupported helmet sample");
     }
 
+    /// <summary>File select helmet animation rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select helmet animation")]
     private static byte FileSelectHelmetAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

@@ -7,6 +7,7 @@ using SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class EvidencedDoorLoaderProgress : IDoorLoaderProgressSource
 {
+    /// <summary>Stores completed slots.</summary>
     private int? completedSlots;
 
     /// <summary>Declares the loader progress native reached by the end of the next update.</summary>
@@ -17,5 +18,6 @@ internal sealed class EvidencedDoorLoaderProgress : IDoorLoaderProgressSource
         completedSlots = completedEnemySlots;
     }
 
+    /// <summary>Has initialized enemy slot.</summary>
     public bool HasInitializedEnemySlot(int slot) => completedSlots is int completed && slot < completed;
 }

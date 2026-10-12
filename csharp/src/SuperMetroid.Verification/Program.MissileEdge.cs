@@ -14,8 +14,10 @@ using SuperMetroid.Core.Input;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents missile edge verification.</summary>
 internal static class MissileEdgeVerification
 {
+    /// <summary>Verifies missile impact camera edge.</summary>
     internal static void VerifyMissileImpactCameraEdge(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).Select(line => line.Split(','))
@@ -56,6 +58,7 @@ internal static class MissileEdgeVerification
         Console.WriteLine($"Missile impact camera edge: {compared} original-cartridge frames match, including retained and deleted explosions.");
     }
 
+    /// <summary>Missile edge command.</summary>
     [VerificationCommand("--missile-edge")]
     internal static int MissileEdgeCommand()
     {

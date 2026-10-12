@@ -13,8 +13,10 @@ namespace SuperMetroid.EnsureAnalyzer;
 /// </summary>
 internal sealed class CartridgeEncodingBaseline
 {
+    /// <summary>Stores counts.</summary>
     private readonly Dictionary<(string Path, string Rule), int> counts;
 
+    /// <summary>Initializes a new cartridge encoding baseline instance.</summary>
     private CartridgeEncodingBaseline(string repositoryRoot, Dictionary<(string Path, string Rule), int> counts)
     {
         RepositoryRoot = repositoryRoot;

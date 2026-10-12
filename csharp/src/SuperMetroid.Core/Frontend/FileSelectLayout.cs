@@ -63,6 +63,7 @@ internal static class FileSelectLayout
     public static int DataSlotDestination(int slot, FileSelectSlotField field) =>
         SlotDestination(slot, field, dataPage: true);
 
+    /// <summary>Slot destination.</summary>
     private static int SlotDestination(int slot, FileSelectSlotField field, bool dataPage)
     {
         if ((uint)slot >= SaveSlotCount) throw new IndexOutOfRangeException();
@@ -94,37 +95,58 @@ internal static class FileSelectLayout
 
     /// <summary>BG1 byte destinations for the main file-select labels and fields.</summary>
     public const int SamusDataDestination = 0x056;
+    /// <summary>Stores data copy destination.</summary>
     public const int DataCopyDestination = 0x508;
+    /// <summary>Stores data clear destination.</summary>
     public const int DataClearDestination = 0x5c8;
+    /// <summary>Stores exit destination.</summary>
     public const int ExitDestination = 0x688;
 
     /// <summary>BG1 byte destinations used by Copy and Clear prompts.</summary>
     public const int DataModeCopyDestination = 0x52;
+    /// <summary>Stores data mode clear destination.</summary>
     public const int DataModeClearDestination = 0x50;
+    /// <summary>Stores copy source prompt destination.</summary>
     public const int CopySourcePromptDestination = 0x150;
+    /// <summary>Stores copy destination prompt destination.</summary>
     public const int CopyDestinationPromptDestination = 0x148;
+    /// <summary>Stores copy confirmation prompt destination.</summary>
     public const int CopyConfirmationPromptDestination = 0x144;
+    /// <summary>Stores clear prompt destination.</summary>
     public const int ClearPromptDestination = 0x140;
+    /// <summary>Stores copy destination source letter destination.</summary>
     public const int CopyDestinationSourceLetterDestination = 0x160;
+    /// <summary>Stores copy confirmation source letter destination.</summary>
     public const int CopyConfirmationSourceLetterDestination = 0x15c;
+    /// <summary>Stores copy confirmation destination letter destination.</summary>
     public const int CopyConfirmationDestinationLetterDestination = 0x176;
+    /// <summary>Stores clear confirmation source letter destination.</summary>
     public const int ClearConfirmationSourceLetterDestination = 0x16a;
+    /// <summary>Stores samus letter tile base.</summary>
     public const ushort SamusLetterTileBase = 0x206a;
+    /// <summary>Stores copy completed destination.</summary>
     public const int CopyCompletedDestination = 0x510;
+    /// <summary>Stores data cleared destination.</summary>
     public const int DataClearedDestination = 0x500;
 
     /// <summary>BG1 byte destinations for the copy/clear confirmation choices.</summary>
     public const int ConfirmationQuestionDestination = 0x514;
+    /// <summary>Stores confirmation yes destination.</summary>
     public const int ConfirmationYesDestination = 0x59c;
+    /// <summary>Stores confirmation no destination.</summary>
     public const int ConfirmationNoDestination = 0x65c;
 }
 
 /// <summary>Distinct fields in each native file-select save-slot panel.</summary>
 internal enum FileSelectSlotField
 {
+    /// <summary>Identifies label.</summary>
     Label,
+    /// <summary>Identifies energy.</summary>
     Energy,
+    /// <summary>Identifies time value.</summary>
     TimeValue,
+    /// <summary>Identifies time label.</summary>
     TimeLabel,
 }
 

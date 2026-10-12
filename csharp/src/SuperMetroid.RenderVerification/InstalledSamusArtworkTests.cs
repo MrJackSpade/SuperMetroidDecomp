@@ -11,6 +11,7 @@ using SuperMetroid.Core.Spatial;
 /// </summary>
 internal static class InstalledSamusArtworkTests
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run(InstalledSamusArtworkFixture fixture,
         D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
@@ -25,6 +26,7 @@ internal static class InstalledSamusArtworkTests
             $"{check.Comparisons} exact software/GPU comparisons, {check.ChangedPixels} recolored pixels.");
     }
 
+    /// <summary>check pose drawing.</summary>
     private static int CheckPoseDrawing(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
     {
@@ -55,6 +57,7 @@ internal static class InstalledSamusArtworkTests
 
     // Deliberately excludes derived spritemap indices and DMA flags. Those are the
     // rendering outputs; pose timing, collision radii and fixed-point motion are not.
+    /// <summary>physical state.</summary>
     private static string PhysicalState(SamusState samus) => string.Join("|",
         samus.Pose, samus.Position.X.Whole, samus.Position.Y.Whole, samus.Health,
         samus.AnimationFrame, samus.AnimationFrameTimer, samus.AnimationFrameBuffer,
@@ -65,9 +68,11 @@ internal static class InstalledSamusArtworkTests
         samus.Kinematics.YSpeed, samus.Kinematics.YSubspeed,
         samus.Kinematics.Radius.X, samus.Kinematics.Radius.Y);
 
+    /// <summary>Throws when the asserted condition is false.</summary>
     private static void Require(bool condition, string message)
     { if (!condition) throw new InvalidOperationException(message); }
 
+    /// <summary>check body transfers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int CheckBodyTransfers(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
@@ -114,6 +119,7 @@ internal static class InstalledSamusArtworkTests
         return count;
     }
 
+    /// <summary>set pending definition.</summary>
     private static void SetPendingDefinition(SamusTileTransferState transfer, bool upper, int pointer)
     {
         // Construct a faithful saved pending-transfer state without modifying the
@@ -124,6 +130,7 @@ internal static class InstalledSamusArtworkTests
             nameof(transfer.BottomTransferEnabled))!.SetValue(transfer, true);
     }
 
+    /// <summary>check queued transfers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static int CheckQueuedTransfers(InstalledSamusArtworkFixture fixture,
         SuperMetroidAddressSpace memory, ArtworkPixelCheck check)
@@ -159,16 +166,20 @@ internal static class InstalledSamusArtworkTests
         }
     }
 
+    /// <summary>Represents samus queued artwork.</summary>
     private sealed class SamusQueuedArtwork(SamusBodyArtworkCatalog artwork) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
+        /// <summary>try resolve.</summary>
         public bool TryResolve(int source, int length, out ReadOnlyMemory<byte> data) =>
             artwork.ArmCannon.TryResolveTile(source, length, out data) ||
             artwork.DeathTiles.TryResolve(source, length, out data);
+        /// <summary>resolve.</summary>
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>
             throw new InvalidDataException($"Unexpected typed transfer {asset} in Samus upload fixture.");
     }
 
+    /// <summary>tile gallery.</summary>
     private static OamBuffer TileGallery(ushort first, int firstSize, ushort second, int secondSize)
     {
         var oam = new OamBuffer(); oam.BeginFrame();

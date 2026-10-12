@@ -18,8 +18,10 @@ public static class RoomPlmShotBlockVisualFiles
     public const string VisualFileName = "shot-blocks.json";
     /// <summary>Stock manifest filename recording format version one, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Stores format version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -98,6 +100,7 @@ public static class RoomPlmShotBlockVisualFiles
     /// <exception cref="InvalidDataException">Stock validation fails.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Reads and verify native.</summary>
     private static RoomPlmShotBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var result = new List<RoomPlmShotBlockVisualEntry>();
@@ -138,6 +141,7 @@ public static class RoomPlmShotBlockVisualFiles
         return result.ToArray();
     }
 
+    /// <summary>Verifies stock matches compiled.</summary>
     private static void VerifyStockMatchesCompiled(
         RoomPlmShotBlockVisualCatalog catalog, string path)
     {
@@ -153,12 +157,14 @@ public static class RoomPlmShotBlockVisualFiles
         }
     }
 
+    /// <summary>Validates document.</summary>
     private static void ValidateDocument(VisualDocument document, string path)
     {
         if (document.Version != FormatVersion || document.Entries is null)
             throw new InvalidDataException($"Shot-block visuals {path} have an incompatible format.");
     }
 
+    /// <summary>Creates catalog.</summary>
     private static RoomPlmShotBlockVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -173,8 +179,10 @@ public static class RoomPlmShotBlockVisualFiles
         }
     }
 
+    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
 
+    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -188,7 +196,9 @@ public static class RoomPlmShotBlockVisualFiles
         }
     }
 
+    /// <summary>Represents visual manifest.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Represents visual document.</summary>
     private sealed record VisualDocument(int Version, RoomPlmShotBlockVisualEntry[] Entries);
 }

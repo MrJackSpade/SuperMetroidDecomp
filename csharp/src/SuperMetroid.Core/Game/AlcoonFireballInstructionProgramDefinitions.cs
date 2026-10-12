@@ -14,14 +14,17 @@ internal abstract class AlcoonFireballInstructionProgramDefinitions
     /// <c>Instruction_EnemyProjectile_GotoY</c> closing the fireball loop at $86:9EAE.
     /// </summary>
     internal const ushort Loop = 0x9eae;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 4;
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 2 + 4 * index);
     }
 
+    /// <summary>Indicates whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - (Initial + 2);

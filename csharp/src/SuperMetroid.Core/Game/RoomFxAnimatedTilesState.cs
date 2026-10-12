@@ -16,15 +16,21 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 internal sealed class RoomFxAnimatedTilesState
 {
+    /// <summary>Stores object pointer.</summary>
     private AnimatedTileObject objectPointer;
+    /// <summary>Stores instruction pointer.</summary>
     private ushort instructionPointer;
+    /// <summary>Stores instruction timer.</summary>
     private ushort instructionTimer;
+    /// <summary>Stores transfer byte count.</summary>
     private ushort transferByteCount;
+    /// <summary>Stores encoded vram destination.</summary>
     private ushort encodedVramDestination;
 
     /// <summary>The queued-DMA destination the loaded animated-tile object's native word decodes to.</summary>
     [PpuLayoutBoundary("codec: room-FX animated-tile object's native VRAM destination")]
     private VramDmaDestination Destination => VramDmaDestination.FromNative(encodedVramDestination);
+    /// <summary>Stores compiled mechanics.</summary>
     private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
 
     /// <summary>Whether a room-FX animated-tile object currently owns this slot.</summary>
@@ -160,6 +166,7 @@ internal sealed class RoomFxAnimatedTilesState
         compiledMechanics = null;
     }
 
+    /// <summary>Reads mechanics word.</summary>
     private ushort ReadMechanicsWord(ushort pointer)
     {
         if (compiledMechanics is null)

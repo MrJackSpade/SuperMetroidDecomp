@@ -15,6 +15,7 @@ using SuperMetroid.Core.Runtime;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents unpause reserve blackout verification.</summary>
 internal static class UnpauseReserveBlackoutVerification
 {
     /// <summary>
@@ -68,6 +69,7 @@ internal static class UnpauseReserveBlackoutVerification
         Console.WriteLine("  Unpause reserve blackout: the refill starts in state $12 and the next pause darkens from black.");
     }
 
+    /// <summary>Unpause reserve blackout command.</summary>
     [VerificationCommand("--unpause-reserve-blackout")]
     internal static int UnpauseReserveBlackoutCommand()
     {

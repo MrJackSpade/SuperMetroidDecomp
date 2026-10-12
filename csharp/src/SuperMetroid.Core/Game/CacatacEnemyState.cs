@@ -68,8 +68,10 @@ public enum CacatacSpikeDirection : ushort
 /// </summary>
 public sealed class CacatacEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new cacatac enemy state instance.</summary>
     internal CacatacEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Native <c>$0FA8,x</c>, the fractional half of rightward velocity.</summary>

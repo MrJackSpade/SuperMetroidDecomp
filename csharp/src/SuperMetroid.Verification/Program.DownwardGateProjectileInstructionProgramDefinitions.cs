@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents downward gate projectile instruction program definitions verification.</summary>
 internal static class DownwardGateProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>verify downward gate projectile instruction program definitions.</summary>
     internal static void VerifyDownwardGateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyDownwardGateProjectileInstructionProgramDefinitions), () => VerifyDownwardGateProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>verify downward gate projectile instruction program definitions.</summary>
     internal static void VerifyDownwardGateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -191,6 +194,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
         }
     }
 
+    /// <summary>probe downward gate projectile instruction mechanics allocation.</summary>
     private static int ProbeDownwardGateProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -204,6 +208,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
         return checksum;
     }
 
+    /// <summary>new downward gate projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewDownwardGateProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
@@ -214,6 +219,7 @@ internal static class DownwardGateProjectileInstructionProgramDefinitionsVerific
                 DownwardGateProjectileInstructionProgramDefinitions.PresentationWordCount,
                 DownwardGateProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>downward gate projectile instruction mechanics command.</summary>
     [VerificationCommand("--downward-gate-projectile-instruction-mechanics")]
     internal static int DownwardGateProjectileInstructionMechanicsCommand()
     {

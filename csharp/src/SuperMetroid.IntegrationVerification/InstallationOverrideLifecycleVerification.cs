@@ -15,6 +15,7 @@ using System.Text.Json;
 /// </summary>
 internal static class InstallationOverrideLifecycleVerification
 {
+    /// <summary>Run.</summary>
     internal static int Run(string sourceRom)
     {
         using var temporaryScratch = new TestScratchDirectory("override-lifecycle");
@@ -84,6 +85,7 @@ internal static class InstallationOverrideLifecycleVerification
         }
     }
 
+    /// <summary>Copies every override domain.</summary>
     private static string[] CopyEveryOverrideDomain(GameInstallation installation)
     {
         string[] directories = typeof(GameInstallation).GetProperties()
@@ -109,6 +111,7 @@ internal static class InstallationOverrideLifecycleVerification
         return directories;
     }
 
+    /// <summary>Catalog snapshot.</summary>
     private static Dictionary<string, string> CatalogSnapshot(GameInstallation installation)
     {
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -134,11 +137,13 @@ internal static class InstallationOverrideLifecycleVerification
         return result;
     }
 
+    /// <summary>File snapshot.</summary>
     private static Dictionary<string, string> FileSnapshot(string root) =>
         Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
             .ToDictionary(file => Path.GetRelativePath(root, file),
                 file => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(file))), StringComparer.Ordinal);
 
+    /// <summary>Asserts snapshot.</summary>
     private static void AssertSnapshot(Dictionary<string, string> expected, Dictionary<string, string> actual, string context)
     {
         Assert(expected.Count == actual.Count, context + ": file/catalog count");
@@ -146,6 +151,7 @@ internal static class InstallationOverrideLifecycleVerification
             Assert(actual.TryGetValue(key, out string? selected) && selected == digest, context + ": " + key);
     }
 
+    /// <summary>Asserts only edited catalogs changed.</summary>
     private static void AssertOnlyEditedCatalogsChanged(Dictionary<string, string> baseline, Dictionary<string, string> selected)
     {
         string[] changed = [nameof(GameInstallation.LoadMaps), nameof(GameInstallation.LoadAudio),
@@ -154,6 +160,7 @@ internal static class InstallationOverrideLifecycleVerification
             Assert((selected[loader] != digest) == changed.Contains(loader), "isolated presentation edits: " + loader);
     }
 
+    /// <summary>Verifies invalid override is retained.</summary>
     private static void VerifyInvalidOverrideIsRetained(GameInstallation installation, Dictionary<string, string> expected)
     {
         string path = Path.Combine(installation.StandardObjectOverrideDirectory, StandardObjectArtworkFormat.FileName);
@@ -178,11 +185,13 @@ internal static class InstallationOverrideLifecycleVerification
         AssertSnapshot(expected, FileSnapshot(Path.Combine(installation.Root, "overrides")), "author repair restores override files");
     }
 
+    /// <summary>Assert.</summary>
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new InvalidDataException(message);
     }
 
+    /// <summary>Edit presentation.</summary>
     private static OverrideExpectations EditPresentation(GameInstallation installation)
     {
         byte[] standard = EditPng(Path.Combine(installation.StandardObjectOverrideDirectory,
@@ -235,6 +244,7 @@ internal static class InstallationOverrideLifecycleVerification
             instrument, program.Id, instructionIndex, arguments);
     }
 
+    /// <summary>Edit png.</summary>
     private static byte[] EditPng(string path, Extent16<ImagePixels> size, int bitsPerPixel)
     {
         IndexedPngImage image;
@@ -244,6 +254,7 @@ internal static class InstallationOverrideLifecycleVerification
         return SnesPlanarTileEncoder.Encode(image.Pixels, size, bitsPerPixel);
     }
 
+    /// <summary>Verifies selected.</summary>
     private static void VerifySelected(GameInstallation installation, OverrideExpectations expected,
         Dictionary<string, string> identities, Dictionary<string, string> files, string phase)
     {
@@ -261,6 +272,7 @@ internal static class InstallationOverrideLifecycleVerification
             .Arguments.SequenceEqual(expected.SoundArguments), phase + ": actual authored SFX operation");
     }
 
+    /// <summary>Represents override expectations.</summary>
     private sealed record OverrideExpectations(byte[] StandardObjects, byte[] Font, ushort Color,
         int Bank, byte Source, short PcmFirstSample, AudioInstrumentMetadata Instrument,
         string SoundProgram, int SoundInstruction, byte[] SoundArguments);

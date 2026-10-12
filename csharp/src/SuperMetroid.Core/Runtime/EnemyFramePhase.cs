@@ -11,25 +11,44 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class EnemyFramePhase
 {
+    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Stores controller1.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Stores display.</summary>
     private readonly GameplayDisplayState _display;
+    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Stores enemy room effects.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
+    /// <summary>Stores escape timer.</summary>
     private readonly EscapeTimer _escapeTimer;
+    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Stores nmi.</summary>
     private readonly NmiClock _nmi;
+    /// <summary>Stores oam.</summary>
     private readonly OamBuffer _oam;
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Stores projectiles.</summary>
     private readonly SamusProjectileSystem _projectiles;
+    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Stores room layer3 fx.</summary>
     private readonly RoomLayer3FxState _roomLayer3Fx;
+    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Initializes a new enemy frame phase instance.</summary>
     internal EnemyFramePhase(EnemyFramePhaseDependencies dependencies)
     {
         _backgroundScroll = dependencies.BackgroundScroll;
@@ -53,6 +72,7 @@ internal sealed class EnemyFramePhase
     }
     // Only the remaining dedicated Ceres adapter publishes here. Ordinary shots, Phantoon
     // beams and bombs dispatch per enemy before AI, and Kraid's passes run inside its AI.
+    /// <summary>Resolves updated beam hits.</summary>
     internal void ResolveUpdatedBeamHits()
     {
         _enemies.CeresRidleyBehavior.ResolveCeresRidleyProjectileHits(
@@ -63,6 +83,7 @@ internal sealed class EnemyFramePhase
 
     // Terrain preparation owns the external movement words before alpha. Enemy
     // actors subsequently add platform displacement; beta consumes it unchanged.
+    /// <summary>Prepares enemy frame.</summary>
     internal void PrepareEnemyFrame()
     {
         if (_room.Camera is not null && _enemies.IsLoaded)

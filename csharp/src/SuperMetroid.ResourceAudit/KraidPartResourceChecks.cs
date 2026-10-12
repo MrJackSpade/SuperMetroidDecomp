@@ -5,6 +5,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirms only the statically identified foot/lint composition omissions, not the fight.</summary>
 internal static class KraidPartResourceChecks
 {
+    /// <summary>Runs.</summary>
     internal static void Run(string part)
     {
         switch (part)

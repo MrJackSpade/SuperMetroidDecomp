@@ -10,8 +10,11 @@ namespace SuperMetroid.Core.Assets;
 /// tile selections remain independently editable.</summary>
 internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Stores tiles.</summary>
     private readonly int[]? tiles;
+    /// <summary>Defines stock part count.</summary>
     private const int StockPartCount = 37;
+    /// <summary>Initializes a new ending explosion afterglow parts instance.</summary>
     private EndingExplosionAfterglowParts(int[] suppliedTiles)
     {
         bool stock = suppliedTiles.Length == StockPartCount;
@@ -45,8 +48,10 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         return Atlas(0x1a, 14 - 2 * (index - 29)); // Full equatorial belt.
     }
 
+    /// <summary>Atlas.</summary>
     private static int Atlas(int row, int column) => row * 16 + column;
 
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Afterglow)) return supplied;
@@ -60,7 +65,9 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
         return supplied.CalculateIfMatching(new EndingExplosionAfterglowParts(tiles));
     }
 
+    /// <summary>Gets count.</summary>
     public int Count => tiles?.Length ?? StockPartCount;
+    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -80,9 +87,11 @@ internal sealed class EndingExplosionAfterglowParts : IReadOnlyList<CompiledSpri
                 SnesObjAttributeWord.Create(tile, 0, 0), true);
         }
     }
+    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

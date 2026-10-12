@@ -78,8 +78,10 @@ public enum HorizontalShutterFunction : ushort
 /// </summary>
 public sealed class GrowingShutterEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new growing shutter enemy state instance.</summary>
     internal GrowingShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer; initialization selects a wait function and activation replaces it with a growth function.</summary>
@@ -110,6 +112,7 @@ public sealed class GrowingShutterEnemyState
     /// <summary>Extended word $7E:8800,x used to derive Samus's whole-pixel carry.</summary>
     public ushort PreviousYPosition { get; internal set; }
 
+    /// <summary>Origin for level.</summary>
     internal ushort OriginForLevel() => GrowthLevel switch
     {
         0 => GrowthLevel0OriginY,
@@ -128,8 +131,10 @@ public sealed class GrowingShutterEnemyState
 /// </summary>
 public sealed class VerticalShutterEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new vertical shutter enemy state instance.</summary>
     internal VerticalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer, shared by shootable/destroyable shutters and the Kamer vertical platform.</summary>
@@ -187,8 +192,10 @@ public sealed class VerticalShutterEnemyState
 /// <summary>Typed state for the cartridge's complete, though retail-unused, horizontal shutter.</summary>
 public sealed class HorizontalShutterEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new horizontal shutter enemy state instance.</summary>
     internal HorizontalShutterEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Enemy variable A's bank-$A2 dispatcher pointer for the retail-unused horizontal shutter, retained across wait, movement, and endpoint-rest updates.</summary>

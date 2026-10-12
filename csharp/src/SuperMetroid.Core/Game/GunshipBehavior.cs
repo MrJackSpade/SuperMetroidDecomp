@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -12,11 +12,16 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class GunshipBehavior
 {
+    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new gunship behavior instance.</summary>
     internal GunshipBehavior(EnemyAudioQueue audio, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemySlotTable slotTable)
     {
         _audio = audio;
@@ -24,7 +29,9 @@ internal sealed class GunshipBehavior
         _room = room;
         _slotTable = slotTable;
     }
+    /// <summary>Stores gunship load scenario.</summary>
     internal GunshipLoadScenario _gunshipLoadScenario;
+    /// <summary>Stores samus at enemy initialization.</summary>
     internal SamusState? _samusAtEnemyInitialization;
     /// <summary>Most recent gunship lifecycle event in the current enemy pass, cleared to None at the next pass; answering the save prompt also publishes an event immediately.</summary>
     public GunshipFrameEvent LastGunshipEvent { get; internal set; }
@@ -57,6 +64,7 @@ internal sealed class GunshipBehavior
         LastGunshipEvent = GunshipFrameEvent.SavePromptAnswered;
     }
 
+    /// <summary>Initializes gunship top.</summary>
     internal void InitializeGunshipTop(RoomEnemySlot slot)
     {
         slot.Properties = slot.Properties.With(
@@ -85,6 +93,7 @@ internal sealed class GunshipBehavior
         slot.VariableC = 0;
     }
 
+    /// <summary>Initializes gunship bottom.</summary>
     internal void InitializeGunshipBottom(RoomEnemySlot slot)
     {
         slot.Properties = slot.Properties.With(
@@ -130,6 +139,7 @@ internal sealed class GunshipBehavior
         slot.VariableF = (ushort)GunshipFunction.NoOperation;
     }
 
+    /// <summary>Runs gunship top main.</summary>
     internal void RunGunshipTopMain(
         RoomEnemySlot top,
         SamusState? samus,
@@ -243,6 +253,7 @@ internal sealed class GunshipBehavior
         }
     }
 
+    /// <summary>Descend post ceres gunship.</summary>
     private void DescendPostCeresGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -266,6 +277,7 @@ internal sealed class GunshipBehavior
         top.VariableE = 0;
     }
 
+    /// <summary>Bounce post ceres gunship.</summary>
     internal void BouncePostCeresGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -297,6 +309,7 @@ internal sealed class GunshipBehavior
         _audio.QueueEnemySound(SoundEffectLibrary3Sounds.GunshipEntrancePad, maximumQueued: 6);
     }
 
+    /// <summary>Raises post ceres samus.</summary>
     private void RaisePostCeresSamus(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -315,6 +328,7 @@ internal sealed class GunshipBehavior
         LastGunshipEvent = GunshipFrameEvent.LandingPadClosed;
     }
 
+    /// <summary>Adds gunship yfixed.</summary>
     private void AddGunshipYFixed(SamusState samus, RoomEnemySlot top, uint delta)
     {
         uint samusFixed = new SnesFixedPosition(samus.Position.Y.Whole, samus.Kinematics.Position.Y.Fraction).RawValue;
@@ -331,6 +345,7 @@ internal sealed class GunshipBehavior
         }
     }
 
+    /// <summary>Steps gunship bob.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
     {
         ushort oldTimer = top.VariableD;
@@ -350,6 +365,7 @@ internal sealed class GunshipBehavior
         top.VariableC = unchecked((ushort)((top.VariableC + 1) & 3));
     }
 
+    /// <summary>Handles idle gunship entrance.</summary>
     private void HandleIdleGunshipEntrance(
         RoomEnemySlot top,
         SamusState? samus,
@@ -389,6 +405,7 @@ internal sealed class GunshipBehavior
         }
     }
 
+    /// <summary>Ticks gunship function timer.</summary>
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
         ushort oldTimer = top.VariableA;
@@ -396,6 +413,7 @@ internal sealed class GunshipBehavior
         return oldTimer == 1 || (short)top.VariableA < 0;
     }
 
+    /// <summary>Lower samus into gunship.</summary>
     private void LowerSamusIntoGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -412,6 +430,7 @@ internal sealed class GunshipBehavior
         LastGunshipEvent = GunshipFrameEvent.EntryPadClosing;
     }
 
+    /// <summary>Restores samus in gunship.</summary>
     private void RestoreSamusInGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -446,6 +465,7 @@ internal sealed class GunshipBehavior
         top.VariableF = (ushort)GunshipFunction.HandleSaveConfirmation;
     }
 
+    /// <summary>Raises samus out of gunship.</summary>
     private void RaiseSamusOutOfGunship(RoomEnemySlot top, SamusState? samus)
     {
         if (samus is null)
@@ -564,6 +584,7 @@ internal sealed class GunshipBehavior
         MoveGunshipAndSamusToY(top, samus, samus.Position.Y.Whole);
     }
 
+    /// <summary>Moves gunship and samus to y.</summary>
     private void MoveGunshipAndSamusToY(
         RoomEnemySlot top,
         SamusState samus,
@@ -577,6 +598,7 @@ internal sealed class GunshipBehavior
         bottom.Position = bottom.Position.WithWholeY(unchecked((ushort)(samusY + 23)));
     }
 
+    /// <summary>Restores two.</summary>
     private static ushort RestoreTwo(ushort current, ushort maximum)
     {
         if ((short)(current - maximum) >= 0)
@@ -585,6 +607,7 @@ internal sealed class GunshipBehavior
     }
 
 
+    /// <summary>Register gunship top initialization ai.</summary>
     internal void RegisterGunshipTopInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_ShipTop, null, (slot, level, samus, controllerInput, cameraX) =>
@@ -594,6 +617,7 @@ internal sealed class GunshipBehavior
     }
 
 
+    /// <summary>Register gunship bottom initialization ai.</summary>
     internal void RegisterGunshipBottomInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_ShipBottomEntrance, null, (slot, level, samus, controllerInput, cameraX) =>
@@ -603,6 +627,7 @@ internal sealed class GunshipBehavior
     }
 
 
+    /// <summary>Register gunship main ai.</summary>
     internal void RegisterGunshipMainAi(EnemyAiTable table)
     {
         table.RegisterMain(EnemyAiRoutine.MainAI_ShipTop, null, (slot, frame, nmiFrameCounter8) =>

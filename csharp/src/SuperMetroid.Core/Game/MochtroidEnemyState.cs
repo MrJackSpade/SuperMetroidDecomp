@@ -26,8 +26,10 @@ public enum MochtroidMovementMode : ushort
 /// </summary>
 public sealed class MochtroidEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new mochtroid enemy state instance.</summary>
     internal MochtroidEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>

@@ -27,6 +27,7 @@ public static class IntroVramLayout
     /// <summary>The narration font character number at which <see cref="JapaneseBlankCharacters"/> begins ($30: 2-bpp characters are eight words).</summary>
     public static int JapaneseBlankFirstCharacter => (JapaneseBlankCharacters.Offset - FontOne.Offset) / TwoBppCharacterWords;
 
+    /// <summary>Stores two bpp character words.</summary>
     private const int TwoBppCharacterWords = 8;
 
     /// <summary>VMADD $4800-$4BFF: the Samus portrait BG tilemap.</summary>

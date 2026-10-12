@@ -14,27 +14,47 @@ namespace SuperMetroid.Desktop;
 /// </remarks>
 internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
 {
+    /// <summary>Defines wave mapper.</summary>
     private const uint WaveMapper = uint.MaxValue;
+    /// <summary>Defines header done.</summary>
     private const uint HeaderDone = 0x0000_0001;
+    /// <summary>Defines multimedia success.</summary>
     private const uint MultimediaSuccess = 0;
+    /// <summary>Stores slots.</summary>
     private readonly BufferSlot[] slots = [];
+    /// <summary>Stores preroll silence.</summary>
     private readonly short[] prerollSilence = [];
+    /// <summary>Stores volume percent.</summary>
     private readonly int volumePercent;
+    /// <summary>Stores pending frames.</summary>
     private readonly PendingFrameQueue pendingFrames = new(
         WaveOutAudioPolicy.ManagedQueueCapacityFrames);
+    /// <summary>Stores device gate.</summary>
     private readonly Lock deviceGate = new();
+    /// <summary>Stores submission worker.</summary>
     private readonly Thread submissionWorker = null!;
+    /// <summary>Stores device.</summary>
     private nint device;
+    /// <summary>Stores next slot.</summary>
     private int nextSlot;
+    /// <summary>Stores queue generation.</summary>
     private long queueGeneration;
+    /// <summary>Stores enqueued frames.</summary>
     private long enqueuedFrames;
+    /// <summary>Stores completed frames.</summary>
     private long completedFrames;
+    /// <summary>Stores worker failure.</summary>
     private ExceptionDispatchInfo? workerFailure;
+    /// <summary>Stores preroll required.</summary>
     private bool prerollRequired = true;
+    /// <summary>Stores disposed.</summary>
     private bool disposed;
+    /// <summary>Stores queue health.</summary>
     private readonly WaveOutQueueHealth queueHealth = new();
+    /// <summary>Gets queue health.</summary>
     public WaveOutQueueHealthSnapshot QueueHealth => queueHealth.Snapshot(pendingFrames.Count);
 
+    /// <summary>Initializes a new wave out audio device instance.</summary>
     public WaveOutAudioDevice(
         int sampleRate,
         int channelCount,
@@ -101,6 +121,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     /// through the existing recoverable audio boundary instead of freezing gameplay.
     /// </summary>
     public bool CanAcceptFrame => Volatile.Read(ref workerFailure) is not null || pendingFrames.HasCapacity;
+    /// <summary>submit.</summary>
     public void Submit(ReadOnlySpan<short> samples)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
@@ -271,6 +292,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         return null;
     }
 
+    /// <summary>reset.</summary>
     public void Reset()
     {
         ObjectDisposedException.ThrowIf(disposed, this);
@@ -301,6 +323,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         nextSlot = 0;
     }
 
+    /// <summary>Releases resources held by this instance.</summary>
     public void Dispose()
     {
         if (disposed)
@@ -360,28 +383,35 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             ArrayPool<short>.Shared.Return(queued.Samples, clearArray: false);
     }
 
+    /// <summary>throw worker failure.</summary>
     private void ThrowWorkerFailure() =>
         Volatile.Read(ref workerFailure)?.Throw();
 
+    /// <summary>throw on error.</summary>
     private static void ThrowOnError(uint result, string operation)
     {
         if (result != MultimediaSuccess)
             throw CreateError(result, operation);
     }
 
+    /// <summary>create error.</summary>
     private static WaveOutDeviceException CreateError(uint result, string operation) =>
         new(result, operation);
 
+    /// <summary>record failure.</summary>
     private static void RecordFailure(List<Exception> failures, uint result, string operation)
     {
         if (result != MultimediaSuccess)
             failures.Add(CreateError(result, operation));
     }
 
+    /// <summary>Represents buffer slot.</summary>
     private sealed class BufferSlot : IDisposable
     {
+        /// <summary>Stores samples handle.</summary>
         private readonly GCHandle samplesHandle;
 
+        /// <summary>Initializes a new buffer slot instance.</summary>
         public BufferSlot(int sampleCount)
         {
             Samples = new short[sampleCount];
@@ -390,13 +420,19 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             ResetHeader();
         }
 
+        /// <summary>Gets samples.</summary>
         public short[] Samples { get; }
+        /// <summary>Gets header.</summary>
         public nint Header { get; }
+        /// <summary>Gets or sets prepared.</summary>
         public bool Prepared { get; set; }
+        /// <summary>Gets flags.</summary>
         public uint Flags => Marshal.PtrToStructure<WaveHeader>(Header).Flags;
+        /// <summary>Gets is done.</summary>
         public bool IsDone =>
             (Flags & HeaderDone) != 0;
 
+        /// <summary>reset header.</summary>
         public void ResetHeader()
         {
             var header = new WaveHeader
@@ -407,6 +443,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             Marshal.StructureToPtr(header, Header, fDeleteOld: false);
         }
 
+        /// <summary>Releases resources held by this instance.</summary>
         public void Dispose()
         {
             Marshal.FreeHGlobal(Header);
@@ -418,14 +455,21 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
     // Keep capacity and removal in one lock. BlockingCollection.Count can decrease
     // before its free-slot semaphore is released; a preflight based on that count
     // can therefore pass immediately before TryAdd fails on the sole producer.
+    /// <summary>Represents pending frame queue.</summary>
     private sealed class PendingFrameQueue(int capacity)
     {
+        /// <summary>Stores sync.</summary>
         private readonly object sync = new();
+        /// <summary>Stores frames.</summary>
         private readonly Queue<QueuedPcmFrame> frames = new();
+        /// <summary>Stores completed.</summary>
         private bool completed;
+        /// <summary>Gets the number of items in this collection.</summary>
         internal int Count { get { lock (sync) return frames.Count; } }
+        /// <summary>Gets whether the queue can accept another audio frame.</summary>
         internal bool HasCapacity { get { lock (sync) return !completed && frames.Count < capacity; } }
 
+        /// <summary>try add.</summary>
         internal bool TryAdd(QueuedPcmFrame frame)
         {
             lock (sync)
@@ -438,11 +482,13 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             }
         }
 
+        /// <summary>try take.</summary>
         internal bool TryTake(out QueuedPcmFrame frame)
         {
             lock (sync) return frames.TryDequeue(out frame);
         }
 
+        /// <summary>get consuming enumerable.</summary>
         internal IEnumerable<QueuedPcmFrame> GetConsumingEnumerable()
         {
             while (true)
@@ -457,6 +503,7 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             }
         }
 
+        /// <summary>complete adding.</summary>
         internal void CompleteAdding()
         {
             lock (sync)
@@ -467,40 +514,61 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
         }
     }
 
+    /// <summary>Represents queued pcm frame.</summary>
     private readonly record struct QueuedPcmFrame(
         short[] Samples,
         int SampleCount,
         long Generation);
 
+    /// <summary>Represents wave format.</summary>
     [StructLayout(LayoutKind.Sequential)]
     private struct WaveFormat
     {
+        /// <summary>Stores format tag.</summary>
         public ushort FormatTag;
+        /// <summary>Stores channels.</summary>
         public ushort Channels;
+        /// <summary>Stores samples per second.</summary>
         public uint SamplesPerSecond;
+        /// <summary>Stores average bytes per second.</summary>
         public uint AverageBytesPerSecond;
+        /// <summary>Stores block align.</summary>
         public ushort BlockAlign;
+        /// <summary>Stores bits per sample.</summary>
         public ushort BitsPerSample;
+        /// <summary>Stores extra size.</summary>
         public ushort ExtraSize;
     }
 
+    /// <summary>Represents wave header.</summary>
     [StructLayout(LayoutKind.Sequential)]
     private struct WaveHeader
     {
+        /// <summary>Stores data.</summary>
         public nint Data;
+        /// <summary>Stores buffer length.</summary>
         public uint BufferLength;
+        /// <summary>Stores bytes recorded.</summary>
         public uint BytesRecorded;
+        /// <summary>Stores user.</summary>
         public nuint User;
+        /// <summary>Stores flags.</summary>
         public uint Flags;
+        /// <summary>Stores loops.</summary>
         public uint Loops;
+        /// <summary>Stores next.</summary>
         public nint Next;
+        /// <summary>Stores reserved.</summary>
         public nuint Reserved;
 
+        /// <summary>Stores size.</summary>
         public static readonly uint Size = unchecked((uint)Marshal.SizeOf<WaveHeader>());
     }
 
+    /// <summary>Represents native methods.</summary>
     private static partial class NativeMethods
     {
+        /// <summary>open.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutOpen")]
         internal static partial uint Open(
             out nint device,
@@ -510,18 +578,23 @@ internal sealed partial class WaveOutAudioDevice : IHostAudioOutput
             nint instance,
             uint flags);
 
+        /// <summary>prepare header.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutPrepareHeader")]
         internal static partial uint PrepareHeader(nint device, nint header, uint headerSize);
 
+        /// <summary>unprepare header.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutUnprepareHeader")]
         internal static partial uint UnprepareHeader(nint device, nint header, uint headerSize);
 
+        /// <summary>write.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutWrite")]
         internal static partial uint Write(nint device, nint header, uint headerSize);
 
+        /// <summary>reset.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutReset")]
         internal static partial uint Reset(nint device);
 
+        /// <summary>close.</summary>
         [LibraryImport("winmm.dll", EntryPoint = "waveOutClose")]
         internal static partial uint Close(nint device);
     }

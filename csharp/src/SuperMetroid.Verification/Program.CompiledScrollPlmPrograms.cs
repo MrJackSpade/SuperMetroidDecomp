@@ -6,8 +6,10 @@ using SuperMetroid.Core.Spatial;
 using static LookupScrollProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents compiled scroll plm programs verification.</summary>
 internal static class CompiledScrollPlmProgramsVerification
 {
+    /// <summary>verify compiled room scroll programs.</summary>
     internal static void VerifyCompiledRoomScrollPrograms(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyScrollProgramIdentities), () => VerifyScrollProgramIdentities(rom));
@@ -42,6 +44,7 @@ internal static class CompiledScrollPlmProgramsVerification
     }
 
     // Room scroll storage keeps WRAM bytes across rooms; the guard serves WRAM, guarding only cartridge data.
+    /// <summary>new retail scroll program read guard.</summary>
     private static CartridgeReadGuard NewRetailScrollProgramReadGuard(ISnesAddressSpace source) =>
         new MutableCartridgeReadGuard(source)
             .Forbid(address => RoomPlmScrollProgramDefinitions.Pointers.Any(pointer =>

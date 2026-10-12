@@ -17,8 +17,10 @@ using static PostCreditsCharacterArtworkVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ending object artwork verification.</summary>
 internal static class EndingObjectArtworkVerification
 {
+    /// <summary>Verifies ending object fragment metadata.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending object fragment metadata")]
     internal static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
@@ -41,6 +43,7 @@ internal static class EndingObjectArtworkVerification
         }
     }
 
+    /// <summary>Verifies ending cloud definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending cloud definitions")]
     internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
@@ -125,6 +128,7 @@ internal static class EndingObjectArtworkVerification
             AssertThrows<InvalidDataException>(() => EndingCloudInstructionDefinitions.ReadWord(invalid), "cloud program bounds");
     }
 
+    /// <summary>Verifies ending object artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending object sheets and BG maps")]
     internal static void VerifyEndingObjectArtwork(GameInstallation installation)
@@ -449,6 +453,7 @@ internal static class EndingObjectArtworkVerification
         }
     }
 
+    /// <summary>New ending object source read guard.</summary>
     internal static MutableCartridgeReadGuard NewEndingObjectSourceReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);

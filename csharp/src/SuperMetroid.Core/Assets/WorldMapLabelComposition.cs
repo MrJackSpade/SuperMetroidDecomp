@@ -16,12 +16,18 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 internal sealed class WorldMapLabelComposition
 {
+    /// <summary>Stores identity.</summary>
     private readonly MapSpriteId identity;
+    /// <summary>Stores upper origin.</summary>
     private readonly int upperOrigin;
+    /// <summary>Stores lower origin.</summary>
     private readonly int lowerOrigin;
+    /// <summary>Stores letter advances.</summary>
     private readonly Dictionary<int, int>? letterAdvances;
+    /// <summary>Stores authored.</summary>
     private readonly SpriteComposition? authored;
 
+    /// <summary>Initializes a new world map label composition instance.</summary>
     private WorldMapLabelComposition(MapSpriteId identity, int upperOrigin, int lowerOrigin,
         Dictionary<int, int>? letterAdvances, SpriteComposition? authored)
     { this.identity = identity; this.upperOrigin = upperOrigin; this.lowerOrigin = lowerOrigin;
@@ -39,9 +45,11 @@ internal sealed class WorldMapLabelComposition
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
+    /// <summary>Vertical offset.</summary>
     private static int VerticalOffset(MapSpriteId id, int index) =>
         id == MapSpriteId.WorldWreckedShip ? (index < 4 ? 0 : -8) : -4;
 
+    /// <summary>Compile.</summary>
     internal static WorldMapLabelComposition Compile(MapSpriteId id, SpriteVisualPart[] parts, string name)
     {
         string text = Text(id);
@@ -66,6 +74,7 @@ internal sealed class WorldMapLabelComposition
         return new(id, parts[^1].OffsetX, twoLines ? parts[3].OffsetX : 0, advances, null);
     }
 
+    /// <summary>Draws.</summary>
     internal void Draw(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (authored is not null) { authored.DrawOnScreen(oam, origin, paletteBits); return; }
@@ -80,6 +89,7 @@ internal sealed class WorldMapLabelComposition
         }
     }
 
+    /// <summary>Horizontal offset.</summary>
     private int HorizontalOffset(int index, int count)
     {
         bool bottom = identity == MapSpriteId.WorldWreckedShip && index < 4;

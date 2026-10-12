@@ -15,8 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents dead sidehopper corpse definitions verification.</summary>
 internal static class DeadSidehopperCorpseDefinitionsVerification
 {
+    /// <summary>Verifies dead sidehopper corpse definitions.</summary>
     internal static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
@@ -43,6 +45,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             "Dead sidehopper corpse definitions: all 14 consumed native configuration words, two derived wrap offsets, and both production initializers pass with migrated metadata reads forbidden.");
     }
 
+    /// <summary>Verifies definition.</summary>
     private static void VerifyDefinition(
         SuperMetroidAddressSpace rom,
         DeadSidehopperCorpseDefinition definition,
@@ -73,6 +76,7 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             $"dead sidehopper configuration $A9:{definition.ConfigurationPointer:X4} wrap offset");
     }
 
+    /// <summary>Verifies production initialization.</summary>
     private static void VerifyProductionInitialization(
         SuperMetroidAddressSpace rom,
         ushort parameter1,
@@ -115,11 +119,13 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
             $"dead sidehopper parameter {parameter1} wrap offset");
     }
 
+    /// <summary>New dead sidehopper corpse definition read guard.</summary>
     private static CartridgeReadGuard NewDeadSidehopperCorpseDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa9dd68 and < 0xa9dd88 or >= 0xa9e242 and < 0xa9e244,
                 address => $"Dead sidehopper attempted migrated corpse metadata read ${address:X6}.");
 
+    /// <summary>Dead sidehopper corpse definitions command.</summary>
     [VerificationCommand("--dead-sidehopper-corpse-definitions")]
     internal static int DeadSidehopperCorpseDefinitionsCommand()
     {

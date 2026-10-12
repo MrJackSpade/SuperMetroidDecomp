@@ -17,8 +17,10 @@ using static ColorWordsVerification;
 using static GraphDigestVerification;
 using static RenderPacketCodecTestsVerification;
 
+/// <summary>Represents window pixels verification.</summary>
 internal static class WindowPixelsVerification
 {
+    /// <summary>verify window pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     internal static void VerifyWindowPixels()
     {
@@ -100,6 +102,7 @@ internal static class WindowPixelsVerification
                     enabled, Windows: windows, MainScreenWindowMask: admission)));
     }
 
+    /// <summary>window pixels command.</summary>
     [VerificationCommand("--window-pixels")]
     internal static int WindowPixelsCommand()
     {

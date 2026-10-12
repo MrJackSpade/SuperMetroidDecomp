@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents mother brain death explosion definitions verification.</summary>
 internal static class MotherBrainDeathExplosionDefinitionsVerification
 {
+    /// <summary>verify mother brain death explosion definitions.</summary>
     internal static void VerifyMotherBrainDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
@@ -51,6 +53,7 @@ internal static class MotherBrainDeathExplosionDefinitionsVerification
             "Mother Brain death explosions: three native program selectors and all three real body-relative spawns pass with the selector table forbidden.");
     }
 
+    /// <summary>new mother brain death explosion read guard.</summary>
     private static CartridgeReadGuard NewMotherBrainDeathExplosionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86c929 and < 0x86c92f,

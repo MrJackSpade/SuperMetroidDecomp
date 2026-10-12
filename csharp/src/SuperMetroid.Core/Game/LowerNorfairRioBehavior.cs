@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Lower Norfair rio species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class LowerNorfairRioBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
 
+    /// <summary>Initializes a new lower norfair rio behavior instance.</summary>
     internal LowerNorfairRioBehavior(EnemyRoomBinding room, EnemyTerrain terrain, EnemySlotTable slotTable)
     {
         _room = room;
@@ -17,16 +21,21 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         _slotTable = slotTable;
     }
 
+    /// <summary>Stores lower norfair rio horizontal trigger distance.</summary>
     private const ushort LowerNorfairRioHorizontalTriggerDistance = 0x0070;
+    /// <summary>Stores lower norfair rio gravity.</summary>
     private const ushort LowerNorfairRioGravity = 32;
+    /// <summary>Stores lower norfair rio return sound.</summary>
     private const ushort LowerNorfairRioReturnSound = 0x0064;
 
+    /// <summary>Stores lower norfair rio states.</summary>
     internal readonly LowerNorfairRioEnemyState?[] _lowerNorfairRioStates =
         new LowerNorfairRioEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Most recent library-two return sound request produced during this frame.</summary>
     public ushort? LastLowerNorfairRioSoundEffect { get; private set; }
 
+    /// <summary>Resets lower norfair rio room state.</summary>
     internal void ResetLowerNorfairRioRoomState()
     {
         Array.Clear(_lowerNorfairRioStates);
@@ -209,6 +218,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         return true;
     }
 
+    /// <summary>Follow lower norfair rio parent.</summary>
     private void FollowLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
@@ -234,6 +244,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         follower.Position = follower.Position.WithWhole(new(parent.Position.X.Whole, unchecked((ushort)(parent.Position.Y.Whole + 12))));
     }
 
+    /// <summary>Begins lower norfair rio return.</summary>
     private void BeginLowerNorfairRioReturn(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state)
@@ -247,6 +258,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         LastLowerNorfairRioSoundEffect = LowerNorfairRioReturnSound;
     }
 
+    /// <summary>Moves lower norfair rio horizontally.</summary>
     private void MoveLowerNorfairRioHorizontally(
         RoomLevelData level,
         RoomEnemySlot slot,
@@ -261,9 +273,11 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Negate lower norfair rio xvelocity.</summary>
     private static void NegateLowerNorfairRioXVelocity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.ReversedX();
 
+    /// <summary>Applies lower norfair rio gravity.</summary>
     private static void ApplyLowerNorfairRioGravity(LowerNorfairRioEnemyState state) =>
         state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(
             unchecked((ushort)(state.Velocity.Y.RawValue - LowerNorfairRioGravity))));
@@ -271,6 +285,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
     /// <summary>The bank-$A2 address at which <paramref name="program"/> begins, loaded into the enemy's instruction cursor.</summary>
     private static ushort ListStart(LowerNorfairRioProgram program) => (ushort)program;
 
+    /// <summary>Installs lower norfair rio instruction list.</summary>
     private static void InstallLowerNorfairRioInstructionList(
         RoomEnemySlot slot,
         LowerNorfairRioEnemyState state,
@@ -284,6 +299,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         slot.Timer = 0;
     }
 
+    /// <summary>Gets preceding lower norfair rio slot.</summary>
     private RoomEnemySlot GetPrecedingLowerNorfairRioSlot(RoomEnemySlot follower)
     {
         if (follower.SlotIndex == 0)
@@ -294,6 +310,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         return _slotTable._slots[follower.SlotIndex - 1];
     }
 
+    /// <summary>Validates lower norfair rio parent.</summary>
     private void ValidateLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
@@ -306,16 +323,19 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Requires lower norfair rio level.</summary>
     private static void RequireLowerNorfairRioLevel(RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Lower Norfair Rio movement requires room level data.");
     }
 
+    /// <summary>Requires lower norfair rio state.</summary>
     private LowerNorfairRioEnemyState RequireLowerNorfairRioState(RoomEnemySlot slot) =>
         _lowerNorfairRioStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Lower Norfair Rio state.");
 
+    /// <summary>Registers lower norfair rio initialization ai.</summary>
     internal void RegisterLowerNorfairRioInitializationAi(EnemyAiTable table)
     {
 
@@ -325,6 +345,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers lower norfair rio main ai.</summary>
     internal void RegisterLowerNorfairRioMainAi(EnemyAiTable table)
     {
 
@@ -338,6 +359,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers lower norfair rio owned instructions.</summary>
     internal void RegisterLowerNorfairRioOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

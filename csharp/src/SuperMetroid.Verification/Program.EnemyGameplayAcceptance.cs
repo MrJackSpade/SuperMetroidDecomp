@@ -21,6 +21,7 @@ using static EnemyVulnerabilityDefinitionsVerification;
 using static EnemyVulnerabilityDispatchVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents enemy gameplay acceptance verification.</summary>
 internal static class EnemyGameplayAcceptanceVerification
 {
     /// <summary>
@@ -43,6 +44,7 @@ internal static class EnemyGameplayAcceptanceVerification
             "vulnerability selection, linked population initialization and editable-art isolation pass.");
     }
 
+    /// <summary>Verifies enemy definition reference closure.</summary>
     private static void VerifyEnemyDefinitionReferenceClosure()
     {
         Span<byte> drop = stackalloc byte[EnemyDropChanceDefinitions.RecordSize];
@@ -60,6 +62,7 @@ internal static class EnemyGameplayAcceptanceVerification
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }
 
+    /// <summary>Verifies enemy population presentation isolation.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
@@ -165,6 +168,7 @@ internal static class EnemyGameplayAcceptanceVerification
         }
     }
 
+    /// <summary>Enemy gameplay acceptance command.</summary>
     [VerificationCommand("--enemy-gameplay-acceptance")]
     internal static int EnemyGameplayAcceptanceCommand()
     {

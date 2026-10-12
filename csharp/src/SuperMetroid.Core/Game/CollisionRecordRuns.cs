@@ -17,9 +17,12 @@ internal sealed class CollisionRecordRuns<TElement>
     /// <summary>Bytes in one hitbox rectangle (left, top, right, bottom, touch and shot callbacks).</summary>
     internal const int HitboxBytes = 12;
 
+    /// <summary>Stores element bytes.</summary>
     private readonly int elementBytes;
+    /// <summary>Stores runs.</summary>
     private readonly CollisionRecordRun<TElement>[] runs;
 
+    /// <summary>Initializes a new collision record runs instance.</summary>
     private CollisionRecordRuns(int elementBytes, CollisionRecordRun<TElement>[] runs)
     {
         this.elementBytes = elementBytes;
@@ -35,11 +38,13 @@ internal sealed class CollisionRecordRuns<TElement>
     internal static CollisionRecordRuns<TElement> HitboxLists(params CollisionRecordRun<TElement>[] runs) =>
         new(HitboxBytes, runs);
 
+    /// <summary>Gets count.</summary>
     internal int Count { get; }
 
     /// <summary>Address of the <paramref name="index"/>th record in run order.</summary>
     internal ushort PointerAt(int index) => Locate(index, out _);
 
+    /// <summary>Attempts to get.</summary>
     internal bool TryGet(ushort pointer, out TElement[] elements)
     {
         foreach (CollisionRecordRun<TElement> run in runs)
@@ -59,6 +64,7 @@ internal sealed class CollisionRecordRuns<TElement>
         return false;
     }
 
+    /// <summary>Locate.</summary>
     private ushort Locate(int index, out TElement[] record)
     {
         if ((uint)index >= Count) throw new IndexOutOfRangeException();
@@ -78,6 +84,7 @@ internal sealed class CollisionRecordRuns<TElement>
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Next.</summary>
     private ushort Next(ushort pointer, int elements) =>
         (ushort)(pointer + sizeof(ushort) + elementBytes * elements);
 }

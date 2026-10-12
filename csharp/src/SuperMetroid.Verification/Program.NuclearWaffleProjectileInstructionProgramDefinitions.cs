@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents nuclear waffle projectile instruction program definitions verification.</summary>
 internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies nuclear waffle projectile instruction program definitions.</summary>
     internal static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies nuclear waffle projectile instruction program definitions.</summary>
     internal static void VerifyNuclearWaffleProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -133,6 +136,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
         }
     }
 
+    /// <summary>Probes nuclear waffle projectile instruction mechanics allocation.</summary>
     private static int ProbeNuclearWaffleProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -146,6 +150,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
         return checksum;
     }
 
+    /// <summary>New nuclear waffle projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewNuclearWaffleProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => NuclearWaffleProjectileInstructionProgramDefinitionsTooling
@@ -155,6 +160,7 @@ internal static class NuclearWaffleProjectileInstructionProgramDefinitionsVerifi
                 address => $"Production read compiled Nuclear Waffle projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordCount, NuclearWaffleProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Nuclear waffle projectile instruction mechanics command.</summary>
     [VerificationCommand("--nuclear-waffle-projectile-instruction-mechanics")]
     internal static int NuclearWaffleProjectileInstructionMechanicsCommand()
     {

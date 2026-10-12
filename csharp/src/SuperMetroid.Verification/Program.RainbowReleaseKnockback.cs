@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents rainbow release knockback verification.</summary>
 internal static class RainbowReleaseKnockbackVerification
 {
     // #1269: Mother Brain's rainbow lock is beta $E8D9, which moves nothing. Command one
@@ -19,6 +20,7 @@ internal static class RainbowReleaseKnockbackVerification
     // knockback pose $54's type-$0A mover ($90:A5FC) and Samus falls. The port kept routing
     // the unlocked frame through the drained branch: in the 100% movie Samus stayed at Y $7D
     // for a frame while native fell to $7E.
+    /// <summary>Verifies rainbow release knockback.</summary>
     internal static void VerifyRainbowReleaseKnockback()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -46,6 +48,7 @@ internal static class RainbowReleaseKnockbackVerification
         Console.WriteLine("Rainbow release knockback: command one restores the type-$0A mover on its own frame.");
     }
 
+    /// <summary>Rainbow release knockback command.</summary>
     [VerificationCommand("--rainbow-release-knockback")]
     internal static int RainbowReleaseKnockbackCommand()
     {

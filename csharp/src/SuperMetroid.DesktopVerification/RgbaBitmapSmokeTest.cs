@@ -37,6 +37,7 @@ public static class RgbaBitmapSmokeTest
         return new RgbaBitmapSmokeTestResult(bitmap.Size, final);
     }
 
+    /// <summary>assert pixel.</summary>
     private static void AssertPixel(Bitmap bitmap, Point pixel, Color expected, string subject)
     {
         Color actual = bitmap.GetPixel(pixel.X, pixel.Y);

@@ -16,6 +16,7 @@ using static ColorWordsVerification;
 using static SamusDeathExplosionTimingDefinitionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus special states verification.</summary>
 internal static class SamusSpecialStatesVerification
 {
 
@@ -910,18 +911,21 @@ internal static void VerifySamusDeathSequence()
 // Exercises all five `$91:E4AD` drained-controller entries, command `$F7`, the shared
 // old-speed vertical recurrence, collision handoff, and both asymmetric `$FD` releases.
 
+    /// <summary>death sequence fixture command.</summary>
     [VerificationCommand("--death-sequence-fixture")]
     internal static int DeathSequenceFixtureCommand()
     {
      VerifySamusDeathSequence(); return 0; 
     }
 
+    /// <summary>special palette fixtures command.</summary>
     [VerificationCommand("--special-palette-fixtures")]
     internal static int SpecialPaletteFixturesCommand()
     {
      VerifySamusCrystalFlash(); VerifySamusXray(); return 0; 
     }
 
+    /// <summary>samus xray command.</summary>
     [VerificationCommand("--samus-xray")]
     internal static int SamusXrayCommand()
     {
@@ -929,6 +933,7 @@ internal static void VerifySamusDeathSequence()
         return 0;
     }
 
+    /// <summary>crystal flash command.</summary>
     [VerificationCommand("--crystal-flash")]
     internal static int CrystalFlashCommand()
     {

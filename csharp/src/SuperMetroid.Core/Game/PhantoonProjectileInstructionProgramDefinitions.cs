@@ -43,7 +43,9 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
     /// <summary>Falling-phase repetition at86:97B6/97C6/97D6. Reviewed under #1165 as an authored repetition count: it only repeats the chosen frames, and no simulation quantity derives it.</summary>
     private const ushort FallingRepeatCount = 4;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 58;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 31;
 
     /// <summary>Shared three-pose loops, counted falling cycles and impact/deletion tails.</summary>
@@ -89,14 +91,17 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
                 : (ushort)EnemyProjectileInstruction.Delete);
     }
 
+    /// <summary>Frame.</summary>
     private static InstructionMechanicsWord Frame(ushort start, int frame, ushort duration) =>
         new((ushort)(start + frame * 4), duration);
 
+    /// <summary>Loop word.</summary>
     private static InstructionMechanicsWord LoopWord(ushort start, int word) =>
         word < 3 ? Frame(start, word, FlamePoseFrames)
             : new((ushort)(start + 12 + (word - 3) * 2),
                 word == 3 ? (ushort)EnemyProjectileInstruction.GotoY : start);
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new ArgumentOutOfRangeException(nameof(index));
@@ -112,10 +117,12 @@ internal abstract class PhantoonProjectileInstructionProgramDefinitions
         return (ushort)(DestroyableShot + (index - 27) * 4 + 2);
     }
 
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.PhantoonDestroyableFlame or
         RoomEnemyProjectileKind.PhantoonStartingFlame;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

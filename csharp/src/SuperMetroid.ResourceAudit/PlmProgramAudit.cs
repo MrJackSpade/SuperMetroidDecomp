@@ -6,26 +6,39 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>Represents plm program finding.</summary>
 internal sealed record PlmProgramFinding(string Code, string Owner, ushort Address, string Detail);
+/// <summary>Represents plm program classification.</summary>
 internal sealed record PlmProgramClassification();
 
 /// <summary>Finite closure of immutable PLM records. Never runs a PLM or opens a ROM.</summary>
 internal sealed class PlmProgramAuditReport
 {
+    /// <summary>Gets or sets records.</summary>
     public int Records { get; set; }
+    /// <summary>Gets or sets timed draws.</summary>
     public int TimedDraws { get; set; }
+    /// <summary>Gets or sets word operands.</summary>
     public int WordOperands { get; set; }
+    /// <summary>Gets or sets byte operands.</summary>
     public int ByteOperands { get; set; }
+    /// <summary>Gets or sets artwork transfers.</summary>
     public int ArtworkTransfers { get; set; }
+    /// <summary>Gets findings.</summary>
     public List<PlmProgramFinding> Findings { get; } = [];
+    /// <summary>Gets classifications.</summary>
     public List<PlmProgramClassification> Classifications { get; } = [];
 }
 
+/// <summary>Represents plm program audit.</summary>
 internal static class PlmProgramAudit
 {
+    /// <summary>Represents the word reader callback.</summary>
     internal delegate bool WordReader(ushort address, out ushort value);
+    /// <summary>Represents the byte reader callback.</summary>
     internal delegate bool ByteReader(ushort address, out byte value);
 
+    /// <summary>Runs.</summary>
     internal static int Run(string root, string? jsonPath)
     {
         var report = new PlmProgramAuditReport();
@@ -97,6 +110,7 @@ internal static class PlmProgramAudit
 
     // These are actual alternative execution owners, not missing-data exemptions.
     // Their setup/step source is guarded alongside the generic interpreter.
+    /// <summary>Typed header route.</summary>
     private static string? TypedHeaderRoute(PlmHeaderId header)
     {
         if (CollectiblePlms.TryIdentifyPermanentCollectible(header, out _, out _))
@@ -112,6 +126,7 @@ internal static class PlmProgramAudit
         };
     }
 
+    /// <summary>Typed list route.</summary>
     private static string? TypedListRoute(string name) => name switch
     {
         nameof(RoomPlmInstructionLists.ScrollTriggerWaiting) or
@@ -124,14 +139,19 @@ internal static class PlmProgramAudit
         _ => null,
     };
 
+    /// <summary>Represents walker.</summary>
     internal sealed class Walker(WordReader readWord, ByteReader readByte,
         Func<ushort, bool> ownsDraw, PlmProgramAuditReport report,
         Func<int, int, bool>? ownsArtwork = null)
     {
+        /// <summary>Stores visited.</summary>
         private readonly HashSet<ushort> visited = [];
+        /// <summary>Stores covered.</summary>
         private readonly HashSet<ushort> covered = [];
+        /// <summary>Covered.</summary>
         internal bool Covered(ushort address) => covered.Contains(address);
 
+        /// <summary>Visit.</summary>
         internal void Visit(ushort root, string owner)
         {
             var pending = new Stack<ushort>();

@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents pause momentum verification.</summary>
 internal static class PauseMomentumVerification
 {
+    /// <summary>Verifies pause momentum reconciliation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause momentum reconciliation")]
     internal static void VerifyPauseMomentumReconciliation()
     {

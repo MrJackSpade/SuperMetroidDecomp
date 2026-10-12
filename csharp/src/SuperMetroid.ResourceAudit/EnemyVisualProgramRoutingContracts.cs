@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 internal static class EnemyVisualProgramRoutingContracts
 {
     // Each routing method and the type that owns it.
+    /// <summary>Stores methods.</summary>
     private static readonly (string Method, string Owner)[] Methods =
     [
         ("ReadEnemyInstructionMechanicsWord", "EnemyInstructionInterpreter"),
@@ -20,6 +21,7 @@ internal static class EnemyVisualProgramRoutingContracts
         ("ProcessEnemyProjectileInstructions", "EnemyProjectileEngine"),
     ];
 
+    /// <summary>inspect.</summary>
     internal static void Inspect(CSharpCompilation compilation, AuditReport report)
     {
         var declared = compilation.SyntaxTrees.SelectMany(tree => tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>())

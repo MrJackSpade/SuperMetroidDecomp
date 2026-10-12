@@ -137,6 +137,7 @@ public sealed class SamusProjectileSystem
         new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 
+    /// <summary>Loads selected beam palette.</summary>
     private static void LoadSelectedBeamPalette(ISnesAddressSpace bus, SnesCgram cgram,
         SamusBeamCombination selection, Assets.BeamPaletteCatalog? palettes)
     {

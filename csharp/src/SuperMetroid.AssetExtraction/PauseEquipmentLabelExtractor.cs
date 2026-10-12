@@ -63,6 +63,7 @@ public static class PauseEquipmentLabelExtractor
         return output.ToArray();
     }
 
+    /// <summary>read cells.</summary>
     private static PauseBackdropCell[] ReadCells(ISnesAddressSpace bus, ushort source, int count, string name) =>
         Enumerable.Range(0, count)
             .Select(index => PauseTileGrid.FromWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),

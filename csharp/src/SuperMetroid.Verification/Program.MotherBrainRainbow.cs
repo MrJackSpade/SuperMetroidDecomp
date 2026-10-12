@@ -12,6 +12,7 @@ using static MotherBrainBodyInstructionProgramsVerification;
 using static SignedSineFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents mother brain rainbow verification.</summary>
 internal static class MotherBrainRainbowVerification
 {
 

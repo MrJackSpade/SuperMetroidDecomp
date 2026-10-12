@@ -12,9 +12,13 @@ public readonly record struct WaveOutAudioSmokeTestResult(
 /// </summary>
 public static class WaveOutAudioSmokeTest
 {
+    /// <summary>Defines sample rate.</summary>
     private const int SampleRate = 48_000;
+    /// <summary>Defines channel count.</summary>
     private const int ChannelCount = 2;
+    /// <summary>Defines stereo frames per video frame.</summary>
     private const int StereoFramesPerVideoFrame = SampleRate / 60;
+    /// <summary>Defines default buffers to submit.</summary>
     private const int DefaultBuffersToSubmit = 18;
 
     /// <summary>

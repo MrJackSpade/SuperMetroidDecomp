@@ -42,8 +42,10 @@ public enum WalkingSpacePirateFunction : ushort
 /// </summary>
 public sealed class WalkingSpacePirateEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new walking space pirate enemy state instance.</summary>
     internal WalkingSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Bank-$B2 function address stored in native enemy variable A.</summary>

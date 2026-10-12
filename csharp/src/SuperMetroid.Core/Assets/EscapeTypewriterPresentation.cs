@@ -6,9 +6,12 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable escape-warning text and visual line placement.</summary>
 public sealed class EscapeTypewriterPresentation
 {
+    /// <summary>Stores ceres.</summary>
     private readonly EscapeTypewriterProgram ceres;
+    /// <summary>Stores zebes.</summary>
     private readonly EscapeTypewriterProgram zebes;
 
+    /// <summary>Initializes a new escape typewriter presentation instance.</summary>
     private EscapeTypewriterPresentation(
         Dictionary<EscapeTypewriterProgramId, EscapeTypewriterProgram> programs,
         string contentIdentity)
@@ -100,18 +103,24 @@ public sealed class EscapeTypewriterPresentation
         return new(programs, Convert.ToHexString(SHA256.HashData(source)));
     }
 
+    /// <summary>Represents line sequence.</summary>
     private sealed class LineSequence(EscapeTypewriterProgramId id, int count,
         Dictionary<int, EscapeTypewriterLine> differences) : IReadOnlyList<EscapeTypewriterLine>
     {
+        /// <summary>Stores overrides.</summary>
         private readonly Dictionary<int, EscapeTypewriterLine> overrides = differences;
+        /// <summary>Gets count.</summary>
         public int Count => count;
+        /// <summary>Gets an indexed value.</summary>
         public EscapeTypewriterLine this[int index] => (uint)index < Count
             ? overrides.TryGetValue(index, out EscapeTypewriterLine? line) ? line : EscapeTypewriterDefinitions.Line(id, index)
             : throw new ArgumentOutOfRangeException(nameof(index));
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<EscapeTypewriterLine> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using static TilemapJsonContractsVerification;
 
+/// <summary>Represents tilemap json contracts environment verification.</summary>
 internal static class TilemapJsonContractsEnvironmentVerification
 {
     /// <summary>

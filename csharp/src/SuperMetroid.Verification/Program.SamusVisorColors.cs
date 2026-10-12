@@ -17,8 +17,10 @@ using static AssertionsVerification;
 using static MapPresentationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents samus visor colors verification.</summary>
 internal static class SamusVisorColorsVerification
 {
+    /// <summary>Verifies samus visor colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus visor colors")]
     internal static void VerifySamusVisorColors()
     {
@@ -50,6 +52,7 @@ internal static class SamusVisorColorsVerification
         Console.WriteLine("  Samus visor: all six native colors and guarded room/X-ray cycles pass.");
     }
 
+    /// <summary>Reads original visor colors.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for original visor colors")]
     private static SamusVisorColorCatalog ReadOriginalVisorColors(ISnesAddressSpace rom)
     {
@@ -69,6 +72,7 @@ internal static class SamusVisorColorsVerification
             new SamusVisorColorDocument { Version = SamusVisorColorFormat.Version, Colors = colors })));
     }
 
+    /// <summary>Verifies installed room visor cycle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledRoomVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
@@ -101,6 +105,7 @@ internal static class SamusVisorColorsVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed room cycle does not read visor ROM table");
     }
 
+    /// <summary>Verifies installed xray visor cycle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyInstalledXrayVisorCycle(ISnesAddressSpace rom,
         SamusVisorColorCatalog catalog)
@@ -141,6 +146,7 @@ internal static class SamusVisorColorsVerification
         for (int call = 11; call < 31; call++) Compare(call); // Full-beam colors 6, 8, 10.
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed X-ray cycle does not read visor ROM table");
     }
+    /// <summary>Creates xray samus.</summary>
     private static SamusState CreateXraySamus(ISnesAddressSpace rom)
     {
         var samus = new SamusState
@@ -155,6 +161,7 @@ internal static class SamusVisorColorsVerification
         return samus;
     }
 
+    /// <summary>Verifies samus visor color override.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
@@ -214,12 +221,14 @@ internal static class SamusVisorColorsVerification
         Console.WriteLine("Samus visor override: edited room/X-ray colors reach CGRAM and stock restores.");
     }
 
+    /// <summary>Creates forbidden visor color bus.</summary>
     private static CartridgeReadGuard NewForbiddenVisorColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= SamusVisorColorFormat.SourceAddress and
                 < (SamusVisorColorFormat.SourceAddress +
                     SamusVisorColorFormat.ColorCount * sizeof(ushort)),
             address => $"Installed visor read native color ${address:X6}.");
 
+    /// <summary>Samus visor colors command.</summary>
     [VerificationCommand("--samus-visor-colors")]
     internal static int SamusVisorColorsCommand()
     {

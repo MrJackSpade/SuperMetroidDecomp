@@ -15,6 +15,7 @@ public static class RoomMetatileArtworkFiles
 {
     /// <summary>Stock visual-block manifest filename recording cartridge provenance, metatile JSON hashes, and native transfer lengths.</summary>
     public const string ManifestFileName = "room-blocks.json";
+    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 1;
 
     /// <summary>Creates stock visual metatile JSON for CRE and each distinct room block-table source, with a provenance manifest.</summary>
@@ -102,6 +103,7 @@ public static class RoomMetatileArtworkFiles
     /// <exception cref="InvalidDataException">Stock provenance, coverage, dimensions, hashes, or visual composition data are invalid.</exception>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>expected sources.</summary>
     private static Dictionary<string, int> ExpectedSources()
     {
         var sources = new Dictionary<string, int>
@@ -116,6 +118,7 @@ public static class RoomMetatileArtworkFiles
         return sources;
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -125,7 +128,9 @@ public static class RoomMetatileArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Represents room metatile file entry.</summary>
     private sealed record RoomMetatileFileEntry(int NativeByteCount, string Sha256);
+    /// <summary>Represents room metatile file manifest.</summary>
     private sealed record RoomMetatileFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, RoomMetatileFileEntry> Entries);
 }

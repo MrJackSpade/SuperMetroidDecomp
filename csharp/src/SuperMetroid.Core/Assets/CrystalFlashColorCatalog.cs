@@ -11,9 +11,12 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class CrystalFlashColorCatalog
 {
+    /// <summary>Stores body.</summary>
     private readonly Bgr555[][]? body;
+    /// <summary>Stores bubble.</summary>
     private readonly Dictionary<int, Bgr555> bubble = [];
 
+    /// <summary>Initializes a new crystal flash color catalog instance.</summary>
     private CrystalFlashColorCatalog(Bgr555[][] body, Bgr555[][] bubble)
     {
         // Discard stock body rows only after checking every supplied color. Edited
@@ -32,6 +35,7 @@ public sealed class CrystalFlashColorCatalog
                 this.bubble.Add(frame * CrystalFlashColorFormat.BubbleColorCount + color, bubble[frame][color]);
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -162,6 +166,7 @@ public sealed class CrystalFlashColorCatalog
         return bytes;
     }
 
+    /// <summary>Compile.</summary>
     private static Bgr555[][] Compile(PaletteRgb5[][]? source, int frameCount,
         int colorCount, string name)
     {
@@ -188,6 +193,7 @@ public sealed class CrystalFlashColorCatalog
         return result;
     }
 
+    /// <summary>Rejects duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Crystal Flash color property {name}."));

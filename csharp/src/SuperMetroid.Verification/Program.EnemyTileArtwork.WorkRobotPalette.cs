@@ -5,8 +5,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents enemy tile artwork work robot palette verification.</summary>
 internal static class EnemyTileArtworkWorkRobotPaletteVerification
 {
+    /// <summary>verify installed work robot palette cycle.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed work-robot palette cycle")]
     internal static void VerifyInstalledWorkRobotPaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)

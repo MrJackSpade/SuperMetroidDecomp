@@ -82,6 +82,7 @@ public enum PhantoonAiFunction : ushort
 /// </summary>
 public sealed class PhantoonEnemyState
 {
+    /// <summary>Initializes a new phantoon enemy state instance.</summary>
     internal PhantoonEnemyState(RoomEnemySlot body) => Body = body;
 
     /// <summary>Gets physical slot zero, the native $00 body owner of function dispatch, health, motion, and shared encounter words.</summary>

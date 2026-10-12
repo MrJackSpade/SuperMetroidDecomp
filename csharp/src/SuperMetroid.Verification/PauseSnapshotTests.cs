@@ -21,8 +21,10 @@ using SuperMetroid.Core.Rendering;
 using static RenderPacketCodecTestsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents pause snapshot tests verification.</summary>
 internal static class PauseSnapshotTestsVerification
 {
+    /// <summary>Verifies pause render snapshots.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyPauseRenderSnapshots()
     {
@@ -85,6 +87,7 @@ internal static class PauseSnapshotTestsVerification
         }
     }
 
+    /// <summary>Pause fixtures command.</summary>
     [VerificationCommand("--pause-fixtures")]
     internal static int PauseFixturesCommand()
     {

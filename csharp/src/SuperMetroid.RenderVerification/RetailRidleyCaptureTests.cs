@@ -7,8 +7,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Rendering.Direct3D11;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents retail ridley capture tests.</summary>
 internal static class RetailRidleyCaptureTests
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {

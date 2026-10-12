@@ -19,8 +19,10 @@ using static ProjectileTrailDefinitionsVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents beam tile artwork verification.</summary>
 internal static class BeamTileArtworkVerification
 {
+    /// <summary>verify beam tile artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
@@ -94,6 +96,7 @@ internal static class BeamTileArtworkVerification
         Console.WriteLine("Beam PNG artwork: twelve production VRAM uploads, exact edited-pixel isolation and malformed resource rejection pass.");
     }
 
+    /// <summary>load native beam fixture.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native beam tile artwork fixture")]
     internal static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
@@ -113,6 +116,7 @@ internal static class BeamTileArtworkVerification
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
             cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2))))));
     }
+    /// <summary>new beam artwork read guard.</summary>
     private static MutableCartridgeReadGuard NewBeamArtworkReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -122,6 +126,7 @@ internal static class BeamTileArtworkVerification
         return guard;
     }
 
+    /// <summary>verify runtime beam artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyRuntimeBeamArtwork(ISnesAddressSpace bus, Dictionary<string, byte[]> files, BeamTileCatalog stock)
     {
@@ -163,6 +168,7 @@ internal static class BeamTileArtworkVerification
         Console.WriteLine("Runtime beam PNG: retained/lag display stability, accepted-NMI refresh after legacy writes, equipment queue and restored provider pass.");
     }
 
+    /// <summary>beam tile artwork fixture command.</summary>
     [VerificationCommand("--beam-tile-artwork-fixture")]
     internal static int BeamTileArtworkFixtureCommand()
     {

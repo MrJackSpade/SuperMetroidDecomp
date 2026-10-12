@@ -20,6 +20,7 @@ using static LookupTreadmillMechanicsVerification;
 using static SuiteTimingVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents animated tile instruction codes verification.</summary>
 internal static class AnimatedTileInstructionCodesVerification
 {
     /// <summary>
@@ -75,6 +76,7 @@ internal static class AnimatedTileInstructionCodesVerification
     /// <summary>Words outside <see cref="AnimatedTileObject"/>, including a constructed bank-$87 header.</summary>
     internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0001, 0x8f00, 0xffff];
 
+    /// <summary>Verifies constructed animated tile streams.</summary>
     private static void VerifyConstructedAnimatedTileStreams()
     {
         // Generic ROM dispatch was removed when treadmill mechanics became compiled.
@@ -104,6 +106,7 @@ internal static class AnimatedTileInstructionCodesVerification
             "compiled treadmill definition rejects the opposite direction");
     }
 
+    /// <summary>Creates constructed lava animated tile cartridge.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a constructed bank-$87 lava animated-tile header and program")]
     private static TestAddressSpace CreateConstructedLavaAnimatedTileCartridge(ushort[] program)
     {
@@ -114,6 +117,7 @@ internal static class AnimatedTileInstructionCodesVerification
         WriteTestWords(bus, 0x879000, program);
         return bus;
     }
+    /// <summary>Verifies retail treadmill stream.</summary>
     internal static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,
@@ -150,6 +154,7 @@ internal static class AnimatedTileInstructionCodesVerification
             $"{direction} no longer reads frame-source presentation operands");
     }
 
+    /// <summary>Verifies retail treadmill mechanics.</summary>
     internal static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyTreadmillHeaderSelection), () => VerifyTreadmillHeaderSelection());
@@ -163,10 +168,12 @@ internal static class AnimatedTileInstructionCodesVerification
         Suite(nameof(VerifyTreadmillMechanicsDomain), () => VerifyTreadmillMechanicsDomain(bus));
         Suite(nameof(VerifyTreadmillArtworkSources), () => VerifyTreadmillArtworkSources(bus));
     }
+    /// <summary>Asserts animated tile catalog.</summary>
     private static void AssertAnimatedTileCatalog(Type catalog, int expectedCount) =>
         AssertAnimatedTileCatalog(catalog.Name, GetUshortConstants(catalog)
             .Select(field => (ushort)field.GetRawConstantValue()!).ToArray(), expectedCount);
 
+    /// <summary>Asserts animated tile catalog.</summary>
     private static void AssertAnimatedTileCatalog(string name, ushort[] pointers, int expectedCount)
     {
         AssertEqual(expectedCount, pointers.Length, $"{name} exhaustive entry count");
@@ -176,6 +183,7 @@ internal static class AnimatedTileInstructionCodesVerification
             AssertTrue(pointer >= 0x8000, $"{name} pointer ${pointer:X4} is mapped");
     }
 
+    /// <summary>New wrecked ship treadmill mechanics forbidden bus.</summary>
     private static CartridgeReadGuard NewWreckedShipTreadmillMechanicsForbiddenBus(
         ISnesAddressSpace inner,
         WreckedShipTreadmillObjectDefinition definition,
@@ -207,6 +215,7 @@ internal static class AnimatedTileInstructionCodesVerification
                 _ => reads.Value++);
     }
 
+    /// <summary>Treadmill animated tiles command.</summary>
     [VerificationCommand("--treadmill-animated-tiles")]
     internal static int TreadmillAnimatedTilesCommand()
     {

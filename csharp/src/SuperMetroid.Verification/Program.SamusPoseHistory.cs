@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents samus pose history verification.</summary>
 internal static class SamusPoseHistoryVerification
 {
+    /// <summary>Verifies samus pose history.</summary>
     internal static void VerifySamusPoseHistory()
     {
         // Literal fixture for $91:E719. Preserve the packed direction/movement words

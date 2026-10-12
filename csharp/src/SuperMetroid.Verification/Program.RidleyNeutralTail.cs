@@ -1,8 +1,10 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents ridley neutral tail verification.</summary>
 internal static class RidleyNeutralTailVerification
 {
+    /// <summary>Verifies ridley power bomb neutral tail.</summary>
     internal static void VerifyRidleyPowerBombNeutralTail()
     {
         Action<RidleyEnemyState, SamusBombProjectileSystem> prepare = RidleyBehavior.PrepareNorfairRidleyCombatFrame;

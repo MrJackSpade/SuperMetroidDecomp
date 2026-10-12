@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents polyp instruction program definitions verification.</summary>
 internal static class PolypInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies polyp instruction program definitions.</summary>
     internal static void VerifyPolypInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypInstructionProgramDefinitions), () => VerifyPolypInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies polyp instruction program definitions.</summary>
     internal static void VerifyPolypInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -90,6 +93,7 @@ internal static class PolypInstructionProgramDefinitionsVerification
             "terminal sleep, and exact frame selection pass with instruction bytes forbidden.");
     }
 
+    /// <summary>Probe polyp instruction mechanics allocation.</summary>
     private static int ProbePolypInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -103,6 +107,7 @@ internal static class PolypInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New polyp instruction read guard.</summary>
     private static CartridgeReadGuard NewPolypInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(PolypInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -110,6 +115,7 @@ internal static class PolypInstructionProgramDefinitionsVerification
             .Forbid(address => address - (0xa20000 | PolypInstructionProgramDefinitions.PresentationWord) is 0 or 1,
                 _ => "Production read the compiled Polyp visual operand.");
 
+    /// <summary>Polyp instruction mechanics command.</summary>
     [VerificationCommand("--polyp-instruction-mechanics")]
     internal static int PolypInstructionMechanicsCommand()
     {

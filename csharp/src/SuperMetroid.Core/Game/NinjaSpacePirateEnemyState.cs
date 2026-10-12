@@ -60,8 +60,10 @@ public enum NinjaSpacePirateFunction : ushort
 /// </summary>
 public sealed class NinjaSpacePirateEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new ninja space pirate enemy state instance.</summary>
     internal NinjaSpacePirateEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Gets the current bank-$B2 movement/decision function pointer.</summary>

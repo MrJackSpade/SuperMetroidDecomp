@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents misc dust projectile definitions verification.</summary>
 internal static class MiscDustProjectileDefinitionsVerification
 {
+    /// <summary>verify misc dust projectile definitions.</summary>
     internal static void VerifyMiscDustProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0x86e42c;
@@ -80,6 +82,7 @@ internal static class MiscDustProjectileDefinitionsVerification
             "Misc dust definitions: thirty selectors, five placement records, and Mother Brain, room-graphics, Eye Door, and Ridley production consumers pass with both ROM tables forbidden.");
     }
 
+    /// <summary>create misc dust enemy system.</summary>
     private static RoomEnemySystem CreateMiscDustEnemySystem(SuperMetroidAddressSpace source)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -88,6 +91,7 @@ internal static class MiscDustProjectileDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>new misc dust definition read guard.</summary>
     private static CartridgeReadGuard NewMiscDustDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86e42c and < 0x86e468 or >= 0x86e47e and < 0x86e4a6,

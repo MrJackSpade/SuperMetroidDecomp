@@ -43,8 +43,10 @@ public enum PowampEnemyFunction : ushort
 /// </summary>
 public sealed class PowampEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new powamp enemy state instance.</summary>
     internal PowampEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Whether population parameter one is nonzero, selecting the balloon interpretation of shared variables; zero selects the immediately following moving body.</summary>

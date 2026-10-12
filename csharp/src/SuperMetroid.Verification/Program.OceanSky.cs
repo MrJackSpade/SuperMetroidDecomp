@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents ocean sky verification.</summary>
 internal static class OceanSkyVerification
 {
+    /// <summary>Verifies ocean sky.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ocean Sky")]
     internal static void VerifyOceanSky()
@@ -93,6 +95,7 @@ internal static class OceanSkyVerification
         Console.WriteLine("  Ocean sky: visible rows across 65 camera positions match ocean ROM chunks and native vertical-page rendering.");
     }
 
+    /// <summary>Ocean sky command.</summary>
     [VerificationCommand("--ocean-sky")]
     internal static int OceanSkyCommand()
     {

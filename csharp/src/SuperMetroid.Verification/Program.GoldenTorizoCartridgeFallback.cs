@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents golden torizo cartridge fallback verification.</summary>
 internal static class GoldenTorizoCartridgeFallbackVerification
 {
     /// <summary>

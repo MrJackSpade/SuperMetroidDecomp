@@ -7,13 +7,17 @@ using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents map window motion definitions verification.</summary>
 internal static class MapWindowMotionDefinitionsVerification
 {
+    /// <summary>Verifies map window origin x.</summary>
     internal static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
+    /// <summary>Verifies map window origin y.</summary>
     internal static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
+    /// <summary>Verifies map window origin.</summary>
     private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelLayout labels, bool vertical)
     {
         int field = vertical ? 2 : 0;
@@ -53,15 +57,20 @@ internal static class MapWindowMotionDefinitionsVerification
         }
     }
 
+    /// <summary>Verifies map window left velocities.</summary>
     internal static void VerifyMapWindowLeftVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 0, motion => motion.Left));
+    /// <summary>Verifies map window right velocities.</summary>
     internal static void VerifyMapWindowRightVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 1, motion => motion.Right));
+    /// <summary>Verifies map window top velocities.</summary>
     internal static void VerifyMapWindowTopVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 2, motion => motion.Top));
+    /// <summary>Verifies map window bottom velocities.</summary>
     internal static void VerifyMapWindowBottomVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 3, motion => motion.Bottom));
 
+    /// <summary>Verifies map window velocity.</summary>
     private static void VerifyMapWindowVelocity(ISnesAddressSpace rom, int edge,
         Func<FileSelectMapWindowMotion, uint> select)
     {
@@ -75,6 +84,7 @@ internal static class MapWindowMotionDefinitionsVerification
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
+    /// <summary>Verifies map window timers.</summary>
     internal static void VerifyMapWindowTimers(ISnesAddressSpace rom)
     {
         for (int area = 0; area < 6; area++)
@@ -83,6 +93,7 @@ internal static class MapWindowMotionDefinitionsVerification
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
+    /// <summary>Verifies map window motion bounds.</summary>
     private static void VerifyMapWindowMotionBounds()
     {
         foreach (int area in new[] { int.MinValue, -1, 6, int.MaxValue })

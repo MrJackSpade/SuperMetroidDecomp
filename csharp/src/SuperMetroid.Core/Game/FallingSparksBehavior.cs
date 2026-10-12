@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,10 +6,14 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The falling sparks species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class FallingSparksBehavior
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
+    /// <summary>Initializes a new falling sparks behavior instance.</summary>
     internal FallingSparksBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects)
     {
         _room = room;
@@ -81,6 +85,7 @@ internal sealed class FallingSparksBehavior
             SpawnFallingSparkTrail(projectile);
     }
 
+    /// <summary>Adds falling spark vertical velocity.</summary>
     private static void AddFallingSparkVerticalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
@@ -90,6 +95,7 @@ internal sealed class FallingSparksBehavior
             projectile.Position.Y.Whole + projectile.Velocity.Y.RawValue + SnesCarry.OutOfWord(fraction))));
     }
 
+    /// <summary>Adds falling spark horizontal velocity.</summary>
     internal static void AddFallingSparkHorizontalVelocity(
         RoomEnemyProjectileSlot projectile)
     {
@@ -99,6 +105,7 @@ internal sealed class FallingSparksBehavior
             projectile.Position.X.Whole + projectile.Variable1 + SnesCarry.OutOfWord(fraction))));
     }
 
+    /// <summary>Begin falling spark floor impact.</summary>
     internal static void BeginFallingSparkFloorImpact(RoomEnemyProjectileSlot projectile)
     {
         projectile.InstructionPointer = FallingSparkInstructionProgramDefinitions.HitFloor;
@@ -121,6 +128,7 @@ internal sealed class FallingSparksBehavior
         projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 2)));
     }
 
+    /// <summary>Spawn falling spark trail.</summary>
     private void SpawnFallingSparkTrail(RoomEnemyProjectileSlot projectile)
     {
         _ = _spriteObjects.SpawnRoomSpriteObject(
@@ -129,6 +137,7 @@ internal sealed class FallingSparksBehavior
             projectile.GraphicsIndex);
     }
 
+    /// <summary>Register falling sparks projectiles.</summary>
     internal void RegisterFallingSparksProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>

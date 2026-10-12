@@ -4,8 +4,10 @@ using SuperMetroid.Core.Rendering;
 using static DoorDefinitionsVerification;
 using static LookupFxBlendSelectorsVerification;
 
+/// <summary>Represents lookup ceres haze ramp verification.</summary>
 internal static class LookupCeresHazeRampVerification
 {
+    /// <summary>Original ceres haze ramp.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze ramp")]
     private static byte[] OriginalCeresHazeRamp(ISnesAddressSpace rom, int counter)
     {
@@ -39,6 +41,7 @@ internal static class LookupCeresHazeRampVerification
         return rows;
     }
 
+    /// <summary>Verifies ceres haze native ramp.</summary>
     internal static void VerifyCeresHazeNativeRamp(ISnesAddressSpace rom)
     {
         int fadeLimit = ReadVerificationWord(rom, 0x88de43);
@@ -72,6 +75,7 @@ internal static class LookupCeresHazeRampVerification
         }
     }
 
+    /// <summary>Verifies ceres haze tint scaling.</summary>
     internal static void VerifyCeresHazeTintScaling(ISnesAddressSpace rom)
     {
         int lastCounter = ReadVerificationWord(rom, 0x88de43);

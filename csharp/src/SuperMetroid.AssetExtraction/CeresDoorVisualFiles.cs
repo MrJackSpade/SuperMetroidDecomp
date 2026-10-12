@@ -72,6 +72,7 @@ public static class CeresDoorVisualFiles
         CeresDoorVisualCatalog.Load(new MemoryStream(tilePng, writable: false),
             new MemoryStream(paletteJson, writable: false));
 
+    /// <summary>read colors.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int sourceAddress,
         int count)
     {

@@ -7,8 +7,11 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>$82:A881 arrow animations and $82:A92B palette animation, advanced by menu ticks only.</summary>
 public sealed class FileSelectMapAnimations
 {
+    /// <summary>Stores arrows.</summary>
     private readonly Arrow[] arrows = new Arrow[MapArrowDefinitions.Count];
+    /// <summary>Stores palette.</summary>
     private readonly MapPaletteAnimation palette;
+    /// <summary>Stores presentation.</summary>
     [NonSerialized] private MapArrowPresentation? presentation;
 
     /// <summary>Creates independent arrow counters and palette timing for a map menu, binding installed arrow positions and phase durations without reading cartridge animation data.</summary>
@@ -52,6 +55,7 @@ public sealed class FileSelectMapAnimations
 
     /// <summary>ResetPauseMenuAnimations resets palette timing but does not clear the arrow counters.</summary>
     public void ResetPalette() => palette.Reset();
+    /// <summary>Bind palette.</summary>
     internal void BindPalette(SuperMetroid.Core.Assets.MapPaletteCycle? cycle) => palette.Bind(cycle);
 
     /// <summary>Returns the native library-three sound request at the palette loop terminator.</summary>
@@ -103,11 +107,16 @@ public sealed class FileSelectMapAnimations
         }
     }
 
+    /// <summary>Represents arrow.</summary>
     private sealed class Arrow(Position16<OamPixels> position, MapSpriteId spriteBase)
     {
+        /// <summary>Stores position.</summary>
         public readonly Position16<OamPixels> Position = position;
+        /// <summary>Stores base.</summary>
         public readonly MapSpriteId Base = spriteBase;
+        /// <summary>Stores timer.</summary>
         public int Timer, Frame;
+        /// <summary>Stores visible.</summary>
         public bool Visible;
     }
 }

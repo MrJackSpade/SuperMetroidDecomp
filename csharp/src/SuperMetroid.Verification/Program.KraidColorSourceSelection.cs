@@ -12,8 +12,10 @@ using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents kraid color source selection verification.</summary>
 internal static class KraidColorSourceSelectionVerification
 {
+    /// <summary>Verifies kraid color source selection.</summary>
     internal static void VerifyKraidColorSourceSelection()
     {
         var original = new Dictionary<KraidPaletteSource, PaletteRgb5[]>();
@@ -54,6 +56,7 @@ internal static class KraidColorSourceSelectionVerification
         Console.WriteLine("Kraid palette source selection: all five distinct fixtures, every color, bounds and identity pass.");
     }
 
+    /// <summary>Lookup kraid color sources command.</summary>
     [VerificationCommand("--lookup-kraid-color-sources")]
     internal static int LookupKraidColorSourcesCommand()
     {

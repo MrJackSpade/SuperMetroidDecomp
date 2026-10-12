@@ -1,10 +1,12 @@
-﻿namespace SuperMetroid.Core.Rooms;
+namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Terrain PLMs that enemies break, spawned by enemy contact instead of Samus or projectiles.</summary>
 internal sealed class EnemyBreakableTerrainPlms
 {
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
 
+    /// <summary>Initializes a new enemy breakable terrain plms instance.</summary>
     internal EnemyBreakableTerrainPlms(PlmSlotTable slotTable)
     {
         _slotTable = slotTable;

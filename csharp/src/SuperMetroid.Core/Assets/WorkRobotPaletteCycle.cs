@@ -24,8 +24,10 @@ public sealed class WorkRobotPaletteCycle
             }
         });
 
+    /// <summary>Stores frames.</summary>
     private readonly Bgr555[][]? frames;
 
+    /// <summary>Initializes a new work robot palette cycle instance.</summary>
     private WorkRobotPaletteCycle(Bgr555[][] frames)
     {
         for (int frame = 0; frame < frames.Length; frame++)
@@ -51,6 +53,7 @@ public sealed class WorkRobotPaletteCycle
         return new Bgr555(31 - 16 * (position >> 1) - 7 * (position & 1), 0, 0);
     }
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -140,6 +143,7 @@ public sealed class WorkRobotPaletteCycle
         return bytes;
     }
 
+    /// <summary>reject duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Work Robot palette property {name}."));

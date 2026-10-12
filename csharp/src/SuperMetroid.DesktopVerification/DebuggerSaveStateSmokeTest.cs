@@ -189,6 +189,7 @@ public static class DebuggerSaveStateSmokeTest
         }
     }
 
+    /// <summary>Verifies named delegate round trip.</summary>
     private static void VerifyNamedDelegateRoundTrip()
     {
         using var stream = new MemoryStream();
@@ -200,6 +201,7 @@ public static class DebuggerSaveStateSmokeTest
             throw new InvalidDataException("Named generic delegate identity did not round-trip.");
     }
 
+    /// <summary>Verifies installed recorder.</summary>
     private static void VerifyInstalledRecorder(
         string dataDirectory,
         ReadOnlySpan<byte> saveRam,
@@ -227,5 +229,6 @@ public static class DebuggerSaveStateSmokeTest
         }
     }
 
+    /// <summary>Identity.</summary>
     private static T Identity<T>(T value) => value;
 }

@@ -35,6 +35,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
     /// <summary>Exempts an immutable external signature.</summary>
     public const string ContractAttributeName = "ParameterListContractAttribute";
 
+    /// <summary>Stores oversized rule.</summary>
     private static readonly DiagnosticDescriptor OversizedRule = new(
         OversizedId,
         "Oversized parameter list",
@@ -45,6 +46,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         description: "Long parameter lists hide capability boundaries and allow invalid combinations. Replace them with a named " +
             "operation interface that inherits the narrow interfaces its child operations accept, implemented by a validated type.");
 
+    /// <summary>Stores callback cluster rule.</summary>
     private static readonly DiagnosticDescriptor CallbackClusterRule = new(
         CallbackClusterId,
         "Nullable callback cluster",
@@ -55,6 +57,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         description: "Nullable delegates that switch behaviour on and off are an unstructured capability set; model the service " +
             "they represent as one interface, and make optional behaviour a named strategy or null object.");
 
+    /// <summary>Stores broad context rule.</summary>
     private static readonly DiagnosticDescriptor BroadContextRule = new(
         BroadContextId,
         "Broad context parameter",
@@ -81,6 +84,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
             SyntaxKind.ConstructorDeclaration, SyntaxKind.LocalFunctionStatement);
     }
 
+    /// <summary>analyze broad contexts.</summary>
     private static void AnalyzeBroadContexts(SyntaxNodeAnalysisContext context)
     {
         if (context.SemanticModel.GetDeclaredSymbol(context.Node) is not IMethodSymbol method ||
@@ -155,6 +159,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
             SymbolEqualityComparer.Default.Equals(type.FindImplementationForInterfaceMember(candidate), member));
     }
 
+    /// <summary>analyze method.</summary>
     private static void AnalyzeMethod(SymbolAnalysisContext context)
     {
         var method = (IMethodSymbol)context.Symbol;
@@ -167,6 +172,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         Report(context.ReportDiagnostic, Describe(method), method.Parameters, location);
     }
 
+    /// <summary>analyze delegate.</summary>
     private static void AnalyzeDelegate(SymbolAnalysisContext context)
     {
         var type = (INamedTypeSymbol)context.Symbol;
@@ -176,6 +182,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         Report(context.ReportDiagnostic, "delegate " + type.Name, invoke.Parameters, location);
     }
 
+    /// <summary>analyze local function.</summary>
     private static void AnalyzeLocalFunction(SyntaxNodeAnalysisContext context)
     {
         if (context.SemanticModel.GetDeclaredSymbol(context.Node) is not IMethodSymbol function)
@@ -184,6 +191,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
             ((LocalFunctionStatementSyntax)context.Node).Identifier.GetLocation());
     }
 
+    /// <summary>report.</summary>
     private static void Report(Action<Diagnostic> report, string name, ImmutableArray<IParameterSymbol> parameters, Location location)
     {
         if (parameters.Length > MaximumParameters)
@@ -194,6 +202,7 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
             report(Diagnostic.Create(CallbackClusterRule, location, name, callbacks));
     }
 
+    /// <summary>describe.</summary>
     private static string Describe(IMethodSymbol method) => method.MethodKind == MethodKind.Constructor
         ? method.ContainingType.Name + " constructor"
         : method.ContainingType.Name + "." + method.Name;
@@ -204,10 +213,12 @@ public sealed class ParameterListAnalyzer : DiagnosticAnalyzer
         (method.MethodKind == MethodKind.Constructor || method.Name == "Deconstruct") &&
         method.DeclaringSyntaxReferences.Any(reference => reference.GetSyntax() is RecordDeclarationSyntax);
 
+    /// <summary>implements interface.</summary>
     private static bool ImplementsInterface(IMethodSymbol method) =>
         method.ContainingType.AllInterfaces.SelectMany(contract => contract.GetMembers().OfType<IMethodSymbol>())
             .Any(member => SymbolEqualityComparer.Default.Equals(method.ContainingType.FindImplementationForInterfaceMember(member), method));
 
+    /// <summary>is exempt.</summary>
     private static bool IsExempt(ISymbol symbol) =>
         symbol.GetAttributes().Any(attribute => attribute.AttributeClass?.Name == ContractAttributeName);
 }

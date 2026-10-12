@@ -8,8 +8,10 @@ using static GraphDigestVerification;
 using static RetailGameFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents grapple tile binding verification.</summary>
 internal static class GrappleTileBindingVerification
 {
+    /// <summary>Verifies grapple tile binding.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
     {

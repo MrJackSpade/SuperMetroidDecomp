@@ -59,6 +59,7 @@ public static class RoomMetatileExtractor
         }
     }
 
+    /// <summary>Cell.</summary>
     private static RoomMetatileCell Cell(ReadOnlySpan<byte> sourceBlock, int quadrant)
     {
         var word = new SnesBgTilemapWord(BinaryPrimitives.ReadUInt16LittleEndian(

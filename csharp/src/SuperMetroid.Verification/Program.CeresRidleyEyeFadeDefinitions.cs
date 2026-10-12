@@ -16,8 +16,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents ceres ridley eye fade definitions verification.</summary>
 internal static class CeresRidleyEyeFadeDefinitionsVerification
 {
+    /// <summary>Verifies ceres ridley eye fade definitions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Ridley eye fade definitions")]
     internal static void VerifyCeresRidleyEyeFadeDefinitions(SuperMetroidAddressSpace rom)
@@ -101,6 +103,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
             "the complete production schedule pass with selector ROM reads forbidden.");
     }
 
+    /// <summary>New ceres ridley eye fade read guard.</summary>
     private static CartridgeReadGuard NewCeresRidleyEyeFadeReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address >= CeresRidleyEyeFadeDefinitions.NativeScheduleAddress &&
@@ -108,6 +111,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
                     CeresRidleyEyeFadeDefinitions.PaletteStepCount,
                 address => $"Ceres Ridley eye fade attempted schedule read ${address:X6}.");
 
+    /// <summary>Ceres ridley eye fade definitions command.</summary>
     [VerificationCommand("--ceres-ridley-eye-fade-definitions")]
     internal static int CeresRidleyEyeFadeDefinitionsCommand()
     {

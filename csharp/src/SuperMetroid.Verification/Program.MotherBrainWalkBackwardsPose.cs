@@ -12,12 +12,14 @@ using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents mother brain walk backwards pose verification.</summary>
 internal static class MotherBrainWalkBackwardsPoseVerification
 {
     // #1269: $A9:C647 tests the target, then the body pose, and only a standing body
     // reaches the $30 arena limit. The port tested the limit regardless of pose, so in the
     // 100% movie a mid-step body at X $29 finished the painful backward walk two frames
     // before native and the neck sped up early.
+    /// <summary>Verifies mother brain walk backwards pose.</summary>
     internal static void VerifyMotherBrainWalkBackwardsPose()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -51,6 +53,7 @@ internal static class MotherBrainWalkBackwardsPoseVerification
         Console.WriteLine("Mother Brain walk backwards: pose gates the $30 limit, not the target.");
     }
 
+    /// <summary>Mother brain walk backwards pose command.</summary>
     [VerificationCommand("--mother-brain-walk-backwards-pose")]
     internal static int MotherBrainWalkBackwardsPoseCommand()
     {

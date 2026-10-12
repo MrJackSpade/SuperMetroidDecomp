@@ -18,8 +18,10 @@ using SuperMetroid.Core.Spatial;
 using static MapSpritesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents pause map position verification.</summary>
 internal static class PauseMapPositionVerification
 {
+    /// <summary>Verifies pause map position.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map position tiles and spritemaps")]
     internal static void VerifyPauseMapPosition()
@@ -76,6 +78,7 @@ internal static class PauseMapPositionVerification
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
     }
 
+    /// <summary>Pauses map position command.</summary>
     [VerificationCommand("--pause-map-position")]
     internal static int PauseMapPositionCommand()
     {

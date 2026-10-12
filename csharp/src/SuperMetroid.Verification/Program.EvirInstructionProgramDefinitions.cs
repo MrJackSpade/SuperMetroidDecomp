@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static CompiledEnemyVisualSelectorAssertionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents evir instruction program definitions verification.</summary>
 internal static class EvirInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies evir instruction program definitions.</summary>
     internal static void VerifyEvirInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies evir instruction program definitions.</summary>
     internal static void VerifyEvirInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -179,6 +182,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             "programs, complete regeneration callbacks, and 49 compiled spritemap selectors pass.");
     }
 
+    /// <summary>New evir instruction system.</summary>
     internal static RoomEnemySystem NewEvirInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -187,6 +191,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Prepares evir instruction slot.</summary>
     internal static void PrepareEvirInstructionSlot(
         RoomEnemySlot slot,
         EnemyDefinitionId definition,
@@ -198,6 +203,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         slot.InstructionTimer = 1;
     }
 
+    /// <summary>Probe evir instruction mechanics allocation.</summary>
     private static int ProbeEvirInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -211,6 +217,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New evir instruction guard.</summary>
     internal static CartridgeReadGuard NewEvirInstructionGuard(ISnesAddressSpace rom, bool forbidPresentation = false)
     {
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -224,6 +231,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
                 EvirInstructionProgramDefinitions.PresentationWordAddress);
     }
 
+    /// <summary>Evir instruction program definitions command.</summary>
     [VerificationCommand("--evir-instruction-program-definitions")]
     internal static int EvirInstructionProgramDefinitionsCommand()
     {

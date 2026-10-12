@@ -10,17 +10,24 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     /// <summary>The six supported one-frame lists.</summary>
     private enum Reveal
     {
+        /// <summary>Identifies crumble1x1.</summary>
         Crumble1x1,
+        /// <summary>Identifies crumble2x1.</summary>
         Crumble2x1,
+        /// <summary>Identifies crumble1x2.</summary>
         Crumble1x2,
+        /// <summary>Identifies crumble2x2.</summary>
         Crumble2x2,
+        /// <summary>Identifies power bomb.</summary>
         PowerBomb,
+        /// <summary>Identifies super missile.</summary>
         SuperMissile,
     }
 
     /// <summary>Bytes in each list: a duration/draw pair followed by deletion.</summary>
     private const int ListLength = 6;
 
+    /// <summary>Starts of.</summary>
     private static ushort StartOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => RoomPlmInstructionLists.CrumbleReveal1x1,
@@ -32,6 +39,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 
+    /// <summary>Draws of.</summary>
     private static ushort DrawOf(Reveal reveal) => reveal switch
     {
         Reveal.Crumble1x1 => (ushort)RoomPlmBombedRevealDraw.CrumbleSingle,
@@ -43,6 +51,7 @@ internal static class RoomPlmBombedRevealProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 
+    /// <summary>Attempts to read word.</summary>
     internal static bool TryReadWord(ushort address, out ushort value)
     {
         // The intervening four unused bomb-reveal lists are outside this owner.

@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents norfair pipe bug instruction program definitions verification.</summary>
 internal static class NorfairPipeBugInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies norfair pipe bug instruction program definitions.</summary>
     internal static void VerifyNorfairPipeBugInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies norfair pipe bug instruction program definitions.</summary>
     internal static void VerifyNorfairPipeBugInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -124,6 +127,7 @@ internal static class NorfairPipeBugInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes norfair pipe bug instruction mechanics allocation.</summary>
     private static int ProbeNorfairPipeBugInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -135,6 +139,7 @@ internal static class NorfairPipeBugInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Norfair pipe bug instruction mechanics command.</summary>
     [VerificationCommand("--norfair-pipe-bug-instruction-mechanics")]
     internal static int NorfairPipeBugInstructionMechanicsCommand()
     {

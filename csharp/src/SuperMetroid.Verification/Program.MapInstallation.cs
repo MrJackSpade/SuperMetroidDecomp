@@ -16,6 +16,7 @@ using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 
+/// <summary>Represents map installation verification.</summary>
 internal static class MapInstallationVerification
 {
     /// <summary>Opt-in full importer transaction; all ROM/audio/fixture data stays in ignored test-temp.</summary>
@@ -395,11 +396,14 @@ internal static class MapInstallationVerification
         }
     }
 
+    /// <summary>Represents immediate install progress.</summary>
     internal sealed class ImmediateInstallProgress(Action<string>? onReport = null) : IProgress<string>
     {
+        /// <summary>Report.</summary>
         public void Report(string message) { Console.WriteLine(message); onReport?.Invoke(message); }
     }
 
+    /// <summary>Map installation command.</summary>
     [VerificationCommand("--map-installation")]
     internal static int MapInstallationCommand()
     {

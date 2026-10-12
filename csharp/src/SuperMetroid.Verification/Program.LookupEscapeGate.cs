@@ -2,11 +2,15 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup escape gate verification.</summary>
 internal static class LookupEscapeGateVerification
 {
+    /// <summary>verify escape gate program controls.</summary>
     internal static void VerifyEscapeGateProgramControls(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, false);
+    /// <summary>verify escape gate program draws.</summary>
     internal static void VerifyEscapeGateProgramDraws(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, true);
 
+    /// <summary>verify escape gate program field.</summary>
     private static void VerifyEscapeGateProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xbb34,0xbb38,0xbb3a,0xbb3e,0xbb42,0xbb44,0xbb48,0xbb4c,0xbb50];
@@ -41,13 +45,18 @@ internal static class LookupEscapeGateVerification
         }
     }
 
+    /// <summary>escape gate program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for escape gate program field")]
     private static byte EscapeGateProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>verify escape gate draw geometry.</summary>
     internal static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 0);
+    /// <summary>verify escape gate draw collision.</summary>
     internal static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 1);
+    /// <summary>verify escape gate draw visuals.</summary>
     internal static void VerifyEscapeGateDrawVisuals(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 2);
 
+    /// <summary>verify escape gate draw field.</summary>
     private static void VerifyEscapeGateDrawField(SuperMetroidAddressSpace rom, int field)
     {
         ushort[] pointers = [0x9473,0x947f,0x948b];

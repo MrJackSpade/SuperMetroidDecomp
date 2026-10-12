@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 public sealed class LayeredRenderSnapshot
 {
+    /// <summary>Stores layers.</summary>
     private readonly RenderLayer[] layers;
     /// <summary>Immutable VRAM, CGRAM, and finalized OAM image retained by reference, not copied again by this packet.</summary>
     public PpuMemorySnapshot Memory { get; }

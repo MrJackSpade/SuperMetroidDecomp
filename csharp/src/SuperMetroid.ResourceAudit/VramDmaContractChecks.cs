@@ -7,6 +7,7 @@ namespace SuperMetroid.ResourceAudit;
 /// <summary>Confirm the requested audit's failure contracts, not look for gameplay defects.</summary>
 internal static class VramDmaContractChecks
 {
+    /// <summary>Runs.</summary>
     internal static void Run()
     {
         SyntaxTree tree = CSharpSyntaxTree.ParseText("""
@@ -49,6 +50,7 @@ internal static class VramDmaContractChecks
         Console.WriteLine("Queued DMA audit contracts: semantic inventory, missing binding, exact count, RAM boundary/wrap, typed None, unknown producer and delegate escape passed.");
     }
 
+    /// <summary>Requires.</summary>
     internal static void Require(bool result, string property)
     {
         if (!result) throw new InvalidOperationException("Queued DMA audit contract failed: " + property);

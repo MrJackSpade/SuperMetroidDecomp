@@ -39,6 +39,7 @@ internal static class DeadMonsterRottingDefinitions
         new(0x0011, 0xffe1, 0x0028, 0xfff9),
     ];
 
+    /// <summary>Gets torizo touch hitboxes.</summary>
     internal static ReadOnlySpan<DeadCorpseTouchHitbox> TorizoTouchHitboxes => TorizoHitboxRecords;
 
     /// <summary>
@@ -74,9 +75,11 @@ internal static class DeadMonsterRottingDefinitions
         return (variant == 0 ? column < 2 : column >= 2) ? 8 : 0;
     }
 
+    /// <summary>rotation offset.</summary>
     internal static ushort RotationOffset(ushort table, ushort yOffset) =>
         RotationOffset(ClosedNativeWords.Decode<CorpseRotationTable>(table, "compiled corpse rotation table"), yOffset);
 
+    /// <summary>rotation offset.</summary>
     internal static ushort RotationOffset(CorpseRotationTable table, ushort yOffset)
     {
         (int count, int tiles) = table switch
@@ -92,6 +95,7 @@ internal static class DeadMonsterRottingDefinitions
         return (ushort)(row * tiles * 32);
     }
 
+    /// <summary>for transfer table.</summary>
     internal static TransferRows ForTransferTable(ushort table)
     {
         int offset = table - SidehopperTransfers;
@@ -129,7 +133,9 @@ internal static class DeadMonsterRottingDefinitions
     internal readonly struct TransferRows(int count, ushort stride, ushort source, ushort destination,
         ushort firstSize = 0, ushort firstDestinationOffset = 0) : IReadOnlyList<DeadMonsterVramTransferDefinition>
     {
+        /// <summary>Gets the number of items in this collection.</summary>
         public int Count => count;
+        /// <summary>Accesses a value by index or range.</summary>
         public DeadMonsterVramTransferDefinition this[int index]
         {
             get
@@ -140,10 +146,12 @@ internal static class DeadMonsterRottingDefinitions
                     (ushort)(destination + 0x100 * index + (index == 0 ? firstDestinationOffset : 0)));
             }
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         public IEnumerator<DeadMonsterVramTransferDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Returns an enumerator over this collection.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -162,5 +170,6 @@ internal readonly record struct DeadCorpseTouchHitbox(ushort Left, ushort Top, u
 internal readonly record struct DeadMonsterVramTransferDefinition(
     ushort SizeInBytes, ushort SourceBankWord, ushort SourceOffset, ushort EncodedVramDestination)
 {
+    /// <summary>Gets source address.</summary>
     internal int SourceAddress => ((SourceBankWord & 0xff00) << 8) | SourceOffset;
 }

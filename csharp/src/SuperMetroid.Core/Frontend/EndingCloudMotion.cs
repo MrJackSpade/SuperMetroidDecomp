@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>F455–F4E0 cloud pre-instructions, including the one-call activation handoff.</summary>
 internal static class EndingCloudMotion
 {
+    /// <summary>Steps.</summary>
     public static void Step(EndingSprite wrapper, ushort scale)
     {
         bool side = wrapper.Role is EndingSpriteRole.CloudRightA or EndingSpriteRole.CloudRightB

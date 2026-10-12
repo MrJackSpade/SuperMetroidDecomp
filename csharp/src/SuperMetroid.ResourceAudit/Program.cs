@@ -3,8 +3,10 @@ using System.Text.Json;
 
 namespace SuperMetroid.ResourceAudit;
 
+/// <summary>Represents program.</summary>
 internal static class Program
 {
+    /// <summary>Main.</summary>
     private static int Main(string[] args)
     {
         // Install before parsing paths or loading definitions. An audit error must
@@ -189,6 +191,7 @@ internal static class Program
 /// <summary>Win32 process policy for this console host; keeps OS-owned modal error boxes away.</summary>
 internal static partial class NativeConsoleProcess
 {
+    /// <summary>Sets error mode.</summary>
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint mode);
 }

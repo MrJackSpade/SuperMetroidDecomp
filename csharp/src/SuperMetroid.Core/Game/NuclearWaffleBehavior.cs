@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
@@ -6,15 +6,19 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The nuclear waffle species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NuclearWaffleBehavior : IEnemySpecies
 {
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
 
+    /// <summary>Initializes a new nuclear waffle behavior instance.</summary>
     internal NuclearWaffleBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects)
     {
         _projectiles = projectiles;
         _spriteObjects = spriteObjects;
     }
 
+    /// <summary>Stores nuclear waffle states.</summary>
     internal readonly NuclearWaffleEnemyState?[] _nuclearWaffleStates =
         new NuclearWaffleEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -131,6 +135,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         slot.Properties = slot.Properties.Without(EnemyProperties.ProcessOffScreen);
     }
 
+    /// <summary>Spawns nuclear waffle projectile segments.</summary>
     private void SpawnNuclearWaffleProjectileSegments(
         RoomEnemySlot owner,
         NuclearWaffleEnemyState state)
@@ -161,6 +166,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Spawns nuclear waffle sprite segments.</summary>
     private void SpawnNuclearWaffleSpriteSegments(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
@@ -277,6 +283,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         return new NuclearWaffleOrientation(0, 0);
     }
 
+    /// <summary>Spawns nuclear waffle turn objects.</summary>
     private void SpawnNuclearWaffleTurnObjects(
         Position16<RoomPixels> position,
         ushort graphicsIndex,
@@ -298,6 +305,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
             LastNuclearWaffleSoundEffect = NuclearWaffleDefinitions.TurnSoundEffect;
     }
 
+    /// <summary>Position nuclear waffle head.</summary>
     private static void PositionNuclearWaffleHead(
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state,
@@ -312,6 +320,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
             unchecked((short)EnemyMath.ReadEightBitCosineProduct(angle, state.OrbitRadius)),
             unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(angle, state.OrbitRadius)));
 
+    /// <summary>Adds nuclear waffle angular speed.</summary>
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state)
     {
         uint fraction = (uint)state.AngleSubposition + state.AngularSpeedFraction;
@@ -320,16 +329,20 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
             state.CurrentAngle + state.AngularSpeedWhole + SnesCarry.OutOfWord(fraction)));
     }
 
+    /// <summary>Signed word difference is negative.</summary>
     private static bool SignedWordDifferenceIsNegative(ushort left, ushort right) =>
         unchecked((short)(left - right)) < 0;
 
+    /// <summary>Signed word difference is nonnegative.</summary>
     private static bool SignedWordDifferenceIsNonnegative(ushort left, ushort right) =>
         unchecked((short)(left - right)) >= 0;
 
+    /// <summary>Requires nuclear waffle state.</summary>
     private NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
         _nuclearWaffleStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
 
+    /// <summary>Registers nuclear waffle initialization ai.</summary>
     internal void RegisterNuclearWaffleInitializationAi(EnemyAiTable table)
     {
 
@@ -339,6 +352,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers nuclear waffle main ai.</summary>
     internal void RegisterNuclearWaffleMainAi(EnemyAiTable table)
     {
 

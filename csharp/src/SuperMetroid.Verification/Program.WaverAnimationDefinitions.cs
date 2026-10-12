@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents waver animation definitions verification.</summary>
 internal static class WaverAnimationDefinitionsVerification
 {
+    /// <summary>Verifies waver animation definitions.</summary>
     internal static void VerifyWaverAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
@@ -67,6 +69,7 @@ internal static class WaverAnimationDefinitionsVerification
             "Waver animation definitions: four native selectors, all four real handoffs, and both production initial facing paths pass with the pointer table forbidden.");
     }
 
+    /// <summary>New waver animation read guard.</summary>
     private static CartridgeReadGuard NewWaverAnimationReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa386db and < 0xa386e3,
             address => $"Waver attempted migrated animation-selector read ${address:X6}.");

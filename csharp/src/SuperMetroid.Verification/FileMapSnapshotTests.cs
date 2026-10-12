@@ -12,8 +12,10 @@ using static RetailGameFixtureVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents file map snapshot tests verification.</summary>
 internal static class FileMapSnapshotTestsVerification
 {
+    /// <summary>Verifies file map snapshots.</summary>
     internal static void VerifyFileMapSnapshots()
     {
         VerifyWindowedSceneContract();
@@ -106,6 +108,7 @@ internal static class FileMapSnapshotTestsVerification
         }
     }
 
+    /// <summary>Verifies windowed scene contract.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
     private static void VerifyWindowedSceneContract()
     {

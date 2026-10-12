@@ -10,6 +10,7 @@ internal abstract class ChootInstructionProgramDefinitions
     /// <summary>$A2:D840: jump control timing with a different final visual operand.</summary>
     internal const ushort Falling = 0xd840;
 
+    /// <summary>Checks whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         if (address == Idle + 4)
@@ -19,6 +20,7 @@ internal abstract class ChootInstructionProgramDefinitions
             offset % (Falling - Jumping) is 0 or 4;
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -27,6 +29,7 @@ internal abstract class ChootInstructionProgramDefinitions
             $"Choot instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Tries to read.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         if (address < Jumping)

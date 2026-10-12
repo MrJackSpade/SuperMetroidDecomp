@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Initial palette preparation and centered area-map reveal from $81:A32A-$81:A725.</summary>
 public sealed class FileSelectMapEntry
 {
+    /// <summary>Stores palette.</summary>
     private readonly CartridgePaletteTransition palette;
+    /// <summary>Stores reveal steps.</summary>
     private int revealSteps;
 
     /// <summary>Gets the live 256-color memory used by the entry palette fade.</summary>
@@ -47,6 +49,7 @@ public sealed class FileSelectMapEntry
         palette.Step(Cgram);
     }
 
+    /// <summary>Bind palettes.</summary>
     internal void BindPalettes(MapStaticPalettes? content)
     {
         if (content is null) return;

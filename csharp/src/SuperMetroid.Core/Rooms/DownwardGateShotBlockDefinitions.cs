@@ -14,6 +14,7 @@ internal readonly record struct DownwardGateShotBlockDefinition(
 internal static class DownwardGateShotBlockDefinitions
 {
 
+    /// <summary>Defines last room argument.</summary>
     private const ushort LastRoomArgument = 14;
 
     /// <summary>

@@ -22,7 +22,9 @@ internal readonly record struct CrocomireMeltingPass(
     ushort NextHeaderOffset,
     int ChunkCount)
 {
+    /// <summary>Gets copies.</summary>
     internal CrocomireMeltingCopySequence Copies => new(this);
+    /// <summary>Gets uploads.</summary>
     internal CrocomireMeltingUploadSequence Uploads => new(this);
 }
 
@@ -42,6 +44,7 @@ internal enum CrocomireMeltingHeader : ushort
 /// </summary>
 internal static class CrocomireMeltingTransferDefinitions
 {
+    /// <summary>Gets passes.</summary>
     internal static CrocomireMeltingPassSequence Passes => new();
 
     /// <summary>Six chunks in the first pass and seven in the second. Each header
@@ -60,6 +63,7 @@ internal static class CrocomireMeltingTransferDefinitions
         return new(offset, 0x58, 0x30, 0x200, 0xa4, start, end, (ushort)(end + 2), chunks);
     }
 
+    /// <summary>Transfers.</summary>
     internal static CrocomireMeltingPass Transfers(ushort offset)
     {
         if (offset == Header((ushort)CrocomireMeltingHeader.First).TransferStartOffset) return Header((ushort)CrocomireMeltingHeader.First);
@@ -90,7 +94,9 @@ internal static class CrocomireMeltingTransferDefinitions
 /// source. Preserve that native chunk and the caller's inclusive $0201-word copy.</summary>
 internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPass Pass)
 {
+    /// <summary>Gets length.</summary>
     internal int Length => Pass.ChunkCount;
+    /// <summary>Gets an indexed value.</summary>
     internal CrocomireMeltingCopy this[int index]
     {
         get
@@ -101,11 +107,16 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
         }
     }
 
+    /// <summary>Gets enumerator.</summary>
     public Enumerator GetEnumerator() => new(this);
+    /// <summary>Represents enumerator.</summary>
     internal struct Enumerator(CrocomireMeltingCopySequence sequence)
     {
+        /// <summary>Stores index.</summary>
         private int index = -1;
+        /// <summary>Moves next.</summary>
         public bool MoveNext() => ++index < sequence.Length;
+        /// <summary>Gets current.</summary>
         public CrocomireMeltingCopy Current => sequence[index];
     }
 }
@@ -113,7 +124,9 @@ internal readonly record struct CrocomireMeltingCopySequence(CrocomireMeltingPas
 /// in bank $7E, to successive $0100-word VRAM destinations.</summary>
 internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingPass Pass)
 {
+    /// <summary>Gets length.</summary>
     internal int Length => Pass.ChunkCount;
+    /// <summary>Gets an indexed value.</summary>
     internal CrocomireMeltingUpload this[int index]
     {
         get
@@ -126,6 +139,7 @@ internal readonly record struct CrocomireMeltingUploadSequence(CrocomireMeltingP
 /// <summary>Enumerates the two native melt passes without stored records.</summary>
 internal readonly record struct CrocomireMeltingPassSequence()
 {
+    /// <summary>Gets an indexed value.</summary>
     internal CrocomireMeltingPass this[int index] => index switch
     {
         0 => CrocomireMeltingTransferDefinitions.Header((ushort)CrocomireMeltingHeader.First),

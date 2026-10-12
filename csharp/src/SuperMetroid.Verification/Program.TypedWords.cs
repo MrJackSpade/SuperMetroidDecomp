@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static AssertionsVerification;
 
+/// <summary>Represents typed words verification.</summary>
 internal static class TypedWordsVerification
 {
 

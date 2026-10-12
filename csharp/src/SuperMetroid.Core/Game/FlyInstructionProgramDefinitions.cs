@@ -11,8 +11,10 @@ internal abstract class FlyInstructionProgramDefinitions
 
     /// <summary>Four two-frame drawings followed by goto-first-frame.</summary>
     internal const int FrameCount = 4;
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => FrameCount + 2;
 
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -27,6 +29,7 @@ internal abstract class FlyInstructionProgramDefinitions
         int offset = address - (Flight + 2);
         return (uint)offset < 4 * FrameCount && offset % 4 == 0;
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

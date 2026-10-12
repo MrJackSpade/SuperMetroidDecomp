@@ -19,6 +19,7 @@ internal sealed class MenuNmiFrameCounters
     // and scroll clamps write them, never a load. Only the reset vector's wipe clears them.
     // The released camera's whole position is kept with them; the next runtime reads only
     // the fractions.
+    /// <summary>Stores retained layer1 position.</summary>
     private FixedPosition<RoomPixels> retainedLayer1Position;
 
     /// <summary>Clears the counters as the reset vector's bank-$7E wipe does.</summary>

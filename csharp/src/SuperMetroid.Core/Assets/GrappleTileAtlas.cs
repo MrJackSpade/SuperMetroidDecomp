@@ -8,11 +8,17 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     /// <summary>$9A:8220-829F/8A20-8A9F: eight reviewed drawn electric-stroke masks (64 binary rows)
     /// or independently supplied multicolor pixels. Their spur layout is visual content, not beam collision geometry.</summary>
     private readonly byte[] independentTiles;
+    /// <summary>Stores single ink.</summary>
     private readonly bool singleInk;
+    /// <summary>Stores first point.</summary>
     private readonly byte[]? firstPoint;
+    /// <summary>Stores second point.</summary>
     private readonly byte[]? secondPoint;
+    /// <summary>Stores third point.</summary>
     private readonly byte[]? thirdPoint;
+    /// <summary>Stores fourth point.</summary>
     private readonly byte[]? fourthPoint;
+    /// <summary>Stores vertical segments.</summary>
     private readonly byte[]? verticalSegments;
 
     /// <summary>Gets the optional installed Grapple endpoint and beam sprite compositions.</summary>
@@ -23,6 +29,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
 
     /// <summary>Gets the optional installed angle-to-displayed-frame mapping for Samus's swing pose.</summary>
     public GrappleSwingFrameCatalog? SwingFrames { get; }
+    /// <summary>Initializes a new grapple tile atlas instance.</summary>
     private GrappleTileAtlas(byte[] tiles, GrappleSpriteCatalog? sprites, ChargeFlarePlacementCatalog? flarePlacement, GrappleSwingFrameCatalog? swingFrames)
     {
         Sprites = sprites; FlarePlacement = flarePlacement; SwingFrames = swingFrames;
@@ -70,6 +77,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
             _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
         };
     }
+    /// <summary>Segment bytes.</summary>
     private ReadOnlyMemory<byte> SegmentBytes(int offset) => singleInk
         ? GrappleBeamTilePatterns.EncodeInk(independentTiles.AsSpan(offset / 4, 32))
         : independentTiles.AsMemory(offset, 128);

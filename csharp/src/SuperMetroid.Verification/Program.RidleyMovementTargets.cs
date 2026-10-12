@@ -16,8 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SharedSlopeHeightsVerification;
 
+/// <summary>Represents ridley movement targets verification.</summary>
 internal static class RidleyMovementTargetsVerification
 {
+    /// <summary>Verifies ridley movement targets.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley movement targets")]
     internal static void VerifyRidleyMovementTargets(SuperMetroidAddressSpace rom)
     {
@@ -136,12 +138,14 @@ internal static class RidleyMovementTargetsVerification
         Console.WriteLine("Ridley targets: 23 native words, 65536 carry/health cases, 192 side-target motions and 65536 grab approaches pass with migrated reads forbidden.");
     }
 
+    /// <summary>Creates ridley grab divisor read guard.</summary>
     private static CartridgeReadGuard NewRidleyGrabDivisorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa6bb4e and < 0xa6bb56,
                 _ => "Unexpected migrated Ridley grab divisor read.")
             .RejectWrites(_ => "Unexpected Ridley target bus write.");
 
+    /// <summary>Ridley movement target fixture command.</summary>
     [VerificationCommand("--ridley-movement-target-fixture")]
     internal static int RidleyMovementTargetFixtureCommand()
     {

@@ -137,6 +137,7 @@ internal static class PpuLayoutCatalogInventory
         return json.ReplaceLineEndings("\n") + "\n";
     }
 
+    /// <summary>Find.</summary>
     private static PpuLayoutCatalogEntry? Find(IReadOnlyList<PpuLayoutCatalogEntry> entries, PpuLayoutCell cell) =>
         entries.FirstOrDefault(entry => ReferenceEquals(entry.Cell, cell));
 
@@ -149,9 +150,11 @@ internal static class PpuLayoutCatalogInventory
         return false;
     }
 
+    /// <summary>Covers.</summary>
     private static bool Covers(PpuLayoutCell outer, PpuLayoutCell inner) =>
         outer.Region == inner.Region && outer.Offset <= inner.Offset && inner.Offset + inner.Count <= outer.Offset + outer.Count;
 
+    /// <summary>Source files.</summary>
     private static string[] SourceFiles(string repositoryRoot)
     {
         string root = Path.Combine(repositoryRoot, "csharp");

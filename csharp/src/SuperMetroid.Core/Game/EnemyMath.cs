@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Core.Hardware.SnesAddressMath;
 using SuperMetroid.Core.Rooms;
@@ -175,6 +175,7 @@ internal static class EnemyMath
         return (unchecked((short)whole), fraction);
     }
 
+    /// <summary>Reads eight bit cosine fixed product.</summary>
     internal static (short Whole, ushort Fraction) ReadEightBitCosineFixedProduct(
         ushort angle,
         ushort radius) =>
@@ -182,6 +183,7 @@ internal static class EnemyMath
             unchecked((ushort)(angle + SnesAngle.QuarterTurn.TableIndex)),
             radius);
 
+    /// <summary>Reads eight bit negative sine fixed product.</summary>
     internal static (short Whole, ushort Fraction) ReadEightBitNegativeSineFixedProduct(
         ushort angle,
         ushort radius) =>
@@ -208,10 +210,12 @@ internal static class EnemyMath
         return unchecked((int)product);
     }
 
+    /// <summary>Multiply cartridge sin cos.</summary>
     internal static ushort MultiplyCartridgeSinCos(ushort speed, byte angle)
     {
         return EnemyTrigonometryTables.MultiplySignedSine(speed, angle);
     }
 
+    /// <summary>Checks whether the 16-bit value is negative.</summary>
     internal static bool IsNegative16(int value) => (short)unchecked((ushort)value) < 0;
 }

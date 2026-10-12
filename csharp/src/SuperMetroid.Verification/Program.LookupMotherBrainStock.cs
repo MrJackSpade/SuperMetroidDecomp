@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup mother brain stock verification.</summary>
 internal static class LookupMotherBrainStockVerification
 {
+    /// <summary>Verifies mother brain stock mapping.</summary>
     internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainFakeDeathVisualCatalog installed)
     {
@@ -87,6 +89,7 @@ internal static class LookupMotherBrainStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainFakeDeathVisualCatalog(entries), "MotherBrainFakeDeath visual bits only");
     }
 
+    /// <summary>Mother brain stock mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain stock mapping")]
     private static byte MotherBrainStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 

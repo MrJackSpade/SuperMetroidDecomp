@@ -10,8 +10,10 @@ namespace SuperMetroid.Core.Assets;
 /// </summary>
 public sealed class GameplayMessageTitlePresentation
 {
+    /// <summary>Stores titles.</summary>
     private readonly Dictionary<GameplayMessageId, CompiledTitle> titles;
 
+    /// <summary>Initializes a new gameplay message title presentation instance.</summary>
     private GameplayMessageTitlePresentation(
         Dictionary<GameplayMessageId, CompiledTitle> titles,
         ushort[] border,
@@ -22,6 +24,7 @@ public sealed class GameplayMessageTitlePresentation
         ContentIdentity = contentIdentity;
     }
 
+    /// <summary>Gets border.</summary>
     private ushort[] Border { get; }
     /// <summary>Uppercase SHA-256 of the exact source JSON bytes read during loading, including formatting and property order rather than only compiled title content.</summary>
     public string ContentIdentity { get; }
@@ -136,6 +139,7 @@ public sealed class GameplayMessageTitlePresentation
         output.Write(bytes);
     }
 
+    /// <summary>Compile glyph.</summary>
     internal static ushort CompileGlyph(char character, int palette)
     {
         ushort tile = character switch
@@ -152,6 +156,7 @@ public sealed class GameplayMessageTitlePresentation
             GameplayMessageTitleDefinitions.PriorityWord | palette << 10));
     }
 
+    /// <summary>Decode glyph.</summary>
     internal static char DecodeGlyph(ushort word)
     {
         ushort tile = (ushort)(word & 0x03ff);
@@ -169,6 +174,7 @@ public sealed class GameplayMessageTitlePresentation
         };
     }
 
+    /// <summary>Represents compiled title.</summary>
     private sealed record CompiledTitle(string Text, int Palette);
 }
 

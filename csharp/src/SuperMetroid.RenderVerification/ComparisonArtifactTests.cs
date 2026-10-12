@@ -9,6 +9,7 @@ using SuperMetroid.Rendering.Direct3D11;
 /// </summary>
 internal static class ComparisonArtifactTests
 {
+    /// <summary>Runs the scoped verification checks.</summary>
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
     {
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new Rgba32(31, 73, 127));

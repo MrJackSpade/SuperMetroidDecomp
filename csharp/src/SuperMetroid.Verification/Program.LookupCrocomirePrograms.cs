@@ -2,14 +2,18 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup crocomire programs verification.</summary>
 internal static class LookupCrocomireProgramsVerification
 {
+    /// <summary>Verifies crocomire program controls.</summary>
     internal static void VerifyCrocomireProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, false));
 
+    /// <summary>Verifies crocomire program draws.</summary>
     internal static void VerifyCrocomireProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, true));
 
+    /// <summary>Verifies crocomire program field.</summary>
     private static void VerifyCrocomireProgramField(ISnesAddressSpace rom, bool draw)
     {
         ushort[] controls = [0xafca, 0xafce, 0xafd0, 0xafd4, 0xafd6, 0xafda, 0xafdc, 0xafe0, 0xafe2, 0xafe6];
@@ -33,6 +37,7 @@ internal static class LookupCrocomireProgramsVerification
         }
     }
 
+    /// <summary>Crocomire program field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire program field")]
     private static byte CrocomireProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

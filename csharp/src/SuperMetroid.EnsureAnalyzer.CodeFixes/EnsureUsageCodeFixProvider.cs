@@ -52,6 +52,7 @@ public sealed class EnsureUsageCodeFixProvider : CodeFixProvider
         }
     }
 
+    /// <summary>remove manual name.</summary>
     private static (SyntaxNode, SyntaxNode)? RemoveManualName(SyntaxNode node)
     {
         if (node.FirstAncestorOrSelf<ArgumentSyntax>() is not { Parent: ArgumentListSyntax list } argument)
@@ -59,6 +60,7 @@ public sealed class EnsureUsageCodeFixProvider : CodeFixProvider
         return (list, list.WithArguments(list.Arguments.Remove(argument)));
     }
 
+    /// <summary>guard replacement.</summary>
     private static (SyntaxNode, SyntaxNode)? GuardReplacement(SyntaxNode node, SemanticModel model, CancellationToken token)
     {
         // ArgumentNullException.ThrowIfNull(value) and ArgumentOutOfRangeException.ThrowIfNegative(value).
@@ -116,6 +118,7 @@ public sealed class EnsureUsageCodeFixProvider : CodeFixProvider
         return (statement, SyntaxFactory.ExpressionStatement(call));
     }
 
+    /// <summary>ensure call.</summary>
     private static InvocationExpressionSyntax EnsureCall(
         SemanticModel model, SyntaxNode site, string operation, params ExpressionSyntax[] arguments)
     {
@@ -128,12 +131,15 @@ public sealed class EnsureUsageCodeFixProvider : CodeFixProvider
                 arguments.Select(argument => SyntaxFactory.Argument(argument.WithoutTrivia())))));
     }
 
+    /// <summary>is reference.</summary>
     private static bool IsReference(SemanticModel model, ExpressionSyntax value, CancellationToken token) =>
         model.GetTypeInfo(value, token).Type is { IsReferenceType: true, TypeKind: not TypeKind.TypeParameter };
 
+    /// <summary>is int32.</summary>
     private static bool IsInt32(SemanticModel model, ExpressionSyntax value, CancellationToken token) =>
         model.GetTypeInfo(value, token).Type?.SpecialType == SpecialType.System_Int32;
 
+    /// <summary>converts to span.</summary>
     private static bool ConvertsToSpan(SemanticModel model, ExpressionSyntax value, CancellationToken token) =>
         model.GetTypeInfo(value, token).Type switch
         {

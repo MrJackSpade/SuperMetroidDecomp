@@ -6,6 +6,7 @@ using SuperMetroid.Core.Spatial;
 /// <summary>Constructs a bounded source-room boundary; subsequent frames use the frontend door owner.</summary>
 internal static class MaridiaPipeIncomingDoorSeed
 {
+    /// <summary>Applies.</summary>
     public static void Apply(SuperMetroidRuntime runtime, ISnesAddressSpace bus, CartridgeDoorHeader door)
     {
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom);

@@ -8,11 +8,16 @@ namespace SuperMetroid.Core.Frontend;
 /// <summary>Cartridge-scripted Ceres laboratory vignette between intro pages three and four.</summary>
 internal sealed class IntroScientistCutsceneState
 {
+    /// <summary>Stores baby.</summary>
     private readonly IntroDiscoverySprite baby;
+    /// <summary>Stores audio.</summary>
     private readonly CartridgeAudioState? audio;
+    /// <summary>Stores kind.</summary>
     private readonly ScientistSceneKind kind;
+    /// <summary>Stores instruction word.</summary>
     private readonly Func<ushort, ushort> instructionWord;
 
+    /// <summary>Initializes a new intro scientist cutscene state instance.</summary>
     private IntroScientistCutsceneState(ScientistSceneKind kind, CartridgeAudioState? audio,
         Func<ushort, ushort>? instructionWord)
     {
@@ -37,20 +42,26 @@ internal sealed class IntroScientistCutsceneState
     /// <summary>The laboratory page's BG1 scroll.</summary>
     public Position16<RoomPixels> Background { get; private set; }
 
+    /// <summary>Gets tilemap base word.</summary>
     public ushort TilemapBaseWord { get; }
 
+    /// <summary>Gets or sets page four requested.</summary>
     public bool PageFourRequested { get; private set; }
 
+    /// <summary>Gets or sets page five requested.</summary>
     public bool PageFiveRequested { get; private set; }
 
+    /// <summary>create delivery.</summary>
     public static IntroScientistCutsceneState CreateDelivery(CartridgeAudioState? audio = null,
         Func<ushort, ushort>? instructionWord = null) =>
         new(ScientistSceneKind.Delivery, audio, instructionWord);
 
+    /// <summary>create examination.</summary>
     public static IntroScientistCutsceneState CreateExamination(CartridgeAudioState? audio = null,
         Func<ushort, ushort>? instructionWord = null) =>
         new(ScientistSceneKind.Examination, audio, instructionWord);
 
+    /// <summary>step.</summary>
     public void Step(
         ushort cinematicFunctionTimer,
         ushort introCrossfadeTimer)
@@ -87,10 +98,12 @@ internal sealed class IntroScientistCutsceneState
         baby.Step<IntroScientistBabyInstruction>(HandleInstruction, instructionWord);
     }
 
+    /// <summary>draw.</summary>
     public void Draw(OamBuffer oam,
         IntroScientistSpritePresentation? installedArt = null) =>
         baby.Draw(oam, installedArt: installedArt);
 
+    /// <summary>handle instruction.</summary>
     private ushort HandleInstruction(IntroScientistBabyInstruction opcode, ushort argumentPointer)
     {
         switch (opcode)
@@ -123,9 +136,12 @@ internal sealed class IntroScientistCutsceneState
         }
     }
 
+    /// <summary>Represents scientist scene kind.</summary>
     private enum ScientistSceneKind
     {
+        /// <summary>Identifies delivery.</summary>
         Delivery,
+        /// <summary>Identifies examination.</summary>
         Examination,
     }
 }

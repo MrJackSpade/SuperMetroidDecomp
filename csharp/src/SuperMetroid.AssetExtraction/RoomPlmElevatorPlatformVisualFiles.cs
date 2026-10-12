@@ -18,8 +18,10 @@ public static class RoomPlmElevatorPlatformVisualFiles
     public const string VisualFileName = "elevator-platforms.json";
     /// <summary>Stock manifest filename containing version-one format, cartridge provenance, and the visual JSON's SHA-256.</summary>
     public const string ManifestFileName = "manifest.json";
+    /// <summary>Stores format version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -95,6 +97,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
     /// <exception cref="InvalidDataException">Stock provenance, integrity, schema, or compiled appearance checks fail.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Reads and verify native.</summary>
     private static RoomPlmElevatorPlatformVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         var entries = new List<RoomPlmElevatorPlatformVisualEntry>();
@@ -136,6 +139,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         return entries.ToArray();
     }
 
+    /// <summary>Verifies stock matches compiled.</summary>
     private static void VerifyStockMatchesCompiled(RoomPlmElevatorPlatformVisualCatalog catalog,
         string path)
     {
@@ -153,6 +157,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
         }
     }
 
+    /// <summary>Creates catalog.</summary>
     private static RoomPlmElevatorPlatformVisualCatalog CreateCatalog(
         VisualDocument document, string path)
     {
@@ -166,7 +171,9 @@ public static class RoomPlmElevatorPlatformVisualFiles
         }
     }
 
+    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(string path) => ReadJson<T>(File.ReadAllBytes(path), path);
+    /// <summary>Reads json.</summary>
     private static T ReadJson<T>(byte[] bytes, string path)
     {
         try
@@ -180,7 +187,9 @@ public static class RoomPlmElevatorPlatformVisualFiles
         }
     }
 
+    /// <summary>Represents visual manifest.</summary>
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
+    /// <summary>Represents visual document.</summary>
     private sealed record VisualDocument(int Version, RoomPlmElevatorPlatformVisualEntry[] Entries);
 }

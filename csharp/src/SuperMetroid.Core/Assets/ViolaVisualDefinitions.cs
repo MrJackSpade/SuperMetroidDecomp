@@ -10,8 +10,10 @@ internal static class ViolaVisualDefinitions
 {
     /// <summary>Native Viola spritemap bank.</summary>
     internal const byte Bank = 0xa3;
+    /// <summary>Defines frame count.</summary>
     internal const int FrameCount = 8;
 
+    /// <summary>frames.</summary>
     internal static EnemySpritemapDefinition[] Frames()
     {
         var seen = new HashSet<ushort>();

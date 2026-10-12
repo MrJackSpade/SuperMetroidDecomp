@@ -133,6 +133,7 @@ public static class SamusHurtFlashPalette
         return queued;
     }
 
+    /// <summary>Recover interrupted sound.</summary>
     private static SamusHurtFlashRecoveryAction RecoverInterruptedSound(
         ISnesAddressSpace bus,
         SamusState samus,

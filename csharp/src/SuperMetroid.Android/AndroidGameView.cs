@@ -15,20 +15,34 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidGameView : View
 {
+    /// <summary>Stores bitmap.</summary>
     private readonly Bitmap bitmap = Bitmap.CreateBitmap(FrontendFrame.Width, FrontendFrame.Height, Bitmap.Config.Argb8888!)!;
+    /// <summary>Stores pixels.</summary>
     private readonly Paint pixels = new() { FilterBitmap = false, AntiAlias = false };
+    /// <summary>Stores text.</summary>
     private readonly Paint text = new() { Color = Color.White, TextSize = 24, AntiAlias = true };
+    /// <summary>Stores argb.</summary>
     private readonly int[] argb = new int[FrontendFrame.Width * FrontendFrame.Height];
+    /// <summary>Stores frames.</summary>
     private readonly AndroidFrameMailbox frames = new(FrontendFrame.Width * FrontendFrame.Height, new AndroidFrameHandoffTrace());
+    /// <summary>Stores upload frame.</summary>
     private readonly Action<Rgba32[]> uploadFrame;
+    /// <summary>Stores status.</summary>
     private string status = "Starting game...";
+    /// <summary>Stores room identity.</summary>
     private string roomIdentity = "No active room";
+    /// <summary>Stores paint count.</summary>
     private long paintCount;
+    /// <summary>Stores draw ticks.</summary>
     private long drawTicks;
+    /// <summary>Stores upload ticks.</summary>
     private long uploadTicks;
+    /// <summary>Stores replaced frames.</summary>
     private long replacedFrames;
+    /// <summary>Stores presentation active.</summary>
     private bool presentationActive;
 
+    /// <summary>Initializes a new android game view instance.</summary>
     public AndroidGameView(Context context) : base(context)
     {
         uploadFrame = UploadFrame;
@@ -37,6 +51,7 @@ internal sealed class AndroidGameView : View
         KeepScreenOn = true;
     }
 
+    /// <summary>Gets paint count.</summary>
     public long PaintCount => Interlocked.Read(ref paintCount);
     /// <summary>Cumulative UI-thread time; excludes deferred GPU execution after OnDraw returns.</summary>
     public long DrawTicks => Interlocked.Read(ref drawTicks);
@@ -44,6 +59,7 @@ internal sealed class AndroidGameView : View
     public long UploadTicks => Interlocked.Read(ref uploadTicks);
     /// <summary>Published game frames replaced before the UI consumed them; never simulation steps skipped.</summary>
     public long ReplacedFrames => Interlocked.Read(ref replacedFrames);
+    /// <summary>flush frame trace.</summary>
     public void FlushFrameTrace(Action<string> write) => frames.FlushTrace(write);
 
     /// <summary>Updated per emulated frame; not delayed by the one-second FPS window.</summary>
@@ -59,6 +75,7 @@ internal sealed class AndroidGameView : View
         if (value) PostInvalidateOnAnimation();
     }
 
+    /// <summary>publish.</summary>
     public void Publish(Rgba32[] frame, string description)
     {
         Volatile.Write(ref status, description);
@@ -67,12 +84,14 @@ internal sealed class AndroidGameView : View
         PostInvalidateOnAnimation();
     }
 
+    /// <summary>show status.</summary>
     public void ShowStatus(string description)
     {
         Volatile.Write(ref status, description);
         PostInvalidateOnAnimation();
     }
 
+    /// <summary>on draw.</summary>
     protected override void OnDraw(Canvas canvas)
     {
         long drawStart = Stopwatch.GetTimestamp();
@@ -101,6 +120,7 @@ internal sealed class AndroidGameView : View
         if (Volatile.Read(ref presentationActive)) PostInvalidateOnAnimation();
     }
 
+    /// <summary>upload frame.</summary>
     private void UploadFrame(Rgba32[] frame)
     {
         long uploadStart = Stopwatch.GetTimestamp();
@@ -113,6 +133,7 @@ internal sealed class AndroidGameView : View
         Interlocked.Add(ref uploadTicks, Stopwatch.GetTimestamp() - uploadStart);
     }
 
+    /// <summary>Releases resources held by this instance.</summary>
     protected override void Dispose(bool disposing)
     {
         if (disposing)

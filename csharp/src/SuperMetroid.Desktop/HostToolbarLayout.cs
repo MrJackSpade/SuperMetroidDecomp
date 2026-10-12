@@ -13,8 +13,10 @@ internal static class HostToolbarLayout
     // The timing string is deliberately complete at the default 900-pixel host width. It
     // still has a fixed width, so neither changing rates nor a longer worst-frame value can
     // recenter the canvas as the old auto-sized diagnostic label did.
+    /// <summary>Stores status label width.</summary>
     private const int StatusLabelWidth = 390;
 
+    /// <summary>Creates status label.</summary>
     public static ToolStripLabel CreateStatusLabel() => new()
     {
         AutoSize = false,

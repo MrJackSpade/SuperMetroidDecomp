@@ -58,13 +58,17 @@ public static class MotherBrainCorpseArtworkDefinitions
     public static int InitialCopyLength(int row) => (uint)row < RowCount
         ? (row < 4 ? ColumnCount - 1 : ColumnCount) * TileBytes : throw new IndexOutOfRangeException();
 
+    /// <summary>Stores rot transfers.</summary>
     private static readonly RotTransferList rotTransfers = new();
     /// <summary>$A9:E1F4-$E225: six transfers, recalculated from the visible tile columns per row.</summary>
     public static IReadOnlyList<MotherBrainSpriteTileTransferRequest> RotTransfers => rotTransfers;
 
+    /// <summary>Represents rot transfer list.</summary>
     private sealed class RotTransferList : IReadOnlyList<MotherBrainSpriteTileTransferRequest>
     {
+        /// <summary>Gets count.</summary>
         public int Count => RowCount;
+        /// <summary>Gets an indexed value.</summary>
         public MotherBrainSpriteTileTransferRequest this[int row]
         {
             get
@@ -77,10 +81,12 @@ public static class MotherBrainCorpseArtworkDefinitions
                     (ushort)(FirstVramPage + row * VramPageWords + (RightFrameColumn + firstColumn) * TileBytes / 2));
             }
         }
+        /// <summary>Returns an enumerator over this sequence.</summary>
         public IEnumerator<MotherBrainSpriteTileTransferRequest> GetEnumerator()
         {
             for (int row = 0; row < Count; row++) yield return this[row];
         }
+        /// <summary>Returns an enumerator over this sequence.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

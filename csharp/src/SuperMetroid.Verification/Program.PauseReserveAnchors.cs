@@ -8,8 +8,10 @@ using static DoorDefinitionsVerification;
 using static MapSpritesVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents pause reserve anchors verification.</summary>
 internal static class PauseReserveAnchorsVerification
 {
+    /// <summary>Verifies pause reserve anchors.</summary>
     internal static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
@@ -22,6 +24,7 @@ internal static class PauseReserveAnchorsVerification
             AssertThrows<IndexOutOfRangeException>(() => stock.Anchor(invalid), "reserve anchor array boundary preserved");
     }
 
+    /// <summary>Verifies pause reserve anchor field.</summary>
     private static void VerifyPauseReserveAnchorField(ISnesAddressSpace rom, PauseReserveTankDocument document,
         PauseReserveTankPresentation stock, bool horizontal)
     {

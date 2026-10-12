@@ -23,7 +23,9 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
     /// <summary><c>InstList_PirateWalking_LookingAround_FacingRight</c> at $B2:FC48.</summary>
     internal const ushort LookingFacingRight = 0xfc48;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 92;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 50;
 
     /// <summary>Walking Space Pirate pose holds. Reviewed under #1165 as authored animation cadence: the interpreter loads each value into the instruction timer and no simulation quantity derives it.</summary>
@@ -31,12 +33,14 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
     /// <summary>$B2:FBA2/FBAA/FBB2: laser Y offsets 8/2/-8 at the gun barrel of each drawn aim pose. The +/-8 symmetry calculates; the barrel heights are placement attached to the artwork (reviewed under #1165).</summary>
     private const short OuterShotOffset = 8, MiddleShotOffset = 2;
 
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
         return Select(index, visual: false);
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -86,18 +90,24 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Represents layout.</summary>
     private ref struct Layout(int requested, bool visual, ushort start)
     {
+        /// <summary>Stores cursor.</summary>
         private ushort cursor = start;
+        /// <summary>Stores mechanics.</summary>
         private int mechanics, presentation;
+        /// <summary>Gets or sets result.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
 
+        /// <summary>Word.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(cursor, value);
             mechanics++;
             cursor += 2;
         }
+        /// <summary>Pose.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
@@ -105,11 +115,13 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
             presentation++;
             cursor += 2;
         }
+        /// <summary>Installs function.</summary>
         internal void InstallFunction(WalkingSpacePirateFunction function)
         {
             Word((ushort)SpacePirateInstruction.PirateWalking_FunctionInY);
             Word((ushort)function);
         }
+        /// <summary>Goto.</summary>
         internal void Goto(ushort target)
         {
             Word((ushort)CommonEnemyInstruction.Goto);
@@ -117,6 +129,7 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0, high = MechanicsWordCount - 1;

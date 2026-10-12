@@ -12,7 +12,9 @@ internal abstract class KraidLintInstructionProgramDefinitions
     /// <summary><c>kKraid_Ilist_8B04</c> at $A7:8B04.</summary>
     internal const ushort PostGrowth = 0x8b04;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 4;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Two six-byte poses each contain duration, visual operand and Sleep.
@@ -31,6 +33,7 @@ internal abstract class KraidLintInstructionProgramDefinitions
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
         return (ushort)(Initial + 6 * index + 2);
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

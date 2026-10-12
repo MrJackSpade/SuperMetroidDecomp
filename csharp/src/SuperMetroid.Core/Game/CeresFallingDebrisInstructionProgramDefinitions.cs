@@ -25,7 +25,9 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions
     /// </summary>
     internal const ushort Dark = 0x9756;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 4;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>Two six-byte programs each display one frame for one tick, then sleep.</summary>
@@ -49,10 +51,12 @@ internal abstract class CeresFallingDebrisInstructionProgramDefinitions
             throw new IndexOutOfRangeException();
         return (ushort)(Light + 6 * index + 2);
     }
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind) => kind is
         RoomEnemyProjectileKind.CeresFallingDebrisLight or
         RoomEnemyProjectileKind.CeresFallingDebrisDark;
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

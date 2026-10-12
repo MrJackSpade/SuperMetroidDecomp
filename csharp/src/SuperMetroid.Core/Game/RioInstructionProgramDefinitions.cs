@@ -32,8 +32,11 @@ internal abstract class RioInstructionProgramDefinitions
     /// <summary>$A2:BB7F-BBB3 swoop and recovery instruction cadence. Reviewed under #1165 as authored animation cadence: the interpreter loads it into the instruction timer and no simulation quantity derives it.</summary>
     private const ushort SwoopFrameDuration = 3;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => PresentationWordCount + 8;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => IdleFrameCount + 2 * TransitionFrameCount + SwoopLoopFrameCount;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -51,11 +54,13 @@ internal abstract class RioInstructionProgramDefinitions
             RioInstructionCodes.SetAnimationFinished, (ushort)CommonEnemyInstruction.Sleep);
     }
 
+    /// <summary>Block word.</summary>
     private static InstructionMechanicsWord BlockWord(ushort start, int frames, int index,
         ushort duration, ushort firstTail, ushort lastTail) => index < frames
             ? new((ushort)(start + index * 4), duration)
             : new((ushort)(start + frames * 4 + (index - frames) * 2), index == frames ? firstTail : lastTail);
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -66,6 +71,7 @@ internal abstract class RioInstructionProgramDefinitions
         return index < SwoopLoopFrameCount ? (ushort)(SwoopingPart2 + index * 4 + 2)
             : (ushort)(SwoopCooldown + (index - SwoopLoopFrameCount) * 4 + 2);
     }
+    /// <summary>Checks whether an address identifies a presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         for (int index = 0; index < PresentationWordCount; index++)
@@ -77,6 +83,7 @@ internal abstract class RioInstructionProgramDefinitions
         return false;
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

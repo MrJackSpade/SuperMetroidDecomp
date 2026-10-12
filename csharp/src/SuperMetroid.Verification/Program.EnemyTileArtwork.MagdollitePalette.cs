@@ -6,8 +6,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents enemy tile artwork magdollite palette verification.</summary>
 internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
+    /// <summary>Verifies installed magdollite palette cycle.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Magdollite palette cycle")]
     internal static void VerifyInstalledMagdollitePaletteCycle(

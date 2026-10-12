@@ -13,6 +13,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
+/// <summary>Represents bomb jump run momentum verification.</summary>
 internal static class BombJumpRunMomentumVerification
 {
     /// <summary>
@@ -43,6 +44,7 @@ internal static class BombJumpRunMomentumVerification
         Console.WriteLine("  Bomb-jump run momentum: the forward-jump pose decelerates retained dash speed.");
     }
 
+    /// <summary>Bomb jump run momentum command.</summary>
     [VerificationCommand("--bomb-jump-run-momentum")]
     internal static int BombJumpRunMomentumCommand()
     {

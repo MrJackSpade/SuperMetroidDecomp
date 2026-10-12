@@ -8,8 +8,10 @@ using static IntroMotherBrainInputSourceVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents intro mother brain input definitions verification.</summary>
 internal static class IntroMotherBrainInputDefinitionsVerification
 {
+    /// <summary>verify intro mother brain demo input.</summary>
     internal static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
@@ -84,16 +86,20 @@ internal static class IntroMotherBrainInputDefinitionsVerification
 
     }
 
+    /// <summary>intro mother brain demo input rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain demo input")]
     private static byte IntroMotherBrainDemoInputRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>The flashback demo's end routine over either instruction source (#633).</summary>
     internal sealed class FlashbackEndDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
     {
+        /// <summary>read instruction word.</summary>
         public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
 
+        /// <summary>try run pre instruction.</summary>
         public bool TryRunPreInstruction(DemoInputState demo, ushort pointer) => false;
 
+        /// <summary>run special instruction.</summary>
         public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor)
         {
             if (opcode != IntroCinematicRomData.Flashback.ExpectedEndInstruction)

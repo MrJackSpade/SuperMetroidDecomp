@@ -17,6 +17,7 @@ internal static class TorizoPaletteDefinitions
     /// row fifteen's nine to eleven, thirteen and fourteen are single repeated fill colors.
     /// </summary>
     internal static ReadOnlySpan<Bgr555> SharedRows => SharedRowsColors;
+    /// <summary>Stores shared rows colors.</summary>
     private static readonly Bgr555[] SharedRowsColors =
     [
         Bgr555.FromWord(0x3800), Bgr555.FromWord(0x03ff), Bgr555.FromWord(0x033b), Bgr555.FromWord(0x0216), Bgr555.FromWord(0x0113), Bgr555.FromWord(0x6b1e), Bgr555.FromWord(0x4a16), Bgr555.FromWord(0x3591),
@@ -26,6 +27,7 @@ internal static class TorizoPaletteDefinitions
     ];
     /// <summary>$AA:86C7/$86E7, Bomb Torizo's initial (statue) body rows nine and ten.</summary>
     internal static ReadOnlySpan<Bgr555> BombInitial => BombInitialColors;
+    /// <summary>Stores bomb initial colors.</summary>
     private static readonly Bgr555[] BombInitialColors =
     [
         Bgr555.FromWord(0x3800), Bgr555.FromWord(0x679f), Bgr555.FromWord(0x5299), Bgr555.FromWord(0x252e), Bgr555.FromWord(0x14aa), Bgr555.FromWord(0x5efc), Bgr555.FromWord(0x4657), Bgr555.FromWord(0x35b2),
@@ -35,6 +37,7 @@ internal static class TorizoPaletteDefinitions
     ];
     /// <summary>$AA:8707/$8727, normal body targets loaded by $AA:C268.</summary>
     internal static ReadOnlySpan<Bgr555> Normal => NormalColors;
+    /// <summary>Stores normal colors.</summary>
     private static readonly Bgr555[] NormalColors =
     [
         Bgr555.FromWord(0x3800), Bgr555.FromWord(0x56ba), Bgr555.FromWord(0x41b2), Bgr555.FromWord(0x1447), Bgr555.FromWord(0x0403), Bgr555.FromWord(0x4e15), Bgr555.FromWord(0x3570), Bgr555.FromWord(0x24cb),
@@ -47,6 +50,7 @@ internal static class TorizoPaletteDefinitions
     /// the first live damage callback switches to bank $84's health-indexed gradient.
     /// </summary>
     internal static ReadOnlySpan<Bgr555> GoldenInitial => GoldenInitialColors;
+    /// <summary>Stores golden initial colors.</summary>
     private static readonly Bgr555[] GoldenInitialColors =
     [
         Bgr555.FromWord(0x3800), Bgr555.FromWord(0x6ab5), Bgr555.FromWord(0x49b0), Bgr555.FromWord(0x1c45), Bgr555.FromWord(0x0c01), Bgr555.FromWord(0x5613), Bgr555.FromWord(0x416d), Bgr555.FromWord(0x2cc9),
@@ -56,6 +60,7 @@ internal static class TorizoPaletteDefinitions
     ];
     /// <summary>$AA:8787/$87A7, Golden body targets loaded by $AA:C298.</summary>
     internal static ReadOnlySpan<Bgr555> Golden => GoldenColors;
+    /// <summary>Stores golden colors.</summary>
     private static readonly Bgr555[] GoldenColors =
     [
         Bgr555.FromWord(0x3800), Bgr555.FromWord(0x4bbe), Bgr555.FromWord(0x06b9), Bgr555.FromWord(0x00a8), Bgr555.FromWord(0x0000), Bgr555.FromWord(0x173a), Bgr555.FromWord(0x0276), Bgr555.FromWord(0x01f2),

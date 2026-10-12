@@ -2,14 +2,18 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents fake kraid spit velocities verification.</summary>
 internal static class FakeKraidSpitVelocitiesVerification
 {
+    /// <summary>Verifies fake kraid spit horizontal velocity.</summary>
     internal static void VerifyFakeKraidSpitHorizontalVelocity(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 0, launch => launch.X.RawValue));
 
+    /// <summary>Verifies fake kraid spit vertical velocity.</summary>
     internal static void VerifyFakeKraidSpitVerticalVelocity(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 2, launch => launch.Y.RawValue));
 
+    /// <summary>Verifies fake kraid spit velocity field.</summary>
     private static void VerifyFakeKraidSpitVelocityField(
         SuperMetroidAddressSpace rom, int fieldOffset, Func<EightEightVector<RoomPixels>, ushort> select)
     {
@@ -29,6 +33,7 @@ internal static class FakeKraidSpitVelocitiesVerification
         }
     }
 
+    /// <summary>Fake kraid spit velocity field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid spit velocity field")]
     private static byte FakeKraidSpitVelocityFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

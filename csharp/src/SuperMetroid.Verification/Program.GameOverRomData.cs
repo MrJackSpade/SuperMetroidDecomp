@@ -14,6 +14,7 @@ using static AssertionsVerification;
 using static RetailPresentationFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents game over rom data verification.</summary>
 internal static class GameOverRomDataVerification
 {
     /// <summary>
@@ -123,6 +124,7 @@ internal static class GameOverRomDataVerification
             "music wait, cursor, and frame geometry agree.");
     }
 
+    /// <summary>Game over fixture command.</summary>
     [VerificationCommand("--game-over-fixture")]
     internal static int GameOverFixtureCommand()
     {

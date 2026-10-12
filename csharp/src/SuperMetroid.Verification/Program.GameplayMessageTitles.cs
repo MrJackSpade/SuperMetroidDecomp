@@ -15,8 +15,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents gameplay message titles verification.</summary>
 internal static class GameplayMessageTitlesVerification
 {
+    /// <summary>Verifies gameplay message titles.</summary>
     internal static void VerifyGameplayMessageTitles(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -81,14 +83,17 @@ internal static class GameplayMessageTitlesVerification
             $"Gameplay-message titles: {GameplayMessageTitleDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; live edit/rebind and invalid glyph rejection pass.");
     }
 
+    /// <summary>Gameplay message titles rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay message titles")]
     private static byte GameplayMessageTitlesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>New forbidden gameplay message bus.</summary>
     internal static CartridgeReadGuard NewForbiddenGameplayMessageBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed gameplay-message title read cartridge address ${address:X6}.")
             .RejectWrites(address => $"Installed gameplay-message title wrote cartridge address ${address:X6}.");
 
+    /// <summary>Gameplay message titles command.</summary>
     [VerificationCommand("--gameplay-message-titles")]
     internal static int GameplayMessageTitlesCommand()
     {

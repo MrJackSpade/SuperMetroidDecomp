@@ -5,8 +5,10 @@ using System.Reflection;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents grapple endpoint geometry verification.</summary>
 internal static class GrappleEndpointGeometryVerification
 {
+    /// <summary>Verifies grapple endpoint geometry.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyGrappleEndpointGeometry(ISnesAddressSpace bus)
     {
@@ -54,6 +56,7 @@ internal static class GrappleEndpointGeometryVerification
         Console.WriteLine("Grapple endpoint geometry: 360 pose/camera/wrapped-coordinate cases and actual actor pose handoff match native clipping, borrow and OAM attributes.");
     }
 
+    /// <summary>Verifies grapple endpoint actor.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyGrappleEndpointActor(SuperMetroidAddressSpace bus)
     {

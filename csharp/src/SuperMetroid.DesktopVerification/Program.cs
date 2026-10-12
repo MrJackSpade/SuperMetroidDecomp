@@ -15,6 +15,7 @@ using static RendererStartupTests;
 /// <summary>Hidden-HWND integration checks: no visible window, native dialog, or player save mutation.</summary>
 internal static class Program
 {
+    /// <summary>Main.</summary>
     [STAThread]
     private static void Main(string[] args)
     {
@@ -31,6 +32,7 @@ internal static class Program
         }
     }
 
+    /// <summary>Runs.</summary>
     private static void Run(string[] args)
     {
         NativeConsoleErrors.DisableDialogs();

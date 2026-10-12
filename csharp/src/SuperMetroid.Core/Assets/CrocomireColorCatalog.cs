@@ -21,10 +21,13 @@ public sealed class CrocomireColorCatalog
         Append(content, Band.WallSpikes, "wallSpikes");
     });
 
-    private enum Band { FightBody, InitialWall, InitialProjectile, SkeletonArm, WallSpikes }
+    /// <summary>Represents band.</summary>
+    private enum Band { /** <summary>Identifies fight body.</summary> */ FightBody, /** <summary>Identifies initial wall.</summary> */ InitialWall, /** <summary>Identifies initial projectile.</summary> */ InitialProjectile, /** <summary>Identifies skeleton arm.</summary> */ SkeletonArm, /** <summary>Identifies wall spikes.</summary> */ WallSpikes }
     // Only independently supplied differences are stored; every stock ink calculates.
+    /// <summary>Stores edits.</summary>
     private readonly Dictionary<(Band Band, int Color), Bgr555> edits = [];
 
+    /// <summary>Initializes a new crocomire color catalog instance.</summary>
     private CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
         Bgr555[] initialProjectile, Bgr555[] skeletonArm, Bgr555[] wallSpikes)
     {
@@ -45,6 +48,7 @@ public sealed class CrocomireColorCatalog
         Band.WallSpikes => CrocomirePaintDefinitions.WallSpikes(color),
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
+    /// <summary>Count.</summary>
     private static int Count(Band band) => band switch
     {
         Band.FightBody => CrocomirePaletteRomData.FightBodyCount,
@@ -55,12 +59,14 @@ public sealed class CrocomireColorCatalog
         _ => throw new ArgumentOutOfRangeException(nameof(band)),
     };
 
+    /// <summary>Append.</summary>
     private void Append(SelectedPresentationHash content, Band band, string label)
     {
         Span<Bgr555> transfer = stackalloc Bgr555[Count(band)];
         for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
         content.AppendColors(label, transfer);
     }
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -127,17 +133,20 @@ public sealed class CrocomireColorCatalog
         return bytes;
     }
 
+    /// <summary>Gets.</summary>
     private Bgr555 Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue((band, index), out Bgr555 edited) ? edited : Stock(band, index);
     }
 
+    /// <summary>Applies.</summary>
     private void Apply(CgramPalette destination, Band band)
     {
         for (int color = 0; color < Count(band); color++)
             destination.Write(color, Get(band, color));
     }
+    /// <summary>Compile.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {
         if (source is null || source.Length != count)
@@ -155,6 +164,7 @@ public sealed class CrocomireColorCatalog
         return compiled;
     }
 
+    /// <summary>Rejects duplicates.</summary>
     private static void RejectDuplicates(JsonElement value) =>
         JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
             name => new InvalidDataException($"Duplicate Crocomire color property {name}."));

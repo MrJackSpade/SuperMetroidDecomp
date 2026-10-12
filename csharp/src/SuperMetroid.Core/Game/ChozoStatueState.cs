@@ -33,8 +33,10 @@ public enum ChozoStatuePreInstruction : ushort
 /// </summary>
 public sealed class ChozoStatueState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new chozo statue state instance.</summary>
     internal ChozoStatueState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Movement-table byte offset consumed by instruction $AA:E5D8.</summary>

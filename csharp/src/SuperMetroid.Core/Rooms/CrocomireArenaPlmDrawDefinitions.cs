@@ -26,15 +26,20 @@ internal enum CrocomireArenaDraw : ushort
 /// </summary>
 internal static class CrocomireArenaPlmDrawDefinitions
 {
+    /// <summary>Represents draw.</summary>
     internal readonly record struct Draw(CrocomireArenaDraw Pointer, bool Wall, bool Solid, int WordsPerRun)
     {
+        /// <summary>Gets run count.</summary>
         internal int RunCount => Wall ? 3 : 1;
+        /// <summary>Gets direction and count.</summary>
         internal ushort DirectionAndCount => (ushort)(WordsPerRun | (Wall ? 0x8000 : 0));
+        /// <summary>Next x.</summary>
         internal sbyte NextX(int run)
         {
             if ((uint)run >= RunCount) throw new IndexOutOfRangeException();
             return run + 1 < RunCount ? (sbyte)(run + 1) : (sbyte)0;
         }
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= WordsPerRun)
@@ -61,6 +66,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Describe.</summary>
     private static Draw Describe(CrocomireArenaDraw pointer) => pointer switch
     {
         CrocomireArenaDraw.ClearBridge => new(pointer, false, false, 10),
@@ -71,6 +77,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
     };
 
     // Temporary DTOs serve the existing artwork interface; gameplay evaluates cells directly.
+    /// <summary>Gets or sets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -83,6 +90,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         }
     }
 
+    /// <summary>Tries to get.</summary>
     internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         draw = default;
@@ -98,6 +106,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
         return true;
     }
 
+    /// <summary>Visual id.</summary>
     internal static string VisualId(ushort pointer) =>
         ClosedNativeWords.Decode<CrocomireArenaDraw>(pointer, "Crocomire arena draw") switch
         {
@@ -109,6 +118,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
             _ => throw new InvalidOperationException($"Undefined Crocomire arena draw ${pointer:X4}."),
         };
 
+    /// <summary>Tries to get by visual id.</summary>
     internal static bool TryGetByVisualId(string id,
         out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {

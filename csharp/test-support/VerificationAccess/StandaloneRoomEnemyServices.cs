@@ -10,6 +10,7 @@ using SuperMetroid.Core.Spatial;
 /// </summary>
 internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
 {
+    /// <summary>Stores random.</summary>
     private readonly RandomNumbers random;
 
     /// <summary>Services whose RNG advances with <paramref name="generate"/>.</summary>
@@ -42,15 +43,21 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     /// <summary>Installs the RNG seed write.</summary>
     public Action<ushort> SeedRandom { init => random.Write = Ensure.NotNull(value); }
 
+    /// <summary>Represents random numbers.</summary>
     private sealed class RandomNumbers(Func<ushort> generate) : IEnemyRandomNumbers
     {
+        /// <summary>Stores read.</summary>
         internal Func<ushort>? Read;
+        /// <summary>Stores write.</summary>
         internal Action<ushort>? Write;
 
+        /// <summary>Generates.</summary>
         public ushort Generate() => generate();
 
+        /// <summary>Reads.</summary>
         ushort IEnemyRandomNumbers.Read() => (Read ?? throw Unavailable.Missing("read the current random-number word"))();
 
+        /// <summary>Seeds.</summary>
         public void Seed(ushort value) => (Write ?? throw Unavailable.Missing("seed the random-number word"))(value);
     }
 
@@ -58,24 +65,38 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
     private sealed class Unavailable : IGlobalEventFlags, IAreaBossFlags, IRoomPlmPresence, IRoomScrollZoneAccess,
         ISamusControlLock, IMotherBrainRoomEffects
     {
+        /// <summary>Stores instance.</summary>
         internal static readonly Unavailable Instance = new();
 
+        /// <summary>Creates the error reported when an AI routine reaches an uninstalled service.</summary>
         internal static InvalidOperationException Missing(string operation) => new(
             $"Room enemy AI attempted to {operation}, but this host's RoomEnemyLoadRequest did not install " +
             "the required cartridge-state service.");
 
+        /// <summary>Rejects global event-bit reads because this service was not installed.</summary>
         public bool Has(EventNumber eventNumber) => throw Missing("read global event bits");
+        /// <summary>Rejects global event-bit writes because this service was not installed.</summary>
         public void Set(EventNumber eventNumber) => throw Missing("set a global event bit");
+        /// <summary>Rejects clearing a global event bit because this service was not installed.</summary>
         public void Clear(EventNumber eventNumber) => throw Missing("clear a global event bit");
+        /// <summary>Rejects area boss-bit reads because this service was not installed.</summary>
         public bool IsDefeated(BossBits bits) => throw Missing($"read the area {bits} flag");
+        /// <summary>Rejects area boss-bit writes because this service was not installed.</summary>
         public void SetDefeated(BossBits bits) => throw Missing($"set the area {bits} flag");
+        /// <summary>Rejects active PLM queries because this service was not installed.</summary>
         public bool HasActiveHeader(PlmHeaderId header) => throw Missing("query the active room PLM population");
+        /// <summary>Rejects room-scroll reads because this service was not installed.</summary>
         public RoomScrollState Read(int index) => throw Missing("read a room scroll state");
+        /// <summary>Rejects room-scroll writes because this service was not installed.</summary>
         public void Write(int index, RoomScrollState state) => throw Missing("write a room scroll state");
+        /// <summary>Rejects Samus control changes because this service was not installed.</summary>
         public void SetControlsEnabled(bool enabled) => throw Missing("change Samus control enablement");
+        /// <summary>Rejects glass-room argument changes because this service was not installed.</summary>
         public void IncrementGlassRoomArgument() => throw Missing("advance Mother Brain's glass-room argument");
+        /// <summary>Rejects layer-blending changes because this service was not installed.</summary>
         public void SetLayerBlendingDefault(LayerBlendingConfiguration configuration) =>
             throw Missing("write Mother Brain's layer-blending configuration");
+        /// <summary>Rejects BG2 scroll changes because this service was not installed.</summary>
         public void SetBg2Scroll(Position16<Bg2Pixels> scroll) => throw Missing("write Mother Brain's BG2 scroll registers");
     }
 }

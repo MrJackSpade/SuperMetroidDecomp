@@ -33,11 +33,14 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
     /// <summary>$82:D41B: selected shorter center traversal reused on both rows; chosen native OAM order retained as authored ordering; geometry and repeated runs calculate.</summary>
     private static ReadOnlySpan<byte> SpecialCenter => [0, 1, 4, 3, 2];
 
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
         name is "Heading.Primary" or "Heading.Controller" or "Heading.Special" or "Border.Main" or "Border.Copy" or "Border.Clear"
             ? supplied.CalculateIfMatching(new MenuHeadingBorderDefinitions(name)) : supplied;
 
+    /// <summary>Gets count.</summary>
     public int Count => 2 * (Columns + Rows - 2);
+    /// <summary>Position.</summary>
     private (int Column, int Row) Position(int index)
     {
         bool primary = heading == "Heading.Primary";
@@ -101,6 +104,7 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
         index -= OuterRunLength * 2;
         return (leftLength - index, 0);
     }
+    /// <summary>Gets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -116,9 +120,11 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
                 SnesObjAttributeWord.Create(tile, 0, 3, default), true);
         }
     }
+    /// <summary>Returns an enumerator over this sequence.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Returns an enumerator over this sequence.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

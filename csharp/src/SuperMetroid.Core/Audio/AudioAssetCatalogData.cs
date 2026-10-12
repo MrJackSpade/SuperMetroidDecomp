@@ -14,15 +14,20 @@ public static class AudioAssetCatalogData
     /// <summary>Cartridge-order view of24 named music cases, without a stored lookup or cache.</summary>
     public static readonly IReadOnlyList<AudioUploadAssetDefinition> Music = new MusicBankView();
 
+    /// <summary>Represents music bank view.</summary>
     private sealed class MusicBankView : IReadOnlyList<AudioUploadAssetDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 24;
+        /// <summary>Gets an indexed value.</summary>
         public AudioUploadAssetDefinition this[int index] => (uint)index < Count
             ? ResolveDataIndex((byte)(3 * (index + 1))) : throw new IndexOutOfRangeException();
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<AudioUploadAssetDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 

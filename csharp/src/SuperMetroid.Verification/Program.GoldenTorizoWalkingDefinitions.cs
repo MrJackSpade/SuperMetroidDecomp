@@ -2,8 +2,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 
+/// <summary>Represents golden torizo walking definitions verification.</summary>
 internal static class GoldenTorizoWalkingDefinitionsVerification
 {
+    /// <summary>Verifies golden torizo walking definitions.</summary>
     internal static void VerifyGoldenTorizoWalkingDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
@@ -117,6 +119,7 @@ internal static class GoldenTorizoWalkingDefinitionsVerification
                     unchecked((ushort)(address + 1)))));
     }
 
+    /// <summary>Golden torizo walking definitions rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo walking definitions")]
     private static byte GoldenTorizoWalkingDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

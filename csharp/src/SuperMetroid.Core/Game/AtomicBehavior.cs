@@ -1,14 +1,19 @@
-﻿namespace SuperMetroid.Core.Game;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>The Atomic species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class AtomicBehavior : IEnemySpecies
 {
 
+    /// <summary>Stores atomic states.</summary>
     internal readonly AtomicEnemyState?[] _atomicStates =
         new AtomicEnemyState?[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores atomic speed fractions.</summary>
     internal readonly ushort[] _atomicSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores atomic speed wholes.</summary>
     internal readonly ushort[] _atomicSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores atomic negative speed fractions.</summary>
     internal readonly ushort[] _atomicNegativeSpeedFractions = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores atomic negative speed wholes.</summary>
     internal readonly ushort[] _atomicNegativeSpeedWholes = new ushort[RoomEnemySystem.MaximumEnemyCount];
 
     /// <summary>Ports <c>InitAI_Atomic</c> at <c>$A8:E388</c>.</summary>
@@ -123,10 +128,12 @@ internal sealed class AtomicBehavior : IEnemySpecies
         return new(whole, unchecked((ushort)fractionalSum));
     }
 
+    /// <summary>Requires atomic state.</summary>
     private AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
         _atomicStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");
 
+    /// <summary>Registers atomic initialization ai.</summary>
     internal void RegisterAtomicInitializationAi(EnemyAiTable table)
     {
 
@@ -136,6 +143,7 @@ internal sealed class AtomicBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers atomic main ai.</summary>
     internal void RegisterAtomicMainAi(EnemyAiTable table)
     {
 

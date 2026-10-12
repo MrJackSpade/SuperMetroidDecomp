@@ -30,8 +30,10 @@ public enum EscapeEtecoonPreInstruction : ushort
 /// </summary>
 public sealed class EscapeEtecoonEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new escape etecoon enemy state instance.</summary>
     internal EscapeEtecoonEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Variable A, a signed 8.8 horizontal speed consumed by <c>$B3:E680</c>.</summary>
@@ -57,7 +59,9 @@ public sealed class EscapeEtecoonEnemyState
 /// </summary>
 public sealed class EscapeDachoraEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new escape dachora enemy state instance.</summary>
     internal EscapeDachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 }

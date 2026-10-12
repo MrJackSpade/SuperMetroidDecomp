@@ -14,8 +14,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents ceiling wrap verification.</summary>
 internal static class CeilingWrapVerification
 {
+    /// <summary>Verifies ceiling wrap plm trace.</summary>
     internal static void VerifyCeilingWrapPlmTrace(string tracePath)
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();
@@ -49,6 +51,7 @@ internal static class CeilingWrapVerification
         Console.WriteLine("PASS 135 original-CPU ceiling PLM allocation records.");
     }
 
+    /// <summary>Ceiling wrap command.</summary>
     [VerificationCommand("--ceiling-wrap")]
     internal static int CeilingWrapCommand()
     {

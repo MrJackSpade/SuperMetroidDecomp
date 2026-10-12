@@ -6,11 +6,13 @@ namespace SuperMetroid.Desktop;
 /// <summary>Minimal authenticated GitHub issue client backed by the installed <c>gh</c> CLI.</summary>
 internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
 {
+    /// <summary>Comment async.</summary>
     public async Task CommentAsync(string repository, string issueUrl, string body)
     {
         await RunAsync(body, "issue", "comment", issueUrl, "--repo", repository,
             "--body-file", "-").ConfigureAwait(false);
     }
+    /// <summary>Finds by fingerprint async.</summary>
     public async Task<string?> FindByFingerprintAsync(string repository, string fingerprint)
     {
         ProcessResult result = await RunAsync(
@@ -30,6 +32,7 @@ internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
             ?? throw new InvalidDataException("GitHub returned an issue without a URL.");
     }
 
+    /// <summary>Creates async.</summary>
     public async Task<string> CreateAsync(string repository, string title, string body)
     {
         ProcessResult result = await RunAsync(
@@ -44,6 +47,7 @@ internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
         return url;
     }
 
+    /// <summary>Runs async.</summary>
     private static async Task<ProcessResult> RunAsync(
         string? standardInput,
         params string[] arguments)
@@ -80,5 +84,6 @@ internal sealed class GhCliGitHubIssueClient : IGitHubIssueClient
         return new ProcessResult(output);
     }
 
+    /// <summary>Represents process result.</summary>
     private sealed record ProcessResult(string StandardOutput);
 }

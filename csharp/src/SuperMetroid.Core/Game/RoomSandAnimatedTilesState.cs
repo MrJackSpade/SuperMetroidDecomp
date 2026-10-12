@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Game;
 /// </summary>
 public sealed class RoomSandAnimatedTilesState
 {
+    /// <summary>Stores objects.</summary>
     private readonly List<RoomFxAnimatedTilesState> objects = [];
 
     /// <summary>Clears the previous room and spawns selected ceiling/falling-sand definitions in native order.</summary>

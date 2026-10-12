@@ -2,8 +2,10 @@ using SuperMetroid.Desktop;
 
 using static DesktopVerificationSupport;
 
+/// <summary>Represents audio endpoint recovery tests.</summary>
 internal static class AudioEndpointRecoveryTests
 {
+    /// <summary>Verifies audio endpoint recovery.</summary>
     internal static void VerifyAudioEndpointRecovery()
     {
         long now = 0;
@@ -66,6 +68,7 @@ internal static class AudioEndpointRecoveryTests
         Console.WriteLine("Audio endpoint recovery: reported driver loss, cleanup failure, bounded retry, current PCM on reconnect, queue pacing and pause loss pass.");
     }
 
+    /// <summary>Expect endpoint failure.</summary>
     private static void ExpectEndpointFailure(Action action)
     {
         bool failed = false;
@@ -74,25 +77,36 @@ internal static class AudioEndpointRecoveryTests
         Check(failed, "original endpoint error must remain reportable");
     }
 
+    /// <summary>Represents endpoint fixture.</summary>
     internal sealed class EndpointFixture : IHostAudioOutput
     {
+        /// <summary>Stores frames.</summary>
         internal readonly List<short[]> Frames = [];
+        /// <summary>Stores failure.</summary>
         internal Exception? Failure;
+        /// <summary>Stores dispose failure.</summary>
         internal bool DisposeFailure;
+        /// <summary>Stores accepting.</summary>
         internal bool Accepting = true;
+        /// <summary>Stores disposals.</summary>
         internal int Disposals, Resets;
+        /// <summary>Gets can accept frame.</summary>
         public bool CanAcceptFrame => Accepting;
+        /// <summary>Gets queue health.</summary>
         public WaveOutQueueHealthSnapshot QueueHealth => new(0, 0, null, null, 0);
+        /// <summary>Submit.</summary>
         public void Submit(ReadOnlySpan<short> samples)
         {
             if (Failure is not null) throw Failure;
             Frames.Add(samples.ToArray());
         }
+        /// <summary>Resets.</summary>
         public void Reset()
         {
             if (Failure is not null) throw Failure;
             Resets++;
         }
+        /// <summary>Disposes.</summary>
         public void Dispose()
         {
             Disposals++;

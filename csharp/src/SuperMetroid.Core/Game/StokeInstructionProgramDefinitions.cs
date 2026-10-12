@@ -22,8 +22,10 @@ internal abstract class StokeInstructionProgramDefinitions
     /// </summary>
     private static readonly ushort[] WalkingFrameDurations = [8, 16, 8, 8];
     // Attack holds of 16 are the same authored cadence (reviewed under #1165).
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 26;
 
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -50,6 +52,7 @@ internal abstract class StokeInstructionProgramDefinitions
         };
         return new((ushort)(attack + offset), value);
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

@@ -76,6 +76,7 @@ public static class GameplayBasePaletteFiles
     /// <param name="stockDirectory">Installed stock gameplay base-palette directory.</param>
     public static void ValidateStock(string stockDirectory) => _ = Load(stockDirectory, null);
 
+    /// <summary>read colors.</summary>
     private static PaletteRgb5[] ReadColors(ISnesAddressSpace bus, int address, int count)
     {
         var colors = new PaletteRgb5[count];
@@ -92,6 +93,7 @@ public static class GameplayBasePaletteFiles
         return colors;
     }
 
+    /// <summary>Represents artwork manifest.</summary>
     private sealed record ArtworkManifest(int Version, string SourceCartridgeSha256,
         string ArtworkSha256);
 }

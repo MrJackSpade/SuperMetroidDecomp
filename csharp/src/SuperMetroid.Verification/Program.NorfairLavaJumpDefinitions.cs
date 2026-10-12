@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents norfair lava jump definitions verification.</summary>
 internal static class NorfairLavaJumpDefinitionsVerification
 {
+    /// <summary>Verifies norfair lava jump definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Lava jump definitions")]
     internal static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -55,6 +57,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
             "Norfair lava-jump definitions: four native velocities and all 65,536 real RNG selections pass with the source table forbidden.");
     }
 
+    /// <summary>New norfair lava jump read guard.</summary>
     private static CartridgeReadGuard NewNorfairLavaJumpReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2be86 and < 0xa2be8e,

@@ -4,8 +4,10 @@ using static DoorDefinitionsVerification;
 using static RoomPaletteFxDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents lookup palette fx dispatch verification.</summary>
 internal static class LookupPaletteFxDispatchVerification
 {
+    /// <summary>Original palette fx objects.</summary>
     private static IEnumerable<ushort> OriginalPaletteFxObjects()
     {
         // Independent physical regions from pinned bank8D object declarations.
@@ -14,6 +16,7 @@ internal static class LookupPaletteFxDispatchVerification
                 yield return (ushort)pointer;
     }
 
+    /// <summary>Verifies palette fx dispatch domain.</summary>
     internal static void VerifyPaletteFxDispatchDomain()
     {
         var original = OriginalPaletteFxObjects().ToHashSet();
@@ -29,6 +32,7 @@ internal static class LookupPaletteFxDispatchVerification
         }
     }
 
+    /// <summary>Verifies palette fx setup selection.</summary>
     internal static void VerifyPaletteFxSetupSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
@@ -36,6 +40,7 @@ internal static class LookupPaletteFxDispatchVerification
                 (ushort)RoomPaletteFxDefinitions.Get(pointer).SetupCallback, "Native palette-FX setup callback");
     }
 
+    /// <summary>Verifies palette fx initial list selection.</summary>
     internal static void VerifyPaletteFxInitialListSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
@@ -43,6 +48,7 @@ internal static class LookupPaletteFxDispatchVerification
                 RoomPaletteFxDefinitions.Get(pointer).InitialInstructionList, "Native palette-FX initial program");
     }
 
+    /// <summary>Verifies palette fx dispatch.</summary>
     internal static void VerifyPaletteFxDispatch(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());

@@ -2,8 +2,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SamusEaterPlmDefinitionsVerification;
 
+/// <summary>Represents lookup mother brain glass stock verification.</summary>
 internal static class LookupMotherBrainGlassStockVerification
 {
+    /// <summary>Verifies mother brain glass stock mapping.</summary>
     internal static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainGlassVisualCatalog installed)
     {
@@ -77,6 +79,7 @@ internal static class LookupMotherBrainGlassStockVerification
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries), "Glass visual bits only");
     }
 
+    /// <summary>Mother brain glass stock mapping rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass stock mapping")]
     private static byte MotherBrainGlassStockMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

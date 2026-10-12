@@ -82,14 +82,22 @@ public sealed class Bank80SystemState
     // Keep these arrays private. Returning writable arrays would let callers bypass the
     // same masking semantics that the ROM routines enforce and would make watch-window
     // corruption extremely difficult to trace.
+    /// <summary>Stores events.</summary>
     private readonly byte[] _events = new byte[EventByteCount];
+    /// <summary>Stores boss bits by area.</summary>
     private readonly byte[] _bossBitsByArea = new byte[AreaCount];
+    /// <summary>Stores room chozo bits.</summary>
     private readonly byte[] _roomChozoBits = new byte[RoomChozoBitByteCount];
+    /// <summary>Stores collected item bits.</summary>
     private readonly byte[] _collectedItemBits = new byte[ItemBitByteCount];
+    /// <summary>Stores opened door bits.</summary>
     private readonly byte[] _openedDoorBits = new byte[DoorBitByteCount];
+    /// <summary>Stores explored map tiles.</summary>
     private readonly byte[] _exploredMapTiles =
         new byte[ExploredMapAreaCount * ExploredMapBytesPerArea];
+    /// <summary>Stores used save stations and elevators.</summary>
     private readonly byte[] _usedSaveStationsAndElevators = new byte[UsedSaveStationByteCount];
+    /// <summary>Stores map stations.</summary>
     private readonly byte[] _mapStations = new byte[MapStationByteCount];
 
     /// <summary>
@@ -723,6 +731,7 @@ public sealed class Bank80SystemState
         return (int)eventNumber;
     }
 
+    /// <summary>Resolves collected item bit.</summary>
     private static (int ByteIndex, byte BitMask) ResolveCollectedItemBit(int bitIndex)
     {
         return ResolvePersistentRoomBit(
@@ -731,6 +740,7 @@ public sealed class Bank80SystemState
             "Collected-item bit index must fit the native 64-byte table.");
     }
 
+    /// <summary>Resolves persistent room bit.</summary>
     private static (int ByteIndex, byte BitMask) ResolvePersistentRoomBit(
         int bitIndex,
         int byteCount,
@@ -742,18 +752,21 @@ public sealed class Bank80SystemState
         return (bitIndex >> 3, unchecked((byte)(1 << (bitIndex & 7))));
     }
 
+    /// <summary>Validates area index.</summary>
     private static void ValidateAreaIndex(int areaIndex)
     {
         if ((uint)areaIndex >= AreaCount)
             throw new ArgumentOutOfRangeException(nameof(areaIndex), areaIndex, "Area index must be in the allocated 0-7 range.");
     }
 
+    /// <summary>Resolves explored map byte index.</summary>
     private static int ResolveExploredMapByteIndex(int areaIndex, Position16<MapTiles> cell)
     {
         int areaOffset = areaIndex * ExploredMapBytesPerArea;
         return areaOffset + AreaMapLayout.GetBitByteIndex(cell);
     }
 
+    /// <summary>Validates explored map coordinate.</summary>
     private static void ValidateExploredMapCoordinate(int areaIndex, Position16<MapTiles> cell)
     {
         if ((uint)areaIndex >= ExploredMapAreaCount)

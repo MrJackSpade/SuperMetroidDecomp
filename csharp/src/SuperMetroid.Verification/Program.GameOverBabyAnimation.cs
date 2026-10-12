@@ -3,8 +3,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents game over baby animation verification.</summary>
 internal static class GameOverBabyAnimationVerification
 {
+    /// <summary>Verifies game over baby animation.</summary>
     internal static void VerifyGameOverBabyAnimation(ISnesAddressSpace rom)
     {
         // Walk the original serialized stream; neither record count nor group lengths
@@ -70,6 +72,7 @@ internal static class GameOverBabyAnimationVerification
         }
     }
 
+    /// <summary>Game over baby animation rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for game over Baby animation")]
     private static byte GameOverBabyAnimationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

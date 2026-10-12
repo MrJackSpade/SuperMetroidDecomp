@@ -12,8 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+/// <summary>Represents gunship escape timer verification.</summary>
 internal static class GunshipEscapeTimerVerification
 {
+    /// <summary>verify gunship escape timer.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     internal static int VerifyGunshipEscapeTimer()
     {
@@ -87,6 +89,7 @@ internal static class GunshipEscapeTimerVerification
         }
     }
 
+    /// <summary>gunship escape timer command.</summary>
     [VerificationCommand("--gunship-escape-timer")]
     internal static int GunshipEscapeTimerCommand()
     {

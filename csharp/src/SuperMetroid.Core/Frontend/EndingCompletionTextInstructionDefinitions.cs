@@ -41,6 +41,7 @@ internal static class EndingCompletionTextInstructionDefinitions
         };
     }
 
+    /// <summary>Letter duration.</summary>
     private static ushort LetterDuration(string text, int letter)
     {
         for (int i = 0; i < text.Length; i++)
@@ -51,6 +52,7 @@ internal static class EndingCompletionTextInstructionDefinitions
         throw new InvalidDataException("Typewriter letter leaves its text.");
     }
 
+    /// <summary>Line word.</summary>
     private static ushort LineWord(int word, ushort start, string text, ushort firstMap, ushort callback, ushort holdDelay)
     {
         int letters = text.Count(character => character != ' ');
@@ -66,6 +68,7 @@ internal static class EndingCompletionTextInstructionDefinitions
         };
     }
 
+    /// <summary>Clears time word.</summary>
     private static ushort ClearTimeWord(int word)
     {
         const int letters = 9;

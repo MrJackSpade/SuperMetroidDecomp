@@ -14,14 +14,18 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
     /// <summary>Library-two destruction sound operand <c>$06</c> in all five contact lists.</summary>
     internal const byte BreakSoundId = 0x06;
 
+    /// <summary>Represents program.</summary>
     private readonly record struct Program(
         ushort Start, bool Respawns, ushort InitialCrumbleDelay,
         bool UseDrawBlockClone)
     {
+        /// <summary>Gets frame count.</summary>
         internal int FrameCount => Respawns ? 7 : 4;
+        /// <summary>Gets terminal.</summary>
         internal ushort Terminal => checked((ushort)(Start + 3 + FrameCount * 4));
     }
 
+    /// <summary>Defines program count.</summary>
     private const int ProgramCount = 5;
 
     /// <summary>The five reachable Speed Booster collision programs, in native table order.</summary>
@@ -39,6 +43,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         Permanent,
     }
 
+    /// <summary>Program at.</summary>
     private static Program ProgramAt(int index) => ProgramOf(index switch
     {
         0 => SpeedBlockProgram.BrinstarSlowRespawning,
@@ -49,6 +54,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         _ => throw new IndexOutOfRangeException(),
     });
 
+    /// <summary>Program of.</summary>
     private static Program ProgramOf(SpeedBlockProgram program) => program switch
     {
         SpeedBlockProgram.BrinstarSlowRespawning => new(RoomPlmInstructionLists.SpeedBlockBrinstarSlowRespawning,
@@ -64,6 +70,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(SpeedBlockProgram)} {program}."),
     };
 
+    /// <summary>Tries to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         if (address == BombReveal)
@@ -132,6 +139,7 @@ internal static class SpeedBoosterBlockPlmProgramDefinitions
         return false;
     }
 
+    /// <summary>Tries to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         for (int index = 0; index < ProgramCount; index++)

@@ -16,13 +16,20 @@ using System.Runtime.CompilerServices;
 /// </summary>
 internal static class CoreAccess
 {
+    /// <summary>Provides verification-only extensions for <c>SuperMetroidGame</c>.</summary>
     extension(SuperMetroidGame game)
     {
+        /// <summary>Gets runtime for verification.</summary>
         internal SuperMetroidRuntime? RuntimeForVerification => PrivateState.Field<SuperMetroidRuntime?>(game, "runtime");
+        /// <summary>Gets attract demo hold frames remaining.</summary>
         internal int AttractDemoHoldFramesRemaining => PrivateState.Field<int>(game, "demoHoldFramesRemaining");
+        /// <summary>Gets gameplay movement enabled.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
+        /// <summary>Gets audio for verification.</summary>
         internal CartridgeAudioState AudioForVerification => PrivateState.Field<CartridgeAudioState>(game, "audio");
+        /// <summary>Gets menu nmi frame counter for verification.</summary>
         internal ushort MenuNmiFrameCounterForVerification => PrivateState.Field<MenuNmiFrameCounters>(game, "menuNmi").FrameCounter;
+        /// <summary>Gets ceres destruction for verification.</summary>
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
             PrivateState.Field<CeresDestructionCinematicState?>(game, "ceresDestruction");
 
@@ -39,35 +46,51 @@ internal static class CoreAccess
                     $"A door music-wait controller read arrived in game state {game.GameState}.");
             runtime.Controller1.Latch(runtime.Options.ControllerBindings.Normalize(controllerInput));
         }
+        /// <summary>Gets gameplay samus pose.</summary>
         internal SamusPoseId GameplaySamusPose => game.RuntimeForVerification?.Player.Samus?.Pose ?? 0;
+        /// <summary>Gets gameplay samus x.</summary>
         internal ushort GameplaySamusX => game.RuntimeForVerification?.Player.Samus?.Position.X.Whole ?? 0;
+        /// <summary>Gets gameplay samus y.</summary>
         internal ushort GameplaySamusY => game.RuntimeForVerification?.Player.Samus?.Position.Y.Whole ?? 0;
     }
 
+    /// <summary>Provides verification-only extensions for <c>IntroCinematicState</c>.</summary>
     extension(IntroCinematicState intro)
     {
+        /// <summary>Gets active flashback projectile count.</summary>
         internal ushort ActiveFlashbackProjectileCount =>
             PrivateState.Field<SamusProjectileSystem>(intro, "flashbackProjectiles").SlotTable.ProjectileCounter;
+        /// <summary>Gets flashback samus x.</summary>
         internal ushort FlashbackSamusX => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.Position.X.Whole ?? 0;
+        /// <summary>Gets flashback samus y.</summary>
         internal ushort FlashbackSamusY => PrivateState.Field<SamusState?>(intro, "flashbackSamus")?.Position.Y.Whole ?? 0;
+        /// <summary>Gets mother brain hit count.</summary>
         internal ushort MotherBrainHitCount =>
             PrivateState.Field<IntroMotherBrainSpriteState?>(intro, "flashbackMotherBrain")?.HitCount ?? 0;
     }
 
+    /// <summary>Provides verification-only extensions for <c>EndingCreditsState</c>.</summary>
     extension(EndingCreditsState ending)
     {
+        /// <summary>Gets brightness.</summary>
         internal byte Brightness => PrivateState.Field<byte>(ending, "brightness");
+        /// <summary>Gets cinematic frame.</summary>
         internal ushort CinematicFrame => PrivateState.Field<ushort>(ending, "cinematicFrame");
+        /// <summary>Gets credits vertical scroll.</summary>
         internal ushort CreditsVerticalScroll => PrivateState.Field<CreditsObjectState?>(ending, "credits")?.VerticalScroll ?? 0;
     }
 
+    /// <summary>Provides verification-only extensions for <c>PauseMenuState</c>.</summary>
     extension(PauseMenuState pause)
     {
+        /// <summary>Gets last indicator origin.</summary>
         internal Position16<OamPixels> LastIndicatorOrigin => PrivateState.Field<Position16<OamPixels>>(pause, "lastIndicatorOrigin");
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
         internal bool PageTransitionActive => PrivateState.Field<PauseMenuTransition>(pause, "transition") != PauseMenuTransition.None;
+        /// <summary>Gets map scroll.</summary>
         internal Position16<MapPixels> MapScroll => PrivateState.Field<Position16<MapPixels>>(pause, "mapScrollPosition");
 
+        /// <summary>read displayed map tile.</summary>
         [PpuLayoutBoundary("rendering view: the pause map BG1 tilemap word displayed at a map cell")]
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell)
         {
@@ -76,45 +99,62 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Provides verification-only extensions for <c>EndingShootingStars</c>.</summary>
     extension(EndingShootingStars shootingStars)
     {
+        /// <summary>Gets stars.</summary>
         internal ReadOnlySpan<EndingShootingStar> Stars => PrivateState.Field<EndingShootingStar[]>(shootingStars, "stars");
     }
 
+    /// <summary>Provides verification-only extensions for <c>ExtractedAudioAssetCatalog</c>.</summary>
     extension(ExtractedAudioAssetCatalog catalog)
     {
+        /// <summary>Gets canonical sample count.</summary>
         internal int CanonicalSampleCount => PrivateState.Field<int>(catalog, "canonicalSampleCount");
+        /// <summary>Gets source mapping count.</summary>
         internal int SourceMappingCount => PrivateState.Field<IReadOnlyDictionary<int, ManagedPcmSampleBank>>(catalog, "sampleBanks")
             .Values.Sum(bank => bank.Samples.Count);
     }
 
+    /// <summary>Provides verification-only extensions for <c>FrontendFrame</c>.</summary>
     extension(FrontendFrame frame)
     {
+        /// <summary>with copied pixels.</summary>
         internal FrontendFrame WithCopiedPixels() => frame with { Pixels = frame.Pixels.ToArray() };
     }
 
+    /// <summary>Provides verification-only extensions for <c>CapturedFrontendFrame</c>.</summary>
     extension(CapturedFrontendFrame frame)
     {
+        /// <summary>Gets used legacy raster.</summary>
         internal bool UsedLegacyRaster => frame.Snapshot is null;
     }
 
+    /// <summary>Provides verification-only extensions for <c>GameplayBasePaletteCatalog</c>.</summary>
     extension(GameplayBasePaletteCatalog palettes)
     {
+        /// <summary>Gets initial.</summary>
         internal ReadOnlySpan<Bgr555> Initial => PrivateState.Field<Bgr555[]>(palettes, "initial");
     }
 
+    /// <summary>Provides verification-only extensions for <c>HudState</c>.</summary>
     extension(HudState hud)
     {
+        /// <summary>Gets tiles.</summary>
         internal ReadOnlySpan<ushort> Tiles => PrivateState.Field<ushort[]>(hud, "_tiles");
     }
 
+    /// <summary>Provides verification-only extensions for <c>MapTileWord</c>.</summary>
     extension(MapTileWord tile)
     {
+        /// <summary>Gets flip flags.</summary>
         internal SnesTileFlipFlags FlipFlags => (SnesTileFlipFlags)(tile.Raw & 0xc000);
     }
 
+    /// <summary>Provides verification-only extensions for <c>OamBuffer</c>.</summary>
     extension(OamBuffer oam)
     {
+        /// <summary>create upload payload.</summary>
         [PpuLayoutBoundary("codec: OAM low/high-table DMA upload payload")]
         internal byte[] CreateUploadPayload()
         {
@@ -125,8 +165,10 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Provides verification-only extensions for <c>RenderPublicationProfile</c>.</summary>
     extension(RenderPublicationProfile profile)
     {
+        /// <summary>reset.</summary>
         internal void Reset()
         {
             PrivateState.Invoke(profile, "VerifyOwner");
@@ -136,28 +178,38 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Provides verification-only extensions for <c>RoomLevelData</c>.</summary>
     extension(RoomLevelData level)
     {
+        /// <summary>Gets background entries.</summary>
         internal ReadOnlyMemory<ushort> BackgroundEntries => PrivateState.Field<ushort[]>(level, "_backgroundEntries");
     }
 
+    /// <summary>Provides verification-only extensions for <c>RoomPaletteFxSystem</c>.</summary>
     extension(RoomPaletteFxSystem fx)
     {
+        /// <summary>Gets active count.</summary>
         internal int ActiveCount => PrivateState.Field<Array>(fx, "slots").Cast<object>()
             .Count(slot => PrivateState.Property<ushort>(slot, "Id") != 0);
     }
 
+    /// <summary>Provides verification-only extensions for <c>SuperMetroidAddressSpace</c>.</summary>
     extension(SuperMetroidAddressSpace bus)
     {
+        /// <summary>Gets work ram.</summary>
         internal Span<byte> WorkRam => PrivateState.Field<byte[]>(bus, "_workRam");
+        /// <summary>Gets save ram.</summary>
         internal Span<byte> SaveRam => PrivateState.Field<byte[]>(bus, "_saveRam");
     }
 
+    /// <summary>Provides verification-only extensions for <c>VramWriteQueue</c>.</summary>
     extension(VramWriteQueue queue)
     {
+        /// <summary>Gets entries.</summary>
         internal IReadOnlyList<VramWriteEntry> Entries => PrivateState.Field<List<VramWriteEntry>>(queue, "_entries");
     }
 
+    /// <summary>Provides verification-only extensions for <c>SamusGrappleMovement</c>.</summary>
     extension(SamusGrappleMovement)
     {
         /// <summary>Accepted grapple firing with its connection pose applied immediately, as ordinary firing does.</summary>
@@ -168,12 +220,14 @@ internal static class CoreAccess
                 bus, samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false)!;
     }
 
+    /// <summary>Provides verification-only extensions for <c>EnemyDrawList</c>.</summary>
     extension(EnemyDrawList drawing)
     {
         /// <summary>The per-layer native draw queues the last enemy pass built, in layer order.</summary>
         internal IReadOnlyList<List<ushort>> QueuesForVerification => PrivateState.Field<List<ushort>[]>(drawing, "_drawQueues");
     }
 
+    /// <summary>Provides verification-only extensions for <c>RoomEnemySystem</c>.</summary>
     extension(RoomEnemySystem enemies)
     {
         /// <summary>
@@ -191,18 +245,23 @@ internal static class CoreAccess
             return (bool)PrivateState.Invoke(scratch, "OverlapsMouth", collision)!;
         }
 
+        /// <summary>Gets chozo statue plm requests.</summary>
         internal IReadOnlyList<ChozoStatuePlmRequest> ChozoStatuePlmRequests =>
             enemies.ChozoStatueBehavior._chozoStatuePlmRequests;
+        /// <summary>Gets chozo statue states.</summary>
         internal IReadOnlyList<ChozoStatueState?> ChozoStatueStates =>
             enemies.ChozoStatueBehavior._chozoStatueStates;
+        /// <summary>Gets ninja space pirate states.</summary>
         internal IReadOnlyList<NinjaSpacePirateEnemyState?> NinjaSpacePirateStates =>
             enemies.NinjaSpacePirateBehavior._ninjaSpacePirateStates;
     }
 
+    /// <summary>Provides verification-only extensions for <c>CeresElevatorArrivalState</c>.</summary>
     extension(CeresElevatorArrivalState arrival)
     {
         /// <summary>Whole room position of the moving pad; its X is the X word both projectiles copy from Samus at $86:A313.</summary>
         internal Position16<RoomPixels> PadPosition => PrivateState.Property<Position16<RoomPixels>>(PrivateState.Field<object>(arrival, "pad"), "Position");
+        /// <summary>Gets platform position.</summary>
         internal Position16<RoomPixels> PlatformPosition => PrivateState.Property<Position16<RoomPixels>>(PrivateState.Field<object>(arrival, "platform"), "Position");
         /// <summary>True while the moving pad occupies native enemy-projectile slot $22.</summary>
         internal bool PadActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "pad"), "Active");
@@ -210,12 +269,16 @@ internal static class CoreAccess
         internal bool PlatformActive => PrivateState.Property<bool>(PrivateState.Field<object>(arrival, "platform"), "Active");
     }
 
+    /// <summary>Provides verification-only extensions for <c>SuperMetroidRuntime</c>.</summary>
     extension(SuperMetroidRuntime runtime)
     {
+        /// <summary>Gets samus load appearance frames remaining.</summary>
         internal ushort SamusLoadAppearanceFramesRemaining => runtime.Player._samusLoadAppearanceFramesRemaining;
+        /// <summary>Gets samus load appearance active.</summary>
         internal bool SamusLoadAppearanceActive => runtime.SamusLoadAppearanceFramesRemaining != 0;
     }
 
+    /// <summary>Provides verification-only extensions for <c>RoomPlmSystem</c>.</summary>
     extension(RoomPlmSystem plms)
     {
 
@@ -259,6 +322,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>plm slots.</summary>
     private static IEnumerable<object> PlmSlots(RoomPlmSystem plms) =>
         plms.SlotTable._slots.Cast<object>();
 
@@ -270,15 +334,18 @@ internal static class CoreAccess
                 yield return record;
     }
 
+    /// <summary>Stores gameplay projectile fire observers.</summary>
     private static readonly ConditionalWeakTable<SuperMetroidGame, GameplayProjectileFireObserver>
         GameplayProjectileFireObservers = new();
 
+    /// <summary>Provides verification-only extensions for <c>SamusProjectileSystem</c>.</summary>
     extension(SamusProjectileSystem projectiles)
     {
         /// <summary>Captures slot occupancy and families before an alpha pass.</summary>
         internal SamusProjectileSlotObservation ObserveSlots() => new(projectiles);
     }
 
+    /// <summary>Provides verification-only extensions for <c>SuperMetroidGame</c>.</summary>
     extension(SuperMetroidGame game)
     {
         /// <summary>
@@ -293,13 +360,19 @@ internal static class CoreAccess
                 .Observe(game);
     }
 
+    /// <summary>Represents gameplay projectile fire observer.</summary>
     private sealed class GameplayProjectileFireObserver
     {
+        /// <summary>Stores projectiles.</summary>
         private SamusProjectileSystem? _projectiles;
+        /// <summary>Stores frame number.</summary>
         private ushort _frameNumber;
+        /// <summary>Stores slots.</summary>
         private SamusProjectileSlotObservation? _slots;
+        /// <summary>Stores fired slot.</summary>
         private int? _firedSlot;
 
+        /// <summary>observe.</summary>
         internal int? Observe(SuperMetroidGame game)
         {
             SamusProjectileSystem? projectiles = game.RuntimeForVerification?.Projectiles;
@@ -341,6 +414,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Provides verification-only extensions for <c>RoomPlmSystem</c>.</summary>
     extension(RoomPlmSystem plms)
     {
         /// <summary>
@@ -363,6 +437,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Provides verification-only extensions for <c>CrateriaLightningPaletteFxProgramDefinition</c>.</summary>
     extension(CrateriaLightningPaletteFxProgramDefinition self)
     {
         /// <summary>
@@ -376,6 +451,7 @@ internal static class CoreAccess
         ];
     }
 
+    /// <summary>Provides verification-only extensions for <c>SamusShinesparkState</c>.</summary>
     extension(SamusShinesparkState self)
     {
         /// <summary>Angular-travel word of departing crash-echo projectile slot three.</summary>
@@ -391,6 +467,7 @@ internal static class CoreAccess
             PrivateState.Property<ushort>(PrivateState.Field<object>(self, "_firstReleasedCrashEcho"), "Radius");
     }
 
+    /// <summary>Provides verification-only extensions for <c>RoomPlmSystem</c>.</summary>
     extension(RoomPlmSystem self)
     {
         /// <summary>Block index of every active PLM, in native slot order.</summary>
@@ -412,6 +489,7 @@ internal static class CoreAccess
         ];
     }
 
+    /// <summary>Provides verification-only extensions for <c>LatestRenderFrameMailbox</c>.</summary>
     extension(LatestRenderFrameMailbox self)
     {
         /// <summary>Reads every private counter under the mailbox's own lock.</summary>
@@ -433,6 +511,7 @@ internal static class CoreAccess
         }
     }
 
+    /// <summary>Provides verification-only extensions for <c>SuperMetroidRuntime</c>.</summary>
     extension(SuperMetroidRuntime self)
     {
         /// <summary>Cached gameplay TS byte the last accepted NMI uploaded with the window registers.</summary>
@@ -443,15 +522,18 @@ internal static class CoreAccess
             .ReadByte(GameplayWindowRegisterAddresses.Subscreen);
     }
 
+    /// <summary>group4 active plm slots.</summary>
     private static IEnumerable<object> Group4ActivePlmSlots(RoomPlmSystem plms) =>
         plms.SlotTable._slots.Where(slot => PrivateState.Property<bool>(slot, "Active"));
 
+    /// <summary>group4 collectible items.</summary>
     private static IEnumerable<object> Group4CollectibleItems(RoomPlmSystem plms) =>
         Group4ActivePlmSlots(plms)
             .Select(slot => PrivateState.Property<object?>(slot, "Item"))
             .Where(item => item is not null)
             .Select(item => item!);
 
+    /// <summary>Provides verification-only extensions for <c>LatestRenderFrameMailbox</c>.</summary>
     extension(LatestRenderFrameMailbox mailbox)
     {
         /// <summary>
@@ -475,6 +557,7 @@ internal readonly record struct StationPlmSnapshot(
 /// <summary>Verification access to <see cref="CartridgeAudioState"/> queues, which production reads only to dispatch.</summary>
 internal static class CartridgeAudioStateQueueAccess
 {
+    /// <summary>Provides verification-only extensions for <c>CartridgeAudioState</c>.</summary>
     extension(CartridgeAudioState self)
     {
         /// <summary>Music queue read/write indices, current timer and slot delays ($063B/$0639/$063F/$0629).</summary>
@@ -494,8 +577,10 @@ internal static class CartridgeAudioStateQueueAccess
              PrivateState.Field<byte[]>(self, "_soundStates")[queue]);
     }
 }
+/// <summary>Represents super metroid runtime frame access.</summary>
 internal static class SuperMetroidRuntimeFrameAccess
 {
+    /// <summary>Provides verification-only extensions for <c>SuperMetroid</c>.</summary>
     extension(SuperMetroid.Core.Runtime.SuperMetroidRuntime self)
     {
         /// <summary>One ordinary state-eight frame: departure allowed, game time advancing, deferred audio (#633).</summary>
@@ -503,8 +588,10 @@ internal static class SuperMetroidRuntimeFrameAccess
             self.StepFrame(controller1Input, new SuperMetroid.Core.Runtime.RuntimeFrameRequest());
     }
 }
+/// <summary>Represents fixed position access.</summary>
 internal static class FixedPositionAccess
 {
+    /// <summary>Provides verification-only extensions for generic fixed positions.</summary>
     extension<TSpace>(SuperMetroid.Core.Spatial.FixedPosition<TSpace>) where TSpace : SuperMetroid.Core.Spatial.ISpatialSpace
     {
         /// <summary>Assembles both axes from native whole and subpixel words, as verifier fixtures state them.</summary>

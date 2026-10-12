@@ -14,8 +14,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using static DoorDefinitionsVerification;
 
+/// <summary>Represents tourian elevator doors verification.</summary>
 internal static class TourianElevatorDoorsVerification
 {
+    /// <summary>Verifies tourian elevator doors.</summary>
     internal static void VerifyTourianElevatorDoors()
     {
         // Reports #1181-1184: real Tourian list/BTS values at the production collision seam.
@@ -80,6 +82,7 @@ internal static class TourianElevatorDoorsVerification
         }
     }
 
+    /// <summary>Tourian elevator doors command.</summary>
     [VerificationCommand("--tourian-elevator-doors")]
     internal static int TourianElevatorDoorsCommand()
     {

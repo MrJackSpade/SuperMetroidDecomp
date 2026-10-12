@@ -11,8 +11,10 @@ using SuperMetroid.Desktop;
 using static GraphDigestVerification;
 using static PauseEquipmentRulesVerification;
 
+/// <summary>Represents pause backdrops verification.</summary>
 internal static class PauseBackdropsVerification
 {
+    /// <summary>Verifies pause backdrops.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause backdrop, button and area-label tilemaps")]
     internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
@@ -161,6 +163,7 @@ internal static class PauseBackdropsVerification
         }
     }
 
+    /// <summary>New pause backdrop read guard.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause backdrop, button and area-label source ranges")]
     private static CartridgeReadGuard NewPauseBackdropReadGuard(ISnesAddressSpace source)
     {

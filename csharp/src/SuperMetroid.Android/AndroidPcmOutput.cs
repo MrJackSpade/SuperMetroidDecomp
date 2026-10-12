@@ -9,11 +9,16 @@ namespace SuperMetroid.Android;
 /// </summary>
 internal sealed class AndroidPcmOutput : IDisposable
 {
+    /// <summary>Stores track.</summary>
     private readonly AudioTrack track;
+    /// <summary>Stores sink.</summary>
     private readonly QueuedPcmSink sink;
+    /// <summary>Stores trace.</summary>
     private readonly AndroidResumeTrace trace;
+    /// <summary>Stores written samples.</summary>
     private long writtenSamples;
 
+    /// <summary>Initializes a new android pcm output instance.</summary>
     public AndroidPcmOutput(AndroidResumeTrace trace)
     {
         this.trace = trace;
@@ -51,11 +56,15 @@ internal sealed class AndroidPcmOutput : IDisposable
         sink = new QueuedPcmSink(WriteToDevice, capacity: 8);
     }
 
+    /// <summary>Gets underrun count.</summary>
     public int UnderrunCount => track.UnderrunCount;
+    /// <summary>Gets pending frame count.</summary>
     public int PendingFrameCount => sink.PendingFrameCount;
 
+    /// <summary>Submit.</summary>
     public void Submit(short[] samples) => sink.Submit(samples);
 
+    /// <summary>Writes to device.</summary>
     private void WriteToDevice(short[] samples)
     {
         long start = System.Diagnostics.Stopwatch.GetTimestamp();
@@ -71,6 +80,7 @@ internal sealed class AndroidPcmOutput : IDisposable
             trace.Record("write", $"start={start} samples={writtenSamples} head={track.PlaybackHeadPosition} underruns={track.UnderrunCount}");
     }
 
+    /// <summary>Disposes.</summary>
     public void Dispose()
     {
         try { sink.Dispose(); }

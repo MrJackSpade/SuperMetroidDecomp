@@ -2,17 +2,23 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid foot coordinate mappings verification.</summary>
 internal static class KraidFootCoordinateMappingsVerification
 {
+    /// <summary>verify kraid foot first x.</summary>
     internal static void VerifyKraidFootFirstX(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollisionDefinitions.FirstX));
+    /// <summary>verify kraid foot first y.</summary>
     internal static void VerifyKraidFootFirstY(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollisionDefinitions.FirstY));
+    /// <summary>verify kraid foot second x.</summary>
     internal static void VerifyKraidFootSecondX(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollisionDefinitions.SecondX));
+    /// <summary>verify kraid foot second y.</summary>
     internal static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollisionDefinitions.SecondY));
 
+    /// <summary>verify kraid foot coordinate.</summary>
     private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
     {
         ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidFootCoordinateRomByte(rom, 0xa70000 | pointer), KraidFootCoordinateRomByte(rom, 0xa70000 | (pointer + 1))));
@@ -30,9 +36,11 @@ internal static class KraidFootCoordinateMappingsVerification
         AssertThrows<IndexOutOfRangeException>(() => calculate(35), "Past foot coordinate frame");
     }
 
+    /// <summary>kraid foot coordinate rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot coordinate")]
     private static byte KraidFootCoordinateRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>verify kraid foot shared hitbox.</summary>
     internal static void VerifyKraidFootSharedHitbox(SuperMetroidAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1))));
@@ -68,6 +76,7 @@ internal static class KraidFootCoordinateMappingsVerification
         }
     }
 
+    /// <summary>kraid foot shared hitbox rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot shared hitbox")]
     private static byte KraidFootSharedHitboxRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 }

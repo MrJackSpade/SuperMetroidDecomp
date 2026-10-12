@@ -3,8 +3,10 @@ using System.IO.Compression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
+/// <summary>Represents indexed png verification.</summary>
 internal static class IndexedPngVerification
 {
+    /// <summary>Verifies indexed png.</summary>
     internal static void VerifyIndexedPng()
     {
         var palette = Enumerable.Range(0, 16).Select(i => new Rgba32((byte)(i * 17), 31, 71, (byte)(i == 0 ? 0 : 255))).ToArray();
@@ -60,6 +62,7 @@ internal static class IndexedPngVerification
             () => IndexedPng.Read(new MemoryStream(bytes), new(1, 1)), context);
     }
 
+    /// <summary>Png fixture.</summary>
     private static byte[] PngFixture(Extent16<ImagePixels> size, int depth, byte[] filteredRows,
         byte colorType = 3, byte interlace = 0, string? extraChunk = null)
     {

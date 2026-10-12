@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -7,11 +7,16 @@ namespace SuperMetroid.Core.Rooms;
 /// <summary>In-world collectible PLMs: item and tank setup, pickup, fanfare and the dynamic collectible graphics slots.</summary>
 internal sealed class CollectiblePlms
 {
+    /// <summary>Stores bindings.</summary>
     private readonly PlmRoomBindings _bindings;
+    /// <summary>Stores drawing.</summary>
     private readonly PlmBlockDrawing _drawing;
+    /// <summary>Stores slot table.</summary>
     private readonly PlmSlotTable _slotTable;
+    /// <summary>Stores sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
+    /// <summary>Initializes a new collectible plms instance.</summary>
     internal CollectiblePlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
@@ -21,12 +26,18 @@ internal sealed class CollectiblePlms
     }
     // Instruction $8764 rotates through four $100-byte character allocations. Its table
     // offsets are words into TileTable at $7E:A000 and destinations are VRAM word addresses.
+    /// <summary>Stores dynamic block definition first word.</summary>
     private const int DynamicBlockDefinitionFirstWord = 0x0470 / 2;
 
+    /// <summary>Stores collectible pickup events.</summary>
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
+    /// <summary>Stores next collectible graphics slot.</summary>
     private int _nextCollectibleGraphicsSlot;
+    /// <summary>Stores last collectible pickup.</summary>
     private CollectiblePickupEvent? _lastCollectiblePickup;
+    /// <summary>Stores collectible fanfare requested.</summary>
     private bool _collectibleFanfareRequested;
+    /// <summary>Stores pending speed booster pickup continuation.</summary>
     private bool _pendingSpeedBoosterPickupContinuation;
 
     /// <summary>Whether the PLM handler is waiting for its synchronous pickup message.</summary>
@@ -60,6 +71,7 @@ internal sealed class CollectiblePlms
         return _drawing._tilemapUpdates;
     }
 
+    /// <summary>Complete speed booster pickup continuation.</summary>
     private void CompleteSpeedBoosterPickupContinuation()
     {
         if (!_pendingSpeedBoosterPickupContinuation)
@@ -156,8 +168,10 @@ internal sealed class CollectiblePlms
         return false;
     }
 
+    /// <summary>Begins collectible frame.</summary>
     internal void BeginCollectibleFrame() => _collectiblePickupEvents.Clear();
 
+    /// <summary>Resets collectible state.</summary>
     internal void ResetCollectibleState()
     {
         _collectiblePickupEvents.Clear();
@@ -248,6 +262,7 @@ internal sealed class CollectiblePlms
         return false;
     }
 
+    /// <summary>Attempts to decode collectible range.</summary>
     private static bool TryDecodeCollectibleRange(
         PlmHeaderId header,
         PlmHeaderId firstHeader,
@@ -265,6 +280,7 @@ internal sealed class CollectiblePlms
         return false;
     }
 
+    /// <summary>Loads dynamic collectible graphics.</summary>
     private int LoadDynamicCollectibleGraphics(
         RoomLevelData level,
         BackgroundTilemapStreamer streamer,
@@ -304,6 +320,7 @@ internal sealed class CollectiblePlms
         return graphicsSlot;
     }
 
+    /// <summary>Attempts to step collectible.</summary>
     internal bool TryStepCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         CollectiblePlmState? item = slot.Item;
@@ -483,13 +500,16 @@ internal sealed class CollectiblePlms
         }
     }
 
+    /// <summary>Gets visible collectible draw.</summary>
     private static ushort GetVisibleCollectibleDraw(CollectiblePlmState item) =>
         RoomPlmCollectibleDrawDefinitions.VisibleFrame(
             item.Kind, item.AnimationIndex, item.GraphicsSlot);
 
+    /// <summary>Draws collectible.</summary>
     private void DrawCollectible(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, ushort drawPointer, PlmView view) =>
         _drawing.DrawPlmInstruction(bus, level, streamer, slot.BlockIndex, drawPointer, view);
 
+    /// <summary>Acquire collectible.</summary>
     private void AcquireCollectible(PlmSlot slot)
     {
         CollectiblePlmState item = slot.Item
@@ -522,6 +542,7 @@ internal sealed class CollectiblePlms
         item.Phase = CollectiblePhase.AwaitingMessage;
     }
 
+    /// <summary>Finishes collectible pickup.</summary>
     private void FinishCollectiblePickup(ISnesAddressSpace bus, RoomLevelData level, BackgroundTilemapStreamer streamer, PlmSlot slot, PlmView view)
     {
         CollectiblePlmState item = slot.Item
@@ -546,6 +567,7 @@ internal sealed class CollectiblePlms
         item.Timer = 1;
     }
 
+    /// <summary>Applies collectible effect.</summary>
     private static void ApplyCollectibleEffect(
         SamusState samus,
         InWorldCollectibleKind kind)
@@ -613,6 +635,7 @@ internal sealed class CollectiblePlms
         }
     }
 
+    /// <summary>Gets equipment mask.</summary>
     private static ushort GetEquipmentMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.Bombs => (ushort)SamusEquipmentFlags.Bombs,
@@ -629,6 +652,7 @@ internal sealed class CollectiblePlms
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
+    /// <summary>Gets beam mask.</summary>
     private static ushort GetBeamMask(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.ChargeBeam => (ushort)SamusBeamFlags.Charge,
@@ -639,6 +663,7 @@ internal sealed class CollectiblePlms
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 
+    /// <summary>Gets message box index.</summary>
     private static GameplayMessageId GetMessageBoxIndex(InWorldCollectibleKind kind) => kind switch
     {
         InWorldCollectibleKind.EnergyTank => GameplayMessageIds.EnergyTank,
@@ -665,21 +690,32 @@ internal sealed class CollectiblePlms
         _ => throw new ArgumentOutOfRangeException(nameof(kind)),
     };
 
+    /// <summary>Represents collectible plm state.</summary>
     internal sealed class CollectiblePlmState(
         InWorldCollectibleKind kind,
         CollectiblePresentation presentation,
         int graphicsSlot,
         CollectiblePhase phase)
     {
+        /// <summary>Gets kind.</summary>
         public InWorldCollectibleKind Kind { get; } = kind;
+        /// <summary>Gets presentation.</summary>
         public CollectiblePresentation Presentation { get; } = presentation;
+        /// <summary>Gets graphics slot.</summary>
         public int GraphicsSlot { get; } = graphicsSlot;
+        /// <summary>Gets or sets phase.</summary>
         public CollectiblePhase Phase { get; set; } = phase;
+        /// <summary>Gets or sets timer.</summary>
         public int Timer { get; set; }
+        /// <summary>Gets or sets animation index.</summary>
         public int AnimationIndex { get; set; }
+        /// <summary>Gets or sets visible frame pairs remaining.</summary>
         public int VisibleFramePairsRemaining { get; set; }
+        /// <summary>Gets or sets triggered.</summary>
         public bool Triggered { get; set; }
+        /// <summary>Gets or sets was collected before reveal.</summary>
         public bool WasCollectedBeforeReveal { get; set; }
+        /// <summary>Gets or sets last trigger projectile type.</summary>
         public SamusProjectileTypeWord LastTriggerProjectileType { get; set; }
     }
 }

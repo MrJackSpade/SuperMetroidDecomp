@@ -19,11 +19,13 @@ using static RetailPresentationFixtureVerification;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents chainsaw firing verification.</summary>
 internal static class ChainsawFiringVerification
 {
     // Expected values come from native-chainsaw-fire-probe, not from another C# path.
     // This remains separately invokable for focused diagnostics and also runs in the
     // default suite now that the cartridge-backed firing/lifetime slice is implemented.
+    /// <summary>Verifies chainsaw firing.</summary>
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
     internal static void VerifyChainsawFiring()
     {
@@ -329,6 +331,7 @@ internal static class ChainsawFiringVerification
         }
     }
 
+    /// <summary>Chainsaw firing command.</summary>
     [VerificationCommand("--chainsaw-firing")]
     internal static int ChainsawFiringCommand()
     {

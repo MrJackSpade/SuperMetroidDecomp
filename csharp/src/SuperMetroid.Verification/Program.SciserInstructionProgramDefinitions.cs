@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents sciser instruction program definitions verification.</summary>
 internal static class SciserInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies sciser instruction program definitions.</summary>
     internal static void VerifySciserInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySciserInstructionProgramDefinitions), () => VerifySciserInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies sciser instruction program definitions.</summary>
     internal static void VerifySciserInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -103,6 +106,7 @@ internal static class SciserInstructionProgramDefinitionsVerification
             "with both instruction and presentation ROM reads forbidden.");
     }
 
+    /// <summary>Execute sciser program.</summary>
     private static void ExecuteSciserProgram(
         RoomEnemySystem enemies,
         RoomEnemySlot slot,
@@ -117,6 +121,7 @@ internal static class SciserInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probe sciser instruction mechanics allocation.</summary>
     private static int ProbeSciserInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -130,18 +135,21 @@ internal static class SciserInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads sciser instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Sciser instruction words")]
     internal static ushort ReadSciserInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
+    /// <summary>New sciser instruction read guard.</summary>
     private static CartridgeReadGuard NewSciserInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(SciserInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Sciser mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, SciserInstructionProgramDefinitionsTooling.PresentationWordCount, SciserInstructionProgramDefinitionsTooling.PresentationWordAddress);
 
+    /// <summary>Sciser instruction program definitions command.</summary>
     [VerificationCommand("--sciser-instruction-program-definitions")]
     internal static int SciserInstructionProgramDefinitionsCommand()
     {

@@ -15,6 +15,7 @@ internal abstract class HZoomerInstructionProgramDefinitions
     /// <summary><c>InstList_HZoomer_UpsideUp_0</c> at $A3:E01F.</summary>
     internal const ushort UpsideUp = 0xe01f;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 36;
 
     /// <summary>Each surface initializes its axis, shows five three-tick frames, then loops to the first frame.</summary>
@@ -36,12 +37,14 @@ internal abstract class HZoomerInstructionProgramDefinitions
         };
     }
 
+    /// <summary>Checks whether an address identifies a presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int offset = address - UpsideRight;
         int local = offset % 28;
         return offset >= 0 && offset < 4 * 28 && local >= 6 && local <= 22 && (local - 6) % 4 == 0;
     }
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

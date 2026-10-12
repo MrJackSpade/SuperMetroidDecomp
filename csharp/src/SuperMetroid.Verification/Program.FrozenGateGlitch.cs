@@ -14,14 +14,21 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 
+/// <summary>Represents frozen gate glitch verification.</summary>
 internal static class FrozenGateGlitchVerification
 {
+    /// <summary>Stores frozen gate start x.</summary>
     private const int FrozenGateStartX = 602;
+    /// <summary>Stores frozen gate y.</summary>
     private const int FrozenGateY = 860;
+    /// <summary>Stores frozen gate block index.</summary>
     private const int FrozenGateBlockIndex = 0x0a16;
+    /// <summary>Stores frozen gate camera x.</summary>
     private const ushort FrozenGateCameraX = 512;
+    /// <summary>Stores frozen gate camera y.</summary>
     private const ushort FrozenGateCameraY = 768;
 
+    /// <summary>Represents frozen gate native record.</summary>
     internal readonly record struct FrozenGateNativeRecord(
         int Distance,
         ushort EnemyX,
@@ -32,6 +39,7 @@ internal static class FrozenGateGlitchVerification
         ushort GatePreInstruction,
         ushort GateInstructionList);
 
+    /// <summary>Verifies frozen enemy gate glitch.</summary>
     internal static void VerifyFrozenEnemyGateGlitch()
     {
         FrozenGateNativeRecord[] expected = File.ReadLines(
@@ -52,6 +60,7 @@ internal static class FrozenGateGlitchVerification
             "one-pixel boundary, unfrozen control, and gate wake match the original CPU.");
     }
 
+    /// <summary>Verifies frozen enemy gate record.</summary>
     private static void VerifyFrozenEnemyGateRecord(FrozenGateNativeRecord expected)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -135,6 +144,7 @@ internal static class FrozenGateGlitchVerification
             $"{expected.Distance}-pixel case selects the translated moving-gate phase");
     }
 
+    /// <summary>Parses frozen gate native record.</summary>
     private static FrozenGateNativeRecord ParseFrozenGateNativeRecord(string row)
     {
         string[] columns = row.Split(',');
@@ -150,6 +160,7 @@ internal static class FrozenGateGlitchVerification
             ushort.Parse(columns[7], NumberStyles.HexNumber, CultureInfo.InvariantCulture));
     }
 
+    /// <summary>Frozen gate glitch command.</summary>
     [VerificationCommand("--frozen-gate-glitch")]
     internal static int FrozenGateGlitchCommand()
     {

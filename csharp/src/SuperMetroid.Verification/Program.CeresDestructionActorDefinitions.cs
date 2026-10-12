@@ -18,8 +18,10 @@ using static CeresZebesActorMetadataVerification;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ceres destruction actor definitions verification.</summary>
 internal static class CeresDestructionActorDefinitionsVerification
 {
+    /// <summary>Verifies ceres destruction actor definitions.</summary>
     internal static void VerifyCeresDestructionActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -66,6 +68,7 @@ internal static class CeresDestructionActorDefinitionsVerification
 
     }
 
+    /// <summary>New ceres destruction actor definition read guard.</summary>
     private static CartridgeReadGuard NewCeresDestructionActorDefinitionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x8bbf23 and < 0x8bbf25 or
@@ -120,6 +123,7 @@ internal static class CeresDestructionActorDefinitionsVerification
                     >= 0x8bcef7 and < 0x8bcf0f,
                 address => $"Ceres destruction reread compiled scene actor byte ${address:X6}.");
 
+    /// <summary>Ceres destruction actor definitions command.</summary>
     [VerificationCommand("--ceres-destruction-actor-definitions")]
     internal static int CeresDestructionActorDefinitionsCommand()
     {

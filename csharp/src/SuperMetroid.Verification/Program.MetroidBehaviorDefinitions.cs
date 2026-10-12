@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents metroid behavior definitions verification.</summary>
 internal static class MetroidBehaviorDefinitionsVerification
 {
+    /// <summary>verify metroid behavior definitions.</summary>
     internal static void VerifyMetroidBehaviorDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort frame = 0; frame < 4; frame++)
@@ -31,6 +33,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             "Metroid behavior definitions: eight displacement words, eight cry words, all 65,536 escape selectors and all eight production instruction selections pass with source tables forbidden.");
     }
 
+    /// <summary>verify metroid escape consumer.</summary>
     private static void VerifyMetroidEscapeConsumer(SuperMetroidAddressSpace rom)
     {
         var guarded = NewMetroidBehaviorReadGuard(rom);
@@ -75,6 +78,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         }
     }
 
+    /// <summary>verify metroid cry consumer.</summary>
     private static void VerifyMetroidCryConsumer(SuperMetroidAddressSpace rom)
     {
         var guarded = NewMetroidBehaviorReadGuard(rom);
@@ -108,6 +112,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         }
     }
 
+    /// <summary>new metroid behavior read guard.</summary>
     private static CartridgeReadGuard NewMetroidBehaviorReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa3ea3f and < 0xa3ea4f or >= 0xa3ead6 and < 0xa3eae6,

@@ -16,7 +16,9 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
     /// </summary>
     internal const ushort FacingUp = 0xec5c;
 
+    /// <summary>Gets the number of compiled mechanics words.</summary>
     public static int MechanicsWordCount => 4;
+    /// <summary>Gets the number of presentation words retained as cartridge data.</summary>
     public static int PresentationWordCount => 2;
 
     /// <summary>$86:EC56-EC61 contains two six-byte single-pose/sleep programs, down then up.</summary>
@@ -27,8 +29,10 @@ internal abstract class YappingMawBodyProjectileInstructionProgramDefinitions
         return new((ushort)(FacingDown + index / 2 * 6 + operation * 4),
             operation == 0 ? (ushort)1 : (ushort)EnemyProjectileInstruction.Sleep);
     }
+    /// <summary>Gets the cartridge address of the presentation word at the given index.</summary>
     public static ushort PresentationWordAddress(int index) => (uint)index < PresentationWordCount
         ? (ushort)(FacingDown + index * 6 + sizeof(ushort)) : throw new IndexOutOfRangeException();
+    /// <summary>Reads a compiled mechanics word at the given address.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int low = 0;

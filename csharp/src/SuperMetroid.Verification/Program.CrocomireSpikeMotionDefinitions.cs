@@ -2,8 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents crocomire spike motion definitions verification.</summary>
 internal static class CrocomireSpikeMotionDefinitionsVerification
 {
+    /// <summary>Verifies crocomire spike acceleration delta.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire spike acceleration delta")]
     internal static void VerifyCrocomireSpikeAccelerationDelta(SuperMetroidAddressSpace rom)
     {
@@ -18,6 +20,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.AccelerationDelta(18), "increment slot past end");
     }
 
+    /// <summary>Verifies crocomire spike maximum acceleration.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire spike maximum acceleration")]
     internal static void VerifyCrocomireSpikeMaximumAcceleration(SuperMetroidAddressSpace rom)
     {
@@ -32,6 +35,7 @@ internal static class CrocomireSpikeMotionDefinitionsVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireSpikeMotionDefinitions.MaximumAcceleration(18), "acceleration limit slot past end");
     }
 
+    /// <summary>Verifies crocomire spike maximum velocity.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire spike maximum velocity")]
     internal static void VerifyCrocomireSpikeMaximumVelocity(SuperMetroidAddressSpace rom)
     {

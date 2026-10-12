@@ -10,8 +10,11 @@ namespace SuperMetroid.Desktop;
 /// </summary>
 public static class UnhandledExceptionConsole
 {
+    /// <summary>Stores fatal error is being reported.</summary>
     private static int fatalErrorIsBeingReported;
+    /// <summary>Stores recoverable ui error reporter.</summary>
     private static Action<Exception>? recoverableUiErrorReporter;
+    /// <summary>Stores fatal diagnostic checkpoint.</summary>
     private static Action? fatalDiagnosticCheckpoint;
 
     /// <summary>
@@ -87,6 +90,7 @@ public static class UnhandledExceptionConsole
         waitForAcknowledgment();
     }
 
+    /// <summary>Handles ui thread exception.</summary>
     private static void HandleUiThreadException(object? sender, ThreadExceptionEventArgs eventArguments)
     {
         Action<Exception>? reporter = Volatile.Read(ref recoverableUiErrorReporter);
@@ -110,6 +114,7 @@ public static class UnhandledExceptionConsole
         Application.ExitThread();
     }
 
+    /// <summary>Handles background thread exception.</summary>
     private static void HandleBackgroundThreadException(object? sender, UnhandledExceptionEventArgs eventArguments)
     {
         Exception exception = eventArguments.ExceptionObject as Exception ??
@@ -119,6 +124,7 @@ public static class UnhandledExceptionConsole
         Environment.ExitCode = ReportAndWait(exception);
     }
 
+    /// <summary>Wait for console acknowledgment.</summary>
     private static void WaitForConsoleAcknowledgment()
     {
         // A normal interactive launch owns a console input stream and waits here. Redirected

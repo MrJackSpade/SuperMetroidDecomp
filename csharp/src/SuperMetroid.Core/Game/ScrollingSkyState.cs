@@ -16,6 +16,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
     /// <summary>Only the sky FX/setup spawns the horizontal HDMA object; the room-main callback alone does not.</summary>
     public bool HorizontalHdmaConfigured { get; } = horizontalHdmaConfigured;
 
+    /// <summary>Stores fixed horizontal scrolls.</summary>
     private readonly uint[] _fixedHorizontalScrolls =
         new uint[RoomFxRomData.ScrollingSky.DataSlotCount];
     /// <summary>
@@ -95,6 +96,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         return result;
     }
 
+    /// <summary>Advances horizontal scrolls.</summary>
     private void AdvanceHorizontalScrolls()
     {
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)
@@ -110,6 +112,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         _fixedHorizontalScrolls[RoomFxRomData.ScrollingSky.DataSlotCount - 1] = 0;
     }
 
+    /// <summary>Queues tilemap rows.</summary>
     private static void QueueTilemapRows(ushort layer1YPosition, VramWriteQueue writes, ScrollingSkyChunkTable pointerTable)
     {
         // First pair: two rows immediately behind the HUD, beginning at cameraY-16 rounded
@@ -152,6 +155,7 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
             RoomFxVram.ScrollingSkyDma(lowerRow + RoomFxRomData.ScrollingSky.TilemapHalfRowWordCount));
     }
 
+    /// <summary>Finds section.</summary>
     private static int FindSection(ushort worldY)
     {
         for (int index = 0; index < RoomFxRomData.ScrollingSky.SectionCount; index++)

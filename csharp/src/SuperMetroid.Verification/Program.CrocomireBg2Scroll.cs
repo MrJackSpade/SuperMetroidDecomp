@@ -3,14 +3,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents crocomire bg2 scroll verification.</summary>
 internal static class CrocomireBg2ScrollVerification
 {
+    /// <summary>verify crocomire bg2 scroll definitions.</summary>
     internal static void VerifyCrocomireBg2ScrollDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireBg2FramePositions), () => VerifyCrocomireBg2FramePositions(rom));
         Suite(nameof(VerifyCrocomireBg2PoseCorrections), () => VerifyCrocomireBg2PoseCorrections(rom));
     }
 
+    /// <summary>verify crocomire bg2 frame positions.</summary>
     private static void VerifyCrocomireBg2FramePositions(SuperMetroidAddressSpace rom)
     {
         AssertEqual(17, CrocomireBg2ScrollDefinitions.EntryCount, "all native BG2 frame pointers");
@@ -26,6 +29,7 @@ internal static class CrocomireBg2ScrollVerification
         AssertThrows<IndexOutOfRangeException>(() => CrocomireBg2ScrollDefinitions.Entry(17), "BG2 entry past end");
     }
 
+    /// <summary>verify crocomire bg2 pose corrections.</summary>
     private static void VerifyCrocomireBg2PoseCorrections(SuperMetroidAddressSpace rom)
     {
         var originalOffsets = new Dictionary<ushort, ushort>();

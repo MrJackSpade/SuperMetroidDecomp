@@ -14,8 +14,10 @@ using SuperMetroid.Core.Runtime;
 using static RetailRuntimeFixtureVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents wrap shot enemies verification.</summary>
 internal static class WrapShotEnemiesVerification
 {
+    /// <summary>verify wrap shot enemy separation.</summary>
     internal static void VerifyWrapShotEnemySeparation()
     {
         foreach (bool left in new[] { false, true })
@@ -78,6 +80,7 @@ internal static class WrapShotEnemiesVerification
         Console.WriteLine("PASS wrap-shot enemy separation: both remote tile hits spare eligible enemies; world-space controls collide.");
     }
 
+    /// <summary>wrap shot enemies command.</summary>
     [VerificationCommand("--wrap-shot-enemies")]
     internal static int WrapShotEnemiesCommand()
     {

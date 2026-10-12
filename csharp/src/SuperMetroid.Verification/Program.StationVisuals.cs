@@ -10,8 +10,10 @@ using static LookupStationStockVerification;
 using static RoomPlmPopulationVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents station visuals verification.</summary>
 internal static class StationVisualsVerification
 {
+    /// <summary>Verifies station visuals.</summary>
     internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmStationVisualCatalog stock = RoomPlmStationVisualCatalog.Stock();
@@ -78,6 +80,7 @@ internal static class StationVisualsVerification
         Suite(nameof(VerifyStationVisualInstallation), () => VerifyStationVisualInstallation(rom));
     }
 
+    /// <summary>Verifies station visual installation.</summary>
     private static void VerifyStationVisualInstallation(SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("station-visual");

@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,8 +6,10 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Skultera species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class SkulteraBehavior : IEnemySpecies
 {
+    /// <summary>Stores terrain.</summary>
     private readonly EnemyTerrain _terrain;
 
+    /// <summary>Initializes a new skultera behavior instance.</summary>
     internal SkulteraBehavior(EnemyTerrain terrain)
     {
         _terrain = terrain;
@@ -46,11 +48,17 @@ internal sealed class SkulteraBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Stores skultera radii.</summary>
     internal readonly ushort[] _skulteraRadii = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores skultera turn finished flags.</summary>
     internal readonly ushort[] _skulteraTurnFinishedFlags = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores skultera angle deltas.</summary>
     internal readonly ushort[] _skulteraAngleDeltas = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores skultera previous yoffsets.</summary>
     internal readonly ushort[] _skulteraPreviousYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores skultera current yoffsets.</summary>
     internal readonly ushort[] _skulteraCurrentYOffsets = new ushort[RoomEnemySystem.MaximumEnemyCount];
+    /// <summary>Stores skultera states.</summary>
     internal readonly SkulteraEnemyState?[] _skulteraStates =
         new SkulteraEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -169,6 +177,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         state.PreviousYOffset = state.CurrentYOffset;
     }
 
+    /// <summary>Begins skultera turn.</summary>
     internal static void BeginSkulteraTurn(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
@@ -205,10 +214,12 @@ internal sealed class SkulteraBehavior : IEnemySpecies
             : SkulteraInstructionProgramDefinitions.SwimmingRight;
     }
 
+    /// <summary>Requires skultera state.</summary>
     private SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>
         _skulteraStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Skultera state.");
 
+    /// <summary>Registers skultera initialization ai.</summary>
     internal void RegisterSkulteraInitializationAi(EnemyAiTable table)
     {
 
@@ -218,6 +229,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers skultera main ai.</summary>
     internal void RegisterSkulteraMainAi(EnemyAiTable table)
     {
 
@@ -227,6 +239,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers skultera owned instructions.</summary>
     internal void RegisterSkulteraOwnedInstructions(EnemyAiTable table)
     {
         table.AddOwnedInstructions((RoomEnemySlot slot, EnemyInstructionContext context, ushort word, ref ushort cursor, out bool yieldInterpreter) =>

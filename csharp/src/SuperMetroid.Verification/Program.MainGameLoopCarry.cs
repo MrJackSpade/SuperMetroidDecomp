@@ -14,6 +14,7 @@ using SuperMetroid.Core.Game;
 using static AssertionsVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents main game loop carry verification.</summary>
 internal static class MainGameLoopCarryVerification
 {
     // #1269: Handle_Earthquake_SoundEffect reloads its timer with ADC .baseTimer ($88:B245)
@@ -21,6 +22,7 @@ internal static class MainGameLoopCarryVerification
     // has preserved since boot's DetermineNumberOfDemoSets ($80:8261). Without it, every
     // rumble in the 100% movie's rising-lava room came a frame early and the door's
     // sound-queue wait ended six updates before native.
+    /// <summary>verify main game loop carry.</summary>
     internal static void VerifyMainGameLoopCarry()
     {
         var bus = new TestAddressSpace();
@@ -48,6 +50,7 @@ internal static class MainGameLoopCarryVerification
         Console.WriteLine("Main-loop carry: boot SRAM decides it, and the earthquake timer reload adds it.");
     }
 
+    /// <summary>main game loop carry command.</summary>
     [VerificationCommand("--main-game-loop-carry")]
     internal static int MainGameLoopCarryCommand()
     {

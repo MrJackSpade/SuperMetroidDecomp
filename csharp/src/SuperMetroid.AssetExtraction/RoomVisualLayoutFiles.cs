@@ -22,8 +22,10 @@ public static class RoomVisualLayoutFiles
 {
     /// <summary>Stock manifest filename recording version-one provenance and each retail source's address, block dimensions, filename, and JSON byte hash.</summary>
     public const string ManifestFileName = "room-layouts.json";
+    /// <summary>Defines format version.</summary>
     private const int FormatVersion = 1;
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -145,6 +147,7 @@ public static class RoomVisualLayoutFiles
     /// <exception cref="InvalidDataException">Stock provenance, hashes, schema, coverage, or layouts are invalid.</exception>
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
+    /// <summary>Builds retail sources.</summary>
     private static ReadOnlyDictionary<int, int> BuildRetailSources()
     {
         var sources = new Dictionary<int, int>();
@@ -163,6 +166,7 @@ public static class RoomVisualLayoutFiles
         return new ReadOnlyDictionary<int, int>(sources);
     }
 
+    /// <summary>Decode.</summary>
     private static RoomVisualLayoutDocument Decode(ISnesAddressSpace bus,
         int sourceAddress, int widthInBlocks)
     {
@@ -194,20 +198,25 @@ public static class RoomVisualLayoutFiles
             widthInBlocks, blockCount / widthInBlocks, foreground, background);
     }
 
+    /// <summary>Represents layout file entry.</summary>
     [SpatialComponents("External format: room-layouts.json manifest stores widthInBlocks/heightInBlocks.")]
     private sealed record LayoutFileEntry(int SourceAddress, int WidthInBlocks,
         int HeightInBlocks, string Sha256)
     {
+        /// <summary>Gets size.</summary>
         [JsonIgnore]
         public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }
+    /// <summary>Represents layout file manifest.</summary>
     private sealed record LayoutFileManifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, LayoutFileEntry> Entries);
+    /// <summary>Represents room visual layout document.</summary>
     [SpatialComponents("External format: per-source room-layout JSON stores widthInBlocks/heightInBlocks.")]
     private sealed record RoomVisualLayoutDocument(int FormatVersion, int SourceAddress,
         int WidthInBlocks, int HeightInBlocks, ushort[] ForegroundVisualWords,
         ushort[] BackgroundVisualWords)
     {
+        /// <summary>Gets size.</summary>
         [JsonIgnore]
         public Extent16<RoomBlocks> Size => new(checked((ushort)WidthInBlocks), checked((ushort)HeightInBlocks));
     }

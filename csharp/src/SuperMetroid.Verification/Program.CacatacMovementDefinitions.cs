@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static AssertionsVerification;
 
+/// <summary>Represents cacatac movement definitions verification.</summary>
 internal static class CacatacMovementDefinitionsVerification
 {
+    /// <summary>Verifies cacatac movement definitions.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac movement definitions")]
     internal static void VerifyCacatacMovementDefinitions(SuperMetroidAddressSpace rom)
     {
@@ -47,6 +49,7 @@ internal static class CacatacMovementDefinitionsVerification
             "Cacatac travel distances: six native words and 18 wrapped production initializers pass with table reads forbidden.");
     }
 
+    /// <summary>Creates cacatac distance read guard.</summary>
     private static CartridgeReadGuard NewCacatacDistanceReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa29f36 and < 0xa29f42,

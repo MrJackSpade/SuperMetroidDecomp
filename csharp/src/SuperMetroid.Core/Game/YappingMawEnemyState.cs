@@ -27,6 +27,7 @@ public enum YappingMawAiFunction : ushort
 /// </summary>
 public sealed class YappingMawEnemyState
 {
+    /// <summary>Initializes a new yapping maw enemy state instance.</summary>
     internal YappingMawEnemyState(RoomEnemySlot owner) => Owner = owner;
 
     /// <summary>Physical enemy slot representing the moving mouth, distinct from the four body-projectile slots and the stationary root sprite-object slot.</summary>
@@ -116,5 +117,6 @@ public sealed class YappingMawEnemyState
 
     // Native variables 27..2E hold one correction offset per link; only bank-$A8
     // calculations mutate them.
+    /// <summary>Gets corrections.</summary>
     internal Offset16<RoomPixels>[] Corrections { get; } = new Offset16<RoomPixels>[4];
 }

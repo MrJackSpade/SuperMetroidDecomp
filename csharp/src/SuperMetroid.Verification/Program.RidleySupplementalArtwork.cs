@@ -5,8 +5,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 
+/// <summary>Represents ridley supplemental artwork verification.</summary>
 internal static class RidleySupplementalArtworkVerification
 {
+    /// <summary>Verifies installed ridley supplemental artwork.</summary>
     internal static void VerifyInstalledRidleySupplementalArtwork(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
@@ -56,6 +58,7 @@ internal static class RidleySupplementalArtworkVerification
             "Ridley rejects adjacent tail-tip OAM as a pointer-table entry");
     }
 
+    /// <summary>Draws installed ridley supplement.</summary>
     internal static OamBuffer DrawInstalledRidleySupplement(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace rom,
         RidleyFacing facing, ushort wingFrame, int? tailDirection)
@@ -88,12 +91,14 @@ internal static class RidleySupplementalArtworkVerification
         return oam;
     }
 
+    /// <summary>Asserts ridley supplement oam.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void AssertRidleySupplementOam(
         OamBuffer expected, OamBuffer actual, string description) =>
         AssertTrue(expected.ImageEquals(actual) &&
                    expected.NextByteOffset == actual.NextByteOffset, description);
 
+    /// <summary>New ridley supplement read guard.</summary>
     private static CartridgeReadGuard NewRidleySupplementReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa6db02 and < 0xa6db2a or
                 >= 0xa6dc90 and < 0xa6de7a,

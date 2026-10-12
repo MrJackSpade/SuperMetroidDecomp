@@ -1,16 +1,22 @@
-﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
 /// <summary>The Tourian unlock species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class TourianUnlockBehavior
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Stores audio.</summary>
     private readonly EnemyAudioQueue _audio;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
 
+    /// <summary>Initializes a new tourian unlock behavior instance.</summary>
     internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation)
     {
         _room = room;
@@ -22,6 +28,7 @@ internal sealed class TourianUnlockBehavior
 
     /// <summary>FX surface used by the native unlocking particles and their splash actors.</summary>
     internal ushort TourianStatueWaterY { get; set; }
+    /// <summary>Spawn tourian descent dust.</summary>
     internal void SpawnTourianDescentDust()
     {
         for (int count = 0; count < 4; count++)
@@ -58,6 +65,7 @@ internal sealed class TourianUnlockBehavior
                 .ApplyEye(_presentation._cgram!, parameter);
     }
 
+    /// <summary>Spawn tourian particle child.</summary>
     internal void SpawnTourianParticleChild(RoomEnemyProjectileSlot parent, RoomEnemyProjectileKind kind)
     {
         if (kind is not (RoomEnemyProjectileKind.TourianStatueSplash or RoomEnemyProjectileKind.TourianStatueParticle or
@@ -76,6 +84,7 @@ internal sealed class TourianUnlockBehavior
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(4 * EnemyTrigonometryTables.SignedNegativeCosineWord(angle)))));
     }
 
+    /// <summary>Tries to step tourian unlock effect.</summary>
     internal bool TryStepTourianUnlockEffect(RoomEnemyProjectileSlot projectile)
     {
         if (!Enum.IsDefined((TourianStatuePreInstruction)projectile.PreInstruction))
@@ -112,6 +121,7 @@ internal sealed class TourianUnlockBehavior
         }
     }
 
+    /// <summary>Tries to execute tourian unlock instruction.</summary>
     internal bool TryExecuteTourianUnlockInstruction(RoomEnemyProjectileSlot projectile, ushort code, ref ushort cursor)
     {
         if (code == (ushort)EnemyProjectileInstruction.QueueSoundInY_Lib2_Max6 &&
@@ -152,6 +162,7 @@ internal sealed class TourianUnlockBehavior
         return true;
     }
 
+    /// <summary>Register tourian unlock projectiles.</summary>
     internal void RegisterTourianUnlockProjectiles(EnemyProjectileHandlerTable table)
     {
         // The Tourian statue effects use words outside the closed bank-$86 sets.

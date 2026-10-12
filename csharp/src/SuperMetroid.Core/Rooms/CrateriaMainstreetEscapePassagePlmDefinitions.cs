@@ -18,6 +18,7 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
     internal const ushort ClearPairDraw = 0x9253;
 
 
+    /// <summary>Tries to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = address switch
@@ -33,6 +34,7 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
         return value != 0;
     }
 
+    /// <summary>Tries to get draw.</summary>
     internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
         if (pointer != ClearPairDraw)

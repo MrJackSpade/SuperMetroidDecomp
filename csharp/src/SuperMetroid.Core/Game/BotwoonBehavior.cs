@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -8,14 +8,22 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Botwoon species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class BotwoonBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores sprite objects.</summary>
     private readonly RoomSpriteObjectPool _spriteObjects;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores presentation.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>Stores collision.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
+    /// <summary>Initializes a new botwoon behavior instance.</summary>
     internal BotwoonBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops)
     {
         _room = room;
@@ -27,9 +35,12 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         _deathsAndDrops = deathsAndDrops;
     }
 
+    /// <summary>Stores botwoon special drop count.</summary>
     private const int BotwoonSpecialDropCount = 16;
 
+    /// <summary>Stores botwoon state.</summary>
     internal BotwoonEnemyState? _botwoonState;
+    /// <summary>Stores botwoon drop requests.</summary>
     private readonly List<BotwoonDropRequest> _botwoonDropRequests = new();
 
     /// <summary>Last library-two sound selected by Botwoon in the current enemy frame.</summary>
@@ -47,6 +58,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
     /// <summary>Track three, queued with the native eight-frame delay after wall cleanup.</summary>
     public BotwoonMusicRequest? LastBotwoonMusicRequest { get; private set; }
 
+    /// <summary>Resets botwoon room state.</summary>
     internal void ResetBotwoonRoomState()
     {
         _botwoonState = null;
@@ -179,6 +191,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         UpdateBotwoonHealthPalette(head, state);
     }
 
+    /// <summary>Runs botwoon action selector.</summary>
     private void RunBotwoonActionSelector(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -214,6 +227,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Runs botwoon authored path state.</summary>
     private void RunBotwoonAuthoredPathState(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -232,6 +246,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         RunBotwoonMovingFrame(head, state, samus, detectHole: false);
     }
 
+    /// <summary>Runs botwoon hidden spit state.</summary>
     private void RunBotwoonHiddenSpitState(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -265,6 +280,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         ChooseBotwoonPath(head, state);
     }
 
+    /// <summary>Runs botwoon moving frame.</summary>
     private void RunBotwoonMovingFrame(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -281,6 +297,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             DetectBotwoonHole(head, state);
     }
 
+    /// <summary>Runs botwoon movement.</summary>
     internal static void RunBotwoonMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         switch (state.MovementFunction)
@@ -301,6 +318,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Moves botwoon toward hole.</summary>
     private static void MoveBotwoonTowardHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         BotwoonHoleDefinition hole =
@@ -322,9 +340,11 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Clamp botwoon target delta.</summary>
     private static short ClampBotwoonTargetDelta(short value) =>
         value < -256 ? (short)-255 : value >= 256 ? (short)255 : value;
 
+    /// <summary>Choose botwoon path.</summary>
     private void ChooseBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         UpdateBotwoonHealthPhase(head, state);
@@ -333,6 +353,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             (_room.Random.Generate() & 0x0018) + insideBase + 4 * state.TargetHoleOffset));
     }
 
+    /// <summary>Updates botwoon health phase.</summary>
     internal static void UpdateBotwoonHealthPhase(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.InsideHole)
@@ -351,6 +372,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.SegmentSpacingBytes = speed.SegmentSpacingBytes;
     }
 
+    /// <summary>Loads botwoon path descriptor.</summary>
     private static void LoadBotwoonPathDescriptor(BotwoonEnemyState state)
     {
         BotwoonPathDescriptorDefinition descriptor =
@@ -364,6 +386,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.MovementFunction = BotwoonMovementFunction.FollowAuthoredPath;
     }
 
+    /// <summary>Follow botwoon path.</summary>
     private static void FollowBotwoonPath(RoomEnemySlot head, BotwoonEnemyState state)
     {
         Offset16<RoomPixels> total = Offset16<RoomPixels>.Zero;
@@ -389,12 +412,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         head.Position += state.PathDirection < 0 ? -total : total;
     }
 
+    /// <summary>Record botwoon head position.</summary>
     private static void RecordBotwoonHeadPosition(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int ringIndex = state.RingByteOffset >> 2;
         state.History[ringIndex] = head.Position.Whole;
     }
 
+    /// <summary>Position botwoon body.</summary>
     private static void PositionBotwoonBody(BotwoonEnemyState state)
     {
         ushort historyOffset = unchecked((ushort)(
@@ -414,6 +439,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Toggle botwoon segment at hole.</summary>
     private static void ToggleBotwoonSegmentAtHole(
         BotwoonEnemyState state,
         int segmentIndex,
@@ -436,6 +462,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.SavedHoleRingByteOffset = 0xffff;
     }
 
+    /// <summary>Orient botwoon body.</summary>
     private static void OrientBotwoonBody(RoomEnemySlot head, BotwoonEnemyState state)
     {
         for (int argument = 24; argument >= 0; argument -= 2)
@@ -464,6 +491,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Detect botwoon hole.</summary>
     internal static void DetectBotwoonHole(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.HoleLatch)
@@ -487,6 +515,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.HoleLatch = false;
     }
 
+    /// <summary>Runs botwoon head function.</summary>
     private void RunBotwoonHeadFunction(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -527,6 +556,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Animate botwoon head from movement.</summary>
     internal static void AnimateBotwoonHeadFromMovement(RoomEnemySlot head, BotwoonEnemyState state)
     {
         Offset16<RoomPixels> moved = head.Position.Whole - state.HeadHistory[3];
@@ -559,6 +589,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.HeadHistory[0] = head.Position.Whole;
     }
 
+    /// <summary>Aim botwoon at samus.</summary>
     internal void AimBotwoonAtSamus(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -575,6 +606,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         RunBotwoonHeadFunction(head, state, samus);
     }
 
+    /// <summary>Installs botwoon head program.</summary>
     private static void InstallBotwoonHeadProgram(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -615,6 +647,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }
 
+    /// <summary>Applies botwoon head cue.</summary>
     private void ApplyBotwoonHeadCue(RoomEnemySlot head, BotwoonEnemyState state, BotwoonHeadCue cue)
     {
         switch (cue)
@@ -633,6 +666,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Spawns botwoon spit volley.</summary>
     private void SpawnBotwoonSpitVolley(
         RoomEnemySlot head,
         BotwoonEnemyState state,
@@ -648,6 +682,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Updates botwoon health palette.</summary>
     internal void UpdateBotwoonHealthPalette(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.PalettePhaseByteOffset ==
@@ -677,6 +712,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.PalettePhaseByteOffset = unchecked((ushort)(state.PalettePhaseByteOffset + 2));
     }
 
+    /// <summary>Runs botwoon head fall.</summary>
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
@@ -697,6 +733,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
     }
 
+    /// <summary>Begins botwoon wall explosions.</summary>
     private void BeginBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         state.Function = BotwoonEnemyFunction.WallExplosions;
@@ -727,6 +764,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         state.SmallExplosionTimer = 0;
     }
 
+    /// <summary>Runs botwoon wall explosions.</summary>
     private void RunBotwoonWallExplosions(RoomEnemySlot head, BotwoonEnemyState state)
     {
         if (state.WallExplosionFrame >= 192)
@@ -795,6 +833,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
     }
 
+    /// <summary>Adds botwoon angle vector.</summary>
     private static void AddBotwoonAngleVector(
         RoomEnemySlot head,
         byte angle,
@@ -809,12 +848,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies
     }
 
 
+    /// <summary>Requires botwoon state.</summary>
     internal BotwoonEnemyState RequireBotwoonState(RoomEnemySlot head) =>
         _botwoonState is not null && head.SlotIndex == 0
             ? _botwoonState
             : throw new InvalidOperationException(
                 $"Enemy slot {head.SlotIndex} has no initialized Botwoon state.");
 
+    /// <summary>Registers botwoon bomb reactions.</summary>
     internal void RegisterBotwoonBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
@@ -826,6 +867,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers botwoon projectiles.</summary>
     internal void RegisterBotwoonProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -839,6 +881,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }, EnemyProjectilePreInstruction.BotwoonsSpit);
     }
 
+    /// <summary>Registers botwoon initialization ai.</summary>
     internal void RegisterBotwoonInitializationAi(EnemyAiTable table)
     {
         table.RegisterInitialization(EnemyAiRoutine.InitAI_Botwoon, slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon, (slot, level, samus, controllerInput, cameraX) =>
@@ -847,6 +890,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers botwoon main ai.</summary>
     internal void RegisterBotwoonMainAi(EnemyAiTable table)
     {
 
@@ -856,6 +900,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers botwoon power bomb reactions.</summary>
     internal void RegisterBotwoonPowerBombReactions(EnemyAiTable table)
     {
         table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
@@ -866,6 +911,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers botwoon shot reactions.</summary>
     internal void RegisterBotwoonShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
@@ -880,6 +926,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>Registers botwoon touch.</summary>
     internal void RegisterBotwoonTouch(EnemyAiTable table)
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon &&
@@ -973,6 +1020,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         }
     }
 
+    /// <summary>Animate botwoon body segment.</summary>
     internal void AnimateBotwoonBodySegment(
         RoomEnemyProjectileSlot segment,
         byte randomEnemyCounter)
@@ -984,6 +1032,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
 
+    /// <summary>Applies botwoon body hurt palette.</summary>
     private void ApplyBotwoonBodyHurtPalette(
         RoomEnemyProjectileSlot segment,
         byte randomEnemyCounter)
@@ -996,6 +1045,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies
                 .WithPaletteIndex(0);
     }
 
+    /// <summary>Runs botwoon body fall.</summary>
     private void RunBotwoonBodyFall(
         RoomEnemyProjectileSlot segment,
         BotwoonEnemyState state,

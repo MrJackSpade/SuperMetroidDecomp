@@ -16,8 +16,10 @@ using SuperMetroid.Core.Rom;
 using static PauseEquipmentRulesVerification;
 using static RetailPresentationFixtureVerification;
 
+/// <summary>Represents pause reserve arrow verification.</summary>
 internal static class PauseReserveArrowVerification
 {
+    /// <summary>verify pause reserve arrow.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve arrow spritemap")]
     internal static void VerifyPauseReserveArrow()
     {
@@ -77,6 +79,7 @@ internal static class PauseReserveArrowVerification
         }
     }
 
+    /// <summary>pause reserve arrow command.</summary>
     [VerificationCommand("--pause-reserve-arrow")]
     internal static int PauseReserveArrowCommand()
     {

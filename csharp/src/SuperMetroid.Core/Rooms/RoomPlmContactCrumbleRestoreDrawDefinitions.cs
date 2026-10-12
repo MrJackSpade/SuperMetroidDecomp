@@ -18,10 +18,13 @@ internal enum ContactCrumbleRestoreDraw : ushort
 /// </summary>
 internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
 {
+    /// <summary>Represents draw.</summary>
     internal readonly record struct Draw(ushort Pointer, bool Vertical, bool Square)
     {
+        /// <summary>Gets run count.</summary>
         internal int RunCount => Square ? 2 : 1;
 
+        /// <summary>Word at.</summary>
         internal ushort WordAt(int run, int block)
         {
             if ((uint)run >= RunCount || (uint)block >= 2)
@@ -35,6 +38,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
         }
     }
 
+    /// <summary>Attempts to describe.</summary>
     internal static bool TryDescribe(ushort pointer, out Draw draw)
     {
         if (!Enum.IsDefined((ContactCrumbleRestoreDraw)pointer))
@@ -54,6 +58,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
 
     // Temporary draw DTOs support existing artwork import/export consumers.
     // Runtime draws the calculated descriptor directly; no generated cache remains.
+    /// <summary>Gets all.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
@@ -64,6 +69,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
         }
     }
 
+    /// <summary>Export.</summary>
     private static RoomPlmShotBlockDrawDefinitions.DrawList Export(Draw draw)
     {
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];

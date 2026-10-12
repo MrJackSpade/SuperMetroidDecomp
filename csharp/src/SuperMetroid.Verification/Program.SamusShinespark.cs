@@ -15,6 +15,7 @@ using SuperMetroid.Core.Spatial;
 using static AssertionsVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus shinespark verification.</summary>
 internal static class SamusShinesparkVerification
 {
 
@@ -469,6 +470,7 @@ internal static void VerifySamusStoredShineAndShinespark()
 // controller equality test, ten raise calls, NMI-mod-eight ammo cadence, ROM delay-list
 // finish command, energy overflow, and one-frame-late movement-handler cleanup.
 
+    /// <summary>Shinespark command.</summary>
     [VerificationCommand("--shinespark")]
     internal static int ShinesparkCommand()
     {

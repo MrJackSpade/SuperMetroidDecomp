@@ -15,14 +15,17 @@ using SuperMetroid.Core.Hardware;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents stoke projectile instruction program definitions verification.</summary>
 internal static class StokeProjectileInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies stoke projectile instruction program definitions.</summary>
     internal static void VerifyStokeProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyStokeProjectileInstructionProgramDefinitions), () => VerifyStokeProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies stoke projectile instruction program definitions.</summary>
     internal static void VerifyStokeProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -136,6 +139,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes stoke projectile instruction mechanics allocation.</summary>
     private static int ProbeStokeProjectileInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -149,6 +153,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New stoke projectile instruction read guard.</summary>
     private static CartridgeReadGuard NewStokeProjectileInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => StokeProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -156,6 +161,7 @@ internal static class StokeProjectileInstructionProgramDefinitionsVerification
                 address => $"Production read compiled Stoke-projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, StokeProjectileInstructionProgramDefinitions.PresentationWordCount, StokeProjectileInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Stoke projectile instruction mechanics command.</summary>
     [VerificationCommand("--stoke-projectile-instruction-mechanics")]
     internal static int StokeProjectileInstructionMechanicsCommand()
     {

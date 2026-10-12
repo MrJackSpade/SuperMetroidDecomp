@@ -18,14 +18,22 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions
 
     // Authored animation cadence (reviewed under #1165): five poses are held for three ticks each.
     // The repeated program layout derives from those still-independent choices.
+    /// <summary>Stores pose count.</summary>
     internal const int PoseCount = 5;
+    /// <summary>Stores pose hold.</summary>
     private const ushort PoseHold = 3;
+    /// <summary>Stores surface count.</summary>
     internal const int SurfaceCount = 4;
+    /// <summary>Stores setup bytes.</summary>
     internal const int SetupBytes = 4;
+    /// <summary>Stores pose bytes.</summary>
     internal const int PoseBytes = 4;
+    /// <summary>Stores loop bytes.</summary>
     private const int LoopBytes = 4;
+    /// <summary>Stores list bytes.</summary>
     internal const int ListBytes = SetupBytes + PoseCount * PoseBytes + LoopBytes;
 
+    /// <summary>Indicates whether presentation word.</summary>
     internal static bool IsPresentationWord(ushort address)
     {
         int relative = address - UpsideRight;
@@ -34,6 +42,7 @@ internal abstract class SharedCrawlerInstructionProgramDefinitions
         return (uint)offset < PoseCount * PoseBytes && offset % PoseBytes == 2;
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         int relative = address - UpsideRight;

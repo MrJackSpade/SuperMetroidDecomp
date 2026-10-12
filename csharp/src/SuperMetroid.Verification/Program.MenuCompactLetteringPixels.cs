@@ -2,8 +2,10 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents menu compact lettering pixels verification.</summary>
 internal static class MenuCompactLetteringPixelsVerification
 {
+    /// <summary>Verifies menu compact lettering pixels.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu compact lettering pixels")]
     internal static void VerifyMenuCompactLetteringPixels(ISnesAddressSpace rom)

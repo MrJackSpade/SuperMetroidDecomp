@@ -16,9 +16,12 @@ public sealed class RoomScrollGrid
     /// <summary>Size in bytes of the fixed native room scroll-zone allocation.</summary>
     public const int StorageByteCount = 0x32;
 
+    /// <summary>Stores cells.</summary>
     private readonly byte[] _cells = new byte[StorageByteCount];
+    /// <summary>Stores bus.</summary>
     private readonly ISnesMemoryBus _bus;
 
+    /// <summary>Initializes a new room scroll grid instance.</summary>
     private RoomScrollGrid(ISnesMemoryBus bus, Extent16<RoomScreens> size)
     {
         _bus = Ensure.NotNull(bus);
@@ -120,6 +123,7 @@ public sealed class RoomScrollGrid
             : Memory.ReadIndexed(index);
     }
 
+    /// <summary>Gets memory.</summary>
     private RoomScrollMemory Memory => new(_bus);
 
     /// <summary>

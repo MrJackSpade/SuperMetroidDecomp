@@ -7,7 +7,9 @@ namespace SuperMetroid.Core.Assets;
 /// complete parts are calculated; independently edited choices remain inputs.</summary>
 internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
 {
+    /// <summary>Stores selection.</summary>
     private readonly (int Tile, bool Cropped)[]? selection;
+    /// <summary>Initializes a new ending logo wrap parts instance.</summary>
     private EndingLogoWrapParts((int Tile, bool Cropped)[] supplied)
     {
         bool stock = supplied.Length == 25;
@@ -16,8 +18,10 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         selection = stock ? null : supplied;
     }
 
-    private enum ClosingPiece { InnerRightTip, OuterLeftTip, RightSpan, LeftSpan, MiddleSpan, InnerLeftTip, RightCorner }
+    /// <summary>Represents closing piece.</summary>
+    private enum ClosingPiece { /** <summary>Identifies inner right tip.</summary> */ InnerRightTip, /** <summary>Identifies outer left tip.</summary> */ OuterLeftTip, /** <summary>Identifies right span.</summary> */ RightSpan, /** <summary>Identifies left span.</summary> */ LeftSpan, /** <summary>Identifies middle span.</summary> */ MiddleSpan, /** <summary>Identifies inner left tip.</summary> */ InnerLeftTip, /** <summary>Identifies right corner.</summary> */ RightCorner }
 
+    /// <summary>Stock selection.</summary>
     internal static (int Tile, bool Cropped) StockSelection(int index)
     {
         if ((uint)index >= 25) throw new ArgumentOutOfRangeException(nameof(index));
@@ -53,6 +57,7 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         return (index == 23 ? (int)EndingLogoWrapCorner.OuterSideJunction : (int)EndingLogoWrapCorner.UpperSideEndpoint, false);
     }
 
+    /// <summary>Calculates if matching.</summary>
     internal static SpriteComposition CalculateIfMatching(SpriteComposition supplied)
     {
         var selection = new (int Tile, bool Cropped)[supplied.PartCount];
@@ -66,6 +71,7 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         return supplied.CalculateIfMatching(new EndingLogoWrapParts(selection));
     }
 
+    /// <summary>Tries to place.</summary>
     private static bool TryPlace(int tile, bool cropped, out CompiledSpritePart part)
     {
         int x, y;
@@ -129,7 +135,9 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
         return true;
     }
 
+    /// <summary>Gets count.</summary>
     public int Count => selection?.Length ?? 25;
+    /// <summary>Gets or sets an indexed value.</summary>
     public CompiledSpritePart this[int index]
     {
         get
@@ -140,10 +148,12 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
             return part;
         }
     }
+    /// <summary>Gets enumerator.</summary>
     public IEnumerator<CompiledSpritePart> GetEnumerator()
     {
         for (int index = 0; index < Count; index++) yield return this[index];
     }
+    /// <summary>Gets enumerator.</summary>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
 

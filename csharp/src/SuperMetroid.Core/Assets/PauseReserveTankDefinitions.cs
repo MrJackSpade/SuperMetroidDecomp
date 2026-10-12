@@ -68,6 +68,7 @@ public static class PauseReserveTankDefinitions
         _ => throw new InvalidOperationException($"Undefined PauseReserveTankVisual {identity}."),
     };
 
+    /// <summary>Stock part.</summary>
     internal static SpriteVisualPart StockPart(PauseReserveTankVisual identity)
     {
         int tile = StockTile(identity);

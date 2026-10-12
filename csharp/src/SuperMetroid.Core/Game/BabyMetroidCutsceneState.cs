@@ -33,12 +33,15 @@ public sealed class BabyMetroidCutsceneState
     // `$A9:93BB-$93CA` is shared by Mother Brain's brain shake and the latched Baby.
     // `Enemy.frameCounter & 6` is a byte offset into these four X/Y entries. The jitter
     // is authored: X steps 0,-1,0,1 but Y does not mirror it (see residualScalarInputsReview).
+    /// <summary>Stores shaking offsets.</summary>
     private static readonly Offset16<RoomPixels>[] ShakingOffsets =
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     // The Baby's latch points hang below their anchors: 24 pixels above Mother Brain's
     // brain and 20 above Samus's centre.
+    /// <summary>Stores brain latch offset.</summary>
     private static readonly Offset16<RoomPixels> BrainLatchOffset = new(0, -0x0018);
+    /// <summary>Stores samus latch offset.</summary>
     private static readonly Offset16<RoomPixels> SamusLatchOffset = new(0, -0x0014);
 
     // Enemy header `$A0:ECBF` declares width/height `$24`. Despite the header macro's
@@ -820,6 +823,7 @@ public sealed class BabyMetroidCutsceneState
         return new BabyMetroidOnionRingHitResult();
     }
 
+    /// <summary>Steps samus rainbow palette animation.</summary>
     private void StepSamusRainbowPaletteAnimation(
         SamusState samus,
         ref bool samusRainbowActivated)
@@ -852,6 +856,7 @@ public sealed class BabyMetroidCutsceneState
         }
     }
 
+    /// <summary>Accelerate downwards for death.</summary>
     private void AccelerateDownwardsForDeath()
     {
         // `$CE40` subtracts `$20` from the magnitude, clamps at zero, reapplies the old
@@ -865,6 +870,7 @@ public sealed class BabyMetroidCutsceneState
             new SnesSignedEightEight(unchecked((ushort)(Velocity.Y.RawValue + 2))));
     }
 
+    /// <summary>Steps fade to black.</summary>
     private bool StepFadeToBlack(ref BabyMetroidPaletteTransferRequest? paletteTransfer)
     {
         // No timer changes occur until the actor's centre reaches Y `$80`.
@@ -889,6 +895,7 @@ public sealed class BabyMetroidCutsceneState
         return false;
     }
 
+    /// <summary>Steps death explosion.</summary>
     private BabyMetroidDeathExplosionRequest? StepDeathExplosion()
     {
         DeathExplosionTimer = unchecked((ushort)(DeathExplosionTimer - 1));
@@ -907,6 +914,7 @@ public sealed class BabyMetroidCutsceneState
             SoundEffect: 0x0013);
     }
 
+    /// <summary>Sets instruction list.</summary>
     private void SetInstructionList(ushort pointer)
     {
         InstructionList = pointer;
@@ -914,6 +922,7 @@ public sealed class BabyMetroidCutsceneState
         InstructionLoopCounter = 0;
     }
 
+    /// <summary>Update speed and angle.</summary>
     private void UpdateSpeedAndAngle(
         ushort angleDelta,
         ushort targetAngle,
@@ -948,6 +957,7 @@ public sealed class BabyMetroidCutsceneState
             new SnesSignedEightEight(CalculateVelocityComponent(Speed, unchecked((byte)(angleByte + 0x40)))));
     }
 
+    /// <summary>Calculates velocity component.</summary>
     private static ushort CalculateVelocityComponent(
         ushort speed,
         byte sineIndex)
@@ -957,6 +967,7 @@ public sealed class BabyMetroidCutsceneState
         return EnemyTrigonometryTables.MultiplySignedSine(speed, sineIndex);
     }
 
+    /// <summary>Moves according to velocity.</summary>
     private void MoveAccordingToVelocity()
     {
         // SEP #$20 adds velocity's low byte to subposition byte +1. REP #$20 then sign-
@@ -989,6 +1000,7 @@ public sealed class BabyMetroidCutsceneState
         }
     }
 
+    /// <summary>Collides with rectangle.</summary>
     private bool CollidesWithRectangle(
         Position16<RoomPixels> center,
         Extent16<RoomPixels> rectangleRadius)
@@ -1002,6 +1014,7 @@ public sealed class BabyMetroidCutsceneState
         return yDistance <= rectangleRadius.Y + YHitboxRadius;
     }
 
+    /// <summary>Gradually accelerate towards point.</summary>
     private void GraduallyAccelerateTowardsPoint(
         Position16<RoomPixels> target,
         ushort accelerationDivisor,
@@ -1016,6 +1029,7 @@ public sealed class BabyMetroidCutsceneState
             Position.Y.Whole, target.Y, Velocity.Y.RawValue, divisor)));
     }
 
+    /// <summary>Checks whether the actor lies well outside the visible screen.</summary>
     private bool IsVaguelyOffScreen(Position16<RoomPixels> layer1)
     {
         // This is the signed-branch sequence at `$A9:F57A`; its generous rectangle extends
@@ -1031,6 +1045,7 @@ public sealed class BabyMetroidCutsceneState
         return relativeX is < 0 or >= 0x0120;
     }
 
+    /// <summary>Accelerate towards point.</summary>
     private bool AccelerateTowardsPoint(Position16<RoomPixels> target, ushort acceleration)
     {
         // `$F5A6` counts axes whose next whole-pixel prediction reaches/crosses target,
@@ -1040,6 +1055,7 @@ public sealed class BabyMetroidCutsceneState
         return reachedX && reachedY;
     }
 
+    /// <summary>Accelerate towards yposition.</summary>
     private bool AccelerateTowardsYPosition(ushort targetY, ushort acceleration)
     {
         short difference = unchecked((short)(Position.Y.Whole - targetY));
@@ -1068,6 +1084,7 @@ public sealed class BabyMetroidCutsceneState
         return true;
     }
 
+    /// <summary>Accelerate towards xposition.</summary>
     private bool AccelerateTowardsXPosition(ushort targetX, ushort acceleration)
     {
         short difference = unchecked((short)(Position.X.Whole - targetX));
@@ -1095,6 +1112,7 @@ public sealed class BabyMetroidCutsceneState
         return true;
     }
 
+    /// <summary>Captures.</summary>
     private static BabyMetroidCutscenePoint Capture() => new();
 
     /// <summary>The 4x4 half-extent rectangle every route and staging target is tested with.</summary>

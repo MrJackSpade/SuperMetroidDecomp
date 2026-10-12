@@ -19,8 +19,10 @@ public enum KagoEnemyFunction : ushort
 /// </summary>
 public sealed class KagoEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
 
+    /// <summary>Initializes a new kago enemy state instance.</summary>
     internal KagoEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>Common variable A ($7E:0FA8 plus physical slot offset), holding the native bank-$A8 indirect main-AI word; initialized to $AB7B and changed to $AB81 on the first AI update.</summary>

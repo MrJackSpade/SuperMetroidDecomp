@@ -28,13 +28,20 @@ public enum AlcoonEnemyFunction : ushort
 /// </summary>
 public sealed class AlcoonEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Stores y accelerations.</summary>
     private readonly ushort[] _yAccelerations;
+    /// <summary>Stores y subaccelerations.</summary>
     private readonly ushort[] _ySubaccelerations;
+    /// <summary>Stores spawn xpositions.</summary>
     private readonly ushort[] _spawnXPositions;
+    /// <summary>Stores landing ypositions.</summary>
     private readonly ushort[] _landingYPositions;
+    /// <summary>Stores step counters.</summary>
     private readonly ushort[] _stepCounters;
 
+    /// <summary>Initializes a new alcoon enemy state instance.</summary>
     internal AlcoonEnemyState(
         RoomEnemySlot slot,
         ushort[] yAccelerations,

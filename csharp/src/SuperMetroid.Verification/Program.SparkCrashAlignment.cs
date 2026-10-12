@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
+/// <summary>Represents spark crash alignment verification.</summary>
 internal static class SparkCrashAlignmentVerification
 {
+    /// <summary>Verifies spark crash alignment.</summary>
     internal static void VerifySparkCrashAlignment()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -38,6 +40,7 @@ internal static class SparkCrashAlignmentVerification
         }
     }
 
+    /// <summary>Spark crash alignment command.</summary>
     [VerificationCommand("--spark-crash-alignment")]
     internal static int SparkCrashAlignmentCommand()
     {

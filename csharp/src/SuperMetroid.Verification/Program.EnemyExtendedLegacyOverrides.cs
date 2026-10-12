@@ -2,6 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using static EnemyContentIdentityFixtureVerification;
 
+/// <summary>Represents enemy extended legacy overrides verification.</summary>
 internal static class EnemyExtendedLegacyOverridesVerification
 {
     /// <summary>Verifies declared historical component/binding schemas with authored JSON only.</summary>
@@ -103,6 +104,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
         }
     }
 
+    /// <summary>extended enemy schema fixtures.</summary>
     private static (int Version, int Count)[] ExtendedEnemySchemaFixtures()
     {
         Type catalog = typeof(EnemyExtendedFrameDefinitions);

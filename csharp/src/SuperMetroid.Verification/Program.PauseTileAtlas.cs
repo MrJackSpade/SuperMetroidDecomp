@@ -9,8 +9,10 @@ using SuperMetroid.Desktop;
 using static GraphDigestVerification;
 using static PauseEquipmentRulesVerification;
 
+/// <summary>Represents pause tile atlas verification.</summary>
 internal static class PauseTileAtlasVerification
 {
+    /// <summary>verify pause tile atlas.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause UI tile artwork")]
     internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
@@ -81,6 +83,7 @@ internal static class PauseTileAtlasVerification
         Console.WriteLine("Pause UI atlas: exact bytes, three-area map/equipment transitions, immediate edited pixels, capture/restore, equipment isolation and strict resource failures pass.");
     }
 
+    /// <summary>new pause artwork read guard.</summary>
     private static CartridgeReadGuard NewPauseArtworkReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (uint)(address - PauseTileAtlasFormat.SourceAddress) < PauseTileAtlasFormat.ByteCount,

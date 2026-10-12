@@ -38,6 +38,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
     /// <summary>$84:8005-8016: eight native health-selected palette bands; interpolation spans seven intervals.</summary>
     private const int Intervals = 7;
 
+    /// <summary>Matches.</summary>
     internal static bool Matches(Bgr555[][] rows, bool rear)
     {
         for (int frame = 0; frame <= Intervals; frame++)
@@ -46,6 +47,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
         return true;
     }
 
+    /// <summary>Color.</summary>
     internal static Bgr555 Color(int frame, int color, bool rear)
     {
         if ((uint)frame > Intervals || (uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -54,6 +56,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
         return first.Zip(last, (_, from, to) => (from * (Intervals - frame) + to * frame + Intervals / 2) / Intervals);
     }
 
+    /// <summary>Endpoint.</summary>
     private static Bgr555 Endpoint(bool gold, int color, bool rear)
     {
         Bgr555 front = gold ? Gold(color) : Low(color);
@@ -69,6 +72,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
         return result;
     }
 
+    /// <summary>Low.</summary>
     private static Bgr555 Low(int color)
     {
         if (color <= 8)
@@ -93,6 +97,7 @@ internal static class GoldenTorizoHealthPaintDefinitions
         };
     }
 
+    /// <summary>Gold.</summary>
     private static Bgr555 Gold(int color)
     {
         if (color is >= 9 and <= 11)
@@ -118,7 +123,9 @@ internal static class GoldenTorizoHealthPaintDefinitions
         };
     }
 
+    /// <summary>Adjust.</summary>
     private static Bgr555 Adjust(Bgr555 color, int red, int green, int blue) =>
         Bgr555.Saturating(color.Red + red, color.Green + green, color.Blue + blue);
+    /// <summary>Pack.</summary>
     private static Bgr555 Pack(int red, int green, int blue) => new(red, green, blue);
 }

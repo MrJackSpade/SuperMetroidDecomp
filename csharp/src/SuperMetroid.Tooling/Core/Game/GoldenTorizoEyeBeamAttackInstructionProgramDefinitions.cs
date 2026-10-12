@@ -1,4 +1,4 @@
-﻿using static SuperMetroid.Core.Game.InstructionItem;
+using static SuperMetroid.Core.Game.InstructionItem;
 
 namespace SuperMetroid.Core.Game;
 
@@ -25,8 +25,10 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
 
     /// <summary>Native program bank $AA.</summary>
     internal const byte Bank = 0xaa;
+    /// <summary>Gets bank.</summary>
     static int IDeclaredProgramBank.Bank => Bank;
 
+    /// <summary>Stores layout.</summary>
     private static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xd10d),
         Entry(Start),
@@ -63,12 +65,15 @@ internal abstract class GoldenTorizoEyeBeamAttackInstructionProgramDefinitions :
         Op((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY, TorizoNormalMovementFunction),
         Op((ushort)TorizoInstruction.Instruction_Torizo_Return));
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => Layout.MechanicsWordCount;
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         (ushort address, ushort value) = Layout.MechanicsWord(index);
         return new(address, value);
     }
 
+    /// <summary>Indicates whether compiled mechanics byte.</summary>
     public static bool IsCompiledMechanicsByte(int address) => Layout.IsCompiledMechanicsByte(address);
 }

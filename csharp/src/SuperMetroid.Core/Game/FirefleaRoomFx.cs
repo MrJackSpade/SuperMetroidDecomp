@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Game;
 /// <summary>Fixed-color producer for the Fireflea room's otherwise inert HDMA object.</summary>
 internal static class FirefleaRoomFx
 {
+    /// <summary>Initialize.</summary>
     public static void Initialize(ISnesMemoryBus bus)
     {
         var fx = new FirefleaFxMemory(bus);
@@ -13,6 +14,7 @@ internal static class FirefleaRoomFx
         fx.Darkness = 0;
     }
 
+    /// <summary>Step.</summary>
     public static void Step(ISnesMemoryBus bus, bool frozen, ushort darkness)
     {
         // The enemy system owns deaths; the effect only samples that counter. WRAM

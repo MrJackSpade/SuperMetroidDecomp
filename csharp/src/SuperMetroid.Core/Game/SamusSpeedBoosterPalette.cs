@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Game;
 
+/// <summary>Represents samus speed booster palette.</summary>
 internal static class SamusSpeedBoosterPalette
 {
+    /// <summary>Applies.</summary>
     internal static void Apply(ISnesAddressSpace bus, SnesCgram cgram, ushort pointer,
         SamusFullBodyCycleColorCatalog? colors)
     {

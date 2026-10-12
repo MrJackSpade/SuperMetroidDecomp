@@ -13,6 +13,7 @@ namespace SuperMetroid.AssetExtraction;
 [CpuBusBoundary("codec: ROM ending Mode-7 tilemaps and characters → ending Mode-7 artwork files")]
 public static class EndingMode7ArtworkFiles
 {
+    /// <summary>Stores manifest version.</summary>
     private const int ManifestVersion = 2;
 
     /// <summary>Separates the three ending backdrops and reward icon into editable map JSON and indexed character PNGs, verifies native transfer round-trips, and creates their hashed manifest.</summary>
@@ -222,6 +223,7 @@ public static class EndingMode7ArtworkFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
 
+    /// <summary>Stores json options.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -229,6 +231,7 @@ public static class EndingMode7ArtworkFiles
         WriteIndented = true,
     };
 
+    /// <summary>Represents manifest.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
         Dictionary<string, string> StockSha256);
 }

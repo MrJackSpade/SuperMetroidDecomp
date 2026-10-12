@@ -28,11 +28,15 @@ internal sealed class EvidencedSoundAcknowledgements
         ClearAcknowledgement = 3,
     }
 
+    /// <summary>Stores library count.</summary>
     private const int LibraryCount = 3;
 
+    /// <summary>Stores states.</summary>
     private readonly byte[] states = new byte[LibraryCount];
+    /// <summary>Stores currents.</summary>
     private readonly byte[] currents = new byte[LibraryCount];
 
+    /// <summary>Initializes a new evidenced sound acknowledgements instance.</summary>
     public EvidencedSoundAcknowledgements(byte[] nativeMemory) => Capture(nativeMemory);
 
     /// <summary>

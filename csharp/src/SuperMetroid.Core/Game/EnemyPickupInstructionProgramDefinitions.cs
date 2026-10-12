@@ -20,6 +20,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
 
     /// <summary><c>InstList_EnemyProjectile_Pickup_PowerBombs</c> at $86:EDEB.</summary>
     internal const ushort PowerBombs = 0xedeb;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 16;
 
     /// <summary>
@@ -37,8 +38,10 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     };
 
+    /// <summary>Represents pickup loop.</summary>
     internal readonly record struct PickupLoop(ushort Start, int Frames, ushort Duration, bool HasSleep)
     {
+        /// <summary>Word.</summary>
         internal InstructionMechanicsWord Word(int index)
         {
             if (index < Frames)
@@ -53,6 +56,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         }
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount)
@@ -67,11 +71,13 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
         throw new IndexOutOfRangeException();
     }
 
+    /// <summary>Owns.</summary>
     internal static bool Owns(RoomEnemyProjectileKind kind, ushort address) =>
         (kind is RoomEnemyProjectileKind.EnemyDeathPickup or
             RoomEnemyProjectileKind.EnemyDeathExplosion) &&
         TryRead(address, out _);
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -80,6 +86,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitions
             $"Enemy-pickup mechanics pointer $86:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 5; program++)

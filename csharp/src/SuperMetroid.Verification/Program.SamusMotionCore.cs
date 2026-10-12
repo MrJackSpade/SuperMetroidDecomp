@@ -15,6 +15,7 @@ using static AssertionsVerification;
 using static SyntheticSamusCartridgeVerification;
 using static VerificationHelpersVerification;
 
+/// <summary>Represents samus motion core verification.</summary>
 internal static class SamusMotionCoreVerification
 {
 
@@ -606,12 +607,14 @@ internal static void VerifySamusExtraDisplacement()
 // stage-gated storage, ROM palette indirection, windup timeout, directional installation,
 // 16.16 acceleration, energy drain, and the low-energy crash handoff.
 
+    /// <summary>Horizontal speed fixture command.</summary>
     [VerificationCommand("--horizontal-speed-fixture")]
     internal static int HorizontalSpeedFixtureCommand()
     {
      VerifySamusHorizontalSpeed(); return 0; 
     }
 
+    /// <summary>Samus horizontal speed command.</summary>
     [VerificationCommand("--samus-horizontal-speed")]
     internal static int SamusHorizontalSpeedCommand()
     {

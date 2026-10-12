@@ -30,6 +30,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
     /// <summary>$86:CE65 shard placement: argument four selects X offset -16.</summary>
     private const ushort CentreShard = 4;
 
+    /// <summary>Attempts to read mechanics word.</summary>
     internal static bool TryReadMechanicsWord(ushort address, out ushort value)
     {
         value = 0;
@@ -38,6 +39,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Attempts to read mechanics byte.</summary>
     internal static bool TryReadMechanicsByte(ushort address, out byte value)
     {
         value = 0;
@@ -46,6 +48,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         return true;
     }
 
+    /// <summary>Byte at.</summary>
     private static byte ByteAt(int address)
     {
         if (address == FirstAddress + 2) return 1; // Area's primary boss bit.
@@ -54,6 +57,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         return (byte)(WordAt(start) >> ((address - start) * 8));
     }
 
+    /// <summary>Word at.</summary>
     private static ushort WordAt(int address)
     {
         if (address < Stages)
@@ -112,6 +116,7 @@ internal static class MotherBrainGlassPlmProgramDefinitions
         throw new InvalidOperationException("Glass program stage domain is inconsistent.");
     }
 
+    /// <summary>Draws at.</summary>
     private static ushort DrawAt(int stage) => stage switch
     {
         0 => (ushort)MotherBrainGlassDraw.Initial,

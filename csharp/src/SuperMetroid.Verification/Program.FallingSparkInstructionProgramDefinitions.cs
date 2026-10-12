@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents falling spark instruction program definitions verification.</summary>
 internal static class FallingSparkInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies falling spark instruction program definitions.</summary>
     internal static void VerifyFallingSparkInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFallingSparkInstructionProgramDefinitions), () => VerifyFallingSparkInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies falling spark instruction program definitions.</summary>
     internal static void VerifyFallingSparkInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -136,6 +139,7 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
             "with mechanics bytes forbidden.");
     }
 
+    /// <summary>Probes falling spark instruction mechanics allocation.</summary>
     private static int ProbeFallingSparkInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -149,6 +153,7 @@ internal static class FallingSparkInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Falling spark instruction mechanics command.</summary>
     [VerificationCommand("--falling-spark-instruction-mechanics")]
     internal static int FallingSparkInstructionMechanicsCommand()
     {

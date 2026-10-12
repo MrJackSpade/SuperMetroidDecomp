@@ -9,15 +9,24 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Editable three-row gameplay-HUD tilemap, visual patches and layout anchors.</summary>
 public sealed class GameplayHudPresentation
 {
+    /// <summary>Stores template overrides.</summary>
     private readonly Dictionary<int, ushort> templateOverrides;
+    /// <summary>Stores top row overrides.</summary>
     private readonly Dictionary<int, ushort> topRowOverrides;
+    /// <summary>Stores health digits.</summary>
     private readonly Dictionary<int, ushort> healthDigits;
+    /// <summary>Stores ammo digits.</summary>
     private readonly Dictionary<int, ushort> ammoDigits;
+    /// <summary>Stores auto reserve overrides.</summary>
     private readonly Dictionary<int, ushort> autoReserveOverrides;
+    /// <summary>Stores auto anchors.</summary>
     private readonly Dictionary<int, int> autoAnchors;
+    /// <summary>Stores energy tank anchors.</summary>
     private readonly Dictionary<int, int> energyTankAnchors;
+    /// <summary>Stores missile.</summary>
     private readonly CompiledIcon missile, superMissile, powerBomb, grapple, xray;
 
+    /// <summary>Initializes a new gameplay hud presentation instance.</summary>
     private GameplayHudPresentation(GameplayHudPresentationDocument document, byte[] source)
     {
         ushort[] topRow = CompileCells(document.TopRow, GameplayHudDefinitions.TopRowCellCount,
@@ -246,6 +255,7 @@ public sealed class GameplayHudPresentation
         output.Write(bytes);
     }
 
+    /// <summary>Draws digits.</summary>
     private static void DrawDigits(Span<ushort> tiles, Dictionary<int, ushort> glyphs, int value, Position16<TilemapCells> anchor, int count)
     {
         int divisor = count == 3 ? 100 : 10;
@@ -258,12 +268,14 @@ public sealed class GameplayHudPresentation
         }
     }
 
+    /// <summary>Icon.</summary>
     private CompiledIcon Icon(int itemIndex) => itemIndex switch
     {
         0 => missile, 1 => superMissile, 2 => powerBomb, 3 => grapple, 4 => xray,
         _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
     };
 
+    /// <summary>Validates distinct dynamic cells.</summary>
     private void ValidateDistinctDynamicCells()
     {
         var owners = new Dictionary<int, string>();
@@ -288,6 +300,7 @@ public sealed class GameplayHudPresentation
         for (int x = 0; x < 5; x++) Own(MinimapCellIndex(new(checked((ushort)x), checked((ushort)y))), "minimap");
     }
 
+    /// <summary>Compiles auto reserve.</summary>
     private static Dictionary<int, ushort> CompileAutoReserve(GameplayHudAutoReserveDocument document)
     {
         ushort[] full = CompileCells(document.ContainsEnergy, 6, "filled AUTO indicator");
@@ -302,6 +315,7 @@ public sealed class GameplayHudPresentation
         }
         return overrides;
     }
+    /// <summary>Compiles digit overrides.</summary>
     private static Dictionary<int, ushort> CompileDigitOverrides(GameplayHudCell[]? cells, string name)
     {
         ushort[] compiled = CompileCells(cells, 10, name);
@@ -310,6 +324,7 @@ public sealed class GameplayHudPresentation
             if (compiled[digit] != GameplayHudDefinitions.DigitWord(digit)) overrides.Add(digit, compiled[digit]);
         return overrides;
     }
+    /// <summary>Compiles cells.</summary>
     private static ushort[] CompileCells(GameplayHudCell[]? cells, int count, string name)
     {
         if (cells is null || cells.Length != count)
@@ -320,6 +335,7 @@ public sealed class GameplayHudPresentation
         return result;
     }
 
+    /// <summary>Compiles cell.</summary>
     private static ushort CompileCell(GameplayHudCell? cell, string name)
     {
         if (cell is null || cell.TileColumn is < 0 or > 31 || cell.TileRow is < 0 or > 31 ||
@@ -330,12 +346,15 @@ public sealed class GameplayHudPresentation
             (cell.FlipY ? SnesTileFlipFlags.Vertical : 0)).Raw;
     }
 
+    /// <summary>Energy tank cell.</summary>
     private int EnergyTankCell(int tank) => energyTankAnchors.TryGetValue(tank, out int cell)
         ? cell : GameplayHudDefinitions.EnergyTankByteOffset(tank) / sizeof(ushort);
 
+    /// <summary>Auto reserve cell.</summary>
     private int AutoReserveCell(int index) => autoAnchors.TryGetValue(index, out int cell)
         ? cell : GameplayHudDefinitions.AutoReserveCellIndex(index);
 
+    /// <summary>Compiles anchors.</summary>
     private static Dictionary<int, int> CompileAnchors(Position16<TilemapCells>[]? anchors, int count,
         string name, Func<int, int> defaultCell)
     {
@@ -349,6 +368,7 @@ public sealed class GameplayHudPresentation
         }
         return overrides;
     }
+    /// <summary>Validates anchor.</summary>
     private static Position16<TilemapCells> ValidateAnchor(Position16<TilemapCells> anchor, Extent16<TilemapCells> size, string name)
     {
         if (anchor.X < 0 || anchor.Y < 0 ||
@@ -357,31 +377,43 @@ public sealed class GameplayHudPresentation
         return anchor;
     }
 
+    /// <summary>Validates palette.</summary>
     private static int ValidatePalette(int palette, string name) => (uint)palette <= 7
         ? palette
         : throw new InvalidDataException($"Gameplay HUD {name} must be in range 0..7.");
 
+    /// <summary>Index.</summary>
     private static int Index(Position16<TilemapCells> point) => GameplayHudDefinitions.Size.RowMajorIndex(point);
+    /// <summary>Validates tilemap.</summary>
     private static void ValidateTilemap(Span<ushort> tiles)
     {
         if (tiles.Length != GameplayHudDefinitions.CellCount)
             throw new ArgumentException("Gameplay HUD requires exactly 96 mutable cells.", nameof(tiles));
     }
 
+    /// <summary>Represents compiled icon.</summary>
     private sealed class CompiledIcon
     {
+        /// <summary>Stores item.</summary>
         private readonly int item;
+        /// <summary>Stores edits.</summary>
         private readonly Dictionary<int, ushort> edits = new();
+        /// <summary>Gets width.</summary>
         internal int Width => GameplayHudDefinitions.IconWidth(item);
+        /// <summary>Stores height.</summary>
         internal const int Height = 2;
 
+        /// <summary>Stores anchor override.</summary>
         private readonly Position16<TilemapCells>? anchorOverride;
+        /// <summary>Gets anchor.</summary>
         internal Position16<TilemapCells> Anchor => anchorOverride ?? StockAnchor(item);
+        /// <summary>Stock anchor.</summary>
         private static Position16<TilemapCells> StockAnchor(int item)
         {
             int index = GameplayHudDefinitions.ItemByteOffset(item) / sizeof(ushort);
             return new(checked((ushort)(index % GameplayHudDefinitions.Width)), checked((ushort)(index / GameplayHudDefinitions.Width)));
         }
+        /// <summary>Initializes a new compiled icon instance.</summary>
         internal CompiledIcon(int item, GameplayHudIconDocument? document)
         {
             this.item = item;
@@ -393,6 +425,7 @@ public sealed class GameplayHudPresentation
             for (int cell = 0; cell < cells.Length; cell++)
                 if (cells[cell] != GameplayHudDefinitions.IconWord(item, cell)) edits.Add(cell, cells[cell]);
         }
+        /// <summary>Cell.</summary>
         internal ushort Cell(int index) => edits.TryGetValue(index, out ushort edited)
             ? edited : GameplayHudDefinitions.IconWord(item, index);
     }

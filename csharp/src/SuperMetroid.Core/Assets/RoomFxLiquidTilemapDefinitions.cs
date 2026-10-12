@@ -53,6 +53,7 @@ public static class RoomFxLiquidTilemapDefinitions
         return true;
     }
 
+    /// <summary>Validates type.</summary>
     private static void ValidateType(RoomFxType type)
     {
         if (type is not (RoomFxType.Lava or RoomFxType.Acid or RoomFxType.Water))

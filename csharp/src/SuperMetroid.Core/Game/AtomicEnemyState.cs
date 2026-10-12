@@ -32,12 +32,18 @@ public enum AtomicHorizontalMovement : ushort
 /// </summary>
 public sealed class AtomicEnemyState
 {
+    /// <summary>Stores slot.</summary>
     private readonly RoomEnemySlot _slot;
+    /// <summary>Stores speed fractions.</summary>
     private readonly ushort[] _speedFractions;
+    /// <summary>Stores speed wholes.</summary>
     private readonly ushort[] _speedWholes;
+    /// <summary>Stores negative speed fractions.</summary>
     private readonly ushort[] _negativeSpeedFractions;
+    /// <summary>Stores negative speed wholes.</summary>
     private readonly ushort[] _negativeSpeedWholes;
 
+    /// <summary>Initializes a new atomic enemy state instance.</summary>
     internal AtomicEnemyState(
         RoomEnemySlot slot,
         ushort[] speedFractions,

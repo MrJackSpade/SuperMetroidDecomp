@@ -9,8 +9,10 @@ using static SuperMetroid.EnsureVerification.AnalyzerTests;
 
 namespace SuperMetroid.EnsureVerification;
 
+/// <summary>Represents cartridge encoding analyzer tests.</summary>
 internal static class CartridgeEncodingAnalyzerTests
 {
+    /// <summary>Stores encoding root.</summary>
     private static readonly string EncodingRoot = Path.Combine(Path.GetTempPath(), "cartridge-encoding-case");
 
     /// <summary>#641 cartridge-encoding ratchet: positive and negative cases for each diagnostic.</summary>
@@ -137,10 +139,13 @@ internal static class CartridgeEncodingAnalyzerTests
         }
     }
 
+    /// <summary>Represents memory additional text.</summary>
     internal sealed class MemoryAdditionalText(string path, string content) : AdditionalText
     {
+        /// <summary>Gets or sets path.</summary>
         public override string Path { get; } = path;
 
+        /// <summary>get text.</summary>
         public override SourceText GetText(CancellationToken cancellationToken = default) => SourceText.From(content);
     }
 }

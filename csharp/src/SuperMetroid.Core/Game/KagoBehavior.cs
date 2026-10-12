@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -6,13 +6,20 @@ namespace SuperMetroid.Core.Game;
 /// <summary>The Kago species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class KagoBehavior : IEnemySpecies
 {
+    /// <summary>Stores room.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>Stores projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
+    /// <summary>Stores earthquake.</summary>
     private readonly RoomEarthquake _earthquake;
+    /// <summary>Stores slot table.</summary>
     private readonly EnemySlotTable _slotTable;
+    /// <summary>Stores deaths and drops.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>Stores room status.</summary>
     private readonly EnemyRoomStatus _roomStatus;
 
+    /// <summary>Initializes a new kago behavior instance.</summary>
     internal KagoBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyDeathsAndDrops deathsAndDrops, EnemyRoomStatus roomStatus)
     {
         _room = room;
@@ -23,6 +30,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         _roomStatus = roomStatus;
     }
 
+    /// <summary>Stores kago states.</summary>
     internal readonly KagoEnemyState?[] _kagoStates =
         new KagoEnemyState?[RoomEnemySystem.MaximumEnemyCount];
 
@@ -97,10 +105,12 @@ internal sealed class KagoBehavior : IEnemySpecies
             state.SpawnedBugCount++;
     }
 
+    /// <summary>require kago state.</summary>
     private KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
         _kagoStates[slot.SlotIndex] ?? throw new InvalidOperationException(
             $"Enemy slot {slot.SlotIndex} has no initialized Kago state.");
 
+    /// <summary>register kago bomb reactions.</summary>
     internal void RegisterKagoBombReactions(EnemyAiTable table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
@@ -110,6 +120,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register kago projectiles.</summary>
     internal void RegisterKagoProjectiles(EnemyProjectileHandlerTable table)
     {
         table.RegisterPreInstruction(context =>
@@ -152,6 +163,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             });
     }
 
+    /// <summary>register kago initialization ai.</summary>
     internal void RegisterKagoInitializationAi(EnemyAiTable table)
     {
 
@@ -161,6 +173,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register kago main ai.</summary>
     internal void RegisterKagoMainAi(EnemyAiTable table)
     {
 
@@ -170,6 +183,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         });
     }
 
+    /// <summary>register kago shot reactions.</summary>
     internal void RegisterKagoShotReactions(EnemyAiTable table)
     {
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
@@ -178,10 +192,15 @@ internal sealed class KagoBehavior : IEnemySpecies
             AfterCommon = (c, _) => ResolveKagoShotAfterCommon(c.Enemy, RequireKagoState(c.Enemy)),
         });
     }
+    /// <summary>Defines kago bug gravity.</summary>
     private const ushort KagoBugGravity = 0x00e0;
+    /// <summary>Defines kago bug horizontal speed.</summary>
     private const ushort KagoBugHorizontalSpeed = 0x0200;
+    /// <summary>Defines kago bug source collision enable distance.</summary>
     private const ushort KagoBugSourceCollisionEnableDistance = 23;
+    /// <summary>Defines kago bug source homing distance.</summary>
     private const ushort KagoBugSourceHomingDistance = 48;
+    /// <summary>Defines kago bug sound effect.</summary>
     private const ushort KagoBugSoundEffect = 0x006c;
 
     /// <summary>Last library-two Kago bug sound request produced during this enemy frame.</summary>
@@ -314,6 +333,7 @@ internal sealed class KagoBehavior : IEnemySpecies
         projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(projectile.Velocity.Y.RawValue + KagoBugGravity))));
     }
 
+    /// <summary>begin kago bug fall.</summary>
     private static void BeginKagoBugFall(RoomEnemyProjectileSlot projectile)
     {
         projectile.PreInstruction =
@@ -371,6 +391,7 @@ internal sealed class KagoBehavior : IEnemySpecies
             EnemyDefinitionId.Kago);
     }
 
+    /// <summary>read kago random number.</summary>
     private ushort ReadKagoRandomNumber() =>
         _room.Random.Read();
 

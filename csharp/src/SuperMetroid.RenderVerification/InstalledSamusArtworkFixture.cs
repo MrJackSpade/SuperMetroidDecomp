@@ -8,13 +8,20 @@ using SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class InstalledSamusArtworkFixture : IDisposable
 {
+    /// <summary>Stores scratch.</summary>
     private readonly TestScratchDirectory scratch;
+    /// <summary>Stores root.</summary>
     private readonly string root;
+    /// <summary>Gets stock.</summary>
     internal SamusBodyArtworkCatalog Stock { get; }
+    /// <summary>Gets edited.</summary>
     internal SamusBodyArtworkCatalog Edited { get; }
+    /// <summary>Gets edited png count.</summary>
     internal int EditedPngCount { get; }
+    /// <summary>Gets installation.</summary>
     internal GameInstallation Installation { get; }
 
+    /// <summary>Initializes a new installed samus artwork fixture instance.</summary>
     internal InstalledSamusArtworkFixture(string installationRoot, bool editLayout = false)
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
@@ -65,7 +72,9 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
         catch { Dispose(); throw; }
     }
 
+    /// <summary>Remap.</summary>
     internal static byte Remap(byte index) => index == 0 ? (byte)0 : (byte)(index % 15 + 1);
 
+    /// <summary>Dispose.</summary>
     public void Dispose() => scratch.Dispose();
 }

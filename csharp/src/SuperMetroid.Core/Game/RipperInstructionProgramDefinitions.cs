@@ -33,6 +33,7 @@ internal abstract class RipperInstructionProgramDefinitions
     /// grapple/freeze behavior or the one-tick list reset on direction reversal.</summary>
     private const ushort AlternateVisualHoldTicks = 7;
 
+    /// <summary>Visual hold.</summary>
     internal static ushort VisualHold(int phase) =>
         (phase & 1) == 0 ? NeutralVisualHoldTicks : AlternateVisualHoldTicks;
 
@@ -45,6 +46,7 @@ internal abstract class RipperInstructionProgramDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(program)),
     });
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         if (TryRead(address, out ushort value))
@@ -53,6 +55,7 @@ internal abstract class RipperInstructionProgramDefinitions
             $"Ripper-family instruction mechanics pointer $A2:{address:X4} is not compiled.");
     }
 
+    /// <summary>Attempts to read.</summary>
     internal static bool TryRead(ushort address, out ushort value)
     {
         for (int program = 0; program < 6; program++)

@@ -63,12 +63,14 @@ public static class RidleyMovementTargets
         return (ushort)Math.Min(10, (1 << (stage + 1)) - 1);
     }
 
+    /// <summary>Validates facing.</summary>
     private static void ValidateFacing(RidleyFacing facing)
     {
         if (!Enum.IsDefined(facing))
             throw new InvalidOperationException($"Undefined {nameof(RidleyFacing)} {(int)facing}.");
     }
 
+    /// <summary>Validates stage.</summary>
     private static void ValidateStage(int stage)
     {
         if ((uint)stage >= 4) throw new IndexOutOfRangeException();

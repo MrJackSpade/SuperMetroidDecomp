@@ -11,24 +11,42 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class PlmFramePhase
 {
+    /// <summary>Stores artwork.</summary>
     private readonly RuntimeArtwork _artwork;
+    /// <summary>Stores background scroll.</summary>
     private readonly BackgroundScrollState _backgroundScroll;
+    /// <summary>Stores bomb projectiles.</summary>
     private readonly SamusBombProjectileSystem _bombProjectiles;
+    /// <summary>Stores cgram.</summary>
     private readonly SnesCgram _cgram;
+    /// <summary>Stores controller1.</summary>
     private readonly ControllerInputState _controller1;
+    /// <summary>Stores enemies.</summary>
     private readonly RoomEnemySystem _enemies;
+    /// <summary>Stores enemy room effects.</summary>
     private readonly EnemyRoomEffects _enemyRoomEffects;
+    /// <summary>Stores freeze.</summary>
     private readonly GameplayTimeFreeze _freeze;
+    /// <summary>Stores message box.</summary>
     private readonly GameplayMessageBoxState _messageBox;
+    /// <summary>Stores message boxes.</summary>
     private readonly MessageBoxFlow _messageBoxes;
+    /// <summary>Stores player.</summary>
     private readonly SamusFrameState _player;
+    /// <summary>Stores plms.</summary>
     private readonly RoomPlmSystem _plms;
+    /// <summary>Stores room.</summary>
     private readonly ActiveRoomState _room;
+    /// <summary>Stores suit pickup.</summary>
     private readonly SamusSuitPickupState _suitPickup;
+    /// <summary>Stores vram.</summary>
     private readonly SnesVram _vram;
+    /// <summary>Stores vram writes.</summary>
     private readonly VramWriteQueue _vramWrites;
+    /// <summary>Stores address space.</summary>
     private readonly ISnesAddressSpace _addressSpace;
 
+    /// <summary>Initializes a new plm frame phase instance.</summary>
     internal PlmFramePhase(PlmFramePhaseDependencies dependencies)
     {
         _artwork = dependencies.Artwork;
@@ -109,6 +127,7 @@ internal sealed class PlmFramePhase
         }
     }
 
+    /// <summary>Runs plm phase.</summary>
     internal void RunPlmPhase(bool deathOwnsSamus, SamusState samus)
     {
         // Native gameplay state eight reaches PLM_Handler after Samus's new-state and

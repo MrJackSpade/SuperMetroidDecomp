@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents normal suit palette pointers verification.</summary>
 internal static class NormalSuitPalettePointersVerification
 {
+    /// <summary>Verifies normal suit palette pointers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the normal-suit palette colors")]
     internal static void VerifyNormalSuitPalettePointers()
@@ -60,6 +62,7 @@ internal static class NormalSuitPalettePointersVerification
         Console.WriteLine("Normal suit palettes: four equipment cases match ROM and live CGRAM with no CPU bus.");
     }
 
+    /// <summary>Normal suit palette pointers command.</summary>
     [VerificationCommand("--normal-suit-palette-pointers")]
     internal static int NormalSuitPalettePointersCommand()
     {

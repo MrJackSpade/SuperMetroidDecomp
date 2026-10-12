@@ -26,9 +26,13 @@ public sealed class OamBuffer
     public const int UploadByteCount = SnesPpuLayout.OamUploadByteCount;
 
     // One four-byte record per OAM-low object; one two-bit pair per OAM-high object, four per byte.
+    /// <summary>Stores low record byte count.</summary>
     private const int LowRecordByteCount = 4;
+    /// <summary>Stores high pairs per byte.</summary>
     private const int HighPairsPerByte = 4;
+    /// <summary>Stores low table.</summary>
     private readonly byte[] _lowTable = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
+    /// <summary>Stores high table.</summary>
     private readonly byte[] _highTable = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
 
     /// <summary>Raw 512-byte low OAM table used by PPU DMA.</summary>
@@ -72,6 +76,7 @@ public sealed class OamBuffer
         SnesObjAttributeWord attributes, Position16<OamPixels> origin)
         => AppendGenericSprite(xOffset, yOffset, attributes, origin, originIsOnScreen: false);
 
+    /// <summary>Append generic sprite.</summary>
     private void AppendGenericSprite(SnesSpritemapXWord encodedXOffset, byte encodedYOffset,
         SnesObjAttributeWord finalAttributes, Position16<OamPixels> origin, bool originIsOnScreen)
     {
@@ -209,6 +214,7 @@ public sealed class OamBuffer
                 baseTileIndex, clipVerticalWrap, originYIsOnScreen);
     }
 
+    /// <summary>Append enemy spritemap part.</summary>
     private void AppendEnemySpritemapPart(EnemySpritemapPart part,
         Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
         bool clipVerticalWrap, bool originYIsOnScreen)
@@ -375,6 +381,7 @@ public sealed class OamBuffer
         NextByteOffset = 0;
     }
 
+    /// <summary>Sets high table pair.</summary>
     private void SetHighTablePair(int spriteIndex, SnesOamHighTablePair pair)
     {
         int byteIndex = spriteIndex >> 2;
@@ -394,6 +401,7 @@ public sealed class OamBuffer
         _lowTable[lowOffset + 3] = SnesLittleEndian.HighByte(attributes.Raw);
     }
 
+    /// <summary>Should hide for on screen origin.</summary>
     private static bool ShouldHideForOnScreenOrigin(int unsignedYSum, bool offsetIsNegative)
     {
         byte wrappedY = (byte)unsignedYSum;

@@ -20,10 +20,14 @@ internal static class IntroMotherBrainExplosionSpriteDefinitions
         return (ushort)((big ? BigStart : SmallStart) + single * 7 + (frame - single) * 22);
     }
 
+    /// <summary>Gets frames.</summary>
     internal static IReadOnlyList<IntroMotherBrainExplosionSpriteFrameDefinition> Frames { get; } = new FrameList();
+    /// <summary>Represents frame list.</summary>
     private sealed class FrameList : IReadOnlyList<IntroMotherBrainExplosionSpriteFrameDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 12;
+        /// <summary>Gets an indexed value.</summary>
         public IntroMotherBrainExplosionSpriteFrameDefinition this[int index]
         {
             get
@@ -35,13 +39,16 @@ internal static class IntroMotherBrainExplosionSpriteDefinitions
                     frame < (big ? 1 : 2) ? 1 : 4);
             }
         }
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<IntroMotherBrainExplosionSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
 
+/// <summary>Represents intro mother brain explosion sprite frame definition.</summary>
 internal readonly record struct IntroMotherBrainExplosionSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

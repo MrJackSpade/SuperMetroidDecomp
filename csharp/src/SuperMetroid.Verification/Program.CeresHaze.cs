@@ -12,8 +12,10 @@ using static LookupCeresHazeRampVerification;
 using static RetailRuntimeFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ceres haze verification.</summary>
 internal static class CeresHazeVerification
 {
+    /// <summary>Verifies ceres haze phase control.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze phase control")]
     internal static void VerifyCeresHazePhaseControl(ISnesAddressSpace rom)
     {
@@ -73,6 +75,7 @@ internal static class CeresHazeVerification
         }
     }
 
+    /// <summary>Verifies ceres haze lifecycle.</summary>
     internal static void VerifyCeresHazeLifecycle()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -6,6 +6,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class PlmInterpreterSourceContract
 {
+    /// <summary>Stores methods.</summary>
     internal static readonly IReadOnlySet<string> Methods = new HashSet<string>
     {
         "TryIdentifyPermanentCollectible/3",

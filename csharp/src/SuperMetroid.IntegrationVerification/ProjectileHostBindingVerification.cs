@@ -7,6 +7,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
+/// <summary>Represents projectile host binding verification.</summary>
 internal static class ProjectileHostBindingVerification
 {
     /// <summary>Installs the repository ROM into a disposable root, verifies host binding, then removes it.</summary>
@@ -22,6 +23,7 @@ internal static class ProjectileHostBindingVerification
         finally { Directory.Delete(root, recursive: true); }
     }
 
+    /// <summary>Verifies.</summary>
     private static int Verify(GameInstallation installation)
     {
         string root = installation.Root;
@@ -115,6 +117,7 @@ internal static class ProjectileHostBindingVerification
         return 0;
     }
 
+    /// <summary>Checks frame bindings.</summary>
     private static void CheckFrameBindings(object? actual, ProjectileFrameBindingCatalog expected)
     {
         if (actual is not ProjectileFrameBindingCatalog catalog ||
@@ -122,6 +125,7 @@ internal static class ProjectileHostBindingVerification
             throw new InvalidDataException("Host did not bind current projectile frame choices.");
     }
 
+    /// <summary>Checks catalog.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void CheckCatalog(ProjectileSpriteCatalog actual, ProjectileSpriteCatalog expected)
     {
@@ -134,6 +138,7 @@ internal static class ProjectileHostBindingVerification
         }
     }
 
+    /// <summary>Checks trails.</summary>
     private static void CheckTrails(ProjectileTrailCatalog actual, ProjectileTrailCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind trail content.");
@@ -146,6 +151,7 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host bound stale trail appearance.");
     }
 
+    /// <summary>Checks flare.</summary>
     private static void CheckFlare(ChargeFlarePlacementCatalog actual, ChargeFlarePlacementCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare placement.");
@@ -155,6 +161,7 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host restored stale flare placement.");
     }
 
+    /// <summary>Checks flare compositions.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void CheckFlareCompositions(ChargeFlareSpriteCatalog actual, ChargeFlareSpriteCatalog expected)
     {
@@ -168,6 +175,7 @@ internal static class ProjectileHostBindingVerification
         }
     }
 
+    /// <summary>Checks grapple.</summary>
     private static void CheckGrapple(GrappleTileAtlas actual, GrappleTileAtlas expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind Grapple PNG.");
@@ -186,6 +194,7 @@ internal static class ProjectileHostBindingVerification
                 throw new InvalidDataException("Host restored stale Grapple PNG content.");
     }
 
+    /// <summary>Checks beams.</summary>
     private static void CheckBeams(BeamTileCatalog actual, BeamTileCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind beam PNGs.");

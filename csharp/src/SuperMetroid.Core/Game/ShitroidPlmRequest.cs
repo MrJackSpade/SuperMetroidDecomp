@@ -69,8 +69,10 @@ public readonly record struct ShitroidMusicRequest(MusicCommand Command, MusicCo
 /// <summary>Typed projection of Shitroid's common and extended enemy WRAM.</summary>
 public sealed class ShitroidEnemyState
 {
+    /// <summary>Stores target palette.</summary>
     private readonly Bgr555[] _targetPalette = new Bgr555[256];
 
+    /// <summary>Initializes a new shitroid enemy state instance.</summary>
     internal ShitroidEnemyState(RoomEnemySlot slot) => Slot = slot;
 
     /// <summary>Gets the physical enemy slot that owns the projected common words.</summary>
@@ -133,5 +135,6 @@ public sealed class ShitroidEnemyState
     /// this value on the boss state makes that cross-slot side effect directly auditable.
     /// </summary>
     public ushort VictimActivationFlag { get; internal set; }
+    /// <summary>Gets mutable target palette.</summary>
     internal Span<Bgr555> MutableTargetPalette => _targetPalette;
 }

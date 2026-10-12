@@ -211,6 +211,7 @@ public sealed class SamusDraygonGrabbedState
         return published;
     }
 
+    /// <summary>ensure active grabbed pose.</summary>
     private void EnsureActiveGrabbedPose()
     {
         if (!IsActive)
@@ -223,6 +224,7 @@ public sealed class SamusDraygonGrabbedState
         // and movement handler. Crystal Flash can replace both while still held.
     }
 
+    /// <summary>ensure grabbed pose.</summary>
     private static void EnsureGrabbedPose(SamusState samus)
     {
         if (!SamusPoseMetadata.IsDraygonGrabbedPose(samus.Pose))

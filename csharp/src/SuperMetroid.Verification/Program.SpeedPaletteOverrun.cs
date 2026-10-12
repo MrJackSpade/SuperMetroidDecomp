@@ -13,8 +13,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
+/// <summary>Represents speed palette overrun verification.</summary>
 internal static class SpeedPaletteOverrunVerification
 {
+    /// <summary>verify speed palette overrun.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifySpeedPaletteOverrun()
     {
@@ -65,10 +67,12 @@ internal static class SpeedPaletteOverrunVerification
         ushort Read(int address) => ReadNativeSpeedOverrunPaletteWord(cart, address);
     }
 
+    /// <summary>read native speed overrun palette word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster overrun palette words")]
     private static ushort ReadNativeSpeedOverrunPaletteWord(IImportCartridgeSource cart, int address) =>
         RomDataReader.ReadWordFixedBank(cart, address);
 
+    /// <summary>speed palette overrun command.</summary>
     [VerificationCommand("--speed-palette-overrun")]
     internal static int SpeedPaletteOverrunCommand()
     {

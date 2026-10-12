@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid sink schedule verification.</summary>
 internal static class KraidSinkScheduleVerification
 {
+    /// <summary>Verifies kraid sink callback selection.</summary>
     private static void VerifyKraidSinkCallbackSelection(Dictionary<ushort, ushort> callbacks)
     {
         AssertEqual(28, callbacks.Count, "Native sinking row count");
@@ -16,13 +18,17 @@ internal static class KraidSinkScheduleVerification
         }
     }
 
+    /// <summary>Verifies kraid sink plm columns.</summary>
     private static void VerifyKraidSinkPlmColumns(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 17, request => request.Block.X));
+    /// <summary>Verifies kraid sink plm rows.</summary>
     private static void VerifyKraidSinkPlmRows(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 18, request => request.Block.Y));
+    /// <summary>Verifies kraid sink plm headers.</summary>
     private static void VerifyKraidSinkPlmHeaders(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks) =>
         Suite(nameof(VerifyKraidSinkPlmField), () => VerifyKraidSinkPlmField(rom, callbacks, 19, request => (ushort)request.Header));
 
+    /// <summary>Verifies kraid sink plm field.</summary>
     private static void VerifyKraidSinkPlmField(SuperMetroidAddressSpace rom, IEnumerable<ushort> callbacks,
         int offset, Func<KraidPlmRequest, ushort> field)
     {
@@ -47,9 +53,11 @@ internal static class KraidSinkScheduleVerification
             AssertThrows<InvalidDataException>(() => KraidPlmDefinitions.ForSinkCallback(ClosedNativeWords.Decode<KraidSinkCallback>(invalid, "Kraid sinking callback")), "Unknown sink callback rejected");
     }
 
+    /// <summary>Kraid sink plm field rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink PLM field")]
     private static byte KraidSinkPlmFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies kraid sink rock placement.</summary>
     private static void VerifyKraidSinkRockPlacement(SuperMetroidAddressSpace rom,
         Dictionary<ushort, ushort> callbacks)
     {
@@ -79,9 +87,11 @@ internal static class KraidSinkScheduleVerification
         }
     }
 
+    /// <summary>Kraid sink rock placement rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink rock placement")]
     private static byte KraidSinkRockPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>Verifies kraid sink schedule.</summary>
     internal static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidSinkScheduleRomByte(rom, a), KraidSinkScheduleRomByte(rom, a + 1)));
@@ -129,9 +139,11 @@ internal static class KraidSinkScheduleVerification
         Console.WriteLine("Kraid sink schedule: all 65536 Y coordinates, native callbacks, emitted rocks and inline PLM arguments match with schedule reads forbidden.");
     }
 
+    /// <summary>Kraid sink schedule rom byte.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink schedule")]
     private static byte KraidSinkScheduleRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    /// <summary>New kraid sink guard.</summary>
     private static CartridgeReadGuard NewKraidSinkGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa7c5e7 and <= 0xa7c690, _ => "Unexpected migrated Kraid sink schedule read.")

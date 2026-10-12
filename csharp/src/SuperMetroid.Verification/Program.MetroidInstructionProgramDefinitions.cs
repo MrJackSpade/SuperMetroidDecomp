@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents metroid instruction program definitions verification.</summary>
 internal static class MetroidInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies metroid instruction program definitions.</summary>
     internal static void VerifyMetroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies metroid instruction program definitions.</summary>
     internal static void VerifyMetroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -114,6 +117,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
             "loops and sound callbacks, and 25 compiled visual selectors pass.");
     }
 
+    /// <summary>Verifies metroid instruction initializer.</summary>
     private static void VerifyMetroidInstructionInitializer(ISnesAddressSpace bus)
     {
         var enemies = new RoomEnemySystem();
@@ -135,6 +139,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
             "Metroid initializer allocates outer body B");
     }
 
+    /// <summary>New metroid instruction system.</summary>
     internal static (RoomEnemySystem Enemies, RoomEnemySlot Slot)
         NewMetroidInstructionSystem(
             ISnesAddressSpace bus,
@@ -152,6 +157,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         return (enemies, slot);
     }
 
+    /// <summary>Runs metroid instruction frames.</summary>
     private static void RunMetroidInstructionFrames(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -165,6 +171,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Probes metroid instruction mechanics allocation.</summary>
     private static int ProbeMetroidInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -178,12 +185,14 @@ internal static class MetroidInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads metroid instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Metroid instruction words")]
     internal static ushort ReadMetroidInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
 
+    /// <summary>New metroid instruction read guard.</summary>
     internal static CartridgeReadGuard NewMetroidInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(MetroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -194,6 +203,7 @@ internal static class MetroidInstructionProgramDefinitionsVerification
                 MetroidInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Metroid presentation byte ${address:X6}.");
 
+    /// <summary>Metroid instruction program definitions command.</summary>
     [VerificationCommand("--metroid-instruction-program-definitions")]
     internal static int MetroidInstructionProgramDefinitionsCommand()
     {

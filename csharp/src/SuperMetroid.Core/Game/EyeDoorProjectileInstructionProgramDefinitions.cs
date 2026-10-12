@@ -18,9 +18,12 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions
     /// <summary><c>InstList_EnemyProjectile_Shot_EyeDoorProjectile</c> at $86:B603.</summary>
     internal const ushort Shot = 0xb603;
 
+    /// <summary>Gets mechanics word count.</summary>
     public static int MechanicsWordCount => 19;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 11;
 
+    /// <summary>Mechanics word.</summary>
     public static InstructionMechanicsWord MechanicsWord(int index)
     {
         if ((uint)index >= MechanicsWordCount) throw new IndexOutOfRangeException();
@@ -45,6 +48,7 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions
         return new((ushort)(Shot + 4 * (index - 14)), index < 18 ? (ushort)4 : (ushort)EnemyProjectileInstruction.Delete);
     }
 
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -54,6 +58,7 @@ internal abstract class EyeDoorProjectileInstructionProgramDefinitions
         return (ushort)(Shot + 2 + 4 * (index - 7));
     }
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address)
     {
         for (int index = 0; index < MechanicsWordCount; index++)

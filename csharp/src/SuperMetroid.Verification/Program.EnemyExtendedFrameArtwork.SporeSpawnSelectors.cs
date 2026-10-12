@@ -3,6 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SporeSpawnInstructionProgramDefinitionsVerification;
 
+/// <summary>Represents enemy extended frame artwork spore spawn selectors verification.</summary>
 internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
 {
     /// <summary>
@@ -57,6 +58,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     // Test-only bank-$A5 stream reader. Opcode lengths and effects are taken
     // from pinned sm_a0.c / sm_a5.c, independently of the compiled catalogs.
     // Palette, sound and particle side effects have their own focused fixtures.
+    /// <summary>Reads reference spore spawn program.</summary>
     internal static List<SporeSpawnProgramFrame> ReadReferenceSporeSpawnProgram(
         SuperMetroidAddressSpace rom, ushort initial, int frames, HashSet<ushort> selectors)
     {
@@ -124,6 +126,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         }
         return trace;
     }
+    /// <summary>Captures spore spawn program frame.</summary>
     private static SporeSpawnProgramFrame CaptureSporeSpawnProgramFrame(
         RoomEnemySystem system, RoomEnemySlot slot)
     {
@@ -136,6 +139,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
             state.DeathStarted, state.DeathDropRequested);
     }
 
+    /// <summary>Represents spore spawn program frame.</summary>
     internal readonly record struct SporeSpawnProgramFrame(
         ushort Instruction, ushort Timer, ushort VisualFrame,
         Position16<RoomPixels> Position, ushort Health,
@@ -143,6 +147,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         SporeSpawnFunction Function, ushort Angle, ushort MaximumXRadius,
         bool DeathStarted, bool DeathDropRequested);
 
+    /// <summary>Verifies spore spawn visual remap keeps mechanics.</summary>
     internal static void VerifySporeSpawnVisualRemapKeepsMechanics(
         SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog stock,

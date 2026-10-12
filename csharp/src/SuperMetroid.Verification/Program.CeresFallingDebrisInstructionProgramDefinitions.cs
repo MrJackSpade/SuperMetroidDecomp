@@ -16,12 +16,15 @@ using static EnemyProjectileProgramOracleVerification;
 using static ImportedSpritemapsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents ceres falling debris instruction program definitions verification.</summary>
 internal static class CeresFallingDebrisInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies ceres falling debris instruction program definitions.</summary>
     internal static void VerifyCeresFallingDebrisInstructionProgramDefinitions() =>
         Suite(nameof(VerifyCeresFallingDebrisInstructionProgramDefinitions), () => VerifyCeresFallingDebrisInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
+    /// <summary>Verifies ceres falling debris instruction program definitions.</summary>
     internal static void VerifyCeresFallingDebrisInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -122,6 +125,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
         }
     }
 
+    /// <summary>Probe ceres falling debris instruction mechanics allocation.</summary>
     private static int ProbeCeresFallingDebrisInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -135,6 +139,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
         return checksum;
     }
 
+    /// <summary>New ceres falling debris instruction read guard.</summary>
     private static CartridgeReadGuard NewCeresFallingDebrisInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CeresFallingDebrisInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
@@ -142,6 +147,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
                 address => $"Production read compiled Ceres debris mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, CeresFallingDebrisInstructionProgramDefinitions.PresentationWordCount, CeresFallingDebrisInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Ceres debris instruction mechanics command.</summary>
     [VerificationCommand("--ceres-debris-instruction-mechanics")]
     internal static int CeresDebrisInstructionMechanicsCommand()
     {
@@ -149,6 +155,7 @@ internal static class CeresFallingDebrisInstructionProgramDefinitionsVerificatio
         return 0;
     }
 
+    /// <summary>Ceres debris fixture command.</summary>
     [VerificationCommand("--ceres-debris-fixture")]
     internal static int CeresDebrisFixtureCommand()
     {

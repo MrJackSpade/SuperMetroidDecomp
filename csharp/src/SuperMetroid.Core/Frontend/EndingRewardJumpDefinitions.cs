@@ -16,8 +16,10 @@ internal static class EndingRewardJumpDefinitions
 {
     /// <summary>$8B:ED95/ED9D, falling and landing animation lists.</summary>
     public const ushort FallingList = 0xed95, LandedList = 0xed9d;
+    /// <summary>Defines launch velocity.</summary>
     public const int LaunchVelocity = -16 * 65536;
     /// <summary>$8B:F65B adds $0000:3800 to the shared velocity before each actor's movement.</summary>
     public const int Gravity = 0x3800;
+    /// <summary>Defines sheet switch y.</summary>
     public const int SheetSwitchY = -80, LandingY = 136, UploadCount = 16;
 }

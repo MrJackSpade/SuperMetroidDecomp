@@ -4,8 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static WordSamplesVerification;
 
+/// <summary>Represents compiled projectile math verification.</summary>
 internal static class CompiledProjectileMathVerification
 {
+    /// <summary>Verifies compiled projectile math.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile math")]
     internal static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
     {

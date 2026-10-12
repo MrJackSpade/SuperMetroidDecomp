@@ -17,14 +17,17 @@ using static KraidArmCollisionDefinitionsVerification;
 using static KraidArmGeneratedProgramsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid arm instruction program definitions verification.</summary>
 internal static class KraidArmInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies kraid arm instruction program definitions.</summary>
     internal static void VerifyKraidArmInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidArmInstructionProgramDefinitions), () => VerifyKraidArmInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies kraid arm instruction program definitions.</summary>
     internal static void VerifyKraidArmInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -107,6 +110,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
             "the half-health handoff, and 57 native sprite selections pass with zero live reads.");
     }
 
+    /// <summary>Creates kraid arm instruction system.</summary>
     private static RoomEnemySystem CreateKraidArmInstructionSystem(
         ISnesAddressSpace bus)
     {
@@ -124,6 +128,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         return enemies;
     }
 
+    /// <summary>Runs kraid arm program.</summary>
     private static void RunKraidArmProgram(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
@@ -140,6 +145,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         }
     }
 
+    /// <summary>Invoke kraid arm instruction processor.</summary>
     private static void InvokeKraidArmInstructionProcessor(
         ISnesAddressSpace rom, HashSet<ushort> executedOperands,
         RoomEnemySystem enemies,
@@ -149,6 +155,7 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         Suite(nameof(VerifyExecutedEnemySelector), () => VerifyExecutedEnemySelector(rom, arm, executedOperands));
     }
 
+    /// <summary>Probes kraid arm instruction allocation.</summary>
     private static int ProbeKraidArmInstructionAllocation()
     {
         int checksum = 0;
@@ -162,18 +169,21 @@ internal static class KraidArmInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>Reads kraid arm instruction word.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid arm instruction words")]
     internal static ushort ReadKraidArmInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
 
+    /// <summary>Creates kraid arm instruction guard.</summary>
     private static CartridgeReadGuard NewKraidArmInstructionGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(KraidArmInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Kraid arm mechanics byte ${address:X6}.")
             .ObserveWords(0xa70000, KraidArmInstructionProgramDefinitions.PresentationWordCount, KraidArmInstructionProgramDefinitions.PresentationWordAddress);
 
+    /// <summary>Kraid arm instruction program definitions command.</summary>
     [VerificationCommand("--kraid-arm-instruction-program-definitions")]
     internal static int KraidArmInstructionProgramDefinitionsCommand()
     {

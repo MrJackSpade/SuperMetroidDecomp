@@ -21,7 +21,9 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
         UploadInitialHold = 32, UploadLoopHold = 4, UploadLoopCount = 2,
         StandFirstHold = 32, StandSecondHold = 12, StandRemainingHold = 8,
         ColorHold = 4, ColorIterations = 16, HandoffHold = 16;
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => 21;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index)
     {
         if ((uint)index >= PresentationWordCount) throw new IndexOutOfRangeException();
@@ -80,26 +82,34 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitions
         return layout.Result;
     }
 
+    /// <summary>Represents layout.</summary>
     private ref struct Layout(int requested, bool visual)
     {
+        /// <summary>Gets or sets cursor.</summary>
         internal ushort Cursor { get; private set; } = Start;
+        /// <summary>Stores mechanics.</summary>
         private int mechanics, presentation;
+        /// <summary>Gets or sets result.</summary>
         internal InstructionMechanicsWord Result { get; private set; }
+        /// <summary>Word.</summary>
         internal void Word(ushort value)
         {
             if (!visual && mechanics == requested) Result = new(Cursor, value);
             mechanics++; Cursor += sizeof(ushort);
         }
+        /// <summary>Pose.</summary>
         internal void Pose(ushort duration)
         {
             Word(duration);
             if (visual && presentation == requested) Result = new(Cursor, 0);
             presentation++; Cursor += sizeof(ushort);
         }
+        /// <summary>Function.</summary>
         internal void Function(ushort function)
         {
             Word((ushort)TorizoInstruction.Instruction_Torizo_FunctionInY); Word(function);
         }
+        /// <summary>Upload.</summary>
         internal void Upload()
         {
             Word((ushort)CommonEnemyInstruction.CopyToVram);

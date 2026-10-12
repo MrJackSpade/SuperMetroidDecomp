@@ -20,10 +20,14 @@ internal static class IntroScientistSpriteDefinitions
         return (ushort)(Start + arrows * 12 + delivered * 32 + single * 7);
     }
 
+    /// <summary>Gets frames.</summary>
     internal static IReadOnlyList<IntroScientistSpriteFrameDefinition> Frames { get; } = new FrameList();
+    /// <summary>Represents frame list.</summary>
     private sealed class FrameList : IReadOnlyList<IntroScientistSpriteFrameDefinition>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 10;
+        /// <summary>Gets an indexed value.</summary>
         public IntroScientistSpriteFrameDefinition this[int index]
         {
             get
@@ -35,12 +39,15 @@ internal static class IntroScientistSpriteDefinitions
                 return new(pointer, name, index < 3 ? 2 : index < 6 ? 6 : 1);
             }
         }
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<IntroScientistSpriteFrameDefinition> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
+        /// <summary>Gets enumerator.</summary>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
+/// <summary>Represents intro scientist sprite frame definition.</summary>
 internal readonly record struct IntroScientistSpriteFrameDefinition(
     ushort Pointer, string Name, int StockPartCount);

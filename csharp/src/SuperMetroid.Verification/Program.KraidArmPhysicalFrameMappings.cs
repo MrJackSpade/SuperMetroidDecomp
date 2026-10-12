@@ -3,8 +3,10 @@ using SuperMetroid.Core.Hardware;
 using static KraidArmInstructionProgramDefinitionsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents kraid arm physical frame mappings verification.</summary>
 internal static class KraidArmPhysicalFrameMappingsVerification
 {
+    /// <summary>Native kraid arm physical frames.</summary>
     internal static ushort[] NativeKraidArmPhysicalFrames(SuperMetroidAddressSpace rom)
     {
         var pointers = new List<ushort>();
@@ -20,6 +22,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         return pointers.ToArray();
     }
 
+    /// <summary>Verifies kraid arm physical frame pointers.</summary>
     internal static void VerifyKraidArmPhysicalFramePointers(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = NativeKraidArmPhysicalFrames(rom);
@@ -31,6 +34,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         AssertThrows<IndexOutOfRangeException>(() => KraidArmCollisionDefinitions.FramePointer(22), "Past arm frame ordinal");
     }
 
+    /// <summary>Verifies kraid arm stationary positions.</summary>
     private static void VerifyKraidArmStationaryPositions(SuperMetroidAddressSpace rom)
     {
         int checkedPositions = 0;
@@ -48,6 +52,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
         }
         AssertEqual(22, checkedPositions, "All stationary arm component positions checked");
     }
+    /// <summary>Verifies kraid arm physical layout selection.</summary>
     internal static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidArmStationaryPositions), () => VerifyKraidArmStationaryPositions(rom));

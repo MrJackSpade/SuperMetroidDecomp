@@ -9,8 +9,10 @@ using SuperMetroid.Core.Hardware;
 using static RetailGameFixtureVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents intro projectile artwork verification.</summary>
 internal static class IntroProjectileArtworkVerification
 {
+    /// <summary>Verifies intro projectile artwork.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
@@ -100,6 +102,7 @@ internal static class IntroProjectileArtworkVerification
         Console.WriteLine("Intro projectile artwork: live/explosion/trail stock parity, visible edits, native timing and nonserialized state rebind pass.");
     }
 
+    /// <summary>Binds restored intro draw fixture.</summary>
     private static void BindRestoredIntroDrawFixture(IntroCinematicState intro)
     {
         // This fixture isolates projectile/trail rebinding. Supply the other draw
@@ -111,6 +114,7 @@ internal static class IntroProjectileArtworkVerification
         intro.ProjectileCompositions = InstalledFixtures.Projectiles.Catalog;
         intro.ProjectileFrameBindings = InstalledFixtures.Projectiles.FrameBindings;
     }
+    /// <summary>Verifies intro trail png.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw)

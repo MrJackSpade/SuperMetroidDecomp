@@ -11,6 +11,7 @@ namespace SuperMetroid.Core.Game;
 /// </remarks>
 public static class RoomEnemyDefinitionCatalog
 {
+    /// <summary>Stores definitions.</summary>
     private static readonly (EnemyDefinitionId Pointer, RoomEnemyDefinition Definition)[] Definitions =
     [
         (EnemyDefinitionId.Boyon, new(0x0400, 0x8687, 0x03e8, 0x000a, new(0x0008, 0x0008), 0xa2, 0x00, 0x0000, 0x0000, 0x871c, 0x0001, 0x0000, 0x879c, GrappleAiRoutine.Cancel, 0x804c, 0x8041, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x8023, 0x802d, 0x0000, 0xacb600, 0x05, 0xf320, 0xeda8, 0xddeb)),
@@ -166,6 +167,7 @@ public static class RoomEnemyDefinitionCatalog
     /// <summary>Number of distinct retail enemy headers reachable from room states.</summary>
     public const int Count = 148;
 
+    /// <summary>Initializes a new room enemy definition catalog instance.</summary>
     static RoomEnemyDefinitionCatalog()
     {
         if (Definitions.Length != Count)

@@ -10,6 +10,7 @@ namespace SuperMetroid.ResourceAudit;
 /// </summary>
 internal static class DefinitionAudit
 {
+    /// <summary>collect.</summary>
     public static ResourceIndex Collect(string root, AuditReport report)
     {
         ResourceIndex exports = CollectEnemyVisuals(root, report);
@@ -19,6 +20,7 @@ internal static class DefinitionAudit
         return exports;
     }
 
+    /// <summary>collect enemy visuals.</summary>
     internal static ResourceIndex CollectEnemyVisuals(string root, AuditReport report)
     {
         var exports = new ResourceIndex();
@@ -75,6 +77,7 @@ internal static class DefinitionAudit
         return exports;
     }
 
+    /// <summary>selector source.</summary>
     private static string SelectorSource(string root, int bank, int address)
     {
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);

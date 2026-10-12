@@ -30,6 +30,7 @@ public static class RoomStateSelectionDefinitions
         return variants.AsReadOnly();
     }
 
+    /// <summary>Resolve.</summary>
     private static ushort Resolve(ushort roomPointer, RoomStateSelectionContext selection, List<ushort>? variants)
     {
         ushort target = 0;

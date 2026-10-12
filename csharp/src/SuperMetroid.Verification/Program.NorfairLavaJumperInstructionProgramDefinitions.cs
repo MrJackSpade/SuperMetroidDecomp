@@ -14,14 +14,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using static SuiteTimingVerification;
 
+/// <summary>Represents norfair lava jumper instruction program definitions verification.</summary>
 internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
 {
+    /// <summary>Verifies norfair lava jumper instruction program definitions.</summary>
     internal static void VerifyNorfairLavaJumperInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
+    /// <summary>Verifies norfair lava jumper instruction program definitions.</summary>
     internal static void VerifyNorfairLavaJumperInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -121,6 +124,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
             "production programs, the real handshake, and compiled spritemap selectors pass.");
     }
 
+    /// <summary>Runs norfair lava jumper program.</summary>
     private static void RunNorfairLavaJumperProgram(
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -141,6 +145,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
             "lava-jumper program reaches terminal sleep");
     }
 
+    /// <summary>Probe norfair lava jumper instruction mechanics allocation.</summary>
     private static int ProbeNorfairLavaJumperInstructionMechanicsAllocation()
     {
         int checksum = 0;
@@ -157,6 +162,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         return checksum;
     }
 
+    /// <summary>New norfair lava jumper instruction read guard.</summary>
     private static CartridgeReadGuard NewNorfairLavaJumperInstructionReadGuard(ISnesAddressSpace source)
     {
         var guard = new CartridgeReadGuard(source)
@@ -178,6 +184,7 @@ internal static class NorfairLavaJumperInstructionProgramDefinitionsVerification
         });
     }
 
+    /// <summary>Norfair lava jumper instruction mechanics command.</summary>
     [VerificationCommand("--norfair-lava-jumper-instruction-mechanics")]
     internal static int NorfairLavaJumperInstructionMechanicsCommand()
     {

@@ -38,6 +38,7 @@ internal abstract class KiHunterInstructionProgramDefinitions
     /// <summary>Native program bank $A8.</summary>
     internal const byte Bank = 0xa8;
 
+    /// <summary>Stores layout.</summary>
     internal static readonly InstructionProgramLayout Layout = new(Bank,
         Origin(0xe9fa),
         Entry(FlyingLeft),
@@ -135,9 +136,12 @@ internal abstract class KiHunterInstructionProgramDefinitions
         Op((ushort)KiHunterInstruction.SetFunctionToWinglessThinking),
         Frame(1),
         Op((ushort)CommonEnemyInstruction.Sleep));
+    /// <summary>Gets presentation word count.</summary>
     public static int PresentationWordCount => Layout.PresentationSlotCount;
+    /// <summary>Presentation word address.</summary>
     public static ushort PresentationWordAddress(int index) => Layout.PresentationSlotAddress(index);
 
+    /// <summary>Reads mechanics word.</summary>
     internal static ushort ReadMechanicsWord(ushort address) =>
         Layout.TryReadMechanicsWord(address, out ushort value) ? value :
             throw new InvalidDataException(

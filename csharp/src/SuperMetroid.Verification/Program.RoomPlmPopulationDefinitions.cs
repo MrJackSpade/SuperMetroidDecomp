@@ -9,8 +9,10 @@ using static LookupRetailPlmHeadersVerification;
 using static LookupRetailPopulationsVerification;
 using static SuiteTimingVerification;
 
+/// <summary>Represents room plm population definitions verification.</summary>
 internal static class RoomPlmPopulationDefinitionsVerification
 {
+    /// <summary>Verifies compiled room plm population definitions.</summary>
     internal static void VerifyCompiledRoomPlmPopulationDefinitions(
         SuperMetroidAddressSpace rom)
     {
@@ -24,6 +26,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         Console.WriteLine("  PLM populations, headers, scroll programs and collectible uploads match ROM.");
     }
 
+    /// <summary>Verifies compiled room plm header load.</summary>
     internal static void VerifyCompiledRoomPlmHeaderLoad(SuperMetroidAddressSpace rom)
     {
         const ushort populatedPointer = 0x8000;
@@ -51,6 +54,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         AssertEqual(0, emptySlots.Length, "compiled empty PLM population leaves no slots");
     }
 
+    /// <summary>Loads.</summary>
     private static (int Count, RoomPlmSlotSnapshot[] Slots) Load(
         ISnesAddressSpace bus, ushort pointer, bool useCompiled)
     {
@@ -62,6 +66,7 @@ internal static class RoomPlmPopulationDefinitionsVerification
         return (count, plms.PopulationSlots.ToArray());
     }
 
+    /// <summary>New room plm population read guard.</summary>
     private static CartridgeReadGuard NewRoomPlmPopulationReadGuard(
         ISnesAddressSpace source, ushort pointer, int length, Action? headerRead = null)
     {

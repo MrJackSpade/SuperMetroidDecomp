@@ -6,12 +6,17 @@ namespace SuperMetroid.Core.Assets;
 /// <summary>Immutable ordered visual parts. No collision, attack or attachment mechanics are stored here.</summary>
 public sealed class SpriteComposition
 {
+    /// <summary>Stores parts.</summary>
     private readonly IReadOnlyList<CompiledSpritePart> parts;
+    /// <summary>Initializes a new sprite composition instance.</summary>
     internal SpriteComposition(CompiledSpritePart[] parts) => this.parts = (CompiledSpritePart[])parts.Clone();
+    /// <summary>Initializes a new sprite composition instance.</summary>
     private SpriteComposition(IReadOnlyList<CompiledSpritePart> parts) => this.parts = parts;
     /// <summary>Wraps an immutable calculated part view. The caller must supply an immutable view, never a mutable document/list.</summary>
     internal static SpriteComposition FromCalculated(IReadOnlyList<CompiledSpritePart> parts) => new(parts);
+    /// <summary>Gets part count.</summary>
     internal int PartCount => parts.Count;
+    /// <summary>Part.</summary>
     internal CompiledSpritePart Part(int index) => parts[index];
 
     /// <summary>Use an immutable calculated view only when every supplied visual field matches.

@@ -68,6 +68,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 /// <summary>One Tourian boss statue's complete mechanics program.</summary>
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
+    /// <summary>Initializes a new tourian statue animated tile program definition instance.</summary>
     internal TourianStatueAnimatedTileProgramDefinition(TourianStatueAnimatedTileProgramParts parts)
     {
         ObjectPointer = parts.ObjectPointer;
@@ -119,9 +120,12 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// </summary>
     public IReadOnlyList<ushort> SourceOperandPointers { get; }
 
+    /// <summary>Represents calculated source operands.</summary>
     private sealed class CalculatedSourceOperands(ushort programStart) : IReadOnlyList<ushort>
     {
+        /// <summary>Gets count.</summary>
         public int Count => 9;
+        /// <summary>Gets an indexed value.</summary>
         public ushort this[int index]
         {
             get
@@ -138,11 +142,13 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
             }
         }
 
+        /// <summary>Gets enumerator.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {
             for (int index = 0; index < Count; index++) yield return this[index];
         }
 
+        /// <summary>Gets enumerator.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
@@ -232,6 +238,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
         return true;
     }
 
+    /// <summary>At.</summary>
     private ushort At(int relativeOffset) =>
         unchecked((ushort)(ProgramStart + relativeOffset));
 }

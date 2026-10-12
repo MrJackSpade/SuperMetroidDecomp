@@ -17,26 +17,17 @@ internal sealed class DoorOpeningScrollState
     /// <summary>Pixels the camera and layer two move per IRQ call.</summary>
     private const short LayerStepPixels = 4;
 
-    private DoorOpeningScrollState(
-        DoorDirection direction,
-        FixedVector<RoomPixels> samusIrqStep,
-        int remainingFrames,
-        Position16<RoomPixels> cameraPosition,
-        Position16<Bg2Pixels> layer2Position,
-        FixedPosition<RoomPixels> samusPosition,
-        Position16<RoomPixels> finalCameraPosition,
-        Position16<Bg2Pixels> finalLayer2Position,
-        FixedPosition<RoomPixels> finalSamusPosition)
+    private DoorOpeningScrollState(DoorOpeningScrollSetup setup)
     {
-        Direction = direction;
-        SamusIrqStep = samusIrqStep;
-        RemainingFrames = remainingFrames;
-        CameraPosition = cameraPosition;
-        Layer2Position = layer2Position;
-        SamusPosition = samusPosition;
-        FinalCameraPosition = finalCameraPosition;
-        FinalLayer2Position = finalLayer2Position;
-        FinalSamusPosition = finalSamusPosition;
+        Direction = setup.Direction;
+        SamusIrqStep = setup.SamusIrqStep;
+        RemainingFrames = setup.RemainingFrames;
+        CameraPosition = setup.CameraPosition;
+        Layer2Position = setup.Layer2Position;
+        SamusPosition = setup.SamusPosition;
+        FinalCameraPosition = setup.FinalCameraPosition;
+        FinalLayer2Position = setup.FinalLayer2Position;
+        FinalSamusPosition = setup.FinalSamusPosition;
     }
 
     public DoorDirection Direction { get; }
@@ -84,16 +75,7 @@ internal sealed class DoorOpeningScrollState
             _ => throw new ArgumentOutOfRangeException(nameof(door), direction, "Undefined door direction."),
         };
 
-        return new DoorOpeningScrollState(
-            direction,
-            GetSamusStep(door),
-            MovingIrqCalls(direction),
-            GetSetupCamera(door),
-            finalLayer2 + layer2Setup,
-            samus,
-            finalCamera,
-            finalLayer2,
-            finalSamus);
+        return new DoorOpeningScrollState(new DoorOpeningScrollSetup { Direction = direction, SamusIrqStep = GetSamusStep(door), RemainingFrames = MovingIrqCalls(direction), CameraPosition = GetSetupCamera(door), Layer2Position = finalLayer2 + layer2Setup, SamusPosition = samus, FinalCameraPosition = finalCamera, FinalLayer2Position = finalLayer2, FinalSamusPosition = finalSamus });
     }
 
     /// <summary>

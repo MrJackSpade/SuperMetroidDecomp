@@ -1092,18 +1092,8 @@ public static class EnemyTileArtworkFiles
         }
         var auxiliaryColors = EnemyAuxiliaryColorCatalog.Load(new MemoryStream(
             ReadStockOrOverride(EnemyAuxiliaryColorFormat.FileName, manifest.AuxiliaryColorsSha256), writable: false));
-        return EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes, crocomire,
-            spritemaps, extendedFrames, new KraidBackgroundArtwork(upperKraid, lowerKraid,
-                kraidHeads, roomBackground), kraidColors, gunshipLiftoff, ceresDoorVisual,
-            dmaSources, projectileSpritemaps, magdollitePaletteCycle,
-            workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
-            chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
-            babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors,
-            zebetiteColors, norfairRidleyColors, tourianStatueColors,
-            phantoonBg2Frames, draygonBg2Frames, motherBrainCorpse,
-            motherBrainEscapeText, motherBrainSpecialSprites, skeleton,
-            crocomireBg2Frames, torizoInstructionVram, ceresEscapeTiles,
-            ceresEscapeOverlay, auxiliaryColors, motherBrainBodyBg2Frames);
+        return EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, CrocomireMelting = crocomire, Spritemaps = spritemaps, ExtendedFrames = extendedFrames, KraidBackground = new KraidBackgroundArtwork(upperKraid, lowerKraid,
+                kraidHeads, roomBackground), KraidColors = kraidColors, GunshipLiftoff = gunshipLiftoff, CeresDoorVisual = ceresDoorVisual, DmaSources = dmaSources, ProjectileSpritemaps = projectileSpritemaps, MagdollitePaletteCycle = magdollitePaletteCycle, WorkRobotPaletteCycle = workRobotPaletteCycle, CrocomireColors = crocomireColors, DraygonColors = draygonColors, PhantoonColors = phantoonColors, ChozoAndTubeColors = chozoAndTubeColors, SporeSpawnColors = sporeSpawnColors, DachoraColors = dachoraColors, ShitroidColors = shitroidColors, BabyMetroidCutsceneColors = babyMetroidCutsceneColors, BotwoonColors = botwoonColors, MotherBrainDeathColors = motherBrainDeathColors, ZebetiteColors = zebetiteColors, NorfairRidleyColors = norfairRidleyColors, TourianStatueColors = tourianStatueColors, PhantoonBg2Frames = phantoonBg2Frames, DraygonBg2Frames = draygonBg2Frames, MotherBrainCorpse = motherBrainCorpse, MotherBrainEscapeText = motherBrainEscapeText, MotherBrainSpecialSprites = motherBrainSpecialSprites, CrocomireSkeleton = skeleton, CrocomireBg2Frames = crocomireBg2Frames, TorizoInstructionVram = torizoInstructionVram, CeresEscapeTiles = ceresEscapeTiles, CeresEscapeOverlayTilemaps = ceresEscapeOverlay, AuxiliaryColors = auxiliaryColors, MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames });
 
         RoomBackgroundTilemapAtlas LoadKraidTilemap(string fileName, string expectedSha256)
         {

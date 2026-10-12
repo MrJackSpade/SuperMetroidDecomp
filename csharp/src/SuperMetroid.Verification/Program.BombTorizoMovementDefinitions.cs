@@ -109,7 +109,7 @@ internal static partial class Program
             const ushort cursor = 0x9000;
             ushort next = (ushort)processWalk.Invoke(
                 enemies,
-                [slot, state, null, level, cursor, tableOffset, (ushort)0xb962, (ushort)0xbdd8])!;
+                [slot, state, null, level, cursor, new TorizoWalkStep { TableOffset = tableOffset, CollisionFacingRight = 0xb962, CollisionFacingLeft = 0xbdd8 }])!;
 
             AssertEqual(BombTorizoMovementDefinitions.WalkVelocity(tableOffset),
                 state.Velocity.X.RawValue,

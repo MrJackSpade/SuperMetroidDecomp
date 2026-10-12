@@ -24,10 +24,8 @@ internal static partial class Program
             "all 1024 equipment base cells match native words");
 
         var guard = NewPauseEquipmentBaseReadGuard(bus);
-        var native = new PauseMenuState(bus, Samus(), new Bank80SystemState(),
-            AreaId.Norfair, new(0, 0), mapPresentation: original);
-        var installed = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, new(0, 0),
-            mapPresentation: original);
+        var native = new PauseMenuState(bus, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var installed = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
         int toMap = PausePageTransitionNativeLength + 1;
         for (int frame = 0; frame < toMap + PausePageTransitionNativeLength + 2; frame++)
         {
@@ -53,10 +51,8 @@ internal static partial class Program
         using (var output = File.Create(path)) PauseEquipmentBasePresentation.Write(output, document with { Cells = cells });
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "equipment base override changes content identity");
-        var stockPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, new(0, 0),
-            mapPresentation: original);
-        var editedPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Norfair, new(0, 0),
-            mapPresentation: edited);
+        var stockPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var editedPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = edited });
         EnterEquipment(stockPause); EnterEquipment(editedPause);
         AssertTrue(!stockPause.Render().AsSpan().SequenceEqual(editedPause.Render()),
             "edited static equipment cell reaches actual menu pixels");

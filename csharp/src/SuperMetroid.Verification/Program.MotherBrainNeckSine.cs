@@ -28,10 +28,7 @@ internal static partial class Program
                 body: new(0x0038, 0x00b6),
                 lowerAngle,
                 upperAngle);
-            MotherBrainNeckGeometry actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(
-                body: new(0x0038, 0x00b6),
-                lowerAngle,
-                upperAngle);
+            MotherBrainNeckGeometry actualGeometry = MotherBrainNeckKinematics.CalculateGeometry(body: new(0x0038, 0x00b6), lowerAngle, upperAngle, new MotherBrainNeckSegmentDistances());
             AssertEqual(expectedGeometry, actualGeometry,
                 $"Mother Brain complete neck geometry lower angle {angle:X2}");
         }

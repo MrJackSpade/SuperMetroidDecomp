@@ -17,10 +17,8 @@ public sealed class PauseSelectorPresentation
     public ushort PaletteBits { get; }
     /// <summary>Gets the number of cyclic visual animation phases.</summary>
     public int PhaseCount { get; }
-    private PauseSelectorPresentation(Dictionary<string, (int? X, int? Y)> anchorOverrides,
-        PhaseComposition reserve, PhaseComposition beam, PhaseComposition equipment, int phaseCount,
-        Dictionary<int, int>? durationOverrides, int initialDuration, int palette)
-    { this.anchorOverrides = anchorOverrides; this.reserve = reserve; this.beam = beam; this.equipment = equipment; PhaseCount = phaseCount; this.durationOverrides = durationOverrides; InitialDurationTicks = initialDuration; PaletteBits = SnesObjAttributeWord.Create(0, palette, 0).PaletteBits; }
+    private PauseSelectorPresentation(PauseSelectorParts parts)
+    { this.anchorOverrides = parts.AnchorOverrides; this.reserve = parts.Reserve; this.beam = parts.Beam; this.equipment = parts.Equipment; PhaseCount = parts.PhaseCount; this.durationOverrides = parts.DurationOverrides; InitialDurationTicks = parts.InitialDuration; PaletteBits = SnesObjAttributeWord.Create(0, parts.Palette, 0).PaletteBits; }
     /// <summary>Gets the selected screen-pixel anchor for an equipment category and item.</summary>
     public Position16<OamPixels> Anchor(PauseEquipmentCategory category, int item)
     {
@@ -99,7 +97,7 @@ public sealed class PauseSelectorPresentation
             if (phase.DurationTicks != MenuSelectorTiming.Duration(i))
                 (durationOverrides ??= new()).Add(i, phase.DurationTicks);
         }
-        return new(anchorOverrides, reservePhases!, beamPhases!, equipmentPhases!, document.Animation.Length, durationOverrides, document.InitialDurationTicks, document.Palette);
+        return new(new PauseSelectorParts { AnchorOverrides = anchorOverrides, Reserve = reservePhases, Beam = beamPhases, Equipment = equipmentPhases, PhaseCount = document.Animation.Length, DurationOverrides = durationOverrides, InitialDuration = document.InitialDurationTicks, Palette = document.Palette });
     }
     /// <summary>Native $82:C137 has zero sprite offsets in every phase: each category
     /// holds its base composition. Capture only explicitly authored phase differences.</summary>
@@ -119,6 +117,34 @@ public sealed class PauseSelectorPresentation
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
+    }
+
+    /// <summary>The pause screen's selector compositions, anchors and timing (#633).</summary>
+    private sealed record PauseSelectorParts
+    {
+        /// <summary>Anchor overrides.</summary>
+        public required Dictionary<string, (int? X, int? Y)> AnchorOverrides { get; init; }
+
+        /// <summary>Reserve.</summary>
+        public required PhaseComposition Reserve { get; init; }
+
+        /// <summary>Beam.</summary>
+        public required PhaseComposition Beam { get; init; }
+
+        /// <summary>Equipment.</summary>
+        public required PhaseComposition Equipment { get; init; }
+
+        /// <summary>Phase count.</summary>
+        public required int PhaseCount { get; init; }
+
+        /// <summary>Duration overrides.</summary>
+        public required Dictionary<int, int>? DurationOverrides { get; init; }
+
+        /// <summary>Initial duration.</summary>
+        public required int InitialDuration { get; init; }
+
+        /// <summary>Palette.</summary>
+        public required int Palette { get; init; }
     }
 }
 /// <summary>Defines editable pause equipment-selector placement and animation.</summary>

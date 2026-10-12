@@ -46,11 +46,7 @@ internal static partial class Program
                 CeresEscapeOverlayTilemapFiles.Extract(rom), writable: false));
         var system = new RoomEnemySystem
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-                ceresEscapeTiles: new CeresEscapeTileArtwork(escapePages),
-                ceresEscapeOverlayTilemaps: overlay),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeTiles = new CeresEscapeTileArtwork(escapePages), CeresEscapeOverlayTilemaps = overlay }),
             EscapeTimerArtwork = EscapeTimerTileAtlas.Load(timerPng),
         };
         typeof(RoomEnemySystem).GetField("_bus",

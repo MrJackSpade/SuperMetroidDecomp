@@ -46,10 +46,7 @@ internal static partial class Program
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
             new MemoryStream(stockJson, writable: false));
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            spritemaps: installed);
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed });
         short[] expectedOffsets = [0, 0, -4, -1];
         int? baseX = null;
         for (ushort phase = 0; phase < expectedOffsets.Length; phase++)
@@ -88,11 +85,8 @@ internal static partial class Program
         };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            spritemaps: EnemySpritemapCatalog.Load(
-                new MemoryStream(editedJson, writable: false)));
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = EnemySpritemapCatalog.Load(
+                new MemoryStream(editedJson, writable: false)) });
         var editedOverlay = new OamBuffer();
         editedOverlay.BeginFrame();
         enemies.DrawCeresRidleyImmediateBabyAndDoor(editedOverlay, new(0, 0));

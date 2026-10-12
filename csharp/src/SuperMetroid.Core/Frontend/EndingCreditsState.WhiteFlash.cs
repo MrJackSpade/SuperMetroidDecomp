@@ -47,11 +47,7 @@ internal sealed partial class EndingCreditsState
         endingLogo!.Step(cgram, objectArtwork is null
             ? null : EndingLogoInstructionDefinitions.ReadWord);
         if (!endingLogo.Completed) return;
-        postCreditsText = new EndingBackgroundTextState(bus, postCreditsTilemap,
-            EndingCreditsRomData.Instructions.ItemPercentageText, inventory, japaneseText,
-            EndingPostShotDefinitions.FinalTextTilemapWord,
-            endingText,
-            endingText is null ? null : SuperMetroid.Core.Assets.EndingTextSequence.ItemPercentage);
+        postCreditsText = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.ItemPercentageText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = EndingPostShotDefinitions.FinalTextTilemapWord, Presentation = endingText, InstalledSequence = endingText is null ? null : SuperMetroid.Core.Assets.EndingTextSequence.ItemPercentage });
         Phase = EndingCreditsPhase.ItemPercentage;
     }
 }

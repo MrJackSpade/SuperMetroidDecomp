@@ -44,18 +44,7 @@ public sealed partial class RoomEnemySystem
         DeadTorizoCorpseDefinition definition = DeadTorizoCorpseDefinitions.Corpse;
         ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        _deadTorizo = new DeadTorizoEnemyState(
-            slot,
-            definition.RottingTablePointer,
-            definition.VramTransferPointer,
-            definition.CopyFunction,
-            definition.MoveFunction,
-            definition.RotationTablePointer,
-            definition.FinishFunction,
-            definition.EntryCount,
-            yLimit,
-            lateMoveEntryIndex,
-            definition.WrapOffset)
+        _deadTorizo = new DeadTorizoEnemyState(slot, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset })
         {
             SandLineCounter = 15,
         };
@@ -353,13 +342,7 @@ public sealed partial class RoomEnemySystem
         ushort screenY = unchecked((ushort)(187 - camera.Y));
         if (unchecked((short)screenY) < 0)
             return;
-        DrawEnemySpritemap(
-            oam,
-            DeadTorizoArtworkDefinitions.SpritemapBank,
-            DeadTorizoArtworkDefinitions.HookSpritemap,
-            new(unchecked((ushort)(296 - camera.X)), screenY),
-            0,
-            0);
+        DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitions.SpritemapBank, Pointer = DeadTorizoArtworkDefinitions.HookSpritemap, Origin = new(unchecked((ushort)(296 - camera.X)), screenY), PaletteBits = 0, BaseTileIndex = 0 });
     }
 
     private DeadTorizoEnemyState RequireDeadTorizoState(RoomEnemySlot slot)
@@ -384,30 +367,19 @@ public sealed partial class RoomEnemySystem
 /// <summary>Typed projection of Dead Torizo's bank-$A9 extended WRAM fields.</summary>
 public sealed class DeadTorizoEnemyState
 {
-    internal DeadTorizoEnemyState(
-        RoomEnemySlot slot,
-        ushort tablePointer,
-        ushort vramTablePointer,
-        ushort copyFunction,
-        ushort moveFunction,
-        ushort rotationTablePointer,
-        ushort finishFunction,
-        ushort entryCount,
-        ushort yLimit,
-        ushort lateMoveEntryIndex,
-        ushort wrapOffset)
+    internal DeadTorizoEnemyState(RoomEnemySlot slot, CorpseRottingProgram rotting)
     {
         Slot = slot;
-        TablePointer = tablePointer;
-        VramTablePointer = vramTablePointer;
-        CopyFunction = copyFunction;
-        MoveFunction = moveFunction;
-        RotationTablePointer = rotationTablePointer;
-        FinishFunction = finishFunction;
-        EntryCount = entryCount;
-        YLimit = yLimit;
-        LateMoveEntryIndex = lateMoveEntryIndex;
-        WrapOffset = wrapOffset;
+        TablePointer = rotting.TablePointer;
+        VramTablePointer = rotting.VramTablePointer;
+        CopyFunction = rotting.CopyFunction;
+        MoveFunction = rotting.MoveFunction;
+        RotationTablePointer = rotting.RotationTablePointer;
+        FinishFunction = rotting.FinishFunction;
+        EntryCount = rotting.EntryCount;
+        YLimit = rotting.YLimit;
+        LateMoveEntryIndex = rotting.LateMoveEntryIndex;
+        WrapOffset = rotting.WrapOffset;
     }
 
     /// <summary>Physical enemy slot zero, owning the corpse's position, collision/instruction words, bank-$A9 dispatcher in VariableA, and signed 8.8 velocities in Variables B and C.</summary>

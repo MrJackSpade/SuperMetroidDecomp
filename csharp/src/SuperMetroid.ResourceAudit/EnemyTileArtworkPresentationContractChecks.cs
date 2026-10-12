@@ -10,8 +10,7 @@ internal static class EnemyTileArtworkPresentationContractChecks
     internal static void Run()
     {
         bool rejected = false;
-        try { _ = EnemyTileArtworkCatalog.FromInstalledArtwork(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>()); }
+        try { _ = EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }); }
         catch (InvalidDataException) { rejected = true; }
         if (!rejected) throw new InvalidOperationException(
             "Enemy artwork confirmation failed: production construction must reject an empty ordinary installation.");
@@ -51,14 +50,11 @@ internal static class EnemyTileArtworkPresentationContractChecks
         CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
         var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All.ToArray()
             .Select(page => Sheet(page.ByteCount)).ToArray());
-        EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes,
-            dmaSources: sources, ceresEscapeTiles: ceres, ceresEscapeOverlayTilemaps: overlays,
-            torizoInstructionVram: torizo);
+        EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, DmaSources = sources, TorizoInstructionVram = torizo, CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileArtworkCatalog catalog = Install();
-        Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes), "required Ceres DMA extensions");
-        Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(sheets, palettes,
-            ceresEscapeTiles: ceres, ceresEscapeOverlayTilemaps: overlays), "required Torizo DMA extension");
+        Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes }), "required Ceres DMA extensions");
+        Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays }), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionPointer];
         sheets.Remove(first.DefinitionPointer); sheets.Add(0, original);
         Reject(() => Install(), "same-count substituted identity");

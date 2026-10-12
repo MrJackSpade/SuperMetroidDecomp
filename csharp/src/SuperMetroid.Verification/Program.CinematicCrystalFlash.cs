@@ -49,11 +49,7 @@ internal static partial class Program
         bool motherUnlocked = false;
         for (ushort frame = 0; frame < 700; frame++)
         {
-            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(
-                motherBus,
-                motherSamus,
-                enemyFrameCounter: frame,
-                mainEnemyExecutionCounter: frame);
+            MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherBus, motherSamus, new RainbowBeamAttackFrame { EnemyFrameCounter = frame, MainEnemyExecutionCounter = frame });
             // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
             bool unlockedSamus = !motherSamus.InputLocked &&
                 step.PhaseBefore != MotherBrainRainbowBeamAttackPhase.LetSamusFall &&

@@ -65,17 +65,7 @@ public sealed partial class RoomEnemySystem
             typewriterFinished = text.Step(_vram!);
             if (text.ClickRequested) state.LastSoundEffectLibrary3 = EscapeTypewriterRomData.ZebesClick;
         }
-        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(
-            _bus!,
-            samus,
-            enemyFrameCounter,
-            _randomEnemyCounter,
-            powerBombActive: sharedProjectiles?.PowerBombExplosion.Status != 0,
-            randomNumberSeed: RequireRandomNumber(),
-            nextRandomNumber: EnemyRandom.Generate,
-            alternateEscapeText: JapaneseText,
-            typewriterFinished: typewriterFinished,
-            globalEarthquakeTimer: EarthquakeTimer);
+        MotherBrainRainbowBeamAttackStepResult step = sequence.Step(_bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = enemyFrameCounter, MainEnemyExecutionCounter = _randomEnemyCounter, PowerBombActive = sharedProjectiles?.PowerBombExplosion.Status != 0, RandomNumberSeed = RequireRandomNumber(), NextRandomNumber = EnemyRandom.Generate, AlternateEscapeText = JapaneseText, TypewriterFinished = typewriterFinished, GlobalEarthquakeTimer = EarthquakeTimer });
         state.LastRainbowBeamStep = step;
         ApplyLiveMotherBrainRainbowState(state, sequence, step, samus, sharedProjectiles);
     }
@@ -86,23 +76,7 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot head = state.Head ?? throw new InvalidOperationException(
             "Mother Brain's rainbow beam requires the physical head slot.");
-        sequence.SynchronizeLiveActor(
-            state.Body.Position.Whole,
-            state.Pose,
-            state.Form,
-            state.Body.Properties,
-            state.Body.ExtraProperties,
-            head.Position.Whole,
-            head.Health,
-            head.Properties,
-            head.ExtraProperties,
-            state.LowerNeckAngle,
-            state.UpperNeckAngle,
-            state.NeckMovementEnabled,
-            state.LowerNeckMovementIndex,
-            state.UpperNeckMovementIndex,
-            state.BombCounter,
-            state.HitboxesEnabled != 0);
+        sequence.SynchronizeLiveActor(new MotherBrainLiveActorSnapshot { Body = state.Body.Position.Whole, BodyPose = state.Pose, Form = state.Form, BodyProperties = state.Body.Properties, BodyExtraProperties = state.Body.ExtraProperties, Brain = head.Position.Whole, BrainHealth = head.Health, BrainProperties = head.Properties, BrainExtraProperties = head.ExtraProperties, LowerNeckAngle = state.LowerNeckAngle, UpperNeckAngle = state.UpperNeckAngle, NeckMovementEnabled = state.NeckMovementEnabled, LowerNeckMovementIndex = state.LowerNeckMovementIndex, UpperNeckMovementIndex = state.UpperNeckMovementIndex, BombCounter = state.BombCounter, HitboxesEnabled = state.HitboxesEnabled != 0 });
     }
 
     /// <summary>

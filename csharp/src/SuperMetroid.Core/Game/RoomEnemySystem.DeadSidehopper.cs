@@ -132,20 +132,7 @@ public sealed partial class RoomEnemySystem
 
         ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        var state = new DeadSidehopperEnemyState(
-            slot,
-            graphicsVariant,
-            definition.ConfigurationPointer,
-            definition.RottingTablePointer,
-            definition.VramTransferPointer,
-            definition.CopyFunction,
-            definition.MoveFunction,
-            definition.RotationTablePointer,
-            definition.FinishFunction,
-            definition.EntryCount,
-            yLimit,
-            lateMoveEntryIndex,
-            definition.WrapOffset);
+        var state = new DeadSidehopperEnemyState(slot, graphicsVariant, definition.ConfigurationPointer, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset });
         _deadSidehopperStates[slot.SlotIndex] = state;
 
         CorpseRottingTableProcessor.Initialize(
@@ -590,34 +577,21 @@ public enum DeadSidehopperAiFunction : ushort
 /// <summary>Typed projection of one dead sidehopper's extended bank-$A9 WRAM.</summary>
 public sealed class DeadSidehopperEnemyState
 {
-    internal DeadSidehopperEnemyState(
-        RoomEnemySlot slot,
-        ushort graphicsVariant,
-        ushort configurationPointer,
-        ushort tablePointer,
-        ushort vramTablePointer,
-        ushort copyFunction,
-        ushort moveFunction,
-        ushort rotationTablePointer,
-        ushort finishFunction,
-        ushort entryCount,
-        ushort yLimit,
-        ushort lateMoveEntryIndex,
-        ushort wrapOffset)
+    internal DeadSidehopperEnemyState(RoomEnemySlot slot, ushort graphicsVariant, ushort configurationPointer, CorpseRottingProgram rotting)
     {
         Slot = slot;
         GraphicsVariant = graphicsVariant;
         ConfigurationPointer = configurationPointer;
-        TablePointer = tablePointer;
-        VramTablePointer = vramTablePointer;
-        CopyFunction = copyFunction;
-        MoveFunction = moveFunction;
-        RotationTablePointer = rotationTablePointer;
-        FinishFunction = finishFunction;
-        EntryCount = entryCount;
-        YLimit = yLimit;
-        LateMoveEntryIndex = lateMoveEntryIndex;
-        WrapOffset = wrapOffset;
+        TablePointer = rotting.TablePointer;
+        VramTablePointer = rotting.VramTablePointer;
+        CopyFunction = rotting.CopyFunction;
+        MoveFunction = rotting.MoveFunction;
+        RotationTablePointer = rotting.RotationTablePointer;
+        FinishFunction = rotting.FinishFunction;
+        EntryCount = rotting.EntryCount;
+        YLimit = rotting.YLimit;
+        LateMoveEntryIndex = rotting.LateMoveEntryIndex;
+        WrapOffset = rotting.WrapOffset;
     }
 
     /// <summary>The physical enemy slot owning this corpse's positions, native AI words, collision properties, and instruction list.</summary>

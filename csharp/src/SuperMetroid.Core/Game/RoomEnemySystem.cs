@@ -950,11 +950,7 @@ public sealed partial class RoomEnemySystem
                 }
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
-                    DrawEnemySpritemap(oam, slot.Definition.Bank,
-                        slot.SpritemapPointer,
-                        origin.ToOam(),
-                        drawPaletteIndex,
-                        slot.VramTilesIndex);
+                    DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = slot.Definition.Bank, Pointer = slot.SpritemapPointer, Origin = origin.ToOam(), PaletteBits = drawPaletteIndex, BaseTileIndex = slot.VramTilesIndex });
                     continue;
                 }
 
@@ -2567,22 +2563,20 @@ public sealed partial class RoomEnemySystem
         return unchecked((ushort)Math.Min(current + 2, maximum));
     }
 
-    private void DrawEnemySpritemap(OamBuffer oam, byte bank, ushort pointer,
-        Position16<OamPixels> origin, ushort paletteBits, ushort baseTileIndex,
-        bool clipVerticalWrap = false, bool originYIsOnScreen = true)
+    private void DrawEnemySpritemap(OamBuffer oam, EnemySpritemapDraw draw)
     {
-        if (TileArtwork?.Spritemaps?.TryGetDisplay(bank, pointer,
+        if (TileArtwork?.Spritemaps?.TryGetDisplay(draw.Bank, draw.Pointer,
                 out EnemySpritemapParts installed) == true)
         {
-            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(origin.X, origin.Y),
-                paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+            oam.AddEnemySpritemap(installed, new Position16<OamPixels>(draw.Origin.X, draw.Origin.Y),
+                draw.PaletteBits, draw.BaseTileIndex, draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
             return;
         }
         // The common empty frame is compiled definition data, not missing artwork.
-        if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer))
+        if (CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(draw.Bank, draw.Pointer))
             return;
         throw new InvalidDataException(
-            $"Enemy sprite ${bank:X2}:{pointer:X4} requires an installed display composition.");
+            $"Enemy sprite ${draw.Bank:X2}:{draw.Pointer:X4} requires an installed display composition.");
     }
 
     private static ushort ReadEnemyVisualSelector(RoomEnemySlot slot, ushort operandAddress)

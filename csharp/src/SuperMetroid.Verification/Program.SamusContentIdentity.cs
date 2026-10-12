@@ -122,9 +122,7 @@ internal static partial class Program
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(
             new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument)),
             Png(cannonWidth, 8, edit == "cannon-tiles"));
-        return new SamusBodyArtworkCatalog(topPointers, bottomPointers, poses, graphics, frames,
-            Half(topPointers.Length, "top-characters"), Half(bottomPointers.Length, "bottom-characters"),
-            spritemaps, atmosphere, deathPalettes, deathTiles, cannon, landing, posture, drained);
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = topPointers, BottomPointers = bottomPointers, PosePointers = poses, GraphicsYOffsets = graphics, Frames = frames, Top = Half(topPointers.Length, "top-characters"), Bottom = Half(bottomPointers.Length, "bottom-characters"), Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained });
 
         static MemoryStream Png(int width, int height, bool changed)
         {

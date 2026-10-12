@@ -30,26 +30,17 @@ public sealed class BullEnemyState
     private readonly ushort[] _shotReactionDisableTimers;
     private readonly ushort[] _previousHealth;
 
-    internal BullEnemyState(
-        RoomEnemySlot slot,
-        ushort[] maxSpeeds,
-        ushort[] anglesToSamus,
-        ushort[] angles,
-        ushort[] shotReactionDisableFlags,
-        ushort[] accelerationTimerResets,
-        ushort[] decelerationTimerResets,
-        ushort[] shotReactionDisableTimers,
-        ushort[] previousHealth)
+    internal BullEnemyState(RoomEnemySlot slot, BullSharedTables tables)
     {
         _slot = slot;
-        _maxSpeeds = maxSpeeds;
-        _anglesToSamus = anglesToSamus;
-        _angles = angles;
-        _shotReactionDisableFlags = shotReactionDisableFlags;
-        _accelerationTimerResets = accelerationTimerResets;
-        _decelerationTimerResets = decelerationTimerResets;
-        _shotReactionDisableTimers = shotReactionDisableTimers;
-        _previousHealth = previousHealth;
+        _maxSpeeds = tables.MaxSpeeds;
+        _anglesToSamus = tables.AnglesToSamus;
+        _angles = tables.Angles;
+        _shotReactionDisableFlags = tables.ShotReactionDisableFlags;
+        _accelerationTimerResets = tables.AccelerationTimerResets;
+        _decelerationTimerResets = tables.DecelerationTimerResets;
+        _shotReactionDisableTimers = tables.ShotReactionDisableTimers;
+        _previousHealth = tables.PreviousHealth;
     }
 
     /// <summary>Native variable A ($0FA8 plus slot byte index): the current bank-$A8 delay, target, acceleration, or deceleration dispatcher pointer.</summary>
@@ -175,16 +166,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Bull</c> at <c>$A8:D8C9</c>.</summary>
     private void InitializeBull(RoomEnemySlot slot)
     {
-        var state = new BullEnemyState(
-            slot,
-            _bullMaxSpeeds,
-            _bullAnglesToSamus,
-            _bullAngles,
-            _bullShotReactionDisableFlags,
-            _bullAccelerationTimerResets,
-            _bullDecelerationTimerResets,
-            _bullShotReactionDisableTimers,
-            _bullPreviousHealth);
+        var state = new BullEnemyState(slot, new BullSharedTables { MaxSpeeds = _bullMaxSpeeds, AnglesToSamus = _bullAnglesToSamus, Angles = _bullAngles, ShotReactionDisableFlags = _bullShotReactionDisableFlags, AccelerationTimerResets = _bullAccelerationTimerResets, DecelerationTimerResets = _bullDecelerationTimerResets, ShotReactionDisableTimers = _bullShotReactionDisableTimers, PreviousHealth = _bullPreviousHealth });
         _bullStates[slot.SlotIndex] = state;
 
         slot.InstructionTimer = 1;

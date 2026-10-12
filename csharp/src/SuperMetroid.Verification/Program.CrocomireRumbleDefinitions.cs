@@ -63,9 +63,7 @@ internal static partial class Program
             new MemoryStream(CrocomireColorExtractor.Extract(rom), writable: false));
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), crocomireColors: colors),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireColors = colors }),
         };
         var cgram = new SnesCgram();
         var death = new CrocomireDeathState

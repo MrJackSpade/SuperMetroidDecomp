@@ -11,116 +11,39 @@ public sealed partial class EnemyTileArtworkCatalog
     /// The Ceres and Torizo transfer extensions are required; other boss attachments retain
     /// their independently validated contracts and are not certified here.
     /// </summary>
-    public static EnemyTileArtworkCatalog FromInstalledArtwork(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes,
-        CrocomireMeltingArtwork? crocomireMelting = null,
-        EnemySpritemapCatalog? spritemaps = null,
-        EnemyExtendedFrameCatalog? extendedFrames = null,
-        KraidBackgroundArtwork? kraidBackground = null,
-        KraidColorCatalog? kraidColors = null,
-        GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
-        CeresDoorVisualCatalog? ceresDoorVisual = null,
-        IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null,
-        EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
-        MagdollitePaletteCycle? magdollitePaletteCycle = null,
-        WorkRobotPaletteCycle? workRobotPaletteCycle = null,
-        CrocomireColorCatalog? crocomireColors = null,
-        DraygonColorCatalog? draygonColors = null,
-        PhantoonColorCatalog? phantoonColors = null,
-        ChozoAndTubeColorCatalog? chozoAndTubeColors = null,
-        SporeSpawnColorCatalog? sporeSpawnColors = null,
-        DachoraColorCatalog? dachoraColors = null,
-        ShitroidColorCatalog? shitroidColors = null,
-        BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null,
-        BotwoonColorCatalog? botwoonColors = null,
-        MotherBrainDeathColorCatalog? motherBrainDeathColors = null,
-        ZebetiteColorCatalog? zebetiteColors = null,
-        NorfairRidleyColorCatalog? norfairRidleyColors = null,
-        TourianStatueColorCatalog? tourianStatueColors = null,
-        PhantoonBg2FrameCatalog? phantoonBg2Frames = null,
-        DraygonBg2FrameCatalog? draygonBg2Frames = null,
-        RoomCharacterAtlas? motherBrainCorpse = null,
-        RoomCharacterAtlas? motherBrainEscapeText = null,
-        MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null,
-        CrocomireSkeletonArtwork? crocomireSkeleton = null,
-        CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
-        TorizoInstructionVramArtwork? torizoInstructionVram = null,
-        CeresEscapeTileArtwork? ceresEscapeTiles = null,
-        CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null,
-        EnemyAuxiliaryColorCatalog? auxiliaryColors = null,
-        MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
+    public static EnemyTileArtworkCatalog FromInstalledArtwork(EnemyTileArtworkParts parts)
     {
-        ArgumentNullException.ThrowIfNull(sheets);
-        ArgumentNullException.ThrowIfNull(palettes);
-        sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(sheets);
-        palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(palettes);
-        ValidateInstalledSheets(sheets, palettes);
-        if (ceresEscapeTiles is null || ceresEscapeOverlayTilemaps is null)
+        Ensure.NotNull(parts);
+        ArgumentNullException.ThrowIfNull(parts.Sheets);
+        ArgumentNullException.ThrowIfNull(parts.Palettes);
+        var installedSheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
+        var installedPalettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
+        ValidateInstalledSheets(installedSheets, installedPalettes);
+        if (parts.CeresEscapeTiles is null || parts.CeresEscapeOverlayTilemaps is null)
             throw new InvalidDataException("Installed enemy DMA artwork requires both Ceres transfer providers.");
-        if (torizoInstructionVram is null)
+        if (parts.TorizoInstructionVram is null)
             throw new InvalidDataException("Installed enemy DMA artwork requires the Torizo transfer provider.");
-        return new EnemyTileArtworkCatalog(
-            sheets, palettes, crocomireMelting, spritemaps,
-            extendedFrames, kraidBackground, kraidColors, gunshipLiftoff,
-            ceresDoorVisual, InstalledDmaSources(dmaSources), projectileSpritemaps, magdollitePaletteCycle,
-            workRobotPaletteCycle, crocomireColors, draygonColors, phantoonColors,
-            chozoAndTubeColors, sporeSpawnColors, dachoraColors, shitroidColors,
-            babyMetroidCutsceneColors, botwoonColors, motherBrainDeathColors, zebetiteColors,
-            norfairRidleyColors, tourianStatueColors, phantoonBg2Frames, draygonBg2Frames,
-            motherBrainCorpse, motherBrainEscapeText, motherBrainSpecialSprites, crocomireSkeleton,
-            crocomireBg2Frames, torizoInstructionVram, ceresEscapeTiles, ceresEscapeOverlayTilemaps,
-            auxiliaryColors, motherBrainBodyBg2Frames);
+        return new EnemyTileArtworkCatalog(parts with
+        {
+            Sheets = installedSheets,
+            Palettes = installedPalettes,
+            DmaSources = InstalledDmaSources(parts.DmaSources),
+        });
     }
 
-    private EnemyTileArtworkCatalog(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes,
-        CrocomireMeltingArtwork? crocomireMelting = null,
-        EnemySpritemapCatalog? spritemaps = null,
-        EnemyExtendedFrameCatalog? extendedFrames = null,
-        KraidBackgroundArtwork? kraidBackground = null,
-        KraidColorCatalog? kraidColors = null,
-        GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
-        CeresDoorVisualCatalog? ceresDoorVisual = null,
-        IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null,
-        EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
-        MagdollitePaletteCycle? magdollitePaletteCycle = null,
-        WorkRobotPaletteCycle? workRobotPaletteCycle = null,
-        CrocomireColorCatalog? crocomireColors = null,
-        DraygonColorCatalog? draygonColors = null,
-        PhantoonColorCatalog? phantoonColors = null,
-        ChozoAndTubeColorCatalog? chozoAndTubeColors = null,
-        SporeSpawnColorCatalog? sporeSpawnColors = null,
-        DachoraColorCatalog? dachoraColors = null,
-        ShitroidColorCatalog? shitroidColors = null,
-        BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null,
-        BotwoonColorCatalog? botwoonColors = null,
-        MotherBrainDeathColorCatalog? motherBrainDeathColors = null,
-        ZebetiteColorCatalog? zebetiteColors = null,
-        NorfairRidleyColorCatalog? norfairRidleyColors = null,
-        TourianStatueColorCatalog? tourianStatueColors = null,
-        PhantoonBg2FrameCatalog? phantoonBg2Frames = null,
-        DraygonBg2FrameCatalog? draygonBg2Frames = null,
-        RoomCharacterAtlas? motherBrainCorpse = null,
-        RoomCharacterAtlas? motherBrainEscapeText = null,
-        MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null,
-        CrocomireSkeletonArtwork? crocomireSkeleton = null,
-        CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
-        TorizoInstructionVramArtwork? torizoInstructionVram = null,
-        CeresEscapeTileArtwork? ceresEscapeTiles = null,
-        CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null,
-        EnemyAuxiliaryColorCatalog? auxiliaryColors = null,
-        MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
+    private EnemyTileArtworkCatalog(EnemyTileArtworkParts parts)
     {
-        ArgumentNullException.ThrowIfNull(sheets);
-        ArgumentNullException.ThrowIfNull(palettes);
-        if (sheets.Count != palettes.Count || sheets.Keys.Any(pointer => !palettes.ContainsKey(pointer)))
+        Ensure.NotNull(parts);
+        ArgumentNullException.ThrowIfNull(parts.Sheets);
+        ArgumentNullException.ThrowIfNull(parts.Palettes);
+        if (parts.Sheets.Count != parts.Palettes.Count || parts.Sheets.Keys.Any(pointer => !parts.Palettes.ContainsKey(pointer)))
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
-        this.sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(sheets);
-        this.palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(palettes);
+        this.sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
+        this.palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
         byDmaSource = new Dictionary<(int, int), RoomCharacterAtlas>();
-        if (dmaSources is not null)
+        if (parts.DmaSources is not null)
         {
-            foreach ((EnemyDefinitionId pointer, int sourceAddress) in dmaSources)
+            foreach ((EnemyDefinitionId pointer, int sourceAddress) in parts.DmaSources)
             {
                 if (!this.sheets.TryGetValue(pointer, out RoomCharacterAtlas? atlas))
                     throw new InvalidDataException(
@@ -135,45 +58,45 @@ public sealed partial class EnemyTileArtworkCatalog
                 else byDmaSource.Add(key, atlas);
             }
         }
-        CrocomireMelting = crocomireMelting;
-        Spritemaps = spritemaps;
-        ExtendedFrames = extendedFrames;
-        KraidBackground = kraidBackground;
-        KraidColors = kraidColors;
-        GunshipLiftoff = gunshipLiftoff;
-        CeresDoorVisual = ceresDoorVisual;
-        ProjectileSpritemaps = projectileSpritemaps;
-        MagdollitePaletteCycle = magdollitePaletteCycle;
-        WorkRobotPaletteCycle = workRobotPaletteCycle;
-        CrocomireColors = crocomireColors;
-        DraygonColors = draygonColors;
-        PhantoonColors = phantoonColors;
-        ChozoAndTubeColors = chozoAndTubeColors;
-        SporeSpawnColors = sporeSpawnColors;
-        DachoraColors = dachoraColors;
-        ShitroidColors = shitroidColors;
-        BabyMetroidCutsceneColors = babyMetroidCutsceneColors;
-        BotwoonColors = botwoonColors;
-        MotherBrainDeathColors = motherBrainDeathColors;
-        ZebetiteColors = zebetiteColors;
-        NorfairRidleyColors = norfairRidleyColors;
-        TourianStatueColors = tourianStatueColors;
-        PhantoonBg2Frames = phantoonBg2Frames;
-        DraygonBg2Frames = draygonBg2Frames;
-        CrocomireBg2Frames = crocomireBg2Frames;
-        MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames;
-        MotherBrainCorpse = motherBrainCorpse;
-        MotherBrainEscapeText = motherBrainEscapeText;
-        MotherBrainSpecialSprites = motherBrainSpecialSprites;
-        CrocomireSkeleton = crocomireSkeleton;
-        TorizoInstructionVram = torizoInstructionVram;
-        CeresEscapeTiles = ceresEscapeTiles;
-        CeresEscapeOverlayTilemaps = ceresEscapeOverlayTilemaps;
-        AuxiliaryColors = auxiliaryColors;
+        CrocomireMelting = parts.CrocomireMelting;
+        Spritemaps = parts.Spritemaps;
+        ExtendedFrames = parts.ExtendedFrames;
+        KraidBackground = parts.KraidBackground;
+        KraidColors = parts.KraidColors;
+        GunshipLiftoff = parts.GunshipLiftoff;
+        CeresDoorVisual = parts.CeresDoorVisual;
+        ProjectileSpritemaps = parts.ProjectileSpritemaps;
+        MagdollitePaletteCycle = parts.MagdollitePaletteCycle;
+        WorkRobotPaletteCycle = parts.WorkRobotPaletteCycle;
+        CrocomireColors = parts.CrocomireColors;
+        DraygonColors = parts.DraygonColors;
+        PhantoonColors = parts.PhantoonColors;
+        ChozoAndTubeColors = parts.ChozoAndTubeColors;
+        SporeSpawnColors = parts.SporeSpawnColors;
+        DachoraColors = parts.DachoraColors;
+        ShitroidColors = parts.ShitroidColors;
+        BabyMetroidCutsceneColors = parts.BabyMetroidCutsceneColors;
+        BotwoonColors = parts.BotwoonColors;
+        MotherBrainDeathColors = parts.MotherBrainDeathColors;
+        ZebetiteColors = parts.ZebetiteColors;
+        NorfairRidleyColors = parts.NorfairRidleyColors;
+        TourianStatueColors = parts.TourianStatueColors;
+        PhantoonBg2Frames = parts.PhantoonBg2Frames;
+        DraygonBg2Frames = parts.DraygonBg2Frames;
+        CrocomireBg2Frames = parts.CrocomireBg2Frames;
+        MotherBrainBodyBg2Frames = parts.MotherBrainBodyBg2Frames;
+        MotherBrainCorpse = parts.MotherBrainCorpse;
+        MotherBrainEscapeText = parts.MotherBrainEscapeText;
+        MotherBrainSpecialSprites = parts.MotherBrainSpecialSprites;
+        CrocomireSkeleton = parts.CrocomireSkeleton;
+        TorizoInstructionVram = parts.TorizoInstructionVram;
+        CeresEscapeTiles = parts.CeresEscapeTiles;
+        CeresEscapeOverlayTilemaps = parts.CeresEscapeOverlayTilemaps;
+        AuxiliaryColors = parts.AuxiliaryColors;
     }
 
-    private static void ValidateInstalledSheets(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
-        IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes)
+    private static void ValidateInstalledSheets(Dictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
+        Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes)
     {
         ArgumentNullException.ThrowIfNull(sheets);
         ArgumentNullException.ThrowIfNull(palettes);

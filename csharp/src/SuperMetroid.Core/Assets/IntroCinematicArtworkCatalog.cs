@@ -7,54 +7,21 @@ namespace SuperMetroid.Core.Assets;
 public sealed class IntroCinematicArtworkCatalog
 {
     /// <summary>Assembles the selected opening-art bundle, validating and concatenating its four background pages and retaining edited portrait and narration tilemaps.</summary>
-    /// <param name="backgroundCharacters">Palette-indexed BG characters for the VRAM byte-$0000 upload.</param>
-    /// <param name="introObjectCharacters">Fixed-bank intro OBJ characters for the VRAM byte-$C000 upload.</param>
-    /// <param name="cinematicObjectCharacters">Cinematic OBJ characters for the VRAM byte-$DC00 upload.</param>
-    /// <param name="backgroundPages">Exactly four ordered 32x32 tilemap pages, concatenated for the VRAM byte-$A000 upload.</param>
-    /// <param name="portraitTilemap">One 32x32 Samus-head portrait page for VRAM byte $9000.</param>
-    /// <param name="initialNarrationTilemap">One 32x32 pre-typewriter narration page for VRAM byte $9800.</param>
-    /// <param name="finalLine">Four BG3 rows referencing staged Japanese subtitle glyphs.</param>
-    /// <param name="eyeFrames">Samus portrait eye rectangles, independent of blink timing.</param>
-    /// <param name="caretSprites">Visible narration caret OAM artwork, independent of positioning and blink timing.</param>
-    /// <param name="motherBrainSprites">Intro Mother Brain actor OAM frames.</param>
-    /// <param name="motherBrainExplosionSprites">Fourth-hit Mother Brain explosion OAM frames.</param>
-    /// <param name="rinkaSprites">Rinka actor frames for the Mother Brain scene.</param>
-    /// <param name="eggEffectSprites">SR388 egg-shell and slime visual frames.</param>
-    /// <param name="discoveryActorSprites">SR388 egg and confused-baby actor frames.</param>
-    /// <param name="scientistSprites">Baby-Metroid frames for the delivery and examination scenes.</param>
-    /// <param name="palette">Native-precision colors loaded before the opening narration.</param>
-    /// <param name="ceresFlight">Mode-7 and OBJ artwork used after the narration fades to Ceres.</param>
-    /// <param name="ceresDestruction">Ceres destruction artwork and subsequent Zebes reveal artwork.</param>
+    /// <param name="parts">The opening cinematic's character atlases, tilemaps, sprite presentations and palette (#633).</param>
     /// <exception cref="ArgumentNullException">A required character atlas, presentation catalog, palette, or background-page collection is null.</exception>
     /// <exception cref="InvalidDataException">The background-page count is not four, a page is missing, or a background, portrait, or narration page is not $0800 bytes.</exception>
-    public IntroCinematicArtworkCatalog(RoomCharacterAtlas backgroundCharacters,
-        RoomCharacterAtlas introObjectCharacters, RoomCharacterAtlas cinematicObjectCharacters,
-        IReadOnlyList<RoomBackgroundTilemapAtlas> backgroundPages,
-        RoomBackgroundTilemapAtlas portraitTilemap,
-        RoomBackgroundTilemapAtlas initialNarrationTilemap,
-        IntroFinalLineTilemap finalLine,
-        IntroEyeTilemapPresentation eyeFrames,
-        IntroCaretSpritePresentation caretSprites,
-        IntroMotherBrainSpritePresentation motherBrainSprites,
-        IntroMotherBrainExplosionSpritePresentation motherBrainExplosionSprites,
-        IntroRinkaSpritePresentation rinkaSprites,
-        IntroEggEffectSpritePresentation eggEffectSprites,
-        IntroDiscoveryActorSpritePresentation discoveryActorSprites,
-        IntroScientistSpritePresentation scientistSprites,
-        IntroCinematicPalette palette,
-        CeresFlightArtworkCatalog ceresFlight,
-        CeresDestructionArtworkCatalog ceresDestruction)
+    public IntroCinematicArtworkCatalog(IntroCinematicArtworkParts parts)
     {
-        BackgroundCharacters = backgroundCharacters ?? throw new ArgumentNullException(nameof(backgroundCharacters));
-        IntroObjectCharacters = introObjectCharacters ?? throw new ArgumentNullException(nameof(introObjectCharacters));
-        CinematicObjectCharacters = cinematicObjectCharacters ?? throw new ArgumentNullException(nameof(cinematicObjectCharacters));
-        ArgumentNullException.ThrowIfNull(backgroundPages);
-        if (backgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)
+        BackgroundCharacters = parts.BackgroundCharacters ?? throw new ArgumentNullException(nameof(parts.BackgroundCharacters));
+        IntroObjectCharacters = parts.IntroObjectCharacters ?? throw new ArgumentNullException(nameof(parts.IntroObjectCharacters));
+        CinematicObjectCharacters = parts.CinematicObjectCharacters ?? throw new ArgumentNullException(nameof(parts.CinematicObjectCharacters));
+        ArgumentNullException.ThrowIfNull(parts.BackgroundPages);
+        if (parts.BackgroundPages.Count != IntroCinematicArtworkFormat.BackgroundPageCount)
             throw new InvalidDataException("Opening cinematic requires four ordered BG tilemap pages.");
-        var pages = new byte[IntroCinematicArtworkFormat.BackgroundPageByteCount * backgroundPages.Count];
-        for (int index = 0; index < backgroundPages.Count; index++)
+        var pages = new byte[IntroCinematicArtworkFormat.BackgroundPageByteCount * parts.BackgroundPages.Count];
+        for (int index = 0; index < parts.BackgroundPages.Count; index++)
         {
-            RoomBackgroundTilemapAtlas page = backgroundPages[index]
+            RoomBackgroundTilemapAtlas page = parts.BackgroundPages[index]
                 ?? throw new InvalidDataException($"Opening BG page {index} is missing.");
             if (page.Transfer.Length != IntroCinematicArtworkFormat.BackgroundPageByteCount)
                 throw new InvalidDataException($"Opening BG page {index} must contain one 32x32 tilemap.");
@@ -63,26 +30,26 @@ public sealed class IntroCinematicArtworkCatalog
         }
         if (!pages.AsSpan().SequenceEqual(IntroBackgroundTilemapDefinitions.Compile()))
             suppliedBackgroundPages = pages;
-        ReadOnlyMemory<byte> portrait = RequirePage(portraitTilemap, "portrait");
+        ReadOnlyMemory<byte> portrait = RequirePage(parts.PortraitTilemap, "portrait");
         if (!portrait.Span.SequenceEqual(IntroPortraitTilemapDefinitions.Compile()))
             suppliedPortrait = portrait.ToArray();
-        ReadOnlyMemory<byte> narration = RequirePage(initialNarrationTilemap, "initial narration");
+        ReadOnlyMemory<byte> narration = RequirePage(parts.InitialNarrationTilemap, "initial narration");
         if (!narration.Span.SequenceEqual(IntroInitialNarrationTilemapDefinitions.Compile()))
             suppliedInitialNarration = narration.ToArray();
-        FinalLine = finalLine ?? throw new ArgumentNullException(nameof(finalLine));
-        EyeFrames = eyeFrames ?? throw new ArgumentNullException(nameof(eyeFrames));
-        CaretSprites = caretSprites ?? throw new ArgumentNullException(nameof(caretSprites));
-        MotherBrainSprites = motherBrainSprites ?? throw new ArgumentNullException(nameof(motherBrainSprites));
-        MotherBrainExplosionSprites = motherBrainExplosionSprites ??
-            throw new ArgumentNullException(nameof(motherBrainExplosionSprites));
-        RinkaSprites = rinkaSprites ?? throw new ArgumentNullException(nameof(rinkaSprites));
-        EggEffectSprites = eggEffectSprites ?? throw new ArgumentNullException(nameof(eggEffectSprites));
-        DiscoveryActorSprites = discoveryActorSprites ??
-            throw new ArgumentNullException(nameof(discoveryActorSprites));
-        ScientistSprites = scientistSprites ?? throw new ArgumentNullException(nameof(scientistSprites));
-        Palette = palette ?? throw new ArgumentNullException(nameof(palette));
-        CeresFlight = ceresFlight ?? throw new ArgumentNullException(nameof(ceresFlight));
-        CeresDestruction = ceresDestruction ?? throw new ArgumentNullException(nameof(ceresDestruction));
+        FinalLine = parts.FinalLine ?? throw new ArgumentNullException(nameof(parts.FinalLine));
+        EyeFrames = parts.EyeFrames ?? throw new ArgumentNullException(nameof(parts.EyeFrames));
+        CaretSprites = parts.CaretSprites ?? throw new ArgumentNullException(nameof(parts.CaretSprites));
+        MotherBrainSprites = parts.MotherBrainSprites ?? throw new ArgumentNullException(nameof(parts.MotherBrainSprites));
+        MotherBrainExplosionSprites = parts.MotherBrainExplosionSprites ??
+            throw new ArgumentNullException(nameof(parts.MotherBrainExplosionSprites));
+        RinkaSprites = parts.RinkaSprites ?? throw new ArgumentNullException(nameof(parts.RinkaSprites));
+        EggEffectSprites = parts.EggEffectSprites ?? throw new ArgumentNullException(nameof(parts.EggEffectSprites));
+        DiscoveryActorSprites = parts.DiscoveryActorSprites ??
+            throw new ArgumentNullException(nameof(parts.DiscoveryActorSprites));
+        ScientistSprites = parts.ScientistSprites ?? throw new ArgumentNullException(nameof(parts.ScientistSprites));
+        Palette = parts.Palette ?? throw new ArgumentNullException(nameof(parts.Palette));
+        CeresFlight = parts.CeresFlight ?? throw new ArgumentNullException(nameof(parts.CeresFlight));
+        CeresDestruction = parts.CeresDestruction ?? throw new ArgumentNullException(nameof(parts.CeresDestruction));
 
         static ReadOnlyMemory<byte> RequirePage(RoomBackgroundTilemapAtlas? page, string name)
         {

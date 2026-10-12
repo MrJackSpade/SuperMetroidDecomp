@@ -1098,10 +1098,7 @@ internal static class MotherBrainRainbowBeamAttackSequenceAccess
                 PrivateState.SetProperty(self, "UpperNeckMovementIndex", upperIndex);
             }
 
-            MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-                self.Body.Position,
-                self.LowerNeckAngle,
-                self.UpperNeckAngle);
+            MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(self.Body.Position, self.LowerNeckAngle, self.UpperNeckAngle, new MotherBrainNeckSegmentDistances());
             self.BrainPosition = geometry.Segment4;
         }
 

@@ -28,7 +28,7 @@ internal static partial class Program
             typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap",
                 BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(
                     ordinaryEnemies,
-                    [emptyDraw, bank, CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), (ushort)0, (ushort)0, false, true]);
+                    [emptyDraw, new EnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true }]);
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = (bank << 16) |

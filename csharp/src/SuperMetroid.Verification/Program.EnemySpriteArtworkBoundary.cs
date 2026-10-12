@@ -32,7 +32,7 @@ internal static partial class Program
             var expected = new OamBuffer(); var actual = new OamBuffer();
             DrawImportedEnemySpritemap(source, expected, frame.Bank, frame.Pointer,
                 new(x, y), 0x0a00, 0x01ff, clip, (y & 0xff00) == 0);
-            drawEnemy.Invoke(enemies, [actual, frame.Bank, frame.Pointer, new Position16<OamPixels>(x, y), (ushort)0x0a00, (ushort)0x01ff, clip, (y & 0xff00) == 0]);
+            drawEnemy.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (y & 0xff00) == 0 }]);
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
 

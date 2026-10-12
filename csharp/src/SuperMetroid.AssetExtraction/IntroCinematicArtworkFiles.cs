@@ -418,27 +418,9 @@ public static class IntroCinematicArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Intro artwork manifest {manifestPath} does not describe this installation.");
 
-        return new IntroCinematicArtworkCatalog(
-            LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount),
-            LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount),
-            LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount),
-            Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
+        return new IntroCinematicArtworkCatalog(new IntroCinematicArtworkParts { BackgroundCharacters = LoadSheet(names[0], IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = LoadSheet(names[1], IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = LoadSheet(names[2], IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
                 .Select(page => LoadPage(IntroCinematicArtworkFormat.BackgroundPageFileName(page)))
-                .ToArray(),
-            LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName),
-            LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName),
-            LoadFinalLine(),
-            LoadEyeFrames(),
-            LoadCaretSprites(),
-            LoadMotherBrainSprites(),
-            LoadMotherBrainExplosionSprites(),
-            LoadRinkaSprites(),
-            LoadEggEffectSprites(),
-            LoadDiscoveryActorSprites(),
-            LoadScientistSprites(),
-            LoadPalette(),
-            LoadCeresFlight(),
-            LoadCeresDestruction());
+                .ToArray(), PortraitTilemap = LoadPage(IntroCinematicArtworkFormat.PortraitTilemapFileName), InitialNarrationTilemap = LoadPage(IntroCinematicArtworkFormat.InitialNarrationTilemapFileName), FinalLine = LoadFinalLine(), EyeFrames = LoadEyeFrames(), CaretSprites = LoadCaretSprites(), MotherBrainSprites = LoadMotherBrainSprites(), MotherBrainExplosionSprites = LoadMotherBrainExplosionSprites(), RinkaSprites = LoadRinkaSprites(), EggEffectSprites = LoadEggEffectSprites(), DiscoveryActorSprites = LoadDiscoveryActorSprites(), ScientistSprites = LoadScientistSprites(), Palette = LoadPalette(), CeresFlight = LoadCeresFlight(), CeresDestruction = LoadCeresDestruction() });
 
         RoomCharacterAtlas LoadSheet(string name, int nativeByteCount)
         {

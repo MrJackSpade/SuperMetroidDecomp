@@ -1391,16 +1391,7 @@ public sealed partial class SuperMetroidRuntime
         // the ROM HUD template's unrelated map glyphs visible for the entire descent. Seed
         // the real area-six room coordinate now; subsequent normal frames keep updating it.
         ActiveRoomGeometry roomGeometry = GetActiveRoomGeometry();
-        Hud.UpdateMinimap(
-            _addressSpace,
-            System,
-            roomGeometry.AreaIndex,
-            roomGeometry.MapPosition,
-            LevelData?.Size ?? ActiveRoom.Size.ToRoomBlocks(),
-            Samus.Position.Whole,
-            NmiFrameCounter8,
-            MapRevealMode,
-            MapPresentation?.Get(roomGeometry.AreaIndex));
+        Hud.UpdateMinimap(_addressSpace, System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = LevelData?.Size ?? ActiveRoom.Size.ToRoomBlocks(), Samus = Samus.Position.Whole, NmiFrameCounter = NmiFrameCounter8, MapRevealMode = MapRevealMode, PresentationMap = MapPresentation?.Get(roomGeometry.AreaIndex) });
 
         // `SamusCode_08_SetupForCeresStart` installs a locked frame handler. Reuse the
         // existing runtime switch to ensure ordinary movement cannot begin before the

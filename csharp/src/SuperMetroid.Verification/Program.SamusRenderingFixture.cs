@@ -13,15 +13,7 @@ internal static partial class Program
     {
         if (graphicsOffsetFixtures.TryGetValue(offset, out var existing)) return existing;
         var stock = renderingFixtureStock.Value;
-        var result = new SamusBodyArtworkCatalog(stock.TopSetPointers.ToArray(),
-            stock.BottomSetPointers.ToArray(), stock.PosePointers.ToArray(),
-            Enumerable.Repeat(offset, SamusBodyArtworkCatalog.PoseCount).ToArray(),
-            stock.Frames.ToArray(),
-            Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(),
-            Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(),
-            stock.Spritemaps, stock.Atmosphere, stock.DeathPalettes, stock.DeathTiles,
-            stock.ArmCannon, stock.LandingYOffsets.ToArray(), stock.PostureYOffsets.ToArray(),
-            stock.DrainedYOffsets.ToArray());
+        var result = new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = stock.TopSetPointers.ToArray(), BottomPointers = stock.BottomSetPointers.ToArray(), PosePointers = stock.PosePointers.ToArray(), GraphicsYOffsets = Enumerable.Repeat(offset, SamusBodyArtworkCatalog.PoseCount).ToArray(), Frames = stock.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => stock.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => stock.BottomSet(index).ToArray()).ToArray(), Spritemaps = stock.Spritemaps, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = stock.LandingYOffsets.ToArray(), PostureYOffsets = stock.PostureYOffsets.ToArray(), DrainedYOffsets = stock.DrainedYOffsets.ToArray() });
         graphicsOffsetFixtures.Add(offset, result);
         return result;
     }
@@ -113,10 +105,6 @@ internal static partial class Program
         for (int index = 0; index < landing.Length; index++)
             if (bus.HasSeededByte(SamusRenderingRomData.Body.LandingVerticalOffsets + index))
                 landing[index] = bus.ReadByte(SamusRenderingRomData.Body.LandingVerticalOffsets + index);
-        samus.TileTransfers.BindArtwork(new SamusBodyArtworkCatalog(topPointers, bottomPointers, posePointers, offsets,
-            frames, Groups(true, topPointers), Groups(false, bottomPointers), sprites,
-            stock.Atmosphere, stock.DeathPalettes, stock.DeathTiles, stock.ArmCannon, landing,
-            OverrideBytes(SamusRenderingRomData.Body.PostureTransitionVerticalOffsets, stock.PostureYOffsets.ToArray()),
-            OverrideBytes(SamusRenderingRomData.Body.DrainedVerticalOffsets, stock.DrainedYOffsets.ToArray())));
+        samus.TileTransfers.BindArtwork(new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = topPointers, BottomPointers = bottomPointers, PosePointers = posePointers, GraphicsYOffsets = offsets, Frames = frames, Top = Groups(true, topPointers), Bottom = Groups(false, bottomPointers), Spritemaps = sprites, Atmosphere = stock.Atmosphere, DeathPalettes = stock.DeathPalettes, DeathTiles = stock.DeathTiles, ArmCannon = stock.ArmCannon, LandingYOffsets = landing, PostureYOffsets = OverrideBytes(SamusRenderingRomData.Body.PostureTransitionVerticalOffsets, stock.PostureYOffsets.ToArray()), DrainedYOffsets = OverrideBytes(SamusRenderingRomData.Body.DrainedVerticalOffsets, stock.DrainedYOffsets.ToArray()) }));
     }
 }

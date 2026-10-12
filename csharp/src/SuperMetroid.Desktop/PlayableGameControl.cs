@@ -331,34 +331,7 @@ public sealed partial class PlayableGameControl : UserControl
             RoomPresentationIdentity.Create(roomCharacterArt, roomPaletteArt, roomMetatileArt,
                 roomBackgroundTilemapArt, roomSkyTilemapArt, roomVisualLayouts)
                 .Append(KeyValuePair.Create(GameInstallationLayout.SamusBodyDirectoryName, samusBodyArt.ContentIdentity))
-                .Concat(RoomPlmPresentationIdentity.Create(
-                    roomPlmShotBlockVisuals,
-                    roomPlmGrappleBlockVisuals,
-                    roomPlmStationVisuals,
-                    roomPlmBlueDoorVisuals,
-                    roomPlmColoredDoorVisuals,
-                    roomPlmGreyDoorVisuals,
-                    roomPlmEyeDoorVisuals,
-                    roomPlmMotherBrainGlassVisuals,
-                    roomPlmNoobTubeVisuals,
-                    roomPlmDownwardGateVisuals,
-                    roomPlmElevatorPlatformVisuals,
-                    roomPlmEscapeGateVisuals,
-                    roomPlmBombTorizoHandVisuals,
-                    roomPlmDraygonCannonVisuals,
-                    roomPlmChozoStatueVisuals,
-                    roomPlmLinkedRestoreVisuals,
-                    roomPlmTourianAccessVisuals,
-                    roomPlmSpeedBoosterVisuals,
-                    roomPlmMaridiaElevatubeVisuals,
-                    roomPlmSporeSpawnCeilingVisuals,
-                    roomPlmSamusEaterVisuals,
-                    roomPlmBotwoonWallVisuals,
-                    roomPlmKraidVisuals,
-                    roomPlmCrocomireVisuals,
-                    roomPlmMotherBrainFakeDeathVisuals,
-                    roomPlmCollectibleVisuals,
-                    roomPlmDynamicCollectibleArt))
+                .Concat(RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = roomPlmShotBlockVisuals, GrappleBlock = roomPlmGrappleBlockVisuals, Station = roomPlmStationVisuals, BlueDoor = roomPlmBlueDoorVisuals, ColoredDoor = roomPlmColoredDoorVisuals, GreyDoor = roomPlmGreyDoorVisuals, EyeDoor = roomPlmEyeDoorVisuals, MotherBrainGlass = roomPlmMotherBrainGlassVisuals, NoobTube = roomPlmNoobTubeVisuals, DownwardGate = roomPlmDownwardGateVisuals, ElevatorPlatform = roomPlmElevatorPlatformVisuals, EscapeGate = roomPlmEscapeGateVisuals, BombTorizoHand = roomPlmBombTorizoHandVisuals, DraygonCannon = roomPlmDraygonCannonVisuals, ChozoStatue = roomPlmChozoStatueVisuals, LinkedRestore = roomPlmLinkedRestoreVisuals, TourianAccess = roomPlmTourianAccessVisuals, SpeedBooster = roomPlmSpeedBoosterVisuals, MaridiaElevatube = roomPlmMaridiaElevatubeVisuals, SporeSpawnCeiling = roomPlmSporeSpawnCeilingVisuals, SamusEater = roomPlmSamusEaterVisuals, BotwoonWall = roomPlmBotwoonWallVisuals, Kraid = roomPlmKraidVisuals, Crocomire = roomPlmCrocomireVisuals, MotherBrainFakeDeath = roomPlmMotherBrainFakeDeathVisuals, Collectible = roomPlmCollectibleVisuals, DynamicCollectibleArt = roomPlmDynamicCollectibleArt }))
                 .Concat(GameplayPresentationIdentity.Create(gameplayBasePalettes, standardObjectArt, xrayRevealVisuals))
                 .Concat(EndingPresentationIdentity.Create(endingMode7Art, endingObjectArt, endingPaletteArt))
                 .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, introCinematicArt.ContentIdentity))

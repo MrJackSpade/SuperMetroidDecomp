@@ -8,34 +8,7 @@ internal static partial class Program
     private static void VerifyPlmContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreatePlmIdentityFixture();
-        IReadOnlyDictionary<string, string> stock = RoomPlmPresentationIdentity.Create(
-            RoomPlmShotBlockVisualCatalog.Stock(),
-            RoomPlmGrappleBlockVisualCatalog.Stock(),
-            RoomPlmStationVisualCatalog.Stock(),
-            RoomPlmBlueDoorVisualCatalog.Stock(),
-            RoomPlmColoredDoorVisualCatalog.Stock(),
-            RoomPlmGreyDoorVisualCatalog.Stock(),
-            RoomPlmEyeDoorVisualCatalog.Stock(),
-            RoomPlmMotherBrainGlassVisualCatalog.Stock(),
-            RoomPlmNoobTubeVisualCatalog.Stock(),
-            RoomPlmDownwardGateVisualCatalog.Stock(),
-            RoomPlmElevatorPlatformVisualCatalog.Stock(),
-            RoomPlmEscapeGateVisualCatalog.Stock(),
-            RoomPlmBombTorizoHandVisualCatalog.Stock(),
-            RoomPlmDraygonCannonVisualCatalog.Stock(),
-            RoomPlmChozoStatueVisualCatalog.Stock(),
-            RoomPlmLinkedRestoreVisualCatalog.Stock(),
-            RoomPlmTourianAccessVisualCatalog.Stock(),
-            RoomPlmSpeedBoosterVisualCatalog.Stock(),
-            RoomPlmMaridiaElevatubeVisualCatalog.Stock(),
-            RoomPlmSporeSpawnCeilingVisualCatalog.Stock(),
-            RoomPlmSamusEaterVisualCatalog.Stock(),
-            RoomPlmBotwoonWallVisualCatalog.Stock(),
-            RoomPlmKraidVisualCatalog.Stock(),
-            RoomPlmCrocomireVisualCatalog.Stock(),
-            RoomPlmMotherBrainFakeDeathVisualCatalog.Stock(),
-            RoomPlmCollectibleVisualCatalog.Stock(),
-            RoomPlmDynamicCollectibleArtCatalog.Stock());
+        IReadOnlyDictionary<string, string> stock = RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = RoomPlmShotBlockVisualCatalog.Stock(), GrappleBlock = RoomPlmGrappleBlockVisualCatalog.Stock(), Station = RoomPlmStationVisualCatalog.Stock(), BlueDoor = RoomPlmBlueDoorVisualCatalog.Stock(), ColoredDoor = RoomPlmColoredDoorVisualCatalog.Stock(), GreyDoor = RoomPlmGreyDoorVisualCatalog.Stock(), EyeDoor = RoomPlmEyeDoorVisualCatalog.Stock(), MotherBrainGlass = RoomPlmMotherBrainGlassVisualCatalog.Stock(), NoobTube = RoomPlmNoobTubeVisualCatalog.Stock(), DownwardGate = RoomPlmDownwardGateVisualCatalog.Stock(), ElevatorPlatform = RoomPlmElevatorPlatformVisualCatalog.Stock(), EscapeGate = RoomPlmEscapeGateVisualCatalog.Stock(), BombTorizoHand = RoomPlmBombTorizoHandVisualCatalog.Stock(), DraygonCannon = RoomPlmDraygonCannonVisualCatalog.Stock(), ChozoStatue = RoomPlmChozoStatueVisualCatalog.Stock(), LinkedRestore = RoomPlmLinkedRestoreVisualCatalog.Stock(), TourianAccess = RoomPlmTourianAccessVisualCatalog.Stock(), SpeedBooster = RoomPlmSpeedBoosterVisualCatalog.Stock(), MaridiaElevatube = RoomPlmMaridiaElevatubeVisualCatalog.Stock(), SporeSpawnCeiling = RoomPlmSporeSpawnCeilingVisualCatalog.Stock(), SamusEater = RoomPlmSamusEaterVisualCatalog.Stock(), BotwoonWall = RoomPlmBotwoonWallVisualCatalog.Stock(), Kraid = RoomPlmKraidVisualCatalog.Stock(), Crocomire = RoomPlmCrocomireVisualCatalog.Stock(), MotherBrainFakeDeath = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock(), Collectible = RoomPlmCollectibleVisualCatalog.Stock(), DynamicCollectibleArt = RoomPlmDynamicCollectibleArtCatalog.Stock() });
         IReadOnlyDictionary<string, string> reordered = CreatePlmIdentityFixture(reverse: true);
         AssertEqual(27, baseline.Count, "all room-actor artwork domains");
         foreach ((string name, string hash) in baseline)
@@ -107,61 +80,34 @@ internal static partial class Program
         if (edited == "dynamic-palettes")
             dynamicEntries[^1].PaletteOffsets[^1] ^= 1;
 
-        return RoomPlmPresentationIdentity.Create(
-            new RoomPlmShotBlockVisualCatalog(Runs(GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName, RoomPlmShotBlockDrawDefinitions.All)
-                .Select(draw => new RoomPlmShotBlockVisualEntry(draw.Pointer, draw.Runs))),
-            new RoomPlmGrappleBlockVisualCatalog(Words(GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName,
+        return RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = new RoomPlmShotBlockVisualCatalog(Runs(GameInstallationLayout.RoomPlmShotBlockVisualDirectoryName, RoomPlmShotBlockDrawDefinitions.All)
+                .Select(draw => new RoomPlmShotBlockVisualEntry(draw.Pointer, draw.Runs))), GrappleBlock = new RoomPlmGrappleBlockVisualCatalog(Words(GameInstallationLayout.RoomPlmGrappleBlockVisualDirectoryName,
                 RoomPlmGrappleBlockDrawDefinitions.All.Select(draw => (draw.Pointer, draw.LevelWord)))
-                .Select(draw => new RoomPlmGrappleBlockVisualEntry(draw.Pointer, draw.Word))),
-            new RoomPlmStationVisualCatalog(Runs(GameInstallationLayout.RoomPlmStationVisualDirectoryName, RoomPlmStationDrawDefinitions.All)
-                .Select(draw => new RoomPlmStationVisualEntry(RoomPlmStationDrawDefinitions.VisualId(draw.Pointer), draw.Runs))),
-            new RoomPlmBlueDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmBlueDoorVisualDirectoryName, BlueDoorPlmDrawDefinitions.Editable)
-                .Select(draw => new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmColoredDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmColoredDoorVisualDirectoryName, ColoredDoorPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmColoredDoorVisualEntry(ColoredDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmGreyDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmGreyDoorVisualDirectoryName, GreyDoorPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmGreyDoorVisualEntry(GreyDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmEyeDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmEyeDoorVisualDirectoryName, EyeDoorPlmDrawDefinitions.Editable)
-                .Select(draw => new RoomPlmEyeDoorVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmMotherBrainGlassVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainGlassVisualDirectoryName, MotherBrainGlassPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmMotherBrainGlassVisualEntry(MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmNoobTubeVisualCatalog(Runs(GameInstallationLayout.RoomPlmNoobTubeVisualDirectoryName, NoobTubePlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmNoobTubeVisualEntry(NoobTubePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmDownwardGateVisualCatalog(Runs(GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName, DownwardGatePlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmDownwardGateVisualEntry(DownwardGatePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs))),
-            new RoomPlmElevatorPlatformVisualCatalog(Runs(GameInstallationLayout.RoomPlmElevatorPlatformVisualDirectoryName, ElevatorPlatformPlmDefinitions.DrawLists)
-                .Select(draw => new RoomPlmElevatorPlatformVisualEntry(ElevatorPlatformPlmDefinitions.VisualId(draw.Pointer), draw.Runs))),
-            new RoomPlmEscapeGateVisualCatalog(Runs(GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName, MotherBrainEscapeGatePlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmEscapeGateVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmBombTorizoHandVisualCatalog(Runs(GameInstallationLayout.RoomPlmBombTorizoHandVisualDirectoryName, BombTorizoHandPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmBombTorizoHandVisualEntry(BombTorizoHandPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmDraygonCannonVisualCatalog(Runs(GameInstallationLayout.RoomPlmDraygonCannonVisualDirectoryName, DraygonCannonPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmDraygonCannonVisualEntry(DraygonCannonPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmChozoStatueVisualCatalog(Runs(GameInstallationLayout.RoomPlmChozoStatueVisualDirectoryName, ChozoStatuePlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmChozoStatueVisualEntry(ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmLinkedRestoreVisualCatalog(Runs(GameInstallationLayout.RoomPlmLinkedRestoreVisualDirectoryName, RoomPlmLinkedRestoreDrawDefinitions.All)
-                .Select(draw => new RoomPlmLinkedRestoreVisualEntry(RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmTourianAccessVisualCatalog(Runs(GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName, TourianAccessPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmTourianAccessVisualEntry(TourianAccessPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmSpeedBoosterVisualCatalog(Runs(GameInstallationLayout.RoomPlmSpeedBoosterVisualDirectoryName, SpeedBoosterBlockPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmSpeedBoosterVisualEntry(SpeedBoosterBlockPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmMaridiaElevatubeVisualCatalog(Runs(GameInstallationLayout.RoomPlmMaridiaElevatubeVisualDirectoryName, MaridiaElevatubePlmDefinitions.AllDraws)
-                .Select(draw => new RoomPlmMaridiaElevatubeVisualEntry(MaridiaElevatubePlmDefinitions.DrawVisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmSporeSpawnCeilingVisualCatalog(Runs(GameInstallationLayout.RoomPlmSporeSpawnCeilingVisualDirectoryName, SporeSpawnCeilingPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmSporeSpawnCeilingVisualEntry(SporeSpawnCeilingPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmSamusEaterVisualCatalog(Runs(GameInstallationLayout.RoomPlmSamusEaterVisualDirectoryName, SamusEaterPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmSamusEaterVisualEntry(SamusEaterPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmBotwoonWallVisualCatalog(Runs(GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName, BotwoonWallPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmBotwoonWallVisualEntry(BotwoonWallPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmKraidVisualCatalog(Runs(GameInstallationLayout.RoomPlmKraidVisualDirectoryName, KraidRoomPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmKraidVisualEntry(KraidRoomPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmCrocomireVisualCatalog(Runs(GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName, CrocomireArenaPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmCrocomireVisualEntry(CrocomireArenaPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmMotherBrainFakeDeathVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName, MotherBrainFakeDeathPlmDrawDefinitions.All)
-                .Select(draw => new RoomPlmMotherBrainFakeDeathVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))),
-            new RoomPlmCollectibleVisualCatalog(Words(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
+                .Select(draw => new RoomPlmGrappleBlockVisualEntry(draw.Pointer, draw.Word))), Station = new RoomPlmStationVisualCatalog(Runs(GameInstallationLayout.RoomPlmStationVisualDirectoryName, RoomPlmStationDrawDefinitions.All)
+                .Select(draw => new RoomPlmStationVisualEntry(RoomPlmStationDrawDefinitions.VisualId(draw.Pointer), draw.Runs))), BlueDoor = new RoomPlmBlueDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmBlueDoorVisualDirectoryName, BlueDoorPlmDrawDefinitions.Editable)
+                .Select(draw => new RoomPlmBlueDoorVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), ColoredDoor = new RoomPlmColoredDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmColoredDoorVisualDirectoryName, ColoredDoorPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmColoredDoorVisualEntry(ColoredDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), GreyDoor = new RoomPlmGreyDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmGreyDoorVisualDirectoryName, GreyDoorPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmGreyDoorVisualEntry(GreyDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), EyeDoor = new RoomPlmEyeDoorVisualCatalog(Runs(GameInstallationLayout.RoomPlmEyeDoorVisualDirectoryName, EyeDoorPlmDrawDefinitions.Editable)
+                .Select(draw => new RoomPlmEyeDoorVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), MotherBrainGlass = new RoomPlmMotherBrainGlassVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainGlassVisualDirectoryName, MotherBrainGlassPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmMotherBrainGlassVisualEntry(MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), NoobTube = new RoomPlmNoobTubeVisualCatalog(Runs(GameInstallationLayout.RoomPlmNoobTubeVisualDirectoryName, NoobTubePlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmNoobTubeVisualEntry(NoobTubePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), DownwardGate = new RoomPlmDownwardGateVisualCatalog(Runs(GameInstallationLayout.RoomPlmDownwardGateVisualDirectoryName, DownwardGatePlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmDownwardGateVisualEntry(DownwardGatePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs))), ElevatorPlatform = new RoomPlmElevatorPlatformVisualCatalog(Runs(GameInstallationLayout.RoomPlmElevatorPlatformVisualDirectoryName, ElevatorPlatformPlmDefinitions.DrawLists)
+                .Select(draw => new RoomPlmElevatorPlatformVisualEntry(ElevatorPlatformPlmDefinitions.VisualId(draw.Pointer), draw.Runs))), EscapeGate = new RoomPlmEscapeGateVisualCatalog(Runs(GameInstallationLayout.RoomPlmEscapeGateVisualDirectoryName, MotherBrainEscapeGatePlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmEscapeGateVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), BombTorizoHand = new RoomPlmBombTorizoHandVisualCatalog(Runs(GameInstallationLayout.RoomPlmBombTorizoHandVisualDirectoryName, BombTorizoHandPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmBombTorizoHandVisualEntry(BombTorizoHandPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), DraygonCannon = new RoomPlmDraygonCannonVisualCatalog(Runs(GameInstallationLayout.RoomPlmDraygonCannonVisualDirectoryName, DraygonCannonPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmDraygonCannonVisualEntry(DraygonCannonPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), ChozoStatue = new RoomPlmChozoStatueVisualCatalog(Runs(GameInstallationLayout.RoomPlmChozoStatueVisualDirectoryName, ChozoStatuePlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmChozoStatueVisualEntry(ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), LinkedRestore = new RoomPlmLinkedRestoreVisualCatalog(Runs(GameInstallationLayout.RoomPlmLinkedRestoreVisualDirectoryName, RoomPlmLinkedRestoreDrawDefinitions.All)
+                .Select(draw => new RoomPlmLinkedRestoreVisualEntry(RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), TourianAccess = new RoomPlmTourianAccessVisualCatalog(Runs(GameInstallationLayout.RoomPlmTourianAccessVisualDirectoryName, TourianAccessPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmTourianAccessVisualEntry(TourianAccessPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), SpeedBooster = new RoomPlmSpeedBoosterVisualCatalog(Runs(GameInstallationLayout.RoomPlmSpeedBoosterVisualDirectoryName, SpeedBoosterBlockPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmSpeedBoosterVisualEntry(SpeedBoosterBlockPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), MaridiaElevatube = new RoomPlmMaridiaElevatubeVisualCatalog(Runs(GameInstallationLayout.RoomPlmMaridiaElevatubeVisualDirectoryName, MaridiaElevatubePlmDefinitions.AllDraws)
+                .Select(draw => new RoomPlmMaridiaElevatubeVisualEntry(MaridiaElevatubePlmDefinitions.DrawVisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), SporeSpawnCeiling = new RoomPlmSporeSpawnCeilingVisualCatalog(Runs(GameInstallationLayout.RoomPlmSporeSpawnCeilingVisualDirectoryName, SporeSpawnCeilingPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmSporeSpawnCeilingVisualEntry(SporeSpawnCeilingPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), SamusEater = new RoomPlmSamusEaterVisualCatalog(Runs(GameInstallationLayout.RoomPlmSamusEaterVisualDirectoryName, SamusEaterPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmSamusEaterVisualEntry(SamusEaterPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), BotwoonWall = new RoomPlmBotwoonWallVisualCatalog(Runs(GameInstallationLayout.RoomPlmBotwoonWallVisualDirectoryName, BotwoonWallPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmBotwoonWallVisualEntry(BotwoonWallPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Kraid = new RoomPlmKraidVisualCatalog(Runs(GameInstallationLayout.RoomPlmKraidVisualDirectoryName, KraidRoomPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmKraidVisualEntry(KraidRoomPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Crocomire = new RoomPlmCrocomireVisualCatalog(Runs(GameInstallationLayout.RoomPlmCrocomireVisualDirectoryName, CrocomireArenaPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmCrocomireVisualEntry(CrocomireArenaPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), MotherBrainFakeDeath = new RoomPlmMotherBrainFakeDeathVisualCatalog(Runs(GameInstallationLayout.RoomPlmMotherBrainFakeDeathVisualDirectoryName, MotherBrainFakeDeathPlmDrawDefinitions.All)
+                .Select(draw => new RoomPlmMotherBrainFakeDeathVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Collectible = new RoomPlmCollectibleVisualCatalog(Words(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
                 RoomPlmCollectibleDrawDefinitions.All.ToArray().Select(draw => (draw.Pointer, draw.LevelWord)))
-                .Select(draw => new RoomPlmCollectibleVisualEntry(RoomPlmCollectibleDrawDefinitions.All.ToArray().Single(frame => frame.Pointer == draw.Pointer).Id, draw.Word))),
-            new RoomPlmDynamicCollectibleArtCatalog(reverse ? dynamicEntries.Reverse() : dynamicEntries));
+                .Select(draw => new RoomPlmCollectibleVisualEntry(RoomPlmCollectibleDrawDefinitions.All.ToArray().Single(frame => frame.Pointer == draw.Pointer).Id, draw.Word))), DynamicCollectibleArt = new RoomPlmDynamicCollectibleArtCatalog(reverse ? dynamicEntries.Reverse() : dynamicEntries) });
     }
 }

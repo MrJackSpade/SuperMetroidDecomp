@@ -252,36 +252,20 @@ public static class EndingObjectArtworkFiles
             names.Any(name => !manifest.StockSha256.ContainsKey(name)))
             throw new InvalidDataException($"Ending OBJ manifest {manifestPath} does not describe this installation.");
 
-        return new EndingObjectArtworkCatalog(
-            LoadSheet(EndingObjectArtworkFormat.CloudFileName,
-                EndingObjectArtworkFormat.CloudByteCount),
-            LoadSheet(EndingObjectArtworkFormat.ExplosionFileName,
-                EndingObjectArtworkFormat.ExplosionByteCount),
-            Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
+        return new EndingObjectArtworkCatalog(new EndingObjectArtworkParts { Clouds = LoadSheet(EndingObjectArtworkFormat.CloudFileName,
+                EndingObjectArtworkFormat.CloudByteCount), Explosion = LoadSheet(EndingObjectArtworkFormat.ExplosionFileName,
+                EndingObjectArtworkFormat.ExplosionByteCount), Fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
                 .Select(index => LoadSheet(EndingObjectArtworkFormat.FragmentFileName(index),
                     EndingObjectArtworkFormat.FragmentByteCount))
-                .ToArray(),
-            LoadSheet(EndingObjectArtworkFormat.WaitingSamusFileName,
-                EndingObjectArtworkFormat.RewardByteCount),
-            LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName,
-                EndingObjectArtworkFormat.RewardByteCount),
-            LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
-                EndingObjectArtworkFormat.RewardByteCount),
-            LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
-                EndingObjectArtworkFormat.WaitingTilemapByteCount),
-            LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
-                EndingObjectArtworkFormat.PostCreditsFragmentAByteCount),
-            LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
-                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount),
-            LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName,
-                EndingObjectArtworkFormat.PostShotLogoTileByteCount),
-            LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
-                EndingObjectArtworkFormat.PostShotLogoMapByteCount),
-            LoadCloudSprites(),
-            LoadExplosionSprites(),
-            LoadCompletionTextSprites(),
-            LoadRewardSprites(),
-            LoadLogoSprites());
+                .ToArray(), WaitingSamus = LoadSheet(EndingObjectArtworkFormat.WaitingSamusFileName,
+                EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = LoadSheet(EndingObjectArtworkFormat.ShootingScreenFileName,
+                EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = LoadSheet(EndingObjectArtworkFormat.SuitlessSamusFileName,
+                EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = LoadMap(EndingObjectArtworkFormat.WaitingTilemapFileName,
+                EndingObjectArtworkFormat.WaitingTilemapByteCount), PostCreditsFragmentA = LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentAFileName,
+                EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = LoadSheet(EndingObjectArtworkFormat.PostCreditsFragmentBFileName,
+                EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoTiles = LoadSheet(EndingObjectArtworkFormat.PostShotLogoTileFileName,
+                EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = LoadMap(EndingObjectArtworkFormat.PostShotLogoMapFileName,
+                EndingObjectArtworkFormat.PostShotLogoMapByteCount), CloudSprites = LoadCloudSprites(), ExplosionSprites = LoadExplosionSprites(), CompletionTextSprites = LoadCompletionTextSprites(), RewardSprites = LoadRewardSprites(), LogoSprites = LoadLogoSprites() });
 
         EndingCloudSpritePresentation LoadCloudSprites()
         {

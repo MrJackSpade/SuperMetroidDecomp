@@ -83,26 +83,17 @@ public sealed class BeetomEnemyState
     private readonly ushort[] _directions;
     private readonly Offset16<RoomPixels>[] _initialAttachmentOffsets;
 
-    internal BeetomEnemyState(
-        RoomEnemySlot slot,
-        ushort[] installedInstructionLists,
-        ushort[] initialShortLeapYSpeedIndexes,
-        ushort[] initialLongLeapYSpeedIndexes,
-        ushort[] initialLungeYSpeedIndexes,
-        ushort[] fallingFlags,
-        ushort[] attachedFlags,
-        ushort[] directions,
-        Offset16<RoomPixels>[] initialAttachmentOffsets)
+    internal BeetomEnemyState(RoomEnemySlot slot, BeetomSharedTables tables)
     {
         _slot = slot;
-        _installedInstructionLists = installedInstructionLists;
-        _initialShortLeapYSpeedIndexes = initialShortLeapYSpeedIndexes;
-        _initialLongLeapYSpeedIndexes = initialLongLeapYSpeedIndexes;
-        _initialLungeYSpeedIndexes = initialLungeYSpeedIndexes;
-        _fallingFlags = fallingFlags;
-        _attachedFlags = attachedFlags;
-        _directions = directions;
-        _initialAttachmentOffsets = initialAttachmentOffsets;
+        _installedInstructionLists = tables.InstalledInstructionLists;
+        _initialShortLeapYSpeedIndexes = tables.InitialShortLeapYSpeedIndexes;
+        _initialLongLeapYSpeedIndexes = tables.InitialLongLeapYSpeedIndexes;
+        _initialLungeYSpeedIndexes = tables.InitialLungeYSpeedIndexes;
+        _fallingFlags = tables.FallingFlags;
+        _attachedFlags = tables.AttachedFlags;
+        _directions = tables.Directions;
+        _initialAttachmentOffsets = tables.InitialAttachmentOffsets;
     }
 
     /// <summary>Native variable B: quadratic-speed record index, converted to a byte offset by multiplying by eight; falling increases it up to $40.</summary>
@@ -178,16 +169,7 @@ public sealed partial class RoomEnemySystem
         if (samus is null)
             throw new InvalidOperationException("Beetom initialization requires the active Samus actor.");
 
-        var state = new BeetomEnemyState(
-            slot,
-            _beetomInstalledInstructionLists,
-            _beetomInitialShortLeapYSpeedIndexes,
-            _beetomInitialLongLeapYSpeedIndexes,
-            _beetomInitialLungeYSpeedIndexes,
-            _beetomFallingFlags,
-            _beetomAttachedToSamusFlags,
-            _beetomDirections,
-            _beetomInitialAttachmentOffsets);
+        var state = new BeetomEnemyState(slot, new BeetomSharedTables { InstalledInstructionLists = _beetomInstalledInstructionLists, InitialShortLeapYSpeedIndexes = _beetomInitialShortLeapYSpeedIndexes, InitialLongLeapYSpeedIndexes = _beetomInitialLongLeapYSpeedIndexes, InitialLungeYSpeedIndexes = _beetomInitialLungeYSpeedIndexes, FallingFlags = _beetomFallingFlags, AttachedFlags = _beetomAttachedToSamusFlags, Directions = _beetomDirections, InitialAttachmentOffsets = _beetomInitialAttachmentOffsets });
         _beetomStates[slot.SlotIndex] = state;
 
         state.FunctionTimer = 0;

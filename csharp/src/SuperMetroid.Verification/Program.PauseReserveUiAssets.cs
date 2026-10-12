@@ -19,10 +19,8 @@ internal static partial class Program
         var guard = NewPauseReserveUiReadGuard(bus);
 
         var nativeSamus = Samus(); var installedSamus = Samus();
-        var native = new PauseMenuState(bus, nativeSamus, new Bank80SystemState(),
-            AreaId.Brinstar, new(0, 0), mapPresentation: original);
-        var installed = new PauseMenuState(guard, installedSamus, new Bank80SystemState(), AreaId.Brinstar, new(0, 0),
-            mapPresentation: original);
+        var native = new PauseMenuState(bus, new PauseMenuEntry { Samus = nativeSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var installed = new PauseMenuState(guard, new PauseMenuEntry { Samus = installedSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
         EnterEquipment(native); EnterEquipment(installed);
         for (int frame = 0; frame < 64; frame++)
         {
@@ -52,10 +50,8 @@ internal static partial class Program
         using (var output = File.Create(path)) PauseReserveUiPresentation.Write(output, editedDocument);
         var edited = AreaMapPresentationCatalog.Load(stock, overrides);
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "reserve UI override changes selected content identity");
-        var stockPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Brinstar, new(0, 0),
-            mapPresentation: original);
-        var editedPause = new PauseMenuState(guard, Samus(), new Bank80SystemState(), AreaId.Brinstar, new(0, 0),
-            mapPresentation: edited);
+        var stockPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var editedPause = new PauseMenuState(guard, new PauseMenuEntry { Samus = Samus(), System = new Bank80SystemState(), AreaIndex = AreaId.Brinstar, RoomMapPosition = new(0, 0), MapPresentation = edited });
         AssertTrue(stockPause.ReadReserveSupplyDigit(2) != editedPause.ReadReserveSupplyDigit(2),
             "edited reserve digit reaches the actual mutable equipment page");
         EnterEquipment(stockPause); EnterEquipment(editedPause);

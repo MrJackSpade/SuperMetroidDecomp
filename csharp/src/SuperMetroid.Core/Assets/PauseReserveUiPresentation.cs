@@ -17,32 +17,30 @@ public sealed class PauseReserveUiPresentation
     private readonly (int Color6, int Color11) arrowGreyLevels;
     private readonly Dictionary<int, Bgr555> arrowColorEdits = [];
 
-    private PauseReserveUiPresentation(Dictionary<string, ReserveLabel> labels, int digitOffset,
-        byte[][] digits, int[] arrowOffsets, int enabledPalette, int disabledPalette,
-        Bgr555 solidColor6, Bgr555 solidColor11, (Bgr555, Bgr555)[] arrowFrames)
+    private PauseReserveUiPresentation(PauseReserveUiParts parts)
     {
-        this.labels = labels; this.digitOffset = digitOffset;
+        this.labels = parts.Labels; this.digitOffset = parts.DigitOffset;
         bool stockDigits = true;
-        for (int digit = 0; digit < digits.Length; digit++)
-            stockDigits &= BinaryPrimitives.ReadUInt16LittleEndian(digits[digit]) == DigitWord(digit);
-        this.digits = stockDigits ? null : digits;
+        for (int digit = 0; digit < parts.Digits.Length; digit++)
+            stockDigits &= BinaryPrimitives.ReadUInt16LittleEndian(parts.Digits[digit]) == DigitWord(digit);
+        this.digits = stockDigits ? null : parts.Digits;
         bool stockArrow = true;
-        for (int cell = 0; cell < arrowOffsets.Length; cell++)
-            stockArrow &= arrowOffsets[cell] == ArrowOffset(cell);
-        this.arrowOffsets = stockArrow ? null : arrowOffsets;
-        this.enabledPalette = enabledPalette;
-        this.disabledPalette = disabledPalette; this.solidColor6 = solidColor6;
-        this.solidColor11 = solidColor11;
-        arrowStartEdits = (arrowFrames[0].Item1 == solidColor11 ? null : arrowFrames[0].Item1,
-            arrowFrames[0].Item2 == solidColor6 ? null : arrowFrames[0].Item2);
-        var middle = arrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
+        for (int cell = 0; cell < parts.ArrowOffsets.Length; cell++)
+            stockArrow &= parts.ArrowOffsets[cell] == ArrowOffset(cell);
+        this.arrowOffsets = stockArrow ? null : parts.ArrowOffsets;
+        this.enabledPalette = parts.EnabledPalette;
+        this.disabledPalette = parts.DisabledPalette; this.solidColor6 = parts.SolidColor6;
+        this.solidColor11 = parts.SolidColor11;
+        arrowStartEdits = (parts.ArrowFrames[0].Item1 == parts.SolidColor11 ? null : parts.ArrowFrames[0].Item1,
+            parts.ArrowFrames[0].Item2 == parts.SolidColor6 ? null : parts.ArrowFrames[0].Item2);
+        var middle = parts.ArrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
         arrowGreyLevels = (middle.Item1.Red, middle.Item2.Red);
-        for (int frame = 0; frame < arrowFrames.Length; frame++)
+        for (int frame = 0; frame < parts.ArrowFrames.Length; frame++)
         {
-            if (arrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
-                arrowColorEdits.Add(frame * 2, arrowFrames[frame].Item1);
-            if (arrowFrames[frame].Item2 != CalculateArrowColor(frame, true))
-                arrowColorEdits.Add(frame * 2 + 1, arrowFrames[frame].Item2);
+            if (parts.ArrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
+                arrowColorEdits.Add(frame * 2, parts.ArrowFrames[frame].Item1);
+            if (parts.ArrowFrames[frame].Item2 != CalculateArrowColor(frame, true))
+                arrowColorEdits.Add(frame * 2 + 1, parts.ArrowFrames[frame].Item2);
         }
     }
 
@@ -191,9 +189,7 @@ public sealed class PauseReserveUiPresentation
         if (arrowOffsets.Distinct().Count() != arrowOffsets.Length) throw new InvalidDataException("Reserve arrow cells must be unique.");
         var frames = document.Arrow.Frames.Select((frame, index) =>
             (Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
-        return new(labels, Offset(document.Digits.Anchor, "Digits"), digits, arrowOffsets,
-            document.Arrow.EnabledPalette, document.Arrow.DisabledPalette,
-            Color(document.Arrow.SolidColor6, "solid color 6"), Color(document.Arrow.SolidColor11, "solid color 11"), frames);
+        return new(new PauseReserveUiParts { Labels = labels, DigitOffset = Offset(document.Digits.Anchor, "Digits"), Digits = digits, ArrowOffsets = arrowOffsets, EnabledPalette = document.Arrow.EnabledPalette, DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = Color(document.Arrow.SolidColor6, "solid color 6"), SolidColor11 = Color(document.Arrow.SolidColor11, "solid color 11"), ArrowFrames = frames });
 
         static int Offset(PauseGridPoint? point, string name)
         {
@@ -238,6 +234,37 @@ public sealed class PauseReserveUiPresentation
     {
         byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions);
         _ = Load(new MemoryStream(bytes, writable: false)); output.Write(bytes);
+    }
+
+    /// <summary>The pause screen's reserve-tank labels, digits and arrow colours (#633).</summary>
+    private sealed record PauseReserveUiParts
+    {
+        /// <summary>Labels.</summary>
+        public required Dictionary<string, ReserveLabel> Labels { get; init; }
+
+        /// <summary>Digit offset.</summary>
+        public required int DigitOffset { get; init; }
+
+        /// <summary>Digits.</summary>
+        public required byte[][] Digits { get; init; }
+
+        /// <summary>Arrow offsets.</summary>
+        public required int[] ArrowOffsets { get; init; }
+
+        /// <summary>Enabled palette.</summary>
+        public required int EnabledPalette { get; init; }
+
+        /// <summary>Disabled palette.</summary>
+        public required int DisabledPalette { get; init; }
+
+        /// <summary>Solid color6.</summary>
+        public required Bgr555 SolidColor6 { get; init; }
+
+        /// <summary>Solid color11.</summary>
+        public required Bgr555 SolidColor11 { get; init; }
+
+        /// <summary>Arrow frames.</summary>
+        public required (Bgr555, Bgr555)[] ArrowFrames { get; init; }
     }
 }
 

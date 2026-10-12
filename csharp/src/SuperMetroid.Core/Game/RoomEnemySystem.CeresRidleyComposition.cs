@@ -393,15 +393,7 @@ public sealed partial class RoomEnemySystem
         int wingPointerIndex = (state.FacingDirection == RidleyFacing.Left ? 0 : 10) + state.WingFrame;
         ushort wingSpritemap = RidleySupplementalVisualDefinitions.WingFrameAt(
             wingPointerIndex);
-        DrawEnemySpritemap(
-            oam,
-            RidleySupplementalVisualDefinitions.Bank,
-            wingSpritemap,
-            new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))),
-            state.SpritemapPaletteIndex,
-            0,
-            clipVerticalWrap: true,
-            originYIsOnScreen: unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 0x0100);
+        DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = wingSpritemap, Origin = new(unchecked((ushort)(slot.Position.X.Whole - camera.X)), unchecked((ushort)(slot.Position.Y.Whole - camera.Y))), PaletteBits = state.SpritemapPaletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = unchecked((ushort)(slot.Position.Y.Whole - camera.Y)) < 0x0100 });
     }
 
     /// <summary>
@@ -457,16 +449,7 @@ public sealed partial class RoomEnemySystem
             ushort babySpritemap = AdvanceCeresBabyDrawInstruction(state);
             if (babySpritemap != 0)
             {
-                DrawEnemySpritemap(
-                    oam,
-                    bank: CeresBabyInstructionProgramDefinitions.Bank,
-                    pointer: babySpritemap,
-                    state.BabyPosition.ToScreen(camera).ToOam(),
-                    paletteBits: 0,
-                    baseTileIndex: 0,
-                    clipVerticalWrap: true,
-                    originYIsOnScreen:
-                        state.BabyPosition.ToScreen(camera).Y < 0x0100);
+                DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresBabyInstructionProgramDefinitions.Bank, Pointer = babySpritemap, Origin = state.BabyPosition.ToScreen(camera).ToOam(), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = state.BabyPosition.ToScreen(camera).Y < 0x0100 });
             }
         }
 
@@ -485,13 +468,7 @@ public sealed partial class RoomEnemySystem
             // words and the assembly omits an ASL. Preserve that retail byte-index read:
             // bytes 00,00,FC,FF become signed X offsets 0,0,-4,-1.
             int quakeXOffset = CeresDoorQuakeDefinitions.XOffset(EarthquakeTimer);
-            DrawEnemySpritemap(
-                oam,
-                bank: CeresDoorInstructionProgramDefinitions.Bank,
-                pointer: CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap,
-                new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))),
-                paletteBits: EnemyPaletteBits.Palette2,
-                baseTileIndex: 0);
+            DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = CeresDoorInstructionProgramDefinitions.Bank, Pointer = CeresDoorInstructionProgramDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(door.Position.X.Whole - camera.X + quakeXOffset)), unchecked((ushort)(door.Position.Y.Whole - camera.Y))), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
         }
     }
 
@@ -619,15 +596,7 @@ public sealed partial class RoomEnemySystem
         Position16<RoomPixels> camera)
     {
         Position16<ScreenPixels> screen = segment.Position.ToScreen(camera);
-        DrawEnemySpritemap(
-            oam,
-            RidleySupplementalVisualDefinitions.Bank,
-            spritemap,
-            screen.ToOam(),
-            paletteIndex,
-            0,
-            clipVerticalWrap: true,
-            originYIsOnScreen: screen.Y < 0x0100);
+        DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = spritemap, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = screen.Y < 0x0100 });
     }
 
     private bool ResolveRidleyBodySamusContact(SamusState samus)

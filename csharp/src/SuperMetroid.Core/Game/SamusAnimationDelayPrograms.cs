@@ -41,21 +41,18 @@ internal sealed class SamusAnimationSegment
 {
     private readonly byte[] delays;
 
-    internal SamusAnimationSegment(ushort address, byte[] delays, SamusAnimationCommand command,
-        ushort repeatTarget = 0, SamusEquipmentFlags item = 0,
-        SamusPoseId unequippedGrounded = 0, SamusPoseId unequippedAirborne = 0,
-        SamusPoseId equippedGrounded = 0, SamusPoseId equippedAirborne = 0, bool wordPose = false)
+    internal SamusAnimationSegment(ushort address, byte[] delays, SamusAnimationCommand command, SamusAnimationTransition transition)
     {
-        WordPose = wordPose;
+        WordPose = transition.WordPose;
         Address = address;
         this.delays = delays;
         Command = command;
-        RepeatTarget = repeatTarget;
-        Item = item;
-        UnequippedGrounded = unequippedGrounded;
-        UnequippedAirborne = unequippedAirborne;
-        EquippedGrounded = equippedGrounded;
-        EquippedAirborne = equippedAirborne;
+        RepeatTarget = transition.RepeatTarget;
+        Item = transition.Item;
+        UnequippedGrounded = transition.UnequippedGrounded;
+        UnequippedAirborne = transition.UnequippedAirborne;
+        EquippedGrounded = transition.EquippedGrounded;
+        EquippedAirborne = transition.EquippedAirborne;
     }
 
     internal ushort Address { get; }
@@ -330,60 +327,57 @@ internal static class SamusAnimationDelayPrograms
 
     private static Placement Loop(byte[] delays) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.Loop);
+            new(address, delays, SamusAnimationCommand.Loop, new SamusAnimationTransition());
 
     private static Placement Hold(byte[] delays) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.Hold);
+            new(address, delays, SamusAnimationCommand.Hold, new SamusAnimationTransition());
 
     private static Placement LoopUnlessLowEnergy(byte[] delays) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.LoopUnlessLowEnergy);
+            new(address, delays, SamusAnimationCommand.LoopUnlessLowEnergy, new SamusAnimationTransition());
 
     private static Placement InstallDrainedFall(byte[] delays) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.InstallDrainedFall);
+            new(address, delays, SamusAnimationCommand.InstallDrainedFall, new SamusAnimationTransition());
 
     private static Placement WallJumpSelect(byte[] delays) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.WallJumpSelect);
+            new(address, delays, SamusAnimationCommand.WallJumpSelect, new SamusAnimationTransition());
 
     /// <summary>Repeat from <paramref name="frame"/> of this segment.</summary>
     private static Placement RepeatFrom(byte[] delays, int frame) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.RepeatFrom, repeatTarget: (ushort)(address + frame));
+            new(address, delays, SamusAnimationCommand.RepeatFrom, new SamusAnimationTransition { RepeatTarget = (ushort)(address + frame) });
 
     /// <summary>Repeat from <paramref name="frame"/> of the shared loop body <paramref name="segmentsBack"/> segments earlier.</summary>
     private static Placement RepeatFrom(byte[] delays, int segmentsBack, int frame) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.RepeatFrom, repeatTarget: (ushort)(earlier[^segmentsBack].Address + frame));
+            new(address, delays, SamusAnimationCommand.RepeatFrom, new SamusAnimationTransition { RepeatTarget = (ushort)(earlier[^segmentsBack].Address + frame) });
 
     private static Placement TurnTransition(byte[] delays, SamusPoseId pose) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.TurnTransition, unequippedGrounded: pose);
+            new(address, delays, SamusAnimationCommand.TurnTransition, new SamusAnimationTransition { UnequippedGrounded = pose });
 
     private static Placement Transition(byte[] delays, SamusPoseId pose) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose);
+            new(address, delays, SamusAnimationCommand.Transition, new SamusAnimationTransition { UnequippedGrounded = pose });
 
     /// <summary>A <c>$FD</c> transition whose pose the source wrote as a word.</summary>
     private static Placement TransitionWord(byte[] delays, SamusPoseId pose) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.Transition, unequippedGrounded: pose, wordPose: true);
+            new(address, delays, SamusAnimationCommand.Transition, new SamusAnimationTransition { UnequippedGrounded = pose, WordPose = true });
 
     private static Placement ItemTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequipped, SamusPoseId equipped) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.ItemTransition, item: item,
-            unequippedGrounded: unequipped, equippedGrounded: equipped);
+            new(address, delays, SamusAnimationCommand.ItemTransition, new SamusAnimationTransition { Item = item, UnequippedGrounded = unequipped, EquippedGrounded = equipped });
 
     private static Placement ItemAirborneTransition(byte[] delays,
         SamusEquipmentFlags item, SamusPoseId unequippedGrounded, SamusPoseId unequippedAirborne,
         SamusPoseId equippedGrounded, SamusPoseId equippedAirborne) =>
         (address, earlier) =>
-            new(address, delays, SamusAnimationCommand.ItemAirborneTransition, item: item,
-            unequippedGrounded: unequippedGrounded, unequippedAirborne: unequippedAirborne,
-            equippedGrounded: equippedGrounded, equippedAirborne: equippedAirborne);
+            new(address, delays, SamusAnimationCommand.ItemAirborneTransition, new SamusAnimationTransition { Item = item, UnequippedGrounded = unequippedGrounded, UnequippedAirborne = unequippedAirborne, EquippedGrounded = equippedGrounded, EquippedAirborne = equippedAirborne });
 
     /// <summary>Encodes the native byte at a bank-$91 address inside the programs.</summary>
     internal static byte ByteAt(int bankAddress)

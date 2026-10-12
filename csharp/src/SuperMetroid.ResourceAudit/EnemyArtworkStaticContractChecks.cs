@@ -68,9 +68,7 @@ internal static class EnemyArtworkStaticContractChecks
         SyntaxTree bypass = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Assets;
             class PartialArtworkConsumer {
-                object Build() => EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new System.Collections.Generic.Dictionary<ushort, RoomCharacterAtlas>(),
-                    new System.Collections.Generic.Dictionary<ushort, EnemyPaletteSheet>());
+                object Build() => EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new System.Collections.Generic.Dictionary<ushort, RoomCharacterAtlas>(), Palettes = new System.Collections.Generic.Dictionary<ushort, EnemyPaletteSheet>() });
             }
             """, path: "fixture-core-partial-artwork.cs");
         Revoked(Inspect(Compile(trees.Append(bypass)), true), "Core use of partial verification construction");

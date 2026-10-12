@@ -155,10 +155,7 @@ internal static partial class Program
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
         EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
             new MemoryStream(stockJson, writable: false));
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            spritemaps: installed);
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed });
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies,
             NewCeresBabyInstructionReadGuard(rom, blockBabyFrames: true));
         var baby = new RidleyEnemyState
@@ -198,11 +195,8 @@ internal static partial class Program
         };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            spritemaps: EnemySpritemapCatalog.Load(
-                new MemoryStream(editedJson, writable: false)));
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = EnemySpritemapCatalog.Load(
+                new MemoryStream(editedJson, writable: false)) });
         baby.BabyInstruction = CeresBabyInstructionProgramDefinitions.Initial;
         baby.BabyInstructionTimer = 1;
         var editedBaby = new OamBuffer();

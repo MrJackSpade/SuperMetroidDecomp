@@ -64,8 +64,7 @@ internal static partial class Program
         AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var parts), "schema-68 override retains existing frame");
         AssertEqual(-11, parts[0].X.SignedOffset, "schema-68 edit survives stock refresh");
         AssertThrows<InvalidDataException>(() => EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), spritemaps: merged);
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = merged });
         var draw = typeof(RoomEnemySystem).GetMethod("DrawEnemySpritemap", flags)!;
         for (int index = 0; index < RidleyExplosionInstructionProgramDefinitions.ProgramCount; index++)
         {
@@ -86,7 +85,7 @@ internal static partial class Program
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual((ushort)(start + 4), fragment.CurrentInstruction, "breakup sleeps after its one frame");
             var actual = new OamBuffer();
-            draw.Invoke(enemies, [actual, (byte)0xa6, expectedPointer, new Position16<OamPixels>((ushort)128, (ushort)112), (ushort)0x0e00, (ushort)0, false, true]);
+            draw.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = 0xa6, Pointer = expectedPointer, Origin = new Position16<OamPixels>((ushort)128, (ushort)112), PaletteBits = 0x0e00, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true }]);
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, 0xa6, expectedPointer, new(128, 112), 0x0e00, 0);
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "breakup OAM count");

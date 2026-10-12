@@ -1,4 +1,4 @@
-﻿using SuperMetroid.AssetExtraction;
+using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -99,7 +99,7 @@ internal static partial class RepositoryInstallation
     internal static EndingCreditsState CreateEnding(ISnesAddressSpace bus, CartridgeAudioState audio,
         ushort gameTimeHours, ushort gameTimeMinutes, EndingInventorySnapshot inventory = default, bool japaneseText = false)
     {
-        var ending = new EndingCreditsState(bus, audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText, Maps.EndingText);
+        var ending = new EndingCreditsState(bus, audio, new EndingCreditsSetup { GameTimeHours = gameTimeHours, GameTimeMinutes = gameTimeMinutes, Inventory = inventory, JapaneseText = japaneseText, EndingText = Maps.EndingText });
         ending.BindFlightArtwork(IntroArtwork.CeresFlight);
         ending.BindMode7Artwork(Installation.LoadEndingMode7Art());
         ending.BindObjectArtwork(Installation.LoadEndingObjectArt());
@@ -123,7 +123,7 @@ internal static partial class RepositoryInstallation
     internal static PauseMenuState CreatePause(ISnesAddressSpace bus, SamusState samus, Bank80SystemState system,
         AreaId areaIndex, Position16<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
         SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
-        new(bus, samus, system, areaIndex, roomMapPosition, audio, gameplayVram, mapRevealMode, Maps);
+        new(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = areaIndex, RoomMapPosition = roomMapPosition, Audio = audio, GameplayVram = gameplayVram, MapRevealMode = mapRevealMode, MapPresentation = Maps });
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so

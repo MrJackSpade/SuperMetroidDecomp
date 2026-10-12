@@ -29,12 +29,7 @@ internal static partial class Program
         AssertEqual(59, time.Minutes, "game time saturation minutes");
         AssertEqual(99, time.Hours, "game time saturation hours");
 
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(
-            new SamusState(),
-            new Bank80SystemState(),
-            area: 0,
-            saveStation: 0,
-            gameTime: time);
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(new SamusState(), new Bank80SystemState(), new SaveSnapshotContext { Area = 0, SaveStation = 0, GameTime = time });
         AssertEqual(59, snapshot.GameTimeFrames, "save captures game-time frames");
         AssertEqual(59, snapshot.GameTimeSeconds, "save captures game-time seconds");
         AssertEqual(59, snapshot.GameTimeMinutes, "save captures game-time minutes");

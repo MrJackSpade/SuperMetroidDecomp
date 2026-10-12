@@ -186,30 +186,16 @@ internal static partial class Program
         RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, IntroCinematicArtworkFormat.BackgroundPageCount)
             .Select(index => Map("page-" + index, index)).ToArray();
         if (edit == "page-order") Array.Reverse(pages);
-        return new IntroCinematicArtworkCatalog(
-            Characters("background", IntroCinematicArtworkFormat.BackgroundByteCount),
-            Characters("intro-objects", IntroCinematicArtworkFormat.IntroObjectByteCount),
-            Characters("cinematic-objects", IntroCinematicArtworkFormat.CinematicObjectByteCount), pages,
-            Map("portrait"), Map("narration-map"),
-            IntroFinalLineTilemap.Load(Json(new IntroFinalLineTilemapDocument
+        return new IntroCinematicArtworkCatalog(new IntroCinematicArtworkParts { BackgroundCharacters = Characters("background", IntroCinematicArtworkFormat.BackgroundByteCount), IntroObjectCharacters = Characters("intro-objects", IntroCinematicArtworkFormat.IntroObjectByteCount), CinematicObjectCharacters = Characters("cinematic-objects", IntroCinematicArtworkFormat.CinematicObjectByteCount), BackgroundPages = pages, PortraitTilemap = Map("portrait"), InitialNarrationTilemap = Map("narration-map"), FinalLine = IntroFinalLineTilemap.Load(Json(new IntroFinalLineTilemapDocument
             {
                 Version = IntroFinalLineTilemapFormat.Version, Cells = Cells("divider", IntroFinalLineTilemapFormat.CellCount),
-            })),
-            IntroEyeTilemapPresentation.Load(Json(new IntroEyeTilemapDocument
+            })), EyeFrames = IntroEyeTilemapPresentation.Load(Json(new IntroEyeTilemapDocument
             {
                 Version = IntroEyeTilemapFormat.Version,
                 Frames = Enumerable.Range(0, IntroEyeTilemapFormat.FrameCount).Select(index => new IntroEyeTilemapFrame
                 {
                     Id = IntroEyeTilemapFormat.FrameId(index), Cells = Cells("eye-" + index, IntroEyeTilemapFormat.CellsPerFrame),
                 }).ToArray(),
-            })),
-            IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name), (int)IntroCaretSpriteVersion.Current)),
-            IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            IntroCinematicPalette.Load(PaletteJson("intro-palette")), flight, destruction);
+            })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name), (int)IntroCaretSpriteVersion.Current)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), Palette = IntroCinematicPalette.Load(PaletteJson("intro-palette")), CeresFlight = flight, CeresDestruction = destruction });
     }
 }

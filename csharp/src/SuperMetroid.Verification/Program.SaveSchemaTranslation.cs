@@ -12,7 +12,7 @@ internal static partial class Program
         var ram = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         var samus = new SamusState { ReserveMissiles = 27 };
         var system = new Bank80SystemState { LoadedItemCount = 65535 };
-        ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, 0, 0, japaneseText: true));
+        ram.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0, JapaneseText = true }));
         ram.SetGameCompleted(true);
         ram.SelectSlot(0);
         string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(bus, RetailPresentationFixture()));
@@ -103,7 +103,7 @@ internal static partial class Program
         var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var text = SuperMetroid.Core.Assets.EndingTextPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(native), writable: false));
-        var ending = new EndingCreditsState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), 0, 0, endingText: text);
+        var ending = new EndingCreditsState(bus, new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0, EndingText = text });
         ending.BindPaletteFxColors(SuperMetroid.Core.Assets.RoomPaletteFxPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;

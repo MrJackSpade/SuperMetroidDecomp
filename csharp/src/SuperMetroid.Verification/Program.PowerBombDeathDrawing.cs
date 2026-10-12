@@ -11,9 +11,7 @@ internal static partial class Program
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var spritemaps = EnemySpritemapCatalog.Load(new MemoryStream(EnemySpritemapFiles.Extract(rom)));
-        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            spritemaps: spritemaps);
+        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = spritemaps });
 
         Confirm(EnemyDefinitionId.Atomic, respawns: false, lethal: true);
         Confirm(EnemyDefinitionId.Sidehopper, respawns: false, lethal: true);

@@ -151,15 +151,7 @@ internal static class MotherBrainNeckKinematics
     }
 
     /// <summary>Ports all five signed sine/cosine position writes at $A9:91B8-$92AA.</summary>
-    internal static MotherBrainNeckGeometry CalculateGeometry(
-        Position16<RoomPixels> body,
-        ushort lowerAngle,
-        ushort upperAngle,
-        ushort segment0Distance = 2,
-        ushort segment1Distance = 10,
-        ushort segment2Distance = 20,
-        ushort segment3Distance = 10,
-        ushort segment4Distance = 20)
+    internal static MotherBrainNeckGeometry CalculateGeometry(Position16<RoomPixels> body, ushort lowerAngle, ushort upperAngle, MotherBrainNeckSegmentDistances distances)
     {
         // `$7E:7814/16` is a deliberately offset body reference point. Adding $70/$FFA0
         // below reduces it to body+($20,-$32), but retaining the two native stages makes the
@@ -168,11 +160,11 @@ internal static class MotherBrainNeckKinematics
         byte lower = unchecked((byte)(lowerAngle >> 8));
         byte upper = unchecked((byte)(upperAngle >> 8));
 
-        Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, lower, segment0Distance);
-        Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, lower, segment1Distance);
-        Position16<RoomPixels> segment2 = CalculateLowerSegment(reference, lower, segment2Distance);
-        Position16<RoomPixels> segment3 = segment2 + CalculatePolarOffset(upper, segment3Distance);
-        Position16<RoomPixels> segment4 = segment2 + CalculatePolarOffset(upper, segment4Distance);
+        Position16<RoomPixels> segment0 = CalculateLowerSegment(reference, lower, distances.Segment0Distance);
+        Position16<RoomPixels> segment1 = CalculateLowerSegment(reference, lower, distances.Segment1Distance);
+        Position16<RoomPixels> segment2 = CalculateLowerSegment(reference, lower, distances.Segment2Distance);
+        Position16<RoomPixels> segment3 = segment2 + CalculatePolarOffset(upper, distances.Segment3Distance);
+        Position16<RoomPixels> segment4 = segment2 + CalculatePolarOffset(upper, distances.Segment4Distance);
         return new MotherBrainNeckGeometry(segment0, segment1, segment2, segment3, segment4);
     }
 

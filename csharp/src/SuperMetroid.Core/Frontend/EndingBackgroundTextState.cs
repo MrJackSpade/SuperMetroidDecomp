@@ -28,30 +28,22 @@ internal sealed class EndingBackgroundTextState
     private bool installedInitialMarkerPending = true;
     private bool installedHoldStarted;
 
-    public EndingBackgroundTextState(
-        ISnesAddressSpace bus,
-        ushort[] tilemap,
-        ushort instructionPointer,
-        EndingInventorySnapshot inventory,
-        bool japaneseText,
-        ushort tilemapDestination = EndingCreditsRomData.Rendering.PostCreditsTilemapWord,
-        EndingTextPresentation? presentation = null,
-        EndingTextSequence? installedSequence = null)
+    public EndingBackgroundTextState(ISnesAddressSpace bus, EndingBackgroundTextSetup setup)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.tilemap = tilemap ?? throw new ArgumentNullException(nameof(tilemap));
-        if (tilemap.Length != EndingCreditsRomData.Rendering.TilemapWords)
-            throw new ArgumentException("Ending BG tilemap must contain exactly $400 words.", nameof(tilemap));
-        this.instructionPointer = instructionPointer;
-        this.inventory = inventory;
-        this.japaneseText = japaneseText;
-        this.tilemapDestination = tilemapDestination;
-        this.presentation = presentation;
-        this.installedSequence = installedSequence;
-        if (presentation is null || installedSequence is null)
+        this.tilemap = setup.Tilemap ?? throw new ArgumentNullException(nameof(setup.Tilemap));
+        if (setup.Tilemap.Length != EndingCreditsRomData.Rendering.TilemapWords)
+            throw new ArgumentException("Ending BG tilemap must contain exactly $400 words.", nameof(setup.Tilemap));
+        this.instructionPointer = setup.InstructionPointer;
+        this.inventory = setup.Inventory;
+        this.japaneseText = setup.JapaneseText;
+        this.tilemapDestination = setup.TilemapDestination;
+        this.presentation = setup.Presentation;
+        this.installedSequence = setup.InstalledSequence;
+        if (setup.Presentation is null || setup.InstalledSequence is null)
             throw new InvalidOperationException("Ending text requires installed presentation and sequence definitions.");
-        installedProgram = installedSequence is { } sequence
-            ? presentation!.Compile(sequence).ToArray()
+        installedProgram = setup.InstalledSequence is { } sequence
+            ? setup.Presentation!.Compile(sequence).ToArray()
             : null;
     }
 

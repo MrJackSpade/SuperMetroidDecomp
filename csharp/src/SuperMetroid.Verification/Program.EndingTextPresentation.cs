@@ -43,9 +43,7 @@ internal static partial class Program
                 ? EndingCreditsRomData.Instructions.ItemPercentageText
                 : EndingCreditsRomData.Instructions.SeeYouNextMissionText;
             // The installed sequence runs to completion with its text streams guarded.
-            var installed = new EndingBackgroundTextState(installedBus, installedTilemap, pointer,
-                default, japaneseText: true, presentation: presentation,
-                installedSequence: sequence);
+            var installed = new EndingBackgroundTextState(installedBus, new EndingBackgroundTextSetup { Tilemap = installedTilemap, InstructionPointer = pointer, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
             var installedVram = new SnesVram();
             for (int frame = 0; !installed.Completed; frame++)
             {
@@ -76,12 +74,8 @@ internal static partial class Program
             edited.Compile(EndingTextSequence.ItemPercentage)[0].TopWord,
             "edited percentage text reaches its live program");
 
-        var saved = new EndingBackgroundTextState(nativeBus,
-            Enumerable.Repeat(EndingCreditsRomData.Rendering.BlankTile,
-                EndingCreditsRomData.Rendering.TilemapWords).ToArray(),
-            EndingCreditsRomData.Instructions.SeeYouNextMissionText,
-            default, false, presentation: presentation,
-            installedSequence: EndingTextSequence.FinalMessage);
+        var saved = new EndingBackgroundTextState(nativeBus, new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingCreditsRomData.Rendering.BlankTile,
+                EndingCreditsRomData.Rendering.TilemapWords).ToArray(), InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
         saved.Step(new SnesVram());
         using var snapshot = new MemoryStream();
         SuperMetroid.Desktop.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);

@@ -24,16 +24,7 @@ internal static partial class Program
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         // The graphics-Y byte only enters as a signed offset, so one artwork fixture per signed
         // byte class covers it.
-        var artwork = SignedByteClasses.Select(art => new SamusBodyArtworkCatalog(
-            template.TopSetPointers.ToArray(), template.BottomSetPointers.ToArray(),
-            template.PosePointers.ToArray(),
-            Enumerable.Repeat(unchecked((sbyte)art), SamusBodyArtworkCatalog.PoseCount).ToArray(),
-            template.Frames.ToArray(),
-            Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(),
-            Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(),
-            template.Spritemaps, template.Atmosphere, template.DeathPalettes,
-            template.DeathTiles, template.ArmCannon, template.LandingYOffsets.ToArray(),
-            template.PostureYOffsets.ToArray(), template.DrainedYOffsets.ToArray())).ToArray();
+        var artwork = SignedByteClasses.Select(art => new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = template.TopSetPointers.ToArray(), BottomPointers = template.BottomSetPointers.ToArray(), PosePointers = template.PosePointers.ToArray(), GraphicsYOffsets = Enumerable.Repeat(unchecked((sbyte)art), SamusBodyArtworkCatalog.PoseCount).ToArray(), Frames = template.Frames.ToArray(), Top = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => template.TopSet(index).ToArray()).ToArray(), Bottom = Enumerable.Range(0, SamusBodyArtworkCatalog.BottomSetCount).Select(index => template.BottomSet(index).ToArray()).ToArray(), Spritemaps = template.Spritemaps, Atmosphere = template.Atmosphere, DeathPalettes = template.DeathPalettes, DeathTiles = template.DeathTiles, ArmCannon = template.ArmCannon, LandingYOffsets = template.LandingYOffsets.ToArray(), PostureYOffsets = template.PostureYOffsets.ToArray(), DrainedYOffsets = template.DrainedYOffsets.ToArray() })).ToArray();
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
             byte expected = rom.ReadCartridgeByte(0x91b629 + pose * 8 + 4);

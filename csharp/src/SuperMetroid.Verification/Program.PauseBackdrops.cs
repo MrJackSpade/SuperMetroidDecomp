@@ -101,7 +101,7 @@ internal static partial class Program
         // The native invalid-beam selection deliberately leaves an overlong label
         // in equipment VRAM. A full inventory rebuild during content rebind loses it.
         var samus = new SamusState { CollectedItems = 0x3300, EquippedItems = 0x3300, CollectedBeams = 0x100f, EquippedBeams = 4 };
-        var glitch = new PauseMenuState(guard, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0), mapPresentation: original);
+        var glitch = new PauseMenuState(guard, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         EnterPauseEquipment(glitch);
         SelectPauseBoots(glitch);
         AssertEqual(0, glitch.SelectedItem, "fixture selects Hi-Jump Boots");
@@ -155,8 +155,7 @@ internal static partial class Program
             // pause map draws elevator destinations for acquired maps, which Ceres does not have.
             var system = new Bank80SystemState();
             if (area != AreaId.Ceres) system.SetAreaMapAcquired(area);
-            return new(addressSpace, new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge },
-                system, area, new(10, 10), mapPresentation: catalog);
+            return new(addressSpace, new PauseMenuEntry { Samus = new SamusState { CollectedBeams = (ushort)SamusBeamFlags.Charge, EquippedBeams = (ushort)SamusBeamFlags.Charge }, System = system, AreaIndex = area, RoomMapPosition = new(10, 10), MapPresentation = catalog });
         }
     }
 

@@ -29,7 +29,7 @@ internal static partial class Program
             var sequence = new MotherBrainRainbowBeamAttackSequence();
             typeof(MotherBrainRainbowBeamAttackSequence).GetProperty(nameof(sequence.Phase))!
                 .SetValue(sequence, MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer);
-            var request = sequence.Step(bus, samus, 0, 0, nextRandomNumber: () => 0);
+            var request = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");
             var runtime = new SuperMetroidRuntime(bus, initialPaletteArt: BombTorizoHandFixturePalette());

@@ -40,10 +40,7 @@ internal static partial class Program
         using var colors = new MemoryStream(BotwoonColorExtractor.Extract(rom), writable: false);
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-                botwoonColors: BotwoonColorCatalog.Load(colors)),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), BotwoonColors = BotwoonColorCatalog.Load(colors) }),
         };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, guard);
         typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(enemies, new SnesCgram());

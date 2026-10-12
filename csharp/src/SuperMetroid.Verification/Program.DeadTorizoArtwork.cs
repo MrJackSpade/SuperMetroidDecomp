@@ -40,9 +40,7 @@ internal static partial class Program
         AssertEqual(0, DrawDeadTorizoCorpseFrame(stock, installedBus, new(0, 188)).NextByteOffset,
             "Dead Torizo private hook retains its above-screen cull");
 
-        var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>());
+        var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
         AssertThrows<InvalidDataException>(() => InitializeDeadTorizoArtwork(
                 SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing),
             "bound installation missing the dead-Torizo sheet fails instead of reading ROM");

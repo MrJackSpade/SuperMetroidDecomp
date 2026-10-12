@@ -140,23 +140,7 @@ public sealed partial class RoomEnemySystem
 
         ushort yLimit = unchecked((ushort)(definition.EntryCount - 1));
         ushort lateMoveEntryIndex = unchecked((ushort)(yLimit - 1));
-        var state = new DeadTourianCorpseEnemyState(
-            slot,
-            profile.Species,
-            variantIndex,
-            definition.ConfigurationPointer,
-            definition.RottingTablePointer,
-            definition.VramTransferPointer,
-            definition.CopyFunction,
-            definition.MoveFunction,
-            definition.RotationTablePointer,
-            definition.FinishFunction,
-            definition.EntryCount,
-            yLimit,
-            lateMoveEntryIndex,
-            definition.WrapOffset,
-            profile,
-            variant);
+        var state = new DeadTourianCorpseEnemyState(slot, profile.Species, variantIndex, definition.ConfigurationPointer, new CorpseRottingProgram { TablePointer = definition.RottingTablePointer, VramTablePointer = definition.VramTransferPointer, CopyFunction = definition.CopyFunction, MoveFunction = definition.MoveFunction, RotationTablePointer = definition.RotationTablePointer, FinishFunction = definition.FinishFunction, EntryCount = definition.EntryCount, YLimit = yLimit, LateMoveEntryIndex = lateMoveEntryIndex, WrapOffset = definition.WrapOffset }, profile: profile, variant: variant);
         _deadTourianCorpseStates[slot.SlotIndex] = state;
 
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
@@ -349,38 +333,22 @@ public enum DeadTourianCorpseSpecies
 /// <summary>Typed extended state for one dead Zoomer, Ripper, or Skree.</summary>
 public sealed class DeadTourianCorpseEnemyState
 {
-    internal DeadTourianCorpseEnemyState(
-        RoomEnemySlot slot,
-        DeadTourianCorpseSpecies species,
-        int variantIndex,
-        ushort configurationPointer,
-        ushort tablePointer,
-        ushort vramTablePointer,
-        ushort copyFunction,
-        ushort moveFunction,
-        ushort rotationTablePointer,
-        ushort finishFunction,
-        ushort entryCount,
-        ushort yLimit,
-        ushort lateMoveEntryIndex,
-        ushort wrapOffset,
-        RoomEnemySystem.DeadTourianCorpseProfile profile,
-        RoomEnemySystem.DeadTourianCorpseVariant variant)
+    internal DeadTourianCorpseEnemyState(RoomEnemySlot slot, DeadTourianCorpseSpecies species, int variantIndex, ushort configurationPointer, CorpseRottingProgram rotting, RoomEnemySystem.DeadTourianCorpseProfile profile, RoomEnemySystem.DeadTourianCorpseVariant variant)
     {
         Slot = slot;
         Species = species;
         VariantIndex = variantIndex;
         ConfigurationPointer = configurationPointer;
-        TablePointer = tablePointer;
-        VramTablePointer = vramTablePointer;
-        CopyFunction = copyFunction;
-        MoveFunction = moveFunction;
-        RotationTablePointer = rotationTablePointer;
-        FinishFunction = finishFunction;
-        EntryCount = entryCount;
-        YLimit = yLimit;
-        LateMoveEntryIndex = lateMoveEntryIndex;
-        WrapOffset = wrapOffset;
+        TablePointer = rotting.TablePointer;
+        VramTablePointer = rotting.VramTablePointer;
+        CopyFunction = rotting.CopyFunction;
+        MoveFunction = rotting.MoveFunction;
+        RotationTablePointer = rotting.RotationTablePointer;
+        FinishFunction = rotting.FinishFunction;
+        EntryCount = rotting.EntryCount;
+        YLimit = rotting.YLimit;
+        LateMoveEntryIndex = rotting.LateMoveEntryIndex;
+        WrapOffset = rotting.WrapOffset;
         Profile = profile;
         Variant = variant;
     }

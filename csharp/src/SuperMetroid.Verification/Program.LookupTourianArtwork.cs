@@ -69,8 +69,7 @@ internal static partial class Program
         AssertEqual(36, total, "Complete native statue artwork domain");
         AssertThrows<ArgumentNullException>(
             () => TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(null!, 0), "Null statue rejects");
-        var unknown = new TourianStatueAnimatedTileProgramDefinition(0, 0x8000, 0x40, 0,
-            0, 0, 0, 0, 0, 0, 0, 0);
+        var unknown = new TourianStatueAnimatedTileProgramDefinition(new TourianStatueAnimatedTileProgramParts { ObjectPointer = 0, ProgramStart = 0x8000, TransferByteCount = 0x40, EncodedVramDestination = 0, StatueStateBit = 0, GreyEventNumber = 0, FirstFrameDuration = 0, PackedBossTest = 0, ClearPaletteByteIndex = 0, UnlockEffectParameter = 0, PaletteFxDefinition = 0, TargetPaletteByteIndex = 0 });
         AssertThrows<InvalidDataException>(
             () => TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(unknown, 0x800c),
             "Unknown object rejects even with its own valid operand");

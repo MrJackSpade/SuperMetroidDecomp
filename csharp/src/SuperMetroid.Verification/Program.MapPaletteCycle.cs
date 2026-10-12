@@ -53,9 +53,8 @@ internal static partial class Program
         AssertTrue(original.ContentIdentity != edited.ContentIdentity, "palette edit invalidates selected content identity");
 
         var system = new Bank80SystemState();
-        var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, new(0, 0), mapPresentation: original);
-        var nativePause = new PauseMenuState(bus, new SamusState(), system, AreaId.Crateria,
-            new(0, 0), mapPresentation: original);
+        var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var nativePause = new PauseMenuState(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         for (int tick = 0; tick < 60; tick++)
         {
             pause.Step(0, 0); nativePause.Step(0, 0);

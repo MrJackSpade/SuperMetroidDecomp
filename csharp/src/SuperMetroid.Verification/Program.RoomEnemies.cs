@@ -120,7 +120,7 @@ static void VerifyRoomEnemyLoading()
     }
     var enemies = new RoomEnemySystem
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(stockSheets, stockColors),
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
     enemies.Load(new RoomEnemyLoadRequest(bus, populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0x9999)));
 
@@ -180,7 +180,7 @@ static void VerifyRoomEnemyLoading()
     // high-bit staging branch, so a single hard-coded destination cannot pass.
     var installedEnemies = new RoomEnemySystem
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(stockSheets, stockColors),
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = stockSheets, Palettes = stockColors }),
     };
     var installedVram = new SnesVram();
     var installedCgram = new SnesCgram();
@@ -196,8 +196,7 @@ static void VerifyRoomEnemyLoading()
     AssertEqual(slot.Definition.Radius.X, installedEnemies.Slots[0].Definition.Radius.X,
         "enemy tile overrides do not alter hitboxes");
     AssertThrows<InvalidDataException>(() =>
-        EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>())
+        EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() })
             .LoadTo(primaryDefinitionPointer, 0x40, new VramStore(new SnesVram()).All, 0xe000),
         "missing installed enemy sheet fails at its actual upload");
     AssertThrows<InvalidDataException>(() =>
@@ -456,8 +455,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     };
     var enemies = new RoomEnemySystem
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            sheets, palettes),
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes }),
     };
     enemies.Load(new RoomEnemyLoadRequest(bus, populationPointer, tilesetPointer, vram, cgram, new StandaloneRoomEnemyServices(() => 0)));
     RoomEnemySlot ripper = enemies.Slots[0];
@@ -553,9 +551,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     using var spriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
         spriteDocument, new System.Text.Json.JsonSerializerOptions
         { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-    enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-        sheets, palettes,
-        spritemaps: EnemySpritemapCatalog.Load(spriteJson));
+    enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = EnemySpritemapCatalog.Load(spriteJson) });
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = 2;
@@ -673,9 +669,7 @@ private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddress
     var visuals = SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Load(
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName)));
-    return EnemyTileArtworkCatalog.FromArtworkForVerification(
-        new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-        new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visuals);
+    return EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visuals });
 }
 
 /// <summary>
@@ -882,20 +876,15 @@ static void VerifyCeresRidleyRoomEntry()
         { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
     var enemies = new RoomEnemySystem
     {
-        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+        TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [definitionPointer] = RoomCharacterAtlas.Load(
                     new MemoryStream(fixtureTilePng.ToArray()), 0x20),
-            },
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
+            }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-            }, spritemaps: EnemySpritemapCatalog.Load(fixtureSpriteJson),
-            ceresDoorVisual: CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual,
-            ceresEscapeTiles: RepositoryInstallation.EnemyTiles.CeresEscapeTiles,
-            ceresEscapeOverlayTilemaps: RepositoryInstallation.EnemyTiles.CeresEscapeOverlayTilemaps),
+            }, Spritemaps = EnemySpritemapCatalog.Load(fixtureSpriteJson), CeresDoorVisual = CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual, CeresEscapeTiles = RepositoryInstallation.EnemyTiles.CeresEscapeTiles, CeresEscapeOverlayTilemaps = RepositoryInstallation.EnemyTiles.CeresEscapeOverlayTilemaps }),
         CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.CeresRidleyColorExtractor.Extract(bus))),
         CeresRidleyMode7Colors = CeresRidleyMode7ColorCatalog.Load(new MemoryStream(

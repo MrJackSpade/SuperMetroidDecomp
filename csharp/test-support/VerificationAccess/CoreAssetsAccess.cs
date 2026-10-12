@@ -194,45 +194,8 @@ internal static class EnemyTileArtworkCatalogAccess
     extension(EnemyTileArtworkCatalog)
     {
         /// <summary>Explicitly partial constructed artwork; never an installed production catalog.</summary>
-        internal static EnemyTileArtworkCatalog FromArtworkForVerification(IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas> sheets,
-            IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes,
-            CrocomireMeltingArtwork? crocomireMelting = null,
-            EnemySpritemapCatalog? spritemaps = null,
-            EnemyExtendedFrameCatalog? extendedFrames = null,
-            KraidBackgroundArtwork? kraidBackground = null,
-            KraidColorCatalog? kraidColors = null,
-            GunshipLiftoffArtworkCatalog? gunshipLiftoff = null,
-            CeresDoorVisualCatalog? ceresDoorVisual = null,
-            IReadOnlyDictionary<EnemyDefinitionId, int>? dmaSources = null,
-            EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
-            MagdollitePaletteCycle? magdollitePaletteCycle = null,
-            WorkRobotPaletteCycle? workRobotPaletteCycle = null,
-            CrocomireColorCatalog? crocomireColors = null,
-            DraygonColorCatalog? draygonColors = null,
-            PhantoonColorCatalog? phantoonColors = null,
-            ChozoAndTubeColorCatalog? chozoAndTubeColors = null,
-            SporeSpawnColorCatalog? sporeSpawnColors = null,
-            DachoraColorCatalog? dachoraColors = null,
-            ShitroidColorCatalog? shitroidColors = null,
-            BabyMetroidCutsceneColorCatalog? babyMetroidCutsceneColors = null,
-            BotwoonColorCatalog? botwoonColors = null,
-            MotherBrainDeathColorCatalog? motherBrainDeathColors = null,
-            ZebetiteColorCatalog? zebetiteColors = null,
-            NorfairRidleyColorCatalog? norfairRidleyColors = null,
-            TourianStatueColorCatalog? tourianStatueColors = null,
-            PhantoonBg2FrameCatalog? phantoonBg2Frames = null,
-            DraygonBg2FrameCatalog? draygonBg2Frames = null,
-            RoomCharacterAtlas? motherBrainCorpse = null,
-            RoomCharacterAtlas? motherBrainEscapeText = null,
-            MotherBrainSpecialSpriteArtworkCatalog? motherBrainSpecialSprites = null,
-            CrocomireSkeletonArtwork? crocomireSkeleton = null,
-            CrocomireBg2FrameCatalog? crocomireBg2Frames = null,
-            TorizoInstructionVramArtwork? torizoInstructionVram = null,
-            CeresEscapeTileArtwork? ceresEscapeTiles = null,
-            CeresEscapeOverlayTilemapCatalog? ceresEscapeOverlayTilemaps = null,
-            EnemyAuxiliaryColorCatalog? auxiliaryColors = null,
-            MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null) =>
-            ((EnemyTileArtworkCatalog)PrivateState.Construct(typeof(EnemyTileArtworkCatalog), (IReadOnlyDictionary<EnemyDefinitionId, RoomCharacterAtlas>)(sheets), (IReadOnlyDictionary<EnemyDefinitionId, EnemyPaletteSheet>)(palettes), (CrocomireMeltingArtwork?)(crocomireMelting), (EnemySpritemapCatalog?)(spritemaps), (EnemyExtendedFrameCatalog?)(extendedFrames), (KraidBackgroundArtwork?)(kraidBackground), (KraidColorCatalog?)(kraidColors), (GunshipLiftoffArtworkCatalog?)(gunshipLiftoff), (CeresDoorVisualCatalog?)(ceresDoorVisual), (IReadOnlyDictionary<EnemyDefinitionId, int>?)(dmaSources), (EnemyProjectileSpritemapCatalog?)(projectileSpritemaps), (MagdollitePaletteCycle?)(magdollitePaletteCycle), (WorkRobotPaletteCycle?)(workRobotPaletteCycle), (CrocomireColorCatalog?)(crocomireColors), (DraygonColorCatalog?)(draygonColors), (PhantoonColorCatalog?)(phantoonColors), (ChozoAndTubeColorCatalog?)(chozoAndTubeColors), (SporeSpawnColorCatalog?)(sporeSpawnColors), (DachoraColorCatalog?)(dachoraColors), (ShitroidColorCatalog?)(shitroidColors), (BabyMetroidCutsceneColorCatalog?)(babyMetroidCutsceneColors), (BotwoonColorCatalog?)(botwoonColors), (MotherBrainDeathColorCatalog?)(motherBrainDeathColors), (ZebetiteColorCatalog?)(zebetiteColors), (NorfairRidleyColorCatalog?)(norfairRidleyColors), (TourianStatueColorCatalog?)(tourianStatueColors), (PhantoonBg2FrameCatalog?)(phantoonBg2Frames), (DraygonBg2FrameCatalog?)(draygonBg2Frames), (RoomCharacterAtlas?)(motherBrainCorpse), (RoomCharacterAtlas?)(motherBrainEscapeText), (MotherBrainSpecialSpriteArtworkCatalog?)(motherBrainSpecialSprites), (CrocomireSkeletonArtwork?)(crocomireSkeleton), (CrocomireBg2FrameCatalog?)(crocomireBg2Frames), (TorizoInstructionVramArtwork?)(torizoInstructionVram), (CeresEscapeTileArtwork?)(ceresEscapeTiles), (CeresEscapeOverlayTilemapCatalog?)(ceresEscapeOverlayTilemaps), (EnemyAuxiliaryColorCatalog?)(auxiliaryColors), (MotherBrainBodyBg2FrameCatalog?)(motherBrainBodyBg2Frames)));
+        internal static EnemyTileArtworkCatalog FromArtworkForVerification(EnemyTileArtworkParts parts) =>
+            (EnemyTileArtworkCatalog)PrivateState.Construct(typeof(EnemyTileArtworkCatalog), parts ?? throw new ArgumentNullException(nameof(parts)));
     }
 
     extension(EnemyTileArtworkCatalog self)

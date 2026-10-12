@@ -54,7 +54,7 @@ internal static partial class Program
                 // format and restore path, entirely in disposable memory.
                 var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 new SuperMetroidSaveRam(source, RetailPresentationFixture()).SaveSlot(0,
-                    SuperMetroidSaveSnapshot.Capture(new SamusState(), system, (ushort)area, 0));
+                    SuperMetroidSaveSnapshot.Capture(new SamusState(), system, new SaveSnapshotContext { Area = (ushort)area, SaveStation = 0 }));
                 string json = GameSaveJsonCodec.Serialize(GameSaveJsonCodec.Capture(source, RetailPresentationFixture()));
                 var restored = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
                 GameSaveJsonCodec.Apply(GameSaveJsonCodec.Deserialize(json), restored, RetailPresentationFixture());

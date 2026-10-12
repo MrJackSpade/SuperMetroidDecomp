@@ -69,9 +69,7 @@ internal static partial class Program
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        var missing = new MotherBrainPresentationFixture(EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            extendedFrames: EnemyExtendedFrameCatalog.Load(author.Json(stockOam))));
+        var missing = new MotherBrainPresentationFixture(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameCatalog.Load(author.Json(stockOam)) }));
         missing.SetFrame(mixed[0].Pointer, fresh: true);
         AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
         var fields = (FieldInfo[])typeof(DebuggerObjectGraphSerializer).GetMethod("GetSerializableFields",

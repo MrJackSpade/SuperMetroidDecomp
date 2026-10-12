@@ -26,16 +26,7 @@ internal static partial class Program
         runtime.Cgram.LoadBytes(memory.AsSpan(PauseMemory.GameplayPaletteBackup, CgramPalettes.ByteCount));
 
         CartridgeRoomHeader room = runtime.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
-        var menu = new PauseMenuState(
-            bus,
-            runtime.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."),
-            runtime.System,
-            room.AreaIndex,
-            room.MapPosition,
-            PrivateState.Field<CartridgeAudioState>(game, "audio"),
-            runtime.Vram,
-            game.ConfiguredOptions.MapReveal,
-            PrivateState.Field<AreaMapPresentationCatalog>(game, "mapPresentation"));
+        var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = PrivateState.Field<CartridgeAudioState>(game, "audio"), GameplayVram = runtime.Vram, MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = PrivateState.Field<AreaMapPresentationCatalog>(game, "mapPresentation") });
         PrivateState.SetField(menu, "mapScrollPosition",
             new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll)));
         object palette = PrivateState.Field<object>(menu, "paletteAnimation");

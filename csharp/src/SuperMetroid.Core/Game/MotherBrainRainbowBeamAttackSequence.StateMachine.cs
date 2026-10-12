@@ -11,17 +11,7 @@ namespace SuperMetroid.Core.Game;
 public sealed partial class MotherBrainRainbowBeamAttackSequence
 {
     /// <summary>Executes one call through the current Mother Brain body function.</summary>
-    public MotherBrainRainbowBeamAttackStepResult Step(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        ushort enemyFrameCounter,
-        ushort mainEnemyExecutionCounter,
-        bool powerBombActive = false,
-        ushort randomNumberSeed = 0,
-        Func<ushort>? nextRandomNumber = null,
-        bool alternateEscapeText = false,
-        bool typewriterFinished = false,
-        ushort? globalEarthquakeTimer = null)
+    public MotherBrainRainbowBeamAttackStepResult Step(ISnesAddressSpace bus, SamusState samus, RainbowBeamAttackFrame frame)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(samus);
@@ -119,7 +109,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.StartFiring:
                 // `$A9:B975` widens/aims even while an active power bomb freezes the timer.
                 IncreaseWidthAndAim(samus);
-                if (!powerBombActive)
+                if (!frame.PowerBombActive)
                 {
                     FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                     if ((FunctionTimer & 0x8000) != 0)
@@ -135,7 +125,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall:
                 RunContinuingBeamEffects(
                     samus,
-                    enemyFrameCounter,
+                    frame.EnemyFrameCounter,
                     increaseWidth: true,
                     ref soundQueued,
                     ref paletteRequested,
@@ -151,7 +141,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.OneFrameDelay:
                 RunContinuingBeamEffects(
                     samus,
-                    enemyFrameCounter,
+                    frame.EnemyFrameCounter,
                     increaseWidth: true,
                     ref soundQueued,
                     ref paletteRequested,
@@ -180,13 +170,13 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.DrainingSamus:
                 RunContinuingBeamEffects(
                     samus,
-                    enemyFrameCounter,
+                    frame.EnemyFrameCounter,
                     increaseWidth: true,
                     ref soundQueued,
                     ref paletteRequested,
                     ref explosion);
                 DamageSamusDueToRainbowBeam(samus);
-                DecrementAmmoDueToRainbowBeam(samus, mainEnemyExecutionCounter);
+                DecrementAmmoDueToRainbowBeam(samus, frame.MainEnemyExecutionCounter);
                 movement = MotherBrainRainbowBeamSamusMovement.MoveTowardMiddleOfWall(samus);
 
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
@@ -197,7 +187,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
             case MotherBrainRainbowBeamAttackPhase.FinishFiring:
                 RunContinuingBeamEffects(
                     samus,
-                    enemyFrameCounter,
+                    frame.EnemyFrameCounter,
                     increaseWidth: false,
                     ref soundQueued,
                     ref paletteRequested,
@@ -277,10 +267,10 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // 32nd enemy frame that idle route may ask the posture helper to alternate
                 // between standing and leaning down. This is visible body bytecode, not a
                 // direct pose assignment, so retain the separate instruction-stage delay.
-                if ((randomNumberSeed & 0x0fff) < 0x0fa0)
+                if ((frame.RandomNumberSeed & 0x0fff) < 0x0fa0)
                 {
-                    if ((enemyFrameCounter & 0x001f) == 0)
-                        bodyPostureRequested = MaybeRequestStandUpOrLeanDown(randomNumberSeed);
+                    if ((frame.EnemyFrameCounter & 0x001f) == 0)
+                        bodyPostureRequested = MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
                     break;
                 }
 
@@ -288,7 +278,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // rings. Only when Samus is above it does the top 16/4096 RNG band choose a
                 // bomb; all remaining admitted values still choose two onion rings.
                 if (NativeAtLeast(CalculateFinishOffHealthThreshold(samus, 0x00a0), samus.Health) ||
-                    (randomNumberSeed & 0x0fff) < 0x0ff0)
+                    (frame.RandomNumberSeed & 0x0fff) < 0x0ff0)
                 {
                     SetHeadInstructionList(HeadAttackingTwoOnionRingsPhase2InstructionList);
                 }
@@ -612,8 +602,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 break;
 
             case MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack:
-                bodyPostureRequested = MaybeRequestStandUpOrLeanDown(randomNumberSeed);
-                if ((randomNumberSeed & 0x8000) != 0)
+                bodyPostureRequested = MaybeRequestStandUpOrLeanDown(frame.RandomNumberSeed);
+                if ((frame.RandomNumberSeed & 0x8000) != 0)
                 {
                     // A nonzero Baby enemy index selects `$9DB1`; zero instead targets Samus.
                     // This translated cutscene owns a spawned Baby, so retain the live actor
@@ -688,16 +678,16 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 }
 
                 StepPhase3NeckHandler();
-                bodyWalkRequested = StepPhase3WalkingHandler(randomNumberSeed);
+                bodyWalkRequested = StepPhase3WalkingHandler(frame.RandomNumberSeed);
 
                 // Walking bytecode changes pose later in the enemy instruction stage. The
                 // AI therefore still sees pose zero on the call that requests a walk and may
                 // also select an attack, exactly as the source's post-handler `$C21B` load.
                 if (Body.Pose != MotherBrainBodyPose.Standing || Phase3DisableAttacks != 0 ||
-                    (randomNumberSeed & 0x8000) == 0)
+                    (frame.RandomNumberSeed & 0x8000) == 0)
                     break;
 
-                if ((randomNumberSeed & 0x00ff) < 0x0080)
+                if ((frame.RandomNumberSeed & 0x00ff) < 0x0080)
                 {
                     SetHeadInstructionList(HeadAttackingBombPhase3InstructionList);
                 }
@@ -738,7 +728,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding:
                 GenerateDeathExplosions(
-                    mixed: false, nextRandomNumber, deathExplosions);
+                    mixed: false, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom;
@@ -749,7 +739,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // Equality still starts a complete body program; only signed overshoot or the
                 // independent `$80` arena clamp reports carry and advances the death script.
                 GenerateDeathExplosions(
-                    mixed: false, nextRandomNumber, deathExplosions);
+                    mixed: false, frame.NextRandomNumber, deathExplosions);
                 MotherBrainWalkResult dyingAdvance = RequestWalkForward(0x0060, animationDelay: 0x0002);
                 bodyWalkRequested = dyingAdvance.Requested;
                 if (dyingAdvance.ReachedTarget)
@@ -765,7 +755,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects:
                 GenerateDeathExplosions(
-                    mixed: false, nextRandomNumber, deathExplosions);
+                    mixed: false, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
@@ -790,7 +780,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut:
                 GenerateDeathExplosions(
-                    mixed: true, nextRandomNumber, deathExplosions);
+                    mixed: true, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
@@ -807,7 +797,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // is the null terminator and completes the transition without a copy.
                 BodyFlickerCallCount++;
                 GenerateDeathExplosions(
-                    mixed: true, nextRandomNumber, deathExplosions);
+                    mixed: true, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                 {
@@ -830,7 +820,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions:
                 GenerateDeathExplosions(
-                    mixed: true, nextRandomNumber, deathExplosions);
+                    mixed: true, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) != 0)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceRealizeDecapitation;
@@ -930,8 +920,8 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 MotherBrainCorpseRottingStepResult corpseRotting = _corpseRotting.Step(
                     bus,
                     BrainPosition,
-                    randomNumberSeed,
-                    mainEnemyExecutionCounter);
+                    frame.RandomNumberSeed,
+                    frame.MainEnemyExecutionCounter);
                 corpseRottingVramTransfers.AddRange(corpseRotting.VramTransfers);
                 corpseDustRequests.AddRange(corpseRotting.DustRequests);
                 if (corpseRotting.StillRotting)
@@ -995,7 +985,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 MotherBrainUnpauseHookEnabled = false;
                 escapeTypewriterSetupRequested = true;
                 FunctionTimer = 0x0020;
-                Phase = alternateEscapeText
+                Phase = frame.AlternateEscapeText
                     ? MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle
                     : MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText;
                 break;
@@ -1020,7 +1010,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // A request plus explicit completion input preserves that scheduler boundary:
                 // the boss never invents character cadence, yet its carry-dependent handoff
                 // remains directly testable and debuggable.
-                if (typewriterFinished)
+                if (frame.TypewriterFinished)
                 {
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer;
                     FunctionTimer = 0x0020;
@@ -1031,7 +1021,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // `$B2F9` always runs the periodic dust producer before touching the escape
                 // countdown. The freshly loaded `$20` therefore receives 33 calls (32..0,
                 // then `$FFFF`) and can emit dust even on the transition call.
-                escapeDoorExplosion = GenerateEscapeDoorExplosion(nextRandomNumber);
+                escapeDoorExplosion = GenerateEscapeDoorExplosion(frame.NextRandomNumber);
                 FunctionTimer = unchecked((ushort)(FunctionTimer - 1));
                 if ((FunctionTimer & 0x8000) == 0)
                     break;
@@ -1065,7 +1055,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // EarthquakeTimer is global WRAM and is normally decremented outside enemy
                 // AI. A supplied sample is therefore authoritative. `$B33C` changes only a
                 // visible zero to `$FFFF`; every nonzero value, including `$FFFF`, survives.
-                if (globalEarthquakeTimer is ushort observedEarthquakeTimer)
+                if (frame.GlobalEarthquakeTimer is ushort observedEarthquakeTimer)
                     EarthquakeTimer = observedEarthquakeTimer;
                 if (EarthquakeTimer == 0)
                 {

@@ -227,27 +227,11 @@ public sealed partial class RoomEnemySystem
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_BombTorizoWalkingMovement_Normal_IndexInY:
-                cursor = ProcessBombTorizoWalkInstruction(
-                    torizo,
-                    state,
-                    samus,
-                    RequireBombTorizoLevel(level),
-                    cursor,
-                    ReadOperand0(),
-                    collisionFacingRight: 0xb962,
-                    collisionFacingLeft: 0xbdd8);
+                cursor = ProcessBombTorizoWalkInstruction(torizo, state, samus, RequireBombTorizoLevel(level), cursor, new TorizoWalkStep { TableOffset = ReadOperand0(), CollisionFacingRight = 0xb962, CollisionFacingLeft = 0xbdd8 });
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_BTWalkingMovement_Faceless_IndexInY:
-                cursor = ProcessBombTorizoWalkInstruction(
-                    torizo,
-                    state,
-                    samus,
-                    RequireBombTorizoLevel(level),
-                    cursor,
-                    ReadOperand0(),
-                    collisionFacingRight: 0xbd0e,
-                    collisionFacingLeft: 0xc188);
+                cursor = ProcessBombTorizoWalkInstruction(torizo, state, samus, RequireBombTorizoLevel(level), cursor, new TorizoWalkStep { TableOffset = ReadOperand0(), CollisionFacingRight = 0xbd0e, CollisionFacingLeft = 0xc188 });
                 return true;
 
             case TorizoInstruction.Instruction_Torizo_GotoY_IfRising:
@@ -647,24 +631,16 @@ public sealed partial class RoomEnemySystem
         torizo.Position += subtract ? -displacement : displacement;
     }
 
-    private ushort ProcessBombTorizoWalkInstruction(
-        RoomEnemySlot torizo,
-        TorizoEnemyState state,
-        SamusState? samus,
-        RoomLevelData level,
-        ushort cursor,
-        ushort tableOffset,
-        ushort collisionFacingRight,
-        ushort collisionFacingLeft)
+    private ushort ProcessBombTorizoWalkInstruction(RoomEnemySlot torizo, TorizoEnemyState state, SamusState? samus, RoomLevelData level, ushort cursor, TorizoWalkStep step)
     {
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(BombTorizoMovementDefinitions.WalkVelocity(tableOffset)));
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(BombTorizoMovementDefinitions.WalkVelocity(step.TableOffset)));
         int displacement = state.Velocity.X.SignedRawValue << 16;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
             state.AirTransitionTimer = 0;
             return (torizo.Parameter1 & 0x8000) != 0
-                ? collisionFacingRight
-                : collisionFacingLeft;
+                ? step.CollisionFacingRight
+                : step.CollisionFacingLeft;
         }
 
         AlignEnemyYWithNonSquareSlope(level, torizo);

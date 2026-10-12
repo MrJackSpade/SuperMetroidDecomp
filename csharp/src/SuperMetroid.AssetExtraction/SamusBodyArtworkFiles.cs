@@ -221,11 +221,7 @@ public static class SamusBodyArtworkFiles
             stockDirectory, overrideDirectory);
         SamusArmCannonArtworkCatalog armCannon = SamusArmCannonArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        return new SamusBodyArtworkCatalog(manifest.TopPointers, manifest.BottomPointers,
-            manifest.PosePointers, manifest.GraphicsYOffsets, manifest.Frames, top, bottom,
-            spritemaps, atmosphere, deathPalettes, deathTiles, armCannon,
-            manifest.LandingYOffsets, manifest.PostureYOffsets,
-            manifest.DrainedYOffsets);
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = manifest.TopPointers, BottomPointers = manifest.BottomPointers, PosePointers = manifest.PosePointers, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
     }
 
     private static SamusBodyTileDefinition[][] LoadHalf(string stockDirectory,

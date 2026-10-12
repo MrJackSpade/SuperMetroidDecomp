@@ -32,10 +32,7 @@ internal static partial class Program
 
         using var paletteStream = new MemoryStream(
             SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom), writable: false);
-        EnemyTileArtworkCatalog artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            tourianStatueColors: TourianStatueColorCatalog.Load(paletteStream));
+        EnemyTileArtworkCatalog artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), TourianStatueColors = TourianStatueColorCatalog.Load(paletteStream) });
         var guard = NewTourianEntranceStatueInstructionReadGuard(rom);
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod(
             "InitializeTourianEntranceStatue",

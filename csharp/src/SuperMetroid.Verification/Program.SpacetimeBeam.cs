@@ -133,11 +133,7 @@ internal static partial class Program
             "SpaceTime corruption does not rewrite live equipment");
 
         var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
-        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(
-            samus,
-            system,
-            area: (ushort)AreaId.Crateria,
-            saveStation: 7));
+        saveRam.SaveSlot(0, SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = (ushort)AreaId.Crateria, SaveStation = 7 }));
         SuperMetroidSaveSlot saved = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams,

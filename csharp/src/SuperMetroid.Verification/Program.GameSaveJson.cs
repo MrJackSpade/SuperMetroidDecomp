@@ -54,15 +54,7 @@ internal static partial class Program
         ControllerBindings bindings = ControllerBindings.Default.AssignAndSwap(
             action: 0,
             physicalButton: (ushort)SnesButton.Y);
-        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(
-            samus,
-            system,
-            area: (ushort)AreaId.Brinstar,
-            saveStation: 4,
-            time,
-            bindings,
-            moonwalkEnabled: true,
-            iconCancelEnabled: true);
+        SuperMetroidSaveSnapshot snapshot = SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = (ushort)AreaId.Brinstar, SaveStation = 4, GameTime = time, ControllerBindings = bindings, MoonwalkEnabled = true, IconCancelEnabled = true });
         saveRam.SaveSlot(1, snapshot);
 
         // The former preservation-only word is the native reserve-missile accumulator.

@@ -42,16 +42,14 @@ internal static partial class Program
         using var tilePng = new MemoryStream();
         IndexedPng.Write(tilePng, size, pixels, SnesGraphics.DiagnosticPalette(16));
         tilePng.Position = 0;
-        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
+        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>
             {
                 [EnemyDefinitionId.PirateGoldWall] = RoomCharacterAtlas.Load(tilePng, RoomCharacterAtlasFormat.BytesPerTile),
-            },
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
+            }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.PirateGoldWall] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = colors }))),
-            });
+            } });
         var guard = NewNinjaSpacePirateInstructionReadGuard(rom);
         ushort[] programs =
         [

@@ -78,10 +78,7 @@ internal static partial class Program
         var cgram = new SnesCgram();
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-                workRobotPaletteCycle: edited),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), WorkRobotPaletteCycle = edited }),
         };
         Type type = typeof(RoomEnemySystem);
         type.GetField("_bus", flags)!.SetValue(enemies, guard);

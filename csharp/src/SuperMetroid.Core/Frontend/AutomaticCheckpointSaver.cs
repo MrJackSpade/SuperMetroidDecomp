@@ -32,10 +32,7 @@ internal static class AutomaticCheckpointSaver
         SamusState samus = runtime.Samus
             ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
         runtime.System.LoadSavedLoadingGameState(loadingGameState);
-        new SuperMetroidSaveRam(bus, runtime.MapPresentation).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(
-            samus, runtime.System, area: (ushort)AreaId.Ceres, saveStation: 0,
-            gameTime: runtime.GameTime, controllerBindings: runtime.ControllerBindings,
-            moonwalkEnabled: runtime.MoonwalkEnabled, iconCancelEnabled: runtime.IconCancelEnabled, japaneseText: runtime.JapaneseText));
+        new SuperMetroidSaveRam(bus, runtime.MapPresentation).SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = (ushort)AreaId.Ceres, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.ControllerBindings, MoonwalkEnabled = runtime.MoonwalkEnabled, IconCancelEnabled = runtime.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
     }
 
     /// <summary>
@@ -63,15 +60,7 @@ internal static class AutomaticCheckpointSaver
         runtime.System.MarkSaveStationUsed(areaIndex: AreaId.Crateria, stationBitIndex: 0);
         new SuperMetroidSaveRam(bus, runtime.MapPresentation).SaveSlot(
             selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(
-                samus,
-                runtime.System,
-                area: 0,
-                saveStation: 0,
-                gameTime: runtime.GameTime,
-                controllerBindings: runtime.ControllerBindings,
-                moonwalkEnabled: runtime.MoonwalkEnabled,
-                iconCancelEnabled: runtime.IconCancelEnabled, japaneseText: runtime.JapaneseText));
+            SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = 0, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.ControllerBindings, MoonwalkEnabled = runtime.MoonwalkEnabled, IconCancelEnabled = runtime.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
         return true;
     }
 }

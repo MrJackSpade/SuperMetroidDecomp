@@ -107,9 +107,8 @@ internal static partial class Program
             room = DebuggerObjectGraphSerializer.Deserialize<FileSelectRoomMapGraphics>(capture);
             room.BindMapPresentation(original);
             AssertTrue(before.AsSpan().SequenceEqual(room.Render(new(0, 0), marker)), "restored sprite resources bind current content");
-            var pauseNative = new PauseMenuState(bus, new SamusState(), system,
-                AreaId.WreckedShip, new(19, 20), mapPresentation: original);
-            var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.WreckedShip, new(19, 20), mapPresentation: original);
+            var pauseNative = new PauseMenuState(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
+            var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.WreckedShip, RoomMapPosition = new(19, 20), MapPresentation = original });
             var pauseBefore = pauseNative.Render();
             AssertTrue(pauseBefore.AsSpan().SequenceEqual(pause.Render()), "pause map sprite pixels match with source reads blocked");
             pause.BindMapPresentation(replacement);

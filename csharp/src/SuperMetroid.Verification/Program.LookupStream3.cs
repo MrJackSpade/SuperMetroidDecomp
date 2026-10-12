@@ -1362,14 +1362,14 @@ internal static partial class Program
             MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape);
         var bus = new TestAddressSpace();
         var samus = new SamusState { Health = 99 };
-        var firstPage = sequence.Step(bus, samus, 0, 0);
+        var firstPage = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, firstPage.EscapePaletteFxRequests.Count, "stream 3 escape palette effects wait for door graphics");
-        var handoff = sequence.Step(bus, samus, 0, 0);
+        var handoff = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(4, handoff.EscapePaletteFxRequests.Count, "stream 3 four escape palette registrations");
         for (int effect = 0; effect < 4; effect++)
             AssertEqual(Read(0xa9b296 + 7 * effect), handoff.EscapePaletteFxRequests[effect],
                 "stream 3 native escape palette registration order");
-        var text = sequence.Step(bus, samus, 0, 0);
+        var text = sequence.Step(bus, samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
         AssertEqual(0, text.EscapePaletteFxRequests.Count, "stream 3 escape palette registrations occur once");
     }
 
@@ -3407,11 +3407,7 @@ internal static partial class Program
             var pageConstructor = typeof(RoomBackgroundTilemapAtlas).GetConstructors(flags).Single();
             RoomBackgroundTilemapAtlas Page(byte[] bytes) => (RoomBackgroundTilemapAtlas)pageConstructor.Invoke([bytes]);
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] narration) => new(stock.BackgroundCharacters,
-                stock.IntroObjectCharacters, stock.CinematicObjectCharacters, pages, Page(stock.PortraitTilemap.ToArray()),
-                Page(narration), stock.FinalLine, stock.EyeFrames, stock.CaretSprites, stock.MotherBrainSprites,
-                stock.MotherBrainExplosionSprites, stock.RinkaSprites, stock.EggEffectSprites,
-                stock.DiscoveryActorSprites, stock.ScientistSprites, stock.Palette, stock.CeresFlight, stock.CeresDestruction);
+            IntroCinematicArtworkCatalog Copy(byte[] narration) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(narration), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.InitialNarrationTilemap.Span.SequenceEqual(native), "all 1024 initial narration words match native");
             var field = typeof(IntroCinematicArtworkCatalog).GetField("suppliedInitialNarration", flags)!;
             AssertTrue(field.GetValue(stock) is null, "stock initial narration stores no page array");
@@ -3606,12 +3602,7 @@ internal static partial class Program
             IntroCinematicArtworkCatalog Copy(byte[] background)
             {
                 RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(background.AsSpan(index * 2048, 2048).ToArray())).ToArray();
-                return new(stock.BackgroundCharacters, stock.IntroObjectCharacters, stock.CinematicObjectCharacters,
-                    pages, Page(stock.PortraitTilemap.ToArray()), Page(stock.InitialNarrationTilemap.ToArray()),
-                    stock.FinalLine, stock.EyeFrames, stock.CaretSprites, stock.MotherBrainSprites,
-                    stock.MotherBrainExplosionSprites, stock.RinkaSprites, stock.EggEffectSprites,
-                    stock.DiscoveryActorSprites, stock.ScientistSprites, stock.Palette,
-                    stock.CeresFlight, stock.CeresDestruction);
+                return new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(stock.PortraitTilemap.ToArray()), InitialNarrationTilemap = Page(stock.InitialNarrationTilemap.ToArray()), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             }
             var generator = typeof(IntroCinematicArtworkCatalog).Assembly.GetType("SuperMetroid.Core.Assets.IntroBackgroundTilemapDefinitions")!;
             byte[] calculated = (byte[])generator.GetMethod("Compile", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!.Invoke(null, null)!;
@@ -3755,12 +3746,7 @@ internal static partial class Program
             var pageConstructor = typeof(RoomBackgroundTilemapAtlas).GetConstructors(flags).Single();
             RoomBackgroundTilemapAtlas Page(byte[] bytes) => (RoomBackgroundTilemapAtlas)pageConstructor.Invoke([bytes]);
             RoomBackgroundTilemapAtlas[] pages = Enumerable.Range(0, 4).Select(index => Page(stock.BackgroundPages.Slice(index * 2048, 2048).ToArray())).ToArray();
-            IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(stock.BackgroundCharacters,
-                stock.IntroObjectCharacters, stock.CinematicObjectCharacters, pages, Page(portrait),
-                Page(stock.InitialNarrationTilemap.ToArray()), stock.FinalLine, stock.EyeFrames, stock.CaretSprites,
-                stock.MotherBrainSprites, stock.MotherBrainExplosionSprites, stock.RinkaSprites,
-                stock.EggEffectSprites, stock.DiscoveryActorSprites, stock.ScientistSprites, stock.Palette,
-                stock.CeresFlight, stock.CeresDestruction);
+            IntroCinematicArtworkCatalog Copy(byte[] portrait) => new(new IntroCinematicArtworkParts { BackgroundCharacters = stock.BackgroundCharacters, IntroObjectCharacters = stock.IntroObjectCharacters, CinematicObjectCharacters = stock.CinematicObjectCharacters, BackgroundPages = pages, PortraitTilemap = Page(portrait), InitialNarrationTilemap = Page(stock.InitialNarrationTilemap.ToArray()), FinalLine = stock.FinalLine, EyeFrames = stock.EyeFrames, CaretSprites = stock.CaretSprites, MotherBrainSprites = stock.MotherBrainSprites, MotherBrainExplosionSprites = stock.MotherBrainExplosionSprites, RinkaSprites = stock.RinkaSprites, EggEffectSprites = stock.EggEffectSprites, DiscoveryActorSprites = stock.DiscoveryActorSprites, ScientistSprites = stock.ScientistSprites, Palette = stock.Palette, CeresFlight = stock.CeresFlight, CeresDestruction = stock.CeresDestruction });
             AssertTrue(stock.PortraitTilemap.Span.SequenceEqual(native), "all 1024 calculated portrait words match native");
             AssertTrue(typeof(IntroCinematicArtworkCatalog).GetField("suppliedPortrait", flags)!.GetValue(stock) is null,
                 "native portrait stores no output word array");

@@ -461,7 +461,7 @@ internal static partial class Program
         var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
         saveRam.SaveSlot(
             0,
-            SuperMetroidSaveSnapshot.Capture(sourceSamus, sourceSystem, 2, 7));
+            SuperMetroidSaveSnapshot.Capture(sourceSamus, sourceSystem, new SaveSnapshotContext { Area = 2, SaveStation = 7 }));
         SuperMetroidSaveSlot slot = saveRam.ReadSlot(0)
             ?? throw new InvalidOperationException("collectible save slot checksum failed");
 

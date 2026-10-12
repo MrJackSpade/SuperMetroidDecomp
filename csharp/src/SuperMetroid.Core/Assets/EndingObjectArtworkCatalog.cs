@@ -50,54 +50,29 @@ public sealed class EndingObjectArtworkCatalog
     private readonly RoomCharacterAtlas[] fragments;
 
     /// <summary>Combines already compiled ending artwork and sprite compositions, enforcing the native transfer lengths.</summary>
-    /// <param name="clouds">$4000-byte atmospheric-cloud OBJ character sheet.</param>
-    /// <param name="explosion">$6000-byte Zebes-explosion OBJ character sheet.</param>
-    /// <param name="fragments">Four $0800-byte raw tilemap transfers, ordered by <see cref="EndingObjectFragmentId"/>; their bytes are carried in character-atlas PNG transport.</param>
-    /// <param name="waitingSamus">$4000-byte waiting-Samus character sheet, also used for suited rewards.</param>
-    /// <param name="shootingScreen">$4000-byte Samus-shooting OBJ sheet.</param>
-    /// <param name="suitlessSamus">$4000-byte suitless reward OBJ sheet.</param>
-    /// <param name="waitingTilemap">$0800-byte, 32-by-32-cell BG2 waiting-scene map.</param>
-    /// <param name="postCreditsFragmentA">$0100-byte BG3 transformation-character transfer.</param>
-    /// <param name="postCreditsFragmentB">$0800-byte BG3 transformation tilemap, carried in character-atlas PNG transport.</param>
-    /// <param name="postShotLogoTiles">$2000-byte logo character stream divided into four staged uploads.</param>
-    /// <param name="postShotLogoMap">$0800-byte, 32-by-32-cell final-logo map.</param>
-    /// <param name="cloudSprites">Selected atmospheric-cloud OAM compositions.</param>
-    /// <param name="explosionSprites">Selected Zebes-explosion OAM compositions.</param>
-    /// <param name="completionTextSprites">Selected completion-message and clear-time OAM compositions.</param>
-    /// <param name="rewardSprites">Selected post-credits Samus reward OAM compositions.</param>
-    /// <param name="logoSprites">Selected assembling-logo OAM compositions.</param>
+    /// <param name="parts">The ending's object character atlases, tilemaps and sprite presentations (#633).</param>
     /// <remarks>Copies the fragment sequence but retains the supplied atlas and presentation objects. This constructor validates transfer sizes, not stock hashes or manifest provenance; installation loading performs those checks.</remarks>
     /// <exception cref="ArgumentNullException">An atlas, composition resource, or fragment sequence is null.</exception>
     /// <exception cref="InvalidDataException">A transfer has an incorrect byte length, or the fragment sequence does not contain exactly four non-null, correctly sized entries.</exception>
-    public EndingObjectArtworkCatalog(RoomCharacterAtlas clouds,
-        RoomCharacterAtlas explosion, IReadOnlyList<RoomCharacterAtlas> fragments,
-        RoomCharacterAtlas waitingSamus, RoomCharacterAtlas shootingScreen,
-        RoomCharacterAtlas suitlessSamus, RoomBackgroundTilemapAtlas waitingTilemap,
-        RoomCharacterAtlas postCreditsFragmentA, RoomCharacterAtlas postCreditsFragmentB,
-        RoomCharacterAtlas postShotLogoTiles, RoomBackgroundTilemapAtlas postShotLogoMap,
-        EndingCloudSpritePresentation cloudSprites,
-        EndingExplosionSpritePresentation explosionSprites,
-        EndingCompletionTextSpritePresentation completionTextSprites,
-        EndingRewardSpritePresentation rewardSprites,
-        EndingLogoSpritePresentation logoSprites)
+    public EndingObjectArtworkCatalog(EndingObjectArtworkParts parts)
     {
-        Clouds = clouds ?? throw new ArgumentNullException(nameof(clouds));
-        Explosion = explosion ?? throw new ArgumentNullException(nameof(explosion));
-        WaitingSamus = waitingSamus ?? throw new ArgumentNullException(nameof(waitingSamus));
-        ShootingScreen = shootingScreen ?? throw new ArgumentNullException(nameof(shootingScreen));
-        SuitlessSamus = suitlessSamus ?? throw new ArgumentNullException(nameof(suitlessSamus));
-        WaitingTilemap = waitingTilemap ?? throw new ArgumentNullException(nameof(waitingTilemap));
-        PostCreditsFragmentA = postCreditsFragmentA ?? throw new ArgumentNullException(nameof(postCreditsFragmentA));
-        PostCreditsFragmentB = postCreditsFragmentB ?? throw new ArgumentNullException(nameof(postCreditsFragmentB));
-        PostShotLogoTiles = postShotLogoTiles ?? throw new ArgumentNullException(nameof(postShotLogoTiles));
-        PostShotLogoMap = postShotLogoMap ?? throw new ArgumentNullException(nameof(postShotLogoMap));
-        CloudSprites = cloudSprites ?? throw new ArgumentNullException(nameof(cloudSprites));
-        ExplosionSprites = explosionSprites ?? throw new ArgumentNullException(nameof(explosionSprites));
-        CompletionTextSprites = completionTextSprites ??
-            throw new ArgumentNullException(nameof(completionTextSprites));
-        RewardSprites = rewardSprites ?? throw new ArgumentNullException(nameof(rewardSprites));
-        LogoSprites = logoSprites ?? throw new ArgumentNullException(nameof(logoSprites));
-        ArgumentNullException.ThrowIfNull(fragments);
+        Clouds = parts.Clouds ?? throw new ArgumentNullException(nameof(parts.Clouds));
+        Explosion = parts.Explosion ?? throw new ArgumentNullException(nameof(parts.Explosion));
+        WaitingSamus = parts.WaitingSamus ?? throw new ArgumentNullException(nameof(parts.WaitingSamus));
+        ShootingScreen = parts.ShootingScreen ?? throw new ArgumentNullException(nameof(parts.ShootingScreen));
+        SuitlessSamus = parts.SuitlessSamus ?? throw new ArgumentNullException(nameof(parts.SuitlessSamus));
+        WaitingTilemap = parts.WaitingTilemap ?? throw new ArgumentNullException(nameof(parts.WaitingTilemap));
+        PostCreditsFragmentA = parts.PostCreditsFragmentA ?? throw new ArgumentNullException(nameof(parts.PostCreditsFragmentA));
+        PostCreditsFragmentB = parts.PostCreditsFragmentB ?? throw new ArgumentNullException(nameof(parts.PostCreditsFragmentB));
+        PostShotLogoTiles = parts.PostShotLogoTiles ?? throw new ArgumentNullException(nameof(parts.PostShotLogoTiles));
+        PostShotLogoMap = parts.PostShotLogoMap ?? throw new ArgumentNullException(nameof(parts.PostShotLogoMap));
+        CloudSprites = parts.CloudSprites ?? throw new ArgumentNullException(nameof(parts.CloudSprites));
+        ExplosionSprites = parts.ExplosionSprites ?? throw new ArgumentNullException(nameof(parts.ExplosionSprites));
+        CompletionTextSprites = parts.CompletionTextSprites ??
+            throw new ArgumentNullException(nameof(parts.CompletionTextSprites));
+        RewardSprites = parts.RewardSprites ?? throw new ArgumentNullException(nameof(parts.RewardSprites));
+        LogoSprites = parts.LogoSprites ?? throw new ArgumentNullException(nameof(parts.LogoSprites));
+        ArgumentNullException.ThrowIfNull(parts.Fragments);
         if (!HasNativeLength(Clouds, EndingObjectTransfer.Clouds) ||
             !HasNativeLength(Explosion, EndingObjectTransfer.Explosion) ||
             !HasNativeLength(WaitingSamus, EndingObjectTransfer.WaitingSamus) ||
@@ -108,11 +83,11 @@ public sealed class EndingObjectArtworkCatalog
             !HasNativeLength(PostCreditsFragmentB, EndingObjectTransfer.PostCreditsFragmentB) ||
             !HasNativeLength(PostShotLogoTiles, EndingObjectTransfer.PostShotLogoTiles) ||
             !HasNativeLength(PostShotLogoMap.Transfer, EndingObjectTransfer.PostShotLogoMap) ||
-            fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
-            fragments.Any(fragment => fragment is null ||
+            parts.Fragments.Count != EndingObjectArtworkFormat.FragmentCount ||
+            parts.Fragments.Any(fragment => fragment is null ||
                 !HasNativeLength(fragment, EndingObjectTransfer.ExplosionFragment)))
             throw new InvalidDataException("Ending OBJ catalog has an incorrect native transfer length.");
-        this.fragments = fragments.ToArray();
+        this.fragments = parts.Fragments.ToArray();
     }
 
     private static bool HasNativeLength(RoomCharacterAtlas atlas, EndingObjectTransfer transfer) =>

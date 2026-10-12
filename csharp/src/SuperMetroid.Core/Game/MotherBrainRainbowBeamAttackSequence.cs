@@ -397,40 +397,24 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
     /// This deliberately does not copy instruction pointers or timers: there must be only
     /// one visible animation interpreter in a live room.
     /// </summary>
-    internal void SynchronizeLiveActor(
-        Position16<RoomPixels> body,
-        MotherBrainBodyPose bodyPose,
-        ushort form,
-        ushort bodyProperties,
-        ushort bodyExtraProperties,
-        Position16<RoomPixels> brain,
-        ushort brainHealth,
-        ushort brainProperties,
-        ushort brainExtraProperties,
-        ushort lowerNeckAngle,
-        ushort upperNeckAngle,
-        bool neckMovementEnabled,
-        MotherBrainNeckMovement lowerNeckMovementIndex,
-        MotherBrainNeckMovement upperNeckMovementIndex,
-        ushort bombCounter,
-        bool hitboxesEnabled)
+    internal void SynchronizeLiveActor(MotherBrainLiveActorSnapshot actor)
     {
-        Body.Position = body;
-        Body.Pose = bodyPose;
-        Body.Form = form;
-        BodyProperties = bodyProperties;
-        BodyProperties2 = bodyExtraProperties;
-        BrainPosition = brain;
-        BrainHealth = brainHealth;
-        BrainProperties = brainProperties;
-        BrainProperties2 = brainExtraProperties;
-        LowerNeckAngle = lowerNeckAngle;
-        UpperNeckAngle = upperNeckAngle;
-        NeckMovementEnabled = neckMovementEnabled ? (ushort)1 : (ushort)0;
-        LowerNeckMovementIndex = lowerNeckMovementIndex;
-        UpperNeckMovementIndex = upperNeckMovementIndex;
-        BombCounter = bombCounter;
-        HitboxesEnabled = hitboxesEnabled;
+        Body.Position = actor.Body;
+        Body.Pose = actor.BodyPose;
+        Body.Form = actor.Form;
+        BodyProperties = actor.BodyProperties;
+        BodyProperties2 = actor.BodyExtraProperties;
+        BrainPosition = actor.Brain;
+        BrainHealth = actor.BrainHealth;
+        BrainProperties = actor.BrainProperties;
+        BrainProperties2 = actor.BrainExtraProperties;
+        LowerNeckAngle = actor.LowerNeckAngle;
+        UpperNeckAngle = actor.UpperNeckAngle;
+        NeckMovementEnabled = actor.NeckMovementEnabled ? (ushort)1 : (ushort)0;
+        LowerNeckMovementIndex = actor.LowerNeckMovementIndex;
+        UpperNeckMovementIndex = actor.UpperNeckMovementIndex;
+        BombCounter = actor.BombCounter;
+        HitboxesEnabled = actor.HitboxesEnabled;
     }
 
     /// <summary>

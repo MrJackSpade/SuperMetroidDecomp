@@ -57,24 +57,16 @@ public sealed class PlatformEnemyState
     private readonly ushort[] _previousYMovementFunctions;
     private readonly ushort[] _suspensorPlatformFlags;
 
-    internal PlatformEnemyState(
-        RoomEnemySlot slot,
-        PlatformMovementFunctions[] movementFunctions,
-        ushort[] previousPositions,
-        ushort[] verticallyMovingFlags,
-        ushort[] verticallyStillFlags,
-        ushort[] maximumYSpeedTableIndexes,
-        ushort[] previousYMovementFunctions,
-        ushort[] suspensorPlatformFlags)
+    internal PlatformEnemyState(RoomEnemySlot slot, PlatformSharedTables tables)
     {
         _slot = slot;
-        _movementFunctions = movementFunctions;
-        _previousPositions = previousPositions;
-        _verticallyMovingFlags = verticallyMovingFlags;
-        _verticallyStillFlags = verticallyStillFlags;
-        _maximumYSpeedTableIndexes = maximumYSpeedTableIndexes;
-        _previousYMovementFunctions = previousYMovementFunctions;
-        _suspensorPlatformFlags = suspensorPlatformFlags;
+        _movementFunctions = tables.MovementFunctions;
+        _previousPositions = tables.PreviousPositions;
+        _verticallyMovingFlags = tables.VerticallyMovingFlags;
+        _verticallyStillFlags = tables.VerticallyStillFlags;
+        _maximumYSpeedTableIndexes = tables.MaximumYSpeedTableIndexes;
+        _previousYMovementFunctions = tables.PreviousYMovementFunctions;
+        _suspensorPlatformFlags = tables.SuspensorPlatformFlags;
     }
 
     /// <summary>One pixel below the population Y position, written by common init.</summary>
@@ -238,15 +230,7 @@ public sealed partial class RoomEnemySystem
     private void InitializePlatform(RoomEnemySlot slot)
     {
         bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
-        var state = new PlatformEnemyState(
-            slot,
-            _platformMovementFunctions,
-            _platformPreviousPositions,
-            _platformVerticallyMovingFlags,
-            _platformVerticallyStillFlags,
-            _platformMaximumYSpeedTableIndexes,
-            _platformPreviousYMovementFunctions,
-            _platformSuspensorPlatformFlags);
+        var state = new PlatformEnemyState(slot, new PlatformSharedTables { MovementFunctions = _platformMovementFunctions, PreviousPositions = _platformPreviousPositions, VerticallyMovingFlags = _platformVerticallyMovingFlags, VerticallyStillFlags = _platformVerticallyStillFlags, MaximumYSpeedTableIndexes = _platformMaximumYSpeedTableIndexes, PreviousYMovementFunctions = _platformPreviousYMovementFunctions, SuspensorPlatformFlags = _platformSuspensorPlatformFlags });
         _platformStates[slot.SlotIndex] = state;
 
         state.IsSuspensorPlatform = isKamer;

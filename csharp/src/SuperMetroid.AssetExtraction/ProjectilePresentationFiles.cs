@@ -120,7 +120,7 @@ public static class ProjectilePresentationFiles
         ProjectileFile selectedGrappleFlare = Select(stockGrappleFlare);
         ProjectileFile selectedGrappleSwing = Select(stockGrappleSwing);
         return new(selected.Compile(ProjectileSpriteCatalog.Load),
-            Identity(stock, stockBeams, stockPalettes, stockHyperBeamFxColors, stockTrails, stockTrailTiles, stockFlarePlacement, stockFlareCompositions, stockGrappleTiles, stockGrappleSprites, stockGrappleFlare, stockGrappleSwing, stockFrameBindings), Identity(selected, selectedBeams, selectedPalettes, selectedHyperBeamFxColors, selectedTrails, selectedTrailTiles, selectedFlarePlacement, selectedFlareCompositions, selectedGrappleTiles, selectedGrappleSprites, selectedGrappleFlare, selectedGrappleSwing, selectedFrameBindings),
+            Identity(new ProjectilePresentationSourceFiles { Composition = stock, Beams = stockBeams, Palettes = stockPalettes, HyperBeamFxColors = stockHyperBeamFxColors, Trails = stockTrails, TrailTiles = stockTrailTiles, FlarePlacement = stockFlarePlacement, FlareCompositions = stockFlareCompositions, GrappleTiles = stockGrappleTiles, GrappleSprites = stockGrappleSprites, GrappleFlare = stockGrappleFlare, GrappleSwing = stockGrappleSwing, FrameBindings = stockFrameBindings }), Identity(new ProjectilePresentationSourceFiles { Composition = selected, Beams = selectedBeams, Palettes = selectedPalettes, HyperBeamFxColors = selectedHyperBeamFxColors, Trails = selectedTrails, TrailTiles = selectedTrailTiles, FlarePlacement = selectedFlarePlacement, FlareCompositions = selectedFlareCompositions, GrappleTiles = selectedGrappleTiles, GrappleSprites = selectedGrappleSprites, GrappleFlare = selectedGrappleFlare, GrappleSwing = selectedGrappleSwing, FrameBindings = selectedFrameBindings }),
             BeamTileCatalog.FromAtlases(Enumerable.Range(0, BeamTileAtlasDefinitions.ArtworkCount)
                 .Select(index => selectedBeams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(index))].Compile(stream => BeamTileAtlas.Load(stream, BeamTileAtlasDefinitions.SelectionAt(index)))).ToArray(),
                 selectedPalettes.Compile(BeamPaletteCatalog.Load), selectedHyperBeamFxColors.Compile(HyperBeamFxColorCatalog.Load)),
@@ -163,15 +163,58 @@ public static class ProjectilePresentationFiles
     }
 
     private static string Hash(byte[] bytes) => Convert.ToHexString(SHA256.HashData(bytes));
-    private static string Identity(ProjectileFile composition, Dictionary<string, ProjectileFile> beams, ProjectileFile palettes, ProjectileFile hyperBeamFxColors, ProjectileFile trails, ProjectileFile trailTiles, ProjectileFile flarePlacement, ProjectileFile flareCompositions, ProjectileFile grappleTiles, ProjectileFile grappleSprites, ProjectileFile grappleFlare, ProjectileFile grappleSwing, ProjectileFile frameBindings)
+    private static string Identity(ProjectilePresentationSourceFiles files)
     {
         // Fixed-size component hashes in fixed selection order prevent ambiguous concatenation.
-        string hashes = Hash(composition.Bytes);
+        string hashes = Hash(files.Composition.Bytes);
         for (int i = 0; i < BeamTileAtlasDefinitions.ArtworkCount; i++)
-            hashes += Hash(beams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i))].Bytes);
-        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(palettes.Bytes) + Hash(hyperBeamFxColors.Bytes) + Hash(trails.Bytes) + Hash(trailTiles.Bytes) + Hash(flarePlacement.Bytes) + Hash(flareCompositions.Bytes) + Hash(grappleTiles.Bytes) + Hash(grappleSprites.Bytes) + Hash(grappleFlare.Bytes) + Hash(grappleSwing.Bytes) + Hash(frameBindings.Bytes)));
+            hashes += Hash(files.Beams[BeamTileAtlasDefinitions.FileName(BeamTileAtlasDefinitions.SelectionAt(i))].Bytes);
+        return Hash(System.Text.Encoding.ASCII.GetBytes(hashes + Hash(files.Palettes.Bytes) + Hash(files.HyperBeamFxColors.Bytes) + Hash(files.Trails.Bytes) + Hash(files.TrailTiles.Bytes) + Hash(files.FlarePlacement.Bytes) + Hash(files.FlareCompositions.Bytes) + Hash(files.GrappleTiles.Bytes) + Hash(files.GrappleSprites.Bytes) + Hash(files.GrappleFlare.Bytes) + Hash(files.GrappleSwing.Bytes) + Hash(files.FrameBindings.Bytes)));
     }
     private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string HyperBeamFxColorsSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256, string GrappleSpritesSha256, string GrappleFlareSha256, string GrappleSwingSha256, string FrameBindingsSha256);
+
+    /// <summary>The extracted projectile presentation files whose contents form the presentation identity (#633).</summary>
+    private sealed record ProjectilePresentationSourceFiles
+    {
+        /// <summary>Composition.</summary>
+        public required ProjectileFile Composition { get; init; }
+
+        /// <summary>Beams.</summary>
+        public required Dictionary<string, ProjectileFile> Beams { get; init; }
+
+        /// <summary>Palettes.</summary>
+        public required ProjectileFile Palettes { get; init; }
+
+        /// <summary>Hyper beam fx colors.</summary>
+        public required ProjectileFile HyperBeamFxColors { get; init; }
+
+        /// <summary>Trails.</summary>
+        public required ProjectileFile Trails { get; init; }
+
+        /// <summary>Trail tiles.</summary>
+        public required ProjectileFile TrailTiles { get; init; }
+
+        /// <summary>Flare placement.</summary>
+        public required ProjectileFile FlarePlacement { get; init; }
+
+        /// <summary>Flare compositions.</summary>
+        public required ProjectileFile FlareCompositions { get; init; }
+
+        /// <summary>Grapple tiles.</summary>
+        public required ProjectileFile GrappleTiles { get; init; }
+
+        /// <summary>Grapple sprites.</summary>
+        public required ProjectileFile GrappleSprites { get; init; }
+
+        /// <summary>Grapple flare.</summary>
+        public required ProjectileFile GrappleFlare { get; init; }
+
+        /// <summary>Grapple swing.</summary>
+        public required ProjectileFile GrappleSwing { get; init; }
+
+        /// <summary>Frame bindings.</summary>
+        public required ProjectileFile FrameBindings { get; init; }
+    }
 }
 
 /// <summary>Loaded content and separate original/selected byte identities for diagnostics.</summary>

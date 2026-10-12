@@ -31,12 +31,7 @@ internal static partial class Program
             Draygon = Bg2(DraygonBg2FrameDefinitions.Frames, edited);
         }
 
-        internal EnemyTileArtworkCatalog Build(bool extended = true, byte? omitBg2Bank = null) => EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            extendedFrames: extended ? EnemyExtendedFrameCatalog.Load(json.Json(Oam)) : null,
-            crocomireBg2Frames: omitBg2Bank == CrocomireBg2FrameDefinitions.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)),
-            phantoonBg2Frames: omitBg2Bank == PhantoonBg2FrameDefinitions.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)),
-            draygonBg2Frames: omitBg2Bank == DraygonBg2FrameDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)));
+        internal EnemyTileArtworkCatalog Build(bool extended = true, byte? omitBg2Bank = null) => EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = extended ? EnemyExtendedFrameCatalog.Load(json.Json(Oam)) : null, CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitions.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitions.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) });
 
         internal EnemyExtendedFrameDefinition Selected(EnemyExtendedFrameDefinition native) =>
             EnemyExtendedFrameDefinitions.Frames.ToArray().Single(frame => frame.Name == Oam.DisplayFrames![native.Name]);

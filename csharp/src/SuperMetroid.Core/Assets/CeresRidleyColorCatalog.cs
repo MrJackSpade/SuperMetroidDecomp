@@ -18,24 +18,21 @@ public sealed class CeresRidleyColorCatalog
     private readonly Dictionary<int, Bgr555> retreatShared = [];
     private readonly CeresBabyPaintDefinitions baby;
 
-    private CeresRidleyColorCatalog(Bgr555[] start, CeresRidleyFadeColorDefinitions eyeFade,
-        CeresRidleyFadeColorDefinitions bodyFade, Bgr555[][] health, CeresRidleyAlarmColorDefinitions alarm,
-        Bgr555[] retreatBg, Bgr555[] retreatShared,
-        CeresBabyPaintDefinitions baby)
+    private CeresRidleyColorCatalog(CeresRidleyColorParts parts)
     {
-        this.start = new(start, baby);
-        this.eyeFade = eyeFade;
-        this.bodyFade = bodyFade;
-        this.health = new(health, bodyFade, eyeFade);
-        this.alarm = alarm;
-        for (int color = 0; color < retreatBg.Length; color++)
-            if (retreatBg[color] != CalculateRetreatBg(color)) this.retreatBg.Add(color, retreatBg[color]);
+        this.start = new(parts.Start, parts.Baby);
+        this.eyeFade = parts.EyeFade;
+        this.bodyFade = parts.BodyFade;
+        this.health = new(parts.Health, parts.BodyFade, parts.EyeFade);
+        this.alarm = parts.Alarm;
+        for (int color = 0; color < parts.RetreatBg.Length; color++)
+            if (parts.RetreatBg[color] != CalculateRetreatBg(color)) this.retreatBg.Add(color, parts.RetreatBg[color]);
         // The retreat copies the normal door/container paints into both drawing domains.
         // Keep only independent supplied differences from the existing startup owner.
-        for (int color = 0; color < retreatShared.Length; color++)
-            if (retreatShared[color] != this.start.Resolve(color + 1))
-                this.retreatShared.Add(color, retreatShared[color]);
-        this.baby = baby;
+        for (int color = 0; color < parts.RetreatShared.Length; color++)
+            if (parts.RetreatShared[color] != this.start.Resolve(color + 1))
+                this.retreatShared.Add(color, parts.RetreatShared[color]);
+        this.baby = parts.Baby;
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -155,23 +152,16 @@ public sealed class CeresRidleyColorCatalog
             throw new InvalidDataException("Ceres Ridley colors require the supported version.");
         var compiledBody = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Body, CompileRows(document.BodyFade, CeresRidleyPaletteRomData.BodyFadeRowCount,
                 CeresRidleyPaletteRomData.BodyFadeColorCount, "body fade"));
-        return new(Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"),
-            new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
-                CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade")),
-            compiledBody,
-            CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
-                CeresRidleyPaletteRomData.HealthColorCount, "health"),
-            version != CeresRidleyColorVersion.Current
+        return new(new CeresRidleyColorParts { Start = Compile(document.Start, CeresRidleyPaletteRomData.StartColorCount, "start"), EyeFade = new CeresRidleyFadeColorDefinitions(CeresRidleyFadeKind.Eyes, CompileRows(document.EyeFade, CeresRidleyPaletteRomData.EyeFadeRowCount,
+                CeresRidleyPaletteRomData.EyeFadeColorCount, "eye fade")), BodyFade = compiledBody, Health = CompileRows(document.Health, CeresRidleyPaletteRomData.HealthRowCount,
+                CeresRidleyPaletteRomData.HealthColorCount, "health"), Alarm = version != CeresRidleyColorVersion.Current
                 ? stockForLegacyOverride!.alarm
                 : new CeresRidleyAlarmColorDefinitions(CompileRows(document.Alarm, CeresRidleyPaletteRomData.AlarmRowCount,
-                    CeresRidleyPaletteRomData.AlarmColorCount, "alarm")),
-            Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"),
-            Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
-                "retreat shared"),
-            version == CeresRidleyColorVersion.PreBaby
+                    CeresRidleyPaletteRomData.AlarmColorCount, "alarm")), RetreatBg = Compile(document.RetreatBg, CeresRidleyPaletteRomData.RetreatBgColorCount, "retreat BG"), RetreatShared = Compile(document.RetreatShared, CeresRidleyPaletteRomData.RetreatSharedColorCount,
+                "retreat shared"), Baby = version == CeresRidleyColorVersion.PreBaby
                 ? stockForLegacyOverride!.baby
                 : new CeresBabyPaintDefinitions(CompileRows(document.Baby, CeresRidleyPaletteRomData.BabyRowCount,
-                    CeresRidleyPaletteRomData.BabyColorCount, "Baby"), compiledBody));
+                    CeresRidleyPaletteRomData.BabyColorCount, "Baby"), compiledBody) });
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON, then reloads it to enforce the same schema, dimension, and RGB5 validation as asset loading.</summary>

@@ -405,20 +405,14 @@ static void VerifyEndingCreditsState()
 
     var percentageTilemap = new ushort[0x400];
     Array.Fill(percentageTilemap, (ushort)0x007f);
-    var percentage = new EndingBackgroundTextState(
-        bus,
-        percentageTilemap,
-        instructionPointer: 0xdfdb,
-        new EndingInventorySnapshot(
+    var percentage = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = percentageTilemap, InstructionPointer = 0xdfdb, Inventory = new EndingInventorySnapshot(
             MaxHealth: 1499,
             MaxReserveEnergy: 400,
             MaxMissiles: 230,
             MaxSuperMissiles: 50,
             MaxPowerBombs: 50,
             CollectedItems: 0xf32f,
-            CollectedBeams: 0x100f),
-        japaneseText: false, presentation: RetailPresentationFixture().EndingText,
-        installedSequence: EndingTextSequence.ItemPercentage);
+            CollectedBeams: 0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
     var percentageVram = new SnesVram();
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
         percentage.Step(percentageVram);

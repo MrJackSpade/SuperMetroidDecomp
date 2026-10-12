@@ -684,25 +684,10 @@ public sealed record SuperMetroidSaveSnapshot
     /// <summary>Captures the translated gameplay owners into a detached SRAM-encoding snapshot.</summary>
     /// <param name="samus">Source of player inventory, ammunition, energy, and reserve state.</param>
     /// <param name="system">Source of persistent events, bosses, room bits, maps, and load state.</param>
-    /// <param name="area">Retail area index to resume in.</param>
-    /// <param name="saveStation">Zero-based load-station index within <paramref name="area"/>.</param>
-    /// <param name="gameTime">Optional gameplay clock; omitted values encode as zero.</param>
-    /// <param name="controllerBindings">Optional seven-action permutation; omitted values use retail defaults.</param>
-    /// <param name="moonwalkEnabled">Whether to persist the moonwalk option.</param>
-    /// <param name="iconCancelEnabled">Whether to persist automatic HUD-item cancellation at doors.</param>
-    /// <param name="japaneseText">Whether to persist the alternate Japanese text setting.</param>
+    /// <param name="context">The save location, timer, bindings and options a save snapshot records with Samus and system state (#633).</param>
     /// <returns>A detached copy safe to pass to <see cref="SuperMetroidSaveRam.SaveSlot"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="samus"/> or <paramref name="system"/> is <see langword="null"/>.</exception>
-    public static SuperMetroidSaveSnapshot Capture(
-        SamusState samus,
-        Bank80SystemState system,
-        ushort area,
-        ushort saveStation,
-        GameTimeState? gameTime = null,
-        ControllerBindings? controllerBindings = null,
-        bool moonwalkEnabled = false,
-        bool iconCancelEnabled = false,
-        bool japaneseText = false)
+    public static SuperMetroidSaveSnapshot Capture(SamusState samus, Bank80SystemState system, SaveSnapshotContext context)
     {
         ArgumentNullException.ThrowIfNull(samus);
         ArgumentNullException.ThrowIfNull(system);
@@ -742,10 +727,10 @@ public sealed record SuperMetroidSaveSnapshot
 
         return new SuperMetroidSaveSnapshot
         {
-            ControllerBindings = (controllerBindings ?? ControllerBindings.Default)
+            ControllerBindings = (context.ControllerBindings ?? ControllerBindings.Default)
                 .RequireRetailPermutation(),
-            MoonwalkEnabled = moonwalkEnabled,
-            IconCancelEnabled = iconCancelEnabled,
+            MoonwalkEnabled = context.MoonwalkEnabled,
+            IconCancelEnabled = context.IconCancelEnabled,
             EquippedItems = samus.EquippedItems,
             CollectedItems = samus.CollectedItems,
             EquippedBeams = samus.EquippedBeams,
@@ -763,15 +748,15 @@ public sealed record SuperMetroidSaveSnapshot
             MaxReserveEnergy = samus.MaxReserveEnergy,
             ReserveEnergy = samus.ReserveEnergy,
             ReserveMissiles = samus.ReserveMissiles,
-            JapaneseText = japaneseText,
+            JapaneseText = context.JapaneseText,
             LoadedItemCount = system.LoadedItemCount,
-            GameTimeFrames = gameTime?.Frames ?? 0,
-            GameTimeSeconds = gameTime?.Seconds ?? 0,
-            GameTimeMinutes = gameTime?.Minutes ?? 0,
-            GameTimeHours = gameTime?.Hours ?? 0,
+            GameTimeFrames = context.GameTime?.Frames ?? 0,
+            GameTimeSeconds = context.GameTime?.Seconds ?? 0,
+            GameTimeMinutes = context.GameTime?.Minutes ?? 0,
+            GameTimeHours = context.GameTime?.Hours ?? 0,
             LoadingGameState = system.SavedLoadingGameState,
-            SaveStation = saveStation,
-            Area = area,
+            SaveStation = context.SaveStation,
+            Area = context.Area,
             EventBytes = events,
             BossBytes = bosses,
             RoomChozoBytes = roomChozo,

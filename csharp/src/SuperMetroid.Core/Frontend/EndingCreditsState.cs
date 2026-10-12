@@ -62,24 +62,16 @@ internal sealed partial class EndingCreditsState
     [NonSerialized] private EndingMode7ArtworkCatalog? mode7Artwork;
     [NonSerialized] private EndingObjectArtworkCatalog? objectArtwork;
 
-    public EndingCreditsState(
-        ISnesAddressSpace bus,
-        CartridgeAudioState audio,
-        ushort gameTimeHours,
-        ushort gameTimeMinutes,
-        EndingInventorySnapshot inventory = default,
-        bool japaneseText = false,
-        EndingTextPresentation? endingText = null,
-        bool crittersEscaped = false)
+    public EndingCreditsState(ISnesAddressSpace bus, CartridgeAudioState audio, EndingCreditsSetup setup)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
         this.audio = audio ?? throw new ArgumentNullException(nameof(audio));
-        this.gameTimeHours = gameTimeHours;
-        this.gameTimeMinutes = gameTimeMinutes;
-        this.inventory = inventory;
-        this.japaneseText = japaneseText;
-        this.crittersEscaped = crittersEscaped;
-        this.endingText = endingText;
+        this.gameTimeHours = setup.GameTimeHours;
+        this.gameTimeMinutes = setup.GameTimeMinutes;
+        this.inventory = setup.Inventory;
+        this.japaneseText = setup.JapaneseText;
+        this.crittersEscaped = setup.CrittersEscaped;
+        this.endingText = setup.EndingText;
         Phase = EndingCreditsPhase.SetupEscapeFromZebes;
     }
 
@@ -399,15 +391,7 @@ internal sealed partial class EndingCreditsState
                 postCreditsVerticalScroll = unchecked((ushort)(postCreditsVerticalScroll - 2));
                 if (--phaseTimer <= 0)
                 {
-                    postCreditsText = new EndingBackgroundTextState(
-                        bus,
-                        postCreditsTilemap,
-                        instructionPointer: EndingCreditsRomData.Instructions.SeeYouNextMissionText,
-                        inventory,
-                        japaneseText,
-                        postCreditsUploadWord,
-                        endingText,
-                        endingText is null ? null : EndingTextSequence.FinalMessage);
+                    postCreditsText = new EndingBackgroundTextState(bus, new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, InstructionPointer = EndingCreditsRomData.Instructions.SeeYouNextMissionText, Inventory = inventory, JapaneseText = japaneseText, TilemapDestination = postCreditsUploadWord, Presentation = endingText, InstalledSequence = endingText is null ? null : EndingTextSequence.FinalMessage });
                     Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;

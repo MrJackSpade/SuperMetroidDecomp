@@ -18,8 +18,7 @@ internal static partial class Program
         {
             var samus = new SamusState { MaxReserveEnergy = capacity, ReserveTankMode = mode,
                 CollectedItems = (ushort)SamusEquipmentFlags.MorphBall };
-            var pause = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0),
-                mapPresentation: RetailPresentationFixture());
+            var pause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
             EnterPauseEquipment(pause);
             AssertEqual(1, pause.ScreenMode, "reserve label test reached equipment page");
             var snapshot = pause.CaptureRenderSnapshot();

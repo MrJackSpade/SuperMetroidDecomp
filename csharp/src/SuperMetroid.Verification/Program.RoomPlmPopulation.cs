@@ -1424,10 +1424,8 @@ internal static partial class Program
             ProgramFrames = EnemyProjectilePresentationFrameDefinitions.All.ToArray().ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-            projectileSpritemaps: EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
-                EnemyProjectileSpritemapCatalog.Write(artworkDocument))));
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ProjectileSpritemaps = EnemyProjectileSpritemapCatalog.Load(new MemoryStream(
+                EnemyProjectileSpritemapCatalog.Write(artworkDocument))) });
 
         RoomEnemyProjectileSlot electricity = enemies.EnemyProjectiles.Single(
             projectile => projectile.Kind == RoomEnemyProjectileKind.SaveStationElectricity);

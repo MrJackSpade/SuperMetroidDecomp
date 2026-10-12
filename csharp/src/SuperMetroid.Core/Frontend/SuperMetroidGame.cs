@@ -626,17 +626,8 @@ public sealed partial class SuperMetroidGame
                 CartridgeRoomHeader pauseRoom = runtime.ActiveRoom ??
                     throw new InvalidOperationException(
                         "Pause setup requires an active cartridge room header.");
-                pauseMenu = new PauseMenuState(
-                    bus,
-                    runtime.Samus ?? throw new InvalidOperationException(
-                        "Pause setup requires a live Samus state."),
-                    runtime.System,
-                    pauseRoom.AreaIndex,
-                    pauseRoom.MapPosition,
-                    audio,
-                    runtime.Vram,
-                    ConfiguredOptions.MapReveal,
-                    mapPresentation);
+                pauseMenu = new PauseMenuState(bus, new PauseMenuEntry { Samus = runtime.Samus ?? throw new InvalidOperationException(
+                        "Pause setup requires a live Samus state."), System = runtime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = audio, GameplayVram = runtime.Vram, MapRevealMode = ConfiguredOptions.MapReveal, MapPresentation = mapPresentation });
                 BeginPauseFade(0);
                 PublishMenu(pauseMenu);
                 ApplyDisplayBrightness(pauseBrightness);
@@ -958,21 +949,14 @@ public sealed partial class SuperMetroidGame
                     SamusState endingSamus = runtime.Samus ??
                         throw new InvalidOperationException(
                             "Ending inventory calculation requires the live Samus state.");
-                    endingCredits = new EndingCreditsState(
-                        bus,
-                        audio,
-                        ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : runtime.GameTime.Hours,
-                        ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : runtime.GameTime.Minutes,
-                        new EndingInventorySnapshot(
+                    endingCredits = new EndingCreditsState(bus, audio, new EndingCreditsSetup { GameTimeHours = ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : runtime.GameTime.Hours, GameTimeMinutes = ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : runtime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
                             endingSamus.MaxHealth,
                             endingSamus.MaxReserveEnergy,
                             endingSamus.MaxMissiles,
                             endingSamus.MaxSuperMissiles,
                             endingSamus.MaxPowerBombs,
                             endingSamus.CollectedItems,
-                            endingSamus.CollectedBeams),
-                        runtime.JapaneseText,
-                        crittersEscaped: runtime.System.HasEvent(EventNumber.CrittersEscaped));
+                            endingSamus.CollectedBeams), JapaneseText = runtime.JapaneseText, CrittersEscaped = runtime.System.HasEvent(EventNumber.CrittersEscaped) });
                     endingCredits.BindEndingText(mapPresentation?.EndingText);
                     endingCredits.BindFlightArtwork(introCinematicArt?.CeresFlight);
                     endingCredits.BindMode7Artwork(endingMode7Art);
@@ -1811,15 +1795,7 @@ public sealed partial class SuperMetroidGame
                 "A confirmed save station has no live Samus state.");
         saveRam.SaveSlot(
             selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(
-                samus,
-                runtime.System,
-                area: (ushort)request.AreaIndex,
-                saveStation: request.StationIndex,
-                gameTime: runtime.GameTime,
-                controllerBindings: runtime.ControllerBindings,
-                moonwalkEnabled: runtime.MoonwalkEnabled,
-                iconCancelEnabled: runtime.IconCancelEnabled, japaneseText: runtime.JapaneseText));
+            SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = (ushort)request.AreaIndex, SaveStation = request.StationIndex, GameTime = runtime.GameTime, ControllerBindings = runtime.ControllerBindings, MoonwalkEnabled = runtime.MoonwalkEnabled, IconCancelEnabled = runtime.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
         SaveRamChanged?.Invoke();
     }
 

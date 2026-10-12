@@ -208,41 +208,32 @@ public sealed class HudState
     /// Ports the visible 5x3 result of <c>UpdateMinimap</c> at <c>$90:A91B</c> for a
     /// supplied room/map position, including exploration bits and the blinking center tile.
     /// </summary>
-    public void UpdateMinimap(
-        ISnesAddressSpace bus,
-        Bank80SystemState system,
-        AreaId areaIndex,
-        Position16<MapTiles> roomMap,
-        Extent16<RoomBlocks> roomSize,
-        Position16<RoomPixels> samus,
-        byte nmiFrameCounter,
-        MapRevealMode mapRevealMode = MapRevealMode.None,
-        IAreaMapView? presentationMap = null)
+    public void UpdateMinimap(ISnesAddressSpace bus, Bank80SystemState system, MinimapFrame frame)
     {
         ArgumentNullException.ThrowIfNull(bus);
         ArgumentNullException.ThrowIfNull(system);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before updating its minimap.");
-        if (presentationMap is null)
+        if (frame.PresentationMap is null)
             throw new InvalidOperationException("Minimap updates require an installed area-map definition.");
-        if (presentationMap.Area != areaIndex)
-            throw new ArgumentException("Map presentation belongs to a different area.", nameof(presentationMap));
-        if (roomSize.X == 0 || roomSize.Y == 0)
-            throw new ArgumentOutOfRangeException(nameof(roomSize));
+        if (frame.PresentationMap.Area != frame.AreaIndex)
+            throw new ArgumentException("Map presentation belongs to a different area.", nameof(frame.PresentationMap));
+        if (frame.RoomSize.X == 0 || frame.RoomSize.Y == 0)
+            throw new ArgumentOutOfRangeException(nameof(frame.RoomSize));
         // The room header stores its map coordinates as bytes.
-        if (roomMap.X > byte.MaxValue || roomMap.Y > byte.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(roomMap));
+        if (frame.RoomMap.X > byte.MaxValue || frame.RoomMap.Y > byte.MaxValue)
+            throw new ArgumentOutOfRangeException(nameof(frame.RoomMap));
 
         // $90:A91B returns rather than indexing unrelated map memory if Samus is outside
         // the active room. The 16-pixel comparison consumes the same positions as collision.
-        if (MinimapDisabled || !roomSize.Contains(samus.ToRoomBlock()))
+        if (MinimapDisabled || !frame.RoomSize.Contains(frame.Samus.ToRoomBlock()))
             return;
 
         // One area-map tile represents one 256x256 room screen. The native Y formula has
         // an intentional +1 because the HUD map convention places the room header's Y one
         // row above the screen containing Samus.
-        int centerX = (roomMap.X + (samus.X >> 8)) & 0x3f;
-        int centerY = roomMap.Y + (samus.Y >> 8) + 1;
+        int centerX = (frame.RoomMap.X + (frame.Samus.X >> 8)) & 0x3f;
+        int centerY = frame.RoomMap.Y + (frame.Samus.Y >> 8) + 1;
         if ((uint)centerY >= 32)
             return;
         MinimapCenter = new((ushort)centerX, (ushort)centerY);
@@ -250,8 +241,8 @@ public sealed class HudState
         // Exploration is persistent game state, not HUD-local rendering state. Earlier
         // builds kept this bit in HudState, which made the minimap look correct until a
         // save/load or HUD reconstruction silently erased the visited route.
-        system.MarkExploredMapTile(areaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)centerY)));
-        bool hasAreaMap = system.HasAreaMap(areaIndex);
+        system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)centerY)));
+        bool hasAreaMap = system.HasAreaMap(frame.AreaIndex);
 
         for (int outputY = 0; outputY < 3; outputY++)
         {
@@ -268,18 +259,18 @@ public sealed class HudState
                 }
 
                 var cell = new Position16<MapTiles>(unchecked((ushort)mapX), unchecked((ushort)mapY));
-                bool explored = system.IsMapTileExplored(areaIndex, cell);
-                bool stationVisible = presentationMap.IsRevealedByMapStation(cell);
+                bool explored = system.IsMapTileExplored(frame.AreaIndex, cell);
+                bool stationVisible = frame.PresentationMap.IsRevealedByMapStation(cell);
 
                 // A 64x32 SNES map is two adjacent 32x32 screens in VRAM order, not one
                 // linear 64-word row. Preserve that page split when reading bank-$B5 data.
-                MapTileWord mapTile = presentationMap.GetTile(cell);
+                MapTileWord mapTile = frame.PresentationMap.GetTile(cell);
                 if (!AreaMapVisibility.IsVisible(
                         explored,
                         hasAreaMap,
                         stationVisible,
-                        presentationMap.IsDiscoverable(cell),
-                        mapRevealMode))
+                        frame.PresentationMap.IsDiscoverable(cell),
+                        frame.MapRevealMode))
                 {
                     _tiles[destination] = (ushort)MapTileWords.HudBlank;
                     continue;
@@ -290,15 +281,15 @@ public sealed class HudState
                 // row has already been rendered and its explored bits latched, so that
                 // cell acquires the explored palette on the next minimap update.
                 if (outputX == 2 && outputY == 1 && explored && centerY > 0 &&
-                    presentationMap.RevealsCellAbove(cell))
-                    system.MarkExploredMapTile(areaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)(centerY - 1))));
+                    frame.PresentationMap.RevealsCellAbove(cell))
+                    system.MarkExploredMapTile(frame.AreaIndex, new Position16<MapTiles>(unchecked((ushort)centerX), unchecked((ushort)(centerY - 1))));
             }
         }
 
         // Every eight NMI frames the native code ORs palette bits $1C00 into the center
         // tile. The other half-cycle leaves its explored palette intact, producing the
         // familiar blinking Samus location without a separate sprite.
-        if ((nmiFrameCounter & 8) == 0)
+        if ((frame.NmiFrameCounter & 8) == 0)
         {
             var centerCell = new Position16<TilemapCells>(2, 1);
             int center = presentation?.MinimapCellIndex(centerCell) ?? NativeMinimapCellIndex(centerCell);

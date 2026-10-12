@@ -196,71 +196,31 @@ public sealed partial class RoomEnemySystem
         switch (instruction)
         {
             case WorkRobotInstruction.FacingLeft_MoveForward_HandleWallOrFall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, -WorkRobotStepPixels,
-                    WorkRobotFacingLeftVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingLeftHitWallMovingForwards,
-                    checkLedge: true, ledgeProbeDirection: -1,
-                    WorkRobotInstructionProgramDefinitions.ApproachingFallLeft,
-                    WorkRobotFacingRightVelocity);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallLeft, FallLaserVelocity = WorkRobotFacingRightVelocity });
                 return true;
             case WorkRobotInstruction.FacingLeft_MoveForward_HandleHittingWall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, -WorkRobotStepPixels,
-                    WorkRobotFacingLeftVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingLeftHitWallMovingForwards,
-                    checkLedge: false, 0, 0, 0);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
                 return true;
             case WorkRobotInstruction.FacingLeft_MoveBackward_HandleWallOrFall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, WorkRobotStepPixels,
-                    WorkRobotFacingLeftVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards,
-                    checkLedge: true, ledgeProbeDirection: 1,
-                    WorkRobotInstructionProgramDefinitions.ApproachingFallRight,
-                    WorkRobotFacingLeftVelocity);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallRight, FallLaserVelocity = WorkRobotFacingLeftVelocity });
                 return true;
             case WorkRobotInstruction.FacingLeft_MoveBackward_HandleHittingWall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, WorkRobotStepPixels,
-                    WorkRobotFacingLeftVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards,
-                    checkLedge: false, 0, 0, 0);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingLeftVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
                 return true;
             case WorkRobotInstruction.SetInstListTo_FacingRight_WalkingForwards:
                 cursor = WorkRobotInstructionProgramDefinitions.FacingRightWalkingForwards;
                 return true;
             case WorkRobotInstruction.FacingRight_MoveForward_HandleWallOrFall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, WorkRobotStepPixels,
-                    WorkRobotFacingRightVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingRightHitWallMovingForwards,
-                    checkLedge: true, ledgeProbeDirection: 1,
-                    WorkRobotInstructionProgramDefinitions.ApproachingFallRight,
-                    WorkRobotFacingLeftVelocity);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingRightHitWallMovingForwards, CheckLedge = true, LedgeProbeDirection = 1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallRight, FallLaserVelocity = WorkRobotFacingLeftVelocity });
                 return true;
             case WorkRobotInstruction.FacingRight_MoveForward_HandleHittingWall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, WorkRobotStepPixels,
-                    WorkRobotFacingRightVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingRightHitWallMovingForwards,
-                    checkLedge: false, 0, 0, 0);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingRightHitWallMovingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
                 return true;
             case WorkRobotInstruction.FacingRight_MoveBackward_HandleWallOrFall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, -WorkRobotStepPixels,
-                    WorkRobotFacingRightVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards,
-                    checkLedge: true, ledgeProbeDirection: -1,
-                    WorkRobotInstructionProgramDefinitions.ApproachingFallLeft,
-                    WorkRobotFacingRightVelocity);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = true, LedgeProbeDirection = -1, FallInstruction = WorkRobotInstructionProgramDefinitions.ApproachingFallLeft, FallLaserVelocity = WorkRobotFacingRightVelocity });
                 return true;
             case WorkRobotInstruction.FacingRight_MoveBackward_HandleHittingWall:
-                cursor = MoveWorkRobot(
-                    slot, state, samus, level, next, -WorkRobotStepPixels,
-                    WorkRobotFacingRightVelocity,
-                    WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards,
-                    checkLedge: false, 0, 0, 0);
+                cursor = MoveWorkRobot(slot, state, samus, level, next, new WorkRobotMoveStep { HorizontalPixels = -WorkRobotStepPixels, FacingLaserVelocity = WorkRobotFacingRightVelocity, WallInstruction = WorkRobotInstructionProgramDefinitions.FacingLeftWalkingForwards, CheckLedge = false, LedgeProbeDirection = 0, FallInstruction = 0, FallLaserVelocity = 0 });
                 return true;
             case WorkRobotInstruction.PlaySFXIfOnScreen:
                 if (IsWorkRobotOriginStrictlyOnScreen(slot, camera))
@@ -315,55 +275,43 @@ public sealed partial class RoomEnemySystem
         }
     }
 
-    private ushort MoveWorkRobot(
-        RoomEnemySlot slot,
-        WorkRobotEnemyState state,
-        SamusState? samus,
-        RoomLevelData? level,
-        ushort nextCursor,
-        int horizontalPixels,
-        ushort facingLaserVelocity,
-        ushort wallInstruction,
-        bool checkLedge,
-        int ledgeProbeDirection,
-        ushort fallInstruction,
-        ushort fallLaserVelocity)
+    private ushort MoveWorkRobot(RoomEnemySlot slot, WorkRobotEnemyState state, SamusState? samus, RoomLevelData? level, ushort nextCursor, WorkRobotMoveStep step)
     {
         if (level is null)
             throw new InvalidOperationException("Work Robot movement instruction requires room collision data.");
 
         DecrementWorkRobotLaserCooldown(state);
-        state.LaserXVelocity = facingLaserVelocity;
+        state.LaserXVelocity = step.FacingLaserVelocity;
         if (MoveEnemyHorizontallyIgnoringNonSquareSlopes(
                 level,
                 slot,
-                horizontalPixels << 16))
+                step.HorizontalPixels << 16))
         {
             state.LaserCooldown = unchecked((ushort)(state.LaserCooldown + 8));
-            return wallInstruction;
+            return step.WallInstruction;
         }
 
         if (samus is not null && IsEnemyTouchingSamusFromBelow(slot, samus))
         {
-            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)horizontalPixels), 0));
+            samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(unchecked((short)step.HorizontalPixels), 0));
         }
 
-        if (!checkLedge)
+        if (!step.CheckLedge)
             return nextCursor;
 
         // The ROM moves only whole X/Y words for this temporary foot probe. In particular,
         // MoveEnemyDown's collision-produced Y subposition survives after Y is restored.
         state.BackupPosition = slot.Position.Whole;
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-            slot.Position.X.Whole + ledgeProbeDirection * slot.Radius.X * 2)));
+            slot.Position.X.Whole + step.LedgeProbeDirection * slot.Radius.X * 2)));
         bool floorFound = MoveEnemyVertically(level, slot, 1 << 16);
         slot.Position = slot.Position.WithWhole(state.BackupPosition);
         if (floorFound)
             return nextCursor;
 
         state.LaserCooldown = unchecked((ushort)(state.LaserCooldown + 8));
-        state.LaserXVelocity = fallLaserVelocity;
-        return fallInstruction;
+        state.LaserXVelocity = step.FallLaserVelocity;
+        return step.FallInstruction;
     }
 
     private static bool IsWorkRobotOriginStrictlyOnScreen(

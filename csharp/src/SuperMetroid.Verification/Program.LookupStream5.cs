@@ -294,8 +294,7 @@ internal static partial class Program
         {
             var system = new RoomEnemySystem
             {
-                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual),
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }),
             };
             var vram = new SnesVram();
             int destination = CeresDoorVisualRomData.Mode7DestinationWord;
@@ -421,9 +420,7 @@ internal static partial class Program
             var result = CeresEscapeOverlayTilemapCatalog.Load(new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(source)));
             var system = new RoomEnemySystem
             {
-                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                    new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-                    ceresEscapeOverlayTilemaps: result),
+                TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresEscapeOverlayTilemaps = result }),
             };
             var queue = new VramWriteQueue();
             typeof(RoomEnemySystem).GetMethod("QueueCeresEmergencyText", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -1332,7 +1329,7 @@ internal static partial class Program
                 AssertEqual(minimumOperands[column] == 0 ? 0 : (int)Word(minimumOperands[column]),
                     DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
             }
-            var state = new DeadSidehopperEnemyState(enemies.Slots[0], variant, 0, 0, 0, 0, 0, 0xe240, 0, 0, 0, 0, 148);
+            var state = new DeadSidehopperEnemyState(enemies.Slots[0], variant, 0, new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0xe240, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 148 });
             var copy = typeof(RoomEnemySystem).GetMethod("CopyOrMoveDeadSidehopperPixelRow", flags)!
                 .CreateDelegate<Action<DeadSidehopperEnemyState, ushort, bool>>(enemies);
             foreach (ushort y in new ushort[] { 0, 7, 8, 37, 38 })
@@ -1388,9 +1385,7 @@ internal static partial class Program
         IndexedPng.Write(png,size,pixels,SnesGraphics.DiagnosticPalette(16));
         png.Position=0;
         RoomCharacterAtlas atlas = RoomCharacterAtlas.Load(png,planar.Length);
-        return EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseSidehopper] = atlas },
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
+        return EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseSidehopper] = atlas }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.CorpseSidehopper] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
@@ -1398,8 +1393,7 @@ internal static partial class Program
                         Version=1,
                         Colors=Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0,Green=0,Blue=0 }).ToArray(),
                     }))),
-            },
-            dmaSources: new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseSidehopper] = DeadTourianCorpseArtworkDefinitions.SourceAddress });
+            }, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseSidehopper] = DeadTourianCorpseArtworkDefinitions.SourceAddress } });
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon rain")]
@@ -1814,8 +1808,7 @@ internal static partial class Program
         var enemies = new RoomEnemySystem
         {
             CeresStatus = 1,
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), spritemaps: installed),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed }),
         };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, NewCeresDoorQuakeReadGuard(rom));
@@ -1963,7 +1956,7 @@ internal static partial class Program
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Normal[color]), basis.ColorAt(color), "Every supplied normal channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+                var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
                 var cgram = new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
                 var slot = system.Slots[0]; slot.Parameter1 = variant;
@@ -2029,7 +2022,7 @@ internal static partial class Program
             for (int color = 0; color < 15; color++) AssertEqual(Pack(document.Escape[color]), basis.ColorAt(color), "Every supplied escape channel remains independent");
             foreach (ushort variant in new ushort[] { 0, 3 })
             {
-                var system = new RoomEnemySystem { CeresStatus = 2, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+                var system = new RoomEnemySystem { CeresStatus = 2, TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
                 var cgram = new SnesCgram();
                 typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
                 var slot = system.Slots[0]; slot.Parameter1 = variant;
@@ -2096,7 +2089,7 @@ internal static partial class Program
             var visual = CeresDoorVisualCatalog.Load(new MemoryStream(png.ToArray()), new MemoryStream(CeresDoorVisualCatalog.Write(document)));
             for (int row = 0; row < 8; row++) for (int color = 0; color < 6; color++)
                 AssertEqual(Pack(document.Animation[row][color]), basis.ColorAt(row, color), "Every supplied beacon channel remains independent");
-            var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ceresDoorVisual: visual) };
+            var system = new RoomEnemySystem { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visual }) };
             var cgram = new SnesCgram();
             typeof(RoomEnemySystem).GetField("_cgram", flags)!.SetValue(system, cgram);
             typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(system, new SnesVram());

@@ -20,9 +20,8 @@ internal static partial class Program
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var menu = new FileSelectRoomMapGraphics(guard, system, AreaId.Crateria, mapPresentation: original);
         var samus = new SamusState();
-        var pause = new PauseMenuState(guard, samus, system, AreaId.Crateria, new(0, 0), mapPresentation: original);
-        var nativePause = new PauseMenuState(bus, samus, system, AreaId.Crateria, new(0, 0),
-            mapPresentation: original);
+        var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
+        var nativePause = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         Rgba32[] pauseBefore = pause.Render(), menuBefore = menu.RenderBackgrounds(new(0, 0)).ToArray();
         AssertTrue(pauseBefore.AsSpan().SequenceEqual(nativePause.Render()), "installed stock atlas gives exact pause pixels with artwork ROM blocked");
         Directory.CreateDirectory(overrides);

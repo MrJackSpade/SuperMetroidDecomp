@@ -609,8 +609,7 @@ internal static partial class Program
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = 1 };
-        var menu = new PauseMenuState(bus, samus, new Bank80SystemState(), AreaId.Norfair, new(0, 0),
-            mapPresentation: RetailPresentationFixture());
+        var menu = new PauseMenuState(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
         T Get<T>(string field) => (T)typeof(PauseMenuState).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(menu)!;
         for (int direction = 0; direction < 2; direction++)
         {

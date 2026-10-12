@@ -984,9 +984,7 @@ internal static partial class Program
         editedOam.AddEnemySpritemap(selectedDisplay, new Position16<OamPixels>(128, 128), 0, 0);
         AssertEqual(4, editedOam.NextByteOffset, "Edited display draws one small part instead of25stock parts");
         AssertEqual((byte)198, editedOam.LowTable[0], "Edited display origin reaches actual OAM");
-        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-            new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlas.Load(png, planar.Length) },
-            new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
+        var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas> { [EnemyDefinitionId.CorpseTorizo] = RoomCharacterAtlas.Load(png, planar.Length) }, Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>
             {
                 [EnemyDefinitionId.CorpseTorizo] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument
@@ -994,9 +992,7 @@ internal static partial class Program
                         Version = 1,
                         Colors = Enumerable.Range(0,16).Select(_ => new PaletteRgb5 { Red=0, Green=0, Blue=0 }).ToArray(),
                     }))),
-            },
-            spritemaps: display,
-            dmaSources: new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress });
+            }, Spritemaps = display, DmaSources = new Dictionary<EnemyDefinitionId, int> { [EnemyDefinitionId.CorpseTorizo] = DeadTorizoArtworkDefinitions.SourceAddress } });
         var enemies = new RoomEnemySystem { TileArtwork = artwork };
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(enemies, rom);
@@ -1005,7 +1001,7 @@ internal static partial class Program
             .CreateDelegate<Action>(enemies)();
         Compare(expected, "Actual Dead Torizo installed-art crop");
 
-        var state = new DeadTorizoEnemyState(enemies.Slots[0],0,0,0,0,0xe226,0,96,95,94,0x134);
+        var state = new DeadTorizoEnemyState(enemies.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0xe226, FinishFunction = 0, EntryCount = 96, YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
         var moveRow = typeof(RoomEnemySystem).GetMethod("CopyOrMoveDeadTorizoPixelRow", flags)!
             .CreateDelegate<Action<DeadTorizoEnemyState,ushort,bool>>(enemies);
         foreach (bool move in new[] { false, true })
@@ -1689,7 +1685,7 @@ internal static partial class Program
     private static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
-        var state = new DeadTorizoEnemyState(enemies.Slots[0], 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        var state = new DeadTorizoEnemyState(enemies.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
         var build = typeof(RoomEnemySystem).GetMethod("BuildDeadTorizoVramTransfers",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .CreateDelegate<Action<DeadTorizoEnemyState>>(enemies);

@@ -168,6 +168,6 @@ public static class PauseAudioSmokeTest
         };
         new SuperMetroidSaveRam(bus, SaveMapPresentationFixture.Create(bus)).SaveSlot(
             0,
-            SuperMetroidSaveSnapshot.Capture(samus, system, area: 0, saveStation: 0));
+            SuperMetroidSaveSnapshot.Capture(samus, system, new SaveSnapshotContext { Area = 0, SaveStation = 0 }));
     }
 }

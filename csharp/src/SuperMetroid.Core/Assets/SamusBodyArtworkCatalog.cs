@@ -60,101 +60,78 @@ public sealed partial class SamusBodyArtworkCatalog
     public SamusArmCannonArtworkCatalog ArmCannon { get; }
 
     /// <summary>Creates and validates a complete editable Samus body-art catalog.</summary>
-    /// <param name="topPointers">Bank-$92 pointers to upper-body definition groups.</param>
-    /// <param name="bottomPointers">Bank-$92 pointers to lower-body definition groups.</param>
-    /// <param name="posePointers">Per-pose pointers to four-byte frame-selector lists.</param>
-    /// <param name="graphicsYOffsets">Per-pose signed vertical art origins.</param>
-    /// <param name="frames">The contiguous native frame-selector interval.</param>
-    /// <param name="top">Upper-body tile definitions grouped by pointer table entry.</param>
-    /// <param name="bottom">Lower-body tile definitions grouped by pointer table entry.</param>
-    /// <param name="spritemaps">Editable Samus OAM compositions.</param>
-    /// <param name="atmosphere">Editable atmospheric-effect OBJ attributes.</param>
-    /// <param name="deathPalettes">Editable fatal-damage and death palettes.</param>
-    /// <param name="deathTiles">Editable death-explosion tile characters.</param>
-    /// <param name="armCannon">Editable arm-cannon placement and cover artwork.</param>
-    /// <param name="landingYOffsets">Native landing vertical-offset bytes.</param>
-    /// <param name="postureYOffsets">Native posture-transition vertical offsets.</param>
-    /// <param name="drainedYOffsets">Native drained-state vertical offsets.</param>
-    public SamusBodyArtworkCatalog(ushort[] topPointers, ushort[] bottomPointers,
-        ushort[] posePointers, sbyte[] graphicsYOffsets,
-        SamusBodyFrameSelection[] frames,
-        SamusBodyTileDefinition[][] top, SamusBodyTileDefinition[][] bottom,
-        SamusSpritemapArtworkCatalog spritemaps, SamusAtmosphericArtworkCatalog atmosphere,
-        SamusDeathPaletteArtworkCatalog deathPalettes,
-        SamusDeathTileAtlas deathTiles,
-        SamusArmCannonArtworkCatalog armCannon,
-        ushort[] landingYOffsets,
-        sbyte[] postureYOffsets, sbyte[] drainedYOffsets)
+    /// <param name="parts">Samus's body pointer tables, frame tiles, offsets and dependent artwork catalogs (#633).</param>
+    public SamusBodyArtworkCatalog(SamusBodyArtworkParts parts)
     {
-        ArgumentNullException.ThrowIfNull(topPointers);
-        ArgumentNullException.ThrowIfNull(bottomPointers);
-        ArgumentNullException.ThrowIfNull(posePointers);
-        ArgumentNullException.ThrowIfNull(graphicsYOffsets);
-        ArgumentNullException.ThrowIfNull(frames);
-        ArgumentNullException.ThrowIfNull(top);
-        ArgumentNullException.ThrowIfNull(bottom);
-        ArgumentNullException.ThrowIfNull(spritemaps);
-        ArgumentNullException.ThrowIfNull(atmosphere);
-        ArgumentNullException.ThrowIfNull(deathPalettes);
-        ArgumentNullException.ThrowIfNull(deathTiles);
-        ArgumentNullException.ThrowIfNull(armCannon);
-        ArgumentNullException.ThrowIfNull(landingYOffsets);
-        ArgumentNullException.ThrowIfNull(postureYOffsets);
-        ArgumentNullException.ThrowIfNull(drainedYOffsets);
-        if (topPointers.Length != TopSetCount || bottomPointers.Length != BottomSetCount ||
-            posePointers.Length != PoseCount || graphicsYOffsets.Length != PoseCount ||
-            landingYOffsets.Length != SamusRenderingRomData.Body.LandingVerticalOffsetByteCount ||
-            postureYOffsets.Length != SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount ||
-            drainedYOffsets.Length != SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount ||
-            frames.Length != FrameCount ||
-            top.Length != TopSetCount || bottom.Length != BottomSetCount)
+        ArgumentNullException.ThrowIfNull(parts.TopPointers);
+        ArgumentNullException.ThrowIfNull(parts.BottomPointers);
+        ArgumentNullException.ThrowIfNull(parts.PosePointers);
+        ArgumentNullException.ThrowIfNull(parts.GraphicsYOffsets);
+        ArgumentNullException.ThrowIfNull(parts.Frames);
+        ArgumentNullException.ThrowIfNull(parts.Top);
+        ArgumentNullException.ThrowIfNull(parts.Bottom);
+        ArgumentNullException.ThrowIfNull(parts.Spritemaps);
+        ArgumentNullException.ThrowIfNull(parts.Atmosphere);
+        ArgumentNullException.ThrowIfNull(parts.DeathPalettes);
+        ArgumentNullException.ThrowIfNull(parts.DeathTiles);
+        ArgumentNullException.ThrowIfNull(parts.ArmCannon);
+        ArgumentNullException.ThrowIfNull(parts.LandingYOffsets);
+        ArgumentNullException.ThrowIfNull(parts.PostureYOffsets);
+        ArgumentNullException.ThrowIfNull(parts.DrainedYOffsets);
+        if (parts.TopPointers.Length != TopSetCount || parts.BottomPointers.Length != BottomSetCount ||
+            parts.PosePointers.Length != PoseCount || parts.GraphicsYOffsets.Length != PoseCount ||
+            parts.LandingYOffsets.Length != SamusRenderingRomData.Body.LandingVerticalOffsetByteCount ||
+            parts.PostureYOffsets.Length != SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount ||
+            parts.DrainedYOffsets.Length != SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount ||
+            parts.Frames.Length != FrameCount ||
+            parts.Top.Length != TopSetCount || parts.Bottom.Length != BottomSetCount)
             throw new InvalidDataException("Samus body selector tables have an invalid length.");
 
-        this.topPointers = Enumerable.Range(0, topPointers.Length)
-            .Where(index => topPointers[index] != SamusBodyDefinitionLayout.DefaultTopPointer(index))
-            .ToDictionary(index => index, index => topPointers[index]);
-        this.bottomPointers = Enumerable.Range(0, bottomPointers.Length)
-            .Where(index => bottomPointers[index] != SamusBodyDefinitionLayout.DefaultBottomPointer(index))
-            .ToDictionary(index => index, index => bottomPointers[index]);
-        this.posePointers = Enumerable.Range(0, posePointers.Length)
-            .Where(pose => posePointers[pose] != SamusBodyPoseDefinitions.DefaultFrameList((SamusPoseId)pose))
-            .ToDictionary(pose => pose, pose => posePointers[pose]);
-        this.graphicsYOffsets = Enumerable.Range(0, graphicsYOffsets.Length)
-            .Where(index => graphicsYOffsets[index] != SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((SamusPoseId)index))
-            .ToDictionary(index => index, index => graphicsYOffsets[index]);
-        if (landingYOffsets.Any(value => value > byte.MaxValue))
+        this.topPointers = Enumerable.Range(0, parts.TopPointers.Length)
+            .Where(index => parts.TopPointers[index] != SamusBodyDefinitionLayout.DefaultTopPointer(index))
+            .ToDictionary(index => index, index => parts.TopPointers[index]);
+        this.bottomPointers = Enumerable.Range(0, parts.BottomPointers.Length)
+            .Where(index => parts.BottomPointers[index] != SamusBodyDefinitionLayout.DefaultBottomPointer(index))
+            .ToDictionary(index => index, index => parts.BottomPointers[index]);
+        this.posePointers = Enumerable.Range(0, parts.PosePointers.Length)
+            .Where(pose => parts.PosePointers[pose] != SamusBodyPoseDefinitions.DefaultFrameList((SamusPoseId)pose))
+            .ToDictionary(pose => pose, pose => parts.PosePointers[pose]);
+        this.graphicsYOffsets = Enumerable.Range(0, parts.GraphicsYOffsets.Length)
+            .Where(index => parts.GraphicsYOffsets[index] != SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((SamusPoseId)index))
+            .ToDictionary(index => index, index => parts.GraphicsYOffsets[index]);
+        if (parts.LandingYOffsets.Any(value => value > byte.MaxValue))
             throw new InvalidDataException("Samus landing visual bytes must fit in one byte.");
-        this.landingYOffsets = Enumerable.Range(0, landingYOffsets.Length)
-            .Where(index => landingYOffsets[index] != (SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
+        this.landingYOffsets = Enumerable.Range(0, parts.LandingYOffsets.Length)
+            .Where(index => parts.LandingYOffsets[index] != (SamusBodyPlacementDefinitions.LandingSourceIndex(index) == index
                 ? SamusBodyPlacementDefinitions.DefaultLandingByte(index)
-                : landingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)]))
-            .ToDictionary(index => index, index => landingYOffsets[index]);
+                : parts.LandingYOffsets[SamusBodyPlacementDefinitions.LandingSourceIndex(index)]))
+            .ToDictionary(index => index, index => parts.LandingYOffsets[index]);
 
-        byte[] components = frames.SelectMany(frame => new byte[] { frame.TopSet, frame.TopPosition, frame.BottomSet, frame.BottomPosition }).ToArray();
+        byte[] components = parts.Frames.SelectMany(frame => new byte[] { frame.TopSet, frame.TopPosition, frame.BottomSet, frame.BottomPosition }).ToArray();
         this.frames = Enumerable.Range(0, components.Length)
             .Where(index => SamusBodyFrameDefinitions.SourceComponent(index) != index
                 ? components[index] != components[SamusBodyFrameDefinitions.SourceComponent(index)]
                 : !SamusBodyFrameDefinitions.TryComponent(index, out byte calculated) || components[index] != calculated)
             .ToDictionary(index => index, index => components[index]);
-        Spritemaps = spritemaps;
-        Atmosphere = atmosphere;
-        DeathPalettes = deathPalettes;
-        DeathTiles = deathTiles;
-        ArmCannon = armCannon.WithBodyGeometry(this);
-        this.top = CloneAndValidate(topPointers, top);
-        this.bottom = CloneAndValidate(bottomPointers, bottom);
-        SamusBodyDefinitionLayout.ValidateCompleteGroups(topPointers, bottomPointers, this.top, this.bottom);
+        Spritemaps = parts.Spritemaps;
+        Atmosphere = parts.Atmosphere;
+        DeathPalettes = parts.DeathPalettes;
+        DeathTiles = parts.DeathTiles;
+        ArmCannon = parts.ArmCannon.WithBodyGeometry(this);
+        this.top = CloneAndValidate(parts.TopPointers, parts.Top);
+        this.bottom = CloneAndValidate(parts.BottomPointers, parts.Bottom);
+        SamusBodyDefinitionLayout.ValidateCompleteGroups(parts.TopPointers, parts.BottomPointers, this.top, this.bottom);
         IndexDefinitions(true, this.top);
         IndexDefinitions(false, this.bottom);
-        this.postureYOffsets = Enumerable.Range(0, postureYOffsets.Length)
+        this.postureYOffsets = Enumerable.Range(0, parts.PostureYOffsets.Length)
             .Where(index => SamusBodyPlacementDefinitions.PostureSourceIndex(index) == index
-                ? !SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated) || postureYOffsets[index] != calculated
-                : postureYOffsets[index] != postureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)])
-            .ToDictionary(index => index, index => postureYOffsets[index]);
-        this.drainedYOffsets = Enumerable.Range(0, drainedYOffsets.Length)
-            .Where(index => !SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated) || drainedYOffsets[index] != calculated)
-            .ToDictionary(index => index, index => drainedYOffsets[index]);
-        foreach (ushort pointer in posePointers)
+                ? !SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated) || parts.PostureYOffsets[index] != calculated
+                : parts.PostureYOffsets[index] != parts.PostureYOffsets[SamusBodyPlacementDefinitions.PostureSourceIndex(index)])
+            .ToDictionary(index => index, index => parts.PostureYOffsets[index]);
+        this.drainedYOffsets = Enumerable.Range(0, parts.DrainedYOffsets.Length)
+            .Where(index => !SamusBodyPlacementDefinitions.TryDefaultDrainedByte(this, index, out sbyte calculated) || parts.DrainedYOffsets[index] != calculated)
+            .ToDictionary(index => index, index => parts.DrainedYOffsets[index]);
+        foreach (ushort pointer in parts.PosePointers)
             if (pointer < FirstFrameOffset ||
                 pointer >= FrameEndOffset ||
                 (pointer - FirstFrameOffset) % 4 != 0)

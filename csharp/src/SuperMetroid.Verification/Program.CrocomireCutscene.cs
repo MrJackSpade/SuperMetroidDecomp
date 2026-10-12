@@ -84,9 +84,7 @@ internal static partial class Program
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(),
-                crocomireColors: CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorExtractor.Extract(rom)))),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CrocomireColors = CrocomireColorCatalog.Load(new MemoryStream(CrocomireColorExtractor.Extract(rom))) }),
         };
         var body = enemies.Slots[0];
         body.Position = body.Position.WithWhole(new(1480, 144));

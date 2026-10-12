@@ -63,7 +63,7 @@ internal static class EndingShootingStarsTests
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
         var installed = RepositoryInstallation.Installation;
         var maps = installed.LoadMaps();
-        var scene = new EndingCreditsState(installed.OpenRuntimeAddressSpace(), new CartridgeAudioState(), 2, 0);
+        var scene = new EndingCreditsState(installed.OpenRuntimeAddressSpace(), new CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 2, GameTimeMinutes = 0 });
         scene.BindObjectArtwork(installed.LoadEndingObjectArt());
         scene.BindPaletteArtwork(installed.LoadEndingPalettes());
         scene.BindPaletteFxColors(maps.RoomPaletteFx);

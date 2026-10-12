@@ -236,20 +236,7 @@ internal static partial class Program
         var fragments = Enumerable.Range(0, EndingObjectArtworkFormat.FragmentCount)
             .Select(index => Characters("fragment-" + index, EndingObjectArtworkFormat.FragmentByteCount, index)).ToArray();
         if (edit == "fragment-order") Array.Reverse(fragments);
-        var objects = new EndingObjectArtworkCatalog(
-            Characters("clouds", EndingObjectArtworkFormat.CloudByteCount),
-            Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), fragments,
-            Characters("waiting", EndingObjectArtworkFormat.RewardByteCount),
-            Characters("shooting", EndingObjectArtworkFormat.RewardByteCount),
-            Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), Map("waiting-map"),
-            Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount),
-            Characters("post-fragment-b", EndingObjectArtworkFormat.PostCreditsFragmentBByteCount),
-            Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), Map("logo-map"),
-            EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))),
-            EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))));
+        var objects = new EndingObjectArtworkCatalog(new EndingObjectArtworkParts { Clouds = Characters("clouds", EndingObjectArtworkFormat.CloudByteCount), Explosion = Characters("explosion", EndingObjectArtworkFormat.ExplosionByteCount), Fragments = fragments, WaitingSamus = Characters("waiting", EndingObjectArtworkFormat.RewardByteCount), ShootingScreen = Characters("shooting", EndingObjectArtworkFormat.RewardByteCount), SuitlessSamus = Characters("suitless", EndingObjectArtworkFormat.RewardByteCount), WaitingTilemap = Map("waiting-map"), PostCreditsFragmentA = Characters("post-fragment-a", EndingObjectArtworkFormat.PostCreditsFragmentAByteCount), PostCreditsFragmentB = Characters("post-fragment-b", EndingObjectArtworkFormat.PostCreditsFragmentBByteCount), PostShotLogoTiles = Characters("logo-tiles", EndingObjectArtworkFormat.PostShotLogoTileByteCount), PostShotLogoMap = Map("logo-map"), CloudSprites = EndingCloudSpritePresentation.Load(Sprites("cloud", EndingCloudSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), ExplosionSprites = EndingExplosionSpritePresentation.Load(Sprites("explosion", EndingExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), CompletionTextSprites = EndingCompletionTextSpritePresentation.Load(Sprites("text", EndingCompletionTextSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), RewardSprites = EndingRewardSpritePresentation.Load(Sprites("reward", EndingRewardSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), LogoSprites = EndingLogoSpritePresentation.Load(Sprites("logo", EndingLogoSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))) });
 
         MemoryStream Mode7Png(string name, int seed)
         {

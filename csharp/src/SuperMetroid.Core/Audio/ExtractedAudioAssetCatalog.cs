@@ -20,24 +20,16 @@ public sealed class ExtractedAudioAssetCatalog
     private readonly IReadOnlyDictionary<int, AudioBankMetadata> musicBanks;
     private readonly int canonicalSampleCount;
 
-    private ExtractedAudioAssetCatalog(
-        IReadOnlyDictionary<int, byte[]> streams,
-        IReadOnlyDictionary<int, ManagedPcmSampleBank> sampleBanks,
-        IReadOnlyDictionary<int, IReadOnlyList<AudioInstrumentMetadata>> instrumentBanks,
-        IReadOnlyDictionary<int, AudioBankMetadata> musicBanks,
-        IReadOnlyList<AudioSoundProgramMetadata> soundPrograms,
-        IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries,
-        int canonicalSampleCount,
-        string contentIdentity)
+    private ExtractedAudioAssetCatalog(ExtractedAudioAssetParts parts)
     {
-        this.streams = streams;
-        this.sampleBanks = sampleBanks;
-        this.instrumentBanks = instrumentBanks;
-        this.musicBanks = musicBanks;
-        SoundPrograms = soundPrograms;
-        SoundLibraries = soundLibraries;
-        this.canonicalSampleCount = canonicalSampleCount;
-        ContentIdentity = contentIdentity;
+        this.streams = parts.Streams;
+        this.sampleBanks = parts.SampleBanks;
+        this.instrumentBanks = parts.InstrumentBanks;
+        this.musicBanks = parts.MusicBanks;
+        SoundPrograms = parts.SoundPrograms;
+        SoundLibraries = parts.SoundLibraries;
+        this.canonicalSampleCount = parts.CanonicalSampleCount;
+        ContentIdentity = parts.ContentIdentity;
     }
 
     /// <summary>
@@ -171,15 +163,7 @@ public sealed class ExtractedAudioAssetCatalog
         (IReadOnlyList<AudioSoundProgramMetadata> soundPrograms,
             IReadOnlyList<AudioSoundLibraryMetadata> soundLibraries) =
             ValidateSoundDefinitions(manifest);
-        return new ExtractedAudioAssetCatalog(
-            loaded,
-            banks,
-            instruments,
-            musicBanks,
-            soundPrograms,
-            soundLibraries,
-            canonicalSamples.Count,
-            ComputeContentIdentity(manifest));
+        return new ExtractedAudioAssetCatalog(new ExtractedAudioAssetParts { Streams = loaded, SampleBanks = banks, InstrumentBanks = instruments, MusicBanks = musicBanks, SoundPrograms = soundPrograms, SoundLibraries = soundLibraries, CanonicalSampleCount = canonicalSamples.Count, ContentIdentity = ComputeContentIdentity(manifest) });
     }
 
     /// <summary>SHA-256 of the canonical serialized manifest, hashed as it streams out.</summary>

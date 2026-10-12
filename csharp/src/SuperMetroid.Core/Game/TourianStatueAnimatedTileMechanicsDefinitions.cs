@@ -29,58 +29,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
     private static TourianStatueAnimatedTileProgramDefinition? SelectObject(AnimatedTileObject objectPointer) =>
         objectPointer switch
     {
-        AnimatedTileObject.TourianStatuePhantoon => new(
-            objectPointer: AnimatedTileObject.TourianStatuePhantoon,
-            programStart: 0x83ac,
-            transferByteCount: 0x0080,
-            encodedVramDestination: 0x7800,
-            statueStateBit: 0x0001,
-            greyEventNumber: 0x0006,
-            firstFrameDuration: 0x0006,
-            packedBossTest: 0x0301,
-            clearPaletteByteIndex: 0x0158,
-            unlockEffectParameter: 0x0000,
-            paletteFxDefinition: 0xf755,
-            targetPaletteByteIndex: 0x0140),
-        AnimatedTileObject.TourianStatueRidley => new(
-            objectPointer: AnimatedTileObject.TourianStatueRidley,
-            programStart: 0x8414,
-            transferByteCount: 0x0040,
-            encodedVramDestination: 0x7220,
-            statueStateBit: 0x0002,
-            greyEventNumber: 0x0007,
-            firstFrameDuration: 0x000a,
-            packedBossTest: 0x0201,
-            clearPaletteByteIndex: 0x0132,
-            unlockEffectParameter: 0x0002,
-            paletteFxDefinition: 0xf751,
-            targetPaletteByteIndex: 0x0120),
-        AnimatedTileObject.TourianStatueKraid => new(
-            objectPointer: AnimatedTileObject.TourianStatueKraid,
-            programStart: 0x847c,
-            transferByteCount: 0x0040,
-            encodedVramDestination: 0x0b40,
-            statueStateBit: 0x0004,
-            greyEventNumber: 0x0009,
-            firstFrameDuration: 0x0004,
-            packedBossTest: 0x0101,
-            clearPaletteByteIndex: 0x00f8,
-            unlockEffectParameter: 0x0006,
-            paletteFxDefinition: 0xf74d,
-            targetPaletteByteIndex: 0x00e0),
-        AnimatedTileObject.TourianStatueDraygon => new(
-            objectPointer: AnimatedTileObject.TourianStatueDraygon,
-            programStart: 0x84e4,
-            transferByteCount: 0x0080,
-            encodedVramDestination: 0x0ca0,
-            statueStateBit: 0x0008,
-            greyEventNumber: 0x0008,
-            firstFrameDuration: 0x0008,
-            packedBossTest: 0x0401,
-            clearPaletteByteIndex: 0x00d2,
-            unlockEffectParameter: 0x0004,
-            paletteFxDefinition: 0xf749,
-            targetPaletteByteIndex: 0x00c0),
+        AnimatedTileObject.TourianStatuePhantoon => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatuePhantoon, ProgramStart = 0x83ac, TransferByteCount = 0x0080, EncodedVramDestination = 0x7800, StatueStateBit = 0x0001, GreyEventNumber = 0x0006, FirstFrameDuration = 0x0006, PackedBossTest = 0x0301, ClearPaletteByteIndex = 0x0158, UnlockEffectParameter = 0x0000, PaletteFxDefinition = 0xf755, TargetPaletteByteIndex = 0x0140 }),
+        AnimatedTileObject.TourianStatueRidley => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatueRidley, ProgramStart = 0x8414, TransferByteCount = 0x0040, EncodedVramDestination = 0x7220, StatueStateBit = 0x0002, GreyEventNumber = 0x0007, FirstFrameDuration = 0x000a, PackedBossTest = 0x0201, ClearPaletteByteIndex = 0x0132, UnlockEffectParameter = 0x0002, PaletteFxDefinition = 0xf751, TargetPaletteByteIndex = 0x0120 }),
+        AnimatedTileObject.TourianStatueKraid => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatueKraid, ProgramStart = 0x847c, TransferByteCount = 0x0040, EncodedVramDestination = 0x0b40, StatueStateBit = 0x0004, GreyEventNumber = 0x0009, FirstFrameDuration = 0x0004, PackedBossTest = 0x0101, ClearPaletteByteIndex = 0x00f8, UnlockEffectParameter = 0x0006, PaletteFxDefinition = 0xf74d, TargetPaletteByteIndex = 0x00e0 }),
+        AnimatedTileObject.TourianStatueDraygon => new(new TourianStatueAnimatedTileProgramParts { ObjectPointer = AnimatedTileObject.TourianStatueDraygon, ProgramStart = 0x84e4, TransferByteCount = 0x0080, EncodedVramDestination = 0x0ca0, StatueStateBit = 0x0008, GreyEventNumber = 0x0008, FirstFrameDuration = 0x0008, PackedBossTest = 0x0401, ClearPaletteByteIndex = 0x00d2, UnlockEffectParameter = 0x0004, PaletteFxDefinition = 0xf749, TargetPaletteByteIndex = 0x00c0 }),
         AnimatedTileObject.None or AnimatedTileObject.Empty or AnimatedTileObject.HorizontalSpikes or
             AnimatedTileObject.VerticalSpikes or AnimatedTileObject.CrateriaLake or
             AnimatedTileObject.UnusedCrateriaLava or AnimatedTileObject.BrinstarPlant or
@@ -116,33 +68,21 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 /// <summary>One Tourian boss statue's complete mechanics program.</summary>
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
-    internal TourianStatueAnimatedTileProgramDefinition(
-        AnimatedTileObject objectPointer,
-        ushort programStart,
-        ushort transferByteCount,
-        ushort encodedVramDestination,
-        ushort statueStateBit,
-        ushort greyEventNumber,
-        ushort firstFrameDuration,
-        ushort packedBossTest,
-        ushort clearPaletteByteIndex,
-        ushort unlockEffectParameter,
-        ushort paletteFxDefinition,
-        ushort targetPaletteByteIndex)
+    internal TourianStatueAnimatedTileProgramDefinition(TourianStatueAnimatedTileProgramParts parts)
     {
-        ObjectPointer = objectPointer;
-        ProgramStart = programStart;
-        TransferByteCount = transferByteCount;
-        EncodedVramDestination = encodedVramDestination;
-        StatueStateBit = statueStateBit;
-        GreyEventNumber = greyEventNumber;
-        FirstFrameDuration = firstFrameDuration;
-        PackedBossTest = packedBossTest;
-        ClearPaletteByteIndex = clearPaletteByteIndex;
-        UnlockEffectParameter = unlockEffectParameter;
-        PaletteFxDefinition = paletteFxDefinition;
-        TargetPaletteByteIndex = targetPaletteByteIndex;
-        SourceOperandPointers = new CalculatedSourceOperands(programStart);
+        ObjectPointer = parts.ObjectPointer;
+        ProgramStart = parts.ProgramStart;
+        TransferByteCount = parts.TransferByteCount;
+        EncodedVramDestination = parts.EncodedVramDestination;
+        StatueStateBit = parts.StatueStateBit;
+        GreyEventNumber = parts.GreyEventNumber;
+        FirstFrameDuration = parts.FirstFrameDuration;
+        PackedBossTest = parts.PackedBossTest;
+        ClearPaletteByteIndex = parts.ClearPaletteByteIndex;
+        UnlockEffectParameter = parts.UnlockEffectParameter;
+        PaletteFxDefinition = parts.PaletteFxDefinition;
+        TargetPaletteByteIndex = parts.TargetPaletteByteIndex;
+        SourceOperandPointers = new CalculatedSourceOperands(parts.ProgramStart);
     }
 
     /// <summary>The animated-tile object header address in bank $87.</summary>

@@ -46,7 +46,7 @@ internal static partial class Program
         var system = new Bank80SystemState();
         system.LoadExploredMapBytes(Enumerable.Repeat((byte)255, 7 * 256).ToArray());
         var room = new FileSelectRoomMapGraphics(guard, system, AreaId.Crateria, mapPresentation: original);
-        var pause = new PauseMenuState(guard, new SamusState(), system, AreaId.Crateria, new(0, 0), mapPresentation: original);
+        var pause = new PauseMenuState(guard, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = original });
         var roomBefore = room.RenderBackgrounds(new(0, 0)).ToArray(); var pauseBefore = pause.Render();
         room.BindMapPresentation(edited); pause.BindMapPresentation(edited);
         AssertTrue(!roomBefore.AsSpan().SequenceEqual(room.RenderBackgrounds(new(0, 0))), "static palette edit reaches room-map pixels");

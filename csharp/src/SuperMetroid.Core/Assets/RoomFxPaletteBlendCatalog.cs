@@ -17,21 +17,18 @@ public sealed class RoomFxPaletteBlendCatalog
     private readonly RoomFxBlendColors maridiaWaterC;
     private readonly RoomFxBlendColors maridiaWaterD;
 
-    private RoomFxPaletteBlendCatalog(RoomFxBlendColors lava, RoomFxBlendColors landingSiteRain,
-        RoomFxBlendColors maridiaWaterA, RoomFxBlendColors waterAndAcid, RoomFxBlendColors fog,
-        RoomFxBlendColors maridiaWaterB, RoomFxBlendColors maridiaWaterC, RoomFxBlendColors maridiaWaterD,
-        PaletteRgb5 ceresHazeBlue, PaletteRgb5 ceresHazeRed)
+    private RoomFxPaletteBlendCatalog(RoomFxPaletteBlendParts parts)
     {
-        this.lava = lava;
-        this.landingSiteRain = landingSiteRain;
-        this.maridiaWaterA = maridiaWaterA;
-        this.waterAndAcid = waterAndAcid;
-        this.fog = fog;
-        this.maridiaWaterB = maridiaWaterB;
-        this.maridiaWaterC = maridiaWaterC;
-        this.maridiaWaterD = maridiaWaterD;
-        CeresHazeBlue = ceresHazeBlue;
-        CeresHazeRed = ceresHazeRed;
+        this.lava = parts.Lava;
+        this.landingSiteRain = parts.LandingSiteRain;
+        this.maridiaWaterA = parts.MaridiaWaterA;
+        this.waterAndAcid = parts.WaterAndAcid;
+        this.fog = parts.Fog;
+        this.maridiaWaterB = parts.MaridiaWaterB;
+        this.maridiaWaterC = parts.MaridiaWaterC;
+        this.maridiaWaterD = parts.MaridiaWaterD;
+        CeresHazeBlue = parts.CeresHazeBlue;
+        CeresHazeRed = parts.CeresHazeRed;
     }
 
     /// <summary>Cosmetic fixed-color tint selected when Ceres Ridley is alive.</summary>
@@ -70,18 +67,9 @@ public sealed class RoomFxPaletteBlendCatalog
             document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDefinitions.Ids.Count())
             throw new InvalidDataException("Room-FX blend palettes require the supported version and all eight selections.");
 
-        return new(Compile(RoomFxPaletteBlend.Lava),
-            Compile(RoomFxPaletteBlend.LandingSiteRain),
-            Compile(RoomFxPaletteBlend.MaridiaWaterA),
-            Compile(RoomFxPaletteBlend.WaterAndAcid),
-            Compile(RoomFxPaletteBlend.Fog),
-            Compile(RoomFxPaletteBlend.MaridiaWaterB),
-            Compile(RoomFxPaletteBlend.MaridiaWaterC),
-            Compile(RoomFxPaletteBlend.MaridiaWaterD),
-            ValidateHazeTint(document.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
-                nameof(document.CeresHazeBlue)),
-            ValidateHazeTint(document.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
-                nameof(document.CeresHazeRed)));
+        return new(new RoomFxPaletteBlendParts { Lava = Compile(RoomFxPaletteBlend.Lava), LandingSiteRain = Compile(RoomFxPaletteBlend.LandingSiteRain), MaridiaWaterA = Compile(RoomFxPaletteBlend.MaridiaWaterA), WaterAndAcid = Compile(RoomFxPaletteBlend.WaterAndAcid), Fog = Compile(RoomFxPaletteBlend.Fog), MaridiaWaterB = Compile(RoomFxPaletteBlend.MaridiaWaterB), MaridiaWaterC = Compile(RoomFxPaletteBlend.MaridiaWaterC), MaridiaWaterD = Compile(RoomFxPaletteBlend.MaridiaWaterD), CeresHazeBlue = ValidateHazeTint(document.CeresHazeBlue ?? RoomFxPaletteBlendDefinitions.StockCeresHazeBlue,
+                nameof(document.CeresHazeBlue)), CeresHazeRed = ValidateHazeTint(document.CeresHazeRed ?? RoomFxPaletteBlendDefinitions.StockCeresHazeRed,
+                nameof(document.CeresHazeRed)) });
 
         RoomFxBlendColors Compile(RoomFxPaletteBlend id)
         {

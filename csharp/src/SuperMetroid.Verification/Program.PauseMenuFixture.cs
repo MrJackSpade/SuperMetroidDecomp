@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -75,12 +76,12 @@ internal static partial class Program
             ["pauseSelectors"] = PauseSelectorPresentation.Load(selectorJson),
             ["pauseReserveTanks"] = PauseReserveTankPresentation.Load(reserveJson),
         };
-        var constructor = typeof(AreaMapPresentationCatalog)
-            .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).Single();
-        return (AreaMapPresentationCatalog)constructor.Invoke(constructor.GetParameters()
-            .Select(parameter => overrides.TryGetValue(parameter.Name!, out var value) ? value :
-                typeof(AreaMapPresentationCatalog).GetProperty(parameter.Name!,
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase)!.GetValue(stock))
-            .ToArray());
+        // Every part comes from the stock catalog's same-named property unless overridden above.
+        var parts = (AreaMapPresentationParts)RuntimeHelpers.GetUninitializedObject(typeof(AreaMapPresentationParts));
+        foreach (PropertyInfo part in typeof(AreaMapPresentationParts).GetProperties())
+            part.SetValue(parts, overrides.TryGetValue(char.ToLowerInvariant(part.Name[0]) + part.Name[1..], out var value) ? value :
+                typeof(AreaMapPresentationCatalog).GetProperty(part.Name,
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.IgnoreCase)!.GetValue(stock));
+        return (AreaMapPresentationCatalog)PrivateState.Construct(typeof(AreaMapPresentationCatalog), parts);
     }
 }

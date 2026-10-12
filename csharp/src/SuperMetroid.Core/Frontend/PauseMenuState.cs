@@ -52,49 +52,40 @@ internal sealed partial class PauseMenuState
     private Position16<OamPixels> lastIndicatorOrigin;
     private ushort lastIndicatorSpritemapId;
 
-    public PauseMenuState(
-        ISnesAddressSpace bus,
-        SamusState samus,
-        Bank80SystemState system,
-        AreaId areaIndex,
-        Position16<MapTiles> roomMapPosition,
-        CartridgeAudioState? audio = null,
-        SnesVram? gameplayVram = null,
-        MapRevealMode mapRevealMode = MapRevealMode.None,
-        AreaMapPresentationCatalog? mapPresentation = null)
+    public PauseMenuState(ISnesAddressSpace bus, PauseMenuEntry entry)
     {
         this.bus = bus ?? throw new ArgumentNullException(nameof(bus));
-        this.mapPresentation = mapPresentation ?? throw new InvalidOperationException(
+        this.mapPresentation = entry.MapPresentation ?? throw new InvalidOperationException(
             "Pause menu requires installed map and equipment presentation assets.");
-        this.samus = samus ?? throw new ArgumentNullException(nameof(samus));
-        this.system = system ?? throw new ArgumentNullException(nameof(system));
-        this.audio = audio;
-        mapArrows = new FileSelectMapAnimations(bus, mapPresentation.Arrows);
+        this.samus = entry.Samus ?? throw new ArgumentNullException(nameof(entry.Samus));
+        this.system = entry.System ?? throw new ArgumentNullException(nameof(entry.System));
+        this.audio = entry.Audio;
+        mapArrows = new FileSelectMapAnimations(bus, entry.MapPresentation.Arrows);
         paletteAnimation = new MapPaletteAnimation(bus);
-        paletteAnimation.Bind(mapPresentation.HighlightCycle);
-        area = areaIndex;
-        _ = AreaIds.ToIndex(areaIndex);
-        this.roomMapPosition = roomMapPosition;
-        this.mapRevealMode = Enum.IsDefined(mapRevealMode)
-            ? mapRevealMode
-            : throw new ArgumentOutOfRangeException(nameof(mapRevealMode));
+        paletteAnimation.Bind(entry.MapPresentation.HighlightCycle);
+        area = entry.AreaIndex;
+        _ = AreaIds.ToIndex(entry.AreaIndex);
+        this.roomMapPosition = entry.RoomMapPosition;
+        this.mapRevealMode = Enum.IsDefined(entry.MapRevealMode)
+            ? entry.MapRevealMode
+            : throw new ArgumentOutOfRangeException(nameof(entry.MapRevealMode));
 
         // GameState_13 copies exactly these three cartridge ranges. VMADD is a word
         // address, hence the doubled byte destinations below.
         var pauseVram = new PauseVram(vram);
-        mapPresentation.Tiles.LoadTo(pauseVram.MapCharacters);
-        mapPresentation.PauseTiles.LoadTo(pauseVram.InterfaceCharacters);
-        mapPresentation.Sprites.LoadArtworkTo(pauseVram.ObjectCharacters);
-        mapPresentation.HudTiles.LoadTo(vram);
+        entry.MapPresentation.Tiles.LoadTo(pauseVram.MapCharacters);
+        entry.MapPresentation.PauseTiles.LoadTo(pauseVram.InterfaceCharacters);
+        entry.MapPresentation.Sprites.LoadArtworkTo(pauseVram.ObjectCharacters);
+        entry.MapPresentation.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
-        if (gameplayVram is not null)
+        if (entry.GameplayVram is not null)
         {
             // SetupPPUForPauseMenu changes BG3SC to $58 but never uploads a replacement
             // tilemap. The four-row gameplay HUD already resident at VRAM word $5800 is
             // intentionally retained. A fresh host-side VRAM object used to discard that
             // state, removing the entire energy/ammo HUD from pause and exposing map BG1
             // pixels in the area that its BG3 plane normally covers.
-            new PauseVram(vram).RetainedHudTilemap.Load(new PauseVram(gameplayVram).RetainedHudTilemap);
+            new PauseVram(vram).RetainedHudTilemap.Load(new PauseVram(entry.GameplayVram).RetainedHudTilemap);
         }
 
         // GameState_13 finishes pause setup by calling QueueClearingOfFxTilemap at
@@ -107,7 +98,7 @@ internal sealed partial class PauseMenuState
         var clearedFxTilemap = new ushort[PauseMenuLayout.Bg3FxClearWordCount];
         Array.Fill(clearedFxTilemap, PauseMenuLayout.Bg3FxClearTile);
         new PauseVram(vram).Bg3FxRows.Write(clearedFxTilemap);
-        new CgramPalettes(cgram).LoadImage(mapPresentation.Palettes.Pause);
+        new CgramPalettes(cgram).LoadImage(entry.MapPresentation.Palettes.Pause);
 
         // LoadPauseScreenBaseTilemaps does *not* leave the bottom two button-label rows
         // solely in the $B6:E000 BG2 image. It keeps a mutable $B6:E400 copy at WRAM
@@ -115,13 +106,13 @@ internal sealed partial class PauseMenuState
         // BG2 word $3B20. Omitting this second source is why the pause-screen chrome looked
         // like missing HUD. Keep the complete mutable source so every native word index
         // below remains directly comparable with bank $82.
-        pauseButtonTilemap = mapPresentation.PauseBackdrops.CreateButtonTilemap();
+        pauseButtonTilemap = entry.MapPresentation.PauseBackdrops.CreateButtonTilemap();
         SetPauseButtonLabelMode(0);
 
         // $B6:E800 is the mutable equipment template normally copied to $7E:3800.
         // Preserve it as a byte array because the cartridge's offset tables contain WRAM
         // byte addresses rather than tilemap word indexes.
-        equipmentTilemap = mapPresentation.PauseEquipmentBase.CreateTilemap();
+        equipmentTilemap = entry.MapPresentation.PauseEquipmentBase.CreateTilemap();
         RebuildEquipmentTilemap();
         LoadPauseMapTilemap();
         SelectFirstCollectedEquipment();

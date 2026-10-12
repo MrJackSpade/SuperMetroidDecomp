@@ -187,34 +187,7 @@ internal sealed class AndroidSessionData : IDisposable
                 roomMetatiles, roomBackgroundTilemaps, roomSkyTilemaps, roomVisualLayouts)
                 .Append(KeyValuePair.Create(SuperMetroid.AssetExtraction.GameInstallationLayout.SamusBodyDirectoryName,
                     samusBodyArt.ContentIdentity))
-                .Concat(SuperMetroid.AssetExtraction.RoomPlmPresentationIdentity.Create(
-                    roomPlmShotBlockVisuals,
-                    roomPlmGrappleBlockVisuals,
-                    roomPlmStationVisuals,
-                    roomPlmBlueDoorVisuals,
-                    roomPlmColoredDoorVisuals,
-                    roomPlmGreyDoorVisuals,
-                    roomPlmEyeDoorVisuals,
-                    roomPlmMotherBrainGlassVisuals,
-                    roomPlmNoobTubeVisuals,
-                    roomPlmDownwardGateVisuals,
-                    roomPlmElevatorPlatformVisuals,
-                    roomPlmEscapeGateVisuals,
-                    roomPlmBombTorizoHandVisuals,
-                    roomPlmDraygonCannonVisuals,
-                    roomPlmChozoStatueVisuals,
-                    roomPlmLinkedRestoreVisuals,
-                    roomPlmTourianAccessVisuals,
-                    roomPlmSpeedBoosterVisuals,
-                    roomPlmMaridiaElevatubeVisuals,
-                    roomPlmSporeSpawnCeilingVisuals,
-                    roomPlmSamusEaterVisuals,
-                    roomPlmBotwoonWallVisuals,
-                    roomPlmKraidVisuals,
-                    roomPlmCrocomireVisuals,
-                    roomPlmMotherBrainFakeDeathVisuals,
-                    roomPlmCollectibleVisuals,
-                    roomPlmDynamicCollectibleArt))
+                .Concat(SuperMetroid.AssetExtraction.RoomPlmPresentationIdentity.Create(new SuperMetroid.AssetExtraction.RoomPlmVisualCatalogSet { ShotBlock = roomPlmShotBlockVisuals, GrappleBlock = roomPlmGrappleBlockVisuals, Station = roomPlmStationVisuals, BlueDoor = roomPlmBlueDoorVisuals, ColoredDoor = roomPlmColoredDoorVisuals, GreyDoor = roomPlmGreyDoorVisuals, EyeDoor = roomPlmEyeDoorVisuals, MotherBrainGlass = roomPlmMotherBrainGlassVisuals, NoobTube = roomPlmNoobTubeVisuals, DownwardGate = roomPlmDownwardGateVisuals, ElevatorPlatform = roomPlmElevatorPlatformVisuals, EscapeGate = roomPlmEscapeGateVisuals, BombTorizoHand = roomPlmBombTorizoHandVisuals, DraygonCannon = roomPlmDraygonCannonVisuals, ChozoStatue = roomPlmChozoStatueVisuals, LinkedRestore = roomPlmLinkedRestoreVisuals, TourianAccess = roomPlmTourianAccessVisuals, SpeedBooster = roomPlmSpeedBoosterVisuals, MaridiaElevatube = roomPlmMaridiaElevatubeVisuals, SporeSpawnCeiling = roomPlmSporeSpawnCeilingVisuals, SamusEater = roomPlmSamusEaterVisuals, BotwoonWall = roomPlmBotwoonWallVisuals, Kraid = roomPlmKraidVisuals, Crocomire = roomPlmCrocomireVisuals, MotherBrainFakeDeath = roomPlmMotherBrainFakeDeathVisuals, Collectible = roomPlmCollectibleVisuals, DynamicCollectibleArt = roomPlmDynamicCollectibleArt }))
                 .Concat(SuperMetroid.AssetExtraction.GameplayPresentationIdentity.Create(
                     gameplayBasePalettes, standardObjectArt, xrayRevealVisuals))
                 .Concat(SuperMetroid.AssetExtraction.EndingPresentationIdentity.Create(

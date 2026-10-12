@@ -3749,16 +3749,7 @@ Landed: true, HitCeiling: false);
                 // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
                 // position, not camera position. Fresh debug sessions begin without an area
                 // map, so only tiles actually visited by this runtime are revealed.
-                Hud.UpdateMinimap(
-                    _addressSpace,
-                    System,
-                    roomGeometry.AreaIndex,
-                    roomGeometry.MapPosition,
-                    LevelData.Size,
-                    Samus.Position.Whole,
-                    NmiFrameCounter8,
-                    MapRevealMode,
-                    MapPresentation?.Get(roomGeometry.AreaIndex));
+                Hud.UpdateMinimap(_addressSpace, System, new MinimapFrame { AreaIndex = roomGeometry.AreaIndex, RoomMap = roomGeometry.MapPosition, RoomSize = LevelData.Size, Samus = Samus.Position.Whole, NmiFrameCounter = NmiFrameCounter8, MapRevealMode = MapRevealMode, PresentationMap = MapPresentation?.Get(roomGeometry.AreaIndex) });
             }
 
             RestoreAttractPlayerInput();

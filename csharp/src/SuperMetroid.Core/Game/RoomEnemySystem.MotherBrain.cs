@@ -417,13 +417,7 @@ public sealed partial class RoomEnemySystem
         if (unchecked((short)screen.Y) < 0)
             return;
 
-        DrawEnemySpritemap(
-            oam,
-            MotherBrainVisualDefinitions.Bank,
-            spritemapPointer,
-            screen.ToOam(),
-            paletteIndex,
-            vramTilesIndex);
+        DrawEnemySpritemap(oam, new EnemySpritemapDraw { Bank = MotherBrainVisualDefinitions.Bank, Pointer = spritemapPointer, Origin = screen.ToOam(), PaletteBits = paletteIndex, BaseTileIndex = vramTilesIndex });
     }
 
     private static Offset16<RoomPixels> GetMotherBrainBrainShake(
@@ -467,15 +461,7 @@ public sealed partial class RoomEnemySystem
             state.UpperNeckMovementIndex = upperIndex;
         }
 
-        MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(
-            state.Body.Position.Whole,
-            state.LowerNeckAngle,
-            state.UpperNeckAngle,
-            state.NeckSegment0Distance,
-            state.NeckSegment1Distance,
-            state.NeckSegment2Distance,
-            state.NeckSegment3Distance,
-            state.NeckSegment4Distance);
+        MotherBrainNeckGeometry geometry = MotherBrainNeckKinematics.CalculateGeometry(state.Body.Position.Whole, state.LowerNeckAngle, state.UpperNeckAngle, new MotherBrainNeckSegmentDistances { Segment0Distance = state.NeckSegment0Distance, Segment1Distance = state.NeckSegment1Distance, Segment2Distance = state.NeckSegment2Distance, Segment3Distance = state.NeckSegment3Distance, Segment4Distance = state.NeckSegment4Distance });
         state.NeckSegment0 = geometry.Segment0;
         state.NeckSegment1 = geometry.Segment1;
         state.NeckSegment2 = geometry.Segment2;

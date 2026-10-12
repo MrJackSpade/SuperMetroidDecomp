@@ -71,15 +71,7 @@ internal static class SamusBodyTransferContractChecks
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(cannonJson, cannonPng);
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         if (invalidAdjacentFrame) frames[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
-        return new SamusBodyArtworkCatalog(pointers[..SamusBodyArtworkCatalog.TopSetCount],
-            pointers[SamusBodyArtworkCatalog.TopSetCount..],
-            Enumerable.Repeat((ushort)SamusBodyArtworkCatalog.FirstFrameOffset, SamusBodyArtworkCatalog.PoseCount).ToArray(),
-            new sbyte[SamusBodyArtworkCatalog.PoseCount], frames,
-            groups[..SamusBodyArtworkCatalog.TopSetCount], groups[SamusBodyArtworkCatalog.TopSetCount..],
-            sprites, atmosphere, deathColors, deathTiles, cannon,
-            new ushort[SamusRenderingRomData.Body.LandingVerticalOffsetByteCount],
-            new sbyte[SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount],
-            new sbyte[SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount]);
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = pointers[..SamusBodyArtworkCatalog.TopSetCount], BottomPointers = pointers[SamusBodyArtworkCatalog.TopSetCount..], PosePointers = Enumerable.Repeat((ushort)SamusBodyArtworkCatalog.FirstFrameOffset, SamusBodyArtworkCatalog.PoseCount).ToArray(), GraphicsYOffsets = new sbyte[SamusBodyArtworkCatalog.PoseCount], Frames = frames, Top = groups[..SamusBodyArtworkCatalog.TopSetCount], Bottom = groups[SamusBodyArtworkCatalog.TopSetCount..], Spritemaps = sprites, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = new ushort[SamusRenderingRomData.Body.LandingVerticalOffsetByteCount], PostureYOffsets = new sbyte[SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount], DrainedYOffsets = new sbyte[SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount] });
     }
 
     private static void ConfirmStaticCalls()

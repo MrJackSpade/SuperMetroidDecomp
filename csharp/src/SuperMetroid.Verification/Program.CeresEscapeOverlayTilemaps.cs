@@ -118,9 +118,7 @@ internal static partial class Program
             "corrupt Ceres overlay JSON fails loudly");
         var missing = new RoomEnemySystem
         {
-            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(
-                new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(),
-                new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>()),
+            TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }),
         };
         typeof(RoomEnemySystem).GetField("_bus", flags)!.SetValue(missing, guarded);
         ExpectMissing(() => emergency.Invoke(missing, [new VramWriteQueue()]),

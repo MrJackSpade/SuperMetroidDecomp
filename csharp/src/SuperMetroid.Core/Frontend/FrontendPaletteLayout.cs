@@ -37,6 +37,14 @@ public static class FrontendPaletteLayout
     public static readonly PpuLayoutCell FileCopyArrow = PpuMemoryLayout.Colors(nameof(FileCopyArrow), FileCopyArrowDefinitions.FirstColor,
         FileCopyArrowDefinitions.ColorCount, "Bgr555 rotating arrow colours");
 
+    /// <summary>
+    /// CGADD $C9-$CA: OBJ palette 4 colours 9 and 10, the white and red glyph colours of the Nintendo
+    /// copyright spritemap that skip transition <c>$8B:9A9C</c> overwrites.
+    /// </summary>
+    public static readonly PpuLayoutCell TitleCopyright = PpuMemoryLayout.Colors(nameof(TitleCopyright),
+        TitleSequenceRomData.Palette.CopyrightWhiteIndex,
+        TitleSequenceRomData.Palette.CopyrightRedIndex - TitleSequenceRomData.Palette.CopyrightWhiteIndex + 1, "Bgr555 white, red");
+
     /// <summary>CGADD $F0-$FF: OBJ palette 7, the intro Mother Brain's colours that her hurt flash whitens.</summary>
     public static readonly PpuLayoutCell IntroMotherBrain = PpuMemoryLayout.Colors(nameof(IntroMotherBrain), 0xf0, 16,
         "Bgr555 OBJ palette 7");
@@ -66,6 +74,14 @@ public readonly struct FrontendPalettes(SnesCgram cgram)
 
     /// <summary>The second colour file select's map entry holds black.</summary>
     public CgramPalette FileSelectEntryBlackSecond => new(cgram, FrontendPaletteLayout.FileSelectEntryBlackSecond);
+
+    /// <summary>Writes the title copyright glyph's white and red colours.</summary>
+    public void WriteTitleCopyright(Bgr555 white, Bgr555 red)
+    {
+        var palette = new CgramPalette(cgram, FrontendPaletteLayout.TitleCopyright);
+        palette.Write(0, white);
+        palette.Write(palette.Count - 1, red);
+    }
 
     /// <summary>The rotating copy-arrow colours.</summary>
     public CgramPalette FileCopyArrow => new(cgram, FrontendPaletteLayout.FileCopyArrow);

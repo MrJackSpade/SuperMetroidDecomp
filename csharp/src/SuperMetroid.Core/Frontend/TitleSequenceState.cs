@@ -160,9 +160,8 @@ public sealed class TitleSequenceState
         if (Phase is TitleSequencePhase.TitleScreenFadeIn or
             TitleSequencePhase.TitleScreen or TitleSequencePhase.TitleScreenFadeOut)
         {
-            new CgramPalettes(cgram).All.Write(TitleSequenceRomData.Palette.CopyrightWhiteIndex,
-                presentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite);
-            new CgramPalettes(cgram).All.Write(TitleSequenceRomData.Palette.CopyrightRedIndex,
+            new FrontendPalettes(cgram).WriteTitleCopyright(
+                presentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
                 presentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         }
     }
@@ -508,11 +507,8 @@ public sealed class TitleSequenceState
         gradientEnabled = true;
         // Skip transition `$8B:9A9C` explicitly overwrites the two glyph colors used by
         // the Nintendo copyright spritemap after restoring CGRAM's upper half.
-        new CgramPalettes(cgram).All.Write(
-            TitleSequenceRomData.Palette.CopyrightWhiteIndex,
-            titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite);
-        new CgramPalettes(cgram).All.Write(
-            TitleSequenceRomData.Palette.CopyrightRedIndex,
+        new FrontendPalettes(cgram).WriteTitleCopyright(
+            titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
         activeSpritemap = TitleSequenceRomData.Sprites.SuperMetroidLogo;
         activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;

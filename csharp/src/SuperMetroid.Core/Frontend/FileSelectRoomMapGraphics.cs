@@ -94,7 +94,7 @@ public sealed partial class FileSelectRoomMapGraphics
     public Rgba32[] RenderFrameOnly()
     {
         Rgba32[] pixels = frameOnlyBuffer ??= new Rgba32[FrontendFrame.Width * FrontendFrame.Height];
-        Array.Fill(pixels, new CgramPalettes(Cgram).Backdrop.ToRgba32());
+        Array.Fill(pixels, new CgramPalettes(Cgram).BackdropRgba);
         // Composite directly: transparent cells leave the backdrop, as compositing a plane would.
         SnesBgTilemapRenderer.Composite4BppViewport(pixels,
             Vram, Cgram, MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters,
@@ -145,7 +145,7 @@ public sealed partial class FileSelectRoomMapGraphics
     public Rgba32[] RenderBackgrounds(Position16<MapPixels> scroll)
     {
         Rgba32[] pixels = backgroundsBuffer ??= new Rgba32[256 * 224];
-        Array.Fill(pixels, new CgramPalettes(ppu.Cgram).Backdrop.ToRgba32());
+        Array.Fill(pixels, new CgramPalettes(ppu.Cgram).BackdropRgba);
         for (int tier = 0; tier < 2; tier++)
         {
             // Mode 1 orders BG2 before BG1 within each background priority tier.

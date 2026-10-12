@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 using SuperMetroid.Core.Rooms;
@@ -121,8 +122,10 @@ public sealed class BotwoonEnemyState
     public ushort PathPointer { get; internal set; }
     /// <summary>Signed descriptor direction: negative walks the sample pointer backward and negates accumulated displacements; nonnegative walks forward.</summary>
     public short PathDirection { get; internal set; }
-    /// <summary>Last head list explicitly installed by AI; separate from the advancing physical instruction pointer so unchanged orientation does not restart bytecode.</summary>
-    public ushort InstalledHeadInstruction { get; internal set; }
+    /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
+    internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
+    /// <summary>The next step of the head animation's timeline.</summary>
+    internal int HeadAnimationPosition { get; set; }
     /// <summary>CGRAM destination measured in bytes; retail initialization targets color $F0, the start of OBJ palette seven.</summary>
     public ushort PaletteDestinationByteOffset { get; internal set; }
     /// <summary>Even byte offset 0 through 14 selecting the next health threshold/palette; offset 16 marks completion of all eight palette steps.</summary>
@@ -240,7 +243,9 @@ public sealed partial class RoomEnemySystem
     {
         var state = new BotwoonEnemyState(head);
         _botwoonState = state;
-        head.CurrentInstruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
+        // `$B3:9583` installs InstList_Botwoon_Hide: the head starts hidden in its hole.
+        state.HeadProgram = BotwoonHeadProgram.Hidden;
+        state.HeadAnimationPosition = 0;
         head.InstructionTimer = 1;
         head.Timer = 0;
 
@@ -278,7 +283,6 @@ public sealed partial class RoomEnemySystem
         state.PreviousHealth = head.Health;
         state.PaletteDestinationByteOffset =
             unchecked((ushort)((head.PaletteIndex >> 4) + 256));
-        state.InstalledHeadInstruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
         // `$B3:961B` ORs $0400: the head starts hidden in its hole, out of every collision pass.
         head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
 
@@ -711,23 +715,22 @@ public sealed partial class RoomEnemySystem
         short dy = moved.Y;
         if (dx != 0 || dy != 0)
         {
-            ushort instruction;
+            BotwoonHeadProgram program;
             if (state.InsideHole)
             {
                 head.Layer = 7;
                 // `$B3:9DF7` ORs $0400 while the head travels inside the wall.
                 head.Properties = head.Properties.With(EnemyProperties.IgnoreSamusCollision);
-                instruction = BotwoonInstructionDefinitions.HiddenHeadInstruction;
+                program = BotwoonHeadProgram.Hidden;
             }
             else
             {
                 head.Layer = 2;
                 // `$B3:9E10` (AND #$FBFF) restores collision once the head is outside.
                 head.Properties = head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-                byte angle = CalculateCartridgeAngle(new(dx, dy));
-                instruction = BotwoonInstructionDefinitions.HeadMovementInstruction(angle);
+                program = BotwoonHeadProgram.MovingToward(CalculateCartridgeAngle(new(dx, dy)));
             }
-            InstallBotwoonHeadInstruction(head, state, instruction);
+            InstallBotwoonHeadProgram(head, state, program);
         }
 
         for (int index = 3; index > 0; index--)
@@ -745,8 +748,7 @@ public sealed partial class RoomEnemySystem
         head.Layer = 2;
         byte angle = CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - head.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - head.Position.Y.Whole))));
-        ushort instruction = BotwoonInstructionDefinitions.HeadSpitInstruction(angle);
-        InstallBotwoonHeadInstruction(head, state, instruction);
+        InstallBotwoonHeadProgram(head, state, BotwoonHeadProgram.SpittingToward(angle));
         state.SpitAngle = unchecked((byte)(64 - angle));
         state.HeadFunction = state.Function == BotwoonEnemyFunction.SpitWhileHidden
             ? BotwoonHeadFunction.WaitForSpitFrame
@@ -754,17 +756,62 @@ public sealed partial class RoomEnemySystem
         RunBotwoonHeadFunction(head, state, samus);
     }
 
-    private static void InstallBotwoonHeadInstruction(
+    private static void InstallBotwoonHeadProgram(
         RoomEnemySlot head,
         BotwoonEnemyState state,
-        ushort instruction)
+        BotwoonHeadProgram program)
     {
-        if (instruction == state.InstalledHeadInstruction)
+        if (program == state.HeadProgram)
             return;
-        state.InstalledHeadInstruction = instruction;
-        head.CurrentInstruction = instruction;
+        state.HeadProgram = program;
+        state.HeadAnimationPosition = 0;
         head.InstructionTimer = 1;
         head.Timer = 0;
+    }
+
+    /// <summary>
+    /// Runs Botwoon's head animation where the enemy instruction interpreter would: the frame
+    /// expires on the update its native timer would, and a newly shown frame raises the
+    /// new-frame flag exactly as a native timed frame does.
+    /// </summary>
+    private void AdvanceBotwoonHeadAnimation(RoomEnemySlot head, BotwoonEnemyState state)
+    {
+        ushort oldTimer = head.InstructionTimer;
+        head.InstructionTimer = unchecked((ushort)(oldTimer - 1));
+        if (oldTimer != 1)
+        {
+            head.ExtraProperties = head.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
+            return;
+        }
+
+        int position = state.HeadAnimationPosition;
+        AnimationAdvance<BotwoonHeadFrame> advance = BotwoonAnimations.Head(state.HeadProgram)
+            .Advance(ref position, cue => ApplyBotwoonHeadCue(head, state, cue));
+        state.HeadAnimationPosition = position;
+        // A hold is the native sleep: the timer wraps from zero and the last frame stays.
+        if (advance.Held)
+            return;
+        head.InstructionTimer = (ushort)advance.Duration;
+        head.SpritemapPointer = BotwoonVisualDefinitions.HeadSpritemap(advance.Frame);
+        head.ExtraProperties = head.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
+    }
+
+    private void ApplyBotwoonHeadCue(RoomEnemySlot head, BotwoonEnemyState state, BotwoonHeadCue cue)
+    {
+        switch (cue)
+        {
+            case BotwoonHeadCue.ApplyFacingRadius:
+                head.Radius = BotwoonAnimations.HeadRadius(state.HeadProgram.Facing);
+                return;
+            case BotwoonHeadCue.QueueSpitSound:
+                LastBotwoonSoundEffect = BotwoonSoundDefinitions.Spit;
+                return;
+            case BotwoonHeadCue.ReachSpitFrame:
+                state.SpitFrameReached = true;
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(BotwoonHeadCue)} {cue}.");
+        }
     }
 
     private void SpawnBotwoonSpitVolley(
@@ -826,7 +873,7 @@ public sealed partial class RoomEnemySystem
         head.Position = head.Position.WithWholeY(200);
         state.Function = BotwoonEnemyFunction.WaitForBody;
         SpawnRoomGraphicsDustExplosion(head.Position.Whole, animationIndex: 0x001d);
-        LastBotwoonSoundEffect = 0x0024;
+        LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
         head.Properties = head.Properties.With(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
     }
@@ -888,7 +935,7 @@ public sealed partial class RoomEnemySystem
                     new(unchecked((ushort)((EnemyRandom.Generate() & 0x001f) + 232)), unchecked((ushort)(state.WallExplosionFrame + (EnemyRandom.Generate() & 0x001f) - 8))),
                     RoomSpriteObjectKind.BotwoonLargeExplosion,
                     graphicsIndex: 0x0a00);
-                LastBotwoonSoundEffect = 0x0024;
+                LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
             }
 
             NativeWordCounterStep smallExplosionTimer =
@@ -942,49 +989,6 @@ public sealed partial class RoomEnemySystem
         head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(yDisplacement));
     }
 
-
-    /// <summary>Animation callback dispatcher for $B3:94C7-$9572.</summary>
-    private bool TryProcessBotwoonInstruction(
-        RoomEnemySlot head,
-        ushort opcode,
-        ref ushort cursor)
-    {
-        // The shared interpreter hands every remaining negative word here; only
-        // Botwoon's private opcodes belong to this handler.
-        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Botwoon ||
-            !Enum.IsDefined((BotwoonInstruction)opcode))
-            return false;
-        BotwoonEnemyState state = RequireBotwoonState(head);
-        switch ((BotwoonInstruction)opcode)
-        {
-            case BotwoonInstruction.EnemyRadius_8x10:
-            case BotwoonInstruction.EnemyRadius_8x10_duplicate:
-            case BotwoonInstruction.EnemyRadius_8x10_duplicate_again:
-            case BotwoonInstruction.EnemyRadius_8x10_duplicate_again2:
-                head.Radius = new(8, 16);
-                break;
-            case BotwoonInstruction.EnemyRadius_CxC:
-            case BotwoonInstruction.EnemyRadius_CxC_duplicate:
-            case BotwoonInstruction.EnemyRadius_CxC_duplicate_again:
-            case BotwoonInstruction.EnemyRadius_CxC_duplicate_again2:
-                head.Radius = new(12, 12);
-                break;
-            case BotwoonInstruction.EnemyRadius_10x8:
-            case BotwoonInstruction.EnemyRadius_10x8_duplicate:
-                head.Radius = new(16, 8);
-                break;
-            case BotwoonInstruction.SetSpittingFlag:
-                state.SpitFrameReached = true;
-                break;
-            case BotwoonInstruction.QueueSpitSFX:
-                LastBotwoonSoundEffect = 0x007c;
-                break;
-            default:
-                throw new InvalidOperationException($"Undefined Botwoon instruction ${opcode:X4}.");
-        }
-        cursor = unchecked((ushort)(cursor + 2));
-        return true;
-    }
 
     private BotwoonEnemyState RequireBotwoonState(RoomEnemySlot head) =>
         _botwoonState is not null && head.SlotIndex == 0

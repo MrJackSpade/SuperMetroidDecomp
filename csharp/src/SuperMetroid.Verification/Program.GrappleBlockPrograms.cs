@@ -17,7 +17,7 @@ internal static partial class Program
         {
             bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadMechanicsWord((ushort)address,out ushort value);
             AssertEqual(known.Contains((ushort)address),found,"Grapple complete control domain including callback gap");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native timing, sound queue, BTS restoration and deletion");
+            AssertEqual(found ? ReadRomWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native timing, sound queue, BTS restoration and deletion");
         }
     }
 
@@ -30,7 +30,7 @@ internal static partial class Program
         {
             bool found = RoomPlmGrappleBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address,out ushort value);
             AssertEqual(known.Contains((ushort)address),found,"Grapple complete draw operand domain");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native initial, forward and reverse draw selection");
+            AssertEqual(found ? ReadRomWord(rom,0x840000 | address) : (ushort)0,value,"Grapple native initial, forward and reverse draw selection");
         }
     }
 
@@ -64,8 +64,8 @@ internal static partial class Program
                 continue;
             }
             AssertEqual((ushort)pointer,draw.Pointer,"Grapple draw identity");
-            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount,"Grapple native single-block geometry");
-            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)),draw.LevelWord,"Grapple native collision and tile word");
+            AssertEqual(ReadRomWord(rom,0x840000 | pointer),RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount,"Grapple native single-block geometry");
+            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),draw.LevelWord,"Grapple native collision and tile word");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 4))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextX,"Grapple native terminal X");
             AssertEqual(unchecked((sbyte)GrappleBlockPhysicalDrawMappingRomByte(rom, 0x840000 | (pointer + 5))),RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY,"Grapple native terminal Y");
             AssertEqual(draw,exported.Single(entry => entry.Pointer == pointer),"Grapple exported draw matches calculation");
@@ -79,7 +79,7 @@ internal static partial class Program
     {
         ushort[] pointers = [0xa4f9,0xa4ff,0xa505,0xa50b,0xa511];
         var native = pointers.ToDictionary(pointer => pointer, pointer =>
-            (ushort)(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)) & 0xfff));
+            (ushort)(ReadRomWord(rom,0x840000 | (pointer + 2)) & 0xfff));
         var entries = native.Select(pair => new RoomPlmGrappleBlockVisualEntry(pair.Key,pair.Value)).ToArray();
         var stock = RoomPlmGrappleBlockVisualCatalog.Stock();
         var imported = new RoomPlmGrappleBlockVisualCatalog(entries);

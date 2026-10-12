@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- MSBuildWorkspace evaluates every project (Android included) in its own build host. -->
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="5.9.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.9.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The build analyzer and this tool share one scanner, so the baseline always matches what the build enforces. -->
+    <Compile Include="../SuperMetroid.EnsureAnalyzer/CartridgeEncodingScanner.cs" Link="Shared/CartridgeEncodingScanner.cs" />
+    <Compile Include="../SuperMetroid.EnsureAnalyzer/CartridgeEncodingBaseline.cs" Link="Shared/CartridgeEncodingBaseline.cs" />
+    <Compile Include="../SuperMetroid.ReachabilityAudit/SolutionLoader.cs" Link="Shared/SolutionLoader.cs" />
+  </ItemGroup>
+  <Import Project="../../test-support/WindowsConsole.projitems" />
+</Project>

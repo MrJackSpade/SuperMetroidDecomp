@@ -18,7 +18,6 @@ internal static partial class Program
             typeof(AlcoonInstruction),
             typeof(BabyMetroidInstruction),
             typeof(BeetomInstruction),
-            typeof(BotwoonInstruction),
             typeof(BoyonInstruction),
             typeof(CacatacInstruction),
             typeof(CeresDoorInstruction),

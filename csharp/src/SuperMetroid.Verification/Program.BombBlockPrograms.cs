@@ -28,7 +28,7 @@ internal static partial class Program
             int run = 0;
             while (true)
             {
-                ushort nativeCount = ReadBotwoonInstructionWord(rom, 0x840000 | cursor);
+                ushort nativeCount = ReadRomWord(rom, 0x840000 | cursor);
                 int count = nativeCount & 0x7fff;
                 AssertEqual(2, count, "bomb restoration two words per native run");
                 AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "bomb restoration native orientation");
@@ -37,7 +37,7 @@ internal static partial class Program
                 AssertEqual(count, exportedRun.LevelWords.Length, "bomb restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {
-                    ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (cursor + 2 + 2 * block));
+                    ushort native = ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block));
                     AssertEqual(native, draw.WordAt(run, block), "bomb restoration calculated parent/child word");
                     AssertEqual(native, exportedRun.LevelWords.Span[block], "bomb restoration exported word");
                 }
@@ -89,7 +89,7 @@ internal static partial class Program
         {
             bool found = RoomPlmBombBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
             AssertEqual(known.Contains((ushort)address), found, "bomb full control address domain");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
                 "bomb native queue, goto, timing, restoration and deletion controls");
         }
     }
@@ -105,7 +105,7 @@ internal static partial class Program
         {
             bool found = RoomPlmBombBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
             AssertEqual(addresses.Contains((ushort)address), found, "bomb full draw address domain");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
                 "bomb native forward/reverse breakup and restoration draws");
         }
     }

@@ -29,7 +29,7 @@ internal static partial class Program
         {
             bool found = RoomPlmContactCrumbleProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
             AssertEqual(known.Contains((ushort)address), found, "contact crumble full control address domain");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0,
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0,
                 value, "contact crumble native timing, restoration and deletion controls");
         }
     }
@@ -45,7 +45,7 @@ internal static partial class Program
         {
             bool found = RoomPlmContactCrumbleProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
             AssertEqual(addresses.Contains((ushort)address), found, "contact crumble full draw address domain");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0,
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0,
                 value, "contact crumble native breakup, reverse reveal and linked restoration draws");
         }
     }
@@ -89,7 +89,7 @@ internal static partial class Program
             int run = 0;
             while (true)
             {
-                ushort nativeCount = ReadBotwoonInstructionWord(rom, 0x840000 | cursor);
+                ushort nativeCount = ReadRomWord(rom, 0x840000 | cursor);
                 int count = nativeCount & 0x7fff;
                 AssertEqual(2, count, "contact restoration two words per native run");
                 AssertEqual((nativeCount & 0x8000) != 0, draw.Vertical, "contact restoration native orientation");
@@ -98,7 +98,7 @@ internal static partial class Program
                 AssertEqual(count, exportedRun.LevelWords.Length, "contact restoration exported word count");
                 for (int block = 0; block < count; block++)
                 {
-                    ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (cursor + 2 + 2 * block));
+                    ushort native = ReadRomWord(rom, 0x840000 | (cursor + 2 + 2 * block));
                     AssertEqual(native, draw.WordAt(run, block), "contact restoration calculated parent/child word");
                     AssertEqual(native, exportedRun.LevelWords.Span[block], "contact restoration exported word");
                 }

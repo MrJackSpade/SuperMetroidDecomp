@@ -297,8 +297,13 @@ public sealed class RoomEnemyProjectileSlot
     public FixedPosition<RoomPixels> Position { get; internal set; }
     /// <summary>Gets the unchanged native velocity words, interpreted as signed 8.8 by the shared movement helpers or reused by family-specific logic.</summary>
     public EightEightVector<RoomPixels> Velocity { get; internal set; }
-    /// <summary>Gets the bank-$86 offset of the next instruction-list word to execute.</summary>
+    /// <summary>Gets the bank-$86 offset of the next instruction-list word to execute; zero while a typed animation runs.</summary>
     public ushort InstructionPointer { get; internal set; }
+    /// <summary>
+    /// The typed animation replacing this actor's native instruction list (#641), or null when the
+    /// bank-$86 interpreter runs <see cref="InstructionPointer"/>.
+    /// </summary>
+    internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
     public ushort InstructionTimer { get; internal set; }
     /// <summary>Gets the native spritemap identity selected by the current draw instruction, initially the blank map.</summary>
@@ -376,6 +381,22 @@ public sealed class RoomEnemyProjectileSlot
     /// </summary>
     public ushort ItemDropChancesPointerOverride { get; internal set; }
 
+    /// <summary>Runs <paramref name="animation"/> from its first frame on the next pass, in place of any native list.</summary>
+    internal void StartAnimation(EnemyProjectileAnimation animation)
+    {
+        Animation = Ensure.NotNull(animation);
+        InstructionPointer = 0;
+        InstructionTimer = 1;
+    }
+
+    /// <summary>Runs the native instruction list at <paramref name="instructionList"/> from the next pass, ending any typed animation.</summary>
+    internal void StartNativeProgram(ushort instructionList)
+    {
+        Animation = null;
+        InstructionPointer = instructionList;
+        InstructionTimer = 1;
+    }
+
     /// <summary>
     /// A bare <c>STZ EnemyProjectile_ID,X</c>: frees the slot but leaves every other word,
     /// so a routine that keeps running after the store still moves the released slot.
@@ -389,6 +410,7 @@ public sealed class RoomEnemyProjectileSlot
         // but leaves whole coordinates and velocities for the family initializer.
         Position = Position.WithFractionX(0).WithFractionY(0);
         InstructionPointer = InstructionTimer = SpritemapPointer = PreInstruction = 0;
+        Animation = null;
         PresentationOperandAddress = 0;
         Radius = Extent16<RoomPixels>.Zero;
         GraphicsIndex = Damage = InvincibilityFrames = GeneralTimer = 0;
@@ -563,10 +585,8 @@ public sealed partial class RoomEnemySystem
                 else
                 {
                     enemyProjectile.CollidedProjectileType = collidedProjectileType;
-                    enemyProjectile.InstructionPointer =
-                        EnemyProjectileDefinitionCatalog.Get(enemyProjectile.Kind)
-                            .ShotInstructionList;
-                    enemyProjectile.InstructionTimer = 1;
+                    enemyProjectile.StartNativeProgram(
+                        EnemyProjectileDefinitionCatalog.Get(enemyProjectile.Kind).ShotInstructionList);
                     enemyProjectile.PreInstruction = (ushort)EnemyProjectilePreInstruction.RTS_8684FB;
 
                     // Native masks properties with $0FFF. The typed fields below are the
@@ -849,8 +869,7 @@ public sealed partial class RoomEnemySystem
         EnemyProjectileDefinition definition = EnemyProjectileDefinitionCatalog.Get(kind);
         projectile.Kind = kind;
         projectile.PreInstruction = definition.PreInstruction;
-        projectile.InstructionPointer = definition.InitialInstructionList;
-        projectile.InstructionTimer = 1;
+        projectile.StartNativeProgram(definition.InitialInstructionList);
 
         // SpawnEprojInner initializes the drawable map to $8000 before the first list tick.
         // It is intentionally not the first list map; bank-$86 advances it on its own pass.
@@ -1533,10 +1552,7 @@ public sealed partial class RoomEnemySystem
         ushort touchInstruction =
             EnemyProjectileDefinitionCatalog.Get(projectile.Kind).TouchInstructionList;
         if (touchInstruction != 0)
-        {
-            projectile.InstructionPointer = touchInstruction;
-            projectile.InstructionTimer = 1;
-        }
+            projectile.StartNativeProgram(touchInstruction);
 
         // Generic enemy-projectile contact deletes Ridley's fireball. Afterburn is a wall-
         // impact feature from $86:940E, so a Samus contact does not create the wall bloom.
@@ -1551,6 +1567,12 @@ public sealed partial class RoomEnemySystem
         SamusState? samus,
         Position16<RoomPixels> camera)
     {
+        if (projectile.Animation is { } animation)
+        {
+            animation.Advance(projectile);
+            return;
+        }
+
         ushort oldTimer = projectile.InstructionTimer;
         projectile.InstructionTimer = unchecked((ushort)(projectile.InstructionTimer - 1));
         if (oldTimer != 1)
@@ -2308,11 +2330,6 @@ public sealed partial class RoomEnemySystem
         if (SporeSpawnProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
         {
             return SporeSpawnProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
-        }
-
-        if (BotwoonProjectileInstructionProgramDefinitions.Owns(projectile.Kind))
-        {
-            return BotwoonProjectileInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
 
         if (TorizoLandingDustInstructionProgramDefinitions.Owns(projectile.Kind))

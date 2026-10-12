@@ -2559,6 +2559,13 @@ public sealed partial class RoomEnemySystem
         Position16<RoomPixels> camera,
         ushort controllerInput)
     {
+        // Botwoon's head runs a typed animation in place of its bank-$B3 instruction lists (#641).
+        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon)
+        {
+            AdvanceBotwoonHeadAnimation(slot, RequireBotwoonState(slot));
+            return;
+        }
+
         ushort oldTimer = slot.InstructionTimer;
         slot.InstructionTimer = unchecked((ushort)(slot.InstructionTimer - 1));
         if (oldTimer != 1)
@@ -2653,9 +2660,6 @@ public sealed partial class RoomEnemySystem
         {
             return MotherBrainBabyInstructionProgramDefinitions.ReadMechanicsWord(address);
         }
-
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon)
-            return BotwoonInstructionProgramDefinitions.ReadMechanicsWord(address);
 
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool)
             return ShaktoolInstructionProgramDefinitions.ReadMechanicsWord(address);

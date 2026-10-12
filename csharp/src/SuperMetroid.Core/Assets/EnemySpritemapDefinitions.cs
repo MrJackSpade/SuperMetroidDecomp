@@ -1793,8 +1793,6 @@ internal static class EnemySpritemapDefinitions
                 WorkRobotVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.Yard =>
                 YardVisualDefinitions.FrameAt(operandAddress),
-            EnemyDefinitionId.Botwoon =>
-                BotwoonVisualDefinitions.FrameAt(operandAddress),
             EnemyDefinitionId.ShutterGrowing or
                 EnemyDefinitionId.ShutterShootable or
                 EnemyDefinitionId.ShutterDestroyable or

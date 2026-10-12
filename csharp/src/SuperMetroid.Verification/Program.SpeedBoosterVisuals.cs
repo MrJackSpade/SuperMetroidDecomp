@@ -10,7 +10,7 @@ internal static partial class Program
     private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
     {
         const ushort pointer = 0xa4f3;
-        ushort native = (ushort)(ReadBotwoonInstructionWord(rom,0x84a4f5) & 0xfff);
+        ushort native = (ushort)(ReadRomWord(rom,0x84a4f5) & 0xfff);
         var stock = RoomPlmSpeedBoosterVisualCatalog.Stock();
         var imported = new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native])]);
         string Hash(ushort word) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(

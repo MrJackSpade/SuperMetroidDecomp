@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -91,8 +93,8 @@ internal static class EnemyProjectilePresentationFrameDefinitions
             OldTourianEscapeShaftWallExplosionDefinitions.PresentationWordAddress);
         Add(frames, "cacatac_spike", CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,
             CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress);
-        Add(frames, "botwoon", BotwoonProjectileInstructionProgramDefinitions.PresentationWordCount,
-            BotwoonProjectileInstructionProgramDefinitions.PresentationWordAddress);
+        Add(frames, "botwoon", BotwoonVisualDefinitions.ProjectileFrameCount,
+            index => BotwoonVisualDefinitions.ProjectilePresentationKey(BotwoonVisualDefinitions.ProjectileFrames[index]));
         Add(frames, "crocomire", CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount,
             CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress);
         Add(frames, "draygon", DraygonProjectileInstructionProgramDefinitions.PresentationWordCount,

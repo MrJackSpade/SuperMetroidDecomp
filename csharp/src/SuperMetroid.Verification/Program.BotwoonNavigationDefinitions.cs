@@ -10,10 +10,10 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
         for (int offset = 0; offset < 32; offset += 8)
         {
-            ushort native = ReadBotwoonInstructionWord(rom, 0xb3949d + offset);
+            ushort native = ReadRomWord(rom, 0xb3949d + offset);
             AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).BottomRight.X, "Botwoon native right boundary");
             var head = new RoomEnemySystem().Slots[0];
-            head.Position = head.Position.WithWholeY(ReadBotwoonInstructionWord(rom, 0xb3949f + offset));
+            head.Position = head.Position.WithWholeY(ReadRomWord(rom, 0xb3949f + offset));
             foreach (int x in new[] {native - 1, native})
             {
                 head.Position = head.Position.WithWholeX((ushort)x);
@@ -33,10 +33,10 @@ internal static partial class Program
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
         for (int offset = 0; offset < 32; offset += 8)
         {
-            ushort native = ReadBotwoonInstructionWord(rom, 0xb394a1 + offset);
+            ushort native = ReadRomWord(rom, 0xb394a1 + offset);
             AssertEqual(native, BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset).BottomRight.Y, "Botwoon native bottom boundary");
             var head = new RoomEnemySystem().Slots[0];
-            head.Position = head.Position.WithWholeX(ReadBotwoonInstructionWord(rom, 0xb3949b + offset));
+            head.Position = head.Position.WithWholeX(ReadRomWord(rom, 0xb3949b + offset));
             foreach (int y in new[] {native - 1, native})
             {
                 head.Position = head.Position.WithWholeY((ushort)y);
@@ -62,12 +62,12 @@ internal static partial class Program
             RoomEnemySlot head = enemies.Slots[0];
             var state = new BotwoonEnemyState(head) { MovementFunction = BotwoonMovementFunction.LoadAuthoredPath,
                 PathChoiceOffset = (ushort)offset, Speed = 0 };
-            ushort pointer = ReadBotwoonInstructionWord(rom, 0xb3e150 + offset);
-            short direction = (short)ReadBotwoonInstructionWord(rom, 0xb3e152 + offset);
+            ushort pointer = ReadRomWord(rom, 0xb3e150 + offset);
+            short direction = (short)ReadRomWord(rom, 0xb3e152 + offset);
             run(head, state);
             AssertEqual(direction < 0 ? (ushort)(pointer - 4) : pointer, state.PathPointer, "Botwoon production path pointer and reverse rewind");
             AssertEqual(direction, state.PathDirection, "Botwoon production path direction");
-            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3e154 + offset), state.TargetHoleOffset, "Botwoon production destination");
+            AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), state.TargetHoleOffset, "Botwoon production destination");
             AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction, "Botwoon path handoff");
         }
         for (int offset = 0; offset <= ushort.MaxValue; offset++)
@@ -83,26 +83,26 @@ internal static partial class Program
             0xda00,0xdb9a,0xdd40,0xde7c,0xdfde,0xe14e];
         foreach (ushort pointer in boundaries)
         {
-            AssertEqual((ushort)0x0080, ReadBotwoonInstructionWord(rom, 0xb30000 | pointer), "Botwoon native stream separator");
+            AssertEqual((ushort)0x0080, ReadRomWord(rom, 0xb30000 | pointer), "Botwoon native stream separator");
             AssertEqual(new Offset16<RoomPixels>(sbyte.MinValue, 0), BotwoonNavigationDefinitions.MovementSampleForPointer(pointer), "Botwoon compiled stream separator");
         }
-        AssertEqual((ushort)0xf080, ReadBotwoonInstructionWord(rom, 0xb3a6b4), "Botwoon early terminal is distinct from stream separator");
+        AssertEqual((ushort)0xf080, ReadRomWord(rom, 0xb3a6b4), "Botwoon early terminal is distinct from stream separator");
         for (int offset = 0; offset < 256; offset += 8)
-            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3e150 + offset),
+            AssertEqual(ReadRomWord(rom, 0xb3e150 + offset),
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).PathPointer, "Botwoon native forward/reverse descriptor pointer");
     }
 
     private static void VerifyBotwoonPathDirectionMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
-            AssertEqual((short)ReadBotwoonInstructionWord(rom, 0xb3e152 + offset),
+            AssertEqual((short)ReadRomWord(rom, 0xb3e152 + offset),
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).Direction, "Botwoon native traversal direction");
     }
 
     private static void VerifyBotwoonPathDestinationMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
-            AssertEqual(ReadBotwoonInstructionWord(rom, 0xb3e154 + offset),
+            AssertEqual(ReadRomWord(rom, 0xb3e154 + offset),
                 BotwoonNavigationDefinitions.PathForChoiceByteOffset((ushort)offset).TargetHoleByteOffset, "Botwoon native destination including repeated hidden choice");
     }
 

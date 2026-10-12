@@ -18,11 +18,11 @@ internal static partial class Program
             int cursor = frame.Pointer;
             while (true)
             {
-                int count = ReadBotwoonInstructionWord(rom, 0x840000 | cursor) & 0x7fff;
+                int count = ReadRomWord(rom, 0x840000 | cursor) & 0x7fff;
                 for (int block = 0; block < count; block++)
-                    words.Add((ushort)(ReadBotwoonInstructionWord(rom, 0x840000 | (cursor + 2 + block * 2)) & 0xfff));
+                    words.Add((ushort)(ReadRomWord(rom, 0x840000 | (cursor + 2 + block * 2)) & 0xfff));
                 cursor += 2 + count * 2;
-                ushort offset = ReadBotwoonInstructionWord(rom, 0x840000 | cursor);
+                ushort offset = ReadRomWord(rom, 0x840000 | cursor);
                 cursor += 2;
                 if (offset == 0) break;
             }

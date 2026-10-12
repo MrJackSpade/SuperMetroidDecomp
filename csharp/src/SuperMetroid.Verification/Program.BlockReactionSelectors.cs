@@ -11,7 +11,7 @@ internal static partial class Program
         for (int shape = 0; shape < 4; shape++)
         {
             for (int frame = 0; frame < 7; frame++)
-                AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (firstOperands[shape] + 4 * frame)),
+                AssertEqual(ReadRomWord(rom,0x840000 | (firstOperands[shape] + 4 * frame)),
                     RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),"shared breakup native shape/frame selection");
             foreach (int frame in new[] {int.MinValue,-1,7,8,255,256,int.MaxValue})
                 AssertThrows<ArgumentOutOfRangeException>(() => RoomPlmBreakAnimationDefinitions.DrawForShape(shape,frame),
@@ -39,10 +39,10 @@ internal static partial class Program
             AssertEqual((ushort)pointer, draw.Pointer, "bombed reveal draw identity");
             AssertEqual(1, draw.Runs.Length, "bombed reveal single native run");
             var run = draw.Runs.Span[0];
-            ushort count = ReadBotwoonInstructionWord(rom,0x840000 | pointer);
+            ushort count = ReadRomWord(rom,0x840000 | pointer);
             AssertEqual(count,run.DirectionAndCount,"bombed reveal native direction/count");
             AssertEqual(count & 0x7fff,run.LevelWords.Length,"bombed reveal native word count");
-            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2)),run.LevelWords.Span[0],
+            AssertEqual(ReadRomWord(rom,0x840000 | (pointer + 2)),run.LevelWords.Span[0],
                 "bombed reveal native physical parent and visual tile");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"bombed reveal native terminal X");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 5))),run.Next.Y,"bombed reveal native terminal Y");
@@ -63,7 +63,7 @@ internal static partial class Program
         foreach (ushort address in controls)
         {
             AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native control owned");
-            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | address), value, "bombed reveal native one-frame duration/delete");
+            AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal native one-frame duration/delete");
             AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "bombed reveal shared control reader");
             AssertEqual(value,shared,"bombed reveal shared control value");
         }
@@ -75,7 +75,7 @@ internal static partial class Program
         foreach (ushort address in operands)
         {
             AssertTrue(RoomPlmBombedRevealProgramDefinitions.TryReadWord(address, out ushort value), "bombed reveal native draw operand owned");
-            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | address), value, "bombed reveal named draw selection matches native operand");
+            AssertEqual(ReadRomWord(rom,0x840000 | address), value, "bombed reveal named draw selection matches native operand");
             AssertTrue(RoomPlmProgramDefinitions.TryReadWord(address, out ushort shared), "bombed reveal shared draw reader");
             AssertEqual(value,shared,"bombed reveal shared draw value");
         }
@@ -84,7 +84,7 @@ internal static partial class Program
     private static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
-            AssertEqual(ReadBotwoonInstructionWord(rom, 0x949139 + 2 * index),
+            AssertEqual(ReadRomWord(rom, 0x949139 + 2 * index),
                 (ushort)RoomPlmHeaders.ContactCrumbleByReactionIndex(index), "contact crumble native header selection");
         for (int index = 8; index <= byte.MaxValue; index++)
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmHeaders.ContactCrumbleByReactionIndex(index),
@@ -123,8 +123,8 @@ internal static partial class Program
         for (int index = 0; index < count; index++)
         {
             // Independent cartridge header indirection, not the replacement's size/role cases.
-            ushort header = ReadBotwoonInstructionWord(rom, nativeTable + index * 2);
-            ushort instruction = ReadBotwoonInstructionWord(rom, 0x840000 | (header + 2));
+            ushort header = ReadRomWord(rom, nativeTable + index * 2);
+            ushort instruction = ReadRomWord(rom, 0x840000 | (header + 2));
             AssertEqual(instruction, select(index), $"{label}: native instruction at BTS {index:X2}");
         }
         for (int index = count; index <= byte.MaxValue; index++)

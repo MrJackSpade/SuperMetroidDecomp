@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
 namespace SuperMetroid.ResourceAudit;
@@ -30,6 +31,22 @@ internal static class EnemyVisualTypedProgramAudit
             ceresFrames++;
         }
         rows.Add(new(ceresFrames));
+
+        // Botwoon's typed head and projectile animations (#641) draw through its presentation catalog.
+        const string botwoonSource = "csharp/src/SuperMetroid.Core/Assets/BotwoonVisualDefinitions.cs";
+        // The hidden head draws the shared empty map; Verification proves every timeline frame is one of these.
+        EnemySpritemapDefinition[] botwoonHeadFrames = BotwoonVisualDefinitions.Frames();
+        foreach (EnemySpritemapDefinition frame in botwoonHeadFrames)
+        {
+            report.Require(ResourceDomains.EnemyDisplay, nameof(BotwoonVisualDefinitions),
+                ResourceIndex.Address(frame.Bank, frame.Pointer), botwoonSource, exports);
+        }
+        foreach (BotwoonProjectileFrame frame in BotwoonVisualDefinitions.ProjectileFrames)
+        {
+            ProjectileDefinitionAudit.RequireFrame(BotwoonVisualDefinitions.ProjectilePresentationKey(frame),
+                nameof(BotwoonVisualDefinitions), botwoonSource, exports, report);
+        }
+        rows.Add(new(botwoonHeadFrames.Length + BotwoonVisualDefinitions.ProjectileFrames.Count));
 
         var heads = KraidHeadInstructionDefinitions.All.ToArray();
         foreach (var frame in heads.Where(frame => frame.Kind == KraidHeadInstructionKind.Frame))

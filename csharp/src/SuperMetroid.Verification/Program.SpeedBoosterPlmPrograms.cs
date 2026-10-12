@@ -37,7 +37,7 @@ internal static partial class Program
             AssertEqual(known.Contains((ushort)address),found,"speed complete word domain including unused Screw Attack gaps");
             if (!found) AssertEqual((ushort)0,value,"speed missing word cleared");
             else if (controls.Contains((ushort)address))
-                AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | address),value,"speed native delays, queue, clone/ordinary restore and deletion");
+                AssertEqual(ReadRomWord(rom,0x840000 | address),value,"speed native delays, queue, clone/ordinary restore and deletion");
         }
     }
 
@@ -51,7 +51,7 @@ internal static partial class Program
         foreach (ushort address in addresses)
         {
             AssertTrue(SpeedBoosterBlockPlmProgramDefinitions.TryReadMechanicsWord(address,out ushort value),"speed native draw operand owned");
-            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | address),value,"speed native forward/reverse breakup and bomb reveal selection");
+            AssertEqual(ReadRomWord(rom,0x840000 | address),value,"speed native forward/reverse breakup and bomb reveal selection");
         }
     }
 
@@ -92,14 +92,14 @@ internal static partial class Program
             AssertTrue(!SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId(id,out var missing),"speed reveal ordinal ID rejection");
             AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),missing,"speed reveal missing ID clears output");
         }
-        ushort nativeWord = ReadBotwoonInstructionWord(rom,0x840000 | (pointer + 2));
+        ushort nativeWord = ReadRomWord(rom,0x840000 | (pointer + 2));
         AssertEqual(nativeWord,SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,"speed reveal calculated physical word");
         foreach (var draw in new[] {exported[0],byId,SpeedBoosterBlockPlmDrawDefinitions.BombReveal})
         {
             AssertEqual(pointer,draw.Pointer,"speed reveal DTO identity");
             AssertEqual(1,draw.Runs.Length,"speed reveal single run");
             var run = draw.Runs.Span[0];
-            AssertEqual(ReadBotwoonInstructionWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");
+            AssertEqual(ReadRomWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");
             AssertEqual(1,run.LevelWords.Length,"speed reveal single word");
             AssertEqual(nativeWord,run.LevelWords.Span[0],"speed reveal exported native word");
             AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x840000 | (pointer + 4))),run.Next.X,"speed reveal native terminal X");
@@ -134,9 +134,9 @@ internal static partial class Program
                 AssertEqual(default(SpeedBoosterBlockPlmDefinition),definition,"speed selector missing definition cleared");
                 continue;
             }
-            ushort header = ReadBotwoonInstructionWord(rom,tableAddress);
-            AssertEqual((ushort)0xcdea,ReadBotwoonInstructionWord(rom,0x840000 | header),"native selected PLM is Speed Booster setup");
-            ushort expected = instruction ? ReadBotwoonInstructionWord(rom,0x840000 | (header + 2)) : header;
+            ushort header = ReadRomWord(rom,tableAddress);
+            AssertEqual((ushort)0xcdea,ReadRomWord(rom,0x840000 | header),"native selected PLM is Speed Booster setup");
+            ushort expected = instruction ? ReadRomWord(rom,0x840000 | (header + 2)) : header;
             AssertEqual(expected,instruction ? definition.InstructionPointer : (ushort)definition.HeaderPointer,
                 instruction ? "speed native selected instruction" : "speed native selected header");
         }

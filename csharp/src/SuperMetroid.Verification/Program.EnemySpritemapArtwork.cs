@@ -360,7 +360,7 @@ internal static partial class Program
             EnemySpritemapDefinitions.PreBotwoonFrameCount,
             "Yard adds 104 crawling, turn, hiding, and airborne compositions");
         AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount +
-                BotwoonVisualDefinitions.FrameCount,
+                BotwoonVisualDefinitions.Frames().Length,
             EnemySpritemapDefinitions.PreGunshipFrameCount,
             "Botwoon adds sixteen distinct visible head compositions");
         AssertEqual(EnemySpritemapDefinitions.PreGunshipFrameCount +

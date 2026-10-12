@@ -69,6 +69,13 @@ dotnet_diagnostic.SME6321.severity = error
 dotnet_diagnostic.SME6330.severity = error
 dotnet_diagnostic.SME6331.severity = error
 dotnet_diagnostic.SME6332.severity = error
+
+# #641 cartridge-encoding ratchet: files may only lose raw hex, pointer dispatch and opaque word arrays.
+dotnet_diagnostic.SME6340.severity = error
+dotnet_diagnostic.SME6341.severity = error
+dotnet_diagnostic.SME6342.severity = error
+dotnet_diagnostic.SME6343.severity = error
+dotnet_diagnostic.SME6344.severity = error
 dotnet_diagnostic.IDE0330.severity = error
 
 # #620: advisory until the existing reusable guards are migrated.

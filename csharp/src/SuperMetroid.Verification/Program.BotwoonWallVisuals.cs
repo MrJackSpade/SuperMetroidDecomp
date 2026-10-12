@@ -11,7 +11,7 @@ internal static partial class Program
     {
         ushort[] native = new ushort[9];
         for (int index = 0; index < native.Length; index++)
-            native[index] = (ushort)(ReadBotwoonInstructionWord(rom, 0x849311 + 2 * index) & 0x0fff);
+            native[index] = (ushort)(ReadRomWord(rom, 0x849311 + 2 * index) & 0x0fff);
         var stock = RoomPlmBotwoonWallVisualCatalog.Stock();
         var loaded = new RoomPlmBotwoonWallVisualCatalog([new("clear-wall", native)]);
         string expectedIdentity = SuperMetroid.Core.Assets.SelectedPresentationHash.Create(

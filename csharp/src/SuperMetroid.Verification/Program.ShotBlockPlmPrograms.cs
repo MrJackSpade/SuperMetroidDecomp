@@ -194,7 +194,7 @@ internal static partial class Program
     {
         ushort[] fields = [0xd066,0xd06a,0xd06e,0xd072];
         for (int size = 0; size < fields.Length; size++)
-            AssertEqual(ReadBotwoonInstructionWord(rom, 0x840000 | fields[size]),
+            AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
                 RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot native shape selection");
         for (int size = 4; size <= byte.MaxValue; size++)
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.RespawningShotBySize(size), "respawning shot rejects other BTS values without masking");
@@ -206,7 +206,7 @@ internal static partial class Program
     {
         ushort[] fields = [0xd076,0xd07a,0xd07e,0xd082];
         for (int size = 0; size < fields.Length; size++)
-            AssertEqual(ReadBotwoonInstructionWord(rom, 0x840000 | fields[size]),
+            AssertEqual(ReadRomWord(rom, 0x840000 | fields[size]),
                 RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot native shape selection after caller subtracts four");
         for (int size = 4; size <= byte.MaxValue; size++)
             AssertThrows<IndexOutOfRangeException>(() => RoomPlmInstructionLists.PermanentShotBySize(size), "permanent shot rejects out-of-range size without masking");
@@ -235,7 +235,7 @@ internal static partial class Program
         {
             bool found = RoomPlmShotBlockProgramDefinitions.TryReadMechanicsWord((ushort)address, out ushort value);
             AssertEqual(known.Contains((ushort)address), found, "shot-block full control-word domain");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
                 "shot-block native control value including respawn hold and Power Bomb cadence");
         }
     }
@@ -250,7 +250,7 @@ internal static partial class Program
         {
             bool found = RoomPlmShotBlockProgramDefinitions.TryReadDrawPointerWord((ushort)address, out ushort value);
             AssertEqual(addresses.Contains((ushort)address), found, "shot-block full draw-operand domain");
-            AssertEqual(found ? ReadBotwoonInstructionWord(rom, 0x840000 | address) : (ushort)0, value,
+            AssertEqual(found ? ReadRomWord(rom, 0x840000 | address) : (ushort)0, value,
                 "shot-block native shape, reverse breakup and restoration draw selection");
         }
     }
@@ -281,13 +281,13 @@ internal static partial class Program
             var runs = new List<ushort[]>();
             do
             {
-                int count = ReadBotwoonInstructionWord(rom, 0x840000 | cursor) & 0x7fff;
+                int count = ReadRomWord(rom, 0x840000 | cursor) & 0x7fff;
                 cursor += 2;
                 ushort[] row = new ushort[count];
                 for (int i = 0; i < count; i++, cursor += 2)
-                    row[i] = (ushort)(ReadBotwoonInstructionWord(rom, 0x840000 | cursor) & 0x0fff);
+                    row[i] = (ushort)(ReadRomWord(rom, 0x840000 | cursor) & 0x0fff);
                 runs.Add(row);
-                ushort next = ReadBotwoonInstructionWord(rom, 0x840000 | cursor);
+                ushort next = ReadRomWord(rom, 0x840000 | cursor);
                 cursor += 2;
                 if (next == 0) break;
                 AssertTrue(runs.Count < 2, "shot-block native oracle has at most two runs");

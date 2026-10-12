@@ -10,23 +10,13 @@ internal static partial class Program
     private static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
+        // The head animations' frames are checked against the cartridge lists by VerifyBotwoonHeadAnimations;
+        // here every visible frame's installed artwork must draw the cartridge's OAM.
         var selected = new HashSet<ushort>();
-        for (int index = 0;
-             index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
-             index++)
+        foreach (EnemySpritemapDefinition frame in BotwoonVisualDefinitions.Frames())
         {
-            ushort operand = BotwoonInstructionProgramDefinitions
-                .PresentationWordAddress(index);
-            int nativeAddress = (BotwoonVisualDefinitions.Bank << 16) | operand;
-            ushort native = ReadNativeBotwoonSelector(rom, nativeAddress);
-            AssertTrue(EnemySpritemapDefinitions.TryFrameAt(
-                    EnemyDefinitionId.Botwoon, operand,
-                    out ushort installedPointer),
-                $"Botwoon head operand $B3:{operand:X4} is compiled");
-            AssertEqual(native, installedPointer,
-                $"Botwoon head selector $B3:{operand:X4} matches the cartridge");
-            if (installedPointer == CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap)
-                continue;
+            ushort installedPointer = frame.Pointer;
+            ushort native = installedPointer;
             selected.Add(installedPointer);
             AssertTrue(stock.Spritemaps!.TryGetDisplay(
                     BotwoonVisualDefinitions.Bank, installedPointer,
@@ -40,12 +30,8 @@ internal static partial class Program
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
                 $"Botwoon head frame $B3:{installedPointer:X4} matches cartridge OAM");
         }
-        AssertEqual(BotwoonVisualDefinitions.FrameCount, selected.Count,
+        AssertEqual(16, selected.Count,
             "Botwoon head selects sixteen distinct visible OAM frames");
-        AssertThrows<InvalidDataException>(
-            () => BotwoonVisualDefinitions.FrameAt(
-                (ushort)BotwoonMovementProgram.UpLeft),
-            "Botwoon visual catalog rejects its neighboring instruction control word");
 
         // Existing version-59 edits must survive the newly extracted head frames.
         byte[] current = EnemySpritemapFiles.Extract(rom);
@@ -77,7 +63,7 @@ internal static partial class Program
             AssertTrue(upgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                 $"version-fifty-nine override inherits {frame.Name}");
         Console.WriteLine(
-            "  Botwoon visuals: 25 cartridge-matched selectors, 16 OAM frames, and legacy override migration pass.");
+            "  Botwoon visuals: 16 typed head frames draw the cartridge OAM, and legacy override migration passes.");
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon's native head visual selectors")]

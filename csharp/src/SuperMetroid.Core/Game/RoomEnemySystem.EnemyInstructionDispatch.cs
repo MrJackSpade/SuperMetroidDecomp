@@ -146,7 +146,6 @@ public sealed partial class RoomEnemySystem
             TryProcessLowerNorfairRioInstruction(slot, word, ref cursor) ||
             TryProcessMaridiaLargeSnailInstruction(slot, word, ref cursor) ||
             TryProcessMagdolliteInstruction(slot, word, ref cursor, context.Camera) ||
-            TryProcessBotwoonInstruction(slot, word, ref cursor) ||
             TryProcessShaktoolInstruction(slot, word, ref cursor) ||
             TryProcessChozoStatueInstruction(slot, context.Samus, context.Level, word, ref cursor) ||
             TryProcessEscapeAnimalInstruction(slot, context.Samus, word, ref cursor))

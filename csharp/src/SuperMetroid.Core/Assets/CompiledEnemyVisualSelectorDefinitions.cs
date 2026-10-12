@@ -33,7 +33,7 @@ internal static partial class CompiledEnemyVisualSelectors
 
     internal static bool IsCalculatedSelector(int address) => (address >> 16) switch
     {
-        0x86 => BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
+        0x86 => BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheFireballInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa2 => ShutterVisualDefinitions.IsPresentationWord((ushort)address) || BoyonInstructionProgramDefinitions.IsPresentationWord((ushort)address) || VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord((ushort)address),
         0xa3 => ElevatorInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PlatformInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa6 => BoulderInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
@@ -41,7 +41,6 @@ internal static partial class CompiledEnemyVisualSelectors
         0xa7 => KraidNailInstructionProgramDefinitions.IsPresentationWord((ushort)address) || PhantoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         0xa8 => BlueBrinstarFaceBlockInstructionProgramDefinitions.IsPresentationWord((ushort)address) || BeetomInstructionProgramDefinitions.IsPresentationWord((ushort)address) || FuneNamiheInstructionProgramDefinitions.IsPresentationWord((ushort)address) || AlcoonInstructionProgramDefinitions.IsPresentationWord((ushort)address) ||
             AtomicInstructionProgramDefinitions.IsPresentationWord((ushort)address),
-        0xb3 => BotwoonInstructionProgramDefinitions.IsPresentationWord((ushort)address),
         _ => false,
     };
     internal static bool TryGet(byte bank, ushort operandAddress, out ushort pointer)
@@ -67,7 +66,7 @@ internal static partial class CompiledEnemyVisualSelectors
                     ? EnemyProjectileSpritemapDefinitions.BombTorizoDroolFrameAt(operandAddress)
                     : BombTorizoStatueInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemyProjectileSpritemapDefinitions.BombTorizoStatueFrameAt(operandAddress)
-                    : BotwoonProjectileInstructionProgramDefinitions.IsPresentationWord(operandAddress) ? EnemyProjectileSpritemapDefinitions.BotwoonProjectileFrameAt(operandAddress) : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
+                    : EnemyProjectileSpritemapDefinitions.FuneNamiheFireballFrameAt(operandAddress),
                 0xa2 => ShutterVisualDefinitions.IsPresentationWord(operandAddress) ? ShutterVisualDefinitions.PointerAt(operandAddress)
                     : VerticalShutterInstructionProgramDefinitions.IsKamerPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.KamerPlatformFrameAt(operandAddress) : EnemySpritemapDefinitions.BoyonFrameAt(operandAddress),
@@ -78,7 +77,6 @@ internal static partial class CompiledEnemyVisualSelectors
                     : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.MiniKraid, operandAddress),
                 0xa7 => PhantoonInstructionProgramDefinitions.IsPresentationWord(operandAddress) ? PhantoonInstructionProgramDefinitions.FrameAt(operandAddress)
                     : KraidVisualDefinitions.FrameAt(EnemyDefinitionId.KraidNail, operandAddress),
-                0xb3 => BotwoonVisualDefinitions.FrameAt(operandAddress),
                 _ => FuneNamiheInstructionProgramDefinitions.IsPresentationWord(operandAddress)
                     ? EnemySpritemapDefinitions.FuneNamiheFrameAt(operandAddress)
                     : AlcoonInstructionProgramDefinitions.IsPresentationWord(operandAddress)

@@ -29,7 +29,10 @@ internal static partial class Program
             {
                 Kind = kind,
             };
-            VerifyEntry(definition.InitialInstructionList, "initial");
+            // Botwoon's spawners start typed animations (#641); VerifyBotwoonProjectileAnimations matches
+            // them to these native initial lists frame by frame, and no interpreter owns the lists.
+            if (kind is not (RoomEnemyProjectileKind.BotwoonBody or RoomEnemyProjectileKind.BotwoonSpit))
+                VerifyEntry(definition.InitialInstructionList, "initial");
             VerifyEntry(definition.TouchInstructionList, "touch");
             VerifyEntry(definition.ShotInstructionList, "shot");
 

@@ -3866,7 +3866,7 @@ if (args is ["--lookup-botwoon-projectile-programs"])
     var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon projectile NTSC J/U v1.0 oracle");
-    Suite(nameof(VerifyBotwoonProjectileInstructionProgramDefinitions), () => VerifyBotwoonProjectileInstructionProgramDefinitions(oracle));
+    Suite(nameof(VerifyBotwoonProjectileAnimations), () => VerifyBotwoonProjectileAnimations(oracle));
     Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
     return 0;
 }
@@ -3875,7 +3875,7 @@ if (args is ["--lookup-botwoon-program-selection"])
     var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon selection NTSC J/U v1.0 oracle");
-    Suite(nameof(VerifyBotwoonInstructionDefinitions), () => VerifyBotwoonInstructionDefinitions(oracle));
+    Suite(nameof(VerifyBotwoonAnimationSelection), () => VerifyBotwoonAnimationSelection(oracle));
     return 0;
 }
 if (args is ["--lookup-botwoon-head-programs"])
@@ -3883,7 +3883,7 @@ if (args is ["--lookup-botwoon-head-programs"])
     var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
     AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
         Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon NTSC J/U v1.0 oracle");
-    Suite(nameof(VerifyBotwoonInstructionProgramDefinitions), () => VerifyBotwoonInstructionProgramDefinitions(oracle));
+    Suite(nameof(VerifyBotwoonHeadAnimations), () => VerifyBotwoonHeadAnimations(oracle));
     Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
     return 0;
 }
@@ -5269,7 +5269,7 @@ if (args is ["--spore-spawn-projectile-instruction-mechanics"])
 }
 if (args is ["--botwoon-projectile-instruction-mechanics"])
 {
-    Suite(nameof(VerifyBotwoonProjectileInstructionProgramDefinitions), () => VerifyBotwoonProjectileInstructionProgramDefinitions());
+    Suite(nameof(VerifyBotwoonProjectileAnimations), () => VerifyBotwoonProjectileAnimations(LoadRepositoryRom()));
     return 0;
 }
 if (args is ["--torizo-landing-dust-instruction-mechanics"])
@@ -5912,7 +5912,7 @@ if (args is ["--mother-brain-baby-instruction-mechanics"])
 }
 if (args is ["--botwoon-instruction-mechanics"])
 {
-    Suite(nameof(VerifyBotwoonInstructionProgramDefinitions), () => VerifyBotwoonInstructionProgramDefinitions());
+    Suite(nameof(VerifyBotwoonHeadAnimations), () => VerifyBotwoonHeadAnimations(LoadRepositoryRom()));
     return 0;
 }
 if (args is ["--kraid-lint-instruction-mechanics"])
@@ -6347,7 +6347,7 @@ if (args is ["--ceres-door-initialization-definitions"])
 }
 if (args is ["--botwoon-instruction-definitions"])
 {
-    Suite(nameof(VerifyBotwoonInstructionDefinitions), () => VerifyBotwoonInstructionDefinitions(
+    Suite(nameof(VerifyBotwoonAnimationSelection), () => VerifyBotwoonAnimationSelection(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     return 0;
 }

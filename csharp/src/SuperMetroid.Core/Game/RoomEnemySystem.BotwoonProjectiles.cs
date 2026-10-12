@@ -33,10 +33,7 @@ public sealed partial class RoomEnemySystem
         // ai_var_A is the live spawn argument. Every nonzero segment begins with orientation
         // $10; argument zero is the tail cap and begins at $30.
         ushort orientation = spawnArgument != 0 ? (ushort)16 : (ushort)48;
-        ushort instruction = BotwoonInstructionDefinitions.BodyInstruction(orientation);
-        segment.InstructionPointer = instruction;
-        segment.InstructionTimer = 1;
-        segment.Variable0 = instruction;
+        segment.StartAnimation(BotwoonProjectileAnimation.ForSegment(BotwoonSegmentProgram.FromSelector(orientation)));
         segment.DirectionParameter = orientation;
         segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Main));
 
@@ -101,14 +98,10 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot segment,
         byte randomEnemyCounter)
     {
-        ushort instruction =
-            BotwoonInstructionDefinitions.BodyInstruction(segment.DirectionParameter);
-        if (instruction != segment.Variable0)
-        {
-            segment.InstructionPointer = instruction;
-            segment.Variable0 = instruction;
+        BotwoonProjectileAnimation animation = segment.Animation as BotwoonProjectileAnimation
+            ?? throw new InvalidOperationException($"Botwoon body segment {segment.SlotIndex} has no segment animation.");
+        if (animation.Install(BotwoonSegmentProgram.FromSelector(segment.DirectionParameter)))
             segment.InstructionTimer = 1;
-        }
         ApplyBotwoonBodyHurtPalette(segment, randomEnemyCounter);
     }
 
@@ -143,12 +136,12 @@ public sealed partial class RoomEnemySystem
 
         segment.Position = segment.Position.WithWholeY(200);
         segment.Velocity = segment.Velocity.WithX(new SnesSignedEightEight((ushort)BotwoonBodyFunction.Landed));
-        segment.InstructionPointer = BotwoonProjectileCodePointers.BodyLandedInstruction;
-        segment.InstructionTimer = 1;
+        // The landed segment hands its animation to the shared big-explosion list.
+        segment.StartNativeProgram(BotwoonProjectileCodePointers.BodyLandedInstruction);
         segment.GraphicsIndex = EnemyPaletteBits.Palette5;
         segment.CanDamageSamus = false;
         segment.CollisionOption = 2;
-        LastBotwoonSoundEffect = 0x0024;
+        LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
 
         // Native projectile index $0A is the last allocated body point and owns the
         // synchronization flag. Mapping by retained spawn argument is equivalent while also
@@ -169,8 +162,7 @@ public sealed partial class RoomEnemySystem
             RoomEnemyProjectileKind.BotwoonSpit,
             unchecked((ushort)(head.VramTilesIndex | head.PaletteIndex)));
         spit.Position = FixedPosition<RoomPixels>.FromWhole(head.Position.Whole);
-        spit.InstructionPointer = BotwoonProjectileInstructionProgramDefinitions.Spit;
-        spit.InstructionTimer = 1;
+        spit.StartAnimation(BotwoonProjectileAnimation.Spit());
         spit.DirectionParameter = angle;
 
         // ConvertAngleToXy stores unsigned quarter-circle magnitudes; E73E applies signs

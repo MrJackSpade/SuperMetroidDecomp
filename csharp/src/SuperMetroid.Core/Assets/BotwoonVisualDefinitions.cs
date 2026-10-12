@@ -3,68 +3,119 @@ using SuperMetroid.Core.Game;
 namespace SuperMetroid.Core.Assets;
 
 /// <summary>
-/// Botwoon's named head compositions. The head's instruction timers, radius changes,
-/// spit callbacks, and hitboxes remain compiled gameplay definitions; these records
-/// supply only editable OAM parts for the cartridge-selected visual frames.
+/// Botwoon's presentation boundary (#641): the installed artwork identity of every typed head and
+/// projectile frame. Gameplay animates <see cref="BotwoonHeadFrame"/> and <see cref="BotwoonProjectileFrame"/>
+/// values; only this catalog knows the cartridge spritemaps and program operands that name their art.
 /// </summary>
 internal static class BotwoonVisualDefinitions
 {
-    /// <summary>Botwoon's head instruction and OAM bank, $B3.</summary>
+    /// <summary>Botwoon's head OAM bank, $B3.</summary>
     internal const byte Bank = 0xb3;
-    internal const int FrameCount = 16;
 
-    internal static EnemySpritemapDefinition[] Frames()
+    /// <summary>Distinct projectile frames: eight four-phase body links, eight tails, the hidden segment and five spit phases.</summary>
+    internal const int ProjectileFrameCount = 46;
+
+    /// <summary>
+    /// The facings in the cartridge's physical program order, from up-left counterclockwise to up.
+    /// Installed artwork is named and numbered in this order.
+    /// </summary>
+    private static readonly BotwoonFacing[] PhysicalOrder =
+    [
+        BotwoonFacing.UpLeft, BotwoonFacing.Left, BotwoonFacing.DownLeft, BotwoonFacing.Down,
+        BotwoonFacing.DownRight, BotwoonFacing.Right, BotwoonFacing.UpRight, BotwoonFacing.Up,
+    ];
+
+    /// <summary>The tail facings in the cartridge's tail program order, from up counterclockwise to up-right.</summary>
+    private static readonly BotwoonFacing[] TailOrder =
+    [
+        BotwoonFacing.Up, BotwoonFacing.UpLeft, BotwoonFacing.Left, BotwoonFacing.DownLeft,
+        BotwoonFacing.Down, BotwoonFacing.DownRight, BotwoonFacing.Right, BotwoonFacing.UpRight,
+    ];
+
+    /// <summary><c>InstList_EnemyProjectile_BotwoonsBody_UpLeft</c> at $86:E80F; nine twenty-byte body programs follow, the fourth unused.</summary>
+    private const ushort BodyProgramsStart = 0xe80f;
+    /// <summary><c>InstList_EnemyProjectile_BotwoonsTail_Up_FacingRight</c> at $86:E8C3; eight six-byte tail programs follow.</summary>
+    private const ushort TailProgramsStart = 0xe8c3;
+    /// <summary><c>InstList_EnemyProjectile_BotwoonsBodyTail_Hidden</c> at $86:E8F3.</summary>
+    private const ushort HiddenSegmentProgram = 0xe8f3;
+    /// <summary><c>InstList_EnemyProjectile_BotwoonsSpit</c> at $86:EBAE.</summary>
+    private const ushort SpitProgram = 0xebae;
+
+    /// <summary>The installed head spritemap for <paramref name="frame"/>; the hidden frame is the shared empty map.</summary>
+    internal static ushort HeadSpritemap(BotwoonHeadFrame frame)
     {
-        var frames = new List<EnemySpritemapDefinition>(FrameCount);
-        var seen = new HashSet<ushort>();
-        for (int index = 0;
-             index < BotwoonInstructionProgramDefinitions.PresentationWordCount;
-             index++)
-        {
-            ushort pointer = FrameAt(
-                BotwoonInstructionProgramDefinitions.PresentationWordAddress(index));
-            // The native hidden frame is the shared, zero-part bank-local OAM record.
-            if (pointer != CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap &&
-                seen.Add(pointer))
-                frames.Add(new(Bank, pointer,
-                    $"botwoon_head_{frames.Count:D2}"));
-        }
-        if (frames.Count != FrameCount)
-            throw new InvalidDataException(
-                $"Botwoon head has {frames.Count} distinct OAM frames, expected {FrameCount}.");
-        return [.. frames];
+        if (!frame.Visible)
+            return CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
+        return frame.MouthOpen ? OpenMouth(frame.Facing) : ClosedMouth(frame.Facing);
     }
 
-    internal static ushort FrameAt(ushort operandAddress)
+    /// <summary>The sixteen visible head frames as installed artwork, closed then open, in physical order.</summary>
+    internal static EnemySpritemapDefinition[] Frames() =>
+    [
+        .. PhysicalOrder.Select(BotwoonHeadFrame.Closed).Concat(PhysicalOrder.Select(BotwoonHeadFrame.Open))
+            .Select((frame, index) => new EnemySpritemapDefinition(Bank, HeadSpritemap(frame), $"botwoon_head_{index:D2}")),
+    ];
+
+    /// <summary>
+    /// Every projectile frame in installed-artwork order: body links by physical facing and phase,
+    /// then the tails, the hidden segment and the spit phases.
+    /// </summary>
+    internal static IReadOnlyList<BotwoonProjectileFrame> ProjectileFrames { get; } =
+    [
+        .. PhysicalOrder.SelectMany(facing => Enumerable.Range(0, BotwoonAnimations.BodyPhaseCount)
+            .Select(phase => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Body, facing, phase))),
+        .. TailOrder.Select(facing => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Tail, facing, 0)),
+        new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0),
+        .. Enumerable.Range(0, BotwoonAnimations.SpitPhaseCount)
+            .Select(phase => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Spit, BotwoonFacing.Up, phase)),
+    ];
+
+    /// <summary>
+    /// The installed presentation key of a projectile frame: the bank-$86 address of the spritemap
+    /// operand that drew it, which names its artwork in installed content.
+    /// </summary>
+    internal static ushort ProjectilePresentationKey(BotwoonProjectileFrame frame) => frame.Kind switch
     {
-        if (BotwoonInstructionProgramDefinitions.IsPresentationWord(operandAddress))
-        {
-            if (operandAddress == BotwoonInstructionProgramDefinitions.Hidden + 2)
-                return CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
-            bool spitting = operandAddress >= BotwoonInstructionProgramDefinitions.SpittingUpLeft;
-            int relative = operandAddress - (spitting ? BotwoonInstructionProgramDefinitions.SpittingUpLeft : (ushort)BotwoonMovementProgram.UpLeft);
-            int direction = relative / (spitting ? 16 : 8);
-            bool open = spitting && relative % 16 == 12;
-            // Closed maps all have two entries: two-byte count plus ten sprite bytes.
-            if (!open) return (ushort)(0xe329 + 12 * direction);
-            int pointer = 0xe3a1 + 12 * direction;
-            // Each prior diagonal open-mouth map contributes a third five-byte piece.
-            foreach (BotwoonMovementProgram movement in Enum.GetValues<BotwoonMovementProgram>())
-            {
-                bool diagonal = movement switch
-                {
-                    BotwoonMovementProgram.UpLeft or BotwoonMovementProgram.DownLeft or
-                        BotwoonMovementProgram.DownRight or BotwoonMovementProgram.UpRight => true,
-                    BotwoonMovementProgram.Left or BotwoonMovementProgram.Down or
-                        BotwoonMovementProgram.Right or BotwoonMovementProgram.Up => false,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(BotwoonMovementProgram)} {movement}."),
-                };
-                if (diagonal && ((ushort)movement - (ushort)BotwoonMovementProgram.UpLeft) / 8 < direction)
-                    pointer += 5;
-            }
-            return (ushort)pointer;
-        }
-        throw new InvalidDataException(
-            $"Botwoon head visual operand $B3:{operandAddress:X4} is not compiled.");
+        BotwoonProjectileFrameKind.Body => unchecked((ushort)(BodyProgramsStart + 20 * BodyPhysicalSlot(frame.Facing) + 4 * frame.Phase + 2)),
+        BotwoonProjectileFrameKind.Tail => unchecked((ushort)(TailProgramsStart + 6 * Array.IndexOf(TailOrder, frame.Facing) + 2)),
+        BotwoonProjectileFrameKind.Hidden => HiddenSegmentProgram + 2,
+        BotwoonProjectileFrameKind.Spit => unchecked((ushort)(SpitProgram + 4 * frame.Phase + 2)),
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Botwoon projectile frame."),
+    };
+
+    // The body and head programs share one layout: up-left, left, down-left, an unused
+    // down-facing-left slot, then down through up.
+    private static int BodyPhysicalSlot(BotwoonFacing facing)
+    {
+        int index = Array.IndexOf(PhysicalOrder, facing);
+        return index < 3 ? index : index + 1;
     }
+
+    private static ushort ClosedMouth(BotwoonFacing facing) => facing switch
+    {
+        // Spritemaps_Botwoon_MouthClosed_Priority2_Aiming* at $B3:E329-$E389; the unused down-facing-left map is skipped.
+        BotwoonFacing.UpLeft => 0xe329,
+        BotwoonFacing.Left => 0xe335,
+        BotwoonFacing.DownLeft => 0xe341,
+        BotwoonFacing.Down => 0xe359,
+        BotwoonFacing.DownRight => 0xe365,
+        BotwoonFacing.Right => 0xe371,
+        BotwoonFacing.UpRight => 0xe37d,
+        BotwoonFacing.Up => 0xe389,
+        _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
+    };
+
+    private static ushort OpenMouth(BotwoonFacing facing) => facing switch
+    {
+        // Spritemaps_Botwoon_MouthOpen_Priority2_Aiming* at $B3:E3A1-$E415; diagonal maps carry a third piece.
+        BotwoonFacing.UpLeft => 0xe3a1,
+        BotwoonFacing.Left => 0xe3b2,
+        BotwoonFacing.DownLeft => 0xe3be,
+        BotwoonFacing.Down => 0xe3db,
+        BotwoonFacing.DownRight => 0xe3e7,
+        BotwoonFacing.Right => 0xe3f8,
+        BotwoonFacing.UpRight => 0xe404,
+        BotwoonFacing.Up => 0xe415,
+        _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
+    };
 }

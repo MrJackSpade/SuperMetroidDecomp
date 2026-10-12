@@ -15,4 +15,8 @@
                       OutputItemType="Analyzer"
                       ReferenceOutputAssembly="false" />
   </ItemGroup>
+  <!-- #641: production projects carry the cartridge-encoding ratchet baseline, which activates SME6340-SME6344. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'SuperMetroid.Core' or '$(MSBuildProjectName)' == 'SuperMetroid.AssetExtraction' or '$(MSBuildProjectName)' == 'SuperMetroid.Diagnostics' or '$(MSBuildProjectName)' == 'SuperMetroid.Desktop' or '$(MSBuildProjectName)' == 'SuperMetroid.Rendering.Direct3D11' or '$(MSBuildProjectName)' == 'SuperMetroid.Game' or '$(MSBuildProjectName)' == 'SuperMetroid.Android'">
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)cartridge-encoding-baseline.txt" />
+  </ItemGroup>
 </Project>

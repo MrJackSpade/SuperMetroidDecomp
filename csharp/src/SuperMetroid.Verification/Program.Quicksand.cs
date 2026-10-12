@@ -151,7 +151,7 @@ internal static partial class Program
                 continue;
             }
             AssertEqual(actual, QuicksandDefinitions.ResolveReaction((PlmHeaderId)header), "quicksand allocator resolution");
-            ushort native = ReadBotwoonInstructionWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
+            ushort native = ReadRomWord(rom, 0x840000 | (header + (instruction ? 2 : 0)));
             AssertEqual(native, instruction ? actual.InstructionListPointer : (ushort)actual.SetupPointer,
                 $"quicksand header {(int)header:X4} instruction {instruction}");
         }
@@ -170,7 +170,7 @@ internal static partial class Program
         Func<QuicksandSurfacePhysics, ushort> field)
     {
         for (int suit = 0; suit < 2; suit++)
-            AssertEqual(ReadBotwoonInstructionWord(rom, address + suit * 2),
+            AssertEqual(ReadRomWord(rom, address + suit * 2),
                 field(QuicksandDefinitions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
     }
@@ -210,9 +210,9 @@ internal static partial class Program
             }
 
             // Follow the original area pointer and header, independently of the production cases.
-            ushort table = ReadBotwoonInstructionWord(rom, nativePointers + rawArea * 2);
-            ushort header = ReadBotwoonInstructionWord(rom, 0x940000 | (table + index * 2));
-            ushort expected = setup ? ReadBotwoonInstructionWord(rom, 0x840000 | header) : header;
+            ushort table = ReadRomWord(rom, nativePointers + rawArea * 2);
+            ushort header = ReadRomWord(rom, 0x940000 | (table + index * 2));
+            ushort expected = setup ? ReadRomWord(rom, 0x840000 | header) : header;
             var bts = new RoomBlockBehavior((byte)(0x80 | index));
             AssertEqual(true, bts.UsesAreaReactionTable, "special-air BTS sign selects area dispatch");
             AssertEqual((byte)index, bts.AreaReactionIndex, "special-air BTS clears its sign bit");

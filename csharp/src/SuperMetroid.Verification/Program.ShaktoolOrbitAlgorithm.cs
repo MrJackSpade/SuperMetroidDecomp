@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ShaktoolOrbitAlgorithmVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool orbit algorithm")]
-    private static void VerifyShaktoolOrbitAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolOrbitAlgorithm(SuperMetroidAddressSpace rom)
     {
         short Original(int index)
         {

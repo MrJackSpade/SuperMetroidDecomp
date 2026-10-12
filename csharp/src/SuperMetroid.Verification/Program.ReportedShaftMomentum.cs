@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class ReportedShaftMomentumVerification
 {
-    private static void VerifyReportedShaftMomentum()
+    internal static void VerifyReportedShaftMomentum()
     {
         // #1158, recording inputs 5842..5849: neutral controller, left spin pose,
         // mode two, base speed 1.6000. $90:906C retains horizontal movement when
@@ -37,5 +47,12 @@ internal static partial class Program
         }
         AssertEqual((ushort)117, samus.Position.X.Whole, "eight recorded neutral frames carry eleven pixels left");
         Console.WriteLine("#1158: recorded no-Left drift matches native spin momentum; no movement alteration required.");
+    }
+
+    [VerificationCommand("--reported-shaft-momentum")]
+    internal static int ReportedShaftMomentumCommand()
+    {
+        Suite(nameof(VerifyReportedShaftMomentum), () => VerifyReportedShaftMomentum());
+        return 0;
     }
 }

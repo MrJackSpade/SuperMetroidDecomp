@@ -1,14 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
+using static ImportedSpritemapsVerification;
 
-internal static partial class Program
+internal static class CeresDoorQuakeDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door quake definitions")]
-    private static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresDoorQuakeDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa6a321;
 
@@ -101,10 +112,18 @@ internal static partial class Program
             "Ceres door quake definitions: all four native bytes, 65,536 timer aliases, four real OAM phases, and editable private-overlay art pass with source reads forbidden.");
     }
 
-    private static CartridgeReadGuard NewCeresDoorQuakeReadGuard(
+    internal static CartridgeReadGuard NewCeresDoorQuakeReadGuard(
         ISnesAddressSpace source, bool blockOverlay = false) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa6a321 and < 0xa6a325 ||
                     (blockOverlay && address is >= 0xa6a329 and < 0xa6a353),
                 address => $"Ceres private door draw attempted migrated source read ${address:X6}.");
+
+    [VerificationCommand("--ceres-door-artwork")]
+    internal static int CeresDoorArtworkCommand()
+    {
+        Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

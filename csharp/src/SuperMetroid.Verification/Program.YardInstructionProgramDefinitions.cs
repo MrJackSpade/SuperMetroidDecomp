@@ -1,9 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CompiledEnemyVisualSelectorAssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class YardInstructionProgramDefinitionsVerification
 {
     private static readonly ushort[] YardInstructionEntries =
     [
@@ -47,13 +59,13 @@ internal static partial class Program
         YardInstructionProgramDefinitions.AirborneFacingRightLoop,
     ];
 
-    private static void VerifyYardInstructionProgramDefinitions()
+    internal static void VerifyYardInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyYardInstructionProgramDefinitions(
+    internal static void VerifyYardInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         int mechanics = 0;
@@ -128,7 +140,7 @@ internal static partial class Program
             "five private callbacks, and 112 compiled visual selectors pass.");
     }
 
-    private static RoomEnemySystem CreateYardInstructionSystem(
+    internal static RoomEnemySystem CreateYardInstructionSystem(
         ISnesAddressSpace bus,
         out RoomEnemySlot yard)
     {
@@ -160,7 +172,7 @@ internal static partial class Program
         return checksum;
     }
 
-    private static CartridgeReadGuard NewYardInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
+    internal static CartridgeReadGuard NewYardInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
         var guard = new CartridgeReadGuard(source).Forbid(YardInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             address => $"Production read compiled Yard mechanics byte ${address:X6}.");
@@ -168,5 +180,12 @@ internal static partial class Program
             ? guard.ForbidWords(0xa30000, YardInstructionProgramDefinitions.PresentationWordCount, YardInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Installed Yard read presentation byte ${address:X6}.")
             : guard.ObserveWords(0xa30000, YardInstructionProgramDefinitions.PresentationWordCount, YardInstructionProgramDefinitions.PresentationWordAddress);
+    }
+
+    [VerificationCommand("--yard-instruction-program-definitions")]
+    internal static int YardInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyYardInstructionProgramDefinitions), () => VerifyYardInstructionProgramDefinitions());
+        return 0;
     }
 }

@@ -1,8 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static ExtendedFrameSequenceVerification;
 using SuperMetroid.Core.Assets;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PirateArtworkNamesVerification
 {
-    private static void VerifyWalkingPirateArtworkNames()
+    internal static void VerifyWalkingPirateArtworkNames()
     {
         string[] expected = [
         "walking_pirate_flinch_left", "walking_pirate_flinch_right",
@@ -28,7 +41,7 @@ internal static partial class Program
         Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Walking));
     }
 
-    private static void VerifyWallPirateArtworkNames()
+    internal static void VerifyWallPirateArtworkNames()
     {
         string[] expected = [
         "wall_pirate_fire_jump_left_0", "wall_pirate_fire_jump_left_1",
@@ -56,5 +69,15 @@ internal static partial class Program
             catch (IndexOutOfRangeException) { rejected = true; }
             AssertTrue(rejected, "Pirate artwork key bounds");
         }
+    }
+
+    [VerificationCommand("--lookup-pirate-artwork-names")]
+    internal static int LookupPirateArtworkNamesCommand()
+    {
+        Suite(nameof(VerifyWalkingPirateArtworkNames), () => VerifyWalkingPirateArtworkNames());
+        Suite(nameof(VerifyWallPirateArtworkNames), () => VerifyWallPirateArtworkNames());
+        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
+        Console.WriteLine("Pirate artwork names: all 55 published keys and bounds pass.");
+        return 0;
     }
 }

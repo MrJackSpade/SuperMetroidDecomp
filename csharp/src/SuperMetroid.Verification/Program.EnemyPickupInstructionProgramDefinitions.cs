@@ -1,15 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static EnemyProjectileProgramOracleVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyPickupInstructionProgramDefinitionsVerification
 {
-    private static void VerifyEnemyPickupInstructionProgramDefinitions() =>
+    internal static void VerifyEnemyPickupInstructionProgramDefinitions() =>
         Suite(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    private static void VerifyEnemyPickupInstructionProgramDefinitions(
+    internal static void VerifyEnemyPickupInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -167,4 +180,11 @@ internal static partial class Program
                 address => $"Production read compiled enemy-pickup mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, EnemyPickupInstructionProgramDefinitions.PresentationWordCount,
                 EnemyPickupInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--enemy-pickup-instruction-mechanics")]
+    internal static int EnemyPickupInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyEnemyPickupInstructionProgramDefinitions), () => VerifyEnemyPickupInstructionProgramDefinitions());
+        return 0;
+    }
 }

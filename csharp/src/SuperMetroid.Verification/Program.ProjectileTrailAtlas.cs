@@ -2,11 +2,13 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ProjectileTrailAtlasVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyProjectileTrailAtlas(ISnesAddressSpace bus)
+    internal static void VerifyProjectileTrailAtlas(ISnesAddressSpace bus)
     {
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var atlas = ProjectileTrailAtlas.Load(new MemoryStream(png));

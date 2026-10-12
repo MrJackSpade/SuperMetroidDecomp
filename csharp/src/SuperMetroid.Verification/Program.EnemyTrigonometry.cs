@@ -1,16 +1,339 @@
+using static Program;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend;
+using static AbsoluteTangentDefinitionsVerification;
+using static AlcoonFireballInstructionProgramDefinitionsVerification;
+using static AlcoonInstructionProgramDefinitionsVerification;
+using static AtomicMovementDefinitionsVerification;
+using static BeamCallbackTablesVerification;
+using static BeetomInstructionProgramDefinitionsVerification;
+using static BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification;
+using static BlueDoorPlmDrawDefinitionsVerification;
+using static BombSpreadLaunchDefinitionsVerification;
+using static BombTorizoAttackDefinitionsVerification;
+using static BombTorizoDroolInstructionProgramDefinitionsVerification;
+using static BombTorizoDroolSineVerification;
+using static BombTorizoMovementDefinitionsVerification;
+using static BombTorizoStatueFragmentDefinitionsVerification;
+using static BombTorizoStatueInstructionProgramDefinitionsVerification;
+using static BotwoonAnimationsVerification;
+using static BotwoonHealthPaletteDefinitionsVerification;
+using static BotwoonNavigationDefinitionsVerification;
+using static BotwoonSpeedsVerification;
+using static BoulderBounceDefinitionsVerification;
+using static BoulderInstructionProgramDefinitionsVerification;
+using static BoyonInstructionProgramDefinitionsVerification;
+using static BoyonSpeedDefinitionsVerification;
+using static BrinstarPipeBugInstructionProgramDefinitionsVerification;
+using static BullInstructionProgramDefinitionsVerification;
+using static BullMovementDefinitionsVerification;
+using static CacatacInstructionProgramDefinitionsVerification;
+using static CacatacMovementDefinitionsVerification;
+using static CacatacProjectileDefinitionsVerification;
+using static CacatacProjectileInstructionProgramDefinitionsVerification;
+using static CeresDoorInitializationDefinitionsVerification;
+using static CeresDoorInstructionProgramDefinitionsVerification;
+using static CeresDoorQuakeDefinitionsVerification;
+using static CeresFallingDebrisInstructionProgramDefinitionsVerification;
+using static CeresRidleyEyeFadeDefinitionsVerification;
+using static CeresRidleyGetawayDefinitionsVerification;
+using static CeresRidleyProjectileInstructionProgramDefinitionsVerification;
+using static CeresSteamDefinitionsVerification;
+using static CeresSteamInstructionProgramDefinitionsVerification;
+using static ChargeFlareDefinitionsVerification;
+using static ChargeFlarePlacementVerification;
+using static ChootInstructionProgramDefinitionsVerification;
+using static ChootPatternDefinitionsVerification;
+using static ChozoStatueInstructionProgramDefinitionsVerification;
+using static ChozoStatuePlmDefinitionsVerification;
+using static ChozoTourianDustInstructionProgramDefinitionsVerification;
+using static ColoredDoorPlmDrawDefinitionsVerification;
+using static CompiledProjectileMathVerification;
+using static CrawlerAnimationDefinitionsVerification;
+using static CrawlerSpeedsVerification;
+using static CrocomireBridgeFragmentDefinitionsVerification;
+using static CrocomireInstructionProgramDefinitionsVerification;
+using static CrocomireMeltingDefinitionsVerification;
+using static CrocomireProjectileInstructionProgramDefinitionsVerification;
+using static CrocomireRumbleDefinitionsVerification;
+using static CrocomireTongueInstructionProgramDefinitionsVerification;
+using static CrystalFlashPaletteTimingDefinitionsVerification;
+using static DachoraInstructionProgramDefinitionsVerification;
+using static DeadSidehopperCorpseDefinitionsVerification;
+using static DeadSidehopperInstructionProgramDefinitionsVerification;
+using static DeadSidehopperLaunchDefinitionsVerification;
+using static DeadTorizoCorpseDefinitionsVerification;
+using static DeadTorizoInstructionProgramDefinitionsVerification;
+using static DeadTourianCorpseDefinitionsVerification;
+using static DeadTourianCorpseInstructionProgramDefinitionsVerification;
+using static DownwardGatePlmsVerification;
+using static DownwardGateProjectileInstructionProgramDefinitionsVerification;
+using static DragonAnimationDefinitionsVerification;
+using static DragonFireballInstructionProgramDefinitionsVerification;
+using static DragonInstructionProgramDefinitionsVerification;
+using static DraygonBurialEvirDefinitionsVerification;
+using static DraygonHealthPaletteDefinitionsVerification;
+using static DraygonInstructionProgramDefinitionsVerification;
+using static DraygonIntroDanceDefinitionsVerification;
+using static DraygonProjectileInstructionProgramDefinitionsVerification;
+using static ElevatorInputDefinitionsVerification;
+using static ElevatorInstructionProgramDefinitionsVerification;
+using static EnemyBreakableTerrainDefinitionsVerification;
+using static EnemyDeathExplosionDefinitionsVerification;
+using static EnemyDeathInstructionProgramDefinitionsVerification;
+using static EnemyDropChanceDefinitionsVerification;
+using static EnemyFireballLaunchDefinitionsVerification;
+using static EnemyInstructionOwnerCoverageVerification;
+using static EnemyLinearSpeedsVerification;
+using static EnemyPickupDefinitionsVerification;
+using static EnemyPickupInstructionProgramDefinitionsVerification;
+using static EnemyProjectileDefinitionsVerification;
+using static EnemyProjectileInstructionOwnerCoverageVerification;
+using static EnemyQuadraticSpeedsVerification;
+using static EnemyVulnerabilityDefinitionsVerification;
+using static EscapeDachoraInstructionProgramDefinitionsVerification;
+using static EscapeEtecoonDefinitionsVerification;
+using static EtecoonInstructionProgramDefinitionsVerification;
+using static EvirInstructionProgramDefinitionsVerification;
+using static EyeDoorPlmDrawDefinitionsVerification;
+using static EyeDoorProjectileInstructionProgramDefinitionsVerification;
+using static EyeDoorSweatInstructionProgramDefinitionsVerification;
+using static FakeKraidInstructionProgramDefinitionsVerification;
+using static FakeKraidProjectileDefinitionsVerification;
+using static FakeKraidProjectileInstructionProgramDefinitionsVerification;
+using static FallingSparkInstructionProgramDefinitionsVerification;
+using static FallingSparkLaunchDefinitionsVerification;
+using static FamilyTrigonometryVerification;
+using static FirefleaInstructionProgramDefinitionsVerification;
+using static FirefleaMovementDefinitionsVerification;
+using static FlyInstructionProgramDefinitionsVerification;
+using static FullRunSuitesVerification;
+using static FuneNamiheDefinitionsVerification;
+using static FuneNamiheFireballInstructionProgramDefinitionsVerification;
+using static FuneNamiheInstructionProgramDefinitionsVerification;
+using static GoldenTorizoEggInstructionProgramDefinitionsVerification;
+using static GoldenTorizoEyeBeamInstructionProgramDefinitionsVerification;
+using static GoldenTorizoSuperMissileInstructionProgramDefinitionsVerification;
+using static GrappleBodyPlacementVerification;
+using static GrappleCompiledMathVerification;
+using static GrappleConnectionDefinitionsVerification;
+using static GrappleFiringDefinitionsVerification;
+using static GreyDoorPlmDrawDefinitionsVerification;
+using static GrowingShutterDefinitionsVerification;
+using static GrowingShutterInstructionProgramDefinitionsVerification;
+using static GunshipDustDefinitionsVerification;
+using static GunshipDustInstructionProgramDefinitionsVerification;
+using static GunshipInstructionProgramDefinitionsVerification;
+using static GunshipMotionDefinitionsVerification;
+using static HZoomerInstructionProgramDefinitionsVerification;
+using static HalfWaveAlgorithmsVerification;
+using static HibashiDefinitionsVerification;
+using static HopperAnimationDefinitionsVerification;
+using static HorizontalShutterInstructionProgramDefinitionsVerification;
+using static HyperBeamPaletteFxProgramDefinitionsVerification;
+using static IntroEggMotionDefinitionsVerification;
+using static KagoBugProjectileInstructionProgramDefinitionsVerification;
+using static KagoInstructionProgramDefinitionsVerification;
+using static KiHunterAcidSpitInstructionProgramDefinitionsVerification;
+using static KiHunterInstructionProgramDefinitionsVerification;
+using static KiHunterMotionDefinitionsVerification;
+using static KraidArmInstructionProgramDefinitionsVerification;
+using static KraidBodyContourVerification;
+using static KraidCeilingRockPositionsVerification;
+using static KraidFootInstructionProgramDefinitionsVerification;
+using static KraidHeadInstructionsVerification;
+using static KraidLintInstructionProgramDefinitionsVerification;
+using static KraidMouthHitboxesVerification;
+using static KraidMovementChoicesVerification;
+using static KraidNailBounceVerification;
+using static KraidNailContourVerification;
+using static KraidNailInstructionProgramDefinitionsVerification;
+using static KraidNailSiblingVerification;
+using static KraidRockLaunchDefinitionsVerification;
+using static KraidRockProjectileInstructionProgramDefinitionsVerification;
+using static KraidSinkScheduleVerification;
+using static KzanInstructionProgramDefinitionsVerification;
+using static LowerNorfairRioInstructionProgramDefinitionsVerification;
+using static MagdolliteInstructionProgramDefinitionsVerification;
+using static MagdolliteLavaInstructionProgramDefinitionsVerification;
+using static MamaTurtleInstructionProgramDefinitionsVerification;
+using static MaridiaLargeSnailInstructionDefinitionsVerification;
+using static MetroidBehaviorDefinitionsVerification;
+using static MetroidInstructionProgramDefinitionsVerification;
+using static MiscDustProjectileDefinitionsVerification;
+using static MochtroidInstructionProgramDefinitionsVerification;
+using static MorphBallEyeInstructionProgramDefinitionsVerification;
+using static MotherBrainBabyInstructionProgramDefinitionsVerification;
+using static MotherBrainBabyMetroidDefinitionsVerification;
+using static MotherBrainBodyInstructionProgramsVerification;
+using static MotherBrainDeathExplosionDefinitionsVerification;
+using static MotherBrainDoorFragmentDefinitionsVerification;
+using static MotherBrainGlassInstructionProgramDefinitionsVerification;
+using static MotherBrainGlassPlmDrawDefinitionsVerification;
+using static MotherBrainGlassShardDefinitionsVerification;
+using static MotherBrainNeckSineVerification;
+using static MotherBrainRoomPaletteProgramDefinitionsVerification;
+using static MotherBrainTopTubeInstructionProgramDefinitionsVerification;
+using static MotherBrainTurretDefinitionsVerification;
+using static MotherBrainTurretInstructionProgramDefinitionsVerification;
+using static MultiviolaInstructionProgramDefinitionsVerification;
+using static NinjaSpacePirateInstructionProgramDefinitionsVerification;
+using static NoobTubePlmDrawDefinitionsVerification;
+using static NoobTubeProjectileInstructionProgramDefinitionsVerification;
+using static NorfairLavaJumpDefinitionsVerification;
+using static NorfairLavaJumperInstructionProgramDefinitionsVerification;
+using static NorfairPipeBugInstructionProgramDefinitionsVerification;
+using static NorfairRioInstructionProgramDefinitionsVerification;
+using static NuclearWaffleDefinitionsVerification;
+using static NuclearWaffleProjectileInstructionProgramDefinitionsVerification;
+using static OwtchInstructionProgramDefinitionsVerification;
+using static OwtchMovementDefinitionsVerification;
+using static PhantoonCasualFlamesVerification;
+using static PhantoonDeathExplosionsVerification;
+using static PhantoonFlameSpawnsVerification;
+using static PhantoonInstructionProgramDefinitionsVerification;
+using static PhantoonMotionDefinitionsVerification;
+using static PhantoonPathVerification;
+using static PhantoonPatternsVerification;
+using static PhantoonProjectileInstructionProgramDefinitionsVerification;
+using static PhantoonSoundDefinitionsVerification;
+using static PhantoonTimersVerification;
+using static PhantoonWaveMathVerification;
+using static PipeBugAnimationDefinitionsVerification;
+using static PlatformInstructionProgramDefinitionsVerification;
+using static PolypInstructionProgramDefinitionsVerification;
+using static PolypLaunchDefinitionsVerification;
+using static PolypRockInstructionProgramDefinitionsVerification;
+using static PoseCollisionDefinitionsVerification;
+using static PoseDispatchDefinitionsVerification;
+using static PoseInputDefinitionsVerification;
+using static PoseProjectileOriginVerification;
+using static PowampInstructionProgramDefinitionsVerification;
+using static PowampSpikeInstructionProgramDefinitionsVerification;
+using static PowerBombCallbackDefinitionsVerification;
+using static PowerBombShapeDefinitionsVerification;
+using static ProjectileCompositionsVerification;
+using static ProjectileDamageVerification;
+using static ProjectileFrameBindingsVerification;
+using static ProjectileInstructionsVerification;
+using static ProjectileOriginsVerification;
+using static ProjectileRadiiVerification;
+using static ProjectileVisualPartsVerification;
+using static PuyoHopDefinitionsVerification;
+using static PuyoInstructionProgramDefinitionsVerification;
+using static QuicksandVerification;
+using static RepositoryInputsVerification;
+using static RidleyAttackChoicesVerification;
+using static RidleyClawOffsetsVerification;
+using static RidleyDeathAccelerationVerification;
+using static RidleyExplosionDefinitionsVerification;
+using static RidleyInertiaVerification;
+using static RidleyInstructionProgramDefinitionsVerification;
+using static RidleyMovementTargetsVerification;
+using static RidleyNeutralTailVerification;
+using static RidleyPogoDefinitionsVerification;
+using static RioInstructionProgramDefinitionsVerification;
+using static RioLaunchDefinitionsVerification;
+using static RipperInstructionProgramDefinitionsVerification;
+using static RoomPaletteFxDefinitionsVerification;
+using static RoomPlmPopulationVerification;
+using static RoomShakeDefinitionsVerification;
+using static RoomSpriteObjectDefinitionsVerification;
+using static RunningCadenceVerification;
+using static SamusArmCannonDefinitionsVerification;
+using static SamusAtmosphericAnimationDefinitionsVerification;
+using static SamusAtmosphericEffectDefinitionsVerification;
+using static SamusBallBounceDefinitionsVerification;
+using static SamusDeathExplosionTimingDefinitionsVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SamusHudDefinitionsVerification;
+using static SamusImpulseDefinitionsVerification;
+using static SamusIndexedSpeedsVerification;
+using static SamusStandaloneSpeedsVerification;
+using static SamusVerticalDefinitionsVerification;
+using static SaveStationAnimationDefinitionsVerification;
+using static SaveStationElectricityInstructionProgramDefinitionsVerification;
+using static SbugMovementDefinitionsVerification;
+using static SciserInstructionProgramDefinitionsVerification;
+using static ShaktoolInstructionDefinitionsVerification;
+using static ShaktoolProjectileInstructionProgramDefinitionsVerification;
+using static ShaktoolSegmentDefinitionsVerification;
+using static SharedCrawlerInstructionProgramDefinitionsVerification;
+using static SharedSlopeHeightsVerification;
+using static ShitroidInstructionProgramDefinitionsVerification;
+using static ShotCallbackDefinitionsVerification;
+using static SkreeMetareeAnimationDefinitionsVerification;
+using static SkreeMetareeInstructionProgramDefinitionsVerification;
+using static SkreeMetareeParticleInstructionProgramDefinitionsVerification;
+using static SkulteraInstructionProgramDefinitionsVerification;
+using static SlopeSpeedDefinitionsVerification;
+using static SpacePirateProjectileInstructionProgramDefinitionsVerification;
+using static SparkMovementDefinitionsVerification;
+using static SporeSpawnProjectileDefinitionsVerification;
+using static SporeSpawnProjectileInstructionProgramDefinitionsVerification;
+using static SquareSlopeDefinitionsVerification;
+using static StationAccessPlmDefinitionsVerification;
+using static StatueWalkDefinitionsVerification;
+using static StokeInstructionProgramDefinitionsVerification;
+using static StokeProjectileInstructionProgramDefinitionsVerification;
+using static SuitPickupBeamCurveDefinitionsVerification;
+using static SuiteSchedulingVerification;
+using static SurfaceMotionDefinitionsVerification;
+using static TorizoChozoOrbInstructionProgramDefinitionsVerification;
+using static TorizoExplosionInstructionProgramDefinitionsVerification;
+using static TorizoExplosiveSwipeInstructionProgramDefinitionsVerification;
+using static TorizoInitializationDefinitionsVerification;
+using static TorizoLandingDustInstructionProgramDefinitionsVerification;
+using static TorizoRandomizedProjectileDefinitionsVerification;
+using static TorizoSonicBoomInstructionProgramDefinitionsVerification;
+using static TourianAccessPlmDefinitionsVerification;
+using static TourianEntranceStatueInstructionProgramDefinitionsVerification;
+using static TourianStatueProjectileInstructionProgramDefinitionsVerification;
+using static TourianStatueUnlockDefinitionsVerification;
+using static VerticalShutterInstructionProgramDefinitionsVerification;
+using static ViolaInstructionProgramDefinitionsVerification;
+using static WalkingSpacePirateInstructionProgramDefinitionsVerification;
+using static WallSpacePirateInstructionProgramDefinitionsVerification;
+using static WaverAnimationDefinitionsVerification;
+using static WaverInstructionProgramDefinitionsVerification;
+using static WorkRobotInstructionProgramDefinitionsVerification;
+using static WorkRobotLaserInstructionProgramDefinitionsVerification;
+using static WorkRobotPaletteTimingDefinitionsVerification;
+using static WreckedShipGhostInstructionProgramDefinitionsVerification;
+using static YappingMawBodyProjectileInstructionProgramDefinitionsVerification;
+using static YappingMawInstructionProgramDefinitionsVerification;
+using static YardDirectionDefinitionsVerification;
+using static YardInstructionProgramDefinitionsVerification;
+using static YardTurnDefinitionsVerification;
+using static YellowPipeBugInstructionProgramDefinitionsVerification;
+using static ZebesEscapeExplosionDefinitionsVerification;
+using static ZebetiteDefinitionsVerification;
+using static ZebetiteInstructionProgramDefinitionsVerification;
+using static ZeroInstructionProgramDefinitionsVerification;
+using static ZoaAnimationDefinitionsVerification;
+using static ZoaInstructionProgramDefinitionsVerification;
+using static ZoaSpeedDefinitionsVerification;
 
-internal static partial class Program
+internal static class EnemyTrigonometryVerification
 {
     /// <summary>
     /// The compiled enemy math, projectile and instruction-program family. Each suite loads its own
     /// retail ROM, so the full run schedules them independently; the sine products run last.
     /// </summary>
-    private static RegisteredSuite[] CompiledEnemyTrigonometrySuites() =>
+    internal static RegisteredSuite[] CompiledEnemyTrigonometrySuites() =>
     [
         new(nameof(VerifyRidleyPowerBombNeutralTail), () => VerifyRidleyPowerBombNeutralTail()),
         new(nameof(VerifyEightBitHalfWaveAlgorithm), () => VerifyEightBitHalfWaveAlgorithm(LoadRepositoryRom())),
@@ -332,7 +655,7 @@ internal static partial class Program
     ];
 
     /// <summary>The whole family in registry order, in this process.</summary>
-    private static void VerifyCompiledEnemyTrigonometry() => RunSuitesSerially(CompiledEnemyTrigonometrySuites());
+    internal static void VerifyCompiledEnemyTrigonometry() => RunSuitesSerially(CompiledEnemyTrigonometrySuites());
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy sine")]
     private static void VerifyCompiledEnemySine()
@@ -404,7 +727,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled signed trigonometry")]
-    private static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyCompiledSignedTrigonometry(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         short Reference(int index)
         {
@@ -461,6 +784,20 @@ internal static partial class Program
         Console.WriteLine("Compiled tide: all 65,536 phases in four option combinations preserve exact offset, phase advance and small-tide precedence without a bus.");
     }
 
+    [VerificationCommand("--compiled-enemy-sine")]
+    internal static int CompiledEnemySineCommand()
+    {
+        Suite(nameof(VerifyCompiledEnemyTrigonometry), () => VerifyCompiledEnemyTrigonometry());
+        return 0;
+    }
+
+    [VerificationCommand("--liquid-tide-phase")]
+    internal static int LiquidTidePhaseCommand()
+    {
+        var tideOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyCompiledSignedTrigonometry), () => VerifyCompiledSignedTrigonometry(tideOracle));
+        return 0;
+    }
 }
 
 internal static class EnemyMathReferenceData

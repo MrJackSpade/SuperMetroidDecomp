@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupEscapeGateStockVerification
 {
-    private static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyEscapeGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmEscapeGateVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x9473,"open"),(0x947f,"half-closed"),(0x948b,"closed")];

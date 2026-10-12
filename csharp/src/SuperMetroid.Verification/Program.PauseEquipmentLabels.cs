@@ -5,10 +5,11 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static PauseEquipmentRulesVerification;
 
-internal static partial class Program
+internal static class PauseEquipmentLabelsVerification
 {
-    private static void VerifyPauseEquipmentLabelAssets(ISnesAddressSpace bus, string stock,
+    internal static void VerifyPauseEquipmentLabelAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);

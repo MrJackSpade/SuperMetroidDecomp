@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupBlueProgramVerification
 {
-    private static void VerifyBlueProgramControls(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 0);
-    private static void VerifyBlueProgramDraws(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 1);
-    private static void VerifyBlueProgramSounds(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 2);
-    private static void VerifyBlueProgramBts(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 3);
+    internal static void VerifyBlueProgramControls(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 0);
+    internal static void VerifyBlueProgramDraws(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 1);
+    internal static void VerifyBlueProgramSounds(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 2);
+    internal static void VerifyBlueProgramBts(SuperMetroidAddressSpace rom) => VerifyBlueProgramField(rom, 3);
 
     private static void VerifyBlueProgramField(SuperMetroidAddressSpace rom, int field)
     {

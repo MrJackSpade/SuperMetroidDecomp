@@ -1,10 +1,11 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GrowingShutterDefinitionsVerification
 {
-    private static void VerifyCompiledGrowingShutters(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledGrowingShutters(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrowingShutterInitialSelection), () => VerifyGrowingShutterInitialSelection(rom));
         Suite(nameof(VerifyGrowingShutterWholeSpeed), () => VerifyGrowingShutterWholeSpeed(rom));

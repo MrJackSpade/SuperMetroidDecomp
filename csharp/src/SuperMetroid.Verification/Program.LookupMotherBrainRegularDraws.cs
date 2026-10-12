@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class LookupMotherBrainRegularDrawsVerification
 {
-    private static void VerifyMotherBrainRegularDrawMapping(ISnesAddressSpace rom)
+    internal static void VerifyMotherBrainRegularDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x966d, 0x968b, 0x96a9, 0x96b1, 0x96bf, 0x96cb, 0x96ef, 0x9703];
         ushort[] otherPointers = [0x94a3,0x94b1,0x9505,0x9523,0x9541,0x955f,0x957d,0x959b,0x95b9,0x95d7,0x95f5,0x9613,0x9631,0x964f];

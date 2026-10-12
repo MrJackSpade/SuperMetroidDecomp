@@ -1,14 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SamusGrappleVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SamusMovementRomDataVerification;
 
-internal static partial class Program
+internal static class SamusGrappleRomDataVerification
 {
     /// <summary>
     /// Validates all Grapple direction tables, connection records, swing art, and tile
     /// sources through the last record consumed by the translated retail routines.
     /// </summary>
-    static void VerifySamusGrappleRomData()
+    internal static void VerifySamusGrappleRomData()
     {
         AssertTrue(SamusGrappleRomData.Physics.GravityMagnitude > 0,
             "Grapple gravity magnitude is positive");
@@ -122,5 +135,13 @@ internal static partial class Program
         Console.WriteLine(
             $"  Samus Grapple ROM data: {SamusGrappleRomData.Firing.DirectionCount} directions, " +
             $"{segmentPointerCount} segment sets, three connection tables, and special angles are in range.");
+    }
+
+    [VerificationCommand("--grapple-movement")]
+    internal static int GrappleMovementCommand()
+    {
+        Suite(nameof(VerifySamusGrappleRomData), () => VerifySamusGrappleRomData());
+        Suite(nameof(VerifySamusGrappleSwingAndRelease), () => VerifySamusGrappleSwingAndRelease());
+        return 0;
     }
 }

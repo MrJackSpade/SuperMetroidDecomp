@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingPlanetBoundaryVerification
 {
     /// <summary>
     /// Compares sampled finale frames with the pinned upstream PPU (csharp/test-fixtures/ending-native-ppu).
@@ -13,7 +23,7 @@ internal static partial class Program
     /// directory; the probe rasterizes it with retail <c>$8B:F2FA</c> (or <c>$8B:F2B7</c> burst) registers
     /// into a <c>.bgra</c> beside it. The scratch directory is deleted when the comparison ends.
     /// </summary>
-    private static void VerifyEndingNativePpu(IEnumerable<int> frames, bool burst)
+    internal static void VerifyEndingNativePpu(IEnumerable<int> frames, bool burst)
     {
         using var scratch = new TestScratchDirectory("ending-native-ppu-frames");
         var capture = new PlanetFrameCapture(scratch.Root, frames.ToHashSet());
@@ -72,10 +82,10 @@ internal static partial class Program
     }
 
     /// <summary>Planet-explosion frames to serialize for the native PPU comparison, into a caller-owned scratch directory.</summary>
-    private sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames);
+    internal sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending planet-explosion VRAM reconstruction")]
-    private static void VerifyEndingPlanetBoundary(PlanetFrameCapture? capture)
+    internal static void VerifyEndingPlanetBoundary(PlanetFrameCapture? capture)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
@@ -137,5 +147,33 @@ internal static partial class Program
         Console.WriteLine($"Complete explosion: {differences} pixel mismatches against exact native upper-VRAM transfers.");
         AssertEqual(0, differences, "explosion retains graphics outside the native font DMA extent");
         AssertEqual(0, memoryDifferences, "explosion setup executes exactly the native DMA byte ranges");
+    }
+
+    [VerificationCommand("--ending-planet-boundary")]
+    internal static int EndingPlanetBoundaryCommand()
+    {
+        Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary(capture: null));
+        return 0;
+    }
+
+    [VerificationCommand("--ending-native-ppu")]
+    internal static int EndingNativePpuCommand()
+    {
+        VerifyEndingNativePpu([512], burst: false);
+        return 0;
+    }
+
+    [VerificationCommand("--ending-native-finale")]
+    internal static int EndingNativeFinaleCommand()
+    {
+        VerifyEndingNativePpu(Enumerable.Range(0, 19).Select(step => 512 + step * 16), burst: false);
+        return 0;
+    }
+
+    [VerificationCommand("--ending-native-burst")]
+    internal static int EndingNativeBurstCommand()
+    {
+        VerifyEndingNativePpu(Enumerable.Range(0, 5).Select(step => 400 + step * 16), burst: true);
+        return 0;
     }
 }

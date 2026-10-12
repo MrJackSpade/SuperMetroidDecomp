@@ -6,10 +6,12 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class EndingRewardSpriteArtworkVerification
 {
-    private static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
+    internal static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
         foreach (EndingRewardSpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
@@ -39,7 +41,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyEndingRewardVisualOverride(GameInstallation installation,
+    internal static void VerifyEndingRewardVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingRewardSpriteFormat.FileName;

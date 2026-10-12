@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using static QueuedPcmSinkVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class AndroidHostVerification
 {
-    private static void VerifyAndroidHostPolicies()
+    internal static void VerifyAndroidHostPolicies()
     {
         Suite(nameof(VerifyQueuedPcmSink), () => VerifyQueuedPcmSink());
         AssertTrue(SuperMetroid.Android.AndroidRunPolicy.CanRun(true, true, false, false, true, true), "foreground audio owner runs");

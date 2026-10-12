@@ -1,15 +1,30 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static GunshipMotionDefinitionsVerification;
+using static RoomEnemiesVerification;
+using static SyntheticEnemyCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class GunshipLandingVerification
 {
     /// <summary>
     /// Drives the three ordinary enemy slots used by the post-Ceres gunship from the
     /// special station-eighteen initializer through descent, bounce, pad animation waits,
     /// Samus lift, and the final ordinary-control handoff.
     /// </summary>
-    static void VerifyPostCeresGunshipLanding(bool entrySoundOnly = false)
+    internal static void VerifyPostCeresGunshipLanding(bool entrySoundOnly = false)
     {
         const EnemyDefinitionId topDefinition = EnemyDefinitionId.ShipTop;
         const EnemyDefinitionId bottomDefinition = EnemyDefinitionId.ShipBottomEntrance;
@@ -278,5 +293,12 @@ internal static partial class Program
         WriteGunshipPopulationRecord(bus, population + 16, bottomDefinition, gunship, parameter2: 0);
         WriteGunshipPopulationRecord(bus, population + 32, bottomDefinition, gunship, parameter2: 1);
         WriteGunshipPopulationTerminator(bus, population + 48);
+    }
+
+    [VerificationCommand("--gunship-entry-sound")]
+    internal static int GunshipEntrySoundCommand()
+    {
+        Suite(nameof(VerifyPostCeresGunshipLanding), () => VerifyPostCeresGunshipLanding(entrySoundOnly: true));
+        return 0;
     }
 }

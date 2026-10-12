@@ -1,18 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PhantoonInstructionProgramDefinitionsVerification
 {
-    private static void VerifyPhantoonInstructionProgramDefinitions()
+    internal static void VerifyPhantoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyPhantoonInstructionProgramDefinitions(
+    internal static void VerifyPhantoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         AssertEqual(58, PhantoonInstructionProgramDefinitions.MechanicsWordCount,
@@ -193,7 +204,7 @@ internal static partial class Program
             "programs, four callbacks, and 27 native sprite selections pass with zero live reads.");
     }
 
-    private static RoomEnemySystem CreatePhantoonInstructionSystem(ISnesAddressSpace bus)
+    internal static RoomEnemySystem CreatePhantoonInstructionSystem(ISnesAddressSpace bus)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -268,4 +279,11 @@ internal static partial class Program
                 address => $"Production read compiled Phantoon mechanics byte ${address:X6}.")
             .ObserveWords(0xa70000, PhantoonInstructionProgramDefinitions.PresentationWordCount,
                 PhantoonInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--phantoon-instruction-program-definitions")]
+    internal static int PhantoonInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyPhantoonInstructionProgramDefinitions), () => VerifyPhantoonInstructionProgramDefinitions());
+        return 0;
+    }
 }

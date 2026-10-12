@@ -3,7 +3,7 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class GameOverMenuIndexesVerification
 {
     /// <summary>
     /// #1275: game-over indexes zero ($81:8D0F) and one ($81:91A4) each end in their own NMI
@@ -11,7 +11,7 @@ internal static partial class Program
     /// Index zero cancels library-three sounds; index two neither animates the Baby nor
     /// draws the selection missile.
     /// </summary>
-    private static void VerifyGameOverMenuNativeIndexes(ISnesAddressSpace bus, AreaMapPresentationCatalog presentation)
+    internal static void VerifyGameOverMenuNativeIndexes(ISnesAddressSpace bus, AreaMapPresentationCatalog presentation)
     {
         var audio = new CartridgeAudioState();
         var menu = new GameOverMenuState(bus, audio, presentation);

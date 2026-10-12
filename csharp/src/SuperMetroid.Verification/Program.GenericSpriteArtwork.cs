@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Collections;
 using System.Reflection;
 using System.Text.Json;
@@ -6,14 +16,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class GenericSpriteArtworkVerification
 {
     /// <summary>
     /// Checks the source-identified title/intro generic OAM conversion. This is not a
     /// gameplay search: exact sprite selectors are supplied directly to their owners.
     /// </summary>
-    private static void VerifyGenericSpriteArtwork(string sourceRom)
+    internal static void VerifyGenericSpriteArtwork(string sourceRom)
     {
         using var temporary = new TestScratchDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
@@ -155,5 +166,13 @@ internal static partial class Program
             AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");
             AssertTrue(expected.ImageEquals(actual), context + " packed bytes");
         }
+    }
+
+    [VerificationCommand("--generic-sprite-artwork")]
+    internal static int GenericSpriteArtworkCommand()
+    {
+        string genericSpriteRom = RepositoryRomPath;
+        Suite(nameof(VerifyGenericSpriteArtwork), () => VerifyGenericSpriteArtwork(genericSpriteRom));
+        return 0;
     }
 }

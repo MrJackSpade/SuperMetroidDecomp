@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RespawnedEnemyContactVerification
 {
     // #1269: Respawn_Enemy ($86:F264) leaves the spritemap word cleared, and $A0:A08C
     // skips Samus contact while it is zero. In the 100% movie a Hellway Zebbo respawning
     // beside Samus therefore hurts her one frame after it reappears, not on that frame.
-    private static void VerifyRespawnedEnemyContact()
+    internal static void VerifyRespawnedEnemyContact()
     {
         const EnemyDefinitionId respawningEnemy = EnemyDefinitionId.Zebbo;
         const ushort respawnX = 0x1e0;
@@ -49,5 +60,12 @@ internal static partial class Program
         AssertEqual((ushort)0x8a82, enemy.SpritemapPointer,
             "the respawned actor's first instruction installs its first spritemap");
         Console.WriteLine("Respawned enemy contact: Respawn_Enemy keeps a zero spritemap until the first instruction.");
+    }
+
+    [VerificationCommand("--respawned-enemy-contact")]
+    internal static int RespawnedEnemyContactCommand()
+    {
+        VerifyRespawnedEnemyContact();
+        return 0;
     }
 }

@@ -1,15 +1,18 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ProjectileSoundRoutingVerification;
+using static SamusMovementRomDataVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SamusProjectileRomDataVerification
 {
     /// <summary>
     /// Validates projectile table shapes plus every beam data-to-instruction indirection
     /// against the retail cartridge, catching both wrong bases and wrong record strides.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile ROM data")]
-    static void VerifySamusProjectileRomData()
+    internal static void VerifySamusProjectileRomData()
     {
         AssertEqual(12, SamusProjectileRomData.Beams.CombinationCount,
             "retail beam-combination table count");
@@ -175,6 +178,6 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus projectile data words")]
-    private static ushort ReadProjectileWord(SuperMetroidAddressSpace bus, int address) =>
+    internal static ushort ReadProjectileWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 }

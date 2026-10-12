@@ -1,13 +1,35 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static CollectiblesVerification;
+using static EscapeGateVisualsVerification;
+using static LookupElevatorPlatformLayoutsVerification;
+using static LookupElevatorPlatformProgramVerification;
+using static LookupEscapeGateVerification;
+using static LookupSpeedEscapeProgramVerification;
+using static LookupSpeedEscapeStagesVerification;
+using static RidleyFullMovieVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SamusRenderingVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RoomPlmPopulationVerification
 {
-    private static void VerifyElevatorPlatformPlmDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatorPlatformPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorPlatformControls), () => VerifyElevatorPlatformControls(rom));
         Suite(nameof(VerifyElevatorPlatformDrawSelection), () => VerifyElevatorPlatformDrawSelection(rom));
@@ -53,7 +75,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for door closing PLM definitions")]
-    private static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
+    internal static void VerifyDoorClosingPlmDefinitions(SuperMetroidAddressSpace rom, bool fallbackOnly = false)
     {
 
         Suite(nameof(VerifyFallbackDoorHeaders), () => VerifyFallbackDoorHeaders(rom));
@@ -108,7 +130,7 @@ internal static partial class Program
     /// word deliberately absent from the sparse bus.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for resident door closing definitions")]
-    private static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyResidentDoorClosingDefinitions(SuperMetroidAddressSpace rom)
     {
 
         AssertEqual(ResidentDoorClosingDefinitions.Count,
@@ -182,7 +204,7 @@ internal static partial class Program
             "nonresident blue-door collision header is outside resident closing domain");
     }
 
-    private static void VerifySpeedBoosterEscapeStageDefinitions(
+    internal static void VerifySpeedBoosterEscapeStageDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySpeedEscapeProgramControls), () => VerifySpeedEscapeProgramControls(rom));
@@ -203,7 +225,7 @@ internal static partial class Program
     /// elevator animation, and all requested station setup/contact families to bounded
     /// synthetic rooms. No assertion crosses a door or depends on frontend choreography.
     /// </summary>
-    private static void VerifySequentialRoomPlmPopulationLoader()
+    internal static void VerifySequentialRoomPlmPopulationLoader()
     {
         var bus = new TestAddressSpace();
         SeedRoomPlmPopulationRom(bus);
@@ -566,7 +588,7 @@ internal static partial class Program
     /// list. The fixture writes the explicit shared FX motion words and compiled stage records,
     /// so the test observes the same shared FX/event/earthquake owners as production.
     /// </summary>
-    private static void VerifySpeedBoosterEscapePlm(TestAddressSpace bus)
+    internal static void VerifySpeedBoosterEscapePlm(TestAddressSpace bus)
     {
         const ushort population = 0x9620;
         const int width = 16;
@@ -783,7 +805,7 @@ internal static partial class Program
     /// six-frame closed gate list intact, while Mother Brain's direction-nine entrance
     /// redirects that same physical slot to the header's second, three-frame closing list.
     /// </summary>
-    private static void VerifyMotherBrainEscapeRoomGate(TestAddressSpace bus)
+    internal static void VerifyMotherBrainEscapeRoomGate(TestAddressSpace bus)
     {
         const ushort population = 0x9680;
         const int width = 16;
@@ -916,7 +938,7 @@ internal static partial class Program
             "Mother Brain escape gate never rereads compiled programs or physical draws");
     }
 
-    private static void VerifyMotherBrainEscapeGateCompiledDefinitions(
+    internal static void VerifyMotherBrainEscapeGateCompiledDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyEscapeGateProgramControls), () => VerifyEscapeGateProgramControls(rom));
@@ -941,7 +963,7 @@ internal static partial class Program
     /// Exercises all semantic branches in `$DB44`'s thirteen-entry room-argument table:
     /// no-op, below-quota, four event writes, persistent sleep, and malformed input.
     /// </summary>
-    private static void VerifyMetroidsClearedStatePlm(TestAddressSpace bus)
+    internal static void VerifyMetroidsClearedStatePlm(TestAddressSpace bus)
     {
         const ushort population = 0x9500;
         SeedPlmProgramWords(bus, 0xdb46, RoomPlmInstructionLists.SetMetroidsClearedStatesWhenRequired);
@@ -1098,7 +1120,7 @@ internal static partial class Program
             "Shaktool controller deletes itself when the path event is set");
     }
 
-    private static void VerifyOtherStationFamilies(TestAddressSpace bus,
+    internal static void VerifyOtherStationFamilies(TestAddressSpace bus,
         RoomPlmStationVisualCatalog? visuals = null)
     {
         const ushort population = 0x9200;
@@ -1405,7 +1427,7 @@ internal static partial class Program
             "save confirmation defaults to yes and publishes acceptance");
     }
 
-    private static void SeedRoomPlmPopulationRom(TestAddressSpace bus)
+    internal static void SeedRoomPlmPopulationRom(TestAddressSpace bus)
     {
         SeedPoseOneSamusData(bus);
         // Header instruction-list fields consumed by the generic allocator.
@@ -1439,7 +1461,7 @@ internal static partial class Program
         }
     }
 
-    private static CartridgeReadGuard NewMotherBrainEscapeGateGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewMotherBrainEscapeGateGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => address is >= 0x84bb34 and <= 0x84bb51 or >= 0x849473 and <= 0x849496,
             address => $"Mother Brain escape gate reread compiled source ${address:X6}.");
@@ -1507,5 +1529,19 @@ internal static partial class Program
             WriteTestWord(bus, 0x859800 + word * 2, unchecked((ushort)(0x2800 + word)));
         for (int word = 0; word < 32; word++)
             WriteTestWord(bus, 0x859900 + word * 2, unchecked((ushort)(0x2a00 + word)));
+    }
+
+    [VerificationCommand("--room-plm-population")]
+    internal static int RoomPlmPopulationCommand()
+    {
+     VerifySequentialRoomPlmPopulationLoader(); return 0; 
+    }
+
+    [VerificationCommand("--door-closing-definitions")]
+    internal static int DoorClosingDefinitionsCommand()
+    {
+        Suite(nameof(VerifyDoorClosingPlmDefinitions), () => VerifyDoorClosingPlmDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

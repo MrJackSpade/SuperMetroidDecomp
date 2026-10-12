@@ -1,13 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroContentIdentityVerification
 {
     /// <summary>Verifies source-identified opening/Ceres presentation coverage; no gameplay read discovery.</summary>
-    private static void VerifyIntroContentIdentity()
+    internal static void VerifyIntroContentIdentity()
     {
         string baseline = CreateIntroIdentityFixture().ContentIdentity;
         AssertEqual(baseline, CreateIntroIdentityFixture(reverse: true).ContentIdentity,
@@ -197,5 +206,12 @@ internal static partial class Program
                     Id = IntroEyeTilemapFormat.FrameId(index), Cells = Cells("eye-" + index, IntroEyeTilemapFormat.CellsPerFrame),
                 }).ToArray(),
             })), CaretSprites = IntroCaretSpritePresentation.Load(Sprites("caret", IntroCaretSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name), (int)IntroCaretSpriteVersion.Current)), MotherBrainSprites = IntroMotherBrainSpritePresentation.Load(Sprites("mother-brain", IntroMotherBrainSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), MotherBrainExplosionSprites = IntroMotherBrainExplosionSpritePresentation.Load(Sprites("mb-explosion", IntroMotherBrainExplosionSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), RinkaSprites = IntroRinkaSpritePresentation.Load(Sprites("rinka", IntroRinkaSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), EggEffectSprites = IntroEggEffectSpritePresentation.Load(Sprites("egg", IntroEggEffectSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), DiscoveryActorSprites = IntroDiscoveryActorSpritePresentation.Load(Sprites("discovery", IntroDiscoveryActorSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), ScientistSprites = IntroScientistSpritePresentation.Load(Sprites("scientist", IntroScientistSpriteDefinitions.Frames.ToArray().Select(frame => frame.Name))), Palette = IntroCinematicPalette.Load(PaletteJson("intro-palette")), CeresFlight = flight, CeresDestruction = destruction });
+    }
+
+    [VerificationCommand("--intro-content-identity")]
+    internal static int IntroContentIdentityCommand()
+    {
+        Suite(nameof(VerifyIntroContentIdentity), () => VerifyIntroContentIdentity());
+        return 0;
     }
 }

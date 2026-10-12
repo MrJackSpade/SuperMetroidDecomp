@@ -1,11 +1,14 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AnimatedTileInstructionCodesVerification;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupTourianDescriptorsVerification
 {
-    private static readonly ushort[] OriginalTourianObjects = [0x854c, 0x8552, 0x8558, 0x855e];
+    internal static readonly ushort[] OriginalTourianObjects = [0x854c, 0x8552, 0x8558, 0x855e];
 
-    private static void VerifyTourianStatueDescriptorFields(ISnesAddressSpace rom)
+    internal static void VerifyTourianStatueDescriptorFields(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyTourianStatueObjectDomain), () => VerifyTourianStatueObjectDomain());
         Suite(nameof(VerifyTourianStatueProgramStarts), () => VerifyTourianStatueProgramStarts(rom));

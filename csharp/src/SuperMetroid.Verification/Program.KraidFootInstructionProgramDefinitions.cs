@@ -1,17 +1,31 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
+using static KraidFootCollisionDefinitionsVerification;
+using static KraidFootGeneratedProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidFootInstructionProgramDefinitionsVerification
 {
-    private static void VerifyKraidFootInstructionProgramDefinitions()
+    internal static void VerifyKraidFootInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyKraidFootInstructionProgramDefinitions(
+    internal static void VerifyKraidFootInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidFootCollisionDefinitions), () => VerifyKraidFootCollisionDefinitions());
@@ -206,7 +220,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot instruction words")]
-    private static ushort ReadKraidFootInstructionWord(
+    internal static ushort ReadKraidFootInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa70000 | address);
@@ -216,4 +230,11 @@ internal static partial class Program
             .Forbid(KraidFootInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Kraid foot mechanics byte ${address:X6}.")
             .ObserveWords(0xa70000, KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount, KraidFootInstructionProgramDefinitionsTooling.PresentationWordAddress);
+
+    [VerificationCommand("--kraid-foot-instruction-program-definitions")]
+    internal static int KraidFootInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyKraidFootInstructionProgramDefinitions), () => VerifyKraidFootInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,18 +1,33 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static DoorDefinitionsVerification;
+using static EnemyInstructionCodePointersVerification;
+using static NorfairGlowVerification;
+using static RoomPaletteFxPresentationVerification;
+using static SuiteTimingVerification;
+using static TitleGradientVerification;
 
-internal static partial class Program
+internal static class PaletteFxInstructionCodesVerification
 {
     /// <summary>
     /// Keeps the complete translated palette-FX dispatcher vocabulary explicit. This
     /// catches accidental duplicate callbacks and verifies that every executable pointer
     /// remains in mapped bank-$8D cartridge space.
     /// </summary>
-    static void VerifyPaletteFxInstructionCodeCatalogs()
+    internal static void VerifyPaletteFxInstructionCodeCatalogs()
     {
         AssertPaletteFxCatalog(PaletteFxInstructionCodesType(), expectedCount: 19);
         AssertPaletteFxCatalog(typeof(PaletteFxSetup), expectedCount: 4);
@@ -160,7 +175,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Title Screen Ambient palette-FX program mechanics words")]
-    private static void VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -377,7 +392,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Post Credits Icon Glare palette-FX program mechanics words")]
-    private static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
@@ -463,7 +478,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Samus Loading Suit palette-FX program mechanics words")]
-    private static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         var programs = SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All;
@@ -709,7 +724,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Gunship palette-FX program mechanics words")]
-    private static void VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         ushort Word(int pointer) => RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8d0000 | pointer);
@@ -1071,7 +1086,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Zebes Explosion Foreground palette-FX program mechanics words")]
-    private static void VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -1275,7 +1290,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Planet Zebes Text palette-FX program mechanics words")]
-    private static void VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyPlanetZebesTextPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -1452,7 +1467,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Crateria Escape Lightning palette-FX program mechanics words")]
-    private static void VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyCrateriaEscapeLightningPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -1543,7 +1558,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Old Tourian Escape Accent palette-FX program mechanics words")]
-    private static void VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -1843,7 +1858,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Norfair Environmental palette-FX program mechanics words")]
-    private static void VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyNorfairEnvironmentalPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -2143,7 +2158,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Maridia Environmental palette-FX program mechanics words")]
-    private static void VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyMaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -2221,7 +2236,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Crateria Lightning palette-FX program mechanics words")]
-    private static void VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyCrateriaLightningPaletteFxProgramMechanicsDefinitions(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -2399,7 +2414,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Brinstar Blue Spore palette-FX program mechanics words")]
-    private static void VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(
+    internal static void VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -2783,7 +2798,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled suit heat palette-FX program mechanics words")]
-    private static void VerifyPaletteFxHeatProgramMechanicsDefinitions(
+    internal static void VerifyPaletteFxHeatProgramMechanicsDefinitions(
         ISnesAddressSpace bus)
     {
         int mechanicsWords = 0;
@@ -2884,7 +2899,7 @@ internal static partial class Program
 
     }
 
-    private static void VerifyPaletteFxHeatInstructionListDefinitions(
+    internal static void VerifyPaletteFxHeatInstructionListDefinitions(
         ISnesAddressSpace bus)
     {
         // Native LDA operands select each original table, independently of production
@@ -2977,7 +2992,7 @@ internal static partial class Program
             "retail Norfair heat owner publishes on frame-eight boundaries");
     }
 
-    private static CartridgeReadGuard NewPaletteFxMechanicsForbiddenBus(
+    internal static CartridgeReadGuard NewPaletteFxMechanicsForbiddenBus(
         ISnesAddressSpace inner, out StrongBox<int> presentationReads)
     {
         var reads = new StrongBox<int>();
@@ -3684,5 +3699,12 @@ internal static partial class Program
             foreach (ushort pointer in pointers)
                 AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
         }
+    }
+
+    [VerificationCommand("--palette-fx-instruction-codes")]
+    internal static int PaletteFxInstructionCodesCommand()
+    {
+        Suite(nameof(VerifyPaletteFxInstructionCodeCatalogs), () => VerifyPaletteFxInstructionCodeCatalogs());
+        return 0;
     }
 }

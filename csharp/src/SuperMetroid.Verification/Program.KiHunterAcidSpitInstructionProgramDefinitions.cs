@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
@@ -5,17 +13,19 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KiHunterAcidSpitInstructionProgramDefinitionsVerification
 {
-    private static void VerifyKiHunterAcidSpitInstructionProgramDefinitions()
+    internal static void VerifyKiHunterAcidSpitInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKiHunterAcidSpitInstructionProgramDefinitions), () => VerifyKiHunterAcidSpitInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyKiHunterAcidSpitInstructionProgramDefinitions(
+    internal static void VerifyKiHunterAcidSpitInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -193,4 +203,11 @@ internal static partial class Program
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled KiHunter acid mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordCount, KiHunterAcidSpitInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--kihunter-acid-spit-instruction-mechanics")]
+    internal static int KihunterAcidSpitInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyKiHunterAcidSpitInstructionProgramDefinitions), () => VerifyKiHunterAcidSpitInstructionProgramDefinitions());
+        return 0;
+    }
 }

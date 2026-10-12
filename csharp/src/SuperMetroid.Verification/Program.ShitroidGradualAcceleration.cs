@@ -1,14 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ShitroidGradualAccelerationVerification
 {
     // #1269: GradduallyAccelerateTowardsPoint ($A9:F46B) reverses with SEC; SBC #8; SBC q;
     // SBC q. From a zero velocity the first SBC borrows, so the second takes one extra:
     // 0 - 8 - (3 + 1) - 3 = $FFF1. In the 100% movie the Shitroid's first rise after
     // draining the Sidehopper (Y $9C toward $68, divisor $10) moves its Y subpixel by -$F00.
-    private static void VerifyShitroidGradualAcceleration()
+    internal static void VerifyShitroidGradualAcceleration()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -36,7 +47,7 @@ internal static partial class Program
     // #1269: DrainingSamus ($A9:F21B) adds Samus's X at $A9:F24D with no CLC. The carry is
     // CMP #4's on Samus's Y speed ($A9:F238): a jump during the drain moves the latched
     // Shitroid one pixel right of the shake offset, as on the 100% movie's update 383,169.
-    private static void VerifyShitroidDrainCarry()
+    internal static void VerifyShitroidDrainCarry()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -62,5 +73,19 @@ internal static partial class Program
             AssertEqual(expectedSpeed, samus.Kinematics.YSpeed, $"Y speed {ySpeed}: the drain clamps only speeds of 4 or more");
         }
         Console.WriteLine("Shitroid drain carry: a Y speed of 4 or more adds one pixel to the latched X.");
+    }
+
+    [VerificationCommand("--shitroid-drain-carry")]
+    internal static int ShitroidDrainCarryCommand()
+    {
+        VerifyShitroidDrainCarry();
+        return 0;
+    }
+
+    [VerificationCommand("--shitroid-gradual-acceleration")]
+    internal static int ShitroidGradualAccelerationCommand()
+    {
+        VerifyShitroidGradualAcceleration();
+        return 0;
     }
 }

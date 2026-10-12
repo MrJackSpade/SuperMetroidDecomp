@@ -8,8 +8,13 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
+using static InstalledFileSelectMapVerification;
+using static MapPresentationVerification;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapLoadAnchorsVerification
 {
     // Original compiled coordinate table from5b23a2aa, verification-only. Expected
     // outputs are independent literals, not the replacement projection formula.
@@ -51,7 +56,7 @@ internal static partial class Program
         (AreaId.Tourian, 8, 160, 96),
     ];
 
-    private static void VerifyFileSelectMapAreaCases(ISnesAddressSpace bus)
+    internal static void VerifyFileSelectMapAreaCases(ISnesAddressSpace bus)
     {
         for (int displayIndex = 0; displayIndex < 6; displayIndex++)
             AssertEqual(ReadVerificationWord(bus, 0x81aaa0 + displayIndex * 2),
@@ -61,8 +66,8 @@ internal static partial class Program
                 "unsupported menu area identity is not clamped or narrowed");
     }
 
-    private static void VerifyMapLoadAnchorX(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: false);
-    private static void VerifyMapLoadAnchorY(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: true);
+    internal static void VerifyMapLoadAnchorX(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: false);
+    internal static void VerifyMapLoadAnchorY(ISnesAddressSpace bus) => VerifyMapLoadAnchorField(bus, vertical: true);
 
     private static void VerifyMapLoadAnchorField(ISnesAddressSpace bus, bool vertical)
     {
@@ -97,7 +102,7 @@ internal static partial class Program
                 "unsupported map-load area remains rejected");
     }
 
-    private static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
+    internal static void VerifyMapLoadAnchors(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(bus));
         Suite(nameof(VerifyMapLoadAnchorY), () => VerifyMapLoadAnchorY(bus));

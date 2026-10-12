@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RidleyDeathAccelerationVerification;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class RidleyInertiaVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley inertia")]
-    private static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRidleyInertia(SuperMetroidAddressSpace rom)
     {
         var ceres = typeof(RoomEnemySystem).GetMethod("AccelerateRidleyToward", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemySlot, RidleyEnemyState, Position16<RoomPixels>, int>>();
@@ -77,7 +90,7 @@ internal static partial class Program
     // Model the native word arithmetic independently as wide intermediate values
     // and explicit carry terms. The movie-derived regression supplies independent
     // expected motion; this existing numeric contract covers wrapped inputs too.
-    private static ushort ExpectedRidleyNativeAcceleration(ushort initial, ushort position, ushort target, int divisor, int boost)
+    internal static ushort ExpectedRidleyNativeAcceleration(ushort initial, ushort position, ushort target, int divisor, int boost)
     {
         short distance = unchecked((short)(position - target));
         if (distance == 0) return initial;
@@ -106,4 +119,12 @@ internal static partial class Program
         return unchecked((short)(result - 0x0500)) >= 0 ? (ushort)0x0500 : result;
     }
 
+    [VerificationCommand("--ridley-acceleration-carry")]
+    internal static int RidleyAccelerationCarryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyCompiledRidleyInertia), () => VerifyCompiledRidleyInertia(rom));
+        Suite(nameof(VerifyRidleyDeathAcceleration), () => VerifyRidleyDeathAcceleration(rom));
+        return 0;
+    }
 }

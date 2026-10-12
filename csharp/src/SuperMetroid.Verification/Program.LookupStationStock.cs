@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupStationStockVerification
 {
-    private static void VerifyStationStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyStationStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmStationVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x9f25,"map-frame-0"),(0x9f6d,"energy-frame-0"),(0x9f91,"missile-frame-0"),

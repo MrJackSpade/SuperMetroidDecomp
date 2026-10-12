@@ -1,17 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class TorizoExplosionInstructionProgramDefinitionsVerification
 {
-    private static void VerifyTorizoExplosionInstructionProgramDefinitions() =>
+    internal static void VerifyTorizoExplosionInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoExplosionInstructionProgramDefinitions), () => VerifyTorizoExplosionInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo explosion instruction program definitions")]
-    private static void VerifyTorizoExplosionInstructionProgramDefinitions(
+    internal static void VerifyTorizoExplosionInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -233,4 +245,11 @@ internal static partial class Program
             .Forbid(TorizoExplosionInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo explosion byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoExplosionInstructionProgramDefinitions.PresentationWordCount, TorizoExplosionInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--torizo-explosion-instruction-mechanics")]
+    internal static int TorizoExplosionInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyTorizoExplosionInstructionProgramDefinitions), () => VerifyTorizoExplosionInstructionProgramDefinitions());
+        return 0;
+    }
 }

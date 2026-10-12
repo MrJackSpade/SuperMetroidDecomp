@@ -1,3 +1,11 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static ControllerInputRecordingVerification;
+using static DmaSourceRoutingVerification;
+using static EscapeTimerFloorVerification;
+using static QueuedVramAssetsVerification;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,8 +15,13 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static ImportedSpritemapsVerification;
+using static MapSpritesVerification;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class HardwareVerification
 {
 
 /// <summary>Core hardware, timing, bus, OAM, and system-state verification.</summary>
@@ -16,7 +29,7 @@ internal static partial class Program
 /// Compares the production port against a mechanically different description of the
 /// original 65C816 register operations for every possible seed.
 /// </summary>
-static void VerifyRandomNumberGeneratorExhaustively()
+internal static void VerifyRandomNumberGeneratorExhaustively()
 {
     for (int seed = ushort.MinValue; seed <= ushort.MaxValue; seed++)
     {
@@ -35,7 +48,7 @@ static void VerifyRandomNumberGeneratorExhaustively()
 /// the production and reference implementations. The sequence begins at the ROM's $0061
 /// initialization value.
 /// </summary>
-static void VerifyKnownRandomSequence()
+internal static void VerifyKnownRandomSequence()
 {
     ushort[] expected = [
         0x02f6, 0x0fdf, 0x506c, 0x932d,
@@ -56,7 +69,7 @@ static void VerifyKnownRandomSequence()
 /// press is excluded on frame zero, the changed held value reloads on frame one, and four
 /// further stable calls count 3,2,1,0,$FFFF before activation.
 /// </summary>
-static void VerifyTimedHeldInputTimeline()
+internal static void VerifyTimedHeldInputTimeline()
 {
     const ushort button = 0x0080;
     var state = new Bank80SystemState();
@@ -104,7 +117,7 @@ static void VerifyTimedHeldInputTimeline()
 /// Exercises every allocated event bit and verifies its exact containing byte. This catches
 /// swapped shift/index operations as well as clear-mask width errors.
 /// </summary>
-static void VerifyEventBitfield()
+internal static void VerifyEventBitfield()
 {
     var state = new Bank80SystemState();
     for (int eventNumber = 0; eventNumber < Bank80SystemState.EventByteCount * 8; eventNumber++)
@@ -135,7 +148,7 @@ static void VerifyEventBitfield()
 /// <summary>
 /// Verifies that boss masks combine independently in all eight area bytes.
 /// </summary>
-static void VerifyBossBitfield()
+internal static void VerifyBossBitfield()
 {
     var state = new Bank80SystemState();
     for (int area = 0; area < Bank80SystemState.AreaCount; area++)
@@ -167,7 +180,7 @@ static void VerifyBossBitfield()
 /// carefully selected right operands covers every input bit, carry boundary, and high-word
 /// behavior in a fraction of the time.
 /// </summary>
-static void VerifyMultiplicationExhaustively()
+internal static void VerifyMultiplicationExhaustively()
 {
     ushort[] rightOperands = [0, 1, 2, 3, 0x00ff, 0x0100, 0x7fff, 0x8000, 0xffff];
     foreach (ushort right in rightOperands)
@@ -189,7 +202,7 @@ static void VerifyMultiplicationExhaustively()
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
 [CpuBusBoundary("exact bus test: VRAM queue and channel DMA A-bus source reads that wrap within WRAM bank $7E")]
-static void VerifyVramWriteQueue()
+internal static void VerifyVramWriteQueue()
 {
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
@@ -271,7 +284,7 @@ static void VerifyVramWriteQueue()
 /// Checks every valid two-digit BCD input against ordinary decimal subtraction for the two
 /// correction values the ROM table uses.
 /// </summary>
-static void VerifyEscapeTimerBcd()
+internal static void VerifyEscapeTimerBcd()
 {
     for (int decimalValue = 0; decimalValue <= 99; decimalValue++)
     {
@@ -296,7 +309,7 @@ static void VerifyEscapeTimerBcd()
 /// Walks the Ceres timer from request through all animation phases, then isolates second,
 /// minute, expiration, correction-table, and Mother Brain initialization boundaries.
 /// </summary>
-static void VerifyEscapeTimerStateMachine()
+internal static void VerifyEscapeTimerStateMachine()
 {
     var timer = new EscapeTimer();
     timer.RequestCeresStart();
@@ -375,7 +388,7 @@ static byte PackBcd(int decimalValue) => (byte)(((decimalValue / 10) << 4) | (de
 /// Exercises rising edges, releases, multi-frame holds, and the otherwise-unused repeat
 /// path from the NMI controller routine.
 /// </summary>
-static void VerifyControllerInputLatch()
+internal static void VerifyControllerInputLatch()
 {
     ushort button = (ushort)SnesButton.A;
     var input = new ControllerInputState(initialRepeatDelay: 2, subsequentRepeatDelay: 1);
@@ -457,7 +470,7 @@ static void VerifyControllerInputLatch()
 /// controller latching, VRAM draining, and timer dispatch.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-static void VerifyFrameRuntime()
+internal static void VerifyFrameRuntime()
 {
     var infiniteAmmoSamus = new SamusState
     {
@@ -558,7 +571,7 @@ static void VerifyFrameRuntime()
 /// and deliberate failures for unimplemented hardware and ROM writes.
 /// </summary>
 [CpuBusBoundary("exact bus test: LoROM, WRAM and SRAM mapping, mirror and rejection behaviour of the address-space implementation")]
-static void VerifySuperMetroidAddressSpace()
+internal static void VerifySuperMetroidAddressSpace()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
     rom[0x000000] = 0x80;
@@ -642,7 +655,7 @@ static void VerifySuperMetroidAddressSpace()
 /// pairs, palette replacement, clipping, finalization, and the exact 544-byte upload size.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-static void VerifyOamSpritemapPacking()
+internal static void VerifyOamSpritemapPacking()
 {
     var bus = new TestAddressSpace();
     var oam = new OamBuffer();
@@ -815,4 +828,36 @@ static void SeedTwoEntryRoomEnemySpritemap(TestAddressSpace bus)
         0xf0, 0x01, 0x02, 0xfe, 0x21,
     ]);
 }
+
+    [VerificationCommand("--mutable-memory-boundary")]
+    internal static int MutableMemoryBoundaryCommand()
+    {
+     VerifySuperMetroidAddressSpace(); return 0; 
+    }
+
+    [VerificationCommand("--oam-source-routing")]
+    internal static int OamSourceRoutingCommand()
+    {
+        Suite(nameof(VerifyOamSpritemapPacking), () => VerifyOamSpritemapPacking());
+        return 0;
+    }
+
+    [VerificationCommand("--dma-source-routing")]
+    internal static int DmaSourceRoutingCommand()
+    {
+        Suite(nameof(VerifyVramWriteQueue), () => VerifyVramWriteQueue());
+        Suite(nameof(VerifyDmaSourceRouting), () => VerifyDmaSourceRouting());
+        Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
+        return 0;
+    }
+
+    [VerificationCommand("--escape-timer")]
+    internal static int EscapeTimerCommand()
+    {
+        Suite(nameof(VerifyEscapeTimerBcd), () => VerifyEscapeTimerBcd());
+        Suite(nameof(VerifyEscapeTimerStateMachine), () => VerifyEscapeTimerStateMachine());
+        Suite(nameof(VerifyEscapeTimerFloor), () => VerifyEscapeTimerFloor());
+        Suite(nameof(VerifyControllerInputRecording), () => VerifyControllerInputRecording());
+        return 0;
+    }
 }

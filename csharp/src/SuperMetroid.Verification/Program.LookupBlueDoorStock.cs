@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupBlueDoorStockVerification
 {
-    private static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyBlueDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBlueDoorVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [

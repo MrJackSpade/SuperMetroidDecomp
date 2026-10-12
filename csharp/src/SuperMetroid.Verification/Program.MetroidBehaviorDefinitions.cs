@@ -2,10 +2,11 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MetroidBehaviorDefinitionsVerification
 {
-    private static void VerifyMetroidBehaviorDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMetroidBehaviorDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort frame = 0; frame < 4; frame++)
         {

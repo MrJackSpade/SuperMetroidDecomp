@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
@@ -5,10 +11,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static PhantoonFlameSoundVerification;
+using static PhantoonInstructionProgramDefinitionsVerification;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PhantoonReport1196Verification
 {
-    private static void VerifyPhantoonIntroFlameSound()
+    internal static void VerifyPhantoonIntroFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -42,7 +52,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyPhantoonDeathWaveInitialization()
+    internal static void VerifyPhantoonDeathWaveInitialization()
     {
         var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
         var boss = enemies.Phantoon!;
@@ -87,5 +97,19 @@ internal static partial class Program
         AssertEqual((ushort)14, wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.ScrollCycle.ToArray().Any(scroll => scroll != 13), "following pass rebuilds the animated wave");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; all rendered rows align before wave advancement.");
+    }
+
+    [VerificationCommand("--phantoon-intro-flame-sound")]
+    internal static int PhantoonIntroFlameSoundCommand()
+    {
+        Suite(nameof(VerifyPhantoonIntroFlameSound), () => VerifyPhantoonIntroFlameSound());
+        return 0;
+    }
+
+    [VerificationCommand("--phantoon-death-wave-initialization")]
+    internal static int PhantoonDeathWaveInitializationCommand()
+    {
+        Suite(nameof(VerifyPhantoonDeathWaveInitialization), () => VerifyPhantoonDeathWaveInitialization());
+        return 0;
     }
 }

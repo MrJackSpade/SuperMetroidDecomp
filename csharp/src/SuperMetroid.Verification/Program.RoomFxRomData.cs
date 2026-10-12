@@ -1,16 +1,35 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
+using static AreaAnimatedTileObjectDefinitionsVerification;
+using static AssertionsVerification;
+using static DoorDefinitionsVerification;
+using static RetailPresentationFixtureVerification;
+using static RoomFxAnimatedTileArtworkVerification;
+using static RoomFxAnimatedTileMechanicsDefinitionsVerification;
+using static RoomFxLayer3TilemapsVerification;
+using static RoomFxPaletteBlendsVerification;
+using static RoomFxRetailInventoryVerification;
+using static RoomFxSharedRandomVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RoomFxRomDataVerification
 {
     /// <summary>
     /// Verifies the shared FX-record schema, representative native type discriminants,
     /// typed blending state, and both renderable layer-three table lookups.
     /// </summary>
-    static void VerifyRoomFxRomData()
+    internal static void VerifyRoomFxRomData()
     {
         AssertEqual(16, RoomFxRomData.Record.ByteCount, "room FX record width");
         AssertEqual(9, RoomFxRomDataRecordTooling.TypeOffset, "room FX type field");
@@ -48,7 +67,7 @@ internal static partial class Program
             "sound/shake, sky, haze, Ceres, rain, and fog states agree.");
     }
 
-    private static void VerifyFxValidationBoundaries()
+    internal static void VerifyFxValidationBoundaries()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -377,7 +396,7 @@ internal static partial class Program
 
     // Decode the fixture's literal sixteen-byte record independently of the compiled
     // retail catalog, then exercise the same production initialization and rendering.
-    private static void LoadSyntheticRoomFx(RoomLayer3FxState state, TestAddressSpace bus,
+    internal static void LoadSyntheticRoomFx(RoomLayer3FxState state, TestAddressSpace bus,
         SnesVram vram, SnesCgram cgram, ushort pointer) =>
         state.LoadDefinition(bus, vram, cgram, ReadSyntheticRoomFxRecord(bus, pointer), randomNumber: 0);
 
@@ -401,4 +420,19 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$83 room FX record word field")]
     private static void SeedSyntheticRoomFxWord(TestAddressSpace bus, ushort record, int fieldOffset, ushort value) =>
         WriteTestWord(bus, RoomFxRomDataBanksTooling.RoomDefinitions | unchecked((ushort)(record + fieldOffset)), value);
+
+    [VerificationCommand("--lookup-fx-validation")]
+    internal static int LookupFxValidationCommand()
+    {
+        Suite(nameof(VerifyFxValidationBoundaries), () => VerifyFxValidationBoundaries());
+        Console.WriteLine("FX validation: native dispatcher slots, every cartridge byte and every host blend ushort pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--room-fx-fixture")]
+    internal static int RoomFxFixtureCommand()
+    {
+        Suite(nameof(VerifyRoomFxRomData), () => VerifyRoomFxRomData());
+        return 0;
+    }
 }

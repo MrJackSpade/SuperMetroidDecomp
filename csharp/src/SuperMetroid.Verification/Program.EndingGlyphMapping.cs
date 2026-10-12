@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EndingGlyphMappingVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending text regions")]
-    private static void VerifyEndingTextRegions(ISnesAddressSpace bus)
+    internal static void VerifyEndingTextRegions(ISnesAddressSpace bus)
     {
         void Panel(EndingTextRegionDefinition actual, int source, string expectedText, int startColumn)
         {
@@ -56,7 +56,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending glyph mapping")]
-    private static void VerifyEndingGlyphMapping(ISnesAddressSpace bus)
+    internal static void VerifyEndingGlyphMapping(ISnesAddressSpace bus)
     {
         // Transcribed from the SHA-pinned Font3 atlas, viewed with --lookup-ending-font-layout.
         // These are visual cell identities, not outputs from CompileGlyph/DecodeGlyph.

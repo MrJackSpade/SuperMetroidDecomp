@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -5,11 +14,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class RoomMetatilesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room metatile (block) definitions")]
-    private static void VerifyRoomMetatileExtraction()
+    internal static void VerifyRoomMetatileExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -117,4 +127,11 @@ internal static partial class Program
         new CartridgeReadGuard(source).Forbid(address => address == areaSource ||
                 address == RoomAssetRomData.Tilesets.CreBlockDefinitionsAddress,
             address => $"Installed room loader reread metatile source ${address:X6}.");
+
+    [VerificationCommand("--room-metatiles")]
+    internal static int RoomMetatilesCommand()
+    {
+        Suite(nameof(VerifyRoomMetatileExtraction), () => VerifyRoomMetatileExtraction());
+        return 0;
+    }
 }

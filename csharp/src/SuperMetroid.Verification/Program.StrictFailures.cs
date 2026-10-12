@@ -4,9 +4,9 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class StrictFailuresVerification
 {
-static void VerifyStrictFailureBoundaries()
+internal static void VerifyStrictFailureBoundaries()
 {
     var duplicateBindings = new ControllerBindings(
         Shoot: (ushort)SnesButton.X,

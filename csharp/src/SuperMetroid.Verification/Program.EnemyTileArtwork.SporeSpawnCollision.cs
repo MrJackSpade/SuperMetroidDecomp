@@ -1,13 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static FrontendRomFreeVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkSporeSpawnCollisionVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Spore Spawn collision")]
-    private static void VerifyCompiledSporeSpawnCollision(
+    internal static void VerifyCompiledSporeSpawnCollision(
         SuperMetroidAddressSpace rom)
     {
         var selected = new HashSet<ushort>();
@@ -169,5 +181,12 @@ internal static partial class Program
             }
             return false;
         }
+    }
+
+    [VerificationCommand("--lookup-stream4-spore-collision")]
+    internal static int LookupStream4SporeCollisionCommand()
+    {
+        Suite(nameof(VerifyCompiledSporeSpawnCollision), () => VerifyCompiledSporeSpawnCollision(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

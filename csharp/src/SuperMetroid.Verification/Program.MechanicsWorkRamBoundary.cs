@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class MechanicsWorkRamBoundaryVerification
 {
     /// <summary>Checks the statically identified PLM/speed WRAM conversions, never searches gameplay for cartridge reads.</summary>
-    private static void VerifyMechanicsWorkRamBoundary()
+    internal static void VerifyMechanicsWorkRamBoundary()
     {
         const BindingFlags privateStatic = BindingFlags.NonPublic | BindingFlags.Static;
         AssertTrue(typeof(RoomPlmSystem).GetMethod("ReadNativeBankByte", privateStatic) is null &&
@@ -59,5 +69,12 @@ internal static partial class Program
     {
         writer.WriteByte(address, (byte)value);
         writer.WriteByte(address + 1, SnesLittleEndian.HighByte(value));
+    }
+
+    [VerificationCommand("--mechanics-workram-boundary")]
+    internal static int MechanicsWorkramBoundaryCommand()
+    {
+        Suite(nameof(VerifyMechanicsWorkRamBoundary), () => VerifyMechanicsWorkRamBoundary());
+        return 0;
     }
 }

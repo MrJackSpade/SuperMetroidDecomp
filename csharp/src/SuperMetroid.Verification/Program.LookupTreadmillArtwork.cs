@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupTreadmillArtworkVerification
 {
-    private static void VerifyTreadmillArtworkSources(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillArtworkSources(ISnesAddressSpace rom)
     {
         var right = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Rightwards);
         var left = WreckedShipTreadmillMechanicsDefinitions.ForDirection(WreckedShipTreadmillDirection.Leftwards);

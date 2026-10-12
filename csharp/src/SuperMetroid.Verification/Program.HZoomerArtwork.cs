@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static HZoomerInstructionProgramDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class HZoomerArtworkVerification
 {
-    private static void VerifyInstalledHZoomerInstructionFrames(
+    internal static void VerifyInstalledHZoomerInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         for (int index = 0;

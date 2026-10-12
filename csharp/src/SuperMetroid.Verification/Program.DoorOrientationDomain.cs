@@ -2,7 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class DoorOrientationDomainVerification
 {
     /// <summary>
     /// #627: the door header's orientation byte is a closed domain. It decodes into a travel
@@ -10,7 +10,7 @@ internal static partial class Program
     /// elevator pseudo-doors resolve as door-list entries rather than headers, and older
     /// debugger payloads convert through the same validation.
     /// </summary>
-    private static void VerifyDoorOrientationDomain()
+    internal static void VerifyDoorOrientationDomain()
     {
         for (int raw = 0; raw <= byte.MaxValue; raw++)
         {

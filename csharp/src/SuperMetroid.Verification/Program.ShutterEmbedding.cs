@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ShutterEmbeddingVerification
 {
-    private static void VerifyShutterEmbedding()
+    internal static void VerifyShutterEmbedding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int activatedCases = 0;
@@ -57,5 +66,12 @@ internal static partial class Program
         // negative gaps must be compared with native subpixel/carry rounding before
         // deciding whether they are faulty; none proves the reported trapping alone.
         Console.WriteLine($"126 shutter approach sequences: {activatedCases} activate the shutter, {carriedCases} reach upward carry; minimum support gap={minimumGap}.");
+    }
+
+    [VerificationCommand("--shutter-embedding")]
+    internal static int ShutterEmbeddingCommand()
+    {
+        Suite(nameof(VerifyShutterEmbedding), () => VerifyShutterEmbedding());
+        return 0;
     }
 }

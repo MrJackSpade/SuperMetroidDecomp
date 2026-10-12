@@ -1,7 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class ImplicitScrollResidueVerification
 {
     /// <summary>
     /// <c>$82:E88D</c> builds an implicit scroll table by writing only the room's width x height
@@ -10,7 +22,7 @@ internal static partial class Program
     /// falls from $A7DE into 3x2 $A7B3; index 6 there still holds $A7DE's blue, so the camera
     /// keeps following her instead of clamping.
     /// </summary>
-    private static void VerifyImplicitScrollResidue()
+    internal static void VerifyImplicitScrollResidue()
     {
         var bus = new TestAddressSpace();
         CartridgeRoomHeader previous = CartridgeRoomHeader.LoadUsingCompiledSelection(0xa7de);
@@ -27,5 +39,12 @@ internal static partial class Program
         AssertEqual((byte)RoomScrollState.Blue, (byte)grid.ReadNativeState(3 + room.Size.X),
             "the cell below the bottom row is $A7DE's blue, not red");
         Console.WriteLine("  Implicit scroll residue: $A7B3 keeps $A7DE's bytes past its six cells.");
+    }
+
+    [VerificationCommand("--implicit-scroll-residue")]
+    internal static int ImplicitScrollResidueCommand()
+    {
+        Suite(nameof(VerifyImplicitScrollResidue), () => VerifyImplicitScrollResidue());
+        return 0;
     }
 }

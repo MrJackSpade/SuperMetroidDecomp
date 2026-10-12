@@ -4,11 +4,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static ColorWordsVerification;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
+using static TitleGradientVerification;
 
-internal static partial class Program
+internal static class RoomPaletteFxPresentationVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for room palette-FX color words")]
-    private static void VerifyExtractedRoomPaletteFxPresentation(
+    internal static void VerifyExtractedRoomPaletteFxPresentation(
         SuperMetroidAddressSpace bus)
     {
         byte[] extracted =
@@ -169,7 +173,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending gunship palette-FX color words")]
-    private static void VerifyExtractedEndingGunshipPaletteFxPresentation(
+    internal static void VerifyExtractedEndingGunshipPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "Zebes explosion gunship", new PaletteFxFamilyShape { FrameCount = 16, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xd6c0 + frame * 36 + color * 2), Definitions = [0xe1e4] }, 385));
@@ -248,7 +252,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for logo glare palette-FX color words")]
-    private static void VerifyExtractedLogoGlarePaletteFxPresentation(
+    internal static void VerifyExtractedLogoGlarePaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
         Suite(nameof(VerifyInstalledPaletteFxFamily), () => VerifyInstalledPaletteFxFamily(bus, presentation, "post-credits icon glare", new PaletteFxFamilyShape { FrameCount = 14, ColorsPerFrame = 16, ColorPointer = (frame, color) => (ushort)(0xdf9a + frame * 36 + color * 2), Definitions = [0xe200] }, 15));
@@ -303,7 +307,7 @@ internal static partial class Program
             "glare does not invent a missing base color");
     }
 
-    private static void VerifyExtractedSamusLoadingPaletteFxPresentation(
+    internal static void VerifyExtractedSamusLoadingPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
         var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)
@@ -468,7 +472,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus heat palette-FX color words")]
-    private static void VerifyExtractedSamusHeatPaletteFxPresentation(
+    internal static void VerifyExtractedSamusHeatPaletteFxPresentation(
         ISnesAddressSpace bus, RoomPaletteFxPresentation presentation)
     {
         var stored = (Dictionary<ushort, Bgr555>)typeof(RoomPaletteFxPresentation)

@@ -6,10 +6,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class MapStationLayoutVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapStationLayout(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewStationLayoutGuard(bus);
         int combinations = 0;

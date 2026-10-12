@@ -3,13 +3,13 @@ using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class RoomPlmHeaderCatalogVerification
 {
     /// <summary>
     /// Proves the named header catalog has no aliases and covers every header accepted by
     /// the sequential loader in all retail room populations for the pinned cartridge.
     /// </summary>
-    static void VerifyRoomPlmHeaderCatalog()
+    internal static void VerifyRoomPlmHeaderCatalog()
     {
         ushort[] cataloguedHeaders = Enum.GetValues<PlmHeaderId>()
             .Where(header => header != PlmHeaderId.None)

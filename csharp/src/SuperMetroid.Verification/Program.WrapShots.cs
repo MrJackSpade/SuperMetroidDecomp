@@ -1,11 +1,35 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static BeamCallbackTablesVerification;
+using static BeamSpeedRowsVerification;
+using static BombChargeRejectionVerification;
+using static CeilingWrapRoomVerification;
+using static GateBeamCollisionVerification;
+using static GModeGateGlitchVerification;
+using static GroundedBombSpreadVerification;
+using static HeroShotsVerification;
+using static MissileEdgeVerification;
+using static RightFacingGateGlitchVerification;
+using static SamusMorphBallVerification;
+using static SuiteTimingVerification;
+using static WrapShotEnemiesVerification;
+using static WrapShotWidthsVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class WrapShotsVerification
 {
-    private static void VerifyWrapShotTrace(string nativeTrace)
+    internal static void VerifyWrapShotTrace(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).ToArray();
         AssertEqual(240, native.Length, "Complete wrap-shot native matrix");
@@ -56,5 +80,32 @@ internal static partial class Program
         }
         AssertEqual(0, mismatches, "Original cartridge wrap-shot positions, lifetime and remote block writes");
         Console.WriteLine("PASS wrap-shot addressing: 240 original-cartridge frames, both edges and non-Wave negatives.");
+    }
+
+    [VerificationCommand("--projectile-fixtures")]
+    internal static int ProjectileFixturesCommand()
+    {
+    Suite(nameof(VerifyWrapShotTrace), () => VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv"));
+    Suite(nameof(VerifyWrapShotEnemySeparation), () => VerifyWrapShotEnemySeparation());
+    Suite(nameof(VerifyWrapShotWidths), () => VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv"));
+    Suite(nameof(VerifyKronicGateBeamCollision), () => VerifyKronicGateBeamCollision());
+    Suite(nameof(VerifyRightFacingGateGlitches), () => VerifyRightFacingGateGlitches());
+    Suite(nameof(VerifyGModeGateGlitch), () => VerifyGModeGateGlitch());
+    Suite(nameof(VerifyFrogSpeedwayPoolCollision), () => VerifyFrogSpeedwayPoolCollision());
+    Suite(nameof(VerifyHeroShotCameraLifetime), () => VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv"));
+    Suite(nameof(VerifyMissileImpactCameraEdge), () => VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv"));
+    Suite(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows());
+    Suite(nameof(VerifyBeamCallbackTables), () => VerifyBeamCallbackTables());
+    Suite(nameof(VerifySamusMorphBallMovement), () => VerifySamusMorphBallMovement());
+    Suite(nameof(VerifyBombChargeRejection), () => VerifyBombChargeRejection());
+    Suite(nameof(VerifyGroundedBombSpread), () => VerifyGroundedBombSpread());
+    return 0; 
+    }
+
+    [VerificationCommand("--wrap-shots")]
+    internal static int WrapShotsCommand()
+    {
+        Suite(nameof(VerifyWrapShotTrace), () => VerifyWrapShotTrace("csharp/test-fixtures/movement-release/wrap-shot-409.csv"));
+        return 0;
     }
 }

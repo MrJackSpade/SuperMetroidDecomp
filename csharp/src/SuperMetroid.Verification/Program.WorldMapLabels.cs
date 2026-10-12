@@ -5,10 +5,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static MapWindowMotionDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class WorldMapLabelsVerification
 {
-    private static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyWorldMapLabels(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(bus, original.Labels));
         Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(bus, original.Labels));

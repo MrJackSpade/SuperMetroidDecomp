@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class YardDirectionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yard direction definitions")]
-    private static void VerifyYardDirectionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyYardDirectionDefinitions(SuperMetroidAddressSpace rom)
     {
         const int directionAddress = 0xa3cd42;
         const int oppositeAddress = 0xa3cdc2;

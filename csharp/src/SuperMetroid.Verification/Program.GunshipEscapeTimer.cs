@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -10,10 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-internal static partial class Program
+internal static class GunshipEscapeTimerVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
-    private static int VerifyGunshipEscapeTimer()
+    internal static int VerifyGunshipEscapeTimer()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -132,5 +134,11 @@ internal static partial class Program
                     if (runtime.Oam.LowTable.Slice(offset, 4).SequenceEqual(expected.LowTable.Slice(timerOffset, 4))) return true;
             return false;
         }
+    }
+
+    [VerificationCommand("--gunship-escape-timer")]
+    internal static int GunshipEscapeTimerCommand()
+    {
+        return VerifyGunshipEscapeTimer();
     }
 }

@@ -3,10 +3,10 @@ using System.Numerics;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SpcPitchBasisAlgorithmVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pitch basis algorithm")]
-    private static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcPitchBasisAlgorithm(SuperMetroidAddressSpace rom)
     {
         BigInteger scale = BigInteger.Pow(10, 28);
         BigInteger lowerRoot = BigInteger.Parse("10594630943592952645618252949");

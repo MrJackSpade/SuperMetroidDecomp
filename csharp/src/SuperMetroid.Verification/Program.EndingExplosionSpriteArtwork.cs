@@ -6,11 +6,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingExplosionSpriteArtworkVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion frame catalog")]
-    private static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
+    internal static void VerifyEndingExplosionFrameCatalog(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingExplosionCalculatedParts), () => VerifyEndingExplosionCalculatedParts(bus));
         // Independent original list operands select every distinct visual frame.
@@ -141,7 +144,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending explosion programs")]
-    private static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
+    internal static void VerifyEndingExplosionPrograms(ISnesAddressSpace bus)
     {
         for (int pointer = EndingExplosionInstructionDefinitions.Start;
              pointer < EndingExplosionInstructionDefinitions.End; pointer += sizeof(ushort))
@@ -194,7 +197,7 @@ internal static partial class Program
                 $"explosion frame {frame} has four OAM parts and a 22-byte record");
     }
 
-    private static void VerifyEndingExplosionActorArtwork(
+    internal static void VerifyEndingExplosionActorArtwork(
         ISnesAddressSpace bus, EndingObjectArtworkCatalog stock)
     {
         Suite(nameof(VerifyEndingExplosionPrograms), () => VerifyEndingExplosionPrograms(bus));
@@ -227,7 +230,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
+    internal static void VerifyEndingExplosionVisualOverride(GameInstallation installation,
         EndingObjectArtworkCatalog stock, MutableCartridgeReadGuard guard)
     {
         string name = EndingExplosionSpriteFormat.FileName;

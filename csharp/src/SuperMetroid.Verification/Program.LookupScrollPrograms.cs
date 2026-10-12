@@ -2,12 +2,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class LookupScrollProgramsVerification
 {
-    private static void VerifyScrollProgramIdentities(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,0);
-    private static void VerifyScrollProgramIndices(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,1);
-    private static void VerifyScrollProgramStates(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,2);
-    private static void VerifyScrollProgramTermination(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,3);
+    internal static void VerifyScrollProgramIdentities(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,0);
+    internal static void VerifyScrollProgramIndices(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,1);
+    internal static void VerifyScrollProgramStates(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,2);
+    internal static void VerifyScrollProgramTermination(SuperMetroidAddressSpace rom) => VerifyScrollProgramField(rom,3);
 
     private static void VerifyScrollProgramField(SuperMetroidAddressSpace rom, int field)
     {

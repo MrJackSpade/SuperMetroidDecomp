@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidArmInstructionProgramDefinitionsVerification;
 
-internal static partial class Program
+internal static class KraidArmGeneratedProgramsVerification
 {
     // Independent decoder of the pinned four arm instruction regions: duration/frame
     // pairs, no-operand callbacks, and the terminal $80ED goto with one operand.
@@ -30,7 +31,7 @@ internal static partial class Program
         return (mechanics, presentation);
     }
 
-    private static void VerifyKraidArmGeneratedMechanics(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmGeneratedMechanics(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidArmPrograms(rom).Mechanics;
         AssertEqual(66, original.Count, "native Kraid arm mechanics count");
@@ -56,7 +57,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => KraidArmInstructionProgramDefinitions.MechanicsWord(66), "mechanics index past end");
     }
 
-    private static void VerifyKraidArmGeneratedPresentation(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmGeneratedPresentation(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidArmPrograms(rom).Presentation;
         AssertEqual(57, original.Count, "native arm presentation count");

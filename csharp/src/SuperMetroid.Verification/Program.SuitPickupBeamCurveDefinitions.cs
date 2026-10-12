@@ -1,10 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static CollectiblesVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SuitPickupBeamCurveDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for suit pickup beam curve definitions")]
-    private static void VerifySuitPickupBeamCurveDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySuitPickupBeamCurveDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < SuitPickupBeamCurveDefinitions.OffsetCount; index++)
         {
@@ -26,10 +39,19 @@ internal static partial class Program
             "Suit-pickup beam curve: all 128 native offsets match and invalid indexes fail loudly.");
     }
 
-    private static CartridgeReadGuard NewSuitPickupBeamCurveReadGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewSuitPickupBeamCurveReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => address >= SuitPickupBeamCurveDefinitions.NativeCurveAddress &&
                 address < SuitPickupBeamCurveDefinitions.NativeCurveAddress +
                     SuitPickupBeamCurveDefinitions.OffsetCount,
                 address => $"Suit-pickup transformation attempted curve read ${address:X6}.");
+
+    [VerificationCommand("--suit-pickup-beam-curve-definitions")]
+    internal static int SuitPickupBeamCurveDefinitionsCommand()
+    {
+        Suite(nameof(VerifySuitPickupBeamCurveDefinitions), () => VerifySuitPickupBeamCurveDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyPermanentCollectibles), () => VerifyPermanentCollectibles());
+        return 0;
+    }
 }

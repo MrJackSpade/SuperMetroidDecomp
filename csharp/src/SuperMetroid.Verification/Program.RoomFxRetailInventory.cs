@@ -1,3 +1,8 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
 using System.Globalization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
@@ -8,8 +13,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomFxRetailInventoryVerification
 {
     private const int RetailRoomFxRoomCount = 262;
     private const int RetailRoomFxStateCount = 323;
@@ -17,13 +24,13 @@ internal static partial class Program
 
     /// <summary>Supplies the production FX owner with import-time presentation assets.</summary>
     /// <summary>One bus's extracted room-FX catalogs; immutable, so every FX state built on that bus shares them.</summary>
-    private sealed record RetailFxCatalogs(RoomFxPaletteBlendCatalog PaletteBlends,
+    internal sealed record RetailFxCatalogs(RoomFxPaletteBlendCatalog PaletteBlends,
         RoomFxLayer3TilemapCatalog Layer3Tilemaps, RoomFxAnimatedTileAtlas AnimatedTiles);
 
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<SuperMetroidAddressSpace, RetailFxCatalogs>
         retailFxCatalogs = new();
 
-    private static RoomLayer3FxState CreateRetailFxState(SuperMetroidAddressSpace bus)
+    internal static RoomLayer3FxState CreateRetailFxState(SuperMetroidAddressSpace bus)
     {
         RetailFxCatalogs catalogs = retailFxCatalogs.GetValue(bus, source => new(
             RoomFxPaletteBlendCatalog.Load(new MemoryStream(
@@ -46,7 +53,7 @@ internal static partial class Program
     /// door cardinalities are fixed cartridge facts, so silently omitting an alternate
     /// boss/event state or an unlabelled door header fails the suite.
     /// </summary>
-    private static void VerifyRetailRoomFxInventory()
+    internal static void VerifyRetailRoomFxInventory()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         string symbolPath = Path.GetFullPath(
@@ -864,7 +871,7 @@ internal static partial class Program
     }
 
     private static void AssertKnownRetailLiquidExamples(
-        IReadOnlyDictionary<RoomIdentity, HashSet<RetailLiquidClassification>> examples)
+        Dictionary<RoomIdentity, HashSet<RetailLiquidClassification>> examples)
     {
         foreach (RoomIdentity room in RetailRoomFxDefinitions.HiddenLavaExamples)
         {
@@ -919,7 +926,7 @@ internal static partial class Program
         return new RetailFxRoomState(roomPointer, unchecked((ushort)stateAddress));
     }
 
-    private enum RetailLiquidClassification
+    internal enum RetailLiquidClassification
     {
         None,
         NonLiquidFx,
@@ -929,11 +936,11 @@ internal static partial class Program
         VisibleLavaOrAcid,
     }
 
-    private readonly record struct RetailFxRoomState(
+    internal readonly record struct RetailFxRoomState(
         ushort RoomPointer,
         ushort StatePointer);
 
-    private readonly record struct RetailFxPathAudit(
+    internal readonly record struct RetailFxPathAudit(
         ushort SelectedRecord,
         RoomFxType ExpectedType,
         RoomFxType ActualType,
@@ -944,14 +951,14 @@ internal static partial class Program
         ushort LiquidOptions,
         RetailLiquidClassification Classification);
 
-    private readonly record struct RisingLiquidAuditDefinition(
+    internal readonly record struct RisingLiquidAuditDefinition(
         RoomIdentity Room,
         ushort EntryDoor,
         ushort InitialY,
         ushort TargetY);
 
     /// <summary>Retail identities and exact cartridge fields asserted by the FX inventory.</summary>
-    private static class RetailRoomFxDefinitions
+    internal static class RetailRoomFxDefinitions
     {
         /// <summary>Developer debug room excluded by every retail-state audit.</summary>
         public const ushort DebugRoomHeader = 0xe82c;
@@ -1020,5 +1027,12 @@ internal static partial class Program
         /// </summary>
         public static RisingLiquidAuditDefinition RisingLavaRoom28 { get; } =
             new(new RoomIdentity(AreaId.Norfair, 0x28), 0x929a, 0x0108, 0x00c0);
+    }
+
+    [VerificationCommand("--room-fx-retail-inventory")]
+    internal static int RoomFxRetailInventoryCommand()
+    {
+        Suite(nameof(VerifyRetailRoomFxInventory), () => VerifyRetailRoomFxInventory());
+        return 0;
     }
 }

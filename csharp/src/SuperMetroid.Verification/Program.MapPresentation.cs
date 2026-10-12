@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -8,10 +14,66 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static CeresRidleyColorsVerification;
+using static CeresRidleyMode7ColorsVerification;
+using static CreditsPresentationVerification;
+using static CrystalFlashColorsVerification;
+using static EndingTextPresentationVerification;
+using static EscapeTimerPresentationVerification;
+using static EscapeTypewriterPresentationVerification;
+using static FileSelectPresentationVerification;
+using static GameOptionsPresentationVerification;
+using static GameOverMenuIndexesVerification;
+using static GameOverPresentationVerification;
+using static GameplayHudPresentationVerification;
+using static GameplayMessageNoticesVerification;
+using static GameplayMessagePanelsVerification;
+using static HudAtlasVerification;
+using static IndexedPngVerification;
+using static InstalledFileSelectMapVerification;
+using static IntroNarrationPresentationVerification;
+using static MapArrowsVerification;
+using static MapAtlasVerification;
+using static MapLandmarksVerification;
+using static MapLoadAnchorsVerification;
+using static MapMaskValidationVerification;
+using static MapPaletteCycleVerification;
+using static MapSaveMarkersVerification;
+using static MapScreensVerification;
+using static MapScrollControlsVerification;
+using static MapSpritesVerification;
+using static MapStaticPalettesVerification;
+using static MapStationLayoutVerification;
+using static MotherBrainFakeDeathPaletteVerification;
+using static MotherBrainRoomColorsVerification;
+using static PauseBackdropsVerification;
+using static PauseEquipmentBaseAssetsVerification;
+using static PauseEquipmentLabelsVerification;
+using static PauseEquipmentRulesVerification;
+using static PauseReserveTankAssetsVerification;
+using static PauseReserveUiAssetsVerification;
+using static PauseSelectorsVerification;
+using static PauseTileAtlasVerification;
+using static PauseWireframesVerification;
+using static PowerBombFixedColorsVerification;
+using static QueuedVramAssetsVerification;
+using static RoomFxAnimatedTileArtworkVerification;
+using static RoomFxLayer3TilemapsVerification;
+using static RoomFxPaletteBlendsVerification;
+using static SamusChargeColorsVerification;
+using static SamusFullBodyCycleColorsVerification;
+using static SamusHurtColorsVerification;
+using static SamusHyperBeamColorsVerification;
+using static SamusSuitColorsVerification;
+using static SamusVisorColorsVerification;
+using static SuiteTimingVerification;
+using static TitleGradientVerification;
+using static WorldMapLabelsVerification;
 
-internal static partial class Program
+internal static class MapPresentationVerification
 {
-    private static void VerifyMapPresentation()
+    internal static void VerifyMapPresentation()
     {
         Suite(nameof(VerifyIndexedPng), () => VerifyIndexedPng());
         Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
@@ -87,7 +149,7 @@ internal static partial class Program
         Console.WriteLine("Map presentation: JSON edits reach minimap/shared projection; independent exploration and strict validation pass.");
     }
 
-    private sealed class PresentationMapRules : IAreaMapView
+    internal sealed class PresentationMapRules : IAreaMapView
     {
         public AreaId Area => AreaId.Crateria;
         public MapTileWord GetTile(Position16<MapTiles> cell) => MapTileWords.PauseBlank;
@@ -101,7 +163,7 @@ internal static partial class Program
     /// once from the same installation as the maps, rather than silently allowing test
     /// runtimes to fall back to cartridge graphics when a room is initialized.
     /// </summary>
-    private sealed class MapPresentationInstalledRoomAssets
+    internal sealed class MapPresentationInstalledRoomAssets
     {
         private readonly RoomCharacterAtlas standardObjects;
         private readonly RoomCharacterAtlasCatalog roomCharacters;
@@ -1336,12 +1398,12 @@ internal static partial class Program
         Console.WriteLine("File-select map: exact stock pixels, edited BG1 words, and graphics-state rebind pass.");
     }
 
-    private static CartridgeReadGuard NewForbiddenMapBus() =>
+    internal static CartridgeReadGuard NewForbiddenMapBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected map ROM read {address:X6}.")
             .RejectWrites(_ => "Unexpected map bus write.");
 
-    private static CartridgeReadGuard NewPaletteReadForbiddenBus() =>
+    internal static CartridgeReadGuard NewPaletteReadForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address =>
                 $"Installed Mother Brain palette unexpectedly read cartridge address ${address:X6}.")
@@ -1350,7 +1412,7 @@ internal static partial class Program
                 address => new InvalidOperationException($"Unexpected Mother Brain palette write ${address:X6}."));
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)
+    internal static MutableCartridgeReadGuard NewMapDataGuard(ISnesAddressSpace source, AreaMapCartridgeData[] maps)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>
@@ -1375,5 +1437,12 @@ internal static partial class Program
                     (address >= map.StationRevealMaskAddress && address < map.StationRevealMaskAddress + AreaMapRomData.StationRevealMaskByteCount)),
             address => $"Live presentation read map ROM at {address:X6}.");
         return guard;
+    }
+
+    [VerificationCommand("--map-presentation")]
+    internal static int MapPresentationCommand()
+    {
+        Suite(nameof(VerifyMapPresentation), () => VerifyMapPresentation());
+        return 0;
     }
 }

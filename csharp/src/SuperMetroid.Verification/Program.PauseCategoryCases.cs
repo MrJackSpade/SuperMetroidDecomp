@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseCategoryCasesVerification
 {
-    private static void VerifyPauseCategoryCases(ISnesAddressSpace rom)
+    internal static void VerifyPauseCategoryCases(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyPauseCategoryOffsets), () => VerifyPauseCategoryOffsets(rom));
         Suite(nameof(VerifyPauseCategoryTilemapPointers), () => VerifyPauseCategoryTilemapPointers(rom));

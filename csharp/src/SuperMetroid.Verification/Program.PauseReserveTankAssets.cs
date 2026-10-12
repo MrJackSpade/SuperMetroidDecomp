@@ -7,10 +7,15 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using static GraphDigestVerification;
+using static PauseEquipmentRulesVerification;
+using static PauseReserveAnchorsVerification;
+using static PauseReserveFramesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseReserveTankAssetsVerification
 {
-    private static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
+    internal static void VerifyPauseReserveTankAssets(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseReserveTankDefinitions.FileName), path = Path.Combine(overrides, PauseReserveTankDefinitions.FileName);

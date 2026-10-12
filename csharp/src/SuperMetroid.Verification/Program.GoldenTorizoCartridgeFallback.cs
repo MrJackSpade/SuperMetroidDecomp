@@ -4,8 +4,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GoldenTorizoCartridgeFallbackVerification
 {
     /// <summary>
     /// Installed artwork does not imply that every Torizo combat instruction is
@@ -13,7 +14,7 @@ internal static partial class Program
     /// the handoff from compiled awakening to the native walking program stays
     /// playable while the ROM-free migration remains open.
     /// </summary>
-    private static void VerifyGoldenTorizoCartridgeCombatFallback(
+    internal static void VerifyGoldenTorizoCartridgeCombatFallback(
         string sourceRom, GameInstallation installation)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);

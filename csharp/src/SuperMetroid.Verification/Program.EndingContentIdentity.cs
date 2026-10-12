@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EndingContentIdentityVerification
 {
     /// <summary>Checks ending scene selection and original import metadata without a playthrough.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode 7 role selection")]
-    private static void VerifyEndingMode7RoleSelection()
+    internal static void VerifyEndingMode7RoleSelection()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -81,7 +91,7 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => new EndingMode7ArtworkCatalog(supplied[0], supplied[1], supplied[2], null!), "Mode7 null reward");
     }
 
-    private static void VerifyEndingContentIdentity()
+    internal static void VerifyEndingContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreateEndingIdentityFixture();
         IReadOnlyDictionary<string, string> reordered = CreateEndingIdentityFixture(reverse: true);
@@ -279,5 +289,20 @@ internal static partial class Program
         if (edit == "palette-order") (colors[0], colors[1]) = (colors[1], colors[0]);
         var palettes = new EndingPaletteCatalog(colors[0], colors[1], colors[2], colors[3], colors[4], colors[5], colors[6]);
         return EndingPresentationIdentity.Create(mode7, objects, palettes);
+    }
+
+    [VerificationCommand("--lookup-ending-mode7-roles")]
+    internal static int LookupEndingMode7RolesCommand()
+    {
+        Suite(nameof(VerifyEndingMode7RoleSelection), () => VerifyEndingMode7RoleSelection());
+        Console.WriteLine("Ending Mode7 roles: six original sources, filenames, supplied references, identity ordering and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--ending-content-identity")]
+    internal static int EndingContentIdentityCommand()
+    {
+        Suite(nameof(VerifyEndingContentIdentity), () => VerifyEndingContentIdentity());
+        return 0;
     }
 }

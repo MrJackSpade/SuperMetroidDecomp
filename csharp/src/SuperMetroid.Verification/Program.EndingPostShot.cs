@@ -2,12 +2,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static EndingLogoTablesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingPostShotVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the post-shot palette, font, logo tiles and map")]
-    private static void VerifyEndingPostShot(ISnesAddressSpace bus)
+    internal static void VerifyEndingPostShot(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));
         var guardedBus = NewPostShotUploadTableReadGuard(bus);

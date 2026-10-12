@@ -1,3 +1,331 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static AbsoluteTangentDefinitionsVerification;
+using static AlcoonInstructionProgramDefinitionsVerification;
+using static AnimatedTileInstructionCodesVerification;
+using static AssertionsVerification;
+using static AtomicMovementDefinitionsVerification;
+using static AudioUploadCatalogVerification;
+using static BeamCallbackTablesVerification;
+using static BeetomInstructionProgramDefinitionsVerification;
+using static BlockReactionSelectorsVerification;
+using static BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification;
+using static BlueDoorPlmDrawDefinitionsVerification;
+using static BombBlockProgramsVerification;
+using static BombTorizoAttackDefinitionsVerification;
+using static BombTorizoDormantDefinitionsVerification;
+using static BombTorizoDroolInstructionProgramDefinitionsVerification;
+using static BombTorizoStatueFragmentDefinitionsVerification;
+using static BombTorizoStatueInstructionProgramDefinitionsVerification;
+using static BossOamRootGeometryVerification;
+using static BotwoonAnimationsVerification;
+using static BotwoonHealthPaletteDefinitionsVerification;
+using static BotwoonNavigationDefinitionsVerification;
+using static BotwoonSpeedsVerification;
+using static BotwoonWallPlmsVerification;
+using static BotwoonWallVisualsVerification;
+using static BoulderInstructionProgramDefinitionsVerification;
+using static BoyonInstructionProgramDefinitionsVerification;
+using static BrinstarPipeBugInstructionProgramDefinitionsVerification;
+using static BullInstructionProgramDefinitionsVerification;
+using static CacatacInstructionProgramDefinitionsVerification;
+using static CeresBackdropProgramsVerification;
+using static CeresBlastPlacementVerification;
+using static CeresDestructionFrameCatalogVerification;
+using static CeresEscapeVramTransferDefinitionsVerification;
+using static CeresExplosionDefinitionsVerification;
+using static CeresExplosionProgramsVerification;
+using static CeresFlightActorMetadataVerification;
+using static CeresFlightFrameCatalogVerification;
+using static CeresFlightProgramsVerification;
+using static CeresHazeVerification;
+using static CeresInitialActorMetadataVerification;
+using static CeresLargeAsteroidPartsVerification;
+using static CeresLargeBlastPartsVerification;
+using static CeresPlacementSelectorsVerification;
+using static CeresReflectedStarPartsVerification;
+using static CeresRidleyGetawayDefinitionsVerification;
+using static CeresSmallAsteroidPartsVerification;
+using static CeresSpawnerScheduleVerification;
+using static CeresStarPointPartsVerification;
+using static CeresStationBlastPartsVerification;
+using static CeresStationPartsVerification;
+using static CeresVortexPartsVerification;
+using static CeresZebesActorMetadataVerification;
+using static ChargeFlareDefinitionsVerification;
+using static ChozoStatuePlmDefinitionsVerification;
+using static ColoredDoorPlmDrawDefinitionsVerification;
+using static CompiledDynamicCollectibleGraphicsVerification;
+using static CompiledScrollPlmProgramsVerification;
+using static ContactCrumbleProgramsVerification;
+using static ControllerButtonLookupsVerification;
+using static CrawlerAnimationDefinitionsVerification;
+using static CrocomireBg2ScrollVerification;
+using static CrocomireBodyVisualsVerification;
+using static CrocomireBridgeFragmentDefinitionsVerification;
+using static CrocomireMeltingDefinitionsVerification;
+using static CrocomireProjectileInstructionProgramDefinitionsVerification;
+using static CrocomireSkeletonFrameGeometryVerification;
+using static CrocomireSpikeMotionDefinitionsVerification;
+using static CrocomireTongueCollisionDefinitionsVerification;
+using static CrocomireTongueInstructionProgramDefinitionsVerification;
+using static DoorDefinitionsVerification;
+using static DownwardGatePlmsVerification;
+using static DragonFireballInstructionProgramDefinitionsVerification;
+using static DragonInstructionProgramDefinitionsVerification;
+using static DraygonHealthPaletteDefinitionsVerification;
+using static DraygonIntroDanceDefinitionsVerification;
+using static DraygonProjectileInstructionProgramDefinitionsVerification;
+using static ElevatorInputDefinitionsVerification;
+using static ElevatorInstructionProgramDefinitionsVerification;
+using static ElevatorPlatformVisualsVerification;
+using static EndingCompletionTextInstructionsVerification;
+using static EndingExplosionSpriteArtworkVerification;
+using static EndingGlyphMappingVerification;
+using static EndingLogoTablesVerification;
+using static EndingLogoVerification;
+using static EndingObjectArtworkVerification;
+using static EndingPaletteArtworkVerification;
+using static EndingRewardGestureVerification;
+using static EndingRewardInstructionsVerification;
+using static EnemyFireballLaunchDefinitionsVerification;
+using static EnemyLinearSpeedsVerification;
+using static EnemyProjectileInstructionMechanicsDefinitionsVerification;
+using static EnemyQuadraticSpeedsVerification;
+using static EnemyTileArtworkDraygonBg2FramesVerification;
+using static EnemyTileArtworkDraygonOamCollisionVerification;
+using static EnemyTrigonometryVerification;
+using static EnemyVisualSelectorInventoryVerification;
+using static EscapeEtecoonDefinitionsVerification;
+using static EscapeGateVisualsVerification;
+using static ExtendedFrameSequenceVerification;
+using static EyeDoorPlmDrawDefinitionsVerification;
+using static EyeDoorProjectileInstructionProgramDefinitionsVerification;
+using static FakeKraidProgramMappingsVerification;
+using static FakeKraidProjectileDefinitionsVerification;
+using static FakeKraidProjectileProgramMappingsVerification;
+using static FakeKraidSpitVelocitiesVerification;
+using static FamilyTrigonometryVerification;
+using static FileSelectHelmetAnimationVerification;
+using static FileSelectNameCasesVerification;
+using static FileSelectNavigationLookupVerification;
+using static FirefleaFxVerification;
+using static FirefleaMovementDefinitionsVerification;
+using static FuneNamiheDefinitionsVerification;
+using static FuneNamiheFireballInstructionProgramDefinitionsVerification;
+using static FuneNamiheInstructionProgramDefinitionsVerification;
+using static GameOverBabyAnimationVerification;
+using static GameOverBabyColorsVerification;
+using static GameOverTextLookupsVerification;
+using static GeneratedBossBg2CatalogsVerification;
+using static GrappleBlockProgramsVerification;
+using static GrappleFiringDefinitionsVerification;
+using static GreyDoorPlmDrawDefinitionsVerification;
+using static GrowingShutterDefinitionsVerification;
+using static GrowingShutterInstructionProgramDefinitionsVerification;
+using static GunshipMotionDefinitionsVerification;
+using static HalfWaveAlgorithmsVerification;
+using static HighlightTilePixelsVerification;
+using static HorizontalShutterInstructionProgramDefinitionsVerification;
+using static HyperBeamFxColorArtworkVerification;
+using static IntroBabyDiscoveryInputVerification;
+using static IntroBabyDiscoveryInstructionsVerification;
+using static IntroCaretInstructionsVerification;
+using static IntroConfusedBabyPartsVerification;
+using static IntroDiscoveryCollisionVerification;
+using static IntroDiscoveryFrameCatalogVerification;
+using static IntroEggCrackingPartsVerification;
+using static IntroEggEffectPartsVerification;
+using static IntroEggEffectProgramsVerification;
+using static IntroEggRemnantPartsVerification;
+using static IntroEggRockingPartsVerification;
+using static IntroEyeInstructionsVerification;
+using static IntroMotherBrainCollisionSourceVerification;
+using static IntroMotherBrainExplosionPartsVerification;
+using static IntroMotherBrainExplosionProgramsVerification;
+using static IntroMotherBrainFrameCatalogVerification;
+using static IntroMotherBrainInputSourceVerification;
+using static IntroMotherBrainInstructionsVerification;
+using static IntroMotherBrainPartsVerification;
+using static IntroRinkaPartsVerification;
+using static IntroRinkaProgramsVerification;
+using static IntroScientistFrameCatalogVerification;
+using static IntroScientistInstructionsVerification;
+using static IntroScientistPartsVerification;
+using static KraidArmCollisionDefinitionsVerification;
+using static KraidArmComponentHitboxesVerification;
+using static KraidArmGeneratedProgramsVerification;
+using static KraidArmPhysicalFrameMappingsVerification;
+using static KraidCameraMappingsVerification;
+using static KraidCeilingRockPositionsVerification;
+using static KraidContourCaseMappingsVerification;
+using static KraidDefeatedPlmMappingsVerification;
+using static KraidDrawMappingsVerification;
+using static KraidFootCoordinateMappingsVerification;
+using static KraidFootFrameGeometryVerification;
+using static KraidFootGeneratedProgramsVerification;
+using static KraidGrowthPlmMappingsVerification;
+using static KraidHeadCommandMappingVerification;
+using static KraidHealthThresholdsVerification;
+using static KraidMouthMappingsVerification;
+using static KraidMovementChoicesVerification;
+using static KraidNailContourMappingsVerification;
+using static KraidNailSiblingVerification;
+using static KraidPaletteDefinitionsVerification;
+using static KraidRockGeneratedProgramsVerification;
+using static KraidRockLaunchDefinitionsVerification;
+using static KraidRoomProgramMappingVerification;
+using static KraidRoomVisualSelectionVerification;
+using static KraidSinkScheduleVerification;
+using static KraidSmallProgramsVerification;
+using static KraidVisualSelectorsVerification;
+using static LookupCeresHazeRampVerification;
+using static LookupDachoraColorsVerification;
+using static LookupHorizontalHeatWaveVerification;
+using static LookupLiquidWaveVerification;
+using static LookupPaletteFxAreasVerification;
+using static LookupPaletteFxDispatchVerification;
+using static LookupQuakeSoundSelectionVerification;
+using static LookupQuakeSoundSuppressionVerification;
+using static LookupRainVelocityVerification;
+using static LookupRetailDoorListsVerification;
+using static LookupRetailPlmHeadersVerification;
+using static LookupRetailPopulationsVerification;
+using static LookupRomOraclesVerification;
+using static LookupSkyChunkPointersVerification;
+using static LookupSkySectionsVerification;
+using static LookupSmallGameTablesVerification;
+using static LookupSpeedEscapeProgramVerification;
+using static LookupStream1Verification;
+using static LookupStream2Verification;
+using static LookupStream3Verification;
+using static LookupStream4Verification;
+using static LookupStream5Verification;
+using static LookupTourianArtworkVerification;
+using static LookupTourianDescriptorsVerification;
+using static LookupTourianProgramVerification;
+using static LookupTourianSpawnVerification;
+using static LookupTreadmillMechanicsVerification;
+using static LowerNorfairRioInstructionProgramDefinitionsVerification;
+using static MamaTurtleInstructionProgramDefinitionsVerification;
+using static MapArrowCasesVerification;
+using static MapArrowDurationsVerification;
+using static MapIndicatorAnimationVerification;
+using static MapLoadAnchorsVerification;
+using static MapMarkerPixelsVerification;
+using static MapSaveMarkerCoordinatesVerification;
+using static MapSaveMarkersVerification;
+using static MapSpriteCasesVerification;
+using static MapWindowMotionDefinitionsVerification;
+using static MenuBeveledSquarePixelsVerification;
+using static MenuCompactLetteringPixelsVerification;
+using static MenuLargeFontPixelsVerification;
+using static MenuMissileLookupsVerification;
+using static MenuPanelPixelsVerification;
+using static MenuShoulderButtonPixelsVerification;
+using static MenuShoulderHighlightPixelsVerification;
+using static MenuSmallFontPixelsVerification;
+using static MenuThinBorderPixelsVerification;
+using static MetroidBehaviorDefinitionsVerification;
+using static MetroidInstructionProgramDefinitionsVerification;
+using static MiscDustProjectileDefinitionsVerification;
+using static MochtroidInstructionProgramDefinitionsVerification;
+using static MotherBrainBabyInstructionProgramDefinitionsVerification;
+using static MotherBrainGeneratedVisualCatalogsVerification;
+using static MotherBrainGlassInstructionProgramDefinitionsVerification;
+using static MotherBrainGlassPlmDrawDefinitionsVerification;
+using static MotherBrainGlassShardDefinitionsVerification;
+using static NoobTubePlmDrawDefinitionsVerification;
+using static NorfairPipeBugInstructionProgramDefinitionsVerification;
+using static NuclearWaffleDefinitionsVerification;
+using static NuclearWaffleProjectileInstructionProgramDefinitionsVerification;
+using static OptionsGeometryLookupsVerification;
+using static OwtchInstructionProgramDefinitionsVerification;
+using static OwtchMovementDefinitionsVerification;
+using static PaletteFxInstructionCodesVerification;
+using static PauseButtonSpansVerification;
+using static PauseCategoryCasesVerification;
+using static PauseEquipmentRulesVerification;
+using static PauseReserveAnchorsVerification;
+using static PauseReserveFramesVerification;
+using static PauseSelectorAnchorsVerification;
+using static PauseSelectorCompositionsVerification;
+using static PauseSelectorDurationsVerification;
+using static PhantoonTimersVerification;
+using static PhantoonWaveMathVerification;
+using static PipeBugAnimationDefinitionsVerification;
+using static PlanetZebesTitlePartsVerification;
+using static PlatformInstructionProgramDefinitionsVerification;
+using static PlmPopulationInputBoundaryVerification;
+using static PoseCollisionDefinitionsVerification;
+using static PoseDispatchDefinitionsVerification;
+using static PoseInputDefinitionsVerification;
+using static PoseProjectileOriginVerification;
+using static PowerBombFixedColorsVerification;
+using static PowerBombShapeDefinitionsVerification;
+using static Program;
+using static ProjectileDamageVerification;
+using static ProjectileOriginsVerification;
+using static ProjectileSoundRoutingVerification;
+using static PuyoInstructionProgramDefinitionsVerification;
+using static QuicksandVerification;
+using static RenderingAndRoomsVerification;
+using static ReserveTilePixelsVerification;
+using static RetailPresentationFixtureVerification;
+using static RidleyAttackChoicesVerification;
+using static RidleyClawOffsetsVerification;
+using static RidleyCollisionDefinitionsVerification;
+using static RidleyExplosionDefinitionsVerification;
+using static RidleyMovementTargetsVerification;
+using static RoomPaletteFxPresentationVerification;
+using static RoomPlmPopulationDefinitionsVerification;
+using static RoomPlmPopulationVerification;
+using static RoomShakeDefinitionsVerification;
+using static RunningCadenceVerification;
+using static SamusAnimationDelayDefinitionsVerification;
+using static SamusArmCannonDefinitionsVerification;
+using static SamusAtmosphericEffectDefinitionsVerification;
+using static SamusChargeColorsVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SamusFullBodyCycleColorsVerification;
+using static SamusHudDefinitionsVerification;
+using static SamusHurtColorsVerification;
+using static SamusIndexedSpeedsVerification;
+using static SamusShinesparkVerification;
+using static SamusSpecialStatesVerification;
+using static SaveRamLayoutVerification;
+using static SciserInstructionProgramDefinitionsVerification;
+using static ScrollPlmsVerification;
+using static ShaktoolOrbitAlgorithmVerification;
+using static ShaktoolSegmentDefinitionsVerification;
+using static SharedSlopeHeightsVerification;
+using static ShotBlockPlmProgramsVerification;
+using static SlopeSpeedDefinitionsVerification;
+using static SpaceColonyCaptionVerification;
+using static SpcDspPublicationVerification;
+using static SpcNotePercentageAlgorithmsVerification;
+using static SpcPanSamplesVerification;
+using static SpcPitchBasisAlgorithmVerification;
+using static SpcSoundLibrary2PointersVerification;
+using static SpcSoundPoliciesVerification;
+using static SpeedBoosterPlmProgramsVerification;
+using static SquareSlopeDefinitionsVerification;
+using static StationAccessPlmDefinitionsVerification;
+using static StatueWalkDefinitionsVerification;
+using static StokeInstructionProgramDefinitionsVerification;
+using static SuiteTimingVerification;
+using static SuitPickupBeamCurveDefinitionsVerification;
+using static VerticalShutterInstructionProgramDefinitionsVerification;
+using static WaverAnimationDefinitionsVerification;
+using static WorkRobotInitialSelectionVerification;
+using static WorkRobotPaletteTimingDefinitionsVerification;
+using static YardDirectionDefinitionsVerification;
+using static YardTurnDefinitionsVerification;
+using static ZebesPlanetBandPartsVerification;
+using static ZoaAnimationDefinitionsVerification;
+using static ZoaInstructionProgramDefinitionsVerification;
+using static ZoaSpeedDefinitionsVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -8,12 +336,12 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
-internal static partial class Program
+/// <summary>Reference arithmetic for the cartridge's random-number generator.</summary>
+internal static class AssertionsVerification
 {
-
-/// <summary>Reference arithmetic, assertions, sparse bus fixture, and console process policy.</summary>
-static ushort ReferenceNextRandom(ushort seed)
-{
+    /// <summary>The cartridge's next random word for <paramref name="seed"/>, computed independently.</summary>
+    internal static ushort ReferenceNextRandom(ushort seed)
+    {
     int hardwareProductLow = (SnesLittleEndian.LowByte(seed)) * 5;
     byte stackLow = (byte)hardwareProductLow;
     byte stackHigh = SnesLittleEndian.HighByte(unchecked((ushort)hardwareProductLow));
@@ -25,6 +353,7 @@ static ushort ReferenceNextRandom(ushort seed)
 
     int restoredAccumulator = SnesLittleEndian.Word(stackLow, stackHigh);
     return unchecked((ushort)(restoredAccumulator + 0x0011 + carry));
+    }
 }
 
 /// <summary>
@@ -32,7 +361,7 @@ static ushort ReferenceNextRandom(ushort seed)
 /// making every byte relevant to a transfer visible in the setup directly above it.
 /// </summary>
 [CpuBusBoundary("exact bus test: sparse synthetic CPU address space whose bytes the test seeds directly")]
-sealed class TestAddressSpace : ISnesMemoryBus,
+internal sealed class TestAddressSpace : ISnesMemoryBus,
     IImportCartridgeSource,
     IRoomEnemyFixtureSource, IRoomEnemyFallingTubeFixtureSource
 {
@@ -139,11 +468,10 @@ sealed class TestAddressSpace : ISnesMemoryBus,
 /// `SEM_NOGPFAULTERRORBOX`, and `SEM_NOOPENFILEERRORBOX` keep failures non-interactive;
 /// .NET still writes the exception and stack trace to stderr and returns a failing code.
 /// </summary>
-static partial class NativeConsoleProcess
+internal static partial class NativeConsoleProcess
 {
     [LibraryImport("kernel32.dll")]
     internal static partial uint SetErrorMode(uint errorMode);
-}
 }
 
 /// <summary>
@@ -217,5 +545,4026 @@ internal static class VerificationAssert
 
         throw new InvalidOperationException(
             $"Verification failed: {context}; expected {typeof(TException).Name}.");
+    }
+
+    [VerificationCommand("--lookup-stream-4-hud-icons")]
+    internal static int LookupStream4HudIconsCommand()
+    {
+        var rom=CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),"HUD icon source revision");
+        Suite(nameof(VerifyLookupStream4HudIcons), () => VerifyLookupStream4HudIcons(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-hud-template")]
+    internal static int LookupStream4HudTemplateCommand()
+    {
+        var rom=CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),"HUD template source revision");
+        Suite(nameof(VerifyLookupStream4HudTemplate), () => VerifyLookupStream4HudTemplate(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-hud-top-row")]
+    internal static int LookupStream4HudTopRowCommand()
+    {
+        var rom=CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),"HUD top-row source revision");
+        Suite(nameof(VerifyLookupStream4HudTopRow), () => VerifyLookupStream4HudTopRow(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-hud-auto")]
+    internal static int LookupStream4HudAutoCommand()
+    {
+        var rom=CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)),"AUTO source revision");
+        Suite(nameof(VerifyLookupStream4HudAutoComplete), () => VerifyLookupStream4HudAutoComplete(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-draygon-layout")]
+    internal static int LookupStream4DraygonLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon layout oracle revision");
+        Suite(nameof(VerifyLookupStream4DraygonPresentationLayout), () => VerifyLookupStream4DraygonPresentationLayout(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-draygon-intro")]
+    internal static int LookupStream4DraygonIntroCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon intro oracle revision");
+        Suite(nameof(VerifyLookupStream4DraygonIntro), () => VerifyLookupStream4DraygonIntro(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-draygon-sprite")]
+    internal static int LookupStream4DraygonSpriteCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon sprite oracle revision");
+        Suite(nameof(VerifyLookupStream4DraygonSprite), () => VerifyLookupStream4DraygonSprite(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-draygon-background")]
+    internal static int LookupStream4DraygonBackgroundCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon background oracle revision");
+        Suite(nameof(VerifyLookupStream4DraygonBackground), () => VerifyLookupStream4DraygonBackground(rom));
+        Suite(nameof(VerifyLookupStream4DraygonHealth), () => VerifyLookupStream4DraygonHealth(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-draygon-health")]
+    internal static int LookupStream4DraygonHealthCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Draygon health oracle revision");
+        Suite(nameof(VerifyLookupStream4DraygonHealth), () => VerifyLookupStream4DraygonHealth(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-norfair-reveal")]
+    internal static int LookupStream4NorfairRevealCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Norfair reveal oracle revision");
+        Suite(nameof(VerifyLookupStream4NorfairReveal), () => VerifyLookupStream4NorfairReveal(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-door-materials")]
+    internal static int LookupStream5CeresDoorMaterialsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres door material oracle revision");
+        Suite(nameof(VerifyLookupStream5CeresNormalPaint), () => VerifyLookupStream5CeresNormalPaint(rom));
+        Suite(nameof(VerifyLookupStream5CeresEscapePaint), () => VerifyLookupStream5CeresEscapePaint(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-exploded-door-paints")]
+    internal static int LookupStream3ExplodedDoorPaintsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Exploded door palette oracle revision");
+        Suite(nameof(VerifyStream3MotherBrainFades), () => VerifyStream3MotherBrainFades(rom));
+        Console.WriteLine("Exploded door:14 native colors,42 independent channel edits,no stock array,hashes,bounds and instance isolation pass; other death fades preserved.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-auxiliary-complete")]
+    internal static int LookupStream3AuxiliaryCompleteCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Auxiliary palette oracle revision");
+        Suite(nameof(VerifyStream3AuxiliaryPalettes), () => VerifyStream3AuxiliaryPalettes(rom));
+        Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
+        Console.WriteLine("Auxiliary palettes:393 native colors,1179 independent RGB edits,zero stock endpoint/corpse arrays,identities,bounds and standalone target isolation pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-platform")]
+    internal static int LookupStream5CeresPlatformCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres platform oracle revision");
+        Suite(nameof(VerifyLookupStream5CeresPlatform), () => VerifyLookupStream5CeresPlatform(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-overlay-complete")]
+    internal static int LookupStream5CeresOverlayCompleteCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres overlay native revision");
+        Suite(nameof(VerifyLookupStream5CeresSourcePages), () => VerifyLookupStream5CeresSourcePages());
+        Suite(nameof(VerifyLookupStream5CeresOverlayWords), () => VerifyLookupStream5CeresOverlayWords(rom));
+        Suite(nameof(VerifyCeresEscapeVramTransferDefinitions), () => VerifyCeresEscapeVramTransferDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-projectile-programs")]
+    internal static int LookupStream1ProjectileProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Projectile program oracle revision");
+        Suite(nameof(VerifyLookupStream1ProjectilePrograms), () => VerifyLookupStream1ProjectilePrograms(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-projectile-radii")]
+    internal static int LookupStream1ProjectileRadiiCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Projectile radius oracle revision");
+        Suite(nameof(VerifyLookupStream1ProjectileRadiusLayout), () => VerifyLookupStream1ProjectileRadiusLayout(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-world-foreground")]
+    internal static int LookupStream1WorldForegroundCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "World foreground oracle revision");
+        Suite(nameof(VerifyLookupStream1WorldForeground), () => VerifyLookupStream1WorldForeground(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-world-background")]
+    internal static int LookupStream1WorldBackgroundCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "World BG3 oracle revision");
+        Suite(nameof(VerifyLookupStream1WorldBackground), () => VerifyLookupStream1WorldBackground(rom));
+    
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-death-pixels")]
+    internal static int LookupStream1DeathPixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Death pixel oracle revision");
+        Suite(nameof(VerifyLookupStream1DeathPixels), () => VerifyLookupStream1DeathPixels(rom));
+    
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-foreground-cadence")]
+    internal static int LookupStream4ForegroundCadenceCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Foreground cadence oracle revision");
+        Suite(nameof(VerifyLookupStream4ForegroundCadence), () => VerifyLookupStream4ForegroundCadence(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-title-ambient-complete")]
+    internal static int LookupStream4TitleAmbientCompleteCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Title ambient oracle revision");
+        Suite(nameof(VerifyLookupStream4TitleAmbientMechanics), () => VerifyLookupStream4TitleAmbientMechanics(rom));
+        Suite(nameof(VerifyLookupStream4TitleAmbientComplete), () => VerifyLookupStream4TitleAmbientComplete(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-baby-normal-target")]
+    internal static int LookupStream3BabyNormalTargetCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby normal/target oracle revision");
+        Suite(nameof(VerifyStream3ShitroidPulse), () => VerifyStream3ShitroidPulse(rom));
+        Suite(nameof(VerifyStream3BabyInitialPaints), () => VerifyStream3BabyInitialPaints(rom));
+        Console.WriteLine("Baby normal/target: native outputs, independent pulse/target/initial edits, bidirectional isolation, identities and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-drained-geometry")]
+    internal static int LookupStream1DrainedGeometryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Drained geometry oracle revision");
+        Suite(nameof(VerifyLookupStream1DrainedGeometry), () => VerifyLookupStream1DrainedGeometry(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-baby-initial-fade")]
+    internal static int LookupStream3BabyInitialFadeCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby palette oracle revision");
+        Suite(nameof(VerifyStream3BabyInitialPaints), () => VerifyStream3BabyInitialPaints(rom));
+        Suite(nameof(VerifyStream3BabyFade), () => VerifyStream3BabyFade(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-posture-geometry")]
+    internal static int LookupStream1PostureGeometryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Posture geometry oracle revision");
+        Suite(nameof(VerifyLookupStream1PostureGeometry), () => VerifyLookupStream1PostureGeometry(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-landing-placement")]
+    internal static int LookupStream1LandingPlacementCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Landing placement oracle revision");
+        Suite(nameof(VerifyLookupStream1BodyFacingOffsets), () => VerifyLookupStream1BodyFacingOffsets(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-metroid-pulse")]
+    internal static int LookupStream1MetroidPulseCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Metroid pulse oracle revision");
+        Suite(nameof(VerifyLookupStream1MetroidPulse), () => VerifyLookupStream1MetroidPulse(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-atmospheric-cadence")]
+    internal static int LookupStream1AtmosphericCadenceCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Atmospheric cadence oracle revision");
+        Suite(nameof(VerifyLookupStream1AtmosphericCadence), () => VerifyLookupStream1AtmosphericCadence(rom));
+        Console.WriteLine("Atmospheric cadence:37 native holds, seven domains,74 actual expiry/delayed-start cases and rejection contracts pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-rainbow-materials")]
+    internal static int LookupStream3RainbowMaterialsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Rainbow palette oracle revision");
+        Suite(nameof(VerifyStream3DrainFades), () => VerifyStream3DrainFades(oracle));
+        Console.WriteLine("Rainbow material palettes: native colors, routing, independent edits and reduced material basis pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-ghost-palette")]
+    internal static int LookupStream2GhostPaletteCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ghost palette oracle revision");
+        Suite(nameof(VerifyLookupStream2GhostPalette), () => VerifyLookupStream2GhostPalette(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-timer-cadence")]
+    internal static int LookupStream1TimerCadenceCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Timer cadence oracle revision");
+        Suite(nameof(VerifyLookupStream1TimerCadence), () => VerifyLookupStream1TimerCadence(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-timer-glyphs")]
+    internal static int LookupStream1TimerGlyphsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Timer glyph oracle revision");
+        Suite(nameof(VerifyLookupStream1TimerGlyphs), () => VerifyLookupStream1TimerGlyphs(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-slope-speeds")]
+    internal static int LookupStream5SlopeSpeedsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Slope speed oracle revision");
+        Suite(nameof(VerifyCompiledSlopeSpeeds), () => VerifyCompiledSlopeSpeeds(rom));
+        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(-1), "Slope family lower bound");
+        AssertThrows<ArgumentOutOfRangeException>(() => SlopeSpeedDefinitions.HorizontalMultiplier(32), "Slope family upper bound");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-crocomire-paint")]
+    internal static int LookupStream5CrocomirePaintCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire palette oracle revision");
+        Suite(nameof(VerifyLookupStream5CrocomireSharedPaint), () => VerifyLookupStream5CrocomireSharedPaint(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-falling-tube-population-layout")]
+    internal static int LookupStream3FallingTubePopulationLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Falling tube oracle revision");
+        Suite(nameof(VerifyStream3FallingTubePopulationLayout), () => VerifyStream3FallingTubePopulationLayout(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-intro-palette-rows")]
+    internal static int LookupStream3IntroPaletteRowsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro palette oracle revision");
+        Suite(nameof(VerifyStream3IntroPaletteRows), () => VerifyStream3IntroPaletteRows(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-intro-layouts")]
+    internal static int LookupStream3IntroLayoutsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro layout oracle revision");
+        Suite(nameof(VerifyStream3IntroEyeRectangles), () => VerifyStream3IntroEyeRectangles(rom));
+        Suite(nameof(VerifyStream3IntroDivider), () => VerifyStream3IntroDivider(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-source-pages")]
+    internal static int LookupStream5CeresSourcePagesCommand()
+    {
+        var ceresPageOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(ceresPageOracle.Rom)), "Ceres source-page oracle revision");
+        Suite(nameof(VerifyLookupStream5CeresSourcePages), () => VerifyLookupStream5CeresSourcePages());
+        Suite(nameof(VerifyCeresEscapeVramTransferDefinitions), () => VerifyCeresEscapeVramTransferDefinitions(ceresPageOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-body-frame-basis")]
+    internal static int LookupStream1BodyFrameBasisCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
+        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom, true));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-body-frame-final")]
+    internal static int LookupStream1BodyFrameFinalCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body frame oracle revision");
+        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom, false, true));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-body-facing")]
+    [VerificationCommand("--lookup-stream-1-xray-frames")]
+    internal static int LookupStream1BodyFacingCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body oracle revision");
+        Suite(nameof(VerifyLookupStream1BodyFacingOffsets), () => VerifyLookupStream1BodyFacingOffsets(rom));
+        Suite(nameof(VerifyLookupStream1BodyGraphicsOrigins), () => VerifyLookupStream1BodyGraphicsOrigins(rom));
+        Suite(nameof(VerifyLookupStream1BodySetPointers), () => VerifyLookupStream1BodySetPointers(rom));
+        Suite(nameof(VerifyLookupStream1BodyPosePointers), () => VerifyLookupStream1BodyPosePointers(rom));
+        Suite(nameof(VerifyLookupStream1XrayBodyFrames), () => VerifyLookupStream1XrayBodyFrames(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-body-oam-bases")]
+    internal static int LookupStream1BodyOamBasesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "OAM base oracle revision");
+        Suite(nameof(VerifyLookupStream1BodyOamBases), () => VerifyLookupStream1BodyOamBases(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-hurt-blend")]
+    internal static int LookupStream1HurtBlendCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hurt palette oracle revision");
+        Suite(nameof(VerifyLookupStream1HurtBlend), () => VerifyLookupStream1HurtBlend(rom));
+        Suite(nameof(VerifySamusHurtColors), () => VerifySamusHurtColors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-hand-beam-body-layout")]
+    internal static int LookupStream3HandBeamBodyLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand-beam body oracle revision");
+        Suite(nameof(VerifyStream3HandBeamBodyLayout), () => VerifyStream3HandBeamBodyLayout());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-map-landmarks")]
+    internal static int LookupStream5MapLandmarksCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map landmark oracle revision");
+        Suite(nameof(VerifyLookupStream5MapLandmarkCases), () => VerifyLookupStream5MapLandmarkCases(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-baby-instruction-layout")]
+    internal static int LookupStream3BabyInstructionLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby instruction oracle revision");
+        Suite(nameof(VerifyStream3BabyInstructionLayout), () => VerifyStream3BabyInstructionLayout(rom));
+        Suite(nameof(VerifyMotherBrainBabyInstructionProgramDefinitions), () => VerifyMotherBrainBabyInstructionProgramDefinitions(rom));
+        Console.WriteLine("Baby command layout: twelve native words, nine visual addresses and rejection domains pass; six hold roles remain required.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-baby-body-sharing")]
+    internal static int LookupStream3BabyBodySharingCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby OAM oracle revision");
+        Suite(nameof(VerifyStream3BabySpriteReflection), () => VerifyStream3BabySpriteReflection(rom));
+        Console.WriteLine("Baby upper-body sharing: native OAM/order/hash, independent symmetric edits and legacy schemas pass; geometry/artwork remain required.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-hand-beam-layout")]
+    internal static int LookupStream3HandBeamLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hand-beam oracle revision");
+        Suite(nameof(VerifyStream3HandBeamLayout), () => VerifyStream3HandBeamLayout());
+        Suite(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions());
+        Console.WriteLine("Hand-beam command layout: stage/callback/visual order, exact byte ownership and production checks pass; selected holds remain required.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-phantoon-timers")]
+    internal static int LookupStream5PhantoonTimersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Phantoon timer oracle revision");
+        Suite(nameof(VerifyCompiledPhantoonTimers), () => VerifyCompiledPhantoonTimers(rom));
+        Suite(nameof(VerifyLookupStream5PhantoonExposure), () => VerifyLookupStream5PhantoonExposure(rom));
+        Suite(nameof(VerifyLookupStream5PhantoonClosedEye), () => VerifyLookupStream5PhantoonClosedEye(rom));
+        Suite(nameof(VerifyLookupStream5PhantoonRainWait), () => VerifyLookupStream5PhantoonRainWait(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-power-programs")]
+    internal static int LookupStream1PowerProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Projectile program oracle revision");
+        Suite(nameof(VerifyLookupStream1PowerProgramLayout), () => VerifyLookupStream1PowerProgramLayout(rom));
+        Suite(nameof(VerifyLookupStream1WaveIceProgramLayout), () => VerifyLookupStream1WaveIceProgramLayout(rom));
+        Suite(nameof(VerifyLookupStream1SpazerProgramLayout), () => VerifyLookupStream1SpazerProgramLayout(rom));
+        Suite(nameof(VerifyLookupStream1PlasmaProgramLayout), () => VerifyLookupStream1PlasmaProgramLayout(rom));
+        Suite(nameof(VerifyLookupStream1ChargedProgramLayout), () => VerifyLookupStream1ChargedProgramLayout(rom));
+        Suite(nameof(VerifyLookupStream1NonBeamProgramLayout), () => VerifyLookupStream1NonBeamProgramLayout(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-phantoon-collision")]
+    internal static int LookupStream5PhantoonCollisionCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Phantoon collision oracle revision");
+        Suite(nameof(VerifyLookupStream5PhantoonCollision), () => VerifyLookupStream5PhantoonCollision(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-phantoon-fade")]
+    internal static int LookupStream5PhantoonFadeCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Phantoon colors oracle revision");
+        Suite(nameof(VerifyLookupStream5PhantoonFade), () => VerifyLookupStream5PhantoonFade(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ending-font-spaces")]
+    [VerificationCommand("--lookup-stream-4-ending-font-outline")]
+    internal static int LookupStream4EndingFontSpacesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending font oracle revision");
+        Suite(nameof(VerifyLookupStream4EndingFontSpaces), () => VerifyLookupStream4EndingFontSpaces(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-map-buttons")]
+    internal static int LookupStream5MapButtonsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map buttons oracle revision");
+        Suite(nameof(VerifyLookupStream5MapButtons), () => VerifyLookupStream5MapButtons(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-mode7-transfers")]
+    internal static int LookupStream5Mode7TransfersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres Mode7 oracle revision");
+        Suite(nameof(VerifyCompiledCeresRidleyMode7Transfers), () => VerifyCompiledCeresRidleyMode7Transfers(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-menu-borders")]
+    internal static int LookupStream3MenuBordersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu borders oracle revision");
+        Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, FileSelectPresentationExtractor.Extract(rom)));
+        Suite(nameof(VerifyStream3OptionsBorders), () => VerifyStream3OptionsBorders(rom, GameOptionsPresentationExtractor.Extract(rom)));
+        Console.WriteLine("Menu borders:258native parts,1032independent edits,six reordered/expanded compositions pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-maridia-colors")]
+    internal static int LookupStream4MaridiaColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Maridia colors oracle revision");
+        Suite(nameof(VerifyLookupStream4MaridiaColors), () => VerifyLookupStream4MaridiaColors(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-planet-text")]
+    internal static int LookupStream4PlanetTextCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Planet text oracle revision");
+        Suite(nameof(VerifyLookupStream4PlanetText), () => VerifyLookupStream4PlanetText(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ceres-health")]
+    internal static int LookupStream4CeresHealthCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres health oracle revision");
+        Suite(nameof(VerifyLookupStream4CeresHealth), () => VerifyLookupStream4CeresHealth(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ceres-zoom-retreat")]
+    internal static int LookupStream4CeresZoomRetreatCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres zoom oracle revision");
+        Suite(nameof(VerifyLookupStream4CeresZoomAndRetreat), () => VerifyLookupStream4CeresZoomAndRetreat(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ceres-retreat-shared")]
+    internal static int LookupStream4CeresRetreatSharedCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres retreat oracle revision");
+        Suite(nameof(VerifyLookupStream4CeresRetreatShared), () => VerifyLookupStream4CeresRetreatShared(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ceres-start")]
+    [VerificationCommand("--lookup-stream-4-ceres-baby")]
+    internal static int LookupStream4CeresStartCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres start oracle revision");
+        Suite(nameof(VerifyLookupStream4CeresStart), () => VerifyLookupStream4CeresStart(rom));
+        Suite(nameof(VerifyLookupStream4CeresBaby), () => VerifyLookupStream4CeresBaby(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ceres-fades")]
+    internal static int LookupStream4CeresFadesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres fades oracle revision");
+        Suite(nameof(VerifyLookupStream4CeresFades), () => VerifyLookupStream4CeresFades(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-beam-paint")]
+    internal static int LookupStream4BeamPaintCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beam paint oracle revision");
+        Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-norfair-initial")]
+    internal static int LookupStream4NorfairInitialCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Norfair initial oracle revision");
+        Suite(nameof(VerifyLookupStream4NorfairInitial), () => VerifyLookupStream4NorfairInitial(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-botwoon-health")]
+    internal static int LookupStream4BotwoonHealthCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Botwoon palette oracle revision");
+        Suite(nameof(VerifyLookupStream4BotwoonColors), () => VerifyLookupStream4BotwoonColors(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ceres-alarm")]
+    internal static int LookupStream4CeresAlarmCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres alarm oracle revision");
+        Suite(nameof(VerifyLookupStream4CeresAlarm), () => VerifyLookupStream4CeresAlarm(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-maridia-palette")]
+    internal static int LookupStream4MaridiaPaletteCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Maridia palette oracle revision");
+        Suite(nameof(VerifyLookupStream4MaridiaPaletteDefinitions), () => VerifyLookupStream4MaridiaPaletteDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ending-shake")]
+    internal static int LookupStream4EndingShakeCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending shake oracle revision");
+        Suite(nameof(VerifyLookupStream4EndingShake), () => VerifyLookupStream4EndingShake(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-oam-pointers")]
+    internal static int LookupStream1OamPointersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "OAM selector oracle revision");
+        Suite(nameof(VerifyLookupStream1OamPointers), () => VerifyLookupStream1OamPointers(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-body-transfers")]
+    internal static int LookupStream1BodyTransfersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body transfer oracle revision");
+        Suite(nameof(VerifyLookupStream1BodyTransfers), () => VerifyLookupStream1BodyTransfers(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-cannon-placement")]
+    internal static int LookupStream1CannonPlacementCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Cannon placement oracle revision");
+        Suite(nameof(VerifyLookupStream1CannonPlacement), () => VerifyLookupStream1CannonPlacement(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-animation-pointers")]
+    internal static int LookupStream1AnimationPointersCommand()
+    {
+        string sourceRom = Path.GetFullPath("Super Metroid.smc");
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Animation pointer oracle revision");
+        Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(rom, sourceRom));
+        Suite(nameof(VerifyLookupStream1AnimationAliases), () => VerifyLookupStream1AnimationAliases(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-dachora-programs")]
+    internal static int LookupStream1DachoraProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Dachora program oracle revision");
+        Suite(nameof(VerifyLookupStream1EscapeDachoraPrograms), () => VerifyLookupStream1EscapeDachoraPrograms(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-powamp-programs")]
+    internal static int LookupStream1PowampProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Powamp program oracle revision");
+        Suite(nameof(VerifyLookupStream1PowampPrograms), () => VerifyLookupStream1PowampPrograms(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-timer-layout")]
+    internal static int LookupStream1TimerLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Timer layout oracle revision");
+        Suite(nameof(VerifyLookupStream1TimerLayout), () => VerifyLookupStream1TimerLayout(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-flare-placement")]
+    internal static int LookupStream1FlarePlacementCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Flare placement oracle revision");
+        Suite(nameof(VerifyLookupStream1FlarePlacement), () => VerifyLookupStream1FlarePlacement(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-mochtroid-visuals")]
+    internal static int LookupMochtroidVisualsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mochtroid oracle revision");
+        Suite(nameof(VerifyStream3MochtroidVisuals), () => VerifyStream3MochtroidVisuals(rom));
+        Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(rom));
+        Console.WriteLine("Mochtroid: six native registrations, eight selectors, address rejection and production instruction checks pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-environmental-catalogs")]
+    internal static int LookupStream2EnvironmentalCatalogsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Environmental catalog oracle revision");
+        Suite(nameof(VerifyLookupStream2EnvironmentalCatalogs), () => VerifyLookupStream2EnvironmentalCatalogs(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-backdrop-geometry")]
+    internal static int LookupStream2BackdropGeometryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Backdrop oracle revision");
+        Suite(nameof(VerifyLookupStream2BackdropGeometry), () => VerifyLookupStream2BackdropGeometry(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-sprite-geometry")]
+    internal static int LookupMenuSpriteGeometryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu geometry oracle revision");
+        Suite(nameof(VerifyStream3MenuSpriteGeometry), () => VerifyStream3MenuSpriteGeometry(rom));
+        Console.WriteLine("Menu geometry: native compositions, calculated stock storage, independent part edits, reordering and three loader bindings pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-equipment-base-geometry")]
+    internal static int LookupStream2EquipmentBaseGeometryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Equipment template oracle revision");
+        Suite(nameof(VerifyLookupStream2EquipmentBaseGeometry), () => VerifyLookupStream2EquipmentBaseGeometry(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-wireframe-mirrors")]
+    internal static int LookupStream2WireframeMirrorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Wireframe oracle revision");
+        Suite(nameof(VerifyLookupStream2WireframeMirrors), () => VerifyLookupStream2WireframeMirrors(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-caret-registration")]
+    internal static int LookupIntroCaretRegistrationCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(1, IntroCaretSpriteDefinitions.Frames.Count, "Caret registration count");
+        VerifyIntroCaretNativePartCount(rom);
+        AssertEqual(new IntroCaretFrameDefinition(0x8d68, "caret-visible", 1), IntroCaretSpriteDefinitions.Frames.Single(), "Caret identity and enumeration");
+        foreach (int invalid in new[] { -1, 1, int.MaxValue })
+            AssertThrows<IndexOutOfRangeException>(() => _ = IntroCaretSpriteDefinitions.Frames[invalid], "Caret index bounds");
+        Console.WriteLine("Caret registration: native part count, identity, enumeration and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-enemy-frame-registration")]
+    internal static int LookupEnemyFrameRegistrationCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Enemy registration oracle revision");
+        Suite(nameof(VerifyStream3EnemyFrameRegistration), () => VerifyStream3EnemyFrameRegistration(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-small-game-tables")]
+    internal static int LookupSmallGameTablesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Small game tables oracle revision");
+        Suite(nameof(VerifyLookupSmallGameTables), () => VerifyLookupSmallGameTables(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-dachora-colors")]
+    internal static int LookupDachoraColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Dachora colors oracle revision");
+        Suite(nameof(VerifyLookupDachoraColors), () => VerifyLookupDachoraColors(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-spore-health-ramp")]
+    internal static int LookupStream4SporeHealthRampCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore health ramp oracle revision");
+        Suite(nameof(VerifyLookupStream4SporeHealthRamp), () => VerifyLookupStream4SporeHealthRamp(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-spore-fade")]
+    internal static int LookupStream4SporeFadeCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore fade oracle revision");
+        Suite(nameof(VerifyLookupStream4SporeSpriteFade), () => VerifyLookupStream4SporeSpriteFade(rom));
+        Suite(nameof(VerifyLookupStream4SporeBackgroundFade), () => VerifyLookupStream4SporeBackgroundFade(rom));
+        Suite(nameof(VerifyLookupStream4SporeLevelFade), () => VerifyLookupStream4SporeLevelFade(rom));
+        Suite(nameof(VerifyLookupStream4SporeHealthyAlias), () => VerifyLookupStream4SporeHealthyAlias(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-beam-basis")]
+    internal static int LookupStream4BeamBasisCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beam basis oracle revision");
+        Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
+        Console.WriteLine("Beam basis: exactly43 required stored colors and149 calculated values; all native outputs, independent edits and CGRAM isolation pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-cannon-basis")]
+    internal static int LookupStream1CannonBasisCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Cannon basis oracle revision");
+        Suite(nameof(VerifyLookupStream1ArmCannonTileSources), () => VerifyLookupStream1ArmCannonTileSources(rom));
+        Console.WriteLine("Cannon calculated defaults, zero stock overrides, native selectors, edits and DMA checks passed.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ending-subtitle")]
+    internal static int LookupStream4EndingSubtitleCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Subtitle oracle revision");
+        Suite(nameof(VerifyLookupStream4EndingSubtitle), () => VerifyLookupStream4EndingSubtitle(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-ending-panel")]
+    internal static int LookupStream4EndingPanelCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Producer panel oracle revision");
+        Suite(nameof(VerifyLookupStream4EndingResultPanel), () => VerifyLookupStream4EndingResultPanel(rom));
+        Suite(nameof(VerifyLookupStream4EndingSubtitle), () => VerifyLookupStream4EndingSubtitle(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-tail-rest")]
+    internal static int LookupStream4TailRestCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tail rest oracle revision");
+        Suite(nameof(VerifyLookupStream4TailRestGeometry), () => VerifyLookupStream4TailRestGeometry(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-baby-phase")]
+    internal static int LookupStream4BabyPhaseCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby phase oracle revision");
+        Suite(nameof(VerifyLookupStream4BabyTransferPhase), () => VerifyLookupStream4BabyTransferPhase(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-body-pixels")]
+    internal static int LookupStream1BodyPixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Body pixel oracle revision");
+        Suite(nameof(VerifyLookupStream1BodyPixels), () => VerifyLookupStream1BodyPixels(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-pipe-programs")]
+    internal static int LookupStream2PipeProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 pipe-program oracle revision");
+        Suite(nameof(VerifyPipeBugAnimationDefinitions), () => VerifyPipeBugAnimationDefinitions(rom));
+        Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-body-placements")]
+    internal static int LookupStream2BodyPlacementsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 body-placement oracle revision");
+        Suite(nameof(VerifyBombTorizoAttackDefinitions), () => VerifyBombTorizoAttackDefinitions(rom));
+        Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-crawler-animations")]
+    internal static int LookupStream2CrawlerAnimationsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 crawler original oracle revision");
+        Suite(nameof(VerifyCrawlerAnimationDefinitions), () => VerifyCrawlerAnimationDefinitions(rom));
+        Suite(nameof(VerifyWaverAnimationDefinitions), () => VerifyWaverAnimationDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-gunship-transfers")]
+    [VerificationCommand("--lookup-stream2-reserve-geometry")]
+    [VerificationCommand("--lookup-stream2-ghost-norfair")]
+    [VerificationCommand("--lookup-stream2-palette-mechanics")]
+    [VerificationCommand("--lookup-stream2-yard-directions")]
+    [VerificationCommand("--lookup-stream2-crystal-body")]
+    [VerificationCommand("--lookup-stream2-kraid-ramps")]
+    internal static int LookupStream2GunshipTransfersCommand(string[] args)
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 2 original oracle revision");
+        if (args[0] == "--lookup-stream2-gunship-transfers")
+            VerifyLookupStream2GunshipTransfers(rom);
+        else if (args[0] == "--lookup-stream2-reserve-geometry")
+            VerifyLookupStream2ReserveGeometry(rom);
+        else if (args[0] == "--lookup-stream2-ghost-norfair")
+            VerifyLookupStream2GhostAndNorfair(rom);
+        else if (args[0] == "--lookup-stream2-palette-mechanics")
+            VerifyLookupStream2PaletteMechanics(rom);
+        else if (args[0] == "--lookup-stream2-kraid-ramps")
+            VerifyLookupStream2KraidRamps(rom);
+        else if (args[0] == "--lookup-stream2-crystal-body")
+            VerifyLookupStream2CrystalBody(rom);
+        else
+        {
+            VerifyYardDirectionDefinitions(rom);
+            VerifyYardTurnDefinitions(rom);
+        }
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1")]
+    internal static int LookupStream1Command()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 1 oracle revision");
+        Suite(nameof(VerifySciserInstructionProgramDefinitions), () => VerifySciserInstructionProgramDefinitions());
+        Suite(nameof(VerifySamusDeathSequence), () => VerifySamusDeathSequence());
+        Suite(nameof(VerifyNuclearWaffleProjectileInstructionProgramDefinitions), () => VerifyNuclearWaffleProjectileInstructionProgramDefinitions());
+        Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(rom));
+        Suite(nameof(VerifyOwtchInstructionProgramDefinitions), () => VerifyOwtchInstructionProgramDefinitions());
+        Suite(nameof(VerifyStokeInstructionProgramDefinitions), () => VerifyStokeInstructionProgramDefinitions());
+        Suite(nameof(VerifyPuyoInstructionProgramDefinitions), () => VerifyPuyoInstructionProgramDefinitions());
+        Suite(nameof(VerifyMiscDustProjectileDefinitions), () => VerifyMiscDustProjectileDefinitions(rom));
+        Suite(nameof(VerifyMetroidsClearedStatePlm), () => VerifyMetroidsClearedStatePlm(new TestAddressSpace()));
+        Suite(nameof(VerifyMetroidInstructionProgramDefinitions), () => VerifyMetroidInstructionProgramDefinitions());
+        Suite(nameof(VerifySamusAtmosphericEffectDefinitions), () => VerifySamusAtmosphericEffectDefinitions(rom));
+        Suite(nameof(VerifySamusHudDefinitions), () => VerifySamusHudDefinitions(rom));
+        Suite(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark());
+        Suite(nameof(VerifySamusArmCannonDefinitions), () => VerifySamusArmCannonDefinitions(rom));
+        Suite(nameof(VerifyPoseDispatchDefinitions), () => VerifyPoseDispatchDefinitions(rom));
+        Suite(nameof(VerifyPoseCollisionDefinitions), () => VerifyPoseCollisionDefinitions(rom));
+        Suite(nameof(VerifyPoseProjectileOrigin), () => VerifyPoseProjectileOrigin(rom));
+        Suite(nameof(VerifyProjectileOrigins), () => VerifyProjectileOrigins(rom));
+        Suite(nameof(VerifyCompiledSpeedBoosterPlmPrograms), () => VerifyCompiledSpeedBoosterPlmPrograms());
+        Suite(nameof(VerifyLookupStream1), () => VerifyLookupStream1(rom));
+        Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions());
+        Suite(nameof(VerifyMetroidBehaviorDefinitions), () => VerifyMetroidBehaviorDefinitions(rom));
+        Suite(nameof(VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions), () => VerifyBrinstarBlueSporePaletteFxProgramMechanicsDefinitions(rom));
+        Suite(nameof(VerifyDragonFireballInstructionProgramDefinitions), () => VerifyDragonFireballInstructionProgramDefinitions());
+        Suite(nameof(VerifyEscapeEtecoonInstructionProgramDefinitions), () => VerifyEscapeEtecoonInstructionProgramDefinitions());
+        Suite(nameof(VerifyDragonInstructionProgramDefinitions), () => VerifyDragonInstructionProgramDefinitions());
+        Suite(nameof(VerifyCacatacInstructionProgramDefinitions), () => VerifyCacatacInstructionProgramDefinitions());
+        Suite(nameof(VerifyBullInstructionProgramDefinitions), () => VerifyBullInstructionProgramDefinitions(rom));
+        Suite(nameof(VerifyChargeFlareDefinitions), () => VerifyChargeFlareDefinitions(rom));
+        Suite(nameof(VerifySamusIndexedSpeeds), () => VerifySamusIndexedSpeeds(rom));
+        Suite(nameof(VerifyLookupStream1ProjectileMotion), () => VerifyLookupStream1ProjectileMotion(rom));
+        Suite(nameof(VerifyBeamCallbackTables), () => VerifyBeamCallbackTables(initializeOnly: true));
+        Suite(nameof(VerifyLookupStream1Selection), () => VerifyLookupStream1Selection(rom));
+        Suite(nameof(VerifyLookupStream1LaunchRoles), () => VerifyLookupStream1LaunchRoles(rom));
+        Suite(nameof(VerifyLookupStream1SparkSpikePrograms), () => VerifyLookupStream1SparkSpikePrograms(rom));
+        Suite(nameof(VerifyPoseInputDefinitions), () => VerifyPoseInputDefinitions(rom));
+        Suite(nameof(VerifyProjectileDamage), () => VerifyProjectileDamage(rom));
+        Suite(nameof(VerifyProjectileSoundRoutingDefinitions), () => VerifyProjectileSoundRoutingDefinitions(rom));
+        Console.WriteLine("Stream 1 lookup conversions: focused original-source and domain checks pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4")]
+    internal static int LookupStream4Command()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 4 oracle revision");
+        Suite(nameof(VerifyMamaTurtleInstructionProgramDefinitions), () => VerifyMamaTurtleInstructionProgramDefinitions());
+        Suite(nameof(VerifyEyeDoorProjectileInstructionProgramDefinitions), () => VerifyEyeDoorProjectileInstructionProgramDefinitions());
+        Suite(nameof(VerifyCompiledDraygonBg2Collision), () => VerifyCompiledDraygonBg2Collision(rom));
+        Suite(nameof(VerifyRidleyCollisionDefinitions), () => VerifyRidleyCollisionDefinitions());
+        Suite(nameof(VerifyLookupStream4), () => VerifyLookupStream4(rom));
+        Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
+        Suite(nameof(VerifyRidleyAttackChoices), () => VerifyRidleyAttackChoices(rom));
+        Suite(nameof(VerifyRidleyMovementTargets), () => VerifyRidleyMovementTargets(rom));
+        Suite(nameof(VerifyRidleyClawOffsets), () => VerifyRidleyClawOffsets(rom));
+        Suite(nameof(VerifySaveRamLayout), () => VerifySaveRamLayout());
+        Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions());
+        Suite(nameof(VerifyDraygonProjectileInstructionProgramDefinitions), () => VerifyDraygonProjectileInstructionProgramDefinitions());
+        Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
+        Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
+        Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(rom));
+        Suite(nameof(VerifyCompiledDraygonOamCollision), () => VerifyCompiledDraygonOamCollision(rom));
+        Console.WriteLine("Stream 4 lookup conversions: focused original-source and domain checks pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-crocomire-order")]
+    internal static int LookupStream5CrocomireOrderCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Crocomire destruction-order oracle revision");
+        Suite(nameof(VerifyCrocomireBridgeFragmentDefinitions), () => VerifyCrocomireBridgeFragmentDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-actor-layouts")]
+    [VerificationCommand("--lookup-stream5-initialization")]
+    [VerificationCommand("--lookup-stream5-palette-entries")]
+    internal static int LookupStream5ActorLayoutsCommand(string[] args)
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Stream 5 original oracle revision");
+        if (args[0] == "--lookup-stream5-actor-layouts")
+            VerifyLookupStream5ActorLayouts(rom);
+        else if (args[0] == "--lookup-stream5-initialization")
+            VerifyLookupStream5Initialization(rom);
+        else
+            VerifyLookupStream5PaletteEntries(rom);
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-file-select-names")]
+    internal static int LookupFileSelectNamesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "File-select identity fixture revision");
+        byte[] source = FileSelectPresentationExtractor.Extract(rom);
+        Suite(nameof(VerifyFileSelectPageNames), () => VerifyFileSelectPageNames(source));
+        Suite(nameof(VerifyFileSelectPatchNames), () => VerifyFileSelectPatchNames(source));
+        Suite(nameof(VerifyFileSelectBorderNames), () => VerifyFileSelectBorderNames(source));
+        Suite(nameof(VerifyFileSelectDynamicAnchorNames), () => VerifyFileSelectDynamicAnchorNames(source));
+        Suite(nameof(VerifyFileSelectSpriteNames), () => VerifyFileSelectSpriteNames(source));
+        Console.WriteLine("File-select names: all five original identity domains, ordered cases, bounds and exact loader membership pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-sprite-cases")]
+    internal static int LookupMapSpriteCasesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map sprite case oracle revision");
+        Suite(nameof(VerifyMapSpriteCompositionCases), () => VerifyMapSpriteCompositionCases(rom));
+        Console.WriteLine("Map sprite cases: all original OAM, independent role edits, required membership and invalid identities pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-title-font")]
+    [VerificationCommand("--lookup-menu-large-font")]
+    internal static int LookupMenuTitleFontCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Large font pixel oracle revision");
+        Suite(nameof(VerifyMenuLargeFontPixels), () => VerifyMenuLargeFontPixels(rom));
+        Console.WriteLine("Large font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-thin-border-pixels")]
+    internal static int LookupMenuThinBorderPixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Thin border pixel oracle revision");
+        Suite(nameof(VerifyMenuThinBorderPixels), () => VerifyMenuThinBorderPixels(rom));
+        Console.WriteLine("Thin border pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-beveled-square-pixels")]
+    internal static int LookupMenuBeveledSquarePixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Beveled square pixel oracle revision");
+        Suite(nameof(VerifyMenuBeveledSquarePixels), () => VerifyMenuBeveledSquarePixels(rom));
+        Console.WriteLine("Beveled square pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-arrow-pixels")]
+    [VerificationCommand("--lookup-map-pulse-pixels")]
+    [VerificationCommand("--lookup-defeated-boss-pixels")]
+    internal static int LookupMapArrowPixelsCommand(string[] args)
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map marker pixel oracle revision");
+        if (args[0] == "--lookup-map-arrow-pixels") VerifyMapArrowPixels(rom);
+        else if (args[0] == "--lookup-map-pulse-pixels") VerifyMapPulsePixels(rom);
+        else VerifyDefeatedBossPixels(rom);
+        Console.WriteLine($"{args[0]}: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-shoulder-highlight-pixels")]
+    internal static int LookupMenuShoulderHighlightPixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Shoulder highlight pixel oracle revision");
+        Suite(nameof(VerifyMenuShoulderHighlightPixels), () => VerifyMenuShoulderHighlightPixels(rom));
+        Console.WriteLine("Shoulder highlight pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-shoulder-button-pixels")]
+    internal static int LookupMenuShoulderButtonPixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Shoulder button pixel oracle revision");
+        Suite(nameof(VerifyMenuShoulderButtonPixels), () => VerifyMenuShoulderButtonPixels(rom));
+        Console.WriteLine("Shoulder button pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-panel-pixels")]
+    internal static int LookupMenuPanelPixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu panel pixel oracle revision");
+        Suite(nameof(VerifyMenuPanelPixels), () => VerifyMenuPanelPixels(rom));
+        Console.WriteLine("Menu panel pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-elevator-lettering")]
+    [VerificationCommand("--lookup-menu-outlined-lettering")]
+    [VerificationCommand("--lookup-menu-compact-lettering")]
+    internal static int LookupElevatorLetteringCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevator lettering pixel oracle revision");
+        Suite(nameof(VerifyMenuCompactLetteringPixels), () => VerifyMenuCompactLetteringPixels(rom));
+        Console.WriteLine("Elevator lettering pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-small-font")]
+    internal static int LookupMenuSmallFontCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Small font pixel oracle revision");
+        Suite(nameof(VerifyMenuSmallFontPixels), () => VerifyMenuSmallFontPixels(rom));
+        Console.WriteLine("Small font pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-highlight-tile-pixels")]
+    internal static int LookupHighlightTilePixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Highlight pixel oracle revision");
+        Suite(nameof(VerifyHighlightTilePixels), () => VerifyHighlightTilePixels(rom));
+        Console.WriteLine("Highlight pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-reserve-tile-pixels")]
+    internal static int LookupReserveTilePixelsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve pixel oracle revision");
+        Suite(nameof(VerifyReserveTilePixels), () => VerifyReserveTilePixels(rom));
+        Console.WriteLine("Reserve pixels: all original pixels, complete native uploads, independent edits, full custom region and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-reserve-frames")]
+    internal static int LookupPauseReserveFramesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve frame oracle revision");
+        Suite(nameof(VerifyPauseReserveFrameCases), () => VerifyPauseReserveFrameCases(rom));
+        Console.WriteLine("Reserve frames: all native role identities and OAM, independent edits, required membership and invalid inputs pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-reserve-anchors")]
+    internal static int LookupPauseReserveAnchorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Reserve anchor oracle revision");
+        Suite(nameof(VerifyPauseReserveAnchors), () => VerifyPauseReserveAnchors(rom));
+        Console.WriteLine("Reserve anchors: native coordinate fields, independent edits, actual sprite output and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-explosion-frame-catalog")]
+    internal static int LookupEndingExplosionFrameCatalogCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending explosion frame catalog oracle revision");
+        Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(rom));
+        Console.WriteLine("Ending explosion frame catalog: all16 native pointers/counts, published keys, enumeration and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-text-regions")]
+    internal static int LookupEndingTextRegionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending region oracle revision");
+        Suite(nameof(VerifyEndingTextRegions), () => VerifyEndingTextRegions(rom));
+        Console.WriteLine("Ending text regions: all six native text spans, positions and styles pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-glyphs")]
+    internal static int LookupEndingGlyphsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending glyph oracle revision");
+        Suite(nameof(VerifyEndingGlyphMapping), () => VerifyEndingGlyphMapping(rom));
+        Console.WriteLine("Ending glyphs: complete four-style alphabet/digit/blank mappings, both halves and all ushort decoder inputs pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-gunship-program")]
+    internal static int LookupEndingGunshipProgramCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending gunship program oracle revision");
+        Suite(nameof(VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionGunshipPaletteFxProgramMechanicsDefinitions(rom));
+        Console.WriteLine("Ending gunship program:35 original control words,16 frame pointers,256 color pointers, complete ownership and384-frame lifetime pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-gunship-colors")]
+    internal static int LookupEndingGunshipColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending gunship color oracle revision");
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        Suite(nameof(VerifyExtractedEndingGunshipPaletteFxPresentation), () => VerifyExtractedEndingGunshipPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
+        Console.WriteLine("Ending gunship colors: all256 original words,239 calculated colors, complete pointer domain, guarded effect and independent edits pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-logo-glare-program")]
+    internal static int LookupEndingLogoGlareProgramCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Logo glare program oracle revision");
+        Suite(nameof(VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions), () => VerifyPostCreditsIconGlarePaletteFxProgramMechanicsDefinitions(rom));
+        Console.WriteLine("Logo glare program: decoded31 control words,14 frame pointers,224 color pointers, complete ownership and lifetime pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-logo-glare")]
+    internal static int LookupEndingLogoGlareCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Logo glare oracle revision");
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        Suite(nameof(VerifyExtractedLogoGlarePaletteFxPresentation), () => VerifyExtractedLogoGlarePaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
+        Console.WriteLine("Logo glare: all224 native colors, full pointer domain, guarded program and independent edits pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-logo-fade")]
+    internal static int LookupEndingLogoFadeCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo fade oracle revision");
+        Suite(nameof(VerifyEndingLogoPaletteFade), () => VerifyEndingLogoPaletteFade(rom));
+        Console.WriteLine("Ending logo fade: all512 original colors, computed transfers, independent edits and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-palette-metadata")]
+    internal static int LookupEndingPaletteMetadataCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending palette metadata oracle revision");
+        Suite(nameof(VerifyEndingPaletteMetadata), () => VerifyEndingPaletteMetadata(rom));
+        Console.WriteLine("Ending palettes: six native sources, seven allocation sizes, published filenames and invalid roles pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-fragment-metadata")]
+    internal static int LookupEndingFragmentMetadataCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending fragment oracle revision");
+        Suite(nameof(VerifyEndingObjectFragmentMetadata), () => VerifyEndingObjectFragmentMetadata(rom));
+        Console.WriteLine("Ending fragments: four native compressed sources, published filenames and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-cloud-definitions")]
+    internal static int LookupEndingCloudDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending cloud oracle revision");
+        Suite(nameof(VerifyEndingCloudDefinitions), () => VerifyEndingCloudDefinitions(rom));
+        Console.WriteLine("Ending clouds: six catalog records,24 original program words, six actor streams and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-reward-actors")]
+    internal static int LookupEndingRewardActorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending reward actor oracle revision");
+        Suite(nameof(VerifyEndingRewardActorDefinitions), () => VerifyEndingRewardActorDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-reward-programs")]
+    internal static int LookupEndingRewardProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending reward oracle revision");
+        Suite(nameof(VerifyEndingRewardInstructions), () => VerifyEndingRewardInstructions(rom));
+        Console.WriteLine("Ending reward programs: all160 native words,17 actor streams, callback timing, head record layout and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-explosion-programs")]
+    internal static int LookupEndingExplosionProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending explosion oracle revision");
+        Suite(nameof(VerifyEndingExplosionPrograms), () => VerifyEndingExplosionPrograms(rom));
+        Console.WriteLine("Ending explosion programs: all65 native words, eight actor streams, frame record layout and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-logo-actors")]
+    internal static int LookupEndingLogoActorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo actor oracle revision");
+        Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-logo-programs")]
+    internal static int LookupEndingLogoProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo program oracle revision");
+        Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(rom));
+        Console.WriteLine("Ending logo programs: all31 native words, four actor streams, callback timing and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-completion-programs")]
+    internal static int LookupEndingCompletionProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending completion oracle revision");
+        Suite(nameof(VerifyEndingCompletionTextInstructions), () => VerifyEndingCompletionTextInstructions(rom));
+        Console.WriteLine("Ending completion programs: all164 original words and all14 actor streams pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ending-logo-tables")]
+    internal static int LookupEndingLogoTablesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ending logo table oracle revision");
+        Suite(nameof(VerifyEndingLogoPaletteSources), () => VerifyEndingLogoPaletteSources(rom));
+        Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(rom));
+        Console.WriteLine("Ending logo tables: all32 original palette sources, six transfer records and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-audio-upload-catalog")]
+    internal static int LookupAudioUploadCatalogCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Audio upload oracle revision");
+        Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(rom));
+        Console.WriteLine("Audio upload catalog: all25 original pointers, names, views and byte rejection domain pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-initial-metadata")]
+    internal static int LookupCeresInitialMetadataCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres destruction metadata oracle revision");
+        Suite(nameof(VerifyCeresInitialActorMetadata), () => VerifyCeresInitialActorMetadata(rom));
+        Console.WriteLine("Ceres destruction metadata: native spawn identities, asteroid aliases, stationary-vortex overrides and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-flight-metadata")]
+    internal static int LookupCeresFlightMetadataCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres flight metadata oracle revision");
+        Suite(nameof(VerifyCeresFlightActorMetadata), () => VerifyCeresFlightActorMetadata(rom));
+        Console.WriteLine("Ceres flight metadata: native spawn identities, initializer branches, motion operands, star aliases and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-zebes-metadata")]
+    internal static int LookupCeresZebesMetadataCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Zebes metadata oracle revision");
+        Suite(nameof(VerifyCeresZebesActorMetadata), () => VerifyCeresZebesActorMetadata(rom));
+        Console.WriteLine("Zebes actor metadata: all six native spawn identities, definitions, placements, motion policies and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-placement-selectors")]
+    internal static int LookupCeresPlacementSelectorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres placement oracle revision");
+        Suite(nameof(VerifyCeresRearPlacementSelector), () => VerifyCeresRearPlacementSelector(rom));
+        Suite(nameof(VerifyCeresRevealPlacementSelector), () => VerifyCeresRevealPlacementSelector(rom));
+        Suite(nameof(VerifyCeresInitialPlacementSelector), () => VerifyCeresInitialPlacementSelector());
+        Console.WriteLine("Ceres placement selectors: all 14 original entries, native operands and invalid-index contracts pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-spawner-schedule")]
+    internal static int LookupCeresSpawnerScheduleCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres spawner oracle revision");
+        Suite(nameof(VerifyCeresSpawnerSchedule), () => VerifyCeresSpawnerSchedule(rom));
+        Console.WriteLine("Ceres spawner: native list timing, late countdown resets, simultaneous waves and departure boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-flight-programs")]
+    internal static int LookupCeresFlightProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres flight program oracle revision");
+        Suite(nameof(VerifyCeresFlightPrograms), () => VerifyCeresFlightPrograms(rom));
+        Suite(nameof(VerifyCeresFlightFrameCatalog), () => VerifyCeresFlightFrameCatalog(rom));
+        Suite(nameof(VerifySpaceColonyCaption), () => VerifySpaceColonyCaption(rom));
+        Suite(nameof(VerifyCeresStationParts), () => VerifyCeresStationParts(rom));
+        Suite(nameof(VerifyCeresSmallAsteroidParts), () => VerifyCeresSmallAsteroidParts(rom));
+        Suite(nameof(VerifyCeresVortexParts), () => VerifyCeresVortexParts(rom));
+        Suite(nameof(VerifyCeresReflectedStarParts), () => VerifyCeresReflectedStarParts(rom));
+        Suite(nameof(VerifyCeresStarPointParts), () => VerifyCeresStarPointParts(rom));
+        Console.WriteLine("Ceres flight programs: five original streams, byte/word boundaries, shared aliases and interpreter loops pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-backdrop-programs")]
+    internal static int LookupCeresBackdropProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres backdrop program oracle revision");
+        Suite(nameof(VerifyCeresBackdropPrograms), () => VerifyCeresBackdropPrograms(rom));
+        Suite(nameof(VerifyCeresDestructionFrameCatalog), () => VerifyCeresDestructionFrameCatalog(rom));
+        Suite(nameof(VerifyPlanetZebesTitleParts), () => VerifyPlanetZebesTitleParts(rom));
+        Suite(nameof(VerifyZebesPlanetBandParts), () => VerifyZebesPlanetBandParts(rom));
+        Console.WriteLine("Ceres backdrop programs: seven original streams, word boundaries, loops and title callback timing pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-explosion-programs")]
+    internal static int LookupCeresExplosionProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres explosion program oracle revision");
+        Suite(nameof(VerifyCeresInitialExplosionProgram), () => VerifyCeresInitialExplosionProgram(rom));
+        Suite(nameof(VerifyCeresRepeatingExplosionProgram), () => VerifyCeresRepeatingExplosionProgram(rom));
+        Suite(nameof(VerifyCeresFinalWaveProgram), () => VerifyCeresFinalWaveProgram(rom));
+        Suite(nameof(VerifyCeresStationBlastProgram), () => VerifyCeresStationBlastProgram(rom));
+        Suite(nameof(VerifyCeresStationBlastParts), () => VerifyCeresStationBlastParts(rom));
+        Suite(nameof(VerifyCeresLargeBlastParts), () => VerifyCeresLargeBlastParts(rom));
+        Console.WriteLine("Ceres explosion programs: four original streams, byte/word bounds and actual interpreter timing/deletion pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-burst-layout")]
+    internal static int LookupCeresBurstLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres burst layout oracle revision");
+        Suite(nameof(VerifyCeresBurstLayout), () => VerifyCeresBurstLayout(rom));
+        Console.WriteLine("Ceres burst layout: all original repeating X/Y and final Y words, common delay and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-blast-placement")]
+    internal static int LookupCeresBlastPlacementCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres blast oracle revision");
+        Suite(nameof(VerifyCeresInitialBlastX), () => VerifyCeresInitialBlastX(rom));
+        Suite(nameof(VerifyCeresInitialBlastY), () => VerifyCeresInitialBlastY(rom));
+        Suite(nameof(VerifyCeresInitialBlastDelay), () => VerifyCeresInitialBlastDelay(rom));
+        Suite(nameof(VerifyCeresFinalBlastX), () => VerifyCeresFinalBlastX(rom));
+        Suite(nameof(VerifyCeresFinalBlastDelay), () => VerifyCeresFinalBlastDelay(rom));
+        Console.WriteLine("Ceres blast placement: five original geometry/delay mappings and invalid boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-spc-sound-streams")]
+    internal static int LookupSpcSoundStreamsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "SPC stream oracle revision");
+        Suite(nameof(VerifySpcSoundStream1), () => VerifySpcSoundStream1(rom));
+        Suite(nameof(VerifySpcSoundStream2), () => VerifySpcSoundStream2(rom));
+        Suite(nameof(VerifySpcSoundStream3), () => VerifySpcSoundStream3(rom));
+        Console.WriteLine("SPC sound streams: all240 original pointers, counts, invalid inputs and runtime command boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-spc-sound-policies")]
+    internal static int LookupSpcSoundPoliciesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "SPC policy oracle revision");
+        Suite(nameof(VerifySpcSoundPolicy1), () => VerifySpcSoundPolicy1(rom));
+        Suite(nameof(VerifySpcSoundPolicy2), () => VerifySpcSoundPolicy2(rom));
+        Suite(nameof(VerifySpcSoundPolicy3), () => VerifySpcSoundPolicy3(rom));
+        Console.WriteLine("SPC sound policies: all240 native dispatches, handler writes, preserved fields, voice counts and invalid inputs pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-egg-effect-programs")]
+    internal static int LookupIntroEggEffectProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro egg-effect oracle revision");
+        Suite(nameof(VerifyIntroEggEffectPrograms), () => VerifyIntroEggEffectPrograms(rom));
+        Suite(nameof(VerifyIntroEggEffectFrameCatalog), () => VerifyIntroEggEffectFrameCatalog(rom));
+        Suite(nameof(VerifyIntroEggEffectParts), () => VerifyIntroEggEffectParts(rom));
+        Console.WriteLine("Intro egg effects: all76 bytes, eleven frame records/calculated parts, native OAM, independent edits and boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-rinka-programs")]
+    internal static int LookupIntroRinkaProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro Rinka oracle revision");
+        Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(rom));
+        Suite(nameof(VerifyIntroRinkaFrameCatalog), () => VerifyIntroRinkaFrameCatalog(rom));
+        Suite(nameof(VerifyIntroRinkaParts), () => VerifyIntroRinkaParts(rom));
+        Console.WriteLine("Intro Rinka: program/catalog, twelve calculated parts, native OAM, independent edits and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-baby-discovery-instructions")]
+    internal static int LookupIntroBabyDiscoveryInstructionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro discovery oracle revision");
+        Suite(nameof(VerifyIntroBabyDiscoveryInstructions), () => VerifyIntroBabyDiscoveryInstructions(rom));
+        Suite(nameof(VerifyIntroDiscoveryFrameCatalog), () => VerifyIntroDiscoveryFrameCatalog(rom));
+        Suite(nameof(VerifyIntroEggRemnantParts), () => VerifyIntroEggRemnantParts(rom));
+        Suite(nameof(VerifyIntroEggRockingParts), () => VerifyIntroEggRockingParts(rom));
+        Suite(nameof(VerifyIntroEggCrackingParts), () => VerifyIntroEggCrackingParts(rom));
+        Suite(nameof(VerifyIntroConfusedBabyParts), () => VerifyIntroConfusedBabyParts(rom));
+        Suite(nameof(VerifyCeresLargeAsteroidParts), () => VerifyCeresLargeAsteroidParts(rom));
+        Suite(nameof(VerifyIntroBabyDiscoveryInput), () => VerifyIntroBabyDiscoveryInput(rom));
+        Suite(nameof(VerifyIntroDiscoveryCollision), () => VerifyIntroDiscoveryCollision(rom));
+        Console.WriteLine("Intro discovery programs: all138 bytes, overlapping words, operations and boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-scientist-instructions")]
+    internal static int LookupIntroScientistInstructionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro scientist oracle revision");
+        Suite(nameof(VerifyIntroScientistInstructions), () => VerifyIntroScientistInstructions(rom));
+        Suite(nameof(VerifyIntroScientistFrameCatalog), () => VerifyIntroScientistFrameCatalog(rom));
+        Suite(nameof(VerifyIntroScientistParts), () => VerifyIntroScientistParts(rom));
+        Console.WriteLine("Intro scientist programs/catalog: all142 bytes, overlapping views, ten original frame records, stable asset names and boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-eye-instructions")]
+    internal static int LookupIntroEyeInstructionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro eye oracle revision");
+        Suite(nameof(VerifyIntroEyeInstructions), () => VerifyIntroEyeInstructions(rom));
+        Console.WriteLine("Intro eye programs: all74 bytes, overlapping words, loop targets and read boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-mother-brain-instructions")]
+    internal static int LookupIntroMotherBrainInstructionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain instruction oracle revision");
+        Suite(nameof(VerifyIntroMotherBrainInstructions), () => VerifyIntroMotherBrainInstructions(rom));
+        Suite(nameof(VerifyIntroMotherBrainFrameCatalog), () => VerifyIntroMotherBrainFrameCatalog(rom));
+        Suite(nameof(VerifyIntroMotherBrainParts), () => VerifyIntroMotherBrainParts(rom));
+        Console.WriteLine("Mother Brain programs/catalog: all46 bytes,45 word views,three frames and boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-mother-brain-input")]
+    internal static int LookupIntroMotherBrainInputCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain input oracle revision");
+        Suite(nameof(VerifyIntroMotherBrainInputSource), () => VerifyIntroMotherBrainInputSource(rom));
+        Console.WriteLine("Mother Brain input: all112 bytes,110 word views and boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-mother-brain-collision")]
+    internal static int LookupIntroMotherBrainCollisionCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Mother Brain collision oracle revision");
+        Suite(nameof(VerifyIntroMotherBrainCollisionSource), () => VerifyIntroMotherBrainCollisionSource(rom));
+        Console.WriteLine("Mother Brain collision source: all448 bytes and independent mutable allocations pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-mother-brain-explosion-programs")]
+    internal static int LookupIntroMotherBrainExplosionProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro explosion oracle revision");
+        Suite(nameof(VerifyIntroMotherBrainExplosionPrograms), () => VerifyIntroMotherBrainExplosionPrograms(rom));
+        Suite(nameof(VerifyIntroMotherBrainExplosionFrameCatalog), () => VerifyIntroMotherBrainExplosionFrameCatalog(rom));
+        Suite(nameof(VerifyIntroMotherBrainExplosionParts), () => VerifyIntroMotherBrainExplosionParts(rom));
+        Console.WriteLine("Intro Mother Brain explosions: both native programs, word views, delete, twelve frame identities and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-intro-caret-instructions")]
+    internal static int LookupIntroCaretInstructionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Intro caret oracle revision");
+        Suite(nameof(VerifyIntroCaretInstructions), () => VerifyIntroCaretInstructions(rom));
+        Console.WriteLine("Intro caret instructions: all20 bytes, overlapping word views and boundary behavior pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-spc-dsp-publication")]
+    internal static int LookupSpcDspPublicationCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "SPC publication oracle revision");
+        Suite(nameof(VerifySpcDspPublication), () => VerifySpcDspPublication(rom));
+        Console.WriteLine("SPC DSP publication: native destination/source maps, echo gates and pending-key reset pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-spc-pan-samples")]
+    internal static int LookupSpcPanSamplesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "SPC pan sample oracle revision");
+        Suite(nameof(VerifySpcPanSamples), () => VerifySpcPanSamples(rom));
+        Console.WriteLine("SPC pan sample boundary: all21 curve bytes, the adjacent FIR coefficient and rejected indices pass; curve conversion remains pending.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-wireframe-selection")]
+    internal static int LookupPauseWireframeSelectionCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause wireframe selection oracle revision");
+        Suite(nameof(VerifyPauseWireframeSelection), () => VerifyPauseWireframeSelection(rom));
+        Console.WriteLine("Pause wireframe selection: native mask and comparison-table operands and all65536 input words pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-equipment-masks")]
+    internal static int LookupPauseEquipmentMasksCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause equipment mask oracle revision");
+        Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(rom));
+        Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(rom));
+        Suite(nameof(VerifyPauseBootMasks), () => VerifyPauseBootMasks(rom));
+        Console.WriteLine("Pause equipment masks: all fourteen native flags and category/item rejection contracts pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-selector-anchors")]
+    internal static int LookupPauseSelectorAnchorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector anchor oracle revision");
+        Suite(nameof(VerifyPauseSelectorAnchors), () => VerifyPauseSelectorAnchors(rom));
+        Console.WriteLine("Pause selector anchors: original names and coordinates, independent axis edits, zero stock storage and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-selector-compositions")]
+    internal static int LookupPauseSelectorCompositionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector composition oracle revision");
+        Suite(nameof(VerifyPauseSelectorCompositions), () => VerifyPauseSelectorCompositions(rom));
+        Console.WriteLine("Pause selector compositions: native OAM, all groups/phases, independent edits, cyclic indices and capacity pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-selector-durations")]
+    internal static int LookupPauseSelectorDurationsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause selector duration oracle revision");
+        Suite(nameof(VerifyPauseSelectorDurations), () => VerifyPauseSelectorDurations(rom));
+        Console.WriteLine("Pause selector durations: native program, sparse edits, custom lengths, cyclic indices and initial timer pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-arrow-durations")]
+    internal static int LookupMapArrowDurationsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map arrow duration oracle revision");
+        Suite(nameof(VerifyMapArrowDurations), () => VerifyMapArrowDurations(rom));
+        Console.WriteLine("Map arrow durations: all original phases, sparse edits, custom lengths, bounds and actual timing pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-arrow-cases")]
+    internal static int LookupMapArrowCasesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map arrow oracle revision");
+        Suite(nameof(VerifyMapArrowCases), () => VerifyMapArrowCases(rom));
+        Console.WriteLine("Map arrow cases: original anchors and shapes, independent direction edits, phase selection, membership and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-button-spans")]
+    internal static int LookupPauseButtonSpansCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause button span oracle revision");
+        Suite(nameof(VerifyPauseButtonSpanWords), () => VerifyPauseButtonSpanWords(rom));
+        Suite(nameof(VerifyPauseButtonSpanCounts), () => VerifyPauseButtonSpanCounts(rom));
+        Console.WriteLine("Pause buttons: all six native row destinations and widths, enumeration order and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-pause-categories")]
+    internal static int LookupPauseCategoriesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Pause category oracle revision");
+        Suite(nameof(VerifyPauseCategoryCases), () => VerifyPauseCategoryCases(rom));
+        Console.WriteLine("Pause categories: all native pointer fields, item counts, dispatched copy lengths, reserve contract and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-indicator")]
+    internal static int LookupMapIndicatorCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map indicator oracle revision");
+        Suite(nameof(VerifyMapIndicatorSprites), () => VerifyMapIndicatorSprites(rom));
+        Suite(nameof(VerifyMapIndicatorDelays), () => VerifyMapIndicatorDelays(rom));
+        Console.WriteLine("Map indicator: all native sprite/delay words, input bounds, first-tick order and two loop transitions pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-save-marker-coordinates")]
+    internal static int LookupSaveMarkerCoordinatesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Save-marker coordinate oracle revision");
+        Suite(nameof(VerifyMapSaveMarkerCoordinates), () => VerifyMapSaveMarkerCoordinates(rom));
+        Console.WriteLine("Save-marker coordinates: all 68 native components, independent edits, JSON identity, actual marker binding and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-area-cases")]
+    internal static int LookupMapAreaCasesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map-area selector oracle revision");
+        Suite(nameof(VerifyFileSelectMapAreaCases), () => VerifyFileSelectMapAreaCases(rom));
+        Console.WriteLine("Map-area selection: all six native identity cases and rejected input boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-save-marker-eligibility")]
+    internal static int LookupSaveMarkerEligibilityCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Save-marker eligibility oracle revision");
+        Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(rom));
+        Console.WriteLine("Save-marker eligibility: all 96 native slots, 34 identities, all used masks and input boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-load-anchors")]
+    internal static int LookupMapLoadAnchorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map-load anchor oracle revision");
+        Suite(nameof(VerifyMapLoadAnchorX), () => VerifyMapLoadAnchorX(rom));
+        Suite(nameof(VerifyMapLoadAnchorY), () => VerifyMapLoadAnchorY(rom));
+        Console.WriteLine("Map-load anchors: all 34 original X/Y projections, unused stations and invalid input boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-file-select-helmet")]
+    internal static int LookupFileSelectHelmetCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Helmet animation oracle revision");
+        Suite(nameof(VerifyFileSelectHelmetAnimation), () => VerifyFileSelectHelmetAnimation(rom));
+        Console.WriteLine("File-select helmet: all nine original sprite IDs, native cadence/clamp and bounded selectors pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-game-over-baby-animation")]
+    internal static int LookupGameOverBabyAnimationCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby animation oracle revision");
+        Suite(nameof(VerifyGameOverBabyAnimation), () => VerifyGameOverBabyAnimation(rom));
+        Console.WriteLine("Baby animation: original durations, frames, palettes, sound/control handoffs, lazy enumeration and all ushort pointers pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-game-over-baby-colors")]
+    internal static int LookupGameOverBabyColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Baby colors oracle revision");
+        Suite(nameof(VerifyGameOverBabyColors), () => VerifyGameOverBabyColors(rom));
+        Console.WriteLine("Baby colors: all 64 original words, CGRAM application, independent channel edits and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-game-over-text")]
+    internal static int LookupGameOverTextCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Game-over text oracle revision");
+        Suite(nameof(VerifyGameOverTextSources), () => VerifyGameOverTextSources(rom));
+        Suite(nameof(VerifyGameOverTextDestinations), () => VerifyGameOverTextDestinations(rom));
+        Console.WriteLine("Game-over text: all five original sources and destinations, enumeration order and rejected selectors pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-file-select-navigation")]
+    internal static int LookupFileSelectNavigationCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "File-select navigation oracle revision");
+        Suite(nameof(VerifyFileSelectMainNavigation), () => VerifyFileSelectMainNavigation());
+        Suite(nameof(VerifyFileSelectSourceNavigation), () => VerifyFileSelectSourceNavigation(rom));
+        Suite(nameof(VerifyFileSelectDestinationNavigation), () => VerifyFileSelectDestinationNavigation(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-map-window-motion")]
+    internal static int LookupMapWindowMotionCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Map window motion oracle revision");
+        var labels = RetailPresentationFixture().Labels;
+        Suite(nameof(VerifyMapWindowOriginX), () => VerifyMapWindowOriginX(rom, labels));
+        Suite(nameof(VerifyMapWindowOriginY), () => VerifyMapWindowOriginY(rom, labels));
+        Suite(nameof(VerifyMapWindowLeftVelocities), () => VerifyMapWindowLeftVelocities(rom));
+        Suite(nameof(VerifyMapWindowRightVelocities), () => VerifyMapWindowRightVelocities(rom));
+        Suite(nameof(VerifyMapWindowTopVelocities), () => VerifyMapWindowTopVelocities(rom));
+        Suite(nameof(VerifyMapWindowBottomVelocities), () => VerifyMapWindowBottomVelocities(rom));
+        Suite(nameof(VerifyMapWindowTimers), () => VerifyMapWindowTimers(rom));
+        Console.WriteLine("Map window motion: all 24 original signed16.16 velocities, six timers, 12 named origin fields, independent label edits and rejected areas pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-menu-missile")]
+    internal static int LookupMenuMissileCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Menu missile oracle revision");
+        Suite(nameof(VerifyMenuMissileSpritemapIds), () => VerifyMenuMissileSpritemapIds(rom));
+        Suite(nameof(VerifyMenuMissileDurations), () => VerifyMenuMissileDurations(rom));
+        Console.WriteLine("Menu missile: all four original frame IDs, four duration words, wrap mask and rejected indices pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-options-geometry")]
+    internal static int LookupOptionsGeometryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options geometry oracle revision");
+        Suite(nameof(VerifyOptionsPrimaryCursorY), () => VerifyOptionsPrimaryCursorY(rom));
+        Suite(nameof(VerifyOptionsControllerCursorY), () => VerifyOptionsControllerCursorY(rom));
+        Suite(nameof(VerifyOptionsSpecialCursorY), () => VerifyOptionsSpecialCursorY(rom));
+        Suite(nameof(VerifyOptionsLabelDestinations), () => VerifyOptionsLabelDestinations(rom));
+        Suite(nameof(VerifyOptionsLabelSources), () => VerifyOptionsLabelSources(rom));
+        Console.WriteLine("Options geometry: all 31 native words across five logical mappings and their bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-controller-buttons")]
+    internal static int LookupControllerButtonsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Controller button oracle revision");
+        Suite(nameof(VerifyAssignableControllerButtons), () => VerifyAssignableControllerButtons(rom));
+        Suite(nameof(VerifyDefaultControllerButtons), () => VerifyDefaultControllerButtons(rom));
+        Console.WriteLine("Controller buttons: native choices, inverse domain, swaps, rejection and default action mappings pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--hyper-beam-fx-colors")]
+    internal static int HyperBeamFxColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Hyper Beam FX oracle revision");
+        Suite(nameof(VerifyHyperBeamFxColorArtwork), () => VerifyHyperBeamFxColorArtwork(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fallback-door-closing")]
+    internal static int LookupFallbackDoorClosingCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Fallback closing oracle revision");
+        Suite(nameof(VerifyDoorClosingPlmDefinitions), () => VerifyDoorClosingPlmDefinitions(rom, fallbackOnly: true));
+        Console.WriteLine("Fallback closing: all twelve original header/list selections, complete byte domain and production spawning pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-resident-door-closing")]
+    internal static int LookupResidentDoorClosingCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Resident closing oracle revision");
+        Suite(nameof(VerifyResidentDoorClosingDefinitions), () => VerifyResidentDoorClosingDefinitions(rom));
+        Console.WriteLine("Resident door closing: eighteen original header fields, complete selector domain and production redirect pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--dynamic-collectible-graphics")]
+    internal static int DynamicCollectibleGraphicsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Dynamic collectible oracle revision");
+        Suite(nameof(VerifyCompiledDynamicCollectibleGraphics), () => VerifyCompiledDynamicCollectibleGraphics(rom));
+        Console.WriteLine("Dynamic collectible graphics: native palette selectors, tiles, pointers, guarded upload and installed artwork pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-tourian-program")]
+    internal static int LookupTourianProgramCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Statue program oracle revision");
+        Suite(nameof(VerifyTourianStatueProgramMappings), () => VerifyTourianStatueProgramMappings(rom));
+        Suite(nameof(VerifyTourianStatueSpawnOrder), () => VerifyTourianStatueSpawnOrder(rom));
+        Suite(nameof(VerifyTourianStatueDescriptorFields), () => VerifyTourianStatueDescriptorFields(rom));
+        Suite(nameof(VerifyTourianStatueArtworkSources), () => VerifyTourianStatueArtworkSources(rom));
+        Console.WriteLine("Tourian statue programs: all 36 operand positions, 184 mechanics words and full pointer domains pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-tourian-descriptors")]
+    internal static int LookupTourianDescriptorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Statue descriptor oracle revision");
+        Suite(nameof(VerifyTourianStatueDescriptorFields), () => VerifyTourianStatueDescriptorFields(rom));
+        Suite(nameof(VerifyTourianStatueArtworkSources), () => VerifyTourianStatueArtworkSources(rom));
+        Console.WriteLine("Tourian statue descriptors: all eleven native fields, mechanics aliases, full object domain and artwork sources pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-tourian-artwork")]
+    internal static int LookupTourianArtworkCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Statue artwork oracle revision");
+        Suite(nameof(VerifyTourianStatueArtworkSources), () => VerifyTourianStatueArtworkSources(rom));
+        Console.WriteLine("Tourian statue artwork: all 36 original sources, decoded operand views and complete ushort rejection domains pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-treadmill-mechanics")]
+    internal static int LookupTreadmillMechanicsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Treadmill oracle revision");
+        Suite(nameof(VerifyRetailTreadmillMechanics), () => VerifyRetailTreadmillMechanics(rom));
+        foreach (var program in OriginalTreadmillPrograms(rom))
+            VerifyRetailTreadmillStream(rom, TreadmillDefinition(program.Header).Direction,
+                program.Frames.Select(pointer => 0x870000 | ReadVerificationWord(rom, 0x870002 + pointer)).ToArray());
+        Console.WriteLine("Treadmill: native header/control fields, calculated cursors, full ushort domains and both guarded loops pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--samus-charge-phases")]
+    internal static int SamusChargePhasesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Charge phase oracle revision");
+        Suite(nameof(VerifySamusChargeColorPhases), () => VerifySamusChargeColorPhases(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-full-body-colors")]
+    internal static int LookupFullBodyColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Full-body color oracle revision");
+        Suite(nameof(VerifyFullBodyPaletteColorData), () => VerifyFullBodyPaletteColorData(rom, SamusFullBodyCycleColorExtractor.Extract(rom)));
+        Console.WriteLine("Full-body palettes:48 native identities, all768 colors, complete pointer domain, edits and CGRAM copies pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-loading-layout")]
+    internal static int LookupLoadingLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Loading layout oracle revision");
+        Suite(nameof(VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions), () => VerifySamusLoadingSuitPaletteFxProgramMechanicsDefinitions(rom));
+        Console.WriteLine("Suit loading: original decoded group/frame layout, complete pointer ownership and guarded programs pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-loading-colors")]
+    internal static int LookupLoadingColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Loading colors oracle revision");
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        Suite(nameof(VerifyExtractedSamusLoadingPaletteFxPresentation), () => VerifyExtractedSamusLoadingPaletteFxPresentation(rom, RoomPaletteFxPresentation.Load(new MemoryStream(json))));
+        foreach (int editMode in new[] { 0, 1, 2 })
+        {
+            var document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json, MapPresentationFormat.JsonOptions)!;
+            int ordinal = 1000;
+            foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
+            for (int frame = 0; frame < 9; frame++)
+            for (int color = 0; color < 16; color++, ordinal++)
+                if (editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7))
+                    frames[frame][color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
+            var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, MapPresentationFormat.JsonOptions)));
+            ordinal = 1000;
+            foreach (var program in SamusLoadingSuitPaletteFxProgramMechanicsDefinitions.All)
+            for (int frame = 0; frame < 9; frame++)
+            for (int color = 0; color < 16; color++, ordinal++)
+            {
+                ushort pointer = program.ColorPointer(frame, color);
+                AssertTrue(edited.TryReadColor(pointer, out Bgr555 actual), "Edited loading color remains owned");
+                ushort expected = editMode == 0 || (editMode == 1 && frame is 0 or 1) || (editMode == 2 && frame == 7) ? (ushort)ordinal : ReadVerificationWord(rom, 0x8d0000 | pointer);
+                AssertEqual(expected, actual, "Independent loading row edits survive alias compilation");
+            }
+        }
+        Console.WriteLine("Loading colors: all432 native colors, full pointer domain,25 stored words plus9 endpoint components, independent edits and guarded consumers pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-heat-colors")]
+    internal static int LookupHeatColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Heat color oracle revision");
+        byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
+        var presentation = RoomPaletteFxPresentation.Load(new MemoryStream(json));
+        Suite(nameof(VerifyExtractedSamusHeatPaletteFxPresentation), () => VerifyExtractedSamusHeatPaletteFxPresentation(rom, presentation));
+        var document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
+            MapPresentationFormat.JsonOptions)!;
+        int ordinal = 1000;
+        foreach (var frames in new[] { document.SamusHeatPowerSuit!, document.SamusHeatVariaSuit!, document.SamusHeatGravitySuit! })
+        foreach (var row in frames)
+        for (int color = 0; color < row.Length; color++, ordinal++)
+            row[color] = new PaletteRgb5 { Red = ordinal & 31, Green = ordinal >> 5 & 31, Blue = ordinal >> 10 & 31 };
+        var edited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
+            MapPresentationFormat.JsonOptions)));
+        ordinal = 1000;
+        foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
+        for (int phase = 0; phase < 16; phase++)
+        for (int color = 0; color < 15; color++, ordinal++)
+        {
+            AssertTrue(edited.TryReadColor((ushort)(first + phase * 34 + color * 2), out Bgr555 actual), "Edited heat color owned");
+            AssertEqual((ushort)ordinal, actual, "Every separately edited heat color survives alias compilation");
+        }
+        document = System.Text.Json.JsonSerializer.Deserialize<RoomPaletteFxPresentationDocument>(json,
+            MapPresentationFormat.JsonOptions)!;
+        foreach (var frames in new[] { document.SamusLoadingPowerSuit, document.SamusLoadingVariaSuit, document.SamusLoadingGravitySuit })
+        for (int color = 0; color < 16; color++)
+            frames[0][color] = new PaletteRgb5 { Red = 1, Green = 2, Blue = 3 };
+        var loadingEdited = RoomPaletteFxPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document,
+            MapPresentationFormat.JsonOptions)));
+        foreach (int first in new[] { 0xe468, 0xe694, 0xe8c0 })
+        for (int phase = 0; phase < 16; phase++)
+        for (int color = 0; color < 15; color++)
+        {
+            ushort pointer = (ushort)(first + phase * 34 + color * 2);
+            AssertTrue(loadingEdited.TryReadColor(pointer, out Bgr555 actual), "Heat color survives independent loading-palette edit");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer), actual, "Changing loading art cannot rewrite supplied heat art");
+        }
+        Console.WriteLine("Heat color aliases: original repeated rows, all pointer boundaries, stock storage, edited frames and guarded consumers pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-heat-selectors")]
+    internal static int LookupHeatSelectorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Heat selector oracle revision");
+        Suite(nameof(VerifyPaletteFxHeatInstructionListDefinitions), () => VerifyPaletteFxHeatInstructionListDefinitions(rom));
+        Suite(nameof(VerifyPaletteFxHeatProgramMechanicsDefinitions), () => VerifyPaletteFxHeatProgramMechanicsDefinitions(rom));
+        Console.WriteLine("Heat selectors: all48 native words, program layout, bounds and full equipment selection pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-ceres-haze")]
+    internal static int LookupCeresHazeCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Ceres haze oracle revision");
+        Suite(nameof(VerifyCeresHazeNativeRamp), () => VerifyCeresHazeNativeRamp(rom));
+        Suite(nameof(VerifyCeresHazeTintScaling), () => VerifyCeresHazeTintScaling(rom));
+        Suite(nameof(VerifyCeresHazePhaseControl), () => VerifyCeresHazePhaseControl(rom));
+        Console.WriteLine("Ceres haze: original HDMA bands, all17 native counters, both channels, captured/software views and RGB5 tint scaling pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-palette-fx-areas")]
+    internal static int LookupPaletteFxAreasCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Palette-FX area oracle revision");
+        Suite(nameof(VerifyPaletteFxAreaListPointers), () => VerifyPaletteFxAreaListPointers(rom));
+        Suite(nameof(VerifyPaletteFxAreaSelections), () => VerifyPaletteFxAreaSelections(rom));
+        Console.WriteLine("Palette-FX areas: eight original list identities, all64 selections and rejection domains pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-palette-fx-dispatch")]
+    internal static int LookupPaletteFxDispatchCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Palette-FX dispatch oracle revision");
+        Suite(nameof(VerifyPaletteFxDispatch), () => VerifyPaletteFxDispatch(rom));
+        Console.WriteLine("Palette-FX dispatch: all 63 native setup/list pairs, full identity domain and guarded spawning pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-sky-chunk-pointers")]
+    internal static int LookupSkyChunkPointersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Sky chunk oracle revision");
+        Suite(nameof(VerifyLandSkyChunkPointers), () => VerifyLandSkyChunkPointers(rom));
+        Suite(nameof(VerifyOceanSkyChunkPointers), () => VerifyOceanSkyChunkPointers(rom));
+        Console.WriteLine("Sky chunks: both native mappings, compatibility reads, rejections and all ushort camera inputs pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-sky-sections")]
+    internal static int LookupSkySectionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Sky sections oracle revision");
+        Suite(nameof(VerifySkySectionTopPositions), () => VerifySkySectionTopPositions(rom));
+        Suite(nameof(VerifySkySectionSubspeeds), () => VerifySkySectionSubspeeds(rom));
+        Suite(nameof(VerifySkySectionSpeeds), () => VerifySkySectionSpeeds(rom));
+        Suite(nameof(VerifySkySectionDataSlots), () => VerifySkySectionDataSlots(rom));
+        Suite(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState());
+        Console.WriteLine("Sky sections: four native fields, bounds, complete world-Y projection and existing integration pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-quake-suppression")]
+    internal static int LookupQuakeSuppressionCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Quake suppression oracle revision");
+        Suite(nameof(VerifyQuakeSoundSuppression), () => VerifyQuakeSoundSuppression(rom));
+        Console.WriteLine("Quake suppression: native branches, all 65536 room identities and sound consumer pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-quake-sound-selection")]
+    internal static int LookupQuakeSoundSelectionCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Quake sound oracle revision");
+        Suite(nameof(VerifyQuakeSoundSelection), () => VerifyQuakeSoundSelection(rom));
+        Console.WriteLine("Quake sound selection: all eight original identities, loop marker and production queue requests pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-liquid-wave")]
+    internal static int LookupLiquidWaveCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Liquid wave oracle revision");
+        Suite(nameof(VerifyMirroredLiquidWave), () => VerifyMirroredLiquidWave(rom));
+        Suite(nameof(VerifyHorizontalHeatWave), () => VerifyHorizontalHeatWave(rom));
+        Console.WriteLine("Liquid waves: original mirrored and horizontal pulse samples, bounds, all phases and projection consumers pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-rain-velocity")]
+    internal static int LookupRainVelocityCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Rain velocity oracle revision");
+        Suite(nameof(VerifyRainHorizontalVelocity), () => VerifyRainHorizontalVelocity(rom));
+        Console.WriteLine("Rain velocity: four signed 8.8 values, all 65536 RNG selections and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-retail-door-lists")]
+    internal static int LookupRetailDoorListsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Door-list oracle revision");
+        Suite(nameof(VerifyRetailDoorListMapping), () => VerifyRetailDoorListMapping(rom));
+        Suite(nameof(VerifyCompiledDoorListCollision), () => VerifyCompiledDoorListCollision());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-arm-hitbox-lists")]
+    internal static int LookupKraidArmHitboxListsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Kraid arm list oracle revision");
+        Suite(nameof(VerifyKraidArmHitboxListSelection), () => VerifyKraidArmHitboxListSelection(rom));
+        Console.WriteLine("Kraid arm hitbox selection: all 16 native lists, 24 ordered rectangles, full ushort rejection domain and slice bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--room-plm-populations")]
+    internal static int RoomPlmPopulationsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Retail population oracle revision");
+        Suite(nameof(VerifyRetailPopulationMappings), () => VerifyRetailPopulationMappings(rom));
+        Suite(nameof(VerifyCompiledRoomPlmHeaderLoad), () => VerifyCompiledRoomPlmHeaderLoad(rom));
+        Suite(nameof(VerifyPlmPopulationInputBoundary), () => VerifyPlmPopulationInputBoundary());
+        Console.WriteLine("Retail populations: all 284 identities, 941 ordered placements and native terminators, sequential setup and historical state schemas pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-scroll-programs")]
+    internal static int LookupScrollProgramsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Scroll program oracle revision");
+        Suite(nameof(VerifyCompiledRoomScrollPrograms), () => VerifyCompiledRoomScrollPrograms(rom));
+        Suite(nameof(VerifyRoomScrollPlms), () => VerifyRoomScrollPlms());
+        Console.WriteLine("Scroll programs: all 173 identities, 285 ordered writes and terminators, guarded retail execution and constructed-room behavior pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--eye-door-plm-draws")]
+    internal static int EyeDoorPlmDrawsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Eye door oracle revision");
+        Suite(nameof(VerifyEyeDoorPlmDrawDefinitions), () => VerifyEyeDoorPlmDrawDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--station-access-plm-definitions")]
+    internal static int StationAccessPlmDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Station access oracle revision");
+        Suite(nameof(VerifyStationAccessPlmDefinitions), () => VerifyStationAccessPlmDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--elevator-platform-visuals")]
+    internal static int ElevatorPlatformVisualsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevator platform oracle revision");
+        Suite(nameof(VerifyElevatorPlatformPlmDefinitions), () => VerifyElevatorPlatformPlmDefinitions(rom));
+        Suite(nameof(VerifyElevatorPlatformVisuals), () => VerifyElevatorPlatformVisuals());
+        return 0;
+    }
+
+    [VerificationCommand("--chozo-plm-definitions")]
+    internal static int ChozoPlmDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Chozo program oracle revision");
+        Suite(nameof(VerifyChozoStatuePlmDefinitions), () => VerifyChozoStatuePlmDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--mother-brain-glass-instruction-mechanics")]
+    internal static int MotherBrainGlassInstructionMechanicsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Glass projectile oracle revision");
+        Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--mother-brain-glass-shard-definitions")]
+    internal static int MotherBrainGlassShardDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Glass shard oracle revision");
+        Suite(nameof(VerifyMotherBrainGlassShardDefinitions), () => VerifyMotherBrainGlassShardDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--mother-brain-glass-plm-draws")]
+    internal static int MotherBrainGlassPlmDrawsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Glass oracle revision");
+        Suite(nameof(VerifyMotherBrainGlassPlmDrawDefinitions), () => VerifyMotherBrainGlassPlmDrawDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--noob-tube-plm-draws")]
+    internal static int NoobTubePlmDrawsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tube draw oracle revision");
+        Suite(nameof(VerifyNoobTubePlmDrawDefinitions), () => VerifyNoobTubePlmDrawDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--colored-door-plm-draws")]
+    internal static int ColoredDoorPlmDrawsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Colored door oracle revision");
+        Suite(nameof(VerifyColoredDoorPlmDrawDefinitions), () => VerifyColoredDoorPlmDrawDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--blue-door-plm-draws")]
+    internal static int BlueDoorPlmDrawsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Blue door oracle revision");
+        Suite(nameof(VerifyBlueDoorPlmDrawDefinitions), () => VerifyBlueDoorPlmDrawDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--grey-door-plm-draws")]
+    internal static int GreyDoorPlmDrawsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Grey door oracle revision");
+        Suite(nameof(VerifyGreyDoorPlmDrawDefinitions), () => VerifyGreyDoorPlmDrawDefinitions(rom));
+        Console.WriteLine("Grey door definitions and guarded lifecycle pass, including all Bomb Torizo program fields.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-escape-gate")]
+    internal static int LookupEscapeGateCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Escape gate oracle revision");
+        Suite(nameof(VerifyMotherBrainEscapeGateCompiledDefinitions), () => VerifyMotherBrainEscapeGateCompiledDefinitions(rom));
+        Suite(nameof(VerifyMotherBrainEscapeRoomGate), () => VerifyMotherBrainEscapeRoomGate(new TestAddressSpace()));
+        Suite(nameof(VerifyEscapeGateVisuals), () => VerifyEscapeGateVisuals(rom));
+        Console.WriteLine("Escape gate: all original draw/program fields and complete domains pass; production door handoff and custom artwork pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-retail-plm-headers")]
+    internal static int LookupRetailPlmHeadersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Retail header oracle revision");
+        Suite(nameof(VerifyRetailPlmHeaderSetups), () => VerifyRetailPlmHeaderSetups(rom));
+        Suite(nameof(VerifyRetailPlmHeaderInstructions), () => VerifyRetailPlmHeaderInstructions(rom));
+        Suite(nameof(VerifyCompiledRoomPlmHeaderLoad), () => VerifyCompiledRoomPlmHeaderLoad(rom));
+        Console.WriteLine("Retail PLM headers: all seventy setup/list cases and full input domain match ROM; guarded population load passes.");
+        return 0;
+    }
+
+    [VerificationCommand("--downward-gate-definitions")]
+    internal static int DownwardGateDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Downward gate oracle revision");
+        Suite(nameof(VerifyDownwardGateShotBlockDefinitions), () => VerifyDownwardGateShotBlockDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--speed-booster-escape-definitions")]
+    internal static int SpeedBoosterEscapeDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Speed escape stage oracle revision");
+        Suite(nameof(VerifySpeedBoosterEscapeStageDefinitions), () => VerifySpeedBoosterEscapeStageDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-speed-escape-program")]
+    internal static int LookupSpeedEscapeProgramCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Speed escape oracle revision");
+        Suite(nameof(VerifySpeedEscapeProgramControls), () => VerifySpeedEscapeProgramControls(rom));
+        Suite(nameof(VerifySpeedEscapeProgramCallbacks), () => VerifySpeedEscapeProgramCallbacks(rom));
+        Suite(nameof(VerifySpeedBoosterEscapePlm), () => VerifySpeedBoosterEscapePlm(new TestAddressSpace()));
+        Console.WriteLine("Speed escape program: all native fields and complete address domain pass; production handoffs and lava completion pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--samus-eater-plm-definitions")]
+    internal static int SamusEaterPlmDefinitionsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "plant program NTSC J/U oracle");
+        Suite(nameof(VerifySamusEaterPlmDefinitions), () => VerifySamusEaterPlmDefinitions(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-special-air")]
+    internal static int LookupSpecialAirCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Special-air NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyQuicksandDefinitions), () => VerifyQuicksandDefinitions(oracle));
+        Suite(nameof(VerifyQuicksand), () => VerifyQuicksand());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-speed-blocks")]
+    internal static int LookupSpeedBlocksCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Speed blocks NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyCompiledSpeedBoosterPlmPrograms), () => VerifyCompiledSpeedBoosterPlmPrograms());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-grapple-blocks")]
+    internal static int LookupGrappleBlocksCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Grapple blocks NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyGrappleBlockPrograms), () => VerifyGrappleBlockPrograms());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-block-reaction-selectors")]
+    internal static int LookupBlockReactionSelectorsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Block reactions NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifySharedBreakAnimationSelection), () => VerifySharedBreakAnimationSelection(oracle));
+        Suite(nameof(VerifyBombedRevealPhysicalDrawMapping), () => VerifyBombedRevealPhysicalDrawMapping(oracle));
+        Suite(nameof(VerifyBombedRevealControlMapping), () => VerifyBombedRevealControlMapping(oracle));
+        Suite(nameof(VerifyBombedRevealDrawMapping), () => VerifyBombedRevealDrawMapping(oracle));
+        Suite(nameof(VerifyContactCrumbleHeaderSelection), () => VerifyContactCrumbleHeaderSelection(oracle));
+        Suite(nameof(VerifyCollisionBombInstructionSelection), () => VerifyCollisionBombInstructionSelection(oracle));
+        Suite(nameof(VerifyReactionBombInstructionSelection), () => VerifyReactionBombInstructionSelection(oracle));
+        Suite(nameof(VerifyCrumbleRevealInstructionSelection), () => VerifyCrumbleRevealInstructionSelection(oracle));
+        Suite(nameof(VerifyContactCrumbleInstructionSelection), () => VerifyContactCrumbleInstructionSelection(oracle));
+        Suite(nameof(VerifyBombSpecialInstructionSelection), () => VerifyBombSpecialInstructionSelection(oracle));
+        Suite(nameof(VerifyBombBlockPrograms), () => VerifyBombBlockPrograms());
+        Suite(nameof(VerifyContactCrumblePrograms), () => VerifyContactCrumblePrograms());
+        Console.WriteLine("Block reaction selectors: six complete native mappings and bomb/crumble production fixtures pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-phase-two-rear-leg")]
+    internal static int LookupPhaseTwoRearLegCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Phase-two rear-leg NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyStream3PhaseTwoRearLeg), () => VerifyStream3PhaseTwoRearLeg(oracle));
+        Console.WriteLine("Phase-two rear leg: 15 native colors/destinations and 45 independent RGB edits pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-auxiliary-palettes")]
+    internal static int LookupAuxiliaryPalettesCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Auxiliary palette NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyStream3AuxiliaryPalettes), () => VerifyStream3AuxiliaryPalettes(oracle));
+        Console.WriteLine("Auxiliary palettes: 393 native colors, 1179 independent edits, identities and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-door-quake-decoding")]
+    internal static int LookupStream5DoorQuakeDecodingCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Door quake NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyLookupStream5DoorQuakeDecoding), () => VerifyLookupStream5DoorQuakeDecoding(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-arm-cannon-selectors")]
+    internal static int LookupArmCannonSelectorsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Arm cannon NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyLookupStream1ArmCannonTileSources), () => VerifyLookupStream1ArmCannonTileSources(oracle));
+        Console.WriteLine("Arm cannon selectors: native directions/frames, full reverse domain, independent edits/hash, DMA pixels and boundaries pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-flight-palette")]
+    internal static int LookupStream5CeresFlightPaletteCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Ceres flight NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyLookupStream5CeresFlightPalette), () => VerifyLookupStream5CeresFlightPalette(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-oum-layout")]
+    internal static int LookupStream4OumLayoutCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Oum NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyLookupStream4OumListLayout), () => VerifyLookupStream4OumListLayout(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-breakup-order")]
+    internal static int LookupStream4BreakupOrderCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Ridley breakup NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyRidleyExplosionDefinitions), () => VerifyRidleyExplosionDefinitions(oracle));
+        Suite(nameof(VerifyLookupStream4BreakupOrder), () => VerifyLookupStream4BreakupOrder(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-3")]
+    internal static int LookupStream3Command()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Stream 3 NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyLookupStream3), () => VerifyLookupStream3(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-shot-block-draws")]
+    internal static int LookupShotBlockDrawsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shot-block NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyShotBlockPlmPrograms), () => VerifyShotBlockPlmPrograms());
+        Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-botwoon-wall")]
+    internal static int LookupBotwoonWallCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon wall NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyCompiledBotwoonWallPlms), () => VerifyCompiledBotwoonWallPlms());
+        Suite(nameof(VerifyBotwoonWallStockMapping), () => VerifyBotwoonWallStockMapping(oracle));
+        Suite(nameof(VerifyBotwoonWallVisualIdMapping), () => VerifyBotwoonWallVisualIdMapping());
+        Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(new SuperMetroid.Core.Rooms.RoomPlmBotwoonWallVisualCatalog(
+            [new("clear-wall", [0xff,0xff,0xff,0x58,0xff,0xff,0xff,0xff,0xff])])));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-botwoon-hole-bounds")]
+    internal static int LookupBotwoonHoleBoundsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon hole NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(oracle));
+        Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(oracle));
+        Console.WriteLine("Botwoon hole bounds: all native right/bottom edges and production inclusion/exclusion checks pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-botwoon-path-descriptors")]
+    internal static int LookupBotwoonPathDescriptorsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon navigation NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBotwoonPathDescriptorMappings), () => VerifyBotwoonPathDescriptorMappings(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-botwoon-projectile-programs")]
+    internal static int LookupBotwoonProjectileProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon projectile NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBotwoonProjectileAnimations), () => VerifyBotwoonProjectileAnimations(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-botwoon-program-selection")]
+    internal static int LookupBotwoonProgramSelectionCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon selection NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBotwoonAnimationSelection), () => VerifyBotwoonAnimationSelection(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-botwoon-head-programs")]
+    internal static int LookupBotwoonHeadProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Botwoon NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBotwoonHeadAnimations), () => VerifyBotwoonHeadAnimations(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-torizo-statue-programs")]
+    internal static int LookupTorizoStatueProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Bomb Torizo statue NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBombTorizoStatueFragmentDefinitions), () => VerifyBombTorizoStatueFragmentDefinitions(oracle));
+        Suite(nameof(VerifyBombTorizoStatueInstructionProgramDefinitions), () => VerifyBombTorizoStatueInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-torizo-dormant-and-drool")]
+    internal static int LookupTorizoDormantAndDroolCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Bomb Torizo NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBombTorizoDormantDefinitions), () => VerifyBombTorizoDormantDefinitions(oracle));
+        Suite(nameof(VerifyBombTorizoDroolInstructionProgramDefinitions), () => VerifyBombTorizoDroolInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-face-block-programs")]
+    internal static int LookupFaceBlockProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Face block NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions), () => VerifyBlueBrinstarFaceBlockInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-beetom-programs")]
+    internal static int LookupBeetomProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Beetom NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-platform-programs")]
+    internal static int LookupPlatformProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Platform NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyPlatformInstructionProgramDefinitions), () => VerifyPlatformInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-elevator-programs")]
+    internal static int LookupElevatorProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Elevator NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyElevatorInputDefinitions), () => VerifyElevatorInputDefinitions(oracle));
+        Suite(nameof(VerifyElevatorInstructionProgramDefinitions), () => VerifyElevatorInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-growing-shutter-definitions")]
+    internal static int LookupGrowingShutterDefinitionsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Growing shutter NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyCompiledGrowingShutters), () => VerifyCompiledGrowingShutters(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-shutter-visuals")]
+    internal static int LookupShutterVisualsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shutter NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyShutterVisualPointerMapping), () => VerifyShutterVisualPointerMapping(oracle));
+        Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-shutter-pose-programs")]
+    internal static int LookupShutterPoseProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shutter NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyGrowingShutterInstructionProgramDefinitions), () => VerifyGrowingShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyHorizontalShutterInstructionProgramDefinitions), () => VerifyHorizontalShutterInstructionProgramDefinitions(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-shutter-initial-functions")]
+    internal static int LookupShutterInitialFunctionsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Shutter NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyVerticalShutterInitialFunctionSelection), () => VerifyVerticalShutterInitialFunctionSelection(oracle));
+        Suite(nameof(VerifyHorizontalShutterInitialFunctionSelection), () => VerifyHorizontalShutterInitialFunctionSelection(oracle));
+        Console.WriteLine("Shutter initial function selection: both native five-entry mappings, state semantics and invalid offsets pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-vertical-shutter-programs")]
+    internal static int LookupVerticalShutterProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)), "Vertical shutter NTSC J/U v1.0 oracle");
+        Suite(nameof(VerifyVerticalShutterInstructionProgramDefinitions), () => VerifyVerticalShutterInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fune-namihe-programs")]
+    internal static int LookupFuneNamiheProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
+            "Fune/Namihe actor oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyFuneNamiheDefinitions), () => VerifyFuneNamiheDefinitions(oracle));
+        Suite(nameof(VerifyFuneNamiheInstructionProgramDefinitions), () => VerifyFuneNamiheInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fune-namihe-fireball-programs")]
+    internal static int LookupFuneNamiheFireballProgramsCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(oracle.Rom)),
+            "Fune/Namihe fireball oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyFuneNamiheFireballInstructionProgramDefinitions), () => VerifyFuneNamiheFireballInstructionProgramDefinitions(oracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-enemy-fireball-launches")]
+    internal static int LookupEnemyFireballLaunchesCommand()
+    {
+        var launchOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(launchOracle.Rom)),
+            "Enemy fireball launch oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCompiledEnemyFireballLaunches), () => VerifyCompiledEnemyFireballLaunches(launchOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-boyon-programs")]
+    internal static int LookupBoyonProgramsCommand()
+    {
+        var boyonOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(boyonOracle.Rom)),
+            "Boyon oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(boyonOracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-boulder-programs")]
+    internal static int LookupBoulderProgramsCommand()
+    {
+        var boulderOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(boulderOracle.Rom)),
+            "Boulder oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyBoulderInstructionProgramDefinitions), () => VerifyBoulderInstructionProgramDefinitions(boulderOracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-alcoon-programs")]
+    internal static int LookupAlcoonProgramsCommand()
+    {
+        var alcoonOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(alcoonOracle.Rom)),
+            "Alcoon oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyAlcoonMechanicsMapping), () => VerifyAlcoonMechanicsMapping(alcoonOracle));
+        Suite(nameof(VerifyAlcoonPresentationAddressMapping), () => VerifyAlcoonPresentationAddressMapping());
+        Suite(nameof(VerifyAlcoonVisualSelectorMapping), () => VerifyAlcoonVisualSelectorMapping(alcoonOracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        Console.WriteLine("Alcoon programs: all 68 native words, 44 visual positions, full ownership domains and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-atomic-programs")]
+    internal static int LookupAtomicProgramsCommand()
+    {
+        var atomicOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(atomicOracle.Rom)),
+            "Atomic oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyAtomicMovementDefinitions), () => VerifyAtomicMovementDefinitions(atomicOracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-draygon-intro-commands")]
+    internal static int LookupDraygonIntroCommandsCommand()
+    {
+        var danceOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(danceOracle.Rom)),
+            "Draygon intro oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyDraygonIntroMovementDefinitions), () => VerifyDraygonIntroMovementDefinitions(danceOracle));
+        Console.WriteLine("Draygon intro: explicit delete selection and all 1104 original X/Y results and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-draws")]
+    internal static int LookupKraidDrawsCommand()
+    {
+        var drawOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(drawOracle.Rom)),
+            "Kraid draw oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidDrawAddresses), () => VerifyKraidDrawAddresses());
+        Suite(nameof(VerifyKraidDrawOwnerClassification), () => VerifyKraidDrawOwnerClassification(drawOracle));
+        Suite(nameof(VerifyKraidDrawShapes), () => VerifyKraidDrawShapes(drawOracle));
+        Suite(nameof(VerifyKraidDrawWords), () => VerifyKraidDrawWords(drawOracle));
+        Suite(nameof(VerifyKraidDrawVisualIds), () => VerifyKraidDrawVisualIds());
+        Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());
+        Console.WriteLine("Kraid draw definitions: ten identities, eight owners, native shapes, all 45 words, visual IDs and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-room-programs")]
+    internal static int LookupKraidRoomProgramsCommand()
+    {
+        var roomProgramOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(roomProgramOracle.Rom)),
+            "Kraid room program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidRoomProgramMapping), () => VerifyKraidRoomProgramMapping(roomProgramOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fake-kraid-spike-rows")]
+    internal static int LookupFakeKraidSpikeRowsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Fake Kraid spike-row oracle revision");
+        Suite(nameof(VerifyFakeKraidSpikeRowSelection), () => VerifyFakeKraidSpikeRowSelection(rom));
+        Console.WriteLine("Fake Kraid spike rows: all three original signed launch positions and invalid selectors pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fake-kraid-spit-velocities")]
+    internal static int LookupFakeKraidSpitVelocitiesCommand()
+    {
+        var velocityOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(velocityOracle.Rom)),
+            "Fake Kraid velocity oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyFakeKraidSpitHorizontalVelocity), () => VerifyFakeKraidSpitHorizontalVelocity(velocityOracle));
+        Suite(nameof(VerifyFakeKraidSpitVerticalVelocity), () => VerifyFakeKraidSpitVerticalVelocity(velocityOracle));
+        Console.WriteLine("Fake Kraid spit: both velocity fields match all four native launches; invalid ordinals pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fake-kraid-projectile-programs")]
+    internal static int LookupFakeKraidProjectileProgramsCommand()
+    {
+        var projectileProgramOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(projectileProgramOracle.Rom)),
+            "Fake Kraid projectile program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyFakeKraidProjectileMechanicsMapping), () => VerifyFakeKraidProjectileMechanicsMapping(projectileProgramOracle));
+        Suite(nameof(VerifyFakeKraidProjectilePresentationAddresses), () => VerifyFakeKraidProjectilePresentationAddresses());
+        Console.WriteLine("Fake Kraid projectile programs: six native control words, complete bank ownership, three visual operand positions and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fake-kraid-programs")]
+    internal static int LookupFakeKraidProgramsCommand()
+    {
+        var programOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(programOracle.Rom)),
+            "Fake Kraid program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyFakeKraidMechanicsMapping), () => VerifyFakeKraidMechanicsMapping(programOracle));
+        Suite(nameof(VerifyFakeKraidPresentationAddresses), () => VerifyFakeKraidPresentationAddresses());
+        Console.WriteLine("Fake Kraid programs: 48 native control words, complete bank ownership, 24 visual operand positions and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-visual-selectors")]
+    internal static int LookupKraidVisualSelectorsCommand()
+    {
+        var visualOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(visualOracle.Rom)),
+            "Kraid visual oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidNailVisualSelectors), () => VerifyKraidNailVisualSelectors(visualOracle));
+        Suite(nameof(VerifyFakeKraidVisualSelectors), () => VerifyFakeKraidVisualSelectors(visualOracle));
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        Console.WriteLine("Kraid visual selectors: eight nail operands for both actors,24 Fake Kraid operands, holes and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-spit-speeds")]
+    internal static int LookupKraidSpitSpeedsCommand()
+    {
+        var spitOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(spitOracle.Rom)),
+            "Kraid spit oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidRockLaunchDefinitions), () => VerifyKraidRockLaunchDefinitions(spitOracle, definitionsOnly: true));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-palette-definitions")]
+    internal static int LookupKraidPaletteDefinitionsCommand()
+    {
+        var paletteOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(paletteOracle.Rom)),
+            "Kraid palette oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidPaletteSourceAddresses), () => VerifyKraidPaletteSourceAddresses(paletteOracle));
+        Suite(nameof(VerifyKraidPaletteSourceLengths), () => VerifyKraidPaletteSourceLengths());
+        Console.WriteLine("Kraid palette definitions: five native source operands, complete extents and invalid enums pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-health-thresholds")]
+    internal static int LookupKraidHealthThresholdsCommand()
+    {
+        var healthOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(healthOracle.Rom)),
+            "Kraid health oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidHealthEighths), () => VerifyKraidHealthEighths(healthOracle));
+        Suite(nameof(VerifyKraidHealthQuarters), () => VerifyKraidHealthQuarters(healthOracle));
+        Console.WriteLine("Kraid health thresholds: both native recurrences across every initial health and ordinal, plus bounds, pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-ceiling-order")]
+    internal static int LookupKraidCeilingOrderCommand()
+    {
+        var ceilingOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(ceilingOracle.Rom)),
+            "Kraid ceiling oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(ceilingOracle));
+        Suite(nameof(VerifyKraidGrowthPlmColumns), () => VerifyKraidGrowthPlmColumns(ceilingOracle));
+        Suite(nameof(VerifyKraidGrowthPlmRows), () => VerifyKraidGrowthPlmRows(ceilingOracle));
+        Suite(nameof(VerifyKraidGrowthPlmHeaders), () => VerifyKraidGrowthPlmHeaders(ceilingOracle));
+        Console.WriteLine("Kraid ceiling order: every native byte window and all derived PLM fields match; bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-sink-mappings")]
+    internal static int LookupKraidSinkMappingsCommand()
+    {
+        var sinkOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(sinkOracle.Rom)),
+            "Kraid sinking oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidSinkSchedule), () => VerifyKraidSinkSchedule(sinkOracle, definitionsOnly: true));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-defeated-plms")]
+    internal static int LookupKraidDefeatedPlmsCommand()
+    {
+        var defeatedPlmOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(defeatedPlmOracle.Rom)),
+            "Kraid defeated PLM oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidDefeatedPlmColumns), () => VerifyKraidDefeatedPlmColumns(defeatedPlmOracle));
+        Suite(nameof(VerifyKraidDefeatedPlmRows), () => VerifyKraidDefeatedPlmRows(defeatedPlmOracle));
+        Suite(nameof(VerifyKraidDefeatedPlmHeaders), () => VerifyKraidDefeatedPlmHeaders(defeatedPlmOracle));
+        Console.WriteLine("Kraid defeated-room PLMs: both native requests, three fields, order and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-growth-plms")]
+    internal static int LookupKraidGrowthPlmsCommand()
+    {
+        var growthPlmOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(growthPlmOracle.Rom)),
+            "Kraid growth PLM oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidGrowthPlmColumns), () => VerifyKraidGrowthPlmColumns(growthPlmOracle));
+        Suite(nameof(VerifyKraidGrowthPlmRows), () => VerifyKraidGrowthPlmRows(growthPlmOracle));
+        Suite(nameof(VerifyKraidGrowthPlmHeaders), () => VerifyKraidGrowthPlmHeaders(growthPlmOracle));
+        Console.WriteLine("Kraid growth PLMs: all nine native columns, rows and headers, enumeration and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-movement")]
+    internal static int LookupKraidMovementCommand()
+    {
+        var movementOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(movementOracle.Rom)),
+            "Kraid movement oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidMovementChoices), () => VerifyKraidMovementChoices(movementOracle, definitionsOnly: true));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-nail-launch")]
+    internal static int LookupKraidNailLaunchCommand()
+    {
+        var launchOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(launchOracle.Rom)),
+            "Kraid launch oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(launchOracle));
+        Suite(nameof(VerifyKraidNailLaunchXWhole), () => VerifyKraidNailLaunchXWhole(launchOracle));
+        Suite(nameof(VerifyKraidNailLaunchYFraction), () => VerifyKraidNailLaunchYFraction(launchOracle));
+        Suite(nameof(VerifyKraidNailLaunchYWhole), () => VerifyKraidNailLaunchYWhole(launchOracle));
+        Console.WriteLine("Kraid nail launch: four fields, all sibling words and four RNG choices match native indirect records.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-camera")]
+    internal static int LookupKraidCameraCommand()
+    {
+        var cameraOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cameraOracle.Rom)),
+            "Kraid camera oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidInitialScrollMapping), () => VerifyKraidInitialScrollMapping(cameraOracle));
+        Suite(nameof(VerifyKraidGrownScrollMapping), () => VerifyKraidGrownScrollMapping(cameraOracle));
+        Console.WriteLine("Kraid camera: both four-screen mappings match native instruction operands; bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-arm-component-selectors")]
+    internal static int LookupKraidArmComponentSelectorsCommand()
+    {
+        var armComponentOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(armComponentOracle.Rom)),
+            "Kraid arm component oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidArmCollisionDefinitions), () => VerifyKraidArmCollisionDefinitions(armComponentOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-arm-callbacks")]
+    internal static int LookupKraidArmCallbacksCommand()
+    {
+        var armCallbackOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(armCallbackOracle.Rom)),
+            "Kraid arm callback oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidArmCollisionDefinitions), () => VerifyKraidArmCollisionDefinitions(armCallbackOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-arm-physical-frames")]
+    internal static int LookupKraidArmPhysicalFramesCommand()
+    {
+        var armFrameOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(armFrameOracle.Rom)),
+            "Kraid arm physical-frame oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidArmComponentHitboxes), () => VerifyKraidArmComponentHitboxes(armFrameOracle));
+        Suite(nameof(VerifyKraidArmPhysicalFramePointers), () => VerifyKraidArmPhysicalFramePointers(armFrameOracle));
+        _ = VerifyKraidArmPhysicalLayoutSelection(armFrameOracle);
+        Console.WriteLine("Kraid arm physical frames: all 22 roots, ordered native layouts, complete pointer domain and ordinal bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-foot-coordinates")]
+    internal static int LookupKraidFootCoordinatesCommand()
+    {
+        var footOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(footOracle.Rom)),
+            "Kraid foot coordinate oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidFootFirstX), () => VerifyKraidFootFirstX(footOracle));
+        Suite(nameof(VerifyKraidFootFirstY), () => VerifyKraidFootFirstY(footOracle));
+        Suite(nameof(VerifyKraidFootSecondX), () => VerifyKraidFootSecondX(footOracle));
+        Suite(nameof(VerifyKraidFootSecondY), () => VerifyKraidFootSecondY(footOracle));
+        Suite(nameof(VerifyKraidFootSharedHitbox), () => VerifyKraidFootSharedHitbox(footOracle));
+        Console.WriteLine("Kraid foot coordinates: four fields across 35 frames plus initial alias, shared geometry/callbacks, membership and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-contour-cases")]
+    internal static int LookupKraidContourCasesCommand()
+    {
+        var contourOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(contourOracle.Rom)),
+            "Kraid contour oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(contourOracle));
+        Suite(nameof(VerifyKraidGrowthResumeCases), () => VerifyKraidGrowthResumeCases(contourOracle));
+        Console.WriteLine("Kraid body contour and growth resume: full signed-Y and tilemap domains match native records and instruction operands.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-nail-contour")]
+    internal static int LookupKraidNailContourCommand()
+    {
+        var nailOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(nailOracle.Rom)),
+            "Kraid nail oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(nailOracle));
+        Suite(nameof(VerifyKraidNailTopBoundaries), () => VerifyKraidNailTopBoundaries(nailOracle));
+        Console.WriteLine("Kraid nail contour: all 12 original words, all 65536 wrapped relative-Y selections and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-mouth-mappings")]
+    internal static int LookupKraidMouthMappingsCommand()
+    {
+        var mouthOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(mouthOracle.Rom)),
+            "Kraid mouth oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(mouthOracle));
+        Suite(nameof(VerifyKraidLowHalfBoundaryMapping), () => VerifyKraidLowHalfBoundaryMapping(mouthOracle));
+        Console.WriteLine("Kraid mouth mappings: 32 geometry words, 7 instruction bytes, head/mouth boundary crossings and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-head-programs")]
+    internal static int LookupKraidHeadProgramsCommand()
+    {
+        var headOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(headOracle.Rom)),
+            "Kraid head oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidHeadCommandMapping), () => VerifyKraidHeadCommandMapping(headOracle));
+        Console.WriteLine("Kraid head programs: all 28 native commands, frame fields, sound IDs, enumeration, exact cursors and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-rock-programs")]
+    internal static int LookupKraidRockProgramsCommand()
+    {
+        var rockOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rockOracle.Rom)),
+            "Kraid rock program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidRockMechanicsMapping), () => VerifyKraidRockMechanicsMapping(rockOracle));
+        Suite(nameof(VerifyKraidRockPresentationMapping), () => VerifyKraidRockPresentationMapping());
+        Console.WriteLine("Kraid rock programs: 12 mechanics words, 7 presentation offsets, native domains and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-small-programs")]
+    internal static int LookupKraidSmallProgramsCommand()
+    {
+        var smallOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(smallOracle.Rom)),
+            "Kraid small-program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidLintMechanicsMapping), () => VerifyKraidLintMechanicsMapping(smallOracle));
+        Suite(nameof(VerifyKraidLintPresentationMapping), () => VerifyKraidLintPresentationMapping());
+        Suite(nameof(VerifyKraidNailMechanicsMapping), () => VerifyKraidNailMechanicsMapping(smallOracle));
+        Suite(nameof(VerifyKraidNailPresentationMapping), () => VerifyKraidNailPresentationMapping());
+        Console.WriteLine("Kraid lint/nail programs: 14 mechanics words, 10 presentation offsets, native domains and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-arm-programs")]
+    internal static int LookupKraidArmProgramsCommand()
+    {
+        var armOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(armOracle.Rom)),
+            "Kraid arm program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidArmGeneratedMechanics), () => VerifyKraidArmGeneratedMechanics(armOracle));
+        Suite(nameof(VerifyKraidArmGeneratedPresentation), () => VerifyKraidArmGeneratedPresentation(armOracle));
+        Console.WriteLine("Kraid arm programs: 66 mechanics words, 57 presentation positions, native domains and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-foot-programs")]
+    internal static int LookupKraidFootProgramsCommand()
+    {
+        var programOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(programOracle.Rom)),
+            "Kraid foot program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidFootGeneratedMechanics), () => VerifyKraidFootGeneratedMechanics(programOracle));
+        Suite(nameof(VerifyKraidFootGeneratedPresentation), () => VerifyKraidFootGeneratedPresentation(programOracle));
+        Console.WriteLine("Kraid foot programs: 193 mechanics words, 106 presentation positions, native domains and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-skeleton-frames")]
+    internal static int LookupCrocomireSkeletonFramesCommand()
+    {
+        var skeletonOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(skeletonOracle.Rom)),
+            "Skeleton frame oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireSkeletonFrameGeometry), () => VerifyCrocomireSkeletonFrameGeometry(skeletonOracle));
+        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
+        Console.WriteLine("Crocomire skeleton catalog: 33 native roots, geometry, names, enumeration, membership and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-kraid-foot-frames")]
+    internal static int LookupKraidFootFramesCommand()
+    {
+        var footOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(footOracle.Rom)),
+            "Kraid foot oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyKraidFootFrameGeometry), () => VerifyKraidFootFrameGeometry(footOracle));
+        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
+        Console.WriteLine("Kraid foot catalog: 35 native roots, names, geometry, enumeration and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-boss-oam-roots")]
+    internal static int LookupBossOamRootsCommand()
+    {
+        var rootOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rootOracle.Rom)),
+            "Boss OAM root oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyRidleyOamRootGeometry), () => VerifyRidleyOamRootGeometry(rootOracle));
+        Suite(nameof(VerifyDraygonOamRootGeometry), () => VerifyDraygonOamRootGeometry(rootOracle));
+        Suite(nameof(VerifySporeSpawnOamRootGeometry), () => VerifySporeSpawnOamRootGeometry(rootOracle));
+        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
+        Console.WriteLine("Boss OAM roots: 71 original identities, native geometry and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-mother-brain-visual-catalogs")]
+    internal static int LookupMotherBrainVisualCatalogsCommand()
+    {
+        var catalogOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(catalogOracle.Rom)),
+            "Mother Brain catalog oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyMotherBrainGeneratedOamCatalog), () => VerifyMotherBrainGeneratedOamCatalog(catalogOracle));
+        Suite(nameof(VerifyMotherBrainGeneratedBg2Catalog), () => VerifyMotherBrainGeneratedBg2Catalog(catalogOracle));
+        Console.WriteLine("Mother Brain catalogs: 17 OAM/16 BG2 identities and names, geometry, membership, exact JSON and loading pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-phantoon-draygon-bg2-catalogs")]
+    internal static int LookupPhantoonDraygonBg2CatalogsCommand()
+    {
+        var catalogOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(catalogOracle.Rom)),
+            "Boss BG2 catalog oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyPhantoonGeneratedBg2Catalog), () => VerifyPhantoonGeneratedBg2Catalog(catalogOracle));
+        Suite(nameof(VerifyDraygonGeneratedBg2Catalog), () => VerifyDraygonGeneratedBg2Catalog(catalogOracle));
+        Console.WriteLine("Phantoon/Draygon BG2: 56 original identities/names, geometry, selector domains, exact JSON and loading pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-bg2-catalog")]
+    internal static int LookupCrocomireBg2CatalogCommand()
+    {
+        var catalogOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(catalogOracle.Rom)),
+            "Crocomire BG2 catalog oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireBg2GeneratedCatalog), () => VerifyCrocomireBg2GeneratedCatalog(catalogOracle));
+        Console.WriteLine("Crocomire BG2 catalog: 42 native identities/names, exact extracted JSON, loading and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-body-frames")]
+    internal static int LookupCrocomireBodyFramesCommand()
+    {
+        var bodyOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bodyOracle.Rom)),
+            "Crocomire body oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireBodyFrameGeometry), () => VerifyCrocomireBodyFrameGeometry(bodyOracle));
+        Console.WriteLine("Crocomire body: 50 original frame roots, native geometry, full BG2 membership domain and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-tongue-collision")]
+    internal static int LookupCrocomireTongueCollisionCommand()
+    {
+        var tongueOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(tongueOracle.Rom)),
+            "Crocomire tongue collision oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireTongueFramePositions), () => VerifyCrocomireTongueFramePositions(tongueOracle));
+        Suite(nameof(VerifyCrocomireTongueComponentCases), () => VerifyCrocomireTongueComponentCases(tongueOracle));
+        Console.WriteLine("Crocomire tongue collision: nine native frame identities/components, empty hitbox cases and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-bg2-poses")]
+    internal static int LookupCrocomireBg2PosesCommand()
+    {
+        var bg2Oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bg2Oracle.Rom)),
+            "Crocomire BG2 oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bg2Oracle));
+        Console.WriteLine("Crocomire BG2: all 17 pointers and corrections, full selector domain and wrapped scroll values pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-melt-transfers")]
+    internal static int LookupCrocomireMeltTransfersCommand()
+    {
+        var meltOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(meltOracle.Rom)),
+            "Crocomire melt oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireMeltHeaders), () => VerifyCrocomireMeltHeaders(meltOracle));
+        Suite(nameof(VerifyCrocomireMeltCopies), () => VerifyCrocomireMeltCopies(meltOracle));
+        Suite(nameof(VerifyCrocomireMeltUploads), () => VerifyCrocomireMeltUploads(meltOracle));
+        Console.WriteLine("Crocomire melt: two headers, 13 copies, 13 uploads, sentinels and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-projectile-programs")]
+    internal static int LookupCrocomireProjectileProgramsCommand()
+    {
+        var projectileOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(projectileOracle.Rom)),
+            "Crocomire projectile oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireProjectileMechanicsDispatch), () => VerifyCrocomireProjectileMechanicsDispatch(projectileOracle));
+        Suite(nameof(VerifyCrocomireProjectilePresentationPositions), () => VerifyCrocomireProjectilePresentationPositions(projectileOracle));
+        Console.WriteLine("Crocomire projectiles: 22 native control words, 13 presentation positions, byte ownership and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-tongue-program")]
+    internal static int LookupCrocomireTongueProgramCommand()
+    {
+        var tongueOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(tongueOracle.Rom)),
+            "Crocomire tongue oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireTongueMechanicsDispatch), () => VerifyCrocomireTongueMechanicsDispatch(tongueOracle));
+        Suite(nameof(VerifyCrocomireTonguePresentationPositions), () => VerifyCrocomireTonguePresentationPositions(tongueOracle));
+        Console.WriteLine("Crocomire tongue: 14 native control words, nine presentation positions, byte ownership and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-crocomire-spike-motion")]
+    internal static int LookupCrocomireSpikeMotionCommand()
+    {
+        var spikeOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(spikeOracle.Rom)),
+            "Crocomire spike oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCrocomireSpikeAccelerationDelta), () => VerifyCrocomireSpikeAccelerationDelta(spikeOracle));
+        Suite(nameof(VerifyCrocomireSpikeMaximumAcceleration), () => VerifyCrocomireSpikeMaximumAcceleration(spikeOracle));
+        Suite(nameof(VerifyCrocomireSpikeMaximumVelocity), () => VerifyCrocomireSpikeMaximumVelocity(spikeOracle));
+        Console.WriteLine("Crocomire spike motion: all 54 native slot values and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-combo-sine-alias")]
+    internal static int LookupComboSineAliasCommand()
+    {
+        var comboOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(comboOracle.Rom)),
+            "Combo sine oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyComboSineOffsetAlias), () => VerifyComboSineOffsetAlias(comboOracle));
+        Console.WriteLine("Combo sine alias: all 65,536 byte-angle/radius pairs match native split multiplication.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-zoa-animation")]
+    internal static int LookupZoaAnimationCommand()
+    {
+        var animationOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(animationOracle.Rom)),
+            "Zoa animation oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyZoaAnimationDefinitions), () => VerifyZoaAnimationDefinitions(animationOracle, definitionsOnly: true));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-zoa-program")]
+    internal static int LookupZoaProgramCommand()
+    {
+        var programOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(programOracle.Rom)),
+            "Zoa program oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyZoaMechanicsDispatch), () => VerifyZoaMechanicsDispatch(programOracle));
+        Suite(nameof(VerifyZoaPresentationPositions), () => VerifyZoaPresentationPositions(programOracle));
+        Console.WriteLine("Zoa programs: 26 original control words, 12 presentation positions, byte ownership and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-zoa-speed-cases")]
+    internal static int LookupZoaSpeedCasesCommand()
+    {
+        var zoaOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(zoaOracle.Rom)),
+            "Zoa oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCompiledZoaSpeeds), () => VerifyCompiledZoaSpeeds(zoaOracle, definitionsOnly: true));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-grapple-origin-cases")]
+    internal static int LookupGrappleOriginCasesCommand()
+    {
+        var originOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(originOracle.Rom)),
+            "Grapple origin oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyGrappleOriginXSelection), () => VerifyGrappleOriginXSelection(originOracle));
+        Suite(nameof(VerifyGrappleOriginDefaultYSelection), () => VerifyGrappleOriginDefaultYSelection(originOracle));
+        Suite(nameof(VerifyGrappleOriginRunningYSelection), () => VerifyGrappleOriginRunningYSelection(originOracle));
+        Console.WriteLine("Grapple origin cases: all 40 original words across three mappings and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-suit-beam-curve")]
+    internal static int LookupSuitBeamCurveCommand()
+    {
+        var suitOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(suitOracle.Rom)),
+            "Suit beam oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifySuitPickupBeamCurveDefinitions), () => VerifySuitPickupBeamCurveDefinitions(suitOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-absolute-tangent")]
+    internal static int LookupAbsoluteTangentCommand()
+    {
+        var tangentOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(tangentOracle.Rom)),
+            "Tangent oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCompiledAbsoluteTangent), () => VerifyCompiledAbsoluteTangent(tangentOracle, definitionsOnly: true));
+        Console.WriteLine("Absolute tangent algorithm: all 129 original words, direct caller aliases and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-shaktool-joint-algorithms")]
+    internal static int LookupShaktoolJointAlgorithmsCommand()
+    {
+        var jointOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(jointOracle.Rom)),
+            "Shaktool joint oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyShaktoolInitialAngleAlgorithm), () => VerifyShaktoolInitialAngleAlgorithm(jointOracle));
+        Console.WriteLine("Shaktool joint algorithms: all 14 original words, velocity alias and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-power-bomb-base-curves")]
+    internal static int LookupPowerBombBaseCurvesCommand()
+    {
+        var powerBombOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(powerBombOracle.Rom)),
+            "Power Bomb oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyPowerBombWidthAlgorithm), () => VerifyPowerBombWidthAlgorithm(powerBombOracle));
+        Suite(nameof(VerifyPowerBombTopOffsetAlgorithm), () => VerifyPowerBombTopOffsetAlgorithm(powerBombOracle));
+        Console.WriteLine("Power Bomb base curves: all 64 original bytes and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-shaktool-orbit")]
+    internal static int LookupShaktoolOrbitCommand()
+    {
+        var orbitOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(orbitOracle.Rom)),
+            "Shaktool oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyShaktoolOrbitAlgorithm), () => VerifyShaktoolOrbitAlgorithm(orbitOracle));
+        Console.WriteLine("Shaktool orbit: all320 words, rounding intervals,256 displacement pairs and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-signed-sine-review")]
+    internal static int LookupSignedSineReviewCommand()
+    {
+        var signedOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(signedOracle.Rom)),
+            "Signed sine oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCompiledSignedTrigonometry), () => VerifyCompiledSignedTrigonometry(signedOracle, definitionsOnly: true));
+        Suite(nameof(VerifySignedSixteenBitSineDefinitions), () => VerifySignedSixteenBitSineDefinitions(signedOracle));
+        Suite(nameof(VerifyPhantoonWaveMath), () => VerifyPhantoonWaveMath(signedOracle, definitionsOnly: true));
+        Console.WriteLine("Signed sine review: 320 signed words, 256 sixteen-bit words and every Phantoon byte phase pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-half-wave-algorithms")]
+    internal static int LookupHalfWaveAlgorithmsCommand()
+    {
+        var sineOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(sineOracle.Rom)),
+            "Sine oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyEightBitHalfWaveAlgorithm), () => VerifyEightBitHalfWaveAlgorithm(sineOracle));
+        Suite(nameof(VerifyUnsignedHalfWaveAlgorithm), () => VerifyUnsignedHalfWaveAlgorithm(sineOracle));
+        Console.WriteLine("Half-wave algorithms: all 256 original samples, rounding intervals and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-spc-pitch-basis")]
+    internal static int LookupSpcPitchBasisCommand()
+    {
+        var pitchOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(pitchOracle.Rom)),
+            "SPC pitch oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifySpcPitchBasisAlgorithm), () => VerifySpcPitchBasisAlgorithm(pitchOracle));
+        Console.WriteLine("SPC pitch basis: all13 original words, root bounds and invalid indices pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-spc-effect-selection")]
+    internal static int LookupSpcEffectSelectionCommand()
+    {
+        var effectOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(effectOracle.Rom)),
+            "SPC effect oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifySpcEffectOperandSelection), () => VerifySpcEffectOperandSelection(effectOracle));
+        Console.WriteLine("SPC effects: all 31 original operand counts and invalid index bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-spc-note-percentages")]
+    internal static int LookupSpcNotePercentagesCommand()
+    {
+        var noteOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(noteOracle.Rom)),
+            "SPC percentage oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifySpcNoteVolumeAlgorithm), () => VerifySpcNoteVolumeAlgorithm(noteOracle));
+        Suite(nameof(VerifySpcNoteGateAlgorithm), () => VerifySpcNoteGateAlgorithm(noteOracle));
+        Console.WriteLine("SPC note percentages: all24 original bytes, every timing-command selector and invalid bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-window-curves")]
+    internal static int LookupWindowCurvesCommand()
+    {
+        var curveOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(curveOracle.Rom)),
+            "Window curve oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifySuitPickupBeamCurveDefinitions), () => VerifySuitPickupBeamCurveDefinitions(curveOracle));
+        Suite(nameof(VerifyCompiledAbsoluteTangent), () => VerifyCompiledAbsoluteTangent(curveOracle, definitionsOnly: true));
+        Console.WriteLine("Window curves: 128 suit bytes and129 tangent words, direct readers and bounds match original data.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-running-cadence-review")]
+    internal static int LookupRunningCadenceReviewCommand()
+    {
+        var cadenceOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(cadenceOracle.Rom)),
+            "Cadence oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyRunningCadence), () => VerifyRunningCadence(cadenceOracle, definitionsOnly: true));
+        Console.WriteLine("Running cadence: nine logical mappings, all 90 catalog bytes, selector bounds and mutable/wrapped aliases pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-shared-speed-review")]
+    internal static int LookupSharedSpeedReviewCommand()
+    {
+        var speedOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(speedOracle.Rom)),
+            "Shared speed oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCompiledLinearEnemySpeeds), () => VerifyCompiledLinearEnemySpeeds(speedOracle, definitionsOnly: true));
+        Suite(nameof(VerifyCompiledQuadraticEnemySpeeds), () => VerifyCompiledQuadraticEnemySpeeds(speedOracle, definitionsOnly: true));
+        Console.WriteLine("Existing speed algorithms: 517 linear pairs, 759 quadratic words in both copies, 757 displacements and bounds match original bytes.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-grapple-launch-algorithms")]
+    internal static int LookupGrappleLaunchAlgorithmsCommand()
+    {
+        var launchOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(launchOracle.Rom)),
+            "Grapple launch oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(launchOracle));
+        Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(launchOracle));
+        Suite(nameof(VerifyGrappleLaunchAngleAlgorithm), () => VerifyGrappleLaunchAngleAlgorithm(launchOracle));
+        Console.WriteLine("Grapple launch: all thirty original words and each field's bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fireflea-melt-algorithms")]
+    internal static int LookupFirefleaMeltAlgorithmsCommand()
+    {
+        var effectOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(effectOracle.Rom)),
+            "Fireflea/melt oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyFirefleaFx), () => VerifyFirefleaFx(includeXrayCapture: false));
+        Suite(nameof(VerifyCrocomireMaskAlgorithm), () => VerifyCrocomireMaskAlgorithm(effectOracle));
+        Suite(nameof(VerifyCrocomireMeltingProductionSequence), () => VerifyCrocomireMeltingProductionSequence(effectOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-fireflea-gunship-algorithms")]
+    internal static int LookupFirefleaGunshipAlgorithmsCommand()
+    {
+        var motionOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(motionOracle.Rom)),
+            "Fireflea/gunship oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyFirefleaMovementDefinitions), () => VerifyFirefleaMovementDefinitions(motionOracle));
+        Suite(nameof(VerifyGunshipMotionDefinitions), () => VerifyGunshipMotionDefinitions(motionOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-owtch-shake-algorithms")]
+    internal static int LookupOwtchShakeAlgorithmsCommand()
+    {
+        var timingOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(timingOracle.Rom)),
+            "Owtch/shake oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyOwtchMovementDefinitions), () => VerifyOwtchMovementDefinitions(timingOracle));
+        Suite(nameof(VerifyRoomShakeDefinitions), () => VerifyRoomShakeDefinitions(timingOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-slope-algorithms")]
+    internal static int LookupSlopeAlgorithmsCommand()
+    {
+        var slopeOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(slopeOracle.Rom)),
+            "slope algorithm oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCompiledSlopeHeights), () => VerifyCompiledSlopeHeights(slopeOracle));
+        Suite(nameof(VerifyCompiledSquareSlopes), () => VerifyCompiledSquareSlopes(slopeOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--shaktool-segment-algorithms")]
+    internal static int ShaktoolSegmentAlgorithmsCommand()
+    {
+        var segmentOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(segmentOracle.Rom)),
+            "Shaktool segment oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyShaktoolSegmentDefinitions), () => VerifyShaktoolSegmentDefinitions(segmentOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--work-robot-initial-selection")]
+    internal static int WorkRobotInitialSelectionCommand()
+    {
+        var robotOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(robotOracle.Rom)),
+            "Work Robot selection oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyWorkRobotInitialSelection), () => VerifyWorkRobotInitialSelection(robotOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-phase-algorithms")]
+    internal static int LookupPhaseAlgorithmsCommand()
+    {
+        var phaseOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(phaseOracle.Rom)),
+            "lookup phase oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyCompiledBotwoonSpeeds), () => VerifyCompiledBotwoonSpeeds(phaseOracle));
+        Suite(nameof(VerifyComboPowerBombCostAlgorithm), () => VerifyComboPowerBombCostAlgorithm(address => ReadPhaseAlgorithmWord(phaseOracle, address)));
+        Suite(nameof(VerifyComboOriginAngleAlgorithm), () => VerifyComboOriginAngleAlgorithm(address => ReadPhaseAlgorithmWord(phaseOracle, address)));
+        Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(phaseOracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-palette-algorithms")]
+    internal static int LookupPaletteAlgorithmsCommand()
+    {
+        var paletteOracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(paletteOracle.Rom)),
+            "lookup palette oracle is NTSC J/U v1.0");
+        Suite(nameof(VerifyDraygonHealthPaletteDefinitions), () => VerifyDraygonHealthPaletteDefinitions(paletteOracle));
+        Suite(nameof(VerifyBotwoonHealthPaletteDefinitions), () => VerifyBotwoonHealthPaletteDefinitions(paletteOracle));
+        Suite(nameof(VerifyWorkRobotPaletteTimingDefinitions), () => VerifyWorkRobotPaletteTimingDefinitions(paletteOracle));
+        return 0;
     }
 }

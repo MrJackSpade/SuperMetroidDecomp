@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class CompressionVerification
 {
-    private static void VerifySmCompressionFormat()
+    internal static void VerifySmCompressionFormat()
     {
         // All eight three-bit command codes are named members.
         AssertEqual(8, Enum.GetValues<SmCompressionCommand>().Length, "compression command domain size");

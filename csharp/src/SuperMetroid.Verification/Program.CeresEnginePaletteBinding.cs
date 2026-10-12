@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInstallation;
+using static SuiteTimingVerification;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -7,14 +17,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class CeresEnginePaletteBindingVerification
 {
     /// <summary>
     /// Reproduces #1150 at the Ceres-to-Zebes palette handoff, without replaying
     /// the escape or giving production simulation access to a cartridge.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyCeresEnginePaletteBinding(string installationRoot)
+    internal static void VerifyCeresEnginePaletteBinding(string installationRoot)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(installation.MapDirectory, null);
@@ -101,5 +111,13 @@ internal static partial class Program
         static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
             ((SnesCgram)typeof(CeresDestructionCinematicState)
                 .GetField("cgram", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(owner)!).Colors.ToArray();
+    }
+
+    [VerificationCommand("--ceres-engine-palette-binding")]
+    internal static int CeresEnginePaletteBindingCommand()
+    {
+        string ceresPaletteInstallation = RepositoryInstallation.Installation.Root;
+        Suite(nameof(VerifyCeresEnginePaletteBinding), () => VerifyCeresEnginePaletteBinding(ceresPaletteInstallation));
+        return 0;
     }
 }

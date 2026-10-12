@@ -3,10 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using System.Buffers.Binary;
 
-internal static partial class Program
+internal static class ControllerInputRecordingVerification
 {
     /// <summary>Proves the replay seed and every raw controller bit survive serialization.</summary>
-    private static void VerifyControllerInputRecording()
+    internal static void VerifyControllerInputRecording()
     {
         byte[] digest = Enumerable.Range(0, 32).Select(index => (byte)index).ToArray();
         byte[] saveRam = new byte[SuperMetroidAddressSpace.SaveRamByteCount];

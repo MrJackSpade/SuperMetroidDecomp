@@ -3,7 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CompiledEnemyVisualSelectorAssertionsVerification
 {
     /// <summary>
     /// Verifies an installed enemy frame selector against the pinned cartridge.
@@ -11,7 +11,7 @@ internal static partial class Program
     /// conceal a production fallback to ROM.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's compiled visual selector word")]
-    private static void AssertCompiledEnemyVisualSelector(
+    internal static void AssertCompiledEnemyVisualSelector(
         SuperMetroidAddressSpace rom,
         EnemyDefinitionId enemyDefinition,
         byte bank,
@@ -28,7 +28,7 @@ internal static partial class Program
 
     /// <summary>Checks a bank-wide selector shared by more than one enemy definition.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for a bank-wide compiled visual selector word")]
-    private static void AssertCompiledEnemyVisualSelector(
+    internal static void AssertCompiledEnemyVisualSelector(
         SuperMetroidAddressSpace rom,
         byte bank,
         ushort operandAddress,

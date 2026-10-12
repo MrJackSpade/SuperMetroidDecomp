@@ -1,14 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GroundedBombSpreadVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the five native bomb-spread velocity and fuse tables")]
-    private static void VerifyGroundedBombSpread()
+    internal static void VerifyGroundedBombSpread()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(new Extent16<RoomBlocks>(128, 128), new RoomLevelPlanes(new ushort[16384], new byte[16384], new ushort[16384]), new byte[8]);
@@ -58,5 +68,12 @@ internal static partial class Program
             }
         }
         Console.WriteLine("Grounded Bomb Spread: retained charge, release/timeout boundaries and all five 16.16 free-flight trajectories pass.");
+    }
+
+    [VerificationCommand("--grounded-bomb-spread")]
+    internal static int GroundedBombSpreadCommand()
+    {
+        Suite(nameof(VerifyGroundedBombSpread), () => VerifyGroundedBombSpread());
+        return 0;
     }
 }

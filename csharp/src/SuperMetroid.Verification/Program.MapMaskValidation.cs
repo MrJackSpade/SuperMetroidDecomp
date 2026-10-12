@@ -2,9 +2,9 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
-internal static partial class Program
+internal static class MapMaskValidationVerification
 {
-    private static void VerifyBundledMapMaskValidation(string directory)
+    internal static void VerifyBundledMapMaskValidation(string directory)
     {
         string maskPath = Path.Combine(directory, AreaMapCatalogFormat.StationRevealFile);
         string manifestPath = Path.Combine(directory, AreaMapCatalogFormat.ManifestFile);

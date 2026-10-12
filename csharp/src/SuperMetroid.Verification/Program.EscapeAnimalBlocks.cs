@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static EscapeRoomEffectsVerification;
+using static Program;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static GrappleDoorsVerification;
 
-internal static partial class Program
+internal static class EscapeAnimalBlocksVerification
 {
-    private static void VerifyEscapeAnimalBlocks(string romPath)
+    internal static void VerifyEscapeAnimalBlocks(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         ushort[] words = Enumerable.Repeat((ushort)0x8123, 256).ToArray();
@@ -44,5 +56,13 @@ internal static partial class Program
         for (int y = 10; y <= 12; y++)
             AssertEqual((ushort)0x80ff, level.GetCollisionBlock(new(15, checked((ushort)y))).LevelWord, "native rescue opening clears artwork but remains solid to Samus");
         Console.WriteLine("Animal rescue: native setup, ROM break animation, cleared wall and event verified.");
+    }
+
+    [VerificationCommand("--escape-animals", "argument1")]
+    internal static int EscapeAnimalsCommand(string[] args)
+    {
+        Suite(nameof(VerifyEscapeAnimalBlocks), () => VerifyEscapeAnimalBlocks(args[1]));
+        Suite(nameof(VerifyEscapeRoomEffects), () => VerifyEscapeRoomEffects(args[1]));
+        return 0;
     }
 }

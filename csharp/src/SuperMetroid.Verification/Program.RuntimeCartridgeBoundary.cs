@@ -1,14 +1,14 @@
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class RuntimeCartridgeBoundaryVerification
 {
     /// <summary>
     /// Architectural regression guard: the gameplay assembly cannot acquire a ROM
     /// payload or call an import-time cartridge reader, even through the bus type.
     /// Reference diagnostics use the separate AssetExtraction assembly instead.
     /// </summary>
-    private static void VerifyRuntimeAddressSpaceHasNoCartridgeApi()
+    internal static void VerifyRuntimeAddressSpaceHasNoCartridgeApi()
     {
         Type runtimeBus = typeof(SuperMetroidAddressSpace);
         const BindingFlags publicInstance = BindingFlags.Public | BindingFlags.Instance;

@@ -3,12 +3,14 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyExtendedFrameArtworkVerification;
+using static FrontendRomFreeVerification;
 
-internal static partial class Program
+internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for shared empty extended frames")]
-    private static void VerifySharedEmptyExtendedFrames(
+    internal static void VerifySharedEmptyExtendedFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var blockedRom = NewFrontendCartridgeReadGuard(rom);

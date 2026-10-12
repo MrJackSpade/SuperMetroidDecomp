@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresFlightFrameCatalogVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight frame catalog")]
-    private static void VerifyCeresFlightFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyCeresFlightFrameCatalog(ISnesAddressSpace rom)
     {
         // Independent native instruction operands in the published catalog order.
         int[] operands = [0xcda5, 0xce4d, 0xcc49, 0xcc51, 0xcc59, 0xcc5d];

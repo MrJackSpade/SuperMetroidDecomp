@@ -1,3 +1,12 @@
+using static Program;
+using static ZebesEscapeExplosionDefinitionsVerification;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
@@ -9,12 +18,22 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static ColorWordsVerification;
+using static DraygonInstructionProgramDefinitionsVerification;
+using static EndingTextPresentationVerification;
+using static EnemyTileArtworkBotwoonColorsVerification;
+using static FrontendRomFreeVerification;
+using static PaletteFxInstructionCodesVerification;
+using static ProjectileCompositionsVerification;
+using static SaveStationElectricityInstructionProgramDefinitionsVerification;
+using static SkreeMetareeParticleInstructionProgramDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupStream4Verification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for foreground cadence")]
-    private static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream4ForegroundCadence(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions), () => VerifyZebesExplosionForegroundPaletteFxProgramMechanicsDefinitions(rom));
         ushort nativeProgram = rom.ReadCartridgeWord(0x8de1ca);
@@ -119,7 +138,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for title ambient mechanics")]
-    private static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream4TitleAmbientMechanics(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions), () => VerifyTitleScreenAmbientPaletteFxProgramMechanicsDefinitions(rom));
         int ticks = 0;
@@ -172,7 +191,7 @@ internal static partial class Program
         Console.WriteLine("Title ambient mechanics:28 native controls, independent record decoding,164 actual per-tick CGRAM states, untouched colors and mechanics read guard pass; independent color artwork remains pending.");
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream4TitleAmbientComplete(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TitleAmbientColors), () => VerifyLookupStream4TitleAmbientColors(rom));
         byte[] json = TitlePaletteExtractor.Extract(rom);
@@ -262,7 +281,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending font character data")]
-    private static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4EndingFontSpaces(ISnesAddressSpace rom)
     {
         byte[] decoded = SuperMetroid.Core.Rom.RomDataReader.Decompress(SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom),
             0x97E7DE, EndingCreditsRomData.Rendering.Mode7Bytes);
@@ -332,7 +351,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia colors")]
-    private static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream4MaridiaColors(CartridgeImportAddressSpace rom)
     {
         byte[] json = RoomPaletteFxPresentationExtractor.Extract(rom);
         var stock = RoomPaletteFxPresentation.Load(new MemoryStream(json));
@@ -397,7 +416,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for planet text")]
-    private static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream4PlanetText(CartridgeImportAddressSpace rom)
     {
         var all = PlanetZebesTextPaletteFxProgramMechanicsDefinitions.All;
         AssertEqual(2, all.Count, "two text fade owners");
@@ -474,7 +493,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres fades")]
-    private static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4CeresFades(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -550,7 +569,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres alarm")]
-    private static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4CeresAlarm(ISnesAddressSpace rom)
     {
         ushort Native(int row, int color)
         {
@@ -643,7 +662,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia palette definitions")]
-    private static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream4MaridiaPaletteDefinitions(CartridgeImportAddressSpace rom)
     {
         var all = MaridiaEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
         AssertEqual(3, all.Count, "three native environmental owners");
@@ -688,7 +707,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending shake")]
-    private static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4EndingShake(ISnesAddressSpace rom)
     {
         int Native(int address)
         {
@@ -754,7 +773,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore health ramp")]
-    private static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4SporeHealthRamp(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4)
             .Select(frame => Enumerable.Range(0, 16).Select(color => CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e379 + frame * 32 + color * 2))).ToArray())
@@ -816,7 +835,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore healthy alias")]
-    private static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4SporeHealthyAlias(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
@@ -867,7 +886,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn level-fade palette")]
-    private static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4SporeLevelFade(ISnesAddressSpace rom)
     {
         byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
             SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
@@ -939,7 +958,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Spore Spawn background-fade palette")]
-    private static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4SporeBackgroundFade(ISnesAddressSpace rom)
     {
         byte[] palette = SuperMetroid.Core.Rom.RomDataReader.Decompress(
             SuperMetroid.Core.Rom.CartridgeImportSource.Require(rom), SporeSpawnDeathColorDefinitions.OriginalRoomPaletteSource);
@@ -1010,7 +1029,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore sprite fade")]
-    private static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4SporeSpriteFade(ISnesAddressSpace rom)
     {
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
         var stock = SporeSpawnColorCatalog.Load(new MemoryStream(source));
@@ -1082,7 +1101,7 @@ internal static partial class Program
             AssertEqual(expectedIdentity, catalog.ContentIdentity, "Calculated fade retains exact selected canonical identity framing");
         }
     }
-    private static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
         ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.ResultPanel,
@@ -1125,7 +1144,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
         ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.JapaneseSubtitle,
@@ -1187,7 +1206,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for tail rest geometry")]
-    private static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4TailRestGeometry(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4TailAngles), () => VerifyLookupStream4TailAngles(rom));
         for (int link = 0; link < 7; link++)
@@ -1236,7 +1255,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby transfer phase")]
-    private static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4BabyTransferPhase(ISnesAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6acda + phase * 2)), (ushort)CeresMode7TransferDefinitions.BabyFrameForPhase(phase), "Baby reflected phase preserves native transfer identity");
@@ -1279,7 +1298,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Fly frame identities")]
-    private static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
+    internal static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
     {
         EnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
         AssertEqual(4, flyFrames.Length, "fly calculated frame catalog count");
@@ -1293,7 +1312,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for HUD icons")]
-    private static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4HudIcons(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         static ushort Word(GameplayHudCell cell)=>SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,
@@ -1364,7 +1383,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for HUD template")]
-    private static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4HudTemplate(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
@@ -1401,7 +1420,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for HUD top row")]
-    private static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4HudTopRow(ISnesAddressSpace rom)
     {
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
         var stock=GameplayHudPresentation.Load(new MemoryStream(json));
@@ -1440,7 +1459,7 @@ internal static partial class Program
 
         Console.WriteLine("HUD top row:32native words/zero overrides,192independent edits/hash/193DMA outputs/template independence/bounds pass; native border source exported.");
     }
-    private static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(rom));
         byte[] json=GameplayHudPresentationExtractor.Extract(rom);
@@ -1478,7 +1497,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for HUD auto cells")]
-    private static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4HudAutoCells(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
@@ -1526,7 +1545,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for HUD digits")]
-    private static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4HudDigits(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
@@ -1569,7 +1588,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for title sprite identities")]
-    private static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
+    internal static void VerifyTitleSpriteIdentities(SuperMetroidAddressSpace rom)
     {
         var nativeTitlePointers = new HashSet<ushort> { 0x8103, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x8ba0c7) };
         foreach (int start in new[] { 0x8ba03d, 0x8ba055, 0x8ba079, 0x8ba09d })
@@ -1595,7 +1614,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for title card layout")]
-    private static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
+    internal static void VerifyTitleCardLayout(SuperMetroidAddressSpace rom)
     {
         for (int address = TitleSequenceInstructionDefinitions.StartAddress;
              address < TitleSequenceInstructionDefinitions.EndAddress; address++)
@@ -1616,7 +1635,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for room sprite dispatch")]
-    private static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomSpriteDispatch(SuperMetroidAddressSpace rom)
     {
         var spriteSpawn = typeof(RoomEnemySystem).GetMethod("SpawnRoomSpriteObject", BindingFlags.Instance | BindingFlags.NonPublic)!
             .CreateDelegate<Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?>>();
@@ -1677,7 +1696,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for beam color relations")]
-    private static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4BeamColorRelations(ISnesAddressSpace rom)
     {
         byte[] source = BeamPaletteExtractor.Extract(rom);
         var stock = BeamPaletteCatalog.Load(new MemoryStream(source));
@@ -1932,7 +1951,7 @@ internal static partial class Program
         }
     }
     [CpuBusBoundary("exact bus test: retail ROM oracle for stream-4 inline tables")]
-    private static void VerifyLookupStream4(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4RidleyFrameDomain), () => VerifyLookupStream4RidleyFrameDomain(rom));
         Suite(nameof(VerifyLookupStream4BeamColorRelations), () => VerifyLookupStream4BeamColorRelations(rom));
@@ -2473,7 +2492,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon presentation layout")]
-    private static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4DraygonPresentationLayout(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         AssertEqual(250, DraygonInstructionProgramDefinitionsTooling.PresentationWordCount, "Native Draygon timed-record count");
@@ -2502,7 +2521,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro")]
-    private static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4DraygonIntro(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
@@ -2571,7 +2590,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon sprite")]
-    private static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4DraygonSprite(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
@@ -2634,7 +2653,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon background")]
-    private static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4DraygonBackground(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = DraygonColorExtractor.Extract(rom);
@@ -2700,7 +2719,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health")]
-    private static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4DraygonHealth(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyLookupStream4DraygonColors), () => VerifyLookupStream4DraygonColors(rom));
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -2824,7 +2843,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Norfair reveal room palette")]
-    private static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4NorfairReveal(ISnesAddressSpace rom)
     {
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
         byte[] json = NorfairRidleyColorExtractor.Extract(rom);
@@ -2917,7 +2936,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair initial")]
-    private static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4NorfairInitial(ISnesAddressSpace rom)
     {
         ushort[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + i * 2))).ToArray();
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
@@ -3016,7 +3035,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon colors")]
-    private static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4BotwoonColors(ISnesAddressSpace rom)
     {
         byte[] original = BotwoonColorExtractor.Extract(rom);
         var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -3092,7 +3111,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Oum list layout")]
-    private static void VerifyLookupStream4OumListLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4OumListLayout(ISnesAddressSpace rom)
     {
         var nativeFrames = new Dictionary<ushort, ushort>();
         for (int frame = 0xcb87; frame <= 0xcca9; frame += 10)
@@ -3139,7 +3158,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for breakup order")]
-    private static void VerifyLookupStream4BreakupOrder(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4BreakupOrder(ISnesAddressSpace rom)
     {
         ushort[] expected = Enumerable.Range(0, 12).Select(index =>
             CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6c933 + index * 7) + 12)))).ToArray();
@@ -3182,7 +3201,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for beam tile geometry")]
-    private static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4BeamTileGeometry(ISnesAddressSpace rom)
     {
         int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
         if (diagonalX >= 0x100) diagonalX -= 0x200;
@@ -3311,7 +3330,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres start")]
-    private static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4CeresStart(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -3369,7 +3388,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Baby")]
-    private static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4CeresBaby(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -3462,7 +3481,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres retreat shared")]
-    private static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4CeresRetreatShared(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -3504,7 +3523,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres zoom and retreat")]
-    private static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4CeresZoomAndRetreat(ISnesAddressSpace rom)
     {
         byte[] zoomJson = CeresRidleyMode7ColorExtractor.Extract(rom);
         var zoomDocument = JsonSerializer.Deserialize<CeresRidleyMode7ColorDocument>(zoomJson, MapPresentationFormat.JsonOptions)!;
@@ -3586,7 +3605,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres health")]
-    private static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4CeresHealth(ISnesAddressSpace rom)
     {
         byte[] json = CeresRidleyColorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<CeresRidleyColorDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -3668,7 +3687,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for HUD anchors")]
-    private static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream4HudAnchors(ISnesAddressSpace rom)
     {
         byte[] json = GameplayHudPresentationExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<GameplayHudPresentationDocument>(json,
@@ -3732,5 +3751,63 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.ItemByteOffset(invalid), "item exact domain");
         foreach (int invalid in new[] { -1, 6, int.MinValue, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => GameplayHudDefinitions.AutoReserveCellIndex(invalid), "AUTO exact domain");
+    }
+
+    [VerificationCommand("--lookup-stream-4-beam-geometry")]
+    internal static int LookupStream4BeamGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream4BeamTileGeometry), () => VerifyLookupStream4BeamTileGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream4-hud-auto-cells")]
+    internal static int LookupStream4HudAutoCellsCommand()
+    {
+        Suite(nameof(VerifyLookupStream4HudAutoCells), () => VerifyLookupStream4HudAutoCells(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream4-hud-anchors")]
+    internal static int LookupStream4HudAnchorsCommand()
+    {
+        Suite(nameof(VerifyLookupStream4HudAnchors), () => VerifyLookupStream4HudAnchors(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream4-hud-digits")]
+    internal static int LookupStream4HudDigitsCommand()
+    {
+        Suite(nameof(VerifyLookupStream4HudDigits), () => VerifyLookupStream4HudDigits(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream4-title-identities")]
+    internal static int LookupStream4TitleIdentitiesCommand()
+    {
+        Suite(nameof(VerifyTitleSpriteIdentities), () => VerifyTitleSpriteIdentities(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream4-title-card")]
+    internal static int LookupStream4TitleCardCommand()
+    {
+        Suite(nameof(VerifyTitleCardLayout), () => VerifyTitleCardLayout(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream4-sprite-dispatch")]
+    internal static int LookupStream4SpriteDispatchCommand()
+    {
+        Suite(nameof(VerifyRoomSpriteDispatch), () => VerifyRoomSpriteDispatch(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream4-fly-escape")]
+    internal static int LookupStream4FlyEscapeCommand()
+    {
+        var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyFlyFrameIdentities), () => VerifyFlyFrameIdentities(source));
+        Suite(nameof(VerifyZebesEscapeExplosionDefinitions), () => VerifyZebesEscapeExplosionDefinitions(source));
+        return 0;
     }
 }

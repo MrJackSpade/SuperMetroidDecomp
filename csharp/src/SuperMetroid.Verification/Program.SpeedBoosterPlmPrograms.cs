@@ -1,8 +1,12 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static BabyMetroidRouteDefinitionsVerification;
+using static SpeedBoosterCollisionBlocksVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SpeedBoosterPlmProgramsVerification
 {
     private static (ushort Start, int Frames, ushort End)[] SpeedBlockNativeLayouts() =>
         [(0xc951,7,0xc974),(0xc974,7,0xc997),(0xc997,7,0xc9ba),(0xc9cf,4,0xc9e4),(0xc9e4,4,0xc9f9)];
@@ -142,7 +146,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCompiledSpeedBoosterPlmPrograms()
+    internal static void VerifyCompiledSpeedBoosterPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -206,7 +210,7 @@ internal static partial class Program
             "Speed-block PLMs: 74 words/five sound bytes and one physical reveal match ROM; all five boosted contacts and bomb reveal execute with source reads forbidden.");
     }
 
-    private static CartridgeReadGuard NewSpeedBoosterPlmReadGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewSpeedBoosterPlmReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
                 int pointer = SnesAddressMath.OffsetInBank(address);

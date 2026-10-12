@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class GoldenTorizoLeftTurnDefinitionsVerification
 {
-    private static void VerifyGoldenTorizoLeftTurnDefinitions(ISnesAddressSpace rom)
+    internal static void VerifyGoldenTorizoLeftTurnDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
         var mechanicsAddresses = new HashSet<ushort>();

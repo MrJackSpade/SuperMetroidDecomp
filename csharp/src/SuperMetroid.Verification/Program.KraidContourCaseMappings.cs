@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidBodyContourVerification;
 
-internal static partial class Program
+internal static class KraidContourCaseMappingsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid body contour left-edge records")]
-    private static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
+    internal static short NativeKraidBodyLeftEdge(SuperMetroidAddressSpace rom, short relativeY)
     {
         for (int record = 0; record < 7; record++)
         {
@@ -18,7 +19,7 @@ internal static partial class Program
         throw new InvalidOperationException("Native Kraid body contour did not terminate within its records.");
     }
 
-    private static void VerifyKraidBodyContourCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidBodyContourCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -45,7 +46,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid growth head-resume immediates")]
-    private static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
+    internal static KraidHeadResumeDefinition NativeKraidGrowthResume(SuperMetroidAddressSpace rom, ushort tilemap)
     {
         // Decode the native LDY/CMP immediates rather than using compiled selector constants.
         ushort offset = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c042);
@@ -59,7 +60,7 @@ internal static partial class Program
         return new((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c047) + offset), CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa70000 | (CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa7c04d) + offset))));
     }
 
-    private static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidGrowthResumeCases(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             AssertEqual(NativeKraidGrowthResume(rom, (ushort)raw), KraidHeadInstructionDefinitions.GrowthResume((ushort)raw),

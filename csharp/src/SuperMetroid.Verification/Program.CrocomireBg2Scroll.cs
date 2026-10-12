@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CrocomireBg2ScrollVerification
 {
-    private static void VerifyCrocomireBg2ScrollDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireBg2ScrollDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireBg2FramePositions), () => VerifyCrocomireBg2FramePositions(rom));
         Suite(nameof(VerifyCrocomireBg2PoseCorrections), () => VerifyCrocomireBg2PoseCorrections(rom));

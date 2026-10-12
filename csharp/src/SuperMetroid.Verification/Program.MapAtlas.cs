@@ -3,12 +3,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class MapAtlasVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map tile atlas")]
-    private static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
+    internal static void VerifyMapAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
         byte[] source = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount);

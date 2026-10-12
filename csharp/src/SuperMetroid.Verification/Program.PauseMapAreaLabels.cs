@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,12 +15,15 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
+using static MapSpritesVerification;
+using static PauseEquipmentRulesVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseMapAreaLabelsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map area-label tiles, palette and heading words")]
-    private static void VerifyPauseMapAreaLabels()
+    internal static void VerifyPauseMapAreaLabels()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
@@ -122,5 +131,12 @@ internal static partial class Program
         }
         Console.WriteLine("Pause area labels: five outside-Tourian areas match raw ROM destination OAM/pixels and area-title words.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
+    }
+
+    [VerificationCommand("--pause-map-area-labels")]
+    internal static int PauseMapAreaLabelsCommand()
+    {
+        Suite(nameof(VerifyPauseMapAreaLabels), () => VerifyPauseMapAreaLabels());
+        return 0;
     }
 }

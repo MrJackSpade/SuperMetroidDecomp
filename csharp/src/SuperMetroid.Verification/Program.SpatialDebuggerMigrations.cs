@@ -6,8 +6,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class SpatialDebuggerMigrationsVerification
 {
     /// <summary>
     /// Confirms the #628 debugger migrations of the camera, background-scroll and door-opening
@@ -256,10 +257,10 @@ internal static partial class Program
     }
 
     /// <summary>A legacy field payload: one retired <c>MotherBrainNeckPoint</c>, written in its historical shape.</summary>
-    private sealed record RetiredNeckPoint(Position16<RoomPixels> Point);
+    internal sealed record RetiredNeckPoint(Position16<RoomPixels> Point);
 
     /// <summary>A legacy field payload: an array of the retired per-line scroll pair, written in its historical shape.</summary>
-    private sealed record RetiredLineScrolls(Position16<BgPlanePixels>[] Lines);
+    internal sealed record RetiredLineScrolls(Position16<BgPlanePixels>[] Lines);
 
     private static void WriteRetiredNeckPoint(BinaryWriter writer, Stream data, Position16<RoomPixels> point)
     {

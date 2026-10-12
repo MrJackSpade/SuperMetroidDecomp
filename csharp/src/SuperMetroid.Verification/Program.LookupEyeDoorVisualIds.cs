@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class LookupEyeDoorVisualIdsVerification
 {
-    private static void VerifyEyeDoorVisualIds()
+    internal static void VerifyEyeDoorVisualIds()
     {
         // Original 23-entry public override identity contract, before the naming conversion.
         (ushort Pointer, string Id)[] expected =

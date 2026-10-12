@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
@@ -6,11 +16,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class WorkRobotPaletteTimingDefinitionsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot palette timing definitions")]
-    private static void VerifyWorkRobotPaletteTimingDefinitions(
+    internal static void VerifyWorkRobotPaletteTimingDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (ushort record = 0;
@@ -156,4 +166,12 @@ internal static partial class Program
                 return timerByte || terminatorByte || colorByte;
             },
             address => $"Work Robot palette handler attempted control read ${address:X6}.");
+
+    [VerificationCommand("--work-robot-palette-timing-definitions")]
+    internal static int WorkRobotPaletteTimingDefinitionsCommand()
+    {
+        Suite(nameof(VerifyWorkRobotPaletteTimingDefinitions), () => VerifyWorkRobotPaletteTimingDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class KraidFootFrameGeometryVerification
 {
-    private static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>();
         for (int index = 0; index < KraidFootInstructionProgramDefinitionsTooling.PresentationWordCount; index++)

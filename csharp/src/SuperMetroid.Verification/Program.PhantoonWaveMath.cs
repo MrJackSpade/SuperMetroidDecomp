@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static WordSamplesVerification;
 
-internal static partial class Program
+internal static class PhantoonWaveMathVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon wave math")]
-    private static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyPhantoonWaveMath(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var samples = new short[512];
         for (int offset = 0; offset < samples.Length; offset++)

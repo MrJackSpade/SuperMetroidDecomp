@@ -7,7 +7,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class NativeSnapshotImportPauseVerification
 {
     /// <summary>
     /// Imports a snapshot taken on the pause menu's stable map page (game state $0F). The
@@ -16,7 +16,7 @@ internal static partial class Program
     /// come from <c>BackupOfPalettesDuringMenu</c>, where pausing moved them.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
+    internal static void ImportNativePauseMenu(SuperMetroidGame game, SuperMetroidRuntime runtime,
         ISnesAddressSpace bus, Func<int, ushort> W, byte[] memory)
     {
         AssertEqual((ushort)SuperMetroidGameState.PausedB, W(NativeSnapshotMemory.GameState),

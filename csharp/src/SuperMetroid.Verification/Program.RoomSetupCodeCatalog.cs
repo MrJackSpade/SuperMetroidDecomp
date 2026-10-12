@@ -1,14 +1,15 @@
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RoomMainCodeCatalogVerification;
 
-internal static partial class Program
+internal static class RoomSetupCodeCatalogVerification
 {
     /// <summary>
     /// Audits every state reachable from the retail room headers and proves every nonzero
     /// setup callback is represented exactly once by the dedicated bank-$8F catalog.
     /// </summary>
-    static void VerifyRoomSetupCodeCatalog()
+    internal static void VerifyRoomSetupCodeCatalog()
     {
         ushort[] catalog = Enum.GetValues<RoomSetupCallback>()
             .Where(callback => callback != RoomSetupCallback.None)

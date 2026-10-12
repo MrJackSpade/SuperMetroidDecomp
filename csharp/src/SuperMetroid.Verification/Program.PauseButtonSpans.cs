@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class PauseButtonSpansVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span words")]
-    private static void VerifyPauseButtonSpanWords(ISnesAddressSpace rom)
+    internal static void VerifyPauseButtonSpanWords(ISnesAddressSpace rom)
     {
         // Independent native LDA long,X sites, in the original six-span order.
         int[] sites = [0x82a633, 0x82a651, 0x82a66f, 0x82a68d, 0x82a6ab, 0x82a6c9];
@@ -29,7 +30,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause button span counts")]
-    private static void VerifyPauseButtonSpanCounts(ISnesAddressSpace rom)
+    internal static void VerifyPauseButtonSpanCounts(ISnesAddressSpace rom)
     {
         int[] sites = [0x82a62d, 0x82a64b, 0x82a669, 0x82a687, 0x82a6a5, 0x82a6c3];
         var spans = PauseMenuLayout.ButtonLabelSpans.ToArray();

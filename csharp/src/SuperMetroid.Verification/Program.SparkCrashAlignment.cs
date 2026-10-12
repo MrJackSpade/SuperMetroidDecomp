@@ -1,10 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static MakeSamusFaceForwardVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class SparkCrashAlignmentVerification
 {
-    private static void VerifySparkCrashAlignment()
+    internal static void VerifySparkCrashAlignment()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SamusPoseId pose in new SamusPoseId[] { SamusPoseId.ShinesparkDiagonalRightPose, SamusPoseId.ShinesparkDiagonalLeftPose })
@@ -25,5 +36,13 @@ internal static partial class Program
                 "Native alignment shifts previous whole Y, not replacing it with current Y");
             AssertEqual(previous, samus.ApplyPreviousPositionWrites(previous), "Alignment checkpoint consumed once");
         }
+    }
+
+    [VerificationCommand("--spark-crash-alignment")]
+    internal static int SparkCrashAlignmentCommand()
+    {
+        Suite(nameof(VerifySparkCrashAlignment), () => VerifySparkCrashAlignment());
+        Suite(nameof(VerifyMakeSamusFaceForward), () => VerifyMakeSamusFaceForward());
+        return 0;
     }
 }

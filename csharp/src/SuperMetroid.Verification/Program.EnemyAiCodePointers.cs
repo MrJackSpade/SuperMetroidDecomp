@@ -1,14 +1,14 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class EnemyAiCodePointersVerification
 {
     /// <summary>
     /// Audits the production enemy callback catalog rather than maintaining a second hand-written
     /// list in the verifier. The EnemyAiRoutine members are complete 24-bit initialization/main entry points;
     /// the nested bank containers hold the 16-bit interaction callbacks stored in enemy headers.
     /// </summary>
-    static void VerifyEnemyAiCodePointerCatalog()
+    internal static void VerifyEnemyAiCodePointerCatalog()
     {
         EnemyAiRoutine[] longEntryPoints = Enum.GetValues<EnemyAiRoutine>();
         AssertTrue(longEntryPoints.Length != 0,

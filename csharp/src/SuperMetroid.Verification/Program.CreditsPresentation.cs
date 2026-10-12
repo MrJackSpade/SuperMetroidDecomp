@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CreditsPresentationVerification
 {
-    private static void VerifyCreditsPresentation(string romPath)
+    internal static void VerifyCreditsPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.CreditsPresentationExtractor.Extract(bus);
@@ -93,7 +105,7 @@ internal static partial class Program
             new MemoryStream(bytes, writable: false)), identity);
     }
 
-    private static void VerifyStaffCreditsAssets(string stockDirectory,
+    internal static void VerifyStaffCreditsAssets(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrideDirectory);
@@ -129,5 +141,13 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(
             stockDirectory, overrideDirectory),
             "corrupt staff-credit override fails without stock fallback");
+    }
+
+    [VerificationCommand("--credits-presentation")]
+    internal static int CreditsPresentationCommand()
+    {
+        string creditsRom = RepositoryRomPath;
+        Suite(nameof(VerifyCreditsPresentation), () => VerifyCreditsPresentation(creditsRom));
+        return 0;
     }
 }

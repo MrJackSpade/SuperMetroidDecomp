@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AnimatedTileInstructionCodesVerification;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupTreadmillMechanicsVerification
 {
-    private static IEnumerable<(ushort Header, ushort Wait, ushort[] Frames, ushort End)> OriginalTreadmillPrograms(ISnesAddressSpace rom)
+    internal static IEnumerable<(ushort Header, ushort Wait, ushort[] Frames, ushort End)> OriginalTreadmillPrograms(ISnesAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8275, 0x827b })
         {
@@ -21,7 +23,7 @@ internal static partial class Program
         }
     }
 
-    private static WreckedShipTreadmillObjectDefinition TreadmillDefinition(ushort header)
+    internal static WreckedShipTreadmillObjectDefinition TreadmillDefinition(ushort header)
     {
         AssertTrue(WreckedShipTreadmillMechanicsDefinitions.TryResolve((AnimatedTileObject)header, out var definition), "Native treadmill resolves");
         return definition;
@@ -33,7 +35,7 @@ internal static partial class Program
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Native treadmill field value");
     }
 
-    private static void VerifyTreadmillHeaderSelection()
+    internal static void VerifyTreadmillHeaderSelection()
     {
         var all = WreckedShipTreadmillMechanicsDefinitions.All.ToArray();
         AssertEqual(2, all.Length, "Two native treadmill headers");
@@ -63,7 +65,7 @@ internal static partial class Program
                 (WreckedShipTreadmillDirection)value), "Unknown direction rejects");
     }
 
-    private static void VerifyTreadmillWaitPointers(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillWaitPointers(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
         {
@@ -73,7 +75,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyTreadmillFramePointers(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillFramePointers(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
         {
@@ -89,13 +91,13 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyTreadmillDurations(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillDurations(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
             foreach (ushort frame in p.Frames) AssertTreadmillNativeWord(rom, TreadmillDefinition(p.Header), frame);
     }
 
-    private static void VerifyTreadmillControlOpcodes(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillControlOpcodes(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
         {
@@ -104,7 +106,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyTreadmillLoopTargets(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillLoopTargets(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
         {
@@ -114,19 +116,19 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyTreadmillTransferSizes(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillTransferSizes(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
             AssertTreadmillNativeWord(rom, TreadmillDefinition(p.Header), (ushort)(p.Header + 2));
     }
 
-    private static void VerifyTreadmillVramDestinations(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillVramDestinations(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
             AssertTreadmillNativeWord(rom, TreadmillDefinition(p.Header), (ushort)(p.Header + 4));
     }
 
-    private static void VerifyTreadmillMechanicsDomain(ISnesAddressSpace rom)
+    internal static void VerifyTreadmillMechanicsDomain(ISnesAddressSpace rom)
     {
         foreach (var p in OriginalTreadmillPrograms(rom))
         {

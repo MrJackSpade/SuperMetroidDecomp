@@ -4,10 +4,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BombChargeRejectionVerification
 {
-    private static void VerifyBombChargeRejection()
+    internal static void VerifyBombChargeRejection()
     {
         Suite(nameof(VerifyBombChargeRelease), () => VerifyBombChargeRelease());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

@@ -1,15 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ShutterScrewContactVerification
 {
     // #1269: MainAI_ShutterShootable_ShutterDestroyable_Kamer ($A2:EED1) runs its function,
     // then, while idle, reacts when Samus's four solid-enemy collision words AND to this
     // enemy and her contact damage is nonzero ($A2:EEE9-EF04). In the 100% movie a screw
     // attack pressed against a Three Musketeers' shootable shutter starts it moving.
-    private static void VerifyShutterScrewContact()
+    internal static void VerifyShutterScrewContact()
     {
         Confirm(contactDamage: SamusContactDamageIndex.ScrewAttack, reacts: true);
         Confirm(contactDamage: SamusContactDamageIndex.None, reacts: false);
@@ -42,5 +52,12 @@ internal static partial class Program
                 $"{context}: the idle shutter starts moving");
             AssertEqual(reacts, state.ShotActivated, $"{context}: the shot-activation flag");
         }
+    }
+
+    [VerificationCommand("--shutter-screw-contact")]
+    internal static int ShutterScrewContactCommand()
+    {
+        VerifyShutterScrewContact();
+        return 0;
     }
 }

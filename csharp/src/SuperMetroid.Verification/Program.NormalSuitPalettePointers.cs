@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class NormalSuitPalettePointersVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the normal-suit palette colors")]
-    private static void VerifyNormalSuitPalettePointers()
+    internal static void VerifyNormalSuitPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusSuitColorCatalog suitColors = SamusSuitColorCatalog.Load(
@@ -48,5 +58,12 @@ internal static partial class Program
                 "special palette counter increments");
         }
         Console.WriteLine("Normal suit palettes: four equipment cases match ROM and live CGRAM with no CPU bus.");
+    }
+
+    [VerificationCommand("--normal-suit-palette-pointers")]
+    internal static int NormalSuitPalettePointersCommand()
+    {
+        Suite(nameof(VerifyNormalSuitPalettePointers), () => VerifyNormalSuitPalettePointers());
+        return 0;
     }
 }

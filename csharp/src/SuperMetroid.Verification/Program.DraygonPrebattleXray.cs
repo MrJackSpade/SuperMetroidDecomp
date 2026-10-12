@@ -1,14 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class DraygonPrebattleXrayVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Draygon offscreen HDMA table")]
-    private static void VerifyDraygonPrebattleXray()
+    internal static void VerifyDraygonPrebattleXray()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] nativeOffscreenTm = [0x1f, 0x04, 0x81, 0x11, 0x00];
@@ -76,5 +84,11 @@ internal static partial class Program
             var changed = new GameplayColorMathRenderLayer(gameplay, math.Lines, math.RevealBlocks, new ColorMathRegisters { ColorMath = math.ColorMath, AddSubscreen = math.AddSubscreen, FixedRed = math.FixedRed, FixedGreen = math.FixedGreen, FixedBlue = math.FixedBlue }, math.Subscreen, math.SubscreenUsesBg2);
             return SoftwareLayeredSnapshotRenderer.Render(new(scene.Memory, new RenderLayer[] { changed }, scene.ObjectSelection, scene.Brightness));
         }
+    }
+
+    [VerificationCommand("--draygon-prebattle-xray")]
+    internal static int DraygonPrebattleXrayCommand()
+    {
+     VerifyDraygonPrebattleXray(); return 0; 
     }
 }

@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
@@ -7,10 +13,11 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SpeedBoosterEchoStopVerification
 {
-    private static void VerifySpeedBoosterEchoStop()
+    internal static void VerifySpeedBoosterEchoStop()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var renderer = new CartridgeAudioRenderer(RepositoryInstallation.Installation.LoadAudio());
@@ -109,5 +116,12 @@ internal static partial class Program
         AssertTrue(speed.EchoSoundRequested, "quicksand does not retract a previously published start command");
         SamusPostDrawAudio.Step(bus, samus, SamusMovementType.Standing, 0);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "quicksand silently suppresses the post-draw stop");
+    }
+
+    [VerificationCommand("--speed-booster-echo-stop")]
+    internal static int SpeedBoosterEchoStopCommand()
+    {
+        Suite(nameof(VerifySpeedBoosterEchoStop), () => VerifySpeedBoosterEchoStop());
+        return 0;
     }
 }

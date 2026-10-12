@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class IntroEggRockingPartsVerification
 {
-    private static void VerifyIntroEggRockingParts(ISnesAddressSpace rom)
+    internal static void VerifyIntroEggRockingParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRocking", value.AppendIdentity);
         foreach (var definition in IntroDiscoveryActorSpriteDefinitions.Frames.Take(3))

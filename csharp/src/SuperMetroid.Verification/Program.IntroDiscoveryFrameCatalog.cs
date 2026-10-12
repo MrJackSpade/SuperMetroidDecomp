@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroDiscoveryFrameCatalogVerification
 {
-    private static void VerifyIntroDiscoveryFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyIntroDiscoveryFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["egg-intact", "egg-crack-1", "egg-crack-2", "egg-crack-3",
             "egg-crack-4", "egg-crack-5", "egg-crack-6", "egg-crack-7", "egg-hatched",

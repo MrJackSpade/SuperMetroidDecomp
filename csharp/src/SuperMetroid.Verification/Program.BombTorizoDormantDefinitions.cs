@@ -2,15 +2,16 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BombTorizoDormantDefinitionsVerification
 {
     /// <summary>
     /// The dormant entry is a bounded bank-$AA program segment. Match every
     /// compiled control word and its visual selector against the pinned cartridge.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo dormant definitions")]
-    private static void VerifyBombTorizoDormantDefinitions(ISnesAddressSpace rom)
+    internal static void VerifyBombTorizoDormantDefinitions(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyBombTorizoDormantControlMapping), () => VerifyBombTorizoDormantControlMapping(rom));
         const byte bank = 0xaa;

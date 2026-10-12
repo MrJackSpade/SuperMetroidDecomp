@@ -1,9 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
+using static WorkRobotInitialSelectionVerification;
 
-internal static partial class Program
+internal static class EnemyRomTablePointersVerification
 {
     /// <summary>
     /// Protects the enemy-data catalog from accidentally acquiring WRAM addresses,
@@ -11,7 +23,7 @@ internal static partial class Program
     /// retail ROM present, this also reads both ends of representative multi-byte ranges.
     /// </summary>
     [CpuBusBoundary("exact bus test: proves representative enemy ROM table ranges map to readable retail cartridge ROM")]
-    static void VerifyEnemyRomTablePointerCatalog()
+    internal static void VerifyEnemyRomTablePointerCatalog()
     {
         // Families production reads stay nested in the catalog; oracle-only families live in
         // test-support as flattened EnemyRomTablePointers* classes.
@@ -152,4 +164,17 @@ internal static partial class Program
                     >= EnemyRomTablePointersTourianStatueConstants.InstructionListWords and
                     < EnemyRomTablePointersTourianStatueConstants.InstructionListWords + 6,
                 address => $"Enemy instruction selector still reads compiled ROM byte ${address:X6}.");
+
+    [VerificationCommand("--enemy-pointer-fixture")]
+    internal static int EnemyPointerFixtureCommand()
+    {
+     VerifyEnemyRomTablePointerCatalog(); return 0; 
+    }
+
+    [VerificationCommand("--enemy-instruction-selectors")]
+    internal static int EnemyInstructionSelectorsCommand()
+    {
+        Suite(nameof(VerifyEnemyRomTablePointerCatalog), () => VerifyEnemyRomTablePointerCatalog());
+        return 0;
+    }
 }

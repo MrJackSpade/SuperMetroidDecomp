@@ -2,10 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class OwtchMovementDefinitionsVerification
 {
-    private static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyOwtchMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 

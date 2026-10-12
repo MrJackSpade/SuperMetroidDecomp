@@ -1,17 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CompiledEnemyVisualSelectorAssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EvirInstructionProgramDefinitionsVerification
 {
-    private static void VerifyEvirInstructionProgramDefinitions()
+    internal static void VerifyEvirInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyEvirInstructionProgramDefinitions(
+    internal static void VerifyEvirInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -171,7 +183,7 @@ internal static partial class Program
             "programs, complete regeneration callbacks, and 49 compiled spritemap selectors pass.");
     }
 
-    private static RoomEnemySystem NewEvirInstructionSystem(
+    internal static RoomEnemySystem NewEvirInstructionSystem(
         ISnesAddressSpace bus,
         BindingFlags flags)
     {
@@ -180,7 +192,7 @@ internal static partial class Program
         return enemies;
     }
 
-    private static void PrepareEvirInstructionSlot(
+    internal static void PrepareEvirInstructionSlot(
         RoomEnemySlot slot,
         EnemyDefinitionId definition,
         ushort entry)
@@ -204,7 +216,7 @@ internal static partial class Program
         return checksum;
     }
 
-    private static CartridgeReadGuard NewEvirInstructionGuard(ISnesAddressSpace rom, bool forbidPresentation = false)
+    internal static CartridgeReadGuard NewEvirInstructionGuard(ISnesAddressSpace rom, bool forbidPresentation = false)
     {
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
             EvirInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -215,5 +227,12 @@ internal static partial class Program
                 address => $"Installed Evir read presentation byte ${address:X6}.")
             : guard.ObserveWords(0xa80000, EvirInstructionProgramDefinitions.PresentationWordCount,
                 EvirInstructionProgramDefinitions.PresentationWordAddress);
+    }
+
+    [VerificationCommand("--evir-instruction-program-definitions")]
+    internal static int EvirInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyEvirInstructionProgramDefinitions), () => VerifyEvirInstructionProgramDefinitions());
+        return 0;
     }
 }

@@ -5,11 +5,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static IntroCinematicArtworkVerification;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class CeresDestructionArtworkVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction tilemaps, characters and actor layout")]
-    private static void VerifyCeresDestructionArtwork(GameInstallation installation,
+    internal static void VerifyCeresDestructionArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         IntroCinematicArtworkCatalog stock = installation.LoadIntroCinematicArt();

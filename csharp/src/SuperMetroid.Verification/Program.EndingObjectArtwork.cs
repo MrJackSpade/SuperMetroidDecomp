@@ -6,11 +6,21 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static EndingCompletionTextInstructionsVerification;
+using static EndingCompletionTextSpriteArtworkVerification;
+using static EndingExplosionSpriteArtworkVerification;
+using static EndingLogoSpriteArtworkVerification;
+using static EndingRewardInstructionsVerification;
+using static EndingRewardSpriteArtworkVerification;
+using static MapSpritesVerification;
+using static PostCreditsCharacterArtworkVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingObjectArtworkVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending object fragment metadata")]
-    private static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
+    internal static void VerifyEndingObjectFragmentMetadata(ISnesAddressSpace bus)
     {
         string[] names = ["ending-explosion-fragment-70.png", "ending-explosion-fragment-74.png",
             "ending-explosion-fragment-78.png", "ending-explosion-fragment-7c.png"];
@@ -32,7 +42,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending cloud definitions")]
-    private static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
+    internal static void VerifyEndingCloudDefinitions(ISnesAddressSpace bus)
     {
         for (int pointer = EndingCloudInstructionDefinitions.Start;
              pointer < EndingCloudInstructionDefinitions.End; pointer += sizeof(ushort))
@@ -117,7 +127,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending object sheets and BG maps")]
-    private static void VerifyEndingObjectArtwork(GameInstallation installation)
+    internal static void VerifyEndingObjectArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
@@ -439,7 +449,7 @@ internal static partial class Program
         }
     }
 
-    private static MutableCartridgeReadGuard NewEndingObjectSourceReadGuard(ISnesAddressSpace source)
+    internal static MutableCartridgeReadGuard NewEndingObjectSourceReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address >= (int)new SnesAddress(0x8b, EndingCloudInstructionDefinitions.Start) &&

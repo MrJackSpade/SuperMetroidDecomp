@@ -3,9 +3,9 @@ using System.IO.Compression;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class IndexedPngVerification
 {
-    private static void VerifyIndexedPng()
+    internal static void VerifyIndexedPng()
     {
         var palette = Enumerable.Range(0, 16).Select(i => new Rgba32((byte)(i * 17), 31, 71, (byte)(i == 0 ? 0 : 255))).ToArray();
         byte[] indexes = Enumerable.Range(0, 33).Select(i => (byte)(i % 16)).ToArray();

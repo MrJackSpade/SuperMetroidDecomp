@@ -4,13 +4,17 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static FrontendRomFreeVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusBodyArtworkVerification
 {
     /// <summary>Checks every extracted selector and split character transfer against retail.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus body artwork")]
-    private static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
+    internal static void VerifySamusBodyArtwork(ISnesAddressSpace bus, GameInstallation installation)
     {
         SamusBodyArtworkCatalog stock = installation.LoadSamusBodyArt();
         Suite(nameof(VerifySamusArmCannonArtwork), () => VerifySamusArmCannonArtwork(bus, stock));
@@ -757,7 +761,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :
+    internal sealed class DeathTileAssetProvider(SamusDeathTileAtlas tiles) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data) =>

@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static CollectibleVisualsVerification;
 
-internal static partial class Program
+internal static class LookupCollectibleDrawsVerification
 {
-    private static void VerifyCollectibleDrawGeometry(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 0);
-    private static void VerifyCollectibleDrawCollision(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 1);
-    private static void VerifyCollectibleDrawVisuals(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 2);
-    private static void VerifyCollectibleDrawIdentity(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 3);
+    internal static void VerifyCollectibleDrawGeometry(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 0);
+    internal static void VerifyCollectibleDrawCollision(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 1);
+    internal static void VerifyCollectibleDrawVisuals(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 2);
+    internal static void VerifyCollectibleDrawIdentity(SuperMetroidAddressSpace rom) => VerifyCollectibleDrawField(rom, 3);
 
     private static void VerifyCollectibleDrawField(SuperMetroidAddressSpace rom, int field)
     {

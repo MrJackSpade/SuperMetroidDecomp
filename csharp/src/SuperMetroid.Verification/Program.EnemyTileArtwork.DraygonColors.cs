@@ -5,12 +5,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkDraygonColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon palette bands")]
-    private static void VerifyInstalledDraygonColors(
+    internal static void VerifyInstalledDraygonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         DraygonColorCatalog native = stock.DraygonColors ??

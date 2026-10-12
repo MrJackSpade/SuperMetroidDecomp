@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static GrapplePoseRefireVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class GrappleDoorsVerification
 {
-    private static void VerifyGrappleBlueDoors()
+    internal static void VerifyGrappleBlueDoors()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ColoredDoorOrientation orientation in Enum.GetValues<ColoredDoorOrientation>())
@@ -58,10 +68,18 @@ internal static partial class Program
     }
 
     /// <summary>Seeds an endpoint collision probe without an impossible forward-facing firing pose.</summary>
-    private static void SeedStationaryGrappleCollisionProbe(ISnesAddressSpace bus, SamusState samus)
+    internal static void SeedStationaryGrappleCollisionProbe(ISnesAddressSpace bus, SamusState samus)
     {
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Grapple.Phase = GrapplePhase.Firing;
         samus.Grapple.FireDirection = samus.ReadShotDirection(bus);
+    }
+
+    [VerificationCommand("--grapple-doors")]
+    internal static int GrappleDoorsCommand()
+    {
+        Suite(nameof(VerifyGrappleBlueDoors), () => VerifyGrappleBlueDoors());
+        Suite(nameof(VerifyGrapplePoseRefire), () => VerifyGrapplePoseRefire());
+        return 0;
     }
 }

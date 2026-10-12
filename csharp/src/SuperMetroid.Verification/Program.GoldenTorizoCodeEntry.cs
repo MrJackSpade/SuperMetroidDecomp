@@ -1,14 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static FrontendRomFreeVerification;
 
-internal static partial class Program
+internal static class GoldenTorizoCodeEntryVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyGoldenTorizoCodeEntry()
+    internal static void VerifyGoldenTorizoCodeEntry()
     {
         // Isolated SRAM; installed artwork is read-only and no player save is loaded.
         var installation = RepositoryInstallation.Installation;
@@ -32,5 +39,11 @@ internal static partial class Program
             "accepted NMI retains the entering beam artwork after enemy graphics uploads");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "GT room entry resumes gameplay after code");
         Console.WriteLine("Golden Torizo code: real room initialization and three continuation frames succeed with the native grant.");
+    }
+
+    [VerificationCommand("--golden-torizo-code-entry")]
+    internal static int GoldenTorizoCodeEntryCommand()
+    {
+     VerifyGoldenTorizoCodeEntry(); return 0; 
     }
 }

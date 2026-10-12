@@ -1,11 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static CeresBlastPlacementVerification;
+using static CeresSpawnerScheduleVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresExplosionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres explosion definitions")]
-    private static void VerifyCeresExplosionDefinitions()
+    internal static void VerifyCeresExplosionDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 
@@ -65,7 +79,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres burst layout")]
-    private static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
+    internal static void VerifyCeresBurstLayout(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresExplosionDefinitions.RepeatingExplosionCount; index++)
         {
@@ -103,4 +117,11 @@ internal static partial class Program
                     >= 0x8bcebb and < 0x8bcecd or
                     >= 0x8bcf2d and < 0x8bcf39,
                 address => $"Ceres explosion reread compiled definition byte ${address:X6}.");
+
+    [VerificationCommand("--ceres-explosion-definitions")]
+    internal static int CeresExplosionDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCeresExplosionDefinitions), () => VerifyCeresExplosionDefinitions());
+        return 0;
+    }
 }

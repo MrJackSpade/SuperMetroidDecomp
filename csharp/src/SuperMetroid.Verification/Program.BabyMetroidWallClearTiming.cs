@@ -1,10 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class BabyMetroidWallClearTimingVerification
 {
     /// <summary>
     /// When Baby Metroid finishes rising after feeding ($A9:F16F), Spawn_Hardcoded_PLM runs the
@@ -12,7 +22,7 @@ internal static partial class Program
     /// meets open space. In the 13% movie Samus dashes through the wall's column on that
     /// frame; the port cleared it only in the PLM handler and stopped her against it.
     /// </summary>
-    private static void VerifyBabyMetroidWallClearTiming()
+    internal static void VerifyBabyMetroidWallClearTiming()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -51,5 +61,12 @@ internal static partial class Program
         AssertEqual(SamusPoseId.MovingRightNormalPose, samus.Pose, "Samus keeps running");
         AssertTrue(samus.Position.X.Whole > 0x02fb, "Samus moves into the cleared column in the same frame");
         Console.WriteLine("  Baby Metroid wall clear: the wall is gone before Samus moves that frame.");
+    }
+
+    [VerificationCommand("--baby-metroid-wall-clear-timing")]
+    internal static int BabyMetroidWallClearTimingCommand()
+    {
+        Suite(nameof(VerifyBabyMetroidWallClearTiming), () => VerifyBabyMetroidWallClearTiming());
+        return 0;
     }
 }

@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static CrystalFlashVisualsVerification;
+using static EnemyDropsVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CrystalFlashCleanupVerification
 {
-    private static void VerifyCrystalFlashRuntime()
+    internal static void VerifyCrystalFlashRuntime()
     {
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 11, refill: false));
         Suite(nameof(VerifyCrystalFlashRuntimeRoute), () => VerifyCrystalFlashRuntimeRoute(capacity: 10, refill: true));
@@ -146,6 +157,12 @@ internal static partial class Program
         Console.WriteLine($"Runtime Crystal Flash: capacity={capacity}, refill={refill}, activation={started}, completion={finished}; placement, bubble, resources and movement ownership pass.");
     }
 
+    [VerificationCommand("--crystal-flash-runtime")]
+    internal static int CrystalFlashRuntimeCommand()
+    {
+        Suite(nameof(VerifyCrystalFlashRuntime), () => VerifyCrystalFlashRuntime());
+        return 0;
+    }
 }
 
 /// <summary>One stationary retail Ripper in a constructed population; its AI/header remain ROM-authored.</summary>

@@ -1,12 +1,15 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AnimatedTileInstructionCodesVerification;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupAnimatedHeadersVerification
 {
     private static readonly ushort[] OriginalSimpleAnimationObjects =
         [0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd];
 
-    private static void VerifySimpleAnimationObjectDomain()
+    internal static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
             RoomFxAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.ObjectPointer)),
@@ -28,11 +31,11 @@ internal static partial class Program
                 "Undefined animated-tile object is rejected at the typed boundary");
     }
 
-    private static void VerifySimpleAnimationInstructionStarts(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySimpleAnimationInstructionStarts(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 0, definition => definition.InstructionPointer));
-    private static void VerifySimpleAnimationTransferSizes(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySimpleAnimationTransferSizes(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 2, definition => definition.TransferByteCount));
-    private static void VerifySimpleAnimationVramDestinations(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySimpleAnimationVramDestinations(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySimpleAnimationHeaderField), () => VerifySimpleAnimationHeaderField(rom, 4, definition => definition.EncodedVramDestination));
 
     private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,

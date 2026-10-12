@@ -1,8 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static BabyMetroidRouteDefinitionsVerification;
+using static LinkedRestoreVisualsVerification;
+using static ShotBlockPlmProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ContactCrumbleProgramsVerification
 {
     // Native list boundaries and timed-record counts from pinned bank_84.asm.
     private static (ushort Start, int Frames, ushort End)[] ContactCrumbleNativeLayouts() =>
@@ -122,7 +136,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyContactCrumblePrograms()
+    internal static void VerifyContactCrumblePrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -291,7 +305,7 @@ internal static partial class Program
             "edited block $0BC composition reaches later streaming");
     }
 
-    private sealed record ContactCrumbleFixture(
+    internal sealed record ContactCrumbleFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
     private static ContactCrumbleFixture NewContactCrumbleFixture(byte bts)
@@ -308,5 +322,12 @@ internal static partial class Program
                 new RoomBlockBehavior(bts)),
             $"contact-crumble BTS {bts} installs its native program");
         return new ContactCrumbleFixture(level, level.CreateBackgroundStreamer(), plms);
+    }
+
+    [VerificationCommand("--contact-crumble-programs")]
+    internal static int ContactCrumbleProgramsCommand()
+    {
+        Suite(nameof(VerifyContactCrumblePrograms), () => VerifyContactCrumblePrograms());
+        return 0;
     }
 }

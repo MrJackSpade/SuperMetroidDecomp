@@ -2,10 +2,11 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PausePaletteSoundVerification
 {
-    static void VerifyPausePaletteSound()
+    internal static void VerifyPausePaletteSound()
     {
         string rom = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(rom)) throw new FileNotFoundException("Pause palette integration requires the private ROM.", rom);

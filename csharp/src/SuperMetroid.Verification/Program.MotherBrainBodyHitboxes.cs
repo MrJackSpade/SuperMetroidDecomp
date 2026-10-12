@@ -1,14 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MotherBrainBodyHitboxesVerification
 {
     // #1269: Mother Brain's body collides through its extended frames' hitbox lists
     // ($A0:9B7F), and each body rectangle's shot callback $A9:B503 turns the projectile into
     // a dud. The port tested a header radius instead, so in the 100% movie a Hyper Beam that
     // native stopped on the body's arm (frame $A174, list $A504) flew on and hit the head.
-    private static void VerifyMotherBrainBodyHitboxes()
+    internal static void VerifyMotherBrainBodyHitboxes()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -46,5 +56,12 @@ internal static partial class Program
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
         AssertTrue((shot.Direction & 0x0010) == 0, "a beam clear of every body rectangle passes");
         Console.WriteLine("Mother Brain body hitboxes: shots resolve against the body's extended frame rectangles.");
+    }
+
+    [VerificationCommand("--mother-brain-body-hitboxes")]
+    internal static int MotherBrainBodyHitboxesCommand()
+    {
+        VerifyMotherBrainBodyHitboxes();
+        return 0;
     }
 }

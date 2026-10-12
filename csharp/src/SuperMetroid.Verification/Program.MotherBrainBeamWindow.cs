@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class MotherBrainBeamWindowVerification
 {
-    static void VerifyMotherBrainBeamWindow()
+    internal static void VerifyMotherBrainBeamWindow()
     {
         var bus = new TestAddressSpace();
         // A native 64-angle-wide beam selects gradients 32/96, both exactly 1.
@@ -80,5 +89,11 @@ internal static partial class Program
         beam.Step(bus, true, new(356, 95), SnesAngle.QuarterTurn, 0x4000);
         AssertEqual((ushort)0xff73, beam.Windows[100], "DE20 uses low X byte, not wrapped enemy-header data");
         Console.WriteLine("  Mother Brain beam: native apex, HDMA split, HUD exclusion, color stride/reset and owned capture agree.");
+    }
+
+    [VerificationCommand("--mother-brain-beam-fixture")]
+    internal static int MotherBrainBeamFixtureCommand()
+    {
+     VerifyMotherBrainBeamWindow(); return 0; 
     }
 }

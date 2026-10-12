@@ -4,11 +4,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static DoorDefinitionsVerification;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SamusFullBodyCycleColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
+    internal static void VerifyFullBodyPaletteColorData(ISnesAddressSpace rom, byte[] extracted)
     {
         var native = SamusFullBodyCycleColorCatalog.Load(new MemoryStream(extracted));
         var originalPointers = new SortedSet<ushort>();
@@ -387,7 +390,7 @@ internal static partial class Program
                 "Varia bright-only edit preserves supplied midpoint and other colors");
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifySamusFullBodyCycleColorOverride(
+    internal static void VerifySamusFullBodyCycleColorOverride(
         string stockDirectory, string overrideDirectory,
         AreaMapPresentationCatalog original, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,

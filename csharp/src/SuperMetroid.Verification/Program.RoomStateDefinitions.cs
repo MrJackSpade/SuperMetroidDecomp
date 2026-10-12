@@ -1,9 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
+using static LookupRoomStateSettingsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomStateDefinitionsVerification
 {
-    private static void VerifyCompiledRoomStateDefinitions()
+    internal static void VerifyCompiledRoomStateDefinitions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -20,5 +32,19 @@ internal static partial class Program
         Console.WriteLine(
             "Room state settings: all 323 identities and 15 fields match cartridge data; " +
             "production Ceres state selection has no cartridge-reader capability.");
+    }
+
+    [VerificationCommand("--lookup-room-state-settings")]
+    internal static int LookupRoomStateSettingsCommand()
+    {
+        Suite(nameof(VerifyCompiledRoomStateDefinitions), () => VerifyCompiledRoomStateDefinitions());
+        return 0;
+    }
+
+    [VerificationCommand("--room-state-payloads")]
+    internal static int RoomStatePayloadsCommand()
+    {
+        Suite(nameof(VerifyCompiledRoomStateDefinitions), () => VerifyCompiledRoomStateDefinitions());
+        return 0;
     }
 }

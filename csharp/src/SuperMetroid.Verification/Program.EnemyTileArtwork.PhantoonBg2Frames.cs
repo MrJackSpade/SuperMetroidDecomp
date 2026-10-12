@@ -5,11 +5,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ExtendedBg2ReferenceVerification;
+using static FrontendRomFreeVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
-    private static void VerifyInstalledPhantoonBg2Frames(
+    internal static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
     {
@@ -204,7 +207,7 @@ internal static partial class Program
             "Phantoon eye-only frame selects native vulnerable eye callback");
     }
 
-    private static ushort FindPhantoonHitboxCallback(
+    internal static ushort FindPhantoonHitboxCallback(
         EnemyTileArtworkCatalog art, ISnesAddressSpace bus,
         ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {

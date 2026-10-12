@@ -1,12 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static DraygonCannonVisualsVerification;
+using static LookupCannonLayoutsVerification;
+using static LookupCannonProgramVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class DraygonCannonPlmProgramVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon cannon PLM program")]
-    private static void VerifyDraygonCannonPlmProgram()
+    internal static void VerifyDraygonCannonPlmProgram()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -138,4 +152,11 @@ internal static partial class Program
                         return address >= start && address < start + size;
                     }),
                 address => $"Draygon cannon reread compiled program byte ${address:X6}.");
+
+    [VerificationCommand("--draygon-cannon-plm-program")]
+    internal static int DraygonCannonPlmProgramCommand()
+    {
+        Suite(nameof(VerifyDraygonCannonPlmProgram), () => VerifyDraygonCannonPlmProgram());
+        return 0;
+    }
 }

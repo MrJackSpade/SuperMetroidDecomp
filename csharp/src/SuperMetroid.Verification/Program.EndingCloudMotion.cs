@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Frontend;
 
-internal static partial class Program
+internal static class EndingCloudMotionVerification
 {
-    private static void VerifyEndingCloudMotion()
+    internal static void VerifyEndingCloudMotion()
     {
         foreach (EndingSpriteRole role in new[] { EndingSpriteRole.CloudRightA, EndingSpriteRole.CloudRightB,
             EndingSpriteRole.CloudLeftA, EndingSpriteRole.CloudLeftB, EndingSpriteRole.CloudTopA,

@@ -4,11 +4,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static DynamicCollectibleArtVerification;
+using static LookupDynamicCollectiblePalettesVerification;
+using static LookupDynamicCollectibleSourcesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CompiledDynamicCollectibleGraphicsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyCompiledDynamicCollectibleGraphics(
+    internal static void VerifyCompiledDynamicCollectibleGraphics(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDynamicCollectibleSourcePointers), () => VerifyDynamicCollectibleSourcePointers(rom));
@@ -39,7 +43,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for collectible graphics words")]
-    private static ushort ReadCollectibleGraphicsWord(
+    internal static ushort ReadCollectibleGraphicsWord(
         ISnesAddressSpace bus, int address) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | address);
 
     private static CartridgeReadGuard NewRetailCollectibleGraphicsReadGuard(ISnesAddressSpace source) =>

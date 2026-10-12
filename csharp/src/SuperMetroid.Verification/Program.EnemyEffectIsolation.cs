@@ -1,13 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyAnimationIsolationFixtureVerification;
+using static EnemyEffectsFixtureVerification;
 
-internal static partial class Program
+internal static class EnemyEffectIsolationVerification
 {
     /// <summary>Checks the two statically identified melt graphs, not a search for runtime reads.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyCrocomireEffectIsolation()
+    internal static void VerifyCrocomireEffectIsolation()
     {
         var baseline = new CrocomireEffectFixture(MeltEffectArtwork(0x55));
         var edited = new CrocomireEffectFixture(MeltEffectArtwork(0xaa, seed: 3));
@@ -73,7 +85,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyMotherBrainRotIsolation()
+    internal static void VerifyMotherBrainRotIsolation()
     {
         var baseline = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var edited = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -147,5 +159,13 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("_vram", flags)!.SetValue(enemies, vram);
         return typeof(RoomEnemySystem).GetMethod("ApplyMotherBrainRainbowTileTransfer", flags)!
             .CreateDelegate<Action<MotherBrainSpriteTileTransferRequest>>(enemies);
+    }
+
+    [VerificationCommand("--enemy-effect-isolation")]
+    internal static int EnemyEffectIsolationCommand()
+    {
+        Suite(nameof(VerifyCrocomireEffectIsolation), () => VerifyCrocomireEffectIsolation());
+        Suite(nameof(VerifyMotherBrainRotIsolation), () => VerifyMotherBrainRotIsolation());
+        return 0;
     }
 }

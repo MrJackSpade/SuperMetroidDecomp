@@ -7,8 +7,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static CeresFlightSpriteArtworkVerification;
+using static GraphDigestVerification;
+using static IntroCinematicArtworkVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresFlightArtworkVerification
 {
     /// <summary>Exercises the actual front/rear Mode-7 transfers and restored Ceres flight.</summary>
     /// <summary>
@@ -16,11 +21,11 @@ internal static partial class Program
     /// dispatch and $8B:BDE4's 24-dispatch music wait precede the 32-dispatch approach
     /// (13% capture updates 6999-7055).
     /// </summary>
-    private const int CeresFrontApproachTicks = 30;
+    internal const int CeresFrontApproachTicks = 30;
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight Mode 7 characters, maps, object characters and palette")]
-    private static void VerifyCeresFlightArtwork(GameInstallation installation,
+    internal static void VerifyCeresFlightArtwork(GameInstallation installation,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         CeresFlightArtworkCatalog stock = installation.LoadIntroCinematicArt().CeresFlight;

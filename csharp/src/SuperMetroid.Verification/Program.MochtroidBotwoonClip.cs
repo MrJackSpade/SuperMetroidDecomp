@@ -1,13 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MochtroidBotwoonClipVerification
 {
-    private readonly record struct MochtroidClipNativeRecord(
+    internal readonly record struct MochtroidClipNativeRecord(
         string Case,
         ushort EnemyNativeIndex,
         Position16<RoomPixels> Samus,
@@ -30,7 +39,7 @@ internal static partial class Program
     /// Replays the smallest retail-room sequence for the frozen-Mochtroid Botwoon pipe
     /// clip and compares it with checkpoints captured from the original CPU routines.
     /// </summary>
-    private static void VerifyMochtroidBotwoonPipeClip()
+    internal static void VerifyMochtroidBotwoonPipeClip()
     {
         MochtroidClipNativeRecord[] records = File.ReadLines(
                 "csharp/test-fixtures/movement-release/mochtroid-botwoon-440-native.csv")
@@ -174,5 +183,12 @@ internal static partial class Program
             byte.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);
         static int ParseInt(string value) =>
             int.Parse(value, NumberStyles.None, CultureInfo.InvariantCulture);
+    }
+
+    [VerificationCommand("--mochtroid-botwoon-clip")]
+    internal static int MochtroidBotwoonClipCommand()
+    {
+        Suite(nameof(VerifyMochtroidBotwoonPipeClip), () => VerifyMochtroidBotwoonPipeClip());
+        return 0;
     }
 }

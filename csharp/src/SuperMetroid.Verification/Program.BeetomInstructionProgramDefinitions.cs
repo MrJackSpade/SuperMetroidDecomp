@@ -1,18 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BeetomInstructionProgramDefinitionsVerification
 {
-    private static void VerifyBeetomInstructionProgramDefinitions()
+    internal static void VerifyBeetomInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyBeetomInstructionProgramDefinitions(
+    internal static void VerifyBeetomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
@@ -342,7 +352,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Beetom instruction words")]
-    private static ushort ReadBeetomInstructionWord(
+    internal static ushort ReadBeetomInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
@@ -359,5 +369,12 @@ internal static partial class Program
                 address => $"Installed Beetom read visual-selector byte ${address:X6}.")
             : guard.ObserveWords(0xa80000, BeetomInstructionProgramDefinitionsTooling.PresentationWordCount,
                 BeetomInstructionProgramDefinitionsTooling.PresentationWordAddress);
+    }
+
+    [VerificationCommand("--beetom-instruction-mechanics")]
+    internal static int BeetomInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions());
+        return 0;
     }
 }

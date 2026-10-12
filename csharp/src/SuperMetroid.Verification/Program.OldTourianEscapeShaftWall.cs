@@ -1,16 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class OldTourianEscapeShaftWallVerification
 {
     // #1269: during the escape the Climb's state runs room setup $8F:91A9, which spawns PLM
     // $84:B964. Its pre-instruction ($84:B927) waits for Samus to be strictly below and right
     // of ($F0,$820), then spawns explosion $86:B4B1 at the wall's middle ($110,$888) and
     // clears the two wall columns. The port never ran that setup, so in the 100% movie the
     // explosion native spawns into slot 15 never appeared.
-    private static void VerifyOldTourianEscapeShaftWall()
+    internal static void VerifyOldTourianEscapeShaftWall()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -44,5 +53,12 @@ internal static partial class Program
             AssertEqual((ushort)0x00ff, word, $"wall block ({column},{row}) opens to $00FF");
         }
         Console.WriteLine("Old Tourian escape shaft wall: setup spawns the PLM; Samus past the target blows the wall.");
+    }
+
+    [VerificationCommand("--old-tourian-escape-shaft-wall")]
+    internal static int OldTourianEscapeShaftWallCommand()
+    {
+        VerifyOldTourianEscapeShaftWall();
+        return 0;
     }
 }

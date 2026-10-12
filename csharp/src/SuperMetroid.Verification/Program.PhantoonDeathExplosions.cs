@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PhantoonDeathExplosionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon death explosions")]
-    private static void VerifyCompiledPhantoonDeathExplosions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonDeathExplosions(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 13; i++)
         {

@@ -1,14 +1,15 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SamusMovementRomDataVerification;
 
-internal static partial class Program
+internal static class SamusPaletteRomDataVerification
 {
     /// <summary>
     /// Audits every shared Samus palette table through the complete record count consumed
     /// by the translated handlers. Existing state-machine checks then prove those named
     /// ranges still drive hurt, visor, boost, X-ray, Crystal Flash, death, and Hyper Beam.
     /// </summary>
-    static void VerifySamusPaletteRomData()
+    internal static void VerifySamusPaletteRomData()
     {
         AssertEqual(
             SamusPaletteRomData.Common.SamusObjPaletteStart +

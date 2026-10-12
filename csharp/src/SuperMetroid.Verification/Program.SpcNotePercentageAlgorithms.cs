@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SpcNotePercentageAlgorithmsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC effect operand selection")]
-    private static void VerifySpcEffectOperandSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcEffectOperandSelection(SuperMetroidAddressSpace rom)
     {
         for (int opcode = 0xe0; opcode <= 0xfe; opcode++)
         {
@@ -18,7 +18,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC note volume algorithm")]
-    private static void VerifySpcNoteVolumeAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcNoteVolumeAlgorithm(SuperMetroidAddressSpace rom)
     {
         // Every possible timing/volume command byte: the decoder uses its low nibble.
         for (int command = 0; command < 128; command++)
@@ -32,7 +32,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC note gate algorithm")]
-    private static void VerifySpcNoteGateAlgorithm(SuperMetroidAddressSpace rom)
+    internal static void VerifySpcNoteGateAlgorithm(SuperMetroidAddressSpace rom)
     {
         // The high command bit is clear; bits4..6 select the gate fraction.
         for (int command = 0; command < 128; command++)

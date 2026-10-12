@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class WrapShotRoomsVerification
 {
-    private static void VerifyRetailWrapShotDoors()
+    internal static void VerifyRetailWrapShotDoors()
     {
         foreach (var setup in new[] {
             (Room: RoomHeaderPointers.LandingSite, X: 2260, Y: 546, Target: 0x1561, Beams: 9, Hit: 9),
@@ -52,5 +61,12 @@ internal static partial class Program
             AssertTrue(succeeds ? openingSound : !openingSound,
                 "Remote opening completes all four cap cells and queues the cartridge sound only for a successful wrap shot");
         }
+    }
+
+    [VerificationCommand("--wrap-shot-rooms")]
+    internal static int WrapShotRoomsCommand()
+    {
+        Suite(nameof(VerifyRetailWrapShotDoors), () => VerifyRetailWrapShotDoors());
+        return 0;
     }
 }

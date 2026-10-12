@@ -1,17 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static FrontendRomFreeVerification;
+using static RepositoryInputsVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class FrontendRomFreeDirectRoomVerification
 {
     /// <summary>
     /// Compare one retail room without first replaying the opening cinematic or
     /// deserializing a version-sensitive debugger graph. The installed instance
     /// starts with no cartridge allocation, so any uncompiled source read fails.
     /// </summary>
-    private static void VerifyFrontendRomFreeDirectRoom()
+    internal static void VerifyFrontendRomFreeDirectRoom()
     {
         // Kraid's room, neutral and firing, then held Right+fire: the moving shot reaches the
         // arm's extended hitbox walker, which once read $A7:9127 from the cartridge.
@@ -37,5 +48,12 @@ internal static partial class Program
         native.RuntimeForVerification!.ApplyHostOptions(options);
         installed.RuntimeForVerification!.ApplyHostOptions(options);
         VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = roomPointer, RoomName = $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}" }, frameCount, heldInput: heldInput);
+    }
+
+    [VerificationCommand("--rom-free-direct-room")]
+    internal static int RomFreeDirectRoomCommand()
+    {
+        Suite(nameof(VerifyFrontendRomFreeDirectRoom), () => VerifyFrontendRomFreeDirectRoom());
+        return 0;
     }
 }

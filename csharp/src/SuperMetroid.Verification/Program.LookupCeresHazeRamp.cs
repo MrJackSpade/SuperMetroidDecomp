@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static DoorDefinitionsVerification;
+using static LookupFxBlendSelectorsVerification;
 
-internal static partial class Program
+internal static class LookupCeresHazeRampVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze ramp")]
     private static byte[] OriginalCeresHazeRamp(ISnesAddressSpace rom, int counter)
@@ -37,7 +39,7 @@ internal static partial class Program
         return rows;
     }
 
-    private static void VerifyCeresHazeNativeRamp(ISnesAddressSpace rom)
+    internal static void VerifyCeresHazeNativeRamp(ISnesAddressSpace rom)
     {
         int fadeLimit = ReadVerificationWord(rom, 0x88de43);
         for (int counter = 0; counter <= fadeLimit; counter++)
@@ -70,7 +72,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCeresHazeTintScaling(ISnesAddressSpace rom)
+    internal static void VerifyCeresHazeTintScaling(ISnesAddressSpace rom)
     {
         int lastCounter = ReadVerificationWord(rom, 0x88de43);
         var document = new RoomFxPaletteBlendDocument { Version = 1, Blends = new() };

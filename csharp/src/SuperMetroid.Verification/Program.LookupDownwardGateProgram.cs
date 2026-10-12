@@ -1,13 +1,14 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupDownwardGateProgramVerification
 {
-    private static void VerifyDownwardGateProgramControls(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateProgramControls(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 0);
-    private static void VerifyDownwardGateProgramDraws(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateProgramDraws(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 1);
-    private static void VerifyDownwardGateProgramOperands(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateProgramOperands(SuperMetroidAddressSpace rom) =>
         VerifyDownwardGateProgramField(rom, 2);
 
     private static void VerifyDownwardGateProgramField(SuperMetroidAddressSpace rom, int field)
@@ -48,7 +49,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyDownwardGateProgramSounds(SuperMetroidAddressSpace rom)
+    internal static void VerifyDownwardGateProgramSounds(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xbc29,0xbc4c];
         var exported = DownwardGatePlmProgramDefinitions.MechanicsBytes.ToArray();

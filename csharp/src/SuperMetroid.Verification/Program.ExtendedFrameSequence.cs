@@ -1,8 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 
-internal static partial class Program
+internal static class ExtendedFrameSequenceVerification
 {
-    private static void VerifyExtendedFrameSequence()
+    internal static void VerifyExtendedFrameSequence()
     {
         var frames = EnemyExtendedFrameDefinitions.Frames.ToArray();
         string identity = string.Join("\n", frames.Select(frame => $"{frame.Bank:X2}:{frame.Pointer:X4}:{frame.Name}"));
@@ -28,5 +40,12 @@ internal static partial class Program
         catch (ArgumentOutOfRangeException) { badRangeRejected = true; }
         AssertTrue(badRangeRejected, "invalid sequence range rejected");
         Console.WriteLine("Extended-frame sequence: original 588 entries, ordering, legacy prefixes, ranges and bounds pass.");
+    }
+
+    [VerificationCommand("--lookup-extended-frame-sequence")]
+    internal static int LookupExtendedFrameSequenceCommand()
+    {
+        Suite(nameof(VerifyExtendedFrameSequence), () => VerifyExtendedFrameSequence());
+        return 0;
     }
 }

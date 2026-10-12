@@ -2,10 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ZebesEscapeExplosionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Zebes escape explosion definitions")]
-    private static void VerifyZebesEscapeExplosionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyZebesEscapeExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
         {

@@ -3,10 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class MotherBrainFallingTubeInstructionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain falling-tube instruction words")]
-    private static void VerifyMotherBrainFallingTubeInstructionDefinitions()
+    internal static void VerifyMotherBrainFallingTubeInstructionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

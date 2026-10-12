@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class SaveRamLayoutVerification
 {
     /// <summary>
     /// Guards the cartridge SRAM schema independently of serializer behavior. Intentional
     /// holes are allowed, but no named field may overlap another field or leave its slot.
     /// </summary>
-    static void VerifySaveRamLayout()
+    internal static void VerifySaveRamLayout()
     {
         (int Offset, int Length, string Name)[] payloadRegions =
         [

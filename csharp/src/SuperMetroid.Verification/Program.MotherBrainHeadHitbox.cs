@@ -1,16 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MotherBrainHeadHitboxVerification
 {
     // #1269: the head enemy keeps InstList_MotherBrainHead_InitialDummy for life, so its
     // extended spritemap is $A9:A320 and its hitbox Hitbox_MotherBrainBody_0 (-$14,-$15 to
     // +$10,+$17). The visible brain runs a separate list in the draw hook. The port ran the
     // brain list on the head enemy, testing the drawn frame's shape instead: in the 100%
     // movie a charged beam that native lands on the head missed it.
-    private static void VerifyMotherBrainHeadHitbox()
+    internal static void VerifyMotherBrainHeadHitbox()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -42,5 +52,12 @@ internal static partial class Program
         runtime.Enemies.ResolveOrdinaryProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles, runtime.Samus!);
         AssertEqual((ushort)17100, head.Health, "the charged beam lands on the head's native hitbox");
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");
+    }
+
+    [VerificationCommand("--mother-brain-head-hitbox")]
+    internal static int MotherBrainHeadHitboxCommand()
+    {
+        VerifyMotherBrainHeadHitbox();
+        return 0;
     }
 }

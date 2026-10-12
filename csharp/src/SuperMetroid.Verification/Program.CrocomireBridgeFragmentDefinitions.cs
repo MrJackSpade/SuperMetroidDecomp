@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CrocomireBridgeFragmentDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire bridge fragment definitions")]
-    private static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireBridgeFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         const int sourceAddress = 0xa49156;
         for (ushort byteOffset = 0; byteOffset < 22; byteOffset += 2)
@@ -67,4 +79,12 @@ internal static partial class Program
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa49156 and < 0xa4916c,
                 address => $"Crocomire bridge fragment attempted migrated position read ${address:X6}.");
+
+    [VerificationCommand("--crocomire-bridge-fragment-definitions")]
+    internal static int CrocomireBridgeFragmentDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCrocomireBridgeFragmentDefinitions), () => VerifyCrocomireBridgeFragmentDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Input;
 
-internal static partial class Program
+internal static class AttractDemoControllerVerification
 {
-    private static void VerifyAttractDemoControllerOverride()
+    internal static void VerifyAttractDemoControllerOverride()
     {
         var controller = new ControllerInputState(4, 2);
         controller.Latch((ushort)SnesButton.Start);

@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SpinChargeVerification
 {
     /// <summary>Regression for #473: spin HUD dispatch preserves charge on Shoot release.</summary>
-    private static void VerifySpinChargePreservation(TestAddressSpace bus, RoomLevelData air,
+    internal static void VerifySpinChargePreservation(TestAddressSpace bus, RoomLevelData air,
         SuperMetroid.Core.Assets.ProjectileFrameBindingCatalog frames)
     {
         foreach (SamusPoseId pose in new[] { SamusPoseId.SpinJumpRightPose, SamusPoseId.SpinJumpLeftPose,

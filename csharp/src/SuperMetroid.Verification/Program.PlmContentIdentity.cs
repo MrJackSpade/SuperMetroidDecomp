@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class PlmContentIdentityVerification
 {
     /// <summary>Selected-art verification only: constructed catalogs, no ROM and no gameplay traversal.</summary>
-    private static void VerifyPlmContentIdentity()
+    internal static void VerifyPlmContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreatePlmIdentityFixture();
         IReadOnlyDictionary<string, string> stock = RoomPlmPresentationIdentity.Create(new RoomPlmVisualCatalogSet { ShotBlock = RoomPlmShotBlockVisualCatalog.Stock(), GrappleBlock = RoomPlmGrappleBlockVisualCatalog.Stock(), Station = RoomPlmStationVisualCatalog.Stock(), BlueDoor = RoomPlmBlueDoorVisualCatalog.Stock(), ColoredDoor = RoomPlmColoredDoorVisualCatalog.Stock(), GreyDoor = RoomPlmGreyDoorVisualCatalog.Stock(), EyeDoor = RoomPlmEyeDoorVisualCatalog.Stock(), MotherBrainGlass = RoomPlmMotherBrainGlassVisualCatalog.Stock(), NoobTube = RoomPlmNoobTubeVisualCatalog.Stock(), DownwardGate = RoomPlmDownwardGateVisualCatalog.Stock(), ElevatorPlatform = RoomPlmElevatorPlatformVisualCatalog.Stock(), EscapeGate = RoomPlmEscapeGateVisualCatalog.Stock(), BombTorizoHand = RoomPlmBombTorizoHandVisualCatalog.Stock(), DraygonCannon = RoomPlmDraygonCannonVisualCatalog.Stock(), ChozoStatue = RoomPlmChozoStatueVisualCatalog.Stock(), LinkedRestore = RoomPlmLinkedRestoreVisualCatalog.Stock(), TourianAccess = RoomPlmTourianAccessVisualCatalog.Stock(), SpeedBooster = RoomPlmSpeedBoosterVisualCatalog.Stock(), MaridiaElevatube = RoomPlmMaridiaElevatubeVisualCatalog.Stock(), SporeSpawnCeiling = RoomPlmSporeSpawnCeilingVisualCatalog.Stock(), SamusEater = RoomPlmSamusEaterVisualCatalog.Stock(), BotwoonWall = RoomPlmBotwoonWallVisualCatalog.Stock(), Kraid = RoomPlmKraidVisualCatalog.Stock(), Crocomire = RoomPlmCrocomireVisualCatalog.Stock(), MotherBrainFakeDeath = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock(), Collectible = RoomPlmCollectibleVisualCatalog.Stock(), DynamicCollectibleArt = RoomPlmDynamicCollectibleArtCatalog.Stock() });
@@ -109,5 +119,12 @@ internal static partial class Program
                 .Select(draw => new RoomPlmMotherBrainFakeDeathVisualEntry(MotherBrainFakeDeathPlmDrawDefinitions.VisualId(draw.Pointer), draw.Runs.SelectMany(run => run).ToArray()))), Collectible = new RoomPlmCollectibleVisualCatalog(Words(GameInstallationLayout.RoomPlmCollectibleVisualDirectoryName,
                 RoomPlmCollectibleDrawDefinitions.All.ToArray().Select(draw => (draw.Pointer, draw.LevelWord)))
                 .Select(draw => new RoomPlmCollectibleVisualEntry(RoomPlmCollectibleDrawDefinitions.All.ToArray().Single(frame => frame.Pointer == draw.Pointer).Id, draw.Word))), DynamicCollectibleArt = new RoomPlmDynamicCollectibleArtCatalog(reverse ? dynamicEntries.Reverse() : dynamicEntries) });
+    }
+
+    [VerificationCommand("--plm-content-identity")]
+    internal static int PlmContentIdentityCommand()
+    {
+        Suite(nameof(VerifyPlmContentIdentity), () => VerifyPlmContentIdentity());
+        return 0;
     }
 }

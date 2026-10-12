@@ -2,11 +2,11 @@ using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SpcDspPublicationVerification
 {
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC DSP publication")]
-    private static void VerifySpcDspPublication(ISnesAddressSpace rom)
+    internal static void VerifySpcDspPublication(ISnesAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         foreach (byte stored in new byte[] { 0x80, 1, 2 })

@@ -1,3 +1,8 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using System.IO.Compression;
 using SuperMetroid.AssetExtraction;
@@ -8,10 +13,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class DoorTransitionAutosaveVerification
 {
-    private static void VerifyDoorTransitionAutosave()
+    internal static void VerifyDoorTransitionAutosave()
     {
         AssertTrue(new SuperMetroidGameOptions().DoorTransitionAutosave, "new sessions enable door recovery");
         AssertTrue(SuperMetroidGameOptionsIni.Parse("[Game]\nInfiniteAmmo=false").DoorTransitionAutosave,
@@ -167,5 +175,11 @@ internal static partial class Program
                 throw new InvalidOperationException("Autosave cleanup escaped fixture parent.");
             Directory.Delete(directory, recursive: true);
         }
+    }
+
+    [VerificationCommand("--door-autosave")]
+    internal static int DoorAutosaveCommand()
+    {
+     VerifyDoorTransitionAutosave(); return 0; 
     }
 }

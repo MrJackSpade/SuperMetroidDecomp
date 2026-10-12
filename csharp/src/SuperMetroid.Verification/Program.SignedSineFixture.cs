@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SignedSineFixtureVerification
 {
     /// <summary>
     /// Seeds entries of the shared signed 8.8 sine table (`$A0:B443`, 256 words indexed by
@@ -8,7 +10,7 @@ internal static partial class Program
     /// little-endian word at its angle's slot; unseeded angles stay zero.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $A0:B443 signed sine table")]
-    static void SeedSignedSineTable(TestAddressSpace bus, ReadOnlySpan<(byte Angle, short Value)> samples)
+    internal static void SeedSignedSineTable(TestAddressSpace bus, ReadOnlySpan<(byte Angle, short Value)> samples)
     {
         foreach ((byte angle, short value) in samples)
             WriteTestWord(bus, 0xa0b443 + angle * 2, unchecked((ushort)value));

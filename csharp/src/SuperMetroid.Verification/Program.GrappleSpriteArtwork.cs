@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static GraphDigestVerification;
 
-internal static partial class Program
+internal static class GrappleSpriteArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple endpoint and segment OBJ attributes")]
-    private static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
+    internal static void VerifyGrappleSpriteArtwork(SuperMetroidAddressSpace bus)
     {
         byte[] json = GrappleSpriteExtractor.Extract(bus);
         byte[] png = GrappleTileExtractor.Extract(bus);
@@ -90,5 +101,12 @@ internal static partial class Program
             style["tileColumn"] = style["tileColumn"]!.GetValue<int>() ^ 1;
             style["palette"] = style["palette"]!.GetValue<int>() ^ 1;
         }
+    }
+
+    [VerificationCommand("--grapple-sprite-artwork")]
+    internal static int GrappleSpriteArtworkCommand()
+    {
+        Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

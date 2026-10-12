@@ -4,10 +4,12 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static GameOptionsCursorPhasesVerification;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class GameOptionsPresentationVerification
 {
-    private static void VerifyGameOptionsPresentationAssets(
+    internal static void VerifyGameOptionsPresentationAssets(
         ISnesAddressSpace bus,
         string stock,
         string overrides,

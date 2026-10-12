@@ -3,10 +3,11 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static LookupDraygonCannonStockVerification;
 
-internal static partial class Program
+internal static class DraygonCannonVisualsVerification
 {
-    private static void VerifyDraygonCannonVisualInstallation(
+    internal static void VerifyDraygonCannonVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("draygon-cannon-visual");

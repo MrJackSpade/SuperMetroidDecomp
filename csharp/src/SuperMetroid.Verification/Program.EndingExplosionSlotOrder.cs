@@ -4,11 +4,12 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class EndingExplosionSlotOrderVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyEndingExplosionSlotOrder()
+    internal static void VerifyEndingExplosionSlotOrder()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();

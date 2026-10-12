@@ -3,10 +3,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class MapIndicatorAnimationVerification
 {
-    private static void VerifyMapIndicatorSprites(ISnesAddressSpace rom)
+    internal static void VerifyMapIndicatorSprites(ISnesAddressSpace rom)
     {
         for (int frame = 0; frame < 4; frame++)
             AssertEqual(ReadVerificationWord(rom, 0x82ba2d + frame * 2),
@@ -17,7 +19,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for map indicator delays")]
-    private static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
+    internal static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0xe0, rom.ReadCartridgeByte(0x82ba06), "native marker frame CPX");
         AssertEqual((int)ReadVerificationWord(rom, 0x82ba07), PauseMapIndicatorAnimation.FrameCount * 2,

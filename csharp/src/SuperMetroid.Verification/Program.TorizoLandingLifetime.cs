@@ -9,9 +9,9 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
-internal static partial class Program
+internal static class TorizoLandingLifetimeVerification
 {
-    private static int VerifyTorizoLandingLifetime()
+    internal static int VerifyTorizoLandingLifetime()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=GameAssetInstaller.EnsureInstalled(Path.GetFullPath("out/workbook-investigation/crocomire-install"))!;

@@ -1,16 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static CollectiblesVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class EyeDoorPlmsVerification
 {
     /// <summary>
     /// Reproduces both mirrored eye-door families in constructed rooms. The fixture uses
     /// the retail instruction entry points but deliberately tiny frame lists, isolating the
     /// shared PLM state machine from unrelated room traversal and graphics streaming.
     /// </summary>
-    private static void VerifyEyeDoorPlms()
+    internal static void VerifyEyeDoorPlms()
     {
         Suite(nameof(VerifyEyeDoorOrientation), () => VerifyEyeDoorOrientation(EyeDoorOrientation.Right, useSuperMissile: false));
         Suite(nameof(VerifyEyeDoorOrientation), () => VerifyEyeDoorOrientation(EyeDoorOrientation.Left, useSuperMissile: true));
@@ -204,7 +217,7 @@ internal static partial class Program
         }
     }
 
-    private static void SeedEyeDoorFixtureRom(
+    internal static void SeedEyeDoorFixtureRom(
         TestAddressSpace bus,
         EyeDoorOrientation orientation)
     {
@@ -286,4 +299,11 @@ internal static partial class Program
         RoomLevelData level,
         BackgroundTilemapStreamer streamer) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+
+    [VerificationCommand("--eye-door-plms")]
+    internal static int EyeDoorPlmsCommand()
+    {
+        Suite(nameof(VerifyEyeDoorPlms), () => VerifyEyeDoorPlms());
+        return 0;
+    }
 }

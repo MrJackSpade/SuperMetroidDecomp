@@ -1,10 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SamusDamageAndGrabVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class HyperBeamPaletteFxProgramDefinitionsVerification
 {
-    private static void VerifyHyperBeamPaletteFxProgramDefinitions(
+    internal static void VerifyHyperBeamPaletteFxProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         AssertEqual(SamusPaletteRomData.HyperBeamFx.SetColorIndex,
@@ -71,7 +84,7 @@ internal static partial class Program
             "restored-pointer domain match the cartridge.");
     }
 
-    private static CartridgeReadGuard NewHyperBeamPaletteFxControlGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewHyperBeamPaletteFxControlGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(IsHyperBeamPaletteFxControlByte,
             address => $"Hyper Beam palette-FX attempted control read ${address:X6}.");
 
@@ -101,5 +114,14 @@ internal static partial class Program
         int inFrame = relative % HyperBeamPaletteFxProgramDefinitions.FrameByteCount;
         return inFrame is < sizeof(ushort) or
             >= (HyperBeamPaletteFxProgramDefinitions.FrameByteCount - sizeof(ushort));
+    }
+
+    [VerificationCommand("--hyper-beam-palette-fx-program-definitions")]
+    internal static int HyperBeamPaletteFxProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyHyperBeamPaletteFxProgramDefinitions), () => VerifyHyperBeamPaletteFxProgramDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifySamusDrainedController), () => VerifySamusDrainedController());
+        return 0;
     }
 }

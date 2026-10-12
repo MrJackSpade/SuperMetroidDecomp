@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupAnimatedFramesVerification
 {
-    private static IEnumerable<(ushort Object, ushort First, ushort End)> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
+    internal static IEnumerable<(ushort Object, ushort First, ushort End)> OriginalSimpleAnimationLoops(SuperMetroidAddressSpace rom)
     {
         foreach (ushort header in new ushort[] { 0x8257, 0x8287, 0x828d, 0x82ab, 0x82c9, 0x82e7, 0x82fd })
         {
@@ -19,7 +20,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifySimpleAnimationFrameCursors(SuperMetroidAddressSpace rom)
+    internal static void VerifySimpleAnimationFrameCursors(SuperMetroidAddressSpace rom)
     {
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))
@@ -50,7 +51,7 @@ internal static partial class Program
         AssertEqual(30, total, "Complete original timed-frame domain");
     }
 
-    private static void VerifySimpleAnimationFrameDurations(SuperMetroidAddressSpace rom)
+    internal static void VerifySimpleAnimationFrameDurations(SuperMetroidAddressSpace rom)
     {
         foreach (var original in OriginalSimpleAnimationLoops(rom))
         {

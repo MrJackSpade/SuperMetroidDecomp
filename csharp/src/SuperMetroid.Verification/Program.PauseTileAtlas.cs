@@ -6,12 +6,14 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using static GraphDigestVerification;
+using static PauseEquipmentRulesVerification;
 
-internal static partial class Program
+internal static class PauseTileAtlasVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause UI tile artwork")]
-    private static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyPauseTileAtlas(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var vram = new SnesVram(); original.PauseTiles.LoadTo(new VramStore(vram).All.Slice(PauseTileAtlasFormat.DestinationByte / sizeof(ushort), MapTileAtlasFormat.ByteCount / sizeof(ushort)));
         AssertTrue(vram.Bytes.Slice(PauseTileAtlasFormat.DestinationByte, PauseTileAtlasFormat.ByteCount).SequenceEqual(

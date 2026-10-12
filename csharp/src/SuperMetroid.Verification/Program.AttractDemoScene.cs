@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static GrappleDemoTrajectoryVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -5,10 +13,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static AttractInputFixtureVerification;
+using static FrontendVerification;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class AttractDemoSceneVerification
 {
-    private static void VerifyAttractDemoScene()
+    internal static void VerifyAttractDemoScene()
     {
         Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
@@ -74,7 +86,7 @@ internal static partial class Program
             throw new InvalidDataException("Incomplete-game save incorrectly unlocked set four.");
     }
 
-    private static void VerifyStockAttractScenes()
+    internal static void VerifyStockAttractScenes()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[] counts = [6, 6, 6, 5];
@@ -217,4 +229,16 @@ internal static partial class Program
             $"{state.PublishedPreviousHeld}/{state.PublishedPreviousNewlyPressed}";
     }
 
+    [VerificationCommand("--attract-input-fixtures")]
+    internal static int AttractInputFixturesCommand()
+    {
+     VerifyAttractDemoScene(); VerifyGrappleDemoTrajectory(); return 0; 
+    }
+
+    [VerificationCommand("--stock-attract-scenes")]
+    internal static int StockAttractScenesCommand()
+    {
+        Suite(nameof(VerifyStockAttractScenes), () => VerifyStockAttractScenes());
+        return 0;
+    }
 }

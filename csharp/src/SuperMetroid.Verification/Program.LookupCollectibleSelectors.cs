@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static CollectibleVisualsVerification;
 
-internal static partial class Program
+internal static class LookupCollectibleSelectorsVerification
 {
-    private static void VerifyCollectibleOrbSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleOrbSelector(SuperMetroidAddressSpace rom)
     {
         for (int phase = 0; phase < 4; phase++)
             AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(0xdfb5 + phase * 4)),
@@ -12,7 +13,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => RoomPlmCollectibleDrawDefinitions.OrbFrame(bad), "Collectible orb phase bounds");
     }
 
-    private static void VerifyCollectibleRevealSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleRevealSelector(SuperMetroidAddressSpace rom)
     {
         for (int phase = 0; phase < 3; phase++)
         {
@@ -25,7 +26,7 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => RoomPlmCollectibleDrawDefinitions.ShotRevealFrame(bad), "Collectible reveal phase bounds");
     }
 
-    private static void VerifyCollectibleTankSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleTankSelector(SuperMetroidAddressSpace rom)
     {
         // Native exposed tank instruction-list draw operands, independently addressed.
         ushort[] starts = [0xe0a7,0xe0cc,0xe0f1,0xe116];
@@ -42,7 +43,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCollectibleDynamicSelector(SuperMetroidAddressSpace rom)
+    internal static void VerifyCollectibleDynamicSelector(SuperMetroidAddressSpace rom)
     {
         // The byte-backed kind domain historically selects dynamic graphics for every value above the four tanks.
         for (int kind = 4; kind <= byte.MaxValue; kind++)

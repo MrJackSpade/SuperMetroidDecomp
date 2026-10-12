@@ -4,12 +4,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyAnimationIsolationFixtureVerification;
+using static EnemyTileArtworkKraidVerification;
 
-internal static partial class Program
+internal static class KraidInstalledPresentationHeadClockVerification
 {
     /// <summary>Replacing every head image must not replace the compiled clock, callback or mouth window.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyKraidInstalledHeadIsolation(string directory, EnemyTileArtworkCatalog stock)
+    internal static void VerifyKraidInstalledHeadIsolation(string directory, EnemyTileArtworkCatalog stock)
     {
         string overrides = Path.Combine(directory, "kraid-head-clock-overrides");
         Directory.CreateDirectory(overrides);
@@ -118,7 +120,7 @@ internal static partial class Program
             $"{callbacks} timed sound callbacks, {collisions} mouth samples; four installed replacements retain native control/VRAM cadence.");
     }
 
-    private sealed class KraidHeadClockFixture
+    internal sealed class KraidHeadClockFixture
     {
         internal RoomEnemySystem Enemies { get; }
         internal RoomEnemySlot Body => Enemies.Slots[0];

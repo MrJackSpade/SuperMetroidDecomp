@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -6,11 +13,15 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
+using static AssertionsVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ProjectileInheritanceProbeVerification
 {
     // The original initialized-WRAM reproduction is retained alongside live producers.
-    private static void ProbeProjectileVelocityInheritance()
+    internal static void ProbeProjectileVelocityInheritance()
     {
         var initialize = typeof(SamusProjectileSystem)
             .GetMethod("InitializePowerBeamVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -172,5 +183,12 @@ internal static partial class Program
     private static int ReadPowerBeamLaunchSpeedSum(ISnesAddressSpace rom)
     {
         return CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c2d1) + CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90c357);
+    }
+
+    [VerificationCommand("--projectile-inheritance-probe")]
+    internal static int ProjectileInheritanceProbeCommand()
+    {
+        ProbeProjectileVelocityInheritance();
+        return 0;
     }
 }

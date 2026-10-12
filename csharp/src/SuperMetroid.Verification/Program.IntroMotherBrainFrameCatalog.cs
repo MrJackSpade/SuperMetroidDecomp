@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroMotherBrainFrameCatalogVerification
 {
-    private static void VerifyIntroMotherBrainFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyIntroMotherBrainFrameCatalog(ISnesAddressSpace rom)
     {
         var frames = IntroMotherBrainSpriteDefinitions.Frames;
         AssertEqual(3, frames.Count, "Mother Brain three original frames");

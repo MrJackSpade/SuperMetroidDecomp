@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static LookupAnimatedFramesVerification;
 
-internal static partial class Program
+internal static class LookupAnimatedArtworkSourcesVerification
 {
-    private static void VerifySimpleAnimationArtworkSources(SuperMetroidAddressSpace rom)
+    internal static void VerifySimpleAnimationArtworkSources(SuperMetroidAddressSpace rom)
     {
         int total = 0;
         foreach (var original in OriginalSimpleAnimationLoops(rom))

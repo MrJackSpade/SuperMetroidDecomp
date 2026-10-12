@@ -3,10 +3,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static IntroCinematicArtworkVerification;
+using static IntroMotherBrainInputSourceVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroMotherBrainInputDefinitionsVerification
 {
-    private static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroMotherBrainDemoInput(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock)
     {
         Suite(nameof(VerifyIntroMotherBrainInputSource), () => VerifyIntroMotherBrainInputSource(bus));
@@ -84,7 +88,7 @@ internal static partial class Program
     private static byte IntroMotherBrainDemoInputRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     /// <summary>The flashback demo's end routine over either instruction source (#633).</summary>
-    private sealed class FlashbackEndDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
+    internal sealed class FlashbackEndDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
     {
         public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
 

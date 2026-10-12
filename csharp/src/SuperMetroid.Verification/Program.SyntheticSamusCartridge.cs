@@ -1,8 +1,10 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SyntheticSamusCartridgeVerification
 {
 
 /// <summary>
@@ -11,7 +13,7 @@ internal static partial class Program
 /// test bodies state which pose, list, or color they install instead of computing CPU
 /// addresses. Payload bytes stay raw where they are byte-for-byte fixture evidence.
 /// </summary>
-static class SyntheticSamusCartridge
+internal static class SyntheticSamusCartridge
 {
     /// <summary>
     /// Points pose <paramref name="pose"/>'s entry of the <c>$91:9EE2</c> pose-transition

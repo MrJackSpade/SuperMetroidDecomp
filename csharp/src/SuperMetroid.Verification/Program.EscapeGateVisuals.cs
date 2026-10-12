@@ -4,10 +4,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static LookupEscapeGateStockVerification;
+using static RoomPlmPopulationVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
 
-internal static partial class Program
+internal static class EscapeGateVisualsVerification
 {
-    private static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
+    internal static void VerifyEscapeGateVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmEscapeGateVisualEntry[] entries =
             MotherBrainEscapeGatePlmDrawDefinitions.All

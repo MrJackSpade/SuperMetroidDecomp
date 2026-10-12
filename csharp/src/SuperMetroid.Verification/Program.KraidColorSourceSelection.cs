@@ -1,9 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class KraidColorSourceSelectionVerification
 {
-    private static void VerifyKraidColorSourceSelection()
+    internal static void VerifyKraidColorSourceSelection()
     {
         var original = new Dictionary<KraidPaletteSource, PaletteRgb5[]>();
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
@@ -41,5 +52,12 @@ internal static partial class Program
         });
         AssertEqual(expectedIdentity, catalog.ContentIdentity, "Source selection preserves content identity");
         Console.WriteLine("Kraid palette source selection: all five distinct fixtures, every color, bounds and identity pass.");
+    }
+
+    [VerificationCommand("--lookup-kraid-color-sources")]
+    internal static int LookupKraidColorSourcesCommand()
+    {
+        Suite(nameof(VerifyKraidColorSourceSelection), () => VerifyKraidColorSourceSelection());
+        return 0;
     }
 }

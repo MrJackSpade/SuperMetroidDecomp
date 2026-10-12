@@ -1,15 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static FrontendVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class CeresDestructionVerification
 {
 
 [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
-static void VerifyCeresDestructionCinematic()
+internal static void VerifyCeresDestructionCinematic()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
@@ -157,7 +167,7 @@ static void WriteRepeatedCompressedChunks(
     WriteSequentialRomByte(rom, ref address, 0xff);
 }
 
-static void WriteRepeatedCompressedStream(
+internal static void WriteRepeatedCompressedStream(
     byte[] rom,
     int snesAddress,
     int outputLength,
@@ -190,4 +200,11 @@ static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 static byte[] DecompressSyntheticCeresTilemaps(byte[] rom) =>
     RomDataReader.Decompress(new CartridgeImportAddressSpace(rom),
         CeresDestructionRomData.Assets.CeresTilemaps, maximumOutputBytes: 0x1000);
+
+    [VerificationCommand("--ceres-destruction")]
+    internal static int CeresDestructionCommand()
+    {
+        Suite(nameof(VerifyCeresDestructionCinematic), () => VerifyCeresDestructionCinematic());
+        return 0;
+    }
 }

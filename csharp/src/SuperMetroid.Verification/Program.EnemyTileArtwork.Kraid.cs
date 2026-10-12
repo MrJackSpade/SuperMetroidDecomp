@@ -6,12 +6,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static EnemyContentIdentityFixtureVerification;
+using static KraidInstalledPresentationOracleVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkKraidVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
-    private static void VerifyInstalledKraidBackground(
+    internal static void VerifyInstalledKraidBackground(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
         KraidBackgroundArtwork art = stock.KraidBackground
@@ -369,7 +372,7 @@ internal static partial class Program
         return (state, vram);
     }
 
-    private static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
+    internal static KraidEnemyState BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem { TileArtwork = artwork };

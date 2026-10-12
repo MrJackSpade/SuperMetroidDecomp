@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidArmInstructionProgramDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidArmPhysicalFrameMappingsVerification
 {
-    private static ushort[] NativeKraidArmPhysicalFrames(SuperMetroidAddressSpace rom)
+    internal static ushort[] NativeKraidArmPhysicalFrames(SuperMetroidAddressSpace rom)
     {
         var pointers = new List<ushort>();
         int pointer = 0x8f59;
@@ -18,7 +20,7 @@ internal static partial class Program
         return pointers.ToArray();
     }
 
-    private static void VerifyKraidArmPhysicalFramePointers(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmPhysicalFramePointers(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = NativeKraidArmPhysicalFrames(rom);
         AssertEqual(22, expected.Length, "Independent native arm frame count");
@@ -46,7 +48,7 @@ internal static partial class Program
         }
         AssertEqual(22, checkedPositions, "All stationary arm component positions checked");
     }
-    private static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
+    internal static HashSet<ushort> VerifyKraidArmPhysicalLayoutSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidArmStationaryPositions), () => VerifyKraidArmStationaryPositions(rom));
         var expectedPointers = NativeKraidArmPhysicalFrames(rom).ToHashSet();

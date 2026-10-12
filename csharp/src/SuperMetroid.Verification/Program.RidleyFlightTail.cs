@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class RidleyFlightTailVerification
 {
     /// <summary>The native signed sine sample for <paramref name="angle"/> from the $A0:B443 table.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $A0:B443 sine table used by Ridley's swoop")]
@@ -15,7 +25,7 @@ internal static partial class Program
         return unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
     }
 
-    private static void VerifyRidleyFlightTail()
+    internal static void VerifyRidleyFlightTail()
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateRidleySwoopVelocity", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RidleyEnemyState, int, int, int>>();
@@ -129,5 +139,12 @@ internal static partial class Program
         AssertEqual(0, advances, "pogo direction does not advance RNG");
         Console.WriteLine("Ridley flight: native swoop magnitude and signed angle comparison confirmed.");
         Console.WriteLine("Ridley tail: real pogo setup, exact segment angles/position, stop, descending stab and neutral recovery confirmed.");
+    }
+
+    [VerificationCommand("--ridley-flight-tail")]
+    internal static int RidleyFlightTailCommand()
+    {
+        Suite(nameof(VerifyRidleyFlightTail), () => VerifyRidleyFlightTail());
+        return 0;
     }
 }

@@ -1,3 +1,15 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
@@ -5,10 +17,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class EndingTextPresentationVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending font characters")]
-    private static void VerifyEndingTextPresentation(string romPath)
+    internal static void VerifyEndingTextPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.EndingTextExtractor.Extract(nativeBus);
@@ -108,7 +120,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending text presentation words")]
-    private static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
+    internal static ushort[] ReadEndingWords(ISnesAddressSpace bus, ushort pointer, int count)
     {
         var result = new ushort[count];
         int address = (int)new SnesAddress(EndingTextDefinitions.Native.Bank, pointer);
@@ -117,7 +129,7 @@ internal static partial class Program
         return result;
     }
 
-    private static void VerifyEndingTextAssets(
+    internal static void VerifyEndingTextAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
@@ -146,7 +158,7 @@ internal static partial class Program
         Console.WriteLine("Ending-text catalog: deterministic stock, override identity and corruption failure pass.");
     }
 
-    private static void VerifyEndingFontAssets(
+    internal static void VerifyEndingFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
@@ -182,4 +194,12 @@ internal static partial class Program
             .Forbid(address => SnesAddressMath.BankNumber(address) == EndingTextDefinitions.Native.Bank &&
                     (SnesAddressMath.OffsetInBank(address)) is >= EndingTextDefinitions.Native.ResultPanel and <= 0xe1e8,
                 address => $"Installed ending text read cartridge address ${address:X6}.");
+
+    [VerificationCommand("--ending-text-presentation")]
+    internal static int EndingTextPresentationCommand()
+    {
+        string endingTextRom = RepositoryRomPath;
+        Suite(nameof(VerifyEndingTextPresentation), () => VerifyEndingTextPresentation(endingTextRom));
+        return 0;
+    }
 }

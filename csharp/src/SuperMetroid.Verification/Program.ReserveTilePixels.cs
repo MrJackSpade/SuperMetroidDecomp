@@ -2,11 +2,11 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ReserveTilePixelsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reserve tile pixels")]
-    private static void VerifyReserveTilePixels(ISnesAddressSpace rom)
+    internal static void VerifyReserveTilePixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];

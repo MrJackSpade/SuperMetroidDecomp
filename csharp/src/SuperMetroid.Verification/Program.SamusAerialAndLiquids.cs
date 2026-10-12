@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,12 +11,14 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusAerialAndLiquidsVerification
 {
 
 /// <summary>Aerial, Space Jump, Screw Attack, liquid, and atmosphere verification.</summary>
-static void VerifySamusAerialMovement()
+internal static void VerifySamusAerialMovement()
 {
     TestAddressSpace bus = CreateSamusAerialMovementCartridge();
 
@@ -326,7 +332,7 @@ static void VerifySamusAerialMovement()
 /// visible Screw Attack pose used when both retail item bits are equipped.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusSpaceJumpAndScrewAttack()
+internal static void VerifySamusSpaceJumpAndScrewAttack()
 {
     TestAddressSpace bus = CreateSpaceJumpAndScrewAttackCartridge();
 
@@ -738,7 +744,7 @@ static void SeedGrappleReleaseSpeedRecords(TestAddressSpace bus, ushort[] grappl
     }
 }
 
-static void VerifySamusLiquidPhysics()
+internal static void VerifySamusLiquidPhysics()
 {
     TestAddressSpace bus = CreateSamusLiquidPhysicsCartridge();
 
@@ -1038,7 +1044,7 @@ static void VerifySamusLiquidPhysics()
 /// fixed-point damage translated from `$90:8000-$82DB/$8A4C-$8C1E/$A3E5/$E9CE`.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-static void VerifySamusAtmosphericEffects()
+internal static void VerifySamusAtmosphericEffects()
 {
     TestAddressSpace bus = CreateSamusAtmosphericEffectsCartridge();
     var atmosphericArt = new SamusAtmosphericArtworkCatalog(
@@ -1514,4 +1520,38 @@ static void SeedLandingSiteInlineRoomByte(TestAddressSpace bus)
 {
     WriteTestByte(bus, 0x91f0f3, 1);
 }
+
+    [VerificationCommand("--space-screw-fixture")]
+    internal static int SpaceScrewFixtureCommand()
+    {
+     VerifySamusSpaceJumpAndScrewAttack(); return 0; 
+    }
+
+    [VerificationCommand("--samus-liquid-physics")]
+    internal static int SamusLiquidPhysicsCommand()
+    {
+     VerifySamusLiquidPhysics(); return 0; 
+    }
+
+    [VerificationCommand("--samus-aerial-movement")]
+    internal static int SamusAerialMovementCommand()
+    {
+        Suite(nameof(VerifySamusAerialMovement), () => VerifySamusAerialMovement());
+        return 0;
+    }
+
+    [VerificationCommand("--samus-atmospheric-effects")]
+    internal static int SamusAtmosphericEffectsCommand()
+    {
+        Suite(nameof(VerifySamusAtmosphericEffects), () => VerifySamusAtmosphericEffects());
+        return 0;
+    }
+
+    [VerificationCommand("--spin-entry-audio")]
+    internal static int SpinEntryAudioCommand()
+    {
+        Suite(nameof(VerifySamusSpaceJumpAndScrewAttack), () => VerifySamusSpaceJumpAndScrewAttack());
+        Suite(nameof(VerifySamusAtmosphericEffects), () => VerifySamusAtmosphericEffects());
+        return 0;
+    }
 }

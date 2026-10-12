@@ -1,10 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInstallation;
+using static SuiteTimingVerification;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using static RoomAssetJsonContractsVerification;
 
-internal static partial class Program
+internal static class ProjectileFileContractsVerification
 {
     /// <summary>
     /// Exercises the file boundary inventoried in ProjectilePresentationFiles, not
@@ -12,7 +25,7 @@ internal static partial class Program
     /// by its exact selected path, even when valid overrides could hide bad stock.
     /// Only this fixture's disposable extracted files are edited or removed.
     /// </summary>
-    private static void VerifyProjectileFileContracts(string installationRoot)
+    internal static void VerifyProjectileFileContracts(string installationRoot)
     {
         GameInstallation installed = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
         using var temporaryScratch = new TestScratchDirectory("projectile-file-contract");
@@ -186,5 +199,13 @@ internal static partial class Program
         };
         AssertTrue(manifest.ContainsKey(field), "every test resource has a declared provenance field");
         manifest[field] = hash;
+    }
+
+    [VerificationCommand("--projectile-file-contracts")]
+    internal static int ProjectileFileContractsCommand()
+    {
+        string projectileInstallation = RepositoryInstallation.Installation.Root;
+        Suite(nameof(VerifyProjectileFileContracts), () => VerifyProjectileFileContracts(projectileInstallation));
+        return 0;
     }
 }

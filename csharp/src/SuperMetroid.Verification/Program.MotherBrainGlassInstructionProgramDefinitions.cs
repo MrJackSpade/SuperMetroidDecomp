@@ -1,14 +1,16 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static LookupGlassProjectileProgramVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MotherBrainGlassInstructionProgramDefinitionsVerification
 {
-    private static void VerifyMotherBrainGlassInstructionProgramDefinitions() =>
+    internal static void VerifyMotherBrainGlassInstructionProgramDefinitions() =>
         Suite(nameof(VerifyMotherBrainGlassInstructionProgramDefinitions), () => VerifyMotherBrainGlassInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    private static void VerifyMotherBrainGlassInstructionProgramDefinitions(
+    internal static void VerifyMotherBrainGlassInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

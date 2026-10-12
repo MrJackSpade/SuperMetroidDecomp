@@ -3,11 +3,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class EndingRewardInstructionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward instructions")]
-    private static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
+    internal static void VerifyEndingRewardInstructions(ISnesAddressSpace bus)
     {
         for (int pointer = EndingRewardInstructionDefinitions.Start;
              pointer < EndingRewardInstructionDefinitions.End; pointer += sizeof(ushort))

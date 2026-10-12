@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -8,12 +12,14 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusTerrainMovementVerification
 {
 
 /// <summary>Slope, block, grounded, reversal, moonwalk, and wall-contact verification.</summary>
-static void VerifySamusSlopePhysics()
+internal static void VerifySamusSlopePhysics()
 {
     var bus = new TestAddressSpace();
 
@@ -73,7 +79,7 @@ static void VerifySamusSlopePhysics()
 /// Exercises the native block-span scans and supported type-0/type-1/type-8 reactions
 /// surrounding the isolated slope primitives.
 /// </summary>
-static void VerifySamusBlockCollision()
+internal static void VerifySamusBlockCollision()
 {
     var bus = new TestAddressSpace();
 
@@ -435,7 +441,7 @@ static void VerifySamusBlockCollision()
 /// Verifies the bank-$90 ordering around the already-isolated speed and bank-$94 scans:
 /// running accelerates, moves horizontally, then probes down; standing probes and clears.
 /// </summary>
-static void VerifySamusGroundedMovement()
+internal static void VerifySamusGroundedMovement()
 {
     var bus = new TestAddressSpace();
 
@@ -598,7 +604,7 @@ static void VerifySamusGroundedMovement()
 /// WinForms: literal pose bytes, command $F8 timing, mode-one direction inversion, and the
 /// mode-clear boundary are all observable here under a normal debugger.
 /// </summary>
-static void VerifySamusGroundedReversal()
+internal static void VerifySamusGroundedReversal()
 {
     var bus = new TestAddressSpace();
 
@@ -1007,7 +1013,7 @@ static void VerifySamusGroundedReversal()
 /// byte two exits on zero input, and `$BF-$C4` remain grounded until their `$F8` command or
 /// transition table starts a real jump.
 /// </summary>
-static void VerifySamusMoonwalking()
+internal static void VerifySamusMoonwalking()
 {
     var bus = new TestAddressSpace();
 
@@ -1280,7 +1286,7 @@ static void VerifySamusMoonwalking()
 /// Verifies movement type `$15` and `$91:EADE`'s block-only producer, including the
 /// otherwise easy-to-erase one-pixel arm-pump movement performed for prospective runs.
 /// </summary>
-static void VerifySamusRanIntoWall()
+internal static void VerifySamusRanIntoWall()
 {
     var bus = new TestAddressSpace();
 
@@ -1505,4 +1511,11 @@ static void SeedMoonwalkTurnJumpDryVerticalRows(TestAddressSpace bus)
 
 // Sends a synthetic planar tile through DMA, OAM, OBSEL, and CGRAM so this tests the
 // complete sprite-to-pixel path rather than a helper decoder in isolation.
+
+    [VerificationCommand("--samus-grounded-reversal")]
+    internal static int SamusGroundedReversalCommand()
+    {
+        Suite(nameof(VerifySamusGroundedReversal), () => VerifySamusGroundedReversal());
+        return 0;
+    }
 }

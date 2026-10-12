@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CpuOperandOpenBusVerification
 {
     [CpuBusBoundary("exact bus test: absolute-indexed and indirect-long operand reads, open-bus MDR retention and region routing")]
-    private static void VerifyCpuOperandOpenBus()
+    internal static void VerifyCpuOperandOpenBus()
     {
         var bus = new OperandReadWitness();
         AssertEqual((ushort)0, SnesCpuOperandRead.ReadAbsoluteIndexedWord(bus, 0x9b, 0, 0x68ad), "palette overrun expansion read retains zero operand bus value");
@@ -42,7 +42,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: witness answering every WRAM, SRAM, cartridge and peripheral operand read with a marker byte")]
-    private sealed class OperandReadWitness : ISnesMemoryBus, IImportCartridgeSource, ISnesCpuPeripheralSource
+    internal sealed class OperandReadWitness : ISnesMemoryBus, IImportCartridgeSource, ISnesCpuPeripheralSource
     {
         public byte ReadWorkRamByte(int address) => 0xab;
         public byte ReadSaveRamByte(int address) => 0xab;

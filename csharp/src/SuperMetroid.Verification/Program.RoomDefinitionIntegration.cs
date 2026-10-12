@@ -1,13 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static PostCeresLandingHandOffVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static DoorDefinitionsVerification;
+using static RetailRuntimeFixtureVerification;
+using static RoomMainCodeCatalogVerification;
 
-internal static partial class Program
+internal static class RoomDefinitionIntegrationVerification
 {
-    private const int PostCeresLandingMaximumFrames = 700;
+    internal const int PostCeresLandingMaximumFrames = 700;
 
-    private static void VerifyCompiledRoomDefinitionIntegration()
+    internal static void VerifyCompiledRoomDefinitionIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         SuperMetroidAddressSpace oracleBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -186,5 +199,13 @@ internal static partial class Program
         guard.Forbid(forbidden.Contains,
             address => $"Production runtime read compiled room-definition byte ${address:X6}.");
         return guard;
+    }
+
+    [VerificationCommand("--room-definition-integration")]
+    internal static int RoomDefinitionIntegrationCommand()
+    {
+        Suite(nameof(VerifyCompiledRoomDefinitionIntegration), () => VerifyCompiledRoomDefinitionIntegration());
+        Suite(nameof(VerifyPostCeresLandingHandOff), () => VerifyPostCeresLandingHandOff());
+        return 0;
     }
 }

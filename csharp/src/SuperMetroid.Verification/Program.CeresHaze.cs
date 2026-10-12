@@ -7,11 +7,15 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
+using static DoorDefinitionsVerification;
+using static LookupCeresHazeRampVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresHazeVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres haze phase control")]
-    private static void VerifyCeresHazePhaseControl(ISnesAddressSpace rom)
+    internal static void VerifyCeresHazePhaseControl(ISnesAddressSpace rom)
     {
         // Independently transcribed instruction trace from pinned bank_88.asm,
         // checked against the supported cartridge before comparing production state.
@@ -69,7 +73,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCeresHazeLifecycle()
+    internal static void VerifyCeresHazeLifecycle()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),

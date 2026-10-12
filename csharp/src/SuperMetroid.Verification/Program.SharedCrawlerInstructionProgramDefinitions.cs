@@ -1,18 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SharedCrawlerInstructionProgramDefinitionsVerification
 {
-    private static void VerifySharedCrawlerInstructionProgramDefinitions()
+    internal static void VerifySharedCrawlerInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifySharedCrawlerInstructionProgramDefinitions(
+    internal static void VerifySharedCrawlerInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         const BindingFlags flags =
@@ -126,7 +136,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for shared crawler instruction words")]
-    private static ushort ReadSharedCrawlerInstructionWord(
+    internal static ushort ReadSharedCrawlerInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa30000 | address);
@@ -139,5 +149,12 @@ internal static partial class Program
             ? guard.ForbidWords(0xa30000, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Shared crawler read visual-selector byte ${address:X6}.")
             : guard.ObserveWords(0xa30000, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordCount, SharedCrawlerInstructionProgramDefinitionsTooling.PresentationWordAddress);
+    }
+
+    [VerificationCommand("--shared-crawler-instruction-program-definitions")]
+    internal static int SharedCrawlerInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifySharedCrawlerInstructionProgramDefinitions), () => VerifySharedCrawlerInstructionProgramDefinitions());
+        return 0;
     }
 }

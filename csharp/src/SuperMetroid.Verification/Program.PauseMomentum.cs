@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PauseMomentumVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause momentum reconciliation")]
-    private static void VerifyPauseMomentumReconciliation()
+    internal static void VerifyPauseMomentumReconciliation()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int counterAddress = SamusMovementRomData.HorizontalMotion.SpeedBoostCounterLowBytes;

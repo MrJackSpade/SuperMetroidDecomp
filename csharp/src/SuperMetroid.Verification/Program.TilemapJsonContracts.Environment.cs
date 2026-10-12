@@ -2,15 +2,16 @@ using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
+using static TilemapJsonContractsVerification;
 
-internal static partial class Program
+internal static class TilemapJsonContractsEnvironmentVerification
 {
     /// <summary>
     /// The source audit identified five related tilemap loaders that bypassed the
     /// shared JSON contract. These constructed documents exercise their real
     /// compilers, not gameplay or a search for cartridge accesses.
     /// </summary>
-    private static void VerifyEnvironmentalTilemapJsonContracts()
+    internal static void VerifyEnvironmentalTilemapJsonContracts()
     {
         var accepted = new List<string>();
         int rejected = 0;

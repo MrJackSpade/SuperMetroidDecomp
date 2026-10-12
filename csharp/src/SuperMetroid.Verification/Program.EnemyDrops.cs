@@ -1,18 +1,30 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class EnemyDropsVerification
 {
-    private const ushort NativeDropChancePointer = EnemyDropChanceDefinitions.FirstPointer;
+    internal const ushort NativeDropChancePointer = EnemyDropChanceDefinitions.FirstPointer;
 
     /// <summary>
     /// Verifies the complete bank-$86 temporary-pickup path: selection, resource effects,
     /// collision timing, the physical slot-zero bug, and conversion from a generic enemy
     /// death. All test actors still use ROM-shaped projectile definitions and lists.
     /// </summary>
-    private static void VerifyEnemyDrops()
+    internal static void VerifyEnemyDrops()
     {
         Suite(nameof(VerifyEveryEnemyPickupEffect), () => VerifyEveryEnemyPickupEffect());
         Suite(nameof(VerifyEnemyDropSelectionRules), () => VerifyEnemyDropSelectionRules());
@@ -26,7 +38,7 @@ internal static partial class Program
             "  Enemy drops: native random selection, five effects, collision/lifetime, grapple delay, slot-zero bug, and death conversion agree.");
     }
 
-    private static void VerifyContactDeathStopsEnemyDispatch()
+    internal static void VerifyContactDeathStopsEnemyDispatch()
     {
         var samus = CreateDropTestSamus();
         // Pseudo-Screw contact consumes the charge and restores suit colors. This
@@ -135,7 +147,7 @@ internal static partial class Program
                     "super-missile pickup restores one"));
     }
 
-    private static void AssertEnemyPickupEffect(
+    internal static void AssertEnemyPickupEffect(
         EnemyPickupKind kind,
         SamusState samus,
         ushort expectedSound,
@@ -171,7 +183,7 @@ internal static partial class Program
         assertEffect(samus);
     }
 
-    private static void VerifyEnemyDropSelectionRules()
+    internal static void VerifyEnemyDropSelectionRules()
     {
         // Random zero is explicitly rejected by $86:F106. A following value of one must
         // select the first enabled accumulator entry rather than becoming a no-drop.
@@ -366,14 +378,14 @@ internal static partial class Program
             "converted death actor selects the compiled small-energy list");
     }
 
-    private static SamusState CreateDropTestSamus() => new()
+    internal static SamusState CreateDropTestSamus() => new()
     {
         Position = new(new(100, 0), new(100, 0)),
         Health = 99,
         MaxHealth = 99,
     };
 
-    private static EnemyDropFixture CreateEnemyDropFixture(
+    internal static EnemyDropFixture CreateEnemyDropFixture(
         SamusState samus,
         IReadOnlyList<ushort> randomValues)
     {
@@ -423,7 +435,7 @@ internal static partial class Program
     /// drop-chance pointer field, definition byte 58) at the native first drop-chance record.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for an enemy definition's drop-chance pointer")]
-    private static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader) =>
+    internal static void SeedEnemyDropChancePointer(TestAddressSpace bus, ushort enemyHeader) =>
         WriteTestWord(bus, 0xa00000 | enemyHeader | 58, NativeDropChancePointer);
 
     /// <summary>Seeds the bank-$B4 vulnerability byte the contact-death fixture enemy consults.</summary>
@@ -431,8 +443,22 @@ internal static partial class Program
     private static void SeedContactDeathVulnerability(TestAddressSpace bus) =>
         bus.WriteBytes(0xb48014, [2]);
 
-    private readonly record struct EnemyDropFixture(
+    internal readonly record struct EnemyDropFixture(
         TestAddressSpace Bus,
         RoomEnemySystem System,
         RoomLevelData Level);
+
+    [VerificationCommand("--enemy-drops")]
+    internal static int EnemyDropsCommand()
+    {
+        Suite(nameof(VerifyEnemyDrops), () => VerifyEnemyDrops());
+        return 0;
+    }
+
+    [VerificationCommand("--enemy-contact-death")]
+    internal static int EnemyContactDeathCommand()
+    {
+        Suite(nameof(VerifyContactDeathStopsEnemyDispatch), () => VerifyContactDeathStopsEnemyDispatch());
+        return 0;
+    }
 }

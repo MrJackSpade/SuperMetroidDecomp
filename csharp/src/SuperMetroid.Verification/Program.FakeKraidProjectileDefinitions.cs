@@ -1,10 +1,12 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static FakeKraidSpitVelocitiesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FakeKraidProjectileDefinitionsVerification
 {
-    private static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFakeKraidProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
 
@@ -101,7 +103,7 @@ internal static partial class Program
             "Fake Kraid projectile definitions: four spit launches, three spike rows, both facings and every real physical spawn pass with both source tables forbidden.");
     }
 
-    private static void VerifyFakeKraidSpikeRowSelection(ISnesAddressSpace rom)
+    internal static void VerifyFakeKraidSpikeRowSelection(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 3; row++)
         {

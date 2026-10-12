@@ -1,9 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static BabyMetroidRouteDefinitionsVerification;
+using static LinkedRestoreVisualsVerification;
+using static ShotBlockPlmProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BombBlockProgramsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb block restoration mapping")]
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
@@ -125,7 +138,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyBombBlockPrograms()
+    internal static void VerifyBombBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -289,9 +302,9 @@ internal static partial class Program
             "edited block $058 composition reaches later streaming");
     }
 
-    private enum BombBlockProducer { Collision, Bomb, PowerBomb }
+    internal enum BombBlockProducer { Collision, Bomb, PowerBomb }
 
-    private sealed record BombBlockFixture(
+    internal sealed record BombBlockFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
     private static BombBlockFixture NewBombBlockFixture(byte behavior, BombBlockProducer producer)
@@ -318,5 +331,12 @@ internal static partial class Program
         };
         AssertTrue(spawned, $"bomb BTS {behavior}/{producer} installs its native program");
         return new BombBlockFixture(level, level.CreateBackgroundStreamer(), plms);
+    }
+
+    [VerificationCommand("--bomb-block-programs")]
+    internal static int BombBlockProgramsCommand()
+    {
+        Suite(nameof(VerifyBombBlockPrograms), () => VerifyBombBlockPrograms());
+        return 0;
     }
 }

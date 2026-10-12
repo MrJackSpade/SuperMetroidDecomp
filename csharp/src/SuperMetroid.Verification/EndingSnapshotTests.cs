@@ -4,12 +4,15 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class EndingSnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending palettes, scroll programs and Mode 7 artwork compared with installed ending renders")]
-    private static void VerifyEndingRenderSnapshots()
+    internal static void VerifyEndingRenderSnapshots()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var rewardArt = RepositoryInstallation.Installation.LoadEndingObjectArt().RewardSprites;

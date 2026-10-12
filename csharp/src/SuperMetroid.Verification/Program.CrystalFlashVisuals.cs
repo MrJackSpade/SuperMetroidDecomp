@@ -6,9 +6,9 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Core.Game.SamusPaletteRomData;
 
-internal static partial class Program
+internal static class CrystalFlashVisualsVerification
 {
-    private static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
+    internal static (bool Body, bool Window) VerifyCrystalFlashVisualFrame(SuperMetroidRuntime runtime, int elapsed)
     {
         var samus = runtime.Samus!;
         var bus = runtime.AddressSpace;

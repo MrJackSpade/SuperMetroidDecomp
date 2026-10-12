@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupHorizontalHeatWaveVerification
 {
-    private static void VerifyHorizontalHeatWave(SuperMetroidAddressSpace rom)
+    internal static void VerifyHorizontalHeatWave(SuperMetroidAddressSpace rom)
     {
         short Original(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b589 + 2 * index));
         for (int index = 0; index < 16; index++)

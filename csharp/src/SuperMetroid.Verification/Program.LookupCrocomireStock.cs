@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupCrocomireStockVerification
 {
-    private static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyCrocomireStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCrocomireVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x9b5b,"clear-bridge"), (0x9b73,"crumble-bridge-block"),

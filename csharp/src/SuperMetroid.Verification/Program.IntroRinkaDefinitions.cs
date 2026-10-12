@@ -1,12 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
+using static IntroRinkaProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroRinkaDefinitionsVerification
 {
-    private static void VerifyIntroRinkaDefinitions()
+    internal static void VerifyIntroRinkaDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroRinkaPrograms), () => VerifyIntroRinkaPrograms(retail));
@@ -93,4 +104,11 @@ internal static partial class Program
                 >= 0x8bb8b5 and < 0x8bb8c5 or
                 >= 0x8bb985 and < 0x8bb98d,
             address => $"Intro Rinka reread compiled byte ${address:X6}.");
+
+    [VerificationCommand("--intro-rinka-definitions")]
+    internal static int IntroRinkaDefinitionsCommand()
+    {
+        Suite(nameof(VerifyIntroRinkaDefinitions), () => VerifyIntroRinkaDefinitions());
+        return 0;
+    }
 }

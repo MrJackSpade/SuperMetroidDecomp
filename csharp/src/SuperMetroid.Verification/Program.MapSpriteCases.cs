@@ -4,10 +4,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static DoorDefinitionsVerification;
+using static MapSpriteNamesVerification;
+using static MapSpritesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapSpriteCasesVerification
 {
-    private static void VerifyMapSpriteCompositionCases(ISnesAddressSpace rom)
+    internal static void VerifyMapSpriteCompositionCases(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);
         byte[] png = files[MapSpriteFormat.PngFile];
@@ -78,7 +82,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map spritemap pointers")]
-    private static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
+    internal static void VerifyMapSpriteNativeCompositions(ISnesAddressSpace bus, MapSpriteCatalog catalog)
     {
         var native = new OamBuffer(); var installed = new OamBuffer();
         foreach (var frame in MapSpriteRoleOracle())

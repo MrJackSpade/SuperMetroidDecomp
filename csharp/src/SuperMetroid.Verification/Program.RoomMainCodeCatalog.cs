@@ -4,13 +4,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class RoomMainCodeCatalogVerification
 {
     /// <summary>
     /// Enumerates every state reachable from every named retail room header and proves
     /// every nonzero main callback belongs to the dedicated bank-$8F catalog.
     /// </summary>
-    static void VerifyRoomMainCodeCatalog()
+    internal static void VerifyRoomMainCodeCatalog()
     {
         ushort[] catalog = Enum.GetValues<RoomMainCallback>()
             .Where(callback => callback != RoomMainCallback.None)
@@ -67,7 +67,7 @@ internal static partial class Program
             $"all {retailMainPointers.Count} nonzero callback kinds are catalogued.");
     }
 
-    private static ushort? TryParseRoomHeaderPointer(string line)
+    internal static ushort? TryParseRoomHeaderPointer(string line)
     {
         string[] fields = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (fields.Length != 2 || !fields[0].StartsWith("0x8f", StringComparison.Ordinal) ||
@@ -92,7 +92,7 @@ internal static partial class Program
         return pointer == 0xe82c ? null : pointer;
     }
 
-    private static RoomStateSelectionContext[] BuildRoomStateAuditContexts()
+    internal static RoomStateSelectionContext[] BuildRoomStateAuditContexts()
     {
         var contexts = new List<RoomStateSelectionContext>
         {

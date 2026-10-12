@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class EnemyRoomListsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled enemy room lists")]
-    private static void VerifyCompiledEnemyRoomLists()
+    internal static void VerifyCompiledEnemyRoomLists()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -81,5 +91,12 @@ internal static partial class Program
             $"Enemy room lists: {populationPointers.Length} populations/{populationRecords} " +
             $"placements and {graphicsPointers.Length} graphics sets/{graphicsRecords} " +
             "members match the independent import oracle, including order and quotas.");
+    }
+
+    [VerificationCommand("--enemy-room-lists")]
+    internal static int EnemyRoomListsCommand()
+    {
+        Suite(nameof(VerifyCompiledEnemyRoomLists), () => VerifyCompiledEnemyRoomLists());
+        return 0;
     }
 }

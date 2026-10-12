@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupDownwardGateStockVerification
 {
-    private static void VerifyDownwardGateStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyDownwardGateStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDownwardGateVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0xa517,"column-frame-0"),(0xa525,"column-frame-1"),

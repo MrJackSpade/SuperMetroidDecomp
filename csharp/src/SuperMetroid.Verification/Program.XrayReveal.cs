@@ -3,9 +3,9 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class XrayRevealVerification
 {
-    private static void VerifyXrayRevealTable()
+    internal static void VerifyXrayRevealTable()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int matches = 0;

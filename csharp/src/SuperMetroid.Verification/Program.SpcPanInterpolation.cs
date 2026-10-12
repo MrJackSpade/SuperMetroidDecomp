@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SpcPanInterpolationVerification
 {
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan interpolation")]
-    private static void VerifySpcPanInterpolation()
+    internal static void VerifySpcPanInterpolation()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -86,5 +96,12 @@ internal static partial class Program
 
             int Word() => SnesLittleEndian.Word(Instruction(pc++), Instruction(pc++));
         }
+    }
+
+    [VerificationCommand("--lookup-spc-pan-interpolation")]
+    internal static int LookupSpcPanInterpolationCommand()
+    {
+        Suite(nameof(VerifySpcPanInterpolation), () => VerifySpcPanInterpolation());
+        return 0;
     }
 }

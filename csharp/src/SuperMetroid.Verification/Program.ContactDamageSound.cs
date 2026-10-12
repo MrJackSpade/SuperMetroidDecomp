@@ -1,9 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ContactDamageSoundVerification
 {
     /// <summary>
     /// When a speed-boosting, sparking or screw-attacking Samus damages an enemy by touch,
@@ -11,7 +22,7 @@ internal static partial class Program
     /// 13% movie Samus speed-boosts through an enemy before a door; the queued sound holds
     /// the door's sound wait for an extra frame.
     /// </summary>
-    private static void VerifyContactDamageSound()
+    internal static void VerifyContactDamageSound()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -33,5 +44,12 @@ internal static partial class Program
         AssertEqual(SoundEffectLibrary2Sounds.EnemyContactDamaged, request.SoundEffect, "the hit queues library-two $0B");
         AssertEqual((byte)1, request.MaximumQueued, "through QueueSound_Lib2_Max1");
         Console.WriteLine("  Contact-damage sound: Samus's damaging touch queues library-two $0B.");
+    }
+
+    [VerificationCommand("--contact-damage-sound")]
+    internal static int ContactDamageSoundCommand()
+    {
+        Suite(nameof(VerifyContactDamageSound), () => VerifyContactDamageSound());
+        return 0;
     }
 }

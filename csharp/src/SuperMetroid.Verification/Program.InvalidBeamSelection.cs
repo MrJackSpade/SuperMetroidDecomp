@@ -1,13 +1,21 @@
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
+using static PauseEquipmentRulesVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class InvalidBeamSelectionVerification
 {
-    private static void VerifyInvalidBeamSelection()
+    internal static void VerifyInvalidBeamSelection()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int boot = 0; boot < 3; boot++)
@@ -81,4 +89,10 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for invalid beam selection")]
     private static byte InvalidBeamSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [VerificationCommand("--inventory-fixture")]
+    internal static int InventoryFixtureCommand()
+    {
+     VerifyInvalidBeamSelection(); return 0; 
+    }
 }

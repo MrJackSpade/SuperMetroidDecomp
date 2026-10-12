@@ -1,17 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static FakeKraidProjectileProgramMappingsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FakeKraidProjectileInstructionProgramDefinitionsVerification
 {
-    private static void VerifyFakeKraidProjectileInstructionProgramDefinitions()
+    internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
+    internal static void VerifyFakeKraidProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -159,8 +171,15 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid projectile instruction words")]
-    private static ushort ReadFakeKraidProjectileInstructionWord(
+    internal static ushort ReadFakeKraidProjectileInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
+
+    [VerificationCommand("--fake-kraid-projectile-instruction-mechanics")]
+    internal static int FakeKraidProjectileInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyFakeKraidProjectileInstructionProgramDefinitions), () => VerifyFakeKraidProjectileInstructionProgramDefinitions());
+        return 0;
+    }
 }

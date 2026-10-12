@@ -2,10 +2,11 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PhantoonWaveVerification
 {
-    private static void VerifyPhantoonWaveLifecycle()
+    internal static void VerifyPhantoonWaveLifecycle()
     {
         var boss = new PhantoonEnemyState(new RoomEnemySlot(0))
         {

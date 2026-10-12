@@ -1,10 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class FrozenGateGlitchVerification
 {
     private const int FrozenGateStartX = 602;
     private const int FrozenGateY = 860;
@@ -12,7 +22,7 @@ internal static partial class Program
     private const ushort FrozenGateCameraX = 512;
     private const ushort FrozenGateCameraY = 768;
 
-    private readonly record struct FrozenGateNativeRecord(
+    internal readonly record struct FrozenGateNativeRecord(
         int Distance,
         ushort EnemyX,
         bool Frozen,
@@ -22,7 +32,7 @@ internal static partial class Program
         ushort GatePreInstruction,
         ushort GateInstructionList);
 
-    private static void VerifyFrozenEnemyGateGlitch()
+    internal static void VerifyFrozenEnemyGateGlitch()
     {
         FrozenGateNativeRecord[] expected = File.ReadLines(
                 "csharp/test-fixtures/movement-release/frozen-gate-407-native.csv")
@@ -138,5 +148,12 @@ internal static partial class Program
             columns[5] == "1",
             ushort.Parse(columns[6], NumberStyles.HexNumber, CultureInfo.InvariantCulture),
             ushort.Parse(columns[7], NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+    }
+
+    [VerificationCommand("--frozen-gate-glitch")]
+    internal static int FrozenGateGlitchCommand()
+    {
+        Suite(nameof(VerifyFrozenEnemyGateGlitch), () => VerifyFrozenEnemyGateGlitch());
+        return 0;
     }
 }

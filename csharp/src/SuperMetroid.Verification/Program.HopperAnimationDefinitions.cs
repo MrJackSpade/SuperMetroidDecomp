@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static LookupStream3Verification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class HopperAnimationDefinitionsVerification
 {
-    private static void VerifyHopperAnimationDefinitions(
+    internal static void VerifyHopperAnimationDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
     {
         int[] tables = [0xa3aac2, 0xa3aaca, 0xa3aad2, 0xa3aada];
@@ -200,7 +212,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Hopper animation words")]
-    private static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
+    internal static ushort ReadHopperAnimationWord(SuperMetroidAddressSpace source, int address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewHopperAnimationGuard(ISnesAddressSpace source) =>
@@ -212,4 +224,13 @@ internal static partial class Program
             .ForbidWords(0xa30000, HopperInstructionProgramDefinitions.PresentationWordCount,
                 HopperInstructionProgramDefinitions.PresentationWordAddress,
                 address => $"Hopper read visual-selector byte ${address:X6}.");
+
+    [VerificationCommand("--hopper-instruction-program-definitions")]
+    internal static int HopperInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyStream3HopperOperandPositions), () => VerifyStream3HopperOperandPositions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

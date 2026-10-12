@@ -3,11 +3,13 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ProjectileDamageVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile damage")]
-    private static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileDamage(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address);
         Suite(nameof(VerifyComboMechanicsDefinitions), () => VerifyComboMechanicsDefinitions(rom, Word));
@@ -111,7 +113,7 @@ internal static partial class Program
         Suite(nameof(VerifyComboMotionAndActivation), () => VerifyComboMotionAndActivation(rom));
     }
 
-    private static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
+    internal static void VerifyComboPowerBombCostAlgorithm(Func<int, ushort> readWord)
     {
         for (int beam = 0; beam < 12; beam++)
             AssertEqual(readWord(SamusComboRomData.Costs + beam * 2),
@@ -126,7 +128,7 @@ internal static partial class Program
         Console.WriteLine("Combo cost algorithm: all twelve original cost words and bounds match.");
     }
 
-    private static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
+    internal static void VerifyComboOriginAngleAlgorithm(Func<int, ushort> readWord)
     {
         for (int slot = 0; slot < 4; slot++)
             AssertEqual(readWord(SamusComboRomData.OriginAngles + slot * 2),
@@ -142,7 +144,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for combo sine offset alias")]
-    private static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
+    internal static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
     {
         (ushort X, ushort Y) NativeOffset(int angle, int amplitude)
         {

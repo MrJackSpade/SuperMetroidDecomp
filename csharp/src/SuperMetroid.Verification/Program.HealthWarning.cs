@@ -1,11 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class HealthWarningVerification
 {
-    private static void VerifyHealthWarning()
+    internal static void VerifyHealthWarning()
     {
         var warning = new SamusHealthWarningState();
         var audio = new CartridgeAudioState();
@@ -39,5 +50,12 @@ internal static partial class Program
         audio.Reset(); restored.Update(30, audio);
         AssertTrue(restored.IsActive && positions[2] == 0, "saved active latch does not restart warning");
         Console.WriteLine("Low-health warning owner: threshold edges, native commands, rejection/suppression latch and serialization pass; frontend integration pending.");
+    }
+
+    [VerificationCommand("--health-warning")]
+    internal static int HealthWarningCommand()
+    {
+        Suite(nameof(VerifyHealthWarning), () => VerifyHealthWarning());
+        return 0;
     }
 }

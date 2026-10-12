@@ -3,14 +3,14 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SamusMovementRomDataVerification
 {
     /// <summary>
     /// Walks the named movement tables through their last retail entry so an address typo,
     /// truncated range, wrong record width, or cross-bank pointer fails in verification.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus movement ROM data")]
-    static void VerifySamusMovementRomData()
+    internal static void VerifySamusMovementRomData()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -113,7 +113,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle reads at both ends of a Samus movement data range")]
-    private static void TouchRange(
+    internal static void TouchRange(
         SuperMetroidAddressSpace bus,
         int address,
         int byteCount,

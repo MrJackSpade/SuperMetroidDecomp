@@ -3,11 +3,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static InstalledFileSelectMapVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapScrollControlsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map-arrow controller masks and direction order")]
-    private static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
+    internal static void VerifyCompiledMapScrollControls(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         var buttons = new ushort[MapScrollControls.DirectionCount];
         for (int index = 0; index < buttons.Length; index++)

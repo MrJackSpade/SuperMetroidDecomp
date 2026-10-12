@@ -2,12 +2,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static FrontendVerification;
 
-internal static partial class Program
+internal static class AttractInputFixtureVerification
 {
     // Reference interpreter for cartridge/synthetic input streams. Production attract
     // playback continues to use StockAttractInputPrograms and StepStock.
-    private sealed class ReferenceAttractInput
+    internal sealed class ReferenceAttractInput
     {
         public DemoInputState Script { get; } = new();
 
@@ -26,7 +27,7 @@ internal static partial class Program
     }
 
     /// <summary>The attract scene's reference owner for one frame: fixture words and the scene's pre-instructions (#633).</summary>
-    private sealed class ReferenceAttractProgram(ISnesAddressSpace bus, SuperMetroidGameState gameState,
+    internal sealed class ReferenceAttractProgram(ISnesAddressSpace bus, SuperMetroidGameState gameState,
         SamusMovementType movementType) : IDemoInputProgram
     {
         public ushort ReadInstructionWord(ushort pointer) => ReadDemoFixtureWord(bus, pointer);

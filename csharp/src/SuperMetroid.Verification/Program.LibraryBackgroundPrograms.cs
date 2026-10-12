@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class LibraryBackgroundProgramsVerification
 {
     /// <summary>Independently decode every pinned native command and compare typed operands.</summary>
-    private static void VerifyCompiledLibraryBackgroundPrograms(ISnesAddressSpace bus)
+    internal static void VerifyCompiledLibraryBackgroundPrograms(ISnesAddressSpace bus)
     {
         int instructionCount = 0;
         foreach (LibraryBackgroundProgram program in LibraryBackgroundProgramDefinitions.All)

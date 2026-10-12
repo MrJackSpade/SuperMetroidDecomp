@@ -1,12 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Input;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ShutterRepeatedBombsVerification
 {
-    private static void AuditRepeatedShutterBombs()
+    internal static void AuditRepeatedShutterBombs()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int cases = 0, worstGap = 0;
@@ -45,5 +53,12 @@ internal static partial class Program
             cases++;
         }
         Console.WriteLine($"{cases} repeated-bomb sequences; minimum gap {worstGap}. Investigation only: this is not a regression assertion of resolved embedding.");
+    }
+
+    [VerificationCommand("--shutter-repeat")]
+    internal static int ShutterRepeatCommand()
+    {
+        AuditRepeatedShutterBombs();
+        return 0;
     }
 }

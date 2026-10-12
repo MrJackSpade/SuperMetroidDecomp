@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class NorfairLavaJumpDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Norfair Lava jump definitions")]
-    private static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyNorfairLavaJumpDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 

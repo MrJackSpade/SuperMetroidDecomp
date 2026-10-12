@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresElevatorArrivalVerification
 {
     /// <summary>
     /// Verifies the easy-to-miss graphics-index write in the shared Ceres elevator
     /// initializer at <c>$86:A301</c>.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    static void VerifyCeresElevatorArrivalGraphicsIndex()
+    internal static void VerifyCeresElevatorArrivalGraphicsIndex()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCompiledDefinitions), () => VerifyCompiledDefinitions(rom));
@@ -120,4 +131,11 @@ internal static partial class Program
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x86a28b and < 0x86a2a1 or >= 0x86a387 and < 0x86a3a3,
                 address => $"Ceres arrival read compiled bank-$86 byte ${address:X6}.");
+
+    [VerificationCommand("--ceres-elevator-arrival-definitions")]
+    internal static int CeresElevatorArrivalDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCeresElevatorArrivalGraphicsIndex), () => VerifyCeresElevatorArrivalGraphicsIndex());
+        return 0;
+    }
 }

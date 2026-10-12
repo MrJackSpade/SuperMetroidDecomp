@@ -1,9 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInstallation;
 using SuperMetroid.Core.Audio;
+using static ManagedAudioVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class AudioBankTransitionVerification
 {
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
-    private static void VerifyReleasedVoiceBankSwitch()
+    internal static void VerifyReleasedVoiceBankSwitch()
     {
         var ram = new byte[65536];
         var dsp = new ManagedSnesDsp(ram);
@@ -37,7 +52,7 @@ internal static partial class Program
         }, "an audible unmapped source must still fail loudly");
     }
 
-    private static void VerifyAudioBankTransition(string directory)
+    internal static void VerifyAudioBankTransition(string directory)
     {
         Suite(nameof(VerifyReleasedVoiceBankSwitch), () => VerifyReleasedVoiceBankSwitch());
         var assets = ExtractedAudioAssetCatalog.Load(directory);
@@ -56,5 +71,13 @@ internal static partial class Program
             AssertTrue(audible, $"{bank.Name} -> captivity retains audible playback");
             Console.WriteLine($"{bank.Name} -> captivity passed.");
         }
+    }
+
+    [VerificationCommand("--audio-bank-transition")]
+    internal static int AudioBankTransitionCommand()
+    {
+        string audioDirectory = RepositoryInstallation.Installation.AudioDirectory;
+        Suite(nameof(VerifyAudioBankTransition), () => VerifyAudioBankTransition(audioDirectory));
+        return 0;
     }
 }

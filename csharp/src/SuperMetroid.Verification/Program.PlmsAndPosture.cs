@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,12 +11,15 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class PlmsAndPostureVerification
 {
 
 /// <summary>Breakable grapple PLMs and Samus posture verification.</summary>
-static void VerifyBreakableGrapplePlms()
+internal static void VerifyBreakableGrapplePlms()
 {
     TestAddressSpace bus = CreateBreakableGrappleCartridge();
 
@@ -239,7 +246,7 @@ static void WriteDefinitionWord(byte[] definitions, int block, int tile, ushort 
     definitions[offset + 1] = SnesLittleEndian.HighByte(value);
 }
 
-static void VerifySamusPostureMovement()
+internal static void VerifySamusPostureMovement()
 {
     TestAddressSpace bus = CreateSamusPostureCartridge();
 
@@ -717,4 +724,11 @@ static void SeedDryAirJumpTableZero(TestAddressSpace bus)
     bus.WriteBytes(0x909ea1, [0x00, 0x1c]);
     bus.WriteBytes(0x909ea7, [0x00, 0x00]);
 }
+
+    [VerificationCommand("--samus-posture-movement")]
+    internal static int SamusPostureMovementCommand()
+    {
+        Suite(nameof(VerifySamusPostureMovement), () => VerifySamusPostureMovement());
+        return 0;
+    }
 }

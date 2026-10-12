@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using static EnemyContentIdentityFixtureVerification;
 
-internal static partial class Program
+internal static class BossDisplayBindingsDocumentsVerification
 {
     /// <summary>Distinct authored poses let assertions detect using the physical frame by mistake.</summary>
-    private sealed class BossDisplayDocuments
+    internal sealed class BossDisplayDocuments
     {
         private readonly EnemyIdentityFixture json = new();
         internal EnemyExtendedFrameDocument Oam { get; }

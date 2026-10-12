@@ -1,13 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static MagicNumberAuditVerification;
+using static SamusProjectilesVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class BeamSpeedRowsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for beam speed rows, pose aim directions and missile acceleration words")]
-    private static void VerifyBeamSpeedRows()
+    internal static void VerifyBeamSpeedRows()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusPoseId AimPose(byte direction) => (SamusPoseId)Enumerable.Range(0, 253).First(pose =>
@@ -107,7 +119,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: write-overlay fixture over the retail bus that rejects compiled projectile-mechanics reads")]
-    private sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
+    internal sealed class BeamSpeedRowAddressSpace(ISnesAddressSpace source) : ISnesMemoryBus, IImportCartridgeSource
     {
         public byte ReadWorkRamByte(int address) => ReadByte(address);
         public byte ReadSaveRamByte(int address) => ReadByte(address);
@@ -128,5 +140,21 @@ internal static partial class Program
             WriteByte(address, (byte)value);
             WriteByte(address + 1, SnesLittleEndian.HighByte(value));
         }
+    }
+
+    [VerificationCommand("--projectile-motion")]
+    internal static int ProjectileMotionCommand()
+    {
+        Suite(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows());
+        return 0;
+    }
+
+    [VerificationCommand("--beam-speed-rows")]
+    internal static int BeamSpeedRowsCommand()
+    {
+        Suite(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows());
+        Suite(nameof(VerifySamusPowerBeamProjectiles), () => VerifySamusPowerBeamProjectiles());
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

@@ -1,16 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class CrateriaMainstreetEscapePassageVerification
 {
     // #1269: during the escape the Crateria mainstreet's state runs room setup $8F:9194,
     // which spawns PLM $84:BB30 at block ($3D,$0B). When the critters escaped (event $0F) its
     // list opens two air blocks there, moves four blocks right and opens two more. The port
     // only ran the setup's quake, so in the 100% movie Samus's spring ball hit a bombable
     // block native had already cleared.
-    private static void VerifyCrateriaMainstreetEscapePassage()
+    internal static void VerifyCrateriaMainstreetEscapePassage()
     {
         RoomLevelData Load(bool crittersEscaped)
         {
@@ -38,5 +47,12 @@ internal static partial class Program
         RoomLevelData shut = Load(crittersEscaped: false);
         AssertTrue(Word(shut, 0x3d) != 0x00ff, "the passage stays shut when the critters were left behind");
         Console.WriteLine("Crateria mainstreet escape passage: setup $8F:9194 opens both pairs only after the critters escaped.");
+    }
+
+    [VerificationCommand("--crateria-mainstreet-escape-passage")]
+    internal static int CrateriaMainstreetEscapePassageCommand()
+    {
+        VerifyCrateriaMainstreetEscapePassage();
+        return 0;
     }
 }

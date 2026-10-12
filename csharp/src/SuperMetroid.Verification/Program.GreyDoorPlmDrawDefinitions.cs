@@ -5,10 +5,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static LookupGreyCapVerification;
+using static LookupGreyDoorStockVerification;
+using static LookupGreyProgramVerification;
+using static LookupTorizoDoorProgramVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
 
-internal static partial class Program
+internal static class GreyDoorPlmDrawDefinitionsVerification
 {
-    private static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGreyDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
         Suite(nameof(VerifyBombTorizoGreyDoorProgramDefinitions), () => VerifyBombTorizoGreyDoorProgramDefinitions(rom));

@@ -5,11 +5,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class MotherBrainEscapeTextArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain escape-text characters and transfer records")]
-    private static void VerifyInstalledMotherBrainEscapeTextArtwork(
+    internal static void VerifyInstalledMotherBrainEscapeTextArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
         RoomCharacterAtlas artwork = stock.MotherBrainEscapeText ??

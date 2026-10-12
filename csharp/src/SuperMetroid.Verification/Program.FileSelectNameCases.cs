@@ -2,26 +2,26 @@ using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 
-internal static partial class Program
+internal static class FileSelectNameCasesVerification
 {
-    private static void VerifyFileSelectPageNames(byte[] source) => VerifyFileSelectNames(source, "Pages",
+    internal static void VerifyFileSelectPageNames(byte[] source) => VerifyFileSelectNames(source, "Pages",
         ["Background", "Main.WithData", "Main.Empty", "Copy.Source", "Copy.Destination",
          "Copy.Confirm", "Copy.Completed", "Clear.Selection", "Clear.Confirm", "Clear.Completed"],
         FileSelectPresentationDefinitions.PageNames, FileSelectPresentationDefinitions.PageName);
 
-    private static void VerifyFileSelectPatchNames(byte[] source) => VerifyFileSelectNames(source, "Patches",
+    internal static void VerifyFileSelectPatchNames(byte[] source) => VerifyFileSelectNames(source, "Patches",
         ["Energy", "NoData", "TimeColon"],
         FileSelectPresentationDefinitions.PatchNames, FileSelectPresentationDefinitions.PatchName);
 
-    private static void VerifyFileSelectBorderNames(byte[] source) => VerifyFileSelectNames(source, "BorderAnchors",
+    internal static void VerifyFileSelectBorderNames(byte[] source) => VerifyFileSelectNames(source, "BorderAnchors",
         ["Main", "Copy", "Clear"],
         FileSelectPresentationDefinitions.BorderNames, FileSelectPresentationDefinitions.BorderName);
 
-    private static void VerifyFileSelectDynamicAnchorNames(byte[] source) => VerifyFileSelectNames(source, "DynamicAnchors",
+    internal static void VerifyFileSelectDynamicAnchorNames(byte[] source) => VerifyFileSelectNames(source, "DynamicAnchors",
         ["Copy.Destination.Source", "Copy.Confirm.Source", "Copy.Confirm.Destination", "Clear.Confirm.Source"],
         FileSelectPresentationDefinitions.DynamicAnchorNames, FileSelectPresentationDefinitions.DynamicAnchorName);
 
-    private static void VerifyFileSelectSpriteNames(byte[] source) => VerifyFileSelectNames(source, "Sprites",
+    internal static void VerifyFileSelectSpriteNames(byte[] source) => VerifyFileSelectNames(source, "Sprites",
         ["Border.Main", "Border.Copy", "Border.Clear", "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3",
          "Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"],
         FileSelectPresentationDefinitions.SpriteNames, FileSelectPresentationDefinitions.SpriteName);

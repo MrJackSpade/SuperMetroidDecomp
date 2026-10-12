@@ -2,11 +2,11 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class GrappleCompiledMathVerification
 {
     /// <summary>Independent cartridge samples exercise the production radial and
     /// release helpers, including anchor bias, 16-bit wrap and phase-dependent speed.</summary>
-    private static void VerifyCompiledGrappleMath(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledGrappleMath(SuperMetroidAddressSpace rom)
     {
         var native = new short[320];
         for (int i = 0; i < native.Length; i++)

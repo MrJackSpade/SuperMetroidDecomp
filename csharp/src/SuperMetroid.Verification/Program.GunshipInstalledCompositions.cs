@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static RepositoryInstallation;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -5,15 +15,18 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CeresSaveStartupVerification;
+using static FrontendRomFreeVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GunshipInstalledCompositionsVerification
 {
     /// <summary>
     /// Extract the new bundle through production import code, then confirm only
     /// the reported gunship frames, legacy-override inheritance and landing draw.
     /// Native bytes are an extraction/reference oracle, never the gameplay bus.
     /// </summary>
-    private static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath, string outputRoot)
+    internal static void VerifyExtractedGunshipCompositions(string installationRoot, string romPath, string outputRoot)
     {
         var imported = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(romPath));
         string directory = Path.Combine(Path.GetFullPath(outputRoot), "enemy-tiles-" + Guid.NewGuid().ToString("N"));
@@ -70,7 +83,7 @@ internal static partial class Program
     /// destruction handoff. Retain the actual initialized gameplay/HUD owner,
     /// as the reported escape-to-Landing-Site transition does. No replay is needed.
     /// </summary>
-    private static void VerifyGunshipLandingCompositions(string installationRoot, EnemyTileArtworkCatalog? enemyArtwork = null)
+    internal static void VerifyGunshipLandingCompositions(string installationRoot, EnemyTileArtworkCatalog? enemyArtwork = null)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -100,5 +113,15 @@ internal static partial class Program
             "#1154 fixture reaches the reported first fade-in frame");
         game.StepCaptured(0, ++sequence, 1);
         Console.WriteLine("#1154: reported first Landing Site fade-in draw completes with installed enemy compositions (RAM-only gameplay).");
+    }
+
+    [VerificationCommand("--gunship-landing-compositions")]
+    internal static int GunshipLandingCompositionsCommand()
+    {
+        string gunshipInstallation = RepositoryInstallation.Installation.Root;
+        using var gunshipOutput = new TestScratchDirectory("map-catalog");
+        Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipInstallation, RepositoryRomPath, gunshipOutput.Root));
+        Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(gunshipInstallation));
+        return 0;
     }
 }

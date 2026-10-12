@@ -3,9 +3,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class FallingSpeedRecurrenceVerification
 {
-    private static void VerifyRetailFallingSpeedRecurrence()
+    internal static void VerifyRetailFallingSpeedRecurrence()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);

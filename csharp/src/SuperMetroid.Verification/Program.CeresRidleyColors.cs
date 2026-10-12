@@ -5,11 +5,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresRidleyColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyCeresRidleyColorOverride(string stockDirectory,
+    internal static void VerifyCeresRidleyColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)

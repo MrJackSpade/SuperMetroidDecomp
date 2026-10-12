@@ -1,15 +1,16 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupBombTorizoHandProgramVerification
 {
-    private static void VerifyHandProgramControls(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 0);
-    private static void VerifyHandProgramDraws(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 1);
-    private static void VerifyHandProgramCallback(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 2);
-    private static void VerifyHandProgramDebrisArguments(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 3);
-    private static void VerifyHandProgramTransferSize(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 4);
-    private static void VerifyHandProgramTransferSource(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 5);
-    private static void VerifyHandProgramTransferDestination(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 6);
+    internal static void VerifyHandProgramControls(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 0);
+    internal static void VerifyHandProgramDraws(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 1);
+    internal static void VerifyHandProgramCallback(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 2);
+    internal static void VerifyHandProgramDebrisArguments(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 3);
+    internal static void VerifyHandProgramTransferSize(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 4);
+    internal static void VerifyHandProgramTransferSource(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 5);
+    internal static void VerifyHandProgramTransferDestination(SuperMetroidAddressSpace rom) => VerifyHandProgramField(rom, 6);
 
     private static void VerifyHandProgramField(SuperMetroidAddressSpace rom, int field)
     {

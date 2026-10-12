@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class SamusHyperBeamColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hyper beam colors")]
-    private static void VerifySamusHyperBeamColors()
+    internal static void VerifySamusHyperBeamColors()
     {
         if (!File.Exists("Super Metroid.smc"))
         {
@@ -386,7 +397,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
+    internal static void VerifySamusHyperBeamColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)
@@ -452,4 +463,11 @@ internal static partial class Program
                     (address >= paletteStart && address < paletteEnd);
             },
             address => $"Installed Hyper Beam read native artwork ${address:X6}.");
+
+    [VerificationCommand("--samus-hyper-beam-colors")]
+    internal static int SamusHyperBeamColorsCommand()
+    {
+        Suite(nameof(VerifySamusHyperBeamColors), () => VerifySamusHyperBeamColors());
+        return 0;
+    }
 }

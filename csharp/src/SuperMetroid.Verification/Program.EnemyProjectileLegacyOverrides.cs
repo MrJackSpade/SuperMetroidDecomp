@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyContentIdentityFixtureVerification;
 
-internal static partial class Program
+internal static class EnemyProjectileLegacyOverridesVerification
 {
     /// <summary>Checks named historical frame sets rather than assuming current sorted frames form a prefix.</summary>
-    private static void VerifyEnemyProjectileLegacyOverrides()
+    internal static void VerifyEnemyProjectileLegacyOverrides()
     {
         var fixture = new EnemyIdentityFixture();
         EnemyProjectileSpritemapDocument stockDocument = fixture.ProjectileDocument();

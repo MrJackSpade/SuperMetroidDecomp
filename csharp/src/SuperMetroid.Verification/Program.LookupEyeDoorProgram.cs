@@ -1,20 +1,21 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupEyeDoorProgramVerification
 {
-    private static void VerifyEyeDoorProgramControl(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Control");
-    private static void VerifyEyeDoorProgramDuration(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Duration");
-    private static void VerifyEyeDoorProgramDraw(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Draw");
-    private static void VerifyEyeDoorProgramTarget(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Target");
-    private static void VerifyEyeDoorProgramCallback(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Callback");
-    private static void VerifyEyeDoorProgramColumns(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Columns");
-    private static void VerifyEyeDoorProgramRows(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Rows");
-    private static void VerifyEyeDoorProgramAttack(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Attack");
-    private static void VerifyEyeDoorProgramSweat(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sweat");
-    private static void VerifyEyeDoorProgramSound(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sound");
-    private static void VerifyEyeDoorProgramHitCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "HitCount");
-    private static void VerifyEyeDoorProgramLoopCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "LoopCount");
+    internal static void VerifyEyeDoorProgramControl(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Control");
+    internal static void VerifyEyeDoorProgramDuration(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Duration");
+    internal static void VerifyEyeDoorProgramDraw(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Draw");
+    internal static void VerifyEyeDoorProgramTarget(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Target");
+    internal static void VerifyEyeDoorProgramCallback(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Callback");
+    internal static void VerifyEyeDoorProgramColumns(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Columns");
+    internal static void VerifyEyeDoorProgramRows(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Rows");
+    internal static void VerifyEyeDoorProgramAttack(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Attack");
+    internal static void VerifyEyeDoorProgramSweat(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sweat");
+    internal static void VerifyEyeDoorProgramSound(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "Sound");
+    internal static void VerifyEyeDoorProgramHitCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "HitCount");
+    internal static void VerifyEyeDoorProgramLoopCount(SuperMetroidAddressSpace rom) => VerifyEyeDoorProgramField(rom, "LoopCount");
 
     private static void VerifyEyeDoorProgramField(SuperMetroidAddressSpace rom, string field)
     {

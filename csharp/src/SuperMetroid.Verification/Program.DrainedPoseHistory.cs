@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class DrainedPoseHistoryVerification
 {
-    private static void VerifyDrainedPoseHistory(TestAddressSpace bus)
+    internal static void VerifyDrainedPoseHistory(TestAddressSpace bus)
     {
         foreach (SamusPoseId source in new[] { SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {

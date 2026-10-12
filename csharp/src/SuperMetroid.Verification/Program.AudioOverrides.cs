@@ -1,10 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
+using static AudioInstrumentsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class AudioOverridesVerification
 {
-    private static void VerifyPersistentAudioOverrides()
+    internal static void VerifyPersistentAudioOverrides()
     {
         string source = Path.GetFullPath("standalone-assets/audio");
         using var rootScratch = new TestScratchDirectory("audio-override");
@@ -121,7 +132,7 @@ internal static partial class Program
             "stable installation identity, compatibility guards and loud corruption failures pass.");
     }
 
-    private static void VerifyGameContentIdentityComposition()
+    internal static void VerifyGameContentIdentityComposition()
     {
         string audio = new('A', 64);
         string maps = new('B', 64);
@@ -172,5 +183,12 @@ internal static partial class Program
                 CompositeSha256 = Convert.FromHexString(new string('D', 64)),
             }, "test artifact").Single().Contains("Aggregate", StringComparison.Ordinal),
             "unexplained aggregate drift cannot pass component comparison");
+    }
+
+    [VerificationCommand("--audio-overrides")]
+    internal static int AudioOverridesCommand()
+    {
+        Suite(nameof(VerifyPersistentAudioOverrides), () => VerifyPersistentAudioOverrides());
+        return 0;
     }
 }

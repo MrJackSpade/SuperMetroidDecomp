@@ -4,10 +4,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
+using static MapSpritesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseReserveAnchorsVerification
 {
-    private static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
+    internal static void VerifyPauseReserveAnchors(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;

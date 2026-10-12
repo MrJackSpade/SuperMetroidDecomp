@@ -7,11 +7,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Norfair Ridley colors and reveal pointers")]
-    private static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
+    internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         if (stock.NorfairRidleyColors is null)

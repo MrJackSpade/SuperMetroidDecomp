@@ -4,11 +4,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapArrowDurationsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for map arrow durations")]
-    private static void VerifyMapArrowDurations(ISnesAddressSpace rom)
+    internal static void VerifyMapArrowDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<MapArrowDocument>(bytes,

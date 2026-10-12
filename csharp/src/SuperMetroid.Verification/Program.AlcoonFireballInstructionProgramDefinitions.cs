@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static EnemyVisualSelectorInventoryVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class AlcoonFireballInstructionProgramDefinitionsVerification
 {
-    private static void VerifyAlcoonFireballInstructionProgramDefinitions()
+    internal static void VerifyAlcoonFireballInstructionProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
@@ -105,7 +115,7 @@ internal static partial class Program
                 "Alcoon-fireball presentation ordinal bounds");
     }
 
-    private static void VerifyAlcoonFireballInstructionProgramDefinitions(
+    internal static void VerifyAlcoonFireballInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -234,4 +244,19 @@ internal static partial class Program
                 ((SnesAddressMath.BankBase(address)) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
             address => $"Production read migrated Alcoon-fireball program byte ${address:X6}.");
+
+    [VerificationCommand("--lookup-alcoon-fireball-programs")]
+    internal static int LookupAlcoonFireballProgramsCommand()
+    {
+        Suite(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions());
+        Suite(nameof(VerifyCompiledEnemyVisualSelectors), () => VerifyCompiledEnemyVisualSelectors());
+        return 0;
+    }
+
+    [VerificationCommand("--alcoon-fireball-instruction-mechanics")]
+    internal static int AlcoonFireballInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyAlcoonFireballInstructionProgramDefinitions), () => VerifyAlcoonFireballInstructionProgramDefinitions());
+        return 0;
+    }
 }

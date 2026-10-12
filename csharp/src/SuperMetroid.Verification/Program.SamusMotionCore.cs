@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,12 +11,15 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static SyntheticSamusCartridgeVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusMotionCoreVerification
 {
 
 /// <summary>Pose-transition, horizontal-speed, and extra-displacement verification.</summary>
-static void VerifySamusPoseTransitionMatching()
+internal static void VerifySamusPoseTransitionMatching()
 {
     var bus = new TestAddressSpace();
     SamusPoseId fixturePose = SamusPoseId.FacingRightNormalPose;
@@ -93,7 +100,7 @@ static void VerifySamusPoseTransitionMatching()
 /// deterministic while the DebugRunner independently reads the user's cartridge.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusHorizontalSpeed()
+internal static void VerifySamusHorizontalSpeed()
 {
     var bus = new TestAddressSpace();
     SamusFullBodyCycleColorCatalog CycleColors() =>
@@ -455,7 +462,7 @@ static void VerifySamusHorizontalSpeed()
 /// consumers. The fixtures are intentionally all-air so accepted 16.16 movement exposes
 /// arithmetic directly instead of conflating it with the separately verified block clipper.
 /// </summary>
-static void VerifySamusExtraDisplacement()
+internal static void VerifySamusExtraDisplacement()
 {
     var bus = new TestAddressSpace();
 
@@ -598,4 +605,17 @@ static void VerifySamusExtraDisplacement()
 // Exercises `$91:F7B0/$91:DAC7/$90:CFFA-$D2B9` without relying on host elapsed time:
 // stage-gated storage, ROM palette indirection, windup timeout, directional installation,
 // 16.16 acceleration, energy drain, and the low-energy crash handoff.
+
+    [VerificationCommand("--horizontal-speed-fixture")]
+    internal static int HorizontalSpeedFixtureCommand()
+    {
+     VerifySamusHorizontalSpeed(); return 0; 
+    }
+
+    [VerificationCommand("--samus-horizontal-speed")]
+    internal static int SamusHorizontalSpeedCommand()
+    {
+        Suite(nameof(VerifySamusHorizontalSpeed), () => VerifySamusHorizontalSpeed());
+        return 0;
+    }
 }

@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class WaverAnimationDefinitionsVerification
 {
-    private static void VerifyWaverAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyWaverAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
         {

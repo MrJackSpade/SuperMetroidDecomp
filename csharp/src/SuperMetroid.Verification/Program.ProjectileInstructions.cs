@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ProjectileInstructionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile instructions")]
-    private static void VerifyProjectileInstructions(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileInstructions(SuperMetroidAddressSpace rom)
     {
         ushort[] entries =
         [

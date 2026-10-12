@@ -1,14 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
+using static AudioUploadCatalogVerification;
+using static DoorSoundDisableVerification;
+using static GameplayAudioPublicationVerification;
+using static SoundQueueReturnVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class AudioVerification
 {
     /// <summary>
     /// Exercises bank $80's delayed music queue, LoROM upload stream traversal, and bank
     /// $82's real request/acknowledge/clear SFX handshake independently of an audio device.
     /// </summary>
-    private static void VerifyCartridgeAudioQueues()
+    internal static void VerifyCartridgeAudioQueues()
     {
         Suite(nameof(VerifyDoorSoundDisableGuard), () => VerifyDoorSoundDisableGuard());
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -289,4 +304,11 @@ internal static partial class Program
 
     private static void WriteAudioRomByte(byte[] rom, int snesAddress, byte value) =>
         rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
+
+    [VerificationCommand("--audio-queues")]
+    internal static int AudioQueuesCommand()
+    {
+        Suite(nameof(VerifyCartridgeAudioQueues), () => VerifyCartridgeAudioQueues());
+        return 0;
+    }
 }

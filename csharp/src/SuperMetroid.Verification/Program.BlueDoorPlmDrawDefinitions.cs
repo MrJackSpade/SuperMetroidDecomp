@@ -5,11 +5,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static LookupBlueCapVerification;
+using static LookupBlueDoorStockVerification;
+using static LookupBlueProgramVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BlueDoorPlmDrawDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Blue door PLM draw definitions")]
-    private static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBlueDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
 

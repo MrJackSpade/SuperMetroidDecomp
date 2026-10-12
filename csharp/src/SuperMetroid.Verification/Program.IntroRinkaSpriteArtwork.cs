@@ -6,10 +6,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static IntroCinematicArtworkVerification;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class IntroRinkaSpriteArtworkVerification
 {
-    private static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
+    internal static void DrawImportedCinematicActor(ISnesAddressSpace bus, OamBuffer oam, IntroDiscoverySprite actor)
     {
         if (!actor.IsActive || actor.SpriteMapPointer == 0) return;
         ushort y = actor.WholePosition.Y;
@@ -20,7 +23,7 @@ internal static partial class Program
             originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
     }
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;

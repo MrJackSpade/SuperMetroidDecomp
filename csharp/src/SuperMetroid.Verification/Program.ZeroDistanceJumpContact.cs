@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ZeroDistanceJumpContactVerification
 {
-    private static void VerifyZeroDistanceJumpContact()
+    internal static void VerifyZeroDistanceJumpContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);

@@ -1,8 +1,9 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupRoomStateSettingsVerification
 {
     // Original identities captured from f2e63273eef07b384814af455e129d560fb8e109.
     // Field expectations come from original bank-$8F bytes via the import-only reader.
@@ -37,7 +38,7 @@ internal static partial class Program
         0xDF71, 0xDF9F, 0xDFB9, 0xDFE9, 0xE003, 0xE033, 0xE04D, 0xE07D, 0xE097, 0xE0C7, 0xE0E1,
     ];
 
-    private static void VerifyRoomStateSettings(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomStateSettings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomStateIdentities), () => VerifyRoomStateIdentities());
         Suite(nameof(VerifyRoomStateCompressedLevelDataAddress), () => VerifyRoomStateCompressedLevelDataAddress(rom));

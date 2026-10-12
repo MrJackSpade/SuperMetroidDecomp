@@ -1,18 +1,30 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static DoorDefinitionsVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class TorizoSonicBoomInstructionProgramDefinitionsVerification
 {
-    private static void VerifyTorizoSonicBoomInstructionProgramDefinitions() =>
+    internal static void VerifyTorizoSonicBoomInstructionProgramDefinitions() =>
         Suite(nameof(VerifyTorizoSonicBoomInstructionProgramDefinitions), () => VerifyTorizoSonicBoomInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo sonic boom instruction program definitions")]
-    private static void VerifyTorizoSonicBoomInstructionProgramDefinitions(
+    internal static void VerifyTorizoSonicBoomInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -228,4 +240,11 @@ internal static partial class Program
             .Forbid(TorizoSonicBoomInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Torizo sonic-boom byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, TorizoSonicBoomInstructionProgramDefinitions.PresentationWordCount, TorizoSonicBoomInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--torizo-sonic-boom-instruction-mechanics")]
+    internal static int TorizoSonicBoomInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyTorizoSonicBoomInstructionProgramDefinitions), () => VerifyTorizoSonicBoomInstructionProgramDefinitions());
+        return 0;
+    }
 }

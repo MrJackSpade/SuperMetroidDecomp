@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class FileSelectHelmetAnimationVerification
 {
-    private static void VerifyFileSelectHelmetAnimation(ISnesAddressSpace rom)
+    internal static void VerifyFileSelectHelmetAnimation(ISnesAddressSpace rom)
     {
         AssertEqual(9, FileSelectHelmetAnimation.NativeEntryCount, "complete native helmet mapping");
         for (int frame = 0; frame < 9; frame++)

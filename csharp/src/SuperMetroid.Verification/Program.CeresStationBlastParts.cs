@@ -1,10 +1,12 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static IntroMotherBrainExplosionPartsVerification;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class CeresStationBlastPartsVerification
 {
-    private static void VerifyCeresStationBlastParts(ISnesAddressSpace rom)
+    internal static void VerifyCeresStationBlastParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStationBlast", value.AppendIdentity);
         foreach (var definition in CeresDestructionSpriteDefinitions.Frames.Where(frame => frame.Name.StartsWith("station-blast-", StringComparison.Ordinal)))

@@ -6,11 +6,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroProjectileArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
+    internal static void VerifyIntroProjectileArtwork(ISnesAddressSpace bus, ProjectileSpriteCatalog stock, ProjectileSpriteCatalog edited, ushort sprite)
     {
         var intro = CreateRetailIntroFixture(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

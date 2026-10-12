@@ -1,10 +1,11 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidCeilingRockPositionsVerification
 {
-    private static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1)));
         for (int offset = 0; offset <= 18; offset++)
@@ -18,7 +19,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid ceiling rock coordinates")]
     private static byte KraidCeilingRockCoordinatesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1)));

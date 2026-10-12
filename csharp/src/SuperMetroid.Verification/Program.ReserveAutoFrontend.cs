@@ -1,3 +1,8 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -8,8 +13,9 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ReserveAutoFrontendVerification
 {
     /// <summary>The native HUD digit tilemap word for <paramref name="digit"/> at $80:9DBF.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the HUD health-digit tilemap words")]
@@ -28,7 +34,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyReserveAutoFrontend()
+    internal static void VerifyReserveAutoFrontend()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -174,5 +180,12 @@ internal static partial class Program
             "gunship entry handler checks low health despite locked input");
         AssertTrue(Enumerable.Range(0, positions[2]).Any(i => queues[2, i] == 2), "gunship handler publishes warning audio");
         Console.WriteLine("Automatic reserve frontend: nonfinal freeze and same-frame completion movement pass.");
+    }
+
+    [VerificationCommand("--reserve-auto-frontend")]
+    internal static int ReserveAutoFrontendCommand()
+    {
+        Suite(nameof(VerifyReserveAutoFrontend), () => VerifyReserveAutoFrontend());
+        return 0;
     }
 }

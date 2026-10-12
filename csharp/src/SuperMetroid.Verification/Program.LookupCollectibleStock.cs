@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static CollectibleVisualsVerification;
 
-internal static partial class Program
+internal static class LookupCollectibleStockVerification
 {
-    private static void VerifyCollectibleStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyCollectibleStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmCollectibleVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0xa2b5,"empty"),(0xa2c7,"chozo-orb-0"),(0xa2cd,"chozo-orb-1"),(0xa2d3,"chozo-orb-2"),(0xa2d9,"chozo-orb-burst"),(0xa2df,"energy-tank-0"),(0xa2e5,"energy-tank-1"),(0xa2eb,"missile-tank-0"),(0xa2f1,"missile-tank-1"),(0xa2f7,"super-missile-tank-0"),(0xa2fd,"super-missile-tank-1"),(0xa303,"power-bomb-tank-0"),(0xa309,"power-bomb-tank-1"),(0xa30f,"dynamic-slot-0-frame-0"),(0xa315,"dynamic-slot-0-frame-1"),(0xa31b,"dynamic-slot-1-frame-0"),(0xa321,"dynamic-slot-1-frame-1"),(0xa327,"dynamic-slot-2-frame-0"),(0xa32d,"dynamic-slot-2-frame-1"),(0xa333,"dynamic-slot-3-frame-0"),(0xa339,"dynamic-slot-3-frame-1"),(0xa3dd,"shot-reveal-0"),(0xa3e3,"shot-reveal-1"),(0xa3e9,"shot-reveal-2")];

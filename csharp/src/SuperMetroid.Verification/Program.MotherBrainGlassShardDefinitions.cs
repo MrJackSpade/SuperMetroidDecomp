@@ -3,10 +3,11 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MotherBrainGlassShardDefinitionsVerification
 {
-    private static void VerifyMotherBrainGlassShardDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainGlassShardDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGlassShardXPlacement), () => VerifyGlassShardXPlacement(rom));
         Suite(nameof(VerifyGlassShardYPlacement), () => VerifyGlassShardYPlacement(rom));
@@ -108,7 +109,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass shard words")]
-    private static ushort ReadMotherBrainGlassShardWord(
+    internal static ushort ReadMotherBrainGlassShardWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);

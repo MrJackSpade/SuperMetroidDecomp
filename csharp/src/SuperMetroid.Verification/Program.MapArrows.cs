@@ -6,11 +6,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using static InstalledFileSelectMapVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapArrowsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapArrows(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewMapArrowGuard(bus);
         var native = new FileSelectMapAnimations(bus, original.Arrows);

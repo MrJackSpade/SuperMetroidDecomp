@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DraygonIntroDanceDefinitionsVerification
 {
-    private static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonIntroDanceDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroLatencyDefinitions), () => VerifyDraygonIntroLatencyDefinitions(rom));
         Suite(nameof(VerifyDraygonIntroMovementDefinitions), () => VerifyDraygonIntroMovementDefinitions(rom));
@@ -18,7 +30,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro latency definitions")]
-    private static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonIntroLatencyDefinitions(SuperMetroidAddressSpace rom)
     {
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementLatencyAddress;
         for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
@@ -39,7 +51,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon intro movement definitions")]
-    private static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonIntroMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDraygonIntroDeleteSelection), () => VerifyDraygonIntroDeleteSelection(rom));
         const int source = DraygonIntroDanceDefinitionsConstants.NativeMovementStreamAddress;
@@ -203,4 +215,12 @@ internal static partial class Program
                     address <= DraygonIntroDanceDefinitions.NativeMovementStreamAddress +
                         DraygonIntroDanceDefinitions.LastMovementStreamOffset + 1,
                 address => $"Draygon intro attempted migrated definition read ${address:X6}.");
+
+    [VerificationCommand("--draygon-intro-dance-definitions")]
+    internal static int DraygonIntroDanceDefinitionsCommand()
+    {
+        Suite(nameof(VerifyDraygonIntroDanceDefinitions), () => VerifyDraygonIntroDanceDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

@@ -1,14 +1,30 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static BossMapMarkersVerification;
+using static PausePaletteSoundVerification;
+using static PauseReserveArrowRebindVerification;
+using static PauseReserveArrowVerification;
+using static PauseReserveHudVerification;
+using static PauseReserveManualVerification;
+using static PauseReserveTanksVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using static RenderPacketCodecTestsVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseSnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyPauseRenderSnapshots()
+    internal static void VerifyPauseRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState
@@ -67,5 +83,19 @@ internal static partial class Program
                 if (expected[pixel] != actual[pixel])
                     throw new InvalidOperationException($"Pause snapshot frame {frame} pixel ({pixel % FrontendFrame.Width},{pixel / FrontendFrame.Width}): expected {expected[pixel]}, got {actual[pixel]}.");
         }
+    }
+
+    [VerificationCommand("--pause-fixtures")]
+    internal static int PauseFixturesCommand()
+    {
+        Suite(nameof(VerifyPauseRenderSnapshots), () => VerifyPauseRenderSnapshots());
+        Suite(nameof(VerifyPauseBossMarkers), () => VerifyPauseBossMarkers());
+        Suite(nameof(VerifyPausePaletteSound), () => VerifyPausePaletteSound());
+        Suite(nameof(VerifyPauseReserveManual), () => VerifyPauseReserveManual());
+        Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
+        Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
+        Suite(nameof(VerifyPauseReserveTanks), () => VerifyPauseReserveTanks());
+        Suite(nameof(VerifyPauseReserveHud), () => VerifyPauseReserveHud());
+        return 0;
     }
 }

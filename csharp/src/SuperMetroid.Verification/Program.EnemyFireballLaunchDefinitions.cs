@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyFireballLaunchDefinitionsVerification
 {
     private static void VerifyAlcoonVerticalLaunchMapping(SuperMetroidAddressSpace rom)
     {
@@ -37,7 +38,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledEnemyFireballLaunches(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyAlcoonVerticalLaunchMapping), () => VerifyAlcoonVerticalLaunchMapping(rom));
         Suite(nameof(VerifyNamiFuneLeftLaunchMapping), () => VerifyNamiFuneLeftLaunchMapping(rom));

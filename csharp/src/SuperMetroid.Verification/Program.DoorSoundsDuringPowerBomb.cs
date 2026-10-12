@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class DoorSoundsDuringPowerBombVerification
 {
     /// <summary>
     /// All three sound-queue routines drop requests while a power-bomb explosion's status is
@@ -13,7 +23,7 @@ internal static partial class Program
     /// the door's $32/$71 cancels never reach a ring and $E29E proceeds on its first check;
     /// the port queued them and waited a frame longer.
     /// </summary>
-    private static void VerifyDoorSoundsDuringPowerBomb()
+    internal static void VerifyDoorSoundsDuringPowerBomb()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -56,5 +66,12 @@ internal static partial class Program
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification,
             "$E29E finds the rings empty on its first check");
         Console.WriteLine("  Door sounds during a power bomb: the cancels are dropped and the wait ends at once.");
+    }
+
+    [VerificationCommand("--door-sounds-during-power-bomb")]
+    internal static int DoorSoundsDuringPowerBombCommand()
+    {
+        Suite(nameof(VerifyDoorSoundsDuringPowerBomb), () => VerifyDoorSoundsDuringPowerBomb());
+        return 0;
     }
 }

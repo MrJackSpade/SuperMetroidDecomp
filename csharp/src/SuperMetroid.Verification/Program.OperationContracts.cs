@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using SuperMetroid.Core.Frontend;
@@ -7,14 +14,14 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 
-internal static partial class Program
+internal static class OperationContractsVerification
 {
     /// <summary>
     /// #633: operation contexts are supersets of their children's narrow contracts, child operations accept
     /// only those contracts, the grapple wrapper's masked frame withholds exactly four capabilities, and
     /// concrete contexts reject missing required values at construction instead of during the operation.
     /// </summary>
-    private static void VerifyOperationContracts()
+    internal static void VerifyOperationContracts()
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags shared = BindingFlags.Static | BindingFlags.NonPublic;
@@ -91,5 +98,12 @@ internal static partial class Program
         AssertTrue(tester.RuntimeOverrides(forAttractDemo: false) is { PlayerInvincibilityEnabled: true, InfiniteAmmoEnabled: true, GrantAllEquipment: true },
             "a session receives the host's configured overrides");
         Console.WriteLine("#633 operation contracts: narrow child contracts, the masked grapple frame and construction-time validation pass.");
+    }
+
+    [VerificationCommand("--operation-contracts")]
+    internal static int OperationContractsCommand()
+    {
+        Suite(nameof(VerifyOperationContracts), () => VerifyOperationContracts());
+        return 0;
     }
 }

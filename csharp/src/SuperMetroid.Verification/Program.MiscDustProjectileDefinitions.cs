@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MiscDustProjectileDefinitionsVerification
 {
-    private static void VerifyMiscDustProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMiscDustProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0x86e42c;
         const int placementTable = 0x86e47e;

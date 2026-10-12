@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -10,10 +12,11 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-internal static partial class Program
+using static MotherBrainAscentCaptureVerification;
+internal static class MotherBrainTankBackgroundVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
+    internal static int VerifyMotherBrainTankBackground(bool ascentMaskOnly = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -114,5 +117,17 @@ internal static partial class Program
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
         ushort ReadStaged(int index) => new EnemyScratchMemory(bus).EnemyBg2Tilemap[index];
+    }
+
+    [VerificationCommand("--mother-brain-ascent-capture")]
+    internal static int MotherBrainAscentCaptureCommand()
+    {
+        return VerifyMotherBrainTankBackground(ascentMaskOnly: true);
+    }
+
+    [VerificationCommand("--mother-brain-tank-background")]
+    internal static int MotherBrainTankBackgroundCommand()
+    {
+        return VerifyMotherBrainTankBackground();
     }
 }

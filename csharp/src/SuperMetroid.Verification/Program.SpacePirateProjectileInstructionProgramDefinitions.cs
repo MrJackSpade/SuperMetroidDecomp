@@ -1,17 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SpacePirateProjectileInstructionProgramDefinitionsVerification
 {
-    private static void VerifySpacePirateProjectileInstructionProgramDefinitions() =>
+    internal static void VerifySpacePirateProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Pirate projectile instruction program definitions")]
-    private static void VerifySpacePirateProjectileInstructionProgramDefinitions(
+    internal static void VerifySpacePirateProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -200,4 +212,11 @@ internal static partial class Program
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Space Pirate mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, SpacePirateProjectileInstructionProgramDefinitions.PresentationWordCount, SpacePirateProjectileInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--space-pirate-projectile-instruction-mechanics")]
+    internal static int SpacePirateProjectileInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifySpacePirateProjectileInstructionProgramDefinitions), () => VerifySpacePirateProjectileInstructionProgramDefinitions());
+        return 0;
+    }
 }

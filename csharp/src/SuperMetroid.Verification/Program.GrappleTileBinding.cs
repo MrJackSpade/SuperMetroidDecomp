@@ -4,11 +4,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using static GraphDigestVerification;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GrappleTileBindingVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
+    internal static void VerifyGrappleTileBinding(SuperMetroidAddressSpace bus, GrappleTileAtlas stock, GrappleTileAtlas edited)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var runtime = CreateRetailRuntimeFixture(bus);

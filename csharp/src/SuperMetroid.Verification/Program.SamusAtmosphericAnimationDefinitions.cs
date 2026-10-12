@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SamusAtmosphericAnimationDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric animation definitions")]
-    private static void VerifySamusAtmosphericAnimationDefinitions(
+    internal static void VerifySamusAtmosphericAnimationDefinitions(
         SuperMetroidAddressSpace rom)
     {
 
@@ -61,7 +73,7 @@ internal static partial class Program
             "Samus atmospheric animation: 37 timers, seven frame counts, four liquid-damage words, and all real cadence/damage consumers pass with mechanics ranges forbidden.");
     }
 
-    private static void VerifyProductionAtmosphericCadence(ISnesAddressSpace guarded)
+    internal static void VerifyProductionAtmosphericCadence(ISnesAddressSpace guarded)
     {
         var atmosphericArt = new SamusAtmosphericArtworkCatalog(
             new ushort[SamusMovementRomData.Environment.DirectAtmosphericFrameCount],
@@ -156,11 +168,20 @@ internal static partial class Program
             $"production {fxType} whole damage accumulation");
     }
 
-    private static MutableCartridgeReadGuard NewSamusAtmosphericAnimationReadGuard(ISnesAddressSpace source)
+    internal static MutableCartridgeReadGuard NewSamusAtmosphericAnimationReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address is >= 0x908b93 and < 0x908bff or >= 0x909e8b and < 0x909e93,
             address => $"Samus atmosphere attempted migrated mechanics read ${address:X6}.");
         return guard;
+    }
+
+    [VerificationCommand("--samus-atmospheric-cadence")]
+    internal static int SamusAtmosphericCadenceCommand()
+    {
+        string atmosphereCadenceRom = RepositoryRomPath;
+        Suite(nameof(VerifySamusAtmosphericAnimationDefinitions), () => VerifySamusAtmosphericAnimationDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(atmosphereCadenceRom)));
+        return 0;
     }
 }

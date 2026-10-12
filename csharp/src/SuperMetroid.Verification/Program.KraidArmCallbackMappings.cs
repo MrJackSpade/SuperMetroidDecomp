@@ -1,11 +1,14 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidArmInstructionProgramDefinitionsVerification;
+using static KraidArmPhysicalFrameMappingsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidArmCallbackMappingsVerification
 {
-    private static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidArmTouchCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, false, KraidArmCollisionDefinitions.TouchCallback));
-    private static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidArmShotCallbacks(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidArmCallbackField), () => VerifyKraidArmCallbackField(rom, true, KraidArmCollisionDefinitions.ShotCallback));
 
     private static void VerifyKraidArmCallbackField(SuperMetroidAddressSpace rom, bool shot, Func<int, ushort> calculate)

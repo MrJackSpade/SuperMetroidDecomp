@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static GrappleRopeGeometryVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GrapplePointAnimationVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple point tile pointers")]
-    private static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
+    internal static void VerifyGrapplePointAnimation(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));
         ushort begin = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.PointTilePointers);

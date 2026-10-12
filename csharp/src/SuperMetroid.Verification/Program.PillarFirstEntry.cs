@@ -1,3 +1,7 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -7,12 +11,13 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class PillarFirstEntryVerification
 {
     // Stage only the neighboring doorway. The destination is loaded exclusively by
     // the normal door coroutine, including population, FX, graphics and PLM ownership.
-    private static void VerifyPillarFirstEntry()
+    internal static void VerifyPillarFirstEntry()
     {
         const ushort source = 0xb3a5, destination = 0xb457;
 
@@ -107,5 +112,12 @@ internal static partial class Program
                 $"Puromi {actor} visibly moves in the composited room, not merely OAM");
         }
         Console.WriteLine($"Pillar entry complete. Both actors visibly move after the retail door handoff; this is not a full pre-room playthrough replay.");
+    }
+
+    [VerificationCommand("--pillar-first-entry")]
+    internal static int PillarFirstEntryCommand()
+    {
+        Suite(nameof(VerifyPillarFirstEntry), () => VerifyPillarFirstEntry());
+        return 0;
     }
 }

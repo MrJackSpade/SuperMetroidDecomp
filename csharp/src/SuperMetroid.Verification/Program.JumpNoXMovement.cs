@@ -1,15 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class JumpNoXMovementVerification
 {
     // #1269: with no direction held and acceleration mode zero, Samus_Jumping_Movement clears
     // base speed and branches past MoveSamus_Horizontally ($90:902B), so no post-move slope
     // alignment runs. Calling the mover with zero aligned Samus to a slope under her: in the
     // 100% movie's Red Fish room she dropped two pixels the frame after a ceiling hit.
-    private static void VerifyJumpNoXMovement()
+    internal static void VerifyJumpNoXMovement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -35,5 +44,12 @@ internal static partial class Program
         AssertEqual((ushort)0x004a, samus.Position.Y.Whole, "no horizontal move means no slope alignment");
         AssertEqual((ushort)0x0225, samus.Position.X.Whole, "X is unchanged");
         Console.WriteLine("Jump without X movement: Samus_Jumping_Movement skips the horizontal mover and its slope alignment.");
+    }
+
+    [VerificationCommand("--jump-no-x-movement")]
+    internal static int JumpNoXMovementCommand()
+    {
+        VerifyJumpNoXMovement();
+        return 0;
     }
 }

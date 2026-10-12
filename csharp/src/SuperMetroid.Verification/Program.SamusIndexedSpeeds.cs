@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusIndexedSpeedsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus indexed speeds")]
-    private static void VerifySamusIndexedSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusIndexedSpeeds(SuperMetroidAddressSpace rom)
     {
         SpeedTableEntry Read(int a)
         {

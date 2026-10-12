@@ -1,12 +1,15 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static ChozoStatueVisualsVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class LookupChozoLayoutsVerification
 {
-    private static void VerifyChozoLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 0);
-    private static void VerifyChozoLayoutCollision(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 1);
-    private static void VerifyChozoLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 2);
+    internal static void VerifyChozoLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 0);
+    internal static void VerifyChozoLayoutCollision(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 1);
+    internal static void VerifyChozoLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyChozoLayoutDrawField(rom, 2);
 
     private static void VerifyChozoLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {

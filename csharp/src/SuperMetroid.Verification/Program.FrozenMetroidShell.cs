@@ -1,15 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class FrozenMetroidShellVerification
 {
     // #1207: freezing during the shell's intentionally empty frame must select
     // the frozen shell immediately, including its actual emitted sprite parts.
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static int VerifyFrozenMetroidShell()
+    internal static int VerifyFrozenMetroidShell()
     {
         const BindingFlags instance = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -60,5 +68,11 @@ internal static partial class Program
         {
             if (!condition) throw new InvalidDataException(message);
         }
+    }
+
+    [VerificationCommand("--frozen-metroid-shell")]
+    internal static int FrozenMetroidShellCommand()
+    {
+        return VerifyFrozenMetroidShell();
     }
 }

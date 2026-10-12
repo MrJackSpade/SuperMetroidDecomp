@@ -1,7 +1,10 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SyntheticRoomCartridgeFixturesVerification
 {
     /// <summary>
     /// Seeds a bank-$8F room PLM population list at <paramref name="population"/> in the sparse
@@ -9,17 +12,16 @@ internal static partial class Program
     /// (header pointer, X, Y, argument) followed by whatever terminator bytes the test supplies.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for a bank-$8F room PLM population list")]
-    static void SeedRoomPlmPopulation(TestAddressSpace bus, ushort population, ReadOnlySpan<byte> records) =>
+    internal static void SeedRoomPlmPopulation(TestAddressSpace bus, ushort population, ReadOnlySpan<byte> records) =>
         bus.WriteBytes(0x8f0000 | population, records);
 
     /// <summary>
     /// Creates a sparse cartridge fixture whose bank $84 (PLM headers, instruction lists and
     /// draw lists, <c>$84:8000-$84:FFFF</c>) holds exactly <paramref name="bank84"/>.
     /// </summary>
-    static TestAddressSpace CreateBank84Cartridge(ReadOnlySpan<byte> bank84)
+    internal static TestAddressSpace CreateBank84Cartridge(ReadOnlySpan<byte> bank84)
     {
-        if (bank84.Length != 0x8000)
-            throw new ArgumentException("Bank $84 is exactly $8000 bytes.", nameof(bank84));
+        Ensure.LengthEqual(bank84, 0x8000);
         var bus = new TestAddressSpace();
         SeedPlmProgramBytes(bus, 0x8000, bank84);
         return bus;
@@ -30,7 +32,7 @@ internal static partial class Program
     /// platform PLM header (<c>$84:B70B</c>) at <paramref name="block"/>,
     /// and points that header's instruction-list word (<c>$84:B70D</c>) at <paramref name="instructionList"/>.
     /// </summary>
-    static void SeedSoleElevatorPlatformPlm(
+    internal static void SeedSoleElevatorPlatformPlm(
         TestAddressSpace bus, ushort population, Position16<RoomBlocks> block, ushort instructionList)
     {
         SeedRoomPlmPopulation(bus, population,
@@ -44,7 +46,7 @@ internal static partial class Program
     /// Each word's address wraps within bank $84 exactly as the native 16-bit list cursor does.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$84 PLM header and program words")]
-    static void SeedPlmProgramWords(TestAddressSpace bus, ushort pointer, params ReadOnlySpan<ushort> words)
+    internal static void SeedPlmProgramWords(TestAddressSpace bus, ushort pointer, params ReadOnlySpan<ushort> words)
     {
         for (int index = 0; index < words.Length; index++)
             WriteTestWord(bus, 0x840000 | unchecked((ushort)(pointer + index * sizeof(ushort))), words[index]);
@@ -55,7 +57,7 @@ internal static partial class Program
     /// records) starting at the bank-local <paramref name="pointer"/>.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for bank-$84 PLM program bytes")]
-    static void SeedPlmProgramBytes(TestAddressSpace bus, ushort pointer, ReadOnlySpan<byte> bytes) =>
+    internal static void SeedPlmProgramBytes(TestAddressSpace bus, ushort pointer, ReadOnlySpan<byte> bytes) =>
         bus.WriteBytes(0x840000 | pointer, bytes);
 
     /// <summary>
@@ -63,7 +65,7 @@ internal static partial class Program
     /// <see cref="RoomPlmInstructionLists.Delete"/>) in the sparse cartridge fixture: a single
     /// <see cref="RoomPlmInstruction.Delete"/> instruction.
     /// </summary>
-    static void SeedPlmDeleteList(TestAddressSpace bus) =>
+    internal static void SeedPlmDeleteList(TestAddressSpace bus) =>
         SeedPlmProgramWords(bus, RoomPlmInstructionLists.Delete, (ushort)RoomPlmInstruction.Delete);
 
     /// <summary>
@@ -71,6 +73,6 @@ internal static partial class Program
     /// <paramref name="population"/> in the sparse cartridge fixture.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for an empty bank-$A1 room enemy population")]
-    static void SeedEmptyRoomEnemyPopulation(TestAddressSpace bus, ushort population) =>
+    internal static void SeedEmptyRoomEnemyPopulation(TestAddressSpace bus, ushort population) =>
         bus.WriteBytes(0xa10000 | population, [0xff, 0xff]);
 }

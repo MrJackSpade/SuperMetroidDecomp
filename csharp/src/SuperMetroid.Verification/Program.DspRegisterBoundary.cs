@@ -1,6 +1,18 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 
-internal static partial class Program
+internal static class DspRegisterBoundaryVerification
 {
     /// <summary>
     /// #631: every typed S-DSP control writes exactly its register, for all eight voices and eight FIR
@@ -8,7 +20,7 @@ internal static partial class Program
     /// views of one register; out-of-range voices and taps are rejected; and typed writes allocate nothing.
     /// </summary>
     [DspRegisterBoundary("exact register test: typed controls against the register file")]
-    private static void VerifyDspRegisterBoundary()
+    internal static void VerifyDspRegisterBoundary()
     {
         var dsp = new ManagedSnesDsp(new byte[0x10000]);
         var controls = new SnesDspControls(dsp);
@@ -99,5 +111,12 @@ internal static partial class Program
             voiceControls.WriteGain(0x40);
         }
         controls.Global.WriteEchoFeedback(0);
+    }
+
+    [VerificationCommand("--dsp-register-boundary")]
+    internal static int DspRegisterBoundaryCommand()
+    {
+        Suite(nameof(VerifyDspRegisterBoundary), () => VerifyDspRegisterBoundary());
+        return 0;
     }
 }

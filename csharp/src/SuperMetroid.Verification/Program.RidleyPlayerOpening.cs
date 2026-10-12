@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using System.Globalization;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class RidleyPlayerOpeningVerification
 {
-    private static void VerifyRidleyPlayerOpening()
+    internal static void VerifyRidleyPlayerOpening()
     {
         var overlaps = typeof(RoomEnemySystem).GetMethod("IsWithinRidleyRectangle", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Func<RoomEnemySlot, Position16<RoomPixels>, Extent16<RoomPixels>, bool>>();
@@ -62,5 +72,11 @@ internal static partial class Program
                 throw new InvalidDataException($"Ridley movie first divergence at frame {frame}: native {native}; port {actual}; instructions native={W(expected,0xf92):X4}/{W(expected,0xf94)} port={body.CurrentInstruction:X4}/{body.InstructionTimer}; timer={state.FunctionTimer} native={W(expected,0xfb2)}");
         }
         Console.WriteLine("Ridley player opening trajectory matches native movie frames 375..744.");
+    }
+
+    [VerificationCommand("--ridley-player-opening")]
+    internal static int RidleyPlayerOpeningCommand()
+    {
+     VerifyRidleyPlayerOpening(); return 0; 
     }
 }

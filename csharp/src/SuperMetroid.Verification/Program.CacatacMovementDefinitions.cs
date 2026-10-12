@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class CacatacMovementDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac movement definitions")]
-    private static void VerifyCacatacMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCacatacMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int distanceTable = 0xa29f36;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -1,11 +1,14 @@
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using static EnemyContentIdentityFixtureVerification;
+using static EnemyTileArtworkKraidVerification;
+using static TilemapJsonContractsVerification;
 
-internal static partial class Program
+internal static class KraidInstalledPresentationTailVerification
 {
     /// <summary>Constructed authored pages expose priority loss even when stock tail words lack that bit.</summary>
-    private static void VerifyKraidWorkingMapTail()
+    internal static void VerifyKraidWorkingMapTail()
     {
         RoomBackgroundTilemapAtlas Map(int seed)
         {

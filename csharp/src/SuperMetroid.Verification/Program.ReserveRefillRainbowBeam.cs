@@ -1,7 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class ReserveRefillRainbowBeamVerification
 {
     /// <summary>
     /// Samus commands $1B and $10, which lock and free Samus around an automatic reserve refill,
@@ -9,7 +21,7 @@ internal static partial class Program
     /// In the 13% movie a refill runs while the rainbow beam holds Samus; native keeps her held
     /// afterward, while the port freed her and she fell.
     /// </summary>
-    private static void VerifyReserveRefillRainbowBeam()
+    internal static void VerifyReserveRefillRainbowBeam()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState
@@ -31,5 +43,12 @@ internal static partial class Program
 
         AssertTrue(samus.RainbowBeamHandlersInstalled, "command $10 leaves the rainbow beam holding Samus");
         Console.WriteLine("  Reserve refill under the rainbow beam: the beam's lock survives the refill.");
+    }
+
+    [VerificationCommand("--reserve-refill-rainbow-beam")]
+    internal static int ReserveRefillRainbowBeamCommand()
+    {
+        Suite(nameof(VerifyReserveRefillRainbowBeam), () => VerifyReserveRefillRainbowBeam());
+        return 0;
     }
 }

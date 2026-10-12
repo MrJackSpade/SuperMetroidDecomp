@@ -7,12 +7,16 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static MotherBrainBodyInstructionProgramsVerification;
+using static SignedSineFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class MotherBrainRainbowVerification
 {
 
 /// <summary>Mother Brain rainbow-beam movement and attack-sequence verification.</summary>
-static void VerifyMotherBrainRainbowBeamSamusMovement()
+internal static void VerifyMotherBrainRainbowBeamSamusMovement()
 {
     var bus = new TestAddressSpace();
 
@@ -139,7 +143,7 @@ static void VerifyMotherBrainRainbowBeamSamusMovement()
 /// here: the attack's 300 drain calls and 129 decision-timer calls expose off-by-one mistakes
 /// that isolated helper checks cannot see.
 /// </summary>
-static void VerifyMotherBrainRainbowBeamAttackSequence()
+internal static void VerifyMotherBrainRainbowBeamAttackSequence()
 {
     VerifyMotherBrainBodyInstructionPrograms();
     TestAddressSpace bus = CreateRainbowBeamAttackSequenceCartridge();

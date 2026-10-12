@@ -3,10 +3,11 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GameplayAudioPublicationVerification
 {
-    private static void VerifyGameplayAudioPublication(SuperMetroidAddressSpace audioBus)
+    internal static void VerifyGameplayAudioPublication(SuperMetroidAddressSpace audioBus)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);

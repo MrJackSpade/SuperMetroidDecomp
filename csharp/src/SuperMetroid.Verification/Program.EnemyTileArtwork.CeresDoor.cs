@@ -5,11 +5,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class EnemyTileArtworkCeresDoorVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door tiles, palettes and Mode-7 transfer records")]
-    private static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
+    internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
         string directory, EnemyTileArtworkCatalog stock)
     {
         CeresDoorVisualCatalog visual = stock.CeresDoorVisual

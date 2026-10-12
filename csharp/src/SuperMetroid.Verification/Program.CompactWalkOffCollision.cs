@@ -3,9 +3,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class CompactWalkOffCollisionVerification
 {
-    private static void VerifyCompactWalkOffCollision()
+    internal static void VerifyCompactWalkOffCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var words = new ushort[16 * 32];

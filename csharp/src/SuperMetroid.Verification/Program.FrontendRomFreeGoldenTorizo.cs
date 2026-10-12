@@ -1,10 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static FrontendRomFreeVerification;
+using static GoldenTorizoRoomSetupVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class FrontendRomFreeGoldenTorizoVerification
 {
     /// <summary>
     /// Isolate the Golden Torizo room test without replaying the title and
@@ -12,7 +25,7 @@ internal static partial class Program
     /// has mutable RAM and installed artwork but no cartridge allocation.
     /// Both execute the same real-room wake sequence and a forced dodge turn.
     /// </summary>
-    private static void VerifyFrontendRomFreeGoldenTorizo(string sourceRom,
+    internal static void VerifyFrontendRomFreeGoldenTorizo(string sourceRom,
         int frameCount, ushort heldInput = 0)
     {
         string testDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp"));
@@ -50,5 +63,13 @@ internal static partial class Program
                     "Golden Torizo fixture cleanup target escaped test-temp.");
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
+    }
+
+    [VerificationCommand("--golden-torizo-rom-free")]
+    internal static int GoldenTorizoRomFreeCommand()
+    {
+        string goldenTorizoRom = RepositoryRomPath;
+        Suite(nameof(VerifyFrontendRomFreeGoldenTorizo), () => VerifyFrontendRomFreeGoldenTorizo(goldenTorizoRom, frameCount: 500));
+        return 0;
     }
 }

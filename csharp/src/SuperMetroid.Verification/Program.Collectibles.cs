@@ -1,3 +1,8 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -5,8 +10,16 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static GrappleDoorsVerification;
+using static PermanentMessageFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static SuitPickupBeamCurveDefinitionsVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class CollectiblesVerification
 {
     /// <summary>
     /// Exercises the common bank-$84 item implementation across all twenty-one identities
@@ -14,7 +27,7 @@ internal static partial class Program
     /// headers, instruction pointers, draw lists, graphics, and room-population records;
     /// no test-only spawn route bypasses cartridge decoding.
     /// </summary>
-    static void VerifyPermanentCollectibles()
+    internal static void VerifyPermanentCollectibles()
     {
         Suite(nameof(VerifyMorphBallPickupCollision), () => VerifyMorphBallPickupCollision());
         var bus = new TestAddressSpace();
@@ -200,7 +213,7 @@ internal static partial class Program
             "  Permanent collectibles: 63 ROM headers, all 21 effects, three presentations, SRAM bits, bank-$85 messages, and suit transformations agree.");
     }
 
-    private static void VerifyMorphBallPickupCollision()
+    internal static void VerifyMorphBallPickupCollision()
     {
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
@@ -237,7 +250,7 @@ internal static partial class Program
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
     }
 
-    private static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomLayer3FxState? roomFx = null, CollectibleRoomLayout layout = default)
+    internal static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomLayer3FxState? roomFx = null, CollectibleRoomLayout layout = default)
     {
         const ushort population = 0x9000;
         Extent16<RoomBlocks> size = layout.RoomSize ?? new(8, 8);
@@ -274,7 +287,7 @@ internal static partial class Program
         return new CollectibleFixture(plms, level, streamer, system, samus, blockIndex);
     }
 
-    private static void SeedCollectibleRom(TestAddressSpace bus)
+    internal static void SeedCollectibleRom(TestAddressSpace bus)
     {
         const ushort sharedDynamicList = 0xf100;
         // Bomb-special BTS 8 reuses the freed item ID with the retail one-word delete
@@ -317,7 +330,7 @@ internal static partial class Program
         }
     }
 
-    private static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
+    internal static void WriteOneBlockDraw(TestAddressSpace bus, int pointer, ushort levelWord) =>
         SeedPlmProgramBytes(bus, unchecked((ushort)pointer), [
             0x01, 0x00,
             unchecked((byte)levelWord), SnesLittleEndian.HighByte(levelWord),
@@ -754,7 +767,7 @@ internal static partial class Program
         }
     }
 
-    private readonly record struct CollectibleFixture(
+    internal readonly record struct CollectibleFixture(
         RoomPlmSystem Plms,
         RoomLevelData Level,
         BackgroundTilemapStreamer Streamer,
@@ -776,5 +789,18 @@ internal static partial class Program
         WriteTestWord(bus, 0x9b9520, 0x03e0);
         WriteTestWord(bus, 0x9b9800, 0x7c00);
         return bus;
+    }
+
+    [VerificationCommand("--morph-ball-pickup-collision")]
+    internal static int MorphBallPickupCollisionCommand()
+    {
+        Suite(nameof(VerifyMorphBallPickupCollision), () => VerifyMorphBallPickupCollision());
+        return 0;
+    }
+
+    [VerificationCommand("--permanent-collectibles-fixture")]
+    internal static int PermanentCollectiblesFixtureCommand()
+    {
+     VerifyPermanentCollectibles(); return 0; 
     }
 }

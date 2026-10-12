@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidHealthThresholdsVerification
 {
-    private static void VerifyKraidHealthEighths(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidHealthEighths(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa05, 3, 8, (state, index) => state.HealthEighthThreshold(index)));
 
-    private static void VerifyKraidHealthQuarters(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidHealthQuarters(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidHealthFraction), () => VerifyKraidHealthFraction(rom, 0xa7aa26, 2, 4, (state, index) => state.HealthQuarterThreshold(index)));
 
     private static void VerifyKraidHealthFraction(SuperMetroidAddressSpace rom, int shiftAddress,

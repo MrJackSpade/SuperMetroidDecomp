@@ -5,8 +5,9 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseEquipmentRulesVerification
 {
     /// <summary>Native $82:C04C/$C056/$C062 beam, suit/misc and boot upgrade-mask tables.</summary>
     private static int PauseMaskTableAddress(PauseEquipmentCategory category) => category switch
@@ -17,9 +18,9 @@ internal static partial class Program
         _ => throw new ArgumentOutOfRangeException(nameof(category)),
     };
 
-    private static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Beams, PauseMaskTableAddress(PauseEquipmentCategory.Beams), 5);
-    private static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Suits, PauseMaskTableAddress(PauseEquipmentCategory.Suits), 6);
-    private static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
+    internal static void VerifyPauseBeamMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Beams, PauseMaskTableAddress(PauseEquipmentCategory.Beams), 5);
+    internal static void VerifyPauseSuitMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Suits, PauseMaskTableAddress(PauseEquipmentCategory.Suits), 6);
+    internal static void VerifyPauseBootMasks(ISnesAddressSpace rom) => VerifyPauseMaskCases(rom, PauseEquipmentCategory.Boots, PauseMaskTableAddress(PauseEquipmentCategory.Boots), 3);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause mask cases")]
     private static void VerifyPauseMaskCases(ISnesAddressSpace rom, PauseEquipmentCategory category, int address, int count)
@@ -48,7 +49,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause wireframe selection")]
-    private static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
+    internal static void VerifyPauseWireframeSelection(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0x29, rom.ReadCartridgeByte(0x82b212), "native AND immediate opcode");
         AssertEqual((byte)0xdd, rom.ReadCartridgeByte(0x82b218), "native CMP absolute-X opcode");
@@ -65,7 +66,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment set, mask and reserve-transfer tables")]
-    private static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
+    internal static void VerifyCompiledPauseEquipmentRules(ISnesAddressSpace bus, AreaMapPresentationCatalog catalog)
     {
         Suite(nameof(VerifyPauseBeamMasks), () => VerifyPauseBeamMasks(bus));
         Suite(nameof(VerifyPauseSuitMasks), () => VerifyPauseSuitMasks(bus));
@@ -160,14 +161,14 @@ internal static partial class Program
     /// Native page-change length since #1266: fifteen fade-out steps, one load step, then
     /// fifteen brightness writes each spending CounterReload counter-only updates first.
     /// </summary>
-    private static int PausePageTransitionNativeLength => 15 + 1 + 15 * (PauseFadeTiming.CounterReload + 1);
+    internal static int PausePageTransitionNativeLength => 15 + 1 + 15 * (PauseFadeTiming.CounterReload + 1);
 
     /// <summary>
     /// Presses a page button, then steps until the page change completes, advancing through
     /// <paramref name="step"/> (default: the pause menu alone). Page input is accepted only once the
     /// transition completes, so fixtures wait for it rather than a fixed tick count.
     /// </summary>
-    private static void ChangePausePage(PauseMenuState pause, SnesButton page, Action<ushort>? step = null)
+    internal static void ChangePausePage(PauseMenuState pause, SnesButton page, Action<ushort>? step = null)
     {
         step ??= input => pause.Step(input, input);
         step((ushort)page);
@@ -185,7 +186,7 @@ internal static partial class Program
     /// every page entry, #1266) to the Boots category with real input, for the simultaneous
     /// Boots Left+A beam-selection glitches.
     /// </summary>
-    private static void SelectPauseBoots(PauseMenuState pause)
+    internal static void SelectPauseBoots(PauseMenuState pause)
     {
         pause.Step(0, (ushort)SnesButton.Right);
         for (int step = 0; pause.SelectedCategory != PauseEquipmentCategory.Boots && step < 6; step++)
@@ -197,7 +198,7 @@ internal static partial class Program
     /// Moves the equipment selector down to the beam category with real input. With reserve
     /// capacity, $82:ABAD-$ABB5 selects the reserve mode control on entry (#1266).
     /// </summary>
-    private static void SelectPauseBeams(PauseMenuState pause)
+    internal static void SelectPauseBeams(PauseMenuState pause)
     {
         for (int step = 0; pause.SelectedCategory != PauseEquipmentCategory.Beams && step < 6; step++)
             pause.Step(0, (ushort)SnesButton.Down);
@@ -205,7 +206,7 @@ internal static partial class Program
     }
 
     /// <summary>Presses R and steps until the equipment page is ready for input (#1266 cadence).</summary>
-    private static void EnterPauseEquipment(PauseMenuState pause)
+    internal static void EnterPauseEquipment(PauseMenuState pause)
     {
         ChangePausePage(pause, SnesButton.R);
         AssertEqual(1, pause.ScreenMode, "fixture actually enters equipment screen");

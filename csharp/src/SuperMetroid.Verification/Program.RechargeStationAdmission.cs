@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static RoomPlmPopulationVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RechargeStationAdmissionVerification
 {
-    private static void VerifyRechargeStationAdmission()
+    internal static void VerifyRechargeStationAdmission()
     {
         foreach (bool missile in new[] { false, true })
         foreach (bool right in new[] { false, true })
@@ -49,5 +62,12 @@ internal static partial class Program
             AssertTrue(!samus.InputLocked, "ordinary recharge unlocks after retraction");
         }
         Console.WriteLine("Recharge admission: full energy/missiles reject before lock; later-full exits unlock; depleted recharge completes from both sides.");
+    }
+
+    [VerificationCommand("--recharge-station-admission")]
+    internal static int RechargeStationAdmissionCommand()
+    {
+        Suite(nameof(VerifyRechargeStationAdmission), () => VerifyRechargeStationAdmission());
+        return 0;
     }
 }

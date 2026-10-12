@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static BabyMetroidRouteDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ShotBlockPlmProgramsVerification
 {
-    private static void VerifyShotBlockProgramOperands()
+    internal static void VerifyShotBlockProgramOperands()
     {
         // #1157: the first draw operand of a permanent 1x1 shot block ($84:CBBC)
         // was absent from the compiled program. Exercise the actual interpreter
@@ -48,7 +59,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for shot block PLM programs")]
-    private static void VerifyShotBlockPlmPrograms()
+    internal static void VerifyShotBlockPlmPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -458,7 +469,7 @@ internal static partial class Program
         }
     }
 
-    private sealed record ShotBlockFixture(
+    internal sealed record ShotBlockFixture(
         RoomLevelData Level,
         BackgroundTilemapStreamer Streamer,
         RoomPlmSystem Plms);
@@ -478,7 +489,21 @@ internal static partial class Program
         return new ShotBlockFixture(level, level.CreateBackgroundStreamer(), plms);
     }
 
-    private static CartridgeReadGuard NewShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+    internal static CartridgeReadGuard NewShotBlockProgramReadGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new CartridgeReadGuard(source).Forbid(forbidden.Contains,
             address => $"Production PLM handler read compiled control byte ${address:X6}.");
+
+    [VerificationCommand("--shot-block-program-operands")]
+    internal static int ShotBlockProgramOperandsCommand()
+    {
+        Suite(nameof(VerifyShotBlockProgramOperands), () => VerifyShotBlockProgramOperands());
+        return 0;
+    }
+
+    [VerificationCommand("--shot-block-plm-programs")]
+    internal static int ShotBlockPlmProgramsCommand()
+    {
+        Suite(nameof(VerifyShotBlockPlmPrograms), () => VerifyShotBlockPlmPrograms());
+        return 0;
+    }
 }

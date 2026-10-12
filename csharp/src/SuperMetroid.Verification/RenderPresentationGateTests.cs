@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rendering;
 
-internal static partial class Program
+internal static class RenderPresentationGateTestsVerification
 {
-    private static void VerifyRenderPresentationGate()
+    internal static void VerifyRenderPresentationGate()
     {
         var gate = new RenderPresentationGate(1);
         RenderFrameIdentity old = new(1, 1, 0), current = new(2, 2, 0);

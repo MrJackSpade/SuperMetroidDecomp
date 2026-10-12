@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static Program;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GroundedSpreadTransitionVerification
 {
-    private static void VerifyGroundedSpreadTransition(string? tracePath = null)
+    internal static void VerifyGroundedSpreadTransition(string? tracePath = null)
     {
         using var trace = tracePath is null ? null : File.OpenText(tracePath);
         if (trace is not null) AssertEqual("left,scenario,frame,input,pose,y,charge,spread,bombs", trace.ReadLine(), "native transition header");
@@ -80,5 +90,19 @@ internal static partial class Program
                 AssertEqual((ushort)496, samus.Position.Y.Whole, "unmorph maintains flat-floor alignment");
             }
         }
+    }
+
+    [VerificationCommand("--grounded-spread-transition")]
+    internal static int GroundedSpreadTransitionCommand()
+    {
+        Suite(nameof(VerifyGroundedSpreadTransition), () => VerifyGroundedSpreadTransition());
+        return 0;
+    }
+
+    [VerificationCommand("--grounded-spread-transition", "transitionTrace")]
+    internal static int GroundedSpreadTransitionCommand2(string transitionTrace)
+    {
+        Suite(nameof(VerifyGroundedSpreadTransition), () => VerifyGroundedSpreadTransition(transitionTrace));
+        return 0;
     }
 }

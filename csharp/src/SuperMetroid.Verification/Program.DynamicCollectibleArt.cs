@@ -7,10 +7,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static LookupDynamicCollectibleStockVerification;
 
-internal static partial class Program
+internal static class DynamicCollectibleArtVerification
 {
-    private static void VerifyInstalledDynamicCollectibleArt(
+    internal static void VerifyInstalledDynamicCollectibleArt(
         SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("dynamic-collectible");

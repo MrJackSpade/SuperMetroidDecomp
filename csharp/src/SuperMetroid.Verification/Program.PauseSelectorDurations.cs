@@ -2,10 +2,12 @@ using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseSelectorDurationsVerification
 {
-    private static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
+    internal static void VerifyPauseSelectorDurations(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseSelectorExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseSelectorDocument>(bytes, MapPresentationFormat.JsonOptions)!;
@@ -48,7 +50,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause selector native durations")]
-    private static void VerifyPauseSelectorNativeDurations(ISnesAddressSpace rom, PauseSelectorPresentation selector)
+    internal static void VerifyPauseSelectorNativeDurations(ISnesAddressSpace rom, PauseSelectorPresentation selector)
     {
         int program = 0x820000 | ReadVerificationWord(rom, 0x82c0ec);
         int phases = 0;

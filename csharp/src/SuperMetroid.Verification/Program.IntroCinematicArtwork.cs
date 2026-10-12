@@ -1,3 +1,9 @@
+using static Program;
+using static RepositoryInputsVerification;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Runtime;
 using System.Buffers.Binary;
 using System.Reflection;
 using System.Text.Json;
@@ -9,13 +15,36 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using static CeresDestructionArtworkVerification;
+using static CeresFlightArtworkVerification;
+using static EndingFlyawayArtworkVerification;
+using static EndingMode7ArtworkVerification;
+using static EndingObjectArtworkVerification;
+using static EndingPaletteArtworkVerification;
+using static FrontendRomFreeVerification;
+using static GoldenTorizoCartridgeFallbackVerification;
+using static GraphDigestVerification;
+using static IntroCaretInstructionsVerification;
+using static IntroDiscoveryActorSpriteArtworkVerification;
+using static IntroEggEffectSpriteArtworkVerification;
+using static IntroEyeInstructionsVerification;
+using static IntroMotherBrainCollisionSourceVerification;
+using static IntroMotherBrainInputDefinitionsVerification;
+using static IntroRinkaSpriteArtworkVerification;
+using static IntroScientistSpriteArtworkVerification;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static SamusAnimationDelayDefinitionsVerification;
+using static SamusBodyArtworkVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroCinematicArtworkVerification
 {
     /// <summary>Exercises installed opening-scene art and tilemaps through the real VRAM loader.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro cinematic characters, tilemaps and palette")]
-    private static void VerifyIntroCinematicArtwork(string sourceRom, bool samusBodyOnly = false, bool presentationOnly = false)
+    internal static void VerifyIntroCinematicArtwork(string sourceRom, bool samusBodyOnly = false, bool presentationOnly = false)
     {
         // Edits, corruption and repairs run on a private copy of the repository installation;
         // ROM import itself is covered by the asset-import verification.
@@ -985,7 +1014,7 @@ internal static partial class Program
         File.Delete(overridePath);
     }
 
-    private static MutableCartridgeReadGuard NewIntroArtworkSourceReadGuard(ISnesAddressSpace source,
+    internal static MutableCartridgeReadGuard NewIntroArtworkSourceReadGuard(ISnesAddressSpace source,
         IntroArtworkSources blocked = IntroArtworkSources.None)
     {
         var guard = new MutableCartridgeReadGuard(source);
@@ -1184,7 +1213,7 @@ internal static partial class Program
 
     /// <summary>The installed artwork sources an intro read guard forbids the cinematic to reread (#633).</summary>
     [Flags]
-    private enum IntroArtworkSources
+    internal enum IntroArtworkSources
     {
         None = 0,
         IntroMotherBrainExplosions = 1 << 0,
@@ -1194,5 +1223,28 @@ internal static partial class Program
         IntroScientistSprites = 1 << 4,
         CeresFlightSprites = 1 << 5,
         CeresDestructionSprites = 1 << 6,
+    }
+
+    [VerificationCommand("--intro-artwork-components-fixture")]
+    internal static int IntroArtworkComponentsFixtureCommand()
+    {
+        Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(Path.GetFullPath("Super Metroid.smc"), presentationOnly: true));
+        return 0;
+    }
+
+    [VerificationCommand("--intro-cinematic-artwork")]
+    internal static int IntroCinematicArtworkCommand()
+    {
+        string introBackgroundRom = RepositoryRomPath;
+        Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(introBackgroundRom));
+        return 0;
+    }
+
+    [VerificationCommand("--samus-body-artwork")]
+    internal static int SamusBodyArtworkCommand()
+    {
+        string samusBodyRom = RepositoryRomPath;
+        Suite(nameof(VerifyIntroCinematicArtwork), () => VerifyIntroCinematicArtwork(samusBodyRom, samusBodyOnly: true));
+        return 0;
     }
 }

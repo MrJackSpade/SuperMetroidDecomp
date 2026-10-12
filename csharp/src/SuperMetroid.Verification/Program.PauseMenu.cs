@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static InvalidBeamSelectionVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -5,8 +13,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static ColorWordsVerification;
+using static FrontendVerification;
+using static PauseEquipmentRulesVerification;
+using static PauseMenuFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class PauseMenuVerification
 {
     /// <summary>
     /// Exercises pause transitions and live equipment changes with constructed
@@ -15,7 +29,7 @@ internal static partial class Program
     /// transfers observable without depending on retail pixel colors.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    static void VerifyPauseMenuEquipmentInteraction()
+    internal static void VerifyPauseMenuEquipmentInteraction()
     {
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
@@ -280,4 +294,19 @@ internal static partial class Program
 
     private static void WriteRomByte(byte[] rom, int snesAddress, byte value) =>
         rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
+
+    [VerificationCommand("--pause-equipment-interaction-fixture")]
+    internal static int PauseEquipmentInteractionFixtureCommand()
+    {
+        Suite(nameof(VerifyPauseMenuEquipmentInteraction), () => VerifyPauseMenuEquipmentInteraction());
+        return 0;
+    }
+
+    [VerificationCommand("--invalid-beam-selection")]
+    internal static int InvalidBeamSelectionCommand()
+    {
+        Suite(nameof(VerifyPauseMenuEquipmentInteraction), () => VerifyPauseMenuEquipmentInteraction());
+        Suite(nameof(VerifyInvalidBeamSelection), () => VerifyInvalidBeamSelection());
+        return 0;
+    }
 }

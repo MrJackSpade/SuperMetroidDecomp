@@ -1,12 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static KraidRoomPlmsVerification;
+using static KraidRoomVisualSelectionVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class KraidRoomVisualsVerification
 {
-    private static void VerifyKraidRoomVisuals()
+    internal static void VerifyKraidRoomVisuals()
     {
         Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -174,5 +188,12 @@ internal static partial class Program
             $"Kraid draw ${drawPointer:X4} uses owner-specific visible block {blockOffset}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Kraid draw ${drawPointer:X4} reads no migrated source bytes");
+    }
+
+    [VerificationCommand("--kraid-room-visuals")]
+    internal static int KraidRoomVisualsCommand()
+    {
+        Suite(nameof(VerifyKraidRoomVisuals), () => VerifyKraidRoomVisuals());
+        return 0;
     }
 }

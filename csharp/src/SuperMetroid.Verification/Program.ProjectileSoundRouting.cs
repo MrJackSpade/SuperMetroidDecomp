@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SamusProjectileRomDataVerification;
 
-internal static partial class Program
+internal static class ProjectileSoundRoutingVerification
 {
-    private static void VerifyProjectileSoundRoutingDefinitions(
+    internal static void VerifyProjectileSoundRoutingDefinitions(
         SuperMetroidAddressSpace retail)
     {
         int observations = 0;
@@ -38,7 +39,7 @@ internal static partial class Program
             "  Projectile sound routing: 24 authored and 8 bounded adjacent-table observations agree.");
     }
 
-    private static MutableCartridgeReadGuard NewProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source)
+    internal static MutableCartridgeReadGuard NewProjectileSoundRoutingForbiddenBus(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address => address is >= 0x90c28f and <= 0x90c2c6,

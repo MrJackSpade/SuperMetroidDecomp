@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SpcPanSamplesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC pan samples")]
-    private static void VerifySpcPanSamples(ISnesAddressSpace rom)
+    internal static void VerifySpcPanSamples(ISnesAddressSpace rom)
     {
         AssertEqual(21, SpcMusicTables.PanSampleCount, "native curve ends before the FIR preset");
         for (int index = 0; index < 22; index++)

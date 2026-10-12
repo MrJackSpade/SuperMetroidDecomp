@@ -1,10 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidContourCaseMappingsVerification;
+using static KraidHeadCommandMappingVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidHeadInstructionsVerification
 {
-    private static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidHeadInstructionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => unchecked((ushort)(
             SnesLittleEndian.Word(KraidHeadInstructionDefinitionsRomByte(rom, address), KraidHeadInstructionDefinitionsRomByte(rom, address + 1))));
@@ -172,7 +186,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: witnesses that Kraid reads the $A7:1002 live tilemap alias only through typed WRAM reads, never the generic bus, with compiled head-program bytes forbidden")]
-    private sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
+    internal sealed class KraidHeadProgramReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public ushort MutableTilemap { get; set; }
@@ -209,5 +223,13 @@ internal static partial class Program
                 "Kraid head guard source does not expose SRAM.")).ReadSaveRamByte(address);
 
         public void WriteByte(int address, byte value) => source.WriteByte(address, value);
+    }
+
+    [VerificationCommand("--kraid-head-instruction-definitions")]
+    internal static int KraidHeadInstructionDefinitionsCommand()
+    {
+        Suite(nameof(VerifyKraidHeadInstructionDefinitions), () => VerifyKraidHeadInstructionDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

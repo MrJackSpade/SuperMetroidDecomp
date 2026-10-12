@@ -1,13 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static RoomFxAnimatedTileArtworkVerification;
 
-internal static partial class Program
+internal static class SandAnimatedTilesVerification
 {
     /// <summary>ROM-free bank-$83 selection, bank-$87 cadence, and NMI transfer regression for sand.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for sand animated tiles")]
-    static void VerifySandAnimatedTiles()
+    internal static void VerifySandAnimatedTiles()
     {
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
@@ -77,5 +89,12 @@ internal static partial class Program
         AssertEqual(0, queue.Entries.Count, "departed room cannot continue writing sand graphics");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "sand runtime never reads artwork from ROM");
         Console.WriteLine("  Sand animation: FX selection, timed loops, NMI visibility, and room reset agree.");
+    }
+
+    [VerificationCommand("--sand-animated-tiles")]
+    internal static int SandAnimatedTilesCommand()
+    {
+        Suite(nameof(VerifySandAnimatedTiles), () => VerifySandAnimatedTiles());
+        return 0;
     }
 }

@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DeadSidehopperCorpseDefinitionsVerification
 {
-    private static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadSidehopperCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDefinition), () => VerifyDefinition(
             rom,
@@ -110,4 +122,12 @@ internal static partial class Program
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa9dd68 and < 0xa9dd88 or >= 0xa9e242 and < 0xa9e244,
                 address => $"Dead sidehopper attempted migrated corpse metadata read ${address:X6}.");
+
+    [VerificationCommand("--dead-sidehopper-corpse-definitions")]
+    internal static int DeadSidehopperCorpseDefinitionsCommand()
+    {
+        Suite(nameof(VerifyDeadSidehopperCorpseDefinitions), () => VerifyDeadSidehopperCorpseDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

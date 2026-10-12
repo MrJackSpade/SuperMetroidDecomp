@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Text;
 using System.Text.Json;
@@ -6,11 +13,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static AssertionsVerification;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SamusVisorColorsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus visor colors")]
-    private static void VerifySamusVisorColors()
+    internal static void VerifySamusVisorColors()
     {
         if (!File.Exists("Super Metroid.smc"))
         {
@@ -146,7 +156,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifySamusVisorColorOverride(string stock, string overrides,
+    internal static void VerifySamusVisorColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom,
         GameplayBasePaletteCatalog initialPalettes, MapPresentationInstalledRoomAssets fixtureAssets)
     {
@@ -209,4 +219,11 @@ internal static partial class Program
                 < (SamusVisorColorFormat.SourceAddress +
                     SamusVisorColorFormat.ColorCount * sizeof(ushort)),
             address => $"Installed visor read native color ${address:X6}.");
+
+    [VerificationCommand("--samus-visor-colors")]
+    internal static int SamusVisorColorsCommand()
+    {
+        Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());
+        return 0;
+    }
 }

@@ -1,14 +1,15 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SamusMovementRomDataVerification;
 
-internal static partial class Program
+internal static class SamusSpecialSequenceRomDataVerification
 {
     /// <summary>
     /// Validates every extracted special-sequence table and the structural boundaries that
     /// make its decoded records safe to consume. Behavioral sequence tests remain the
     /// authority for phase timing, movement, palette side effects, and completion.
     /// </summary>
-    static void VerifySamusSpecialSequenceRomData()
+    internal static void VerifySamusSpecialSequenceRomData()
     {
         var initialDeathFrames =
             SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;

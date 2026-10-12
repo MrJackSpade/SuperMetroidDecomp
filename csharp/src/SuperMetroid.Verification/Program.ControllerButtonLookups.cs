@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class ControllerButtonLookupsVerification
 {
-    private static void VerifyAssignableControllerButtons(ISnesAddressSpace rom)
+    internal static void VerifyAssignableControllerButtons(ISnesAddressSpace rom)
     {
         // Independent original bytes, never the replacement cases, supply both directions.
         ushort[] original = Enumerable.Range(0, 9)
@@ -48,7 +49,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for default controller buttons")]
-    private static void VerifyDefaultControllerButtons(ISnesAddressSpace rom)
+    internal static void VerifyDefaultControllerButtons(ISnesAddressSpace rom)
     {
         // Parse the seven original LDA-immediate/STA-absolute pairs, including their
         // actual WRAM destinations. Menu order differs from native instruction order.

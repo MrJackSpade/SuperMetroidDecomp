@@ -2,10 +2,11 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomShakeDefinitionsVerification
 {
-    private static void VerifyRoomShakeDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomShakeDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRoomShakeBg1Algorithm), () => VerifyRoomShakeBg1Algorithm(rom));
         Suite(nameof(VerifyRoomShakeBg2Algorithm), () => VerifyRoomShakeBg2Algorithm(rom));

@@ -2,14 +2,15 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SamusMovementRomDataVerification;
 
-internal static partial class Program
+internal static class SamusRenderingRomDataVerification
 {
     /// <summary>
     /// Validates complete pose-indexed rendering tables and every fixed suit/cannon/DMA
     /// range against the private retail ROM when it is available.
     /// </summary>
-    static void VerifySamusRenderingRomData()
+    internal static void VerifySamusRenderingRomData()
     {
         AssertTrue(
             SamusRenderingRomData.TileTransfers.TopDestinations.First <

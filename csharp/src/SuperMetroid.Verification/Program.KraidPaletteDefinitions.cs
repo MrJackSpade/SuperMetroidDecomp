@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class KraidPaletteDefinitionsVerification
 {
-    private static void VerifyKraidPaletteSourceAddresses(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidPaletteSourceAddresses(SuperMetroidAddressSpace rom)
     {
         (KraidPaletteSource Source, int Instruction)[] nativeLoads =
         [
@@ -28,7 +28,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid palette source addresses")]
     private static byte KraidPaletteSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidPaletteSourceLengths()
+    internal static void VerifyKraidPaletteSourceLengths()
     {
         // Independent bank_A7 symbol extents: next definition starts immediately
         // after each complete source. Health sources include flash plus eight bands.

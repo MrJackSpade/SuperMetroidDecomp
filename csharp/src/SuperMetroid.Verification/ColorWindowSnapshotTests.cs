@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ColorWindowSnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyColorWindowSnapshots()
+    internal static void VerifyColorWindowSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var cgram = new SnesCgram();
@@ -97,5 +109,11 @@ internal static partial class Program
             AssertTrue(expected.AsSpan().SequenceEqual(RenderForComparison(RoundTripRenderPacket(frame))),
                 $"color window snapshot sample {samples}");
         }
+    }
+
+    [VerificationCommand("--color-window-fixture")]
+    internal static int ColorWindowFixtureCommand()
+    {
+     VerifyColorWindowSnapshots(); return 0; 
     }
 }

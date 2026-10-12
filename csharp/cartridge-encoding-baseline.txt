@@ -1048,7 +1048,8 @@ csharp/src/SuperMetroid.Verification/Program.AlcoonInstructionProgramDefinitions
 csharp/src/SuperMetroid.Verification/Program.AnimatedTileInstructionCodes.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.AreaMapAssets.cs	SME6340	7
 csharp/src/SuperMetroid.Verification/Program.AreaMapAssets.cs	SME6342	1
-csharp/src/SuperMetroid.Verification/Program.Assertions.cs	SME6340	8
+csharp/src/SuperMetroid.Verification/Program.Assertions.cs	SME6340	28
+csharp/src/SuperMetroid.Verification/Program.Assertions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.AtomicMovementDefinitions.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Program.AttractDemoScene.cs	SME6340	38
 csharp/src/SuperMetroid.Verification/Program.AttractDemoScene.cs	SME6341	2
@@ -1100,7 +1101,7 @@ csharp/src/SuperMetroid.Verification/Program.BossOamRootGeometry.cs	SME6342	3
 csharp/src/SuperMetroid.Verification/Program.BossResetOnLoad.cs	SME6340	24
 csharp/src/SuperMetroid.Verification/Program.BossResetOnLoad.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6340	25
-csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6341	10
+csharp/src/SuperMetroid.Verification/Program.BotwoonAnimations.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Program.BotwoonNavigationDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.BotwoonSpeeds.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.BotwoonWallPlms.cs	SME6340	35
@@ -1701,7 +1702,7 @@ csharp/src/SuperMetroid.Verification/Program.LookupStream1.cs	SME6342	21
 csharp/src/SuperMetroid.Verification/Program.LookupStream2.cs	SME6340	230
 csharp/src/SuperMetroid.Verification/Program.LookupStream2.cs	SME6341	2
 csharp/src/SuperMetroid.Verification/Program.LookupStream2.cs	SME6342	3
-csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6340	467
+csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6340	474
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6341	4
 csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs	SME6342	19
 csharp/src/SuperMetroid.Verification/Program.LookupStream4.cs	SME6340	582
@@ -2155,8 +2156,7 @@ csharp/src/SuperMetroid.Verification/Program.ZebetiteDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.ZeroDistanceJumpContact.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/Program.ZoaAnimationDefinitions.cs	SME6342	1
 csharp/src/SuperMetroid.Verification/Program.ZoaInstructionProgramDefinitions.cs	SME6342	2
-csharp/src/SuperMetroid.Verification/Program.cs	SME6340	30
-csharp/src/SuperMetroid.Verification/Program.cs	SME6342	1
+csharp/src/SuperMetroid.Verification/Program.cs	SME6340	3
 csharp/src/SuperMetroid.Verification/RenderPacketCodecTests.cs	SME6340	1
 csharp/src/SuperMetroid.Verification/ReplayMovie.cs	SME6340	9
 csharp/src/SuperMetroid.Verification/ReplaySnapshot.cs	SME6340	1

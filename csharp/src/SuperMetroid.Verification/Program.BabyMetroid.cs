@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,12 +11,19 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static BabyMetroidFixtureHeadVerification;
+using static BabyMetroidRouteDefinitionsVerification;
+using static RenderingAndRoomsVerification;
+using static SignedSineFixtureVerification;
+using static SyntheticSamusAnimationDelaysVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class BabyMetroidVerification
 {
 
 /// <summary>Baby Metroid cutscene verification and its private fixtures.</summary>
-static void VerifyBabyMetroidCutsceneEntrance()
+internal static void VerifyBabyMetroidCutsceneEntrance()
 {
     VerifyBabyMetroidRouteDefinitions();
     var bus = new TestAddressSpace();
@@ -199,4 +210,11 @@ static void VerifyBabyMetroidCutsceneEntrance()
     Console.WriteLine(
         "  Baby Metroid: entrance, first latch and Mother Brain regain balance agree.");
 }
+
+    [VerificationCommand("--baby-metroid-route-definitions")]
+    internal static int BabyMetroidRouteDefinitionsCommand()
+    {
+        Suite(nameof(VerifyBabyMetroidCutsceneEntrance), () => VerifyBabyMetroidCutsceneEntrance());
+        return 0;
+    }
 }

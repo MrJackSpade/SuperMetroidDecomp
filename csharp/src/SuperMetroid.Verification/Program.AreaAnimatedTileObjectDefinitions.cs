@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
+using static LookupAnimatedAreasVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class AreaAnimatedTileObjectDefinitionsVerification
 {
     /// <summary>
     /// Compares all eight native list pointers and all 64 object selections to the pinned
     /// cartridge, then executes both production population owners while rejecting every
     /// read from those immutable bank-$83 sources.
     /// </summary>
-    private static void VerifyAreaAnimatedTileObjectDefinitions()
+    internal static void VerifyAreaAnimatedTileObjectDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -89,5 +100,12 @@ internal static partial class Program
         }
 
         return false;
+    }
+
+    [VerificationCommand("--area-animated-tile-definitions")]
+    internal static int AreaAnimatedTileDefinitionsCommand()
+    {
+        Suite(nameof(VerifyAreaAnimatedTileObjectDefinitions), () => VerifyAreaAnimatedTileObjectDefinitions());
+        return 0;
     }
 }

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class NorfairGlowVerification
 {
     /// <summary>
     /// Independent transcription of the first foreground color and hold durations in
@@ -9,7 +9,7 @@ internal static partial class Program
     /// checking only whether CGRAM changes misses incorrect colors and cadence.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyNorfairGlowCycles(SuperMetroidAddressSpace bus)
+    internal static void VerifyNorfairGlowCycles(SuperMetroidAddressSpace bus)
     {
         int[] holds = [16, 4, 4, 5, 6, 7, 8, 8, 8, 8, 7, 6, 5, 4, 4, 16];
         ushort[] orange = [0x09fd, 0x0e3d, 0x165e, 0x1a9e, 0x1ebe, 0x22fe, 0x2b1f, 0x2f5f];

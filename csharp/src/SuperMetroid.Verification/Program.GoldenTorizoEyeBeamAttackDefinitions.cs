@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class GoldenTorizoEyeBeamAttackDefinitionsVerification
 {
-    private static void VerifyGoldenTorizoEyeBeamAttackDefinitions(ISnesAddressSpace rom)
+    internal static void VerifyGoldenTorizoEyeBeamAttackDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
         var addresses = new HashSet<ushort>();

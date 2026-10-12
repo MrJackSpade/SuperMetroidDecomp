@@ -1,16 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class FirefleaDoubleDeathVerification
 {
     // #1269: EnemyTouch_Fireflea ($A3:8E6B) calls CommonA3_NormalEnemyTouchAI and then
     // EnemyDeath unconditionally. When the touch already killed the Fireflea, the second
     // EnemyDeath runs on the cleared slot: a small explosion spawns at (0,0) with header zero
     // and a second kill is counted. The 100% movie's screw attack through Lower Norfair's
     // Fireflea room shows that explosion in the next lower projectile slot.
-    private static void VerifyFirefleaDoubleDeath()
+    internal static void VerifyFirefleaDoubleDeath()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -42,5 +52,12 @@ internal static partial class Program
             "EnemyDeath's returned A selects the small explosion");
         AssertEqual((ushort)(killsBefore + 2), runtime.Enemies.EnemiesKilled, "both deaths count a kill");
         Console.WriteLine("Fireflea double death: a killing touch also spawns the cleared-slot small explosion.");
+    }
+
+    [VerificationCommand("--fireflea-double-death")]
+    internal static int FirefleaDoubleDeathCommand()
+    {
+        VerifyFirefleaDoubleDeath();
+        return 0;
     }
 }

@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static AssertionsVerification;
+using static RetailPresentationFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class GameOverRomDataVerification
 {
     /// <summary>
     /// Compares the live Baby animation against the original bank-$82 stream,
     /// then reaches the live menu to cover its fixed text and selection layout.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the game-over Baby animation stream")]
-    static void VerifyGameOverRomData()
+    internal static void VerifyGameOverRomData()
     {
         AssertEqual(GameOverRomData.TilemapWidth * sizeof(ushort),
             GameOverRomData.TilemapRowByteCount,
@@ -112,4 +123,9 @@ internal static partial class Program
             "music wait, cursor, and frame geometry agree.");
     }
 
+    [VerificationCommand("--game-over-fixture")]
+    internal static int GameOverFixtureCommand()
+    {
+     VerifyGameOverRomData(); return 0; 
+    }
 }

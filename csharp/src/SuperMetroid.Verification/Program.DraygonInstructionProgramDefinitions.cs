@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class DraygonInstructionProgramDefinitionsVerification
 {
     /// <summary>
     /// Proves that Draygon's four physical enemy records share one complete compiled
     /// mechanics owner and retain the cartridge's atomic four-list installation command.
     /// </summary>
-    private static void VerifyDraygonInstructionProgramDefinitions()
+    internal static void VerifyDraygonInstructionProgramDefinitions()
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
@@ -151,4 +162,11 @@ internal static partial class Program
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Draygon mechanics attempted cartridge read ${address:X6}.")
             .RejectWrites(address => $"Draygon mechanics attempted cartridge write ${address:X6}.");
+
+    [VerificationCommand("--draygon-instruction-mechanics")]
+    internal static int DraygonInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyDraygonInstructionProgramDefinitions), () => VerifyDraygonInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,16 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static DoorDefinitionsVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class GoldenTorizoSuperMissileInstructionProgramDefinitionsVerification
 {
-    private static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions() =>
+    internal static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions() =>
         Suite(nameof(VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions), () => VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    private static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
+    internal static void VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -215,5 +227,12 @@ internal static partial class Program
                     : GoldenTorizoSuperMissileInstructionProgramDefinitions.Impact);
         }
         return checksum;
+    }
+
+    [VerificationCommand("--golden-torizo-super-missile-instruction-mechanics")]
+    internal static int GoldenTorizoSuperMissileInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions), () => VerifyGoldenTorizoSuperMissileInstructionProgramDefinitions());
+        return 0;
     }
 }

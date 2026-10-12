@@ -1,12 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class TitleArtworkReferencesVerification
 {
     /// <summary>Validates statically identified title selectors without running gameplay or reading a ROM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyTitleArtworkReferences()
+    internal static void VerifyTitleArtworkReferences()
     {
         var frames = TitleSpriteDefinitions.NativePointers.ToArray()
             .Select(pointer => new TitleSpriteFrame { Pointer = pointer, Parts = [] }).ToArray();
@@ -85,5 +96,12 @@ internal static partial class Program
                 SnesGraphics.DiagnosticPalette(colors));
             return stream.ToArray();
         }
+    }
+
+    [VerificationCommand("--title-artwork-references")]
+    internal static int TitleArtworkReferencesCommand()
+    {
+        Suite(nameof(VerifyTitleArtworkReferences), () => VerifyTitleArtworkReferences());
+        return 0;
     }
 }

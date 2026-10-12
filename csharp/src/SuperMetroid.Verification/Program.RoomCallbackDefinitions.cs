@@ -1,9 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RoomMainCodeCatalogVerification;
 
-internal static partial class Program
+internal static class RoomCallbackDefinitionsVerification
 {
-    private static void VerifyCompiledRoomCallbackDefinitions()
+    internal static void VerifyCompiledRoomCallbackDefinitions()
     {
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -66,5 +78,12 @@ internal static partial class Program
         Console.WriteLine(
             $"Room callbacks: all {states.Count} states map exactly to " +
             $"{mainCallbacks.Count} main and {setupCallbacks.Count} setup identities.");
+    }
+
+    [VerificationCommand("--room-callback-definitions")]
+    internal static int RoomCallbackDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCompiledRoomCallbackDefinitions), () => VerifyCompiledRoomCallbackDefinitions());
+        return 0;
     }
 }

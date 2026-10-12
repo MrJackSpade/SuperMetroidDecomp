@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static RoomPaletteFxDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupPaletteFxDispatchVerification
 {
     private static IEnumerable<ushort> OriginalPaletteFxObjects()
     {
@@ -11,7 +14,7 @@ internal static partial class Program
                 yield return (ushort)pointer;
     }
 
-    private static void VerifyPaletteFxDispatchDomain()
+    internal static void VerifyPaletteFxDispatchDomain()
     {
         var original = OriginalPaletteFxObjects().ToHashSet();
         AssertEqual(63, original.Count, "Native palette-FX identity count");
@@ -26,21 +29,21 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyPaletteFxSetupSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxSetupSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | pointer),
                 (ushort)RoomPaletteFxDefinitions.Get(pointer).SetupCallback, "Native palette-FX setup callback");
     }
 
-    private static void VerifyPaletteFxInitialListSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxInitialListSelection(SuperMetroidAddressSpace rom)
     {
         foreach (ushort pointer in OriginalPaletteFxObjects())
             AssertEqual(ReadVerificationWord(rom, (0x8d0000 | pointer) + 2),
                 RoomPaletteFxDefinitions.Get(pointer).InitialInstructionList, "Native palette-FX initial program");
     }
 
-    private static void VerifyPaletteFxDispatch(SuperMetroidAddressSpace rom)
+    internal static void VerifyPaletteFxDispatch(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyPaletteFxDispatchDomain), () => VerifyPaletteFxDispatchDomain());
         Suite(nameof(VerifyPaletteFxSetupSelection), () => VerifyPaletteFxSetupSelection(rom));

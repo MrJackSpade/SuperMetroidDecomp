@@ -1,3 +1,12 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static BeamSpeedRowsVerification;
+using static HeroShotRuntimeVerification;
+using static HeroShotsVerification;
+using static MissileEdgeVerification;
+using static ProjectileCooldownsVerification;
+using static RedTowerHeroVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using System.Buffers.Binary;
@@ -10,8 +19,16 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static PlasmaPenetrationVerification;
+using static ProjectileNativeFixtureVerification;
+using static SamusHudSelectionVerification;
+using static SamusRenderingFixtureVerification;
+using static SpinChargeVerification;
+using static SyntheticSamusCartridgeVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusProjectilesVerification
 {
 
 /// <summary>
@@ -24,7 +41,7 @@ static byte ReadRetailPowerBeamRadiusByte(ISnesAddressSpace rom, int direction, 
 
 /// <summary>Samus beam and missile projectile verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
-static void VerifySamusPowerBeamProjectiles()
+internal static void VerifySamusPowerBeamProjectiles()
 {
     VerifyPlasmaEnemyPenetration();
     var bus = new TestAddressSpace();
@@ -1994,4 +2011,17 @@ static void WriteRoomPlmPopulationFixture(
     }
     WriteTestWord(bus, 0x8f0000 | unchecked((ushort)(population + records.Length * 6)), 0);
 }
+
+    [VerificationCommand("--samus-projectiles")]
+    internal static int SamusProjectilesCommand()
+    {
+        Suite(nameof(VerifySamusPowerBeamProjectiles), () => VerifySamusPowerBeamProjectiles());
+        Suite(nameof(VerifyBeamSpeedRows), () => VerifyBeamSpeedRows());
+        Suite(nameof(VerifyProjectileCooldowns), () => VerifyProjectileCooldowns());
+        Suite(nameof(VerifyHeroShotCameraLifetime), () => VerifyHeroShotCameraLifetime("csharp/test-fixtures/movement-release/hero-shot-411.csv"));
+        Suite(nameof(VerifyHeroShotRuntimeCamera), () => VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv"));
+        Suite(nameof(VerifyMissileImpactCameraEdge), () => VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv"));
+        Suite(nameof(VerifyControlledRedTowerHeroShot), () => VerifyControlledRedTowerHeroShot());
+        return 0;
+    }
 }

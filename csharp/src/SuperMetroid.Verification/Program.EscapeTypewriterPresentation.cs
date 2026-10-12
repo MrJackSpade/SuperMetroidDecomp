@@ -1,13 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EscapeTypewriterPresentationVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyEscapeTypewriterPresentation(string romPath)
+    internal static void VerifyEscapeTypewriterPresentation(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.EscapeTypewriterExtractor.Extract(bus);
@@ -87,7 +99,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyEscapeTypewriterAssets(
+    internal static void VerifyEscapeTypewriterAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
@@ -122,5 +134,13 @@ internal static partial class Program
             "corrupt escape text override fails loudly");
         Console.WriteLine(
             "Escape typewriter catalog: deterministic stock, override selection/identity and corruption failure pass.");
+    }
+
+    [VerificationCommand("--escape-typewriter-presentation")]
+    internal static int EscapeTypewriterPresentationCommand()
+    {
+        string escapeTextRom = RepositoryRomPath;
+        Suite(nameof(VerifyEscapeTypewriterPresentation), () => VerifyEscapeTypewriterPresentation(escapeTextRom));
+        return 0;
     }
 }

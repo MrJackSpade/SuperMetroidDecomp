@@ -1,10 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class DraygonGoopDropsVerification
 {
-    private static void VerifyDraygonGoopDrops()
+    internal static void VerifyDraygonGoopDrops()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -45,5 +56,12 @@ internal static partial class Program
         AssertEqual(1, enemies.EnemyProjectiles.Count(projectile => projectile.EnemyHeaderPointer == EnemyDefinitionId.DraygonEye),
             "deleted goop cannot repeatedly spawn its drop");
         Console.WriteLine("Draygon goop: two burst images, native drop timing/header/position/slot, and deletion pass.");
+    }
+
+    [VerificationCommand("--draygon-goop-drops")]
+    internal static int DraygonGoopDropsCommand()
+    {
+        Suite(nameof(VerifyDraygonGoopDrops), () => VerifyDraygonGoopDrops());
+        return 0;
     }
 }

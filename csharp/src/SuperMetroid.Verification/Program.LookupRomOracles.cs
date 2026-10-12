@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static MochtroidInstructionProgramDefinitionsVerification;
+using static Program;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class LookupRomOraclesVerification
 {
     /// <summary>Checks every registered narration page's native begin callback, then its extraction and compilation.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro narration pages' bank-$8C begin callbacks")]
-    private static void VerifyIntroNarrationNativePages(CartridgeImportAddressSpace rom)
+    internal static void VerifyIntroNarrationNativePages(CartridgeImportAddressSpace rom)
     {
         var narrationSources = IntroNarrationDefinitions.Pages.ToArray();
         AssertEqual(6, narrationSources.Length, "narration native registry has six pages");
@@ -25,7 +36,7 @@ internal static partial class Program
 
     /// <summary>Compares the compiled Mochtroid shake offsets with the native $A3:A76D/$A3:A775 tables for masked timers.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mochtroid shake offset tables")]
-    private static void VerifyMochtroidShakeOffsets(CartridgeImportAddressSpace rom)
+    internal static void VerifyMochtroidShakeOffsets(CartridgeImportAddressSpace rom)
     {
         foreach (ushort timer in new ushort[] { 0, 1, 2, 3, 4, 5, 6, 7, 0xfff8, 0xfff9, 0xfffa, 0xfffb, 0xfffc, 0xfffd, 0xfffe, 0xffff })
         {
@@ -38,11 +49,32 @@ internal static partial class Program
 
     /// <summary>Compares the registered intro caret's part count with its native $8C:8D68 spritemap.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro caret spritemap part count")]
-    private static void VerifyIntroCaretNativePartCount(CartridgeImportAddressSpace rom) =>
+    internal static void VerifyIntroCaretNativePartCount(CartridgeImportAddressSpace rom) =>
         AssertEqual((int)rom.ReadCartridgeWord(0x8c8d68), IntroCaretSpriteDefinitions.Visible.StockPartCount, "Native caret part count");
 
     /// <summary>Reads one little-endian retail word for the phase-algorithm lookups.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle words for the combo power-bomb cost and origin-angle algorithms")]
-    private static ushort ReadPhaseAlgorithmWord(CartridgeImportAddressSpace rom, int address) =>
+    internal static ushort ReadPhaseAlgorithmWord(CartridgeImportAddressSpace rom, int address) =>
         rom.ReadCartridgeWord(address);
+
+    [VerificationCommand("--lookup-intro-narration-registry")]
+    internal static int LookupIntroNarrationRegistryCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            VerifyIntroNarrationNativePages(rom);
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)0), "narration registry lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationDefinitions.NativePage((IntroNarrationPageId)7), "narration registry upper bound");
+        Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and bounds pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-mochtroid-shake")]
+    internal static int LookupMochtroidShakeCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        VerifyMochtroidShakeOffsets(rom);
+        Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(rom));
+        Console.WriteLine("Mochtroid shake: sixteen native masked-timer comparisons pass; amplitude remains required.");
+        return 0;
+    }
 }

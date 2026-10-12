@@ -5,11 +5,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static EndingLogoSpriteArtworkVerification;
+using static EndingObjectArtworkVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class PostCreditsCharacterArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
-    private static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
+    internal static void VerifyPostCreditsCharacterArtwork(GameInstallation installation)
     {
         EndingObjectArtworkCatalog stock = installation.LoadEndingObjectArt();
         EndingMode7ArtworkCatalog stockMode7 = installation.LoadEndingMode7Art();

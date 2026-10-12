@@ -3,10 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CrocomireSkeletonFrameGeometryVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton frame geometry")]
-    private static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>();
         for (int index = 0; index < CrocomireInstructionProgramDefinitionsTooling.PresentationWordCount; index++)

@@ -1,3 +1,8 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Input;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -6,10 +11,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class AcidStatueFirstEntryVerification
 {
-    private static void VerifyAcidStatueFirstEntry()
+    internal static void VerifyAcidStatueFirstEntry()
     {
         const ushort sourceRoom = 0xb236;
         const ushort destinationRoom = 0xb1e5;
@@ -112,5 +118,12 @@ internal static partial class Program
         AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.CurrentYPosition,
             $"completed Chozo event restores the drained acid height (transition ended at ${transitionEndY:X4})");
         Console.WriteLine($"Acid Statue first entry: checked {destinationFrames} destination transition frames.");
+    }
+
+    [VerificationCommand("--acid-statue-first-entry")]
+    internal static int AcidStatueFirstEntryCommand()
+    {
+        Suite(nameof(VerifyAcidStatueFirstEntry), () => VerifyAcidStatueFirstEntry());
+        return 0;
     }
 }

@@ -1,13 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GreenHillGateGlitchVerification
 {
-    private readonly record struct GreenHillGateRecord(
+    internal readonly record struct GreenHillGateRecord(
         int StartX,
         int BaseSpeed,
         bool Opened,
@@ -18,7 +27,7 @@ internal static partial class Program
         Position16<RoomPixels> Grapple,
         ushort GrappleFunction);
 
-    private static void VerifyGreenHillGrappleSpeedGateGlitch()
+    internal static void VerifyGreenHillGrappleSpeedGateGlitch()
     {
         GreenHillGateRecord[] expected = File.ReadLines(
                 "csharp/test-fixtures/movement-release/green-gate-405-native.csv")
@@ -158,5 +167,12 @@ internal static partial class Program
                 ushort.Parse(fields[8], CultureInfo.InvariantCulture),
                 ushort.Parse(fields[9], CultureInfo.InvariantCulture)),
             ushort.Parse(fields[10], NumberStyles.HexNumber, CultureInfo.InvariantCulture));
+    }
+
+    [VerificationCommand("--green-hill-gate-glitch")]
+    internal static int GreenHillGateGlitchCommand()
+    {
+        Suite(nameof(VerifyGreenHillGrappleSpeedGateGlitch), () => VerifyGreenHillGrappleSpeedGateGlitch());
+        return 0;
     }
 }

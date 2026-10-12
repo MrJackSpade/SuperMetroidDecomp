@@ -4,14 +4,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class KraidInstalledPresentationOracleVerification
 {
     /// <summary>
     /// Import-only expected image for $A7:AAC6/AB19. This deliberately does not
     /// invoke the production constructor or give its cartridge source to gameplay.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the Kraid upper and lower BG2 tilemaps")]
-    private static KraidEnemyState ReadImportedKraidWorkingMap(CartridgeImportAddressSpace source)
+    internal static KraidEnemyState ReadImportedKraidWorkingMap(CartridgeImportAddressSpace source)
     {
         byte[] upper = RomDataReader.Decompress(source, KraidBackgroundRomData.UpperTilemap,
             KraidBackgroundRomData.DecompressedTilemapBytes);
@@ -35,7 +35,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for one Kraid head tilemap frame")]
-    private static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(
+    internal static (KraidEnemyState State, SnesVram Vram) ReadImportedKraidHeadFrame(
         CartridgeImportAddressSpace source, ushort pointer)
     {
         byte[] words = RomDataReader.ReadFixedBank(source, KraidBackgroundRomData.NativeBank | pointer,
@@ -50,7 +50,7 @@ internal static partial class Program
 
     /// <summary>Checks all 91 authored control words before the RAM-only clock fixture runs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Kraid head-program control words")]
-    private static void VerifyKraidInstalledControlOracle(CartridgeImportAddressSpace source)
+    internal static void VerifyKraidInstalledControlOracle(CartridgeImportAddressSpace source)
     {
         ushort Word(int address) => BinaryPrimitives.ReadUInt16LittleEndian(RomDataReader.ReadFixedBank(source, address, 2));
         foreach (KraidHeadInstructionDefinition command in KraidHeadInstructionDefinitions.All)

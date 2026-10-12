@@ -1,3 +1,14 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static ProjectileInstructionsVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
@@ -6,10 +17,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ProjectileRadiiVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile radii")]
-    private static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileRadii(SuperMetroidAddressSpace rom)
     {
         // Independent address inventory from the pinned disassembly's timed-record fields.
         // Expected values are read from the cartridge, never from the compiled catalog.
@@ -166,5 +177,15 @@ internal static partial class Program
         HashSet<int> radii = addresses.SelectMany(a => new[] { a, a + 1 }).ToHashSet();
         return new CartridgeReadGuard(source).Forbid(radii.Contains,
             address => new InvalidDataException($"Projectile collision still reads ROM ${address:X6}."));
+    }
+
+    [VerificationCommand("--projectile-radius-instruction-fixtures")]
+    internal static int ProjectileRadiusInstructionFixturesCommand()
+    {
+        var projectileFixtureRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyProjectileRadii), () => VerifyProjectileRadii(projectileFixtureRom));
+        Suite(nameof(VerifyProjectileInstructions), () => VerifyProjectileInstructions(projectileFixtureRom));
+        return 0;
     }
 }

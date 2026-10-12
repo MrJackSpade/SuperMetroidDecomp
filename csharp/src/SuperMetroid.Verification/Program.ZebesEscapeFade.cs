@@ -1,17 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class ZebesEscapeFadeVerification
 {
     // #1269: gunship function $A2:AD0E only writes game state $26 and zeroes the fade delay
     // and counter. State $26 runs full gameplay before HandleFadingOut, which with delay zero
     // dims one step per call and blanks on the fifteenth, handing off on that same call. The
     // port froze time on the transition and dimmed every second call, so in the 100% movie
     // Samus stopped rising into the gunship and the RNG stopped advancing.
-    private static void VerifyZebesEscapeFade()
+    internal static void VerifyZebesEscapeFade()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -35,5 +44,12 @@ internal static partial class Program
         }
         AssertEqual(15, calls, "HandleFadingOut with delay zero blanks on the fifteenth state-$26 call");
         Console.WriteLine("Zebes escape fade: state $26 runs unfrozen gameplay and hands off after 15 calls.");
+    }
+
+    [VerificationCommand("--zebes-escape-fade")]
+    internal static int ZebesEscapeFadeCommand()
+    {
+        VerifyZebesEscapeFade();
+        return 0;
     }
 }

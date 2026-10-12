@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using static GraphDigestVerification;
 
-internal static partial class Program
+internal static class RenderFrameHandoffTestsVerification
 {
-    private static void VerifyRenderFrameHandoff()
+    internal static void VerifyRenderFrameHandoff()
     {
         byte[] fades = [2, 12];
         var first = new RenderFrameSnapshot(new(1, 1, ushort.MaxValue),

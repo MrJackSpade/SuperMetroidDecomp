@@ -2,11 +2,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static RenderPacketCodecTestsVerification;
 
-internal static partial class Program
+internal static class RoomFxSnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
-    private static void VerifyRoomFxSnapshots()
+    internal static void VerifyRoomFxSnapshots()
     {
         var random = new Random(32108);
         var vram = new SnesVram();

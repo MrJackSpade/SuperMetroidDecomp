@@ -1,18 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ZoaInstructionProgramDefinitionsVerification
 {
-    private static void VerifyZoaInstructionProgramDefinitions()
+    internal static void VerifyZoaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyZoaInstructionProgramDefinitions), () => VerifyZoaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyZoaInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyZoaInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
@@ -123,7 +133,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyZoaMechanicsDispatch(SuperMetroidAddressSpace rom)
+    internal static void VerifyZoaMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         // Independent native word positions from bank_A3.asm, not the enumerator.
         ushort[] addresses = [0xb3c1, 0xb3c3, 0xb3c7, 0xb3c9, 0xb3cd, 0xb3cf, 0xb3d3,
@@ -154,7 +164,7 @@ internal static partial class Program
                 "Zoa mechanics enumeration bounds");
     }
 
-    private static void VerifyZoaPresentationPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifyZoaPresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xb3c5, 0xb3cb, 0xb3d1, 0xb3d9, 0xb3dd, 0xb3e1,
             0xb3eb, 0xb3f1, 0xb3f7, 0xb3ff, 0xb403, 0xb407];
@@ -187,4 +197,11 @@ internal static partial class Program
                 address => $"Production read compiled Zoa mechanics byte ${address:X6}.")
             .ForbidWords(0xa30000, ZoaInstructionProgramDefinitionsTooling.PresentationWordCount, ZoaInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Zoa selector ${address:X6}.");
+
+    [VerificationCommand("--zoa-instruction-mechanics")]
+    internal static int ZoaInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyZoaInstructionProgramDefinitions), () => VerifyZoaInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,11 +1,12 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RidleyInertiaVerification;
 
-internal static partial class Program
+internal static class RidleyDeathAccelerationVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley death acceleration")]
-    private static void VerifyRidleyDeathAcceleration(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyDeathAcceleration(SuperMetroidAddressSpace rom)
     {
         // $A6:C60E LDY #0, $C611 LDA #16: index and extra deceleration are
         // distinct native arguments, not an out-of-table index of sixteen.

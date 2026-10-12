@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class CeilingWrapRoomVerification
 {
-    private static void VerifyFrogSpeedwayRuntimeTrace(string path, ushort beams = 5, bool dash = true)
+    internal static void VerifyFrogSpeedwayRuntimeTrace(string path, ushort beams = 5, bool dash = true)
     {
         string[] native = File.ReadLines(path).Skip(1).ToArray();
         int expectedFrames = beams == 11 ? (dash ? 349 : 412) : 900;
@@ -38,7 +47,7 @@ internal static partial class Program
         Console.WriteLine($"PASS {native.Length} native Speedway frames: beams={beams} dash={dash} endpoint={samus.Position.X.Whole}.");
     }
 
-    private static void VerifyFrogSpeedwayPoolCollision()
+    internal static void VerifyFrogSpeedwayPoolCollision()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -73,5 +82,27 @@ internal static partial class Program
         AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).LevelWord, "Exhaustion bypass does not break the block");
         AssertEqual(40, plms.ActiveCount, "Contact cannot allocate a forty-first slot");
         Console.WriteLine("PASS Frog Speedway: live ceiling-shot overload permits unchanged speed-block entry at frame 343.");
+    }
+
+    [VerificationCommand("--ceiling-wrap-room")]
+    internal static int CeilingWrapRoomCommand()
+    {
+        Suite(nameof(VerifyFrogSpeedwayPoolCollision), () => VerifyFrogSpeedwayPoolCollision());
+        return 0;
+    }
+
+    [VerificationCommand("--ceiling-wrap-runtime")]
+    internal static int CeilingWrapRuntimeCommand()
+    {
+        Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-runtime-410.csv"));
+        return 0;
+    }
+
+    [VerificationCommand("--ceiling-wrap-success")]
+    internal static int CeilingWrapSuccessCommand()
+    {
+        Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-success-run-410.csv", 11, true));
+        Suite(nameof(VerifyFrogSpeedwayRuntimeTrace), () => VerifyFrogSpeedwayRuntimeTrace("csharp/test-fixtures/movement-release/frog-success-walk-410.csv", 11, false));
+        return 0;
     }
 }

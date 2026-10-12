@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
+using static EnemyDropsVerification;
 
-internal static partial class Program
+internal static class PowerBombDeathRadiusVerification
 {
     // #1269: `$A0:A306` keeps its horizontal radius in `$12`, which EnemyDeath overwrites
     // with the dying actor's respawn bit. The 100% movie's Ki-Hunter therefore survives
     // the frame on which a higher slot dies, and takes the hit one frame later.
-    private static void VerifyPowerBombDeathRadius()
+    internal static void VerifyPowerBombDeathRadius()
     {
         const ushort explosionX = 128;
         const ushort explosionY = 128;
@@ -55,5 +67,12 @@ internal static partial class Program
             actor.Properties = 0;
             return actor;
         }
+    }
+
+    [VerificationCommand("--power-bomb-death-radius")]
+    internal static int PowerBombDeathRadiusCommand()
+    {
+        VerifyPowerBombDeathRadius();
+        return 0;
     }
 }

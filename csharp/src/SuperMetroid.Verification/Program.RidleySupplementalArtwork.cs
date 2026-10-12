@@ -3,10 +3,11 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
 
-internal static partial class Program
+internal static class RidleySupplementalArtworkVerification
 {
-    private static void VerifyInstalledRidleySupplementalArtwork(
+    internal static void VerifyInstalledRidleySupplementalArtwork(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         AssertEqual(20, RidleySupplementalVisualDefinitions.WingPointerCount,
@@ -55,7 +56,7 @@ internal static partial class Program
             "Ridley rejects adjacent tail-tip OAM as a pointer-table entry");
     }
 
-    private static OamBuffer DrawInstalledRidleySupplement(
+    internal static OamBuffer DrawInstalledRidleySupplement(
         EnemyTileArtworkCatalog artwork, ISnesAddressSpace rom,
         RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {

@@ -2,10 +2,19 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static DownwardGateVisualsVerification;
+using static LookupDownwardGateDrawsVerification;
+using static LookupDownwardGateProgramVerification;
+using static LookupDownwardGateSelectionVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class DownwardGatePlmsVerification
 {
-    private static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDownwardGateShotBlockDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDownwardGateListSelection), () => VerifyDownwardGateListSelection(rom));
         Suite(nameof(VerifyDownwardGateLeftSelection), () => VerifyDownwardGateLeftSelection(rom));
@@ -20,7 +29,7 @@ internal static partial class Program
     /// Reproduces all eight gate-trigger dispatches in constructed rooms and checks the
     /// resident gate plus bank-$86 actor handoff independently of any long controller route.
     /// </summary>
-    private static void VerifyDownwardGatePlms()
+    internal static void VerifyDownwardGatePlms()
     {
         Suite(nameof(VerifyDownwardGateHeaderDefinitions), () => VerifyDownwardGateHeaderDefinitions());
         Suite(nameof(VerifyDownwardGateProgramDefinitions), () => VerifyDownwardGateProgramDefinitions());
@@ -228,7 +237,7 @@ internal static partial class Program
             $"{trigger} trigger list draws once and deletes without ROM control bytes");
     }
 
-    private static (TestAddressSpace Bus, RoomLevelData Level,
+    internal static (TestAddressSpace Bus, RoomLevelData Level,
         BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms, int GateBlockIndex)
         CreateDownwardGateFixture(DownwardGateTriggerBehavior trigger,
             RoomPlmDownwardGateVisualCatalog? visuals = null)
@@ -274,7 +283,7 @@ internal static partial class Program
             .Forbid(address => address is >= 0x84c82c and <= 0x84c82d or >= 0x84c838 and <= 0x84c839,
                 address => $"Gate population read compiled header word ${address:X6}.");
 
-    private static void StepDownwardGatePlm(
+    internal static void StepDownwardGatePlm(
         RoomPlmSystem plms,
         TestAddressSpace bus,
         RoomLevelData level,

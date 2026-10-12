@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class ReserveModeVerification
 {
-    private static void VerifyReserveMode(string nativeTracePath)
+    internal static void VerifyReserveMode(string nativeTracePath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         int[][] native = File.ReadLines(nativeTracePath).Skip(1)
@@ -133,5 +142,12 @@ internal static partial class Program
             samus.Xray.StepBeam(bus, samus, controllerInput: 0);
         while (samus.Xray.BeamPhase != XrayBeamPhase.Finish)
             samus.Xray.StepBeam(bus, samus, controllerInput: 0);
+    }
+
+    [VerificationCommand("--reserve-mode")]
+    internal static int ReserveModeCommand()
+    {
+        Suite(nameof(VerifyReserveMode), () => VerifyReserveMode("csharp/test-fixtures/movement-release/reserve-mode-433.csv"));
+        return 0;
     }
 }

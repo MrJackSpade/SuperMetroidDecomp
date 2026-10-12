@@ -3,11 +3,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static EnemyAnimationIsolationFixtureVerification;
 
-internal static partial class Program
+internal static class MotherBrainBodyPresentationFixtureVerification
 {
     /// <summary>Runs the actual body instruction processor and public drawing path with mutable RAM only.</summary>
-    private sealed class MotherBrainPresentationFixture
+    internal sealed class MotherBrainPresentationFixture
     {
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         internal EnemyAnimationFixture Inner { get; }

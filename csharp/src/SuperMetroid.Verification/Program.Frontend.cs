@@ -1,3 +1,7 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -8,11 +12,14 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
+using static ColorWordsVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class FrontendVerification
 {
 [CpuBusBoundary("exact bus test: LoROM cross-bank traversal of a compressed stream over a constructed cartridge")]
-static void VerifyLoRomCrossBankCompressedData()
+internal static void VerifyLoRomCrossBankCompressedData()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
@@ -33,7 +40,7 @@ static void VerifyLoRomCrossBankCompressedData()
 }
 
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-static void VerifyMode7Rendering()
+internal static void VerifyMode7Rendering()
 {
     var vram = new SnesVram();
     var cgram = new SnesCgram();
@@ -112,7 +119,7 @@ static void VerifyMode7Rendering()
 }
 
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifyLayerCompositorBackdrop()
+internal static void VerifyLayerCompositorBackdrop()
 {
     var cgram = new SnesCgram();
     cgram.SetColor(0, Bgr555.FromWord(0x0421));
@@ -135,7 +142,7 @@ static void VerifyLayerCompositorBackdrop()
 }
 
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-static void VerifyBgPriorityPlaneRendering()
+internal static void VerifyBgPriorityPlaneRendering()
 {
     var vram = new SnesVram();
     var cgram = new SnesCgram();
@@ -159,7 +166,7 @@ static void VerifyBgPriorityPlaneRendering()
     AssertEqual(255, high[8].A, "high-priority BG cell selected");
 }
 
-static void VerifyFileSelectFreshSaveTilemap()
+internal static void VerifyFileSelectFreshSaveTilemap()
 {
     var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling
         .LoadRetailRom(Path.GetFullPath("Super Metroid.smc")).Rom.ToArray();
@@ -415,7 +422,7 @@ static void PulseFileSelect(FileSelectMenuState menu, SnesButton button)
     menu.Step(0);
 }
 
-static void VerifySavedGameLoadAppearance()
+internal static void VerifySavedGameLoadAppearance()
 {
     string romPath = Path.GetFullPath("Super Metroid.smc");
     if (!File.Exists(romPath))
@@ -493,7 +500,7 @@ static void VerifySavedGameLoadAppearance()
 }
 
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifyIntroGameplayFlashbackVerticalScroll()
+internal static void VerifyIntroGameplayFlashbackVerticalScroll()
 {
     // `$8B:A66F` installs BG1VOFS eight for the illustrated page. The two following
     // gameplay-style setup functions replace BG1SC but leave that scroll word untouched.
@@ -522,7 +529,7 @@ static void VerifyIntroGameplayFlashbackVerticalScroll()
 }
 
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifyCinematicPaletteFader()
+internal static void VerifyCinematicPaletteFader()
 {
     var target = new ushort[SnesCgram.ColorCount];
     // Component four produces step $0020, making the fixed-point rounding boundary easy
@@ -558,7 +565,7 @@ static void VerifyCinematicPaletteFader()
     AssertEqual(0x0000, cgram.Colors[20], "32 fade-out calls reach exact black");
 }
 
-static void VerifyDemoInputObject()
+internal static void VerifyDemoInputObject()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
     int objectAddress = DemoInputRomData.BankBase | DemoInputRomDataIntroMotherBrain.Object;
@@ -690,9 +697,9 @@ static void VerifyDemoInputObject()
 }
 
 [CpuBusBoundary("exact bus test: retail and constructed cartridge oracle for bank-$91 demo-input object and instruction words")]
-static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
+internal static ushort ReadDemoFixtureWord(ISnesAddressSpace bus, ushort pointer) =>
     CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(DemoInputRomData.BankBase | pointer);
-static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
+internal static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 {
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress);
     rom[offset] = unchecked((byte)value);
@@ -700,7 +707,7 @@ static void WriteRomWord(byte[] rom, int snesAddress, ushort value)
 }
 
 /// <summary>A demo owner whose one private routine ($8739) disables the object and continues (#633).</summary>
-private sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
+internal sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
 {
     public int Calls { get; private set; }
 
@@ -716,4 +723,24 @@ private sealed class DisablingDemoProgram(Func<ushort, ushort> readWord) : IDemo
         return DemoInputInstructionResult.ContinueAt(cursor);
     }
 }
+
+    [VerificationCommand("--demo-input-fixture")]
+    internal static int DemoInputFixtureCommand()
+    {
+     VerifyDemoInputObject(); return 0; 
+    }
+
+    [VerificationCommand("--file-select-fresh-save")]
+    internal static int FileSelectFreshSaveCommand()
+    {
+        Suite(nameof(VerifyFileSelectFreshSaveTilemap), () => VerifyFileSelectFreshSaveTilemap());
+        return 0;
+    }
+
+    [VerificationCommand("--demo-input-object")]
+    internal static int DemoInputObjectCommand()
+    {
+        Suite(nameof(VerifyDemoInputObject), () => VerifyDemoInputObject());
+        return 0;
+    }
 }

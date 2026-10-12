@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using static RepositoryInputsVerification;
+using static RepositoryInstallation;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,15 +16,18 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 using System.Reflection;
 using SuperMetroid.Core.Runtime;
+using static FrontendRomFreeCensusVerification;
+using static GoldenTorizoRoomSetupVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class FrontendRomFreeVerification
 {
     /// <summary>
     /// Drives the actual state-zero dispatcher through the first two menus. This tests
     /// host bindings at state construction, not merely the standalone title renderer.
     /// Mutable SRAM/WRAM remain available; no cartridge byte may be consulted.
     /// </summary>
-    private static void VerifyFrontendRomFreeStartup(GameInstallation installation,
+    internal static void VerifyFrontendRomFreeStartup(GameInstallation installation,
         string sourceRom, bool roomCensus = false)
     {
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
@@ -89,7 +99,7 @@ internal static partial class Program
     /// Retain the same validated immutable installation catalogs when a diagnostic
     /// room snapshot is restored. Debugger states omit external artwork by design.
     /// </summary>
-    private static Action<SuperMetroidGame, bool> PrepareRomFreeBindings(GameInstallation installation,
+    internal static Action<SuperMetroidGame, bool> PrepareRomFreeBindings(GameInstallation installation,
         EnemyTileArtworkCatalog? enemyArtwork = null)
     {
         var maps = installation.LoadMaps();
@@ -497,7 +507,7 @@ internal static partial class Program
     /// initialization and neutral-frame presentation, not incoming doors or travel.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, ushort heldInput = 0)
+    internal static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, ushort heldInput = 0)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
             room.RoomPointer);
@@ -776,7 +786,7 @@ internal static partial class Program
             "operand-free Torizo return executes without reading $AA:F002");
     }
 
-    private static MutableCartridgeReadGuard NewFrontendCartridgeReadGuard(
+    internal static MutableCartridgeReadGuard NewFrontendCartridgeReadGuard(
         ISnesAddressSpace source, HashSet<int>? blockedPresentationBytes = null)
     {
         HashSet<int> blocked = blockedPresentationBytes ?? new();
@@ -826,5 +836,19 @@ internal static partial class Program
                 }
             }
         }
+    }
+
+    [VerificationCommand("--rom-free-startup")]
+    internal static int RomFreeStartupCommand()
+    {
+        Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(RepositoryInstallation.Installation, RepositoryRomPath));
+        return 0;
+    }
+
+    [VerificationCommand("--rom-free-room-census")]
+    internal static int RomFreeRoomCensusCommand()
+    {
+        Suite(nameof(VerifyFrontendRomFreeStartup), () => VerifyFrontendRomFreeStartup(RepositoryInstallation.Installation, RepositoryRomPath, roomCensus: true));
+        return 0;
     }
 }

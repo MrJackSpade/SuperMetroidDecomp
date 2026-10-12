@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BabyMetroidRouteDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BotwoonNavigationDefinitionsVerification
 {
-    private static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHoleRightBounds(SuperMetroidAddressSpace rom)
     {
         var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
@@ -28,7 +41,7 @@ internal static partial class Program
                 AssertThrows<InvalidDataException>(() => BotwoonNavigationDefinitions.HoleForByteOffset((ushort)offset), "Botwoon hole bound domain");
     }
 
-    private static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHoleBottomBounds(SuperMetroidAddressSpace rom)
     {
         var detect = typeof(RoomEnemySystem).GetMethod("DetectBotwoonHole", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
@@ -48,7 +61,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonPathDescriptorMappings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonPathPointerMapping), () => VerifyBotwoonPathPointerMapping(rom));
         Suite(nameof(VerifyBotwoonPathDirectionMapping), () => VerifyBotwoonPathDirectionMapping(rom));
@@ -108,7 +121,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon navigation definitions")]
-    private static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonNavigationDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonHoleRightBounds), () => VerifyBotwoonHoleRightBounds(rom));
         Suite(nameof(VerifyBotwoonHoleBottomBounds), () => VerifyBotwoonHoleBottomBounds(rom));
@@ -331,4 +344,12 @@ internal static partial class Program
                     >= 0xb3a058 and < 0xb3e150 or
                     >= 0xb3e150 and < 0xb3e250,
             address => $"Botwoon attempted migrated navigation-definition read ${address:X6}.");
+
+    [VerificationCommand("--botwoon-navigation-definitions")]
+    internal static int BotwoonNavigationDefinitionsCommand()
+    {
+        Suite(nameof(VerifyBotwoonNavigationDefinitions), () => VerifyBotwoonNavigationDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

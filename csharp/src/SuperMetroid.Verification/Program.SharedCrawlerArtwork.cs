@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedCrawlerInstructionProgramDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SharedCrawlerArtworkVerification
 {
-    private static void VerifyInstalledSharedCrawlerFrames(
+    internal static void VerifyInstalledSharedCrawlerFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         EnemyDefinitionId[] definitions =

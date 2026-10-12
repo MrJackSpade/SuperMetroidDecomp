@@ -5,13 +5,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 
-internal static partial class Program
+internal static class RetailGameFixtureVerification
 {
-    private static SuperMetroidGame CreateRetailGameFixture(ISnesAddressSpace bus,
+    internal static SuperMetroidGame CreateRetailGameFixture(ISnesAddressSpace bus,
         SuperMetroidGameOptions? gameOptions = null, bool renderGameplayFrames = true) =>
         RepositoryInstallation.CreateGame(bus, gameOptions, renderGameplayFrames);
 
-    private static CeresDestructionCinematicState CreateRetailDestructionFixture(ISnesAddressSpace bus,
+    internal static CeresDestructionCinematicState CreateRetailDestructionFixture(ISnesAddressSpace bus,
         CartridgeAudioState? audio = null, IntroCinematicArtworkCatalog? artwork = null) =>
         RepositoryInstallation.CreateDestruction(bus, audio, artwork);
 
@@ -20,14 +20,14 @@ internal static partial class Program
     /// cartridge's bank $8B, where production reads the compiled instruction definitions.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending instruction-program words")]
-    private static Func<ushort, ushort> EndingCartridgeInstructionWord(ISnesAddressSpace bus) =>
+    internal static Func<ushort, ushort> EndingCartridgeInstructionWord(ISnesAddressSpace bus) =>
         pointer => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8b0000 | pointer);
 
-    private static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
+    internal static EndingCreditsState CreateRetailEndingFixture(ISnesAddressSpace bus,
         CartridgeAudioState audio, ushort gameTimeHours, ushort gameTimeMinutes,
         EndingInventorySnapshot inventory = default, bool japaneseText = false) =>
         RepositoryInstallation.CreateEnding(bus, audio, gameTimeHours, gameTimeMinutes, inventory, japaneseText);
-    private static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
+    internal static IntroCinematicState CreateRetailIntroFixture(ISnesAddressSpace bus, CartridgeAudioState? audio = null,
         IntroFontAtlas? introFont = null, IntroCinematicArtworkCatalog? characterArtwork = null,
         BeamTileCatalog? beamArtwork = null, SamusBodyArtworkCatalog? samusBodyArtwork = null) =>
         RepositoryInstallation.CreateIntro(bus, audio, introFont, characterArtwork, beamArtwork, samusBodyArtwork);

@@ -5,7 +5,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class Bgr555DomainVerification
 {
     /// <summary>
     /// #627: SNES colors are the packed value type <see cref="Bgr555"/>. Every 15-bit word
@@ -14,7 +14,7 @@ internal static partial class Program
     /// older debugger payloads of color words restore through the shape-preserving rule.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyBgr555Domain()
+    internal static void VerifyBgr555Domain()
     {
         for (int word = 0; word <= 0x7fff; word++)
         {

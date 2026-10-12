@@ -1,10 +1,12 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static CeresStationPartsVerification;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class CeresSmallAsteroidPartsVerification
 {
-    private static void VerifyCeresSmallAsteroidParts(ISnesAddressSpace rom)
+    internal static void VerifyCeresSmallAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
         foreach (var definition in CeresFlightSpriteDefinitions.Frames.Where(frame => frame.Name == "small-asteroid"))

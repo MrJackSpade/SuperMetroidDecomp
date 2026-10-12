@@ -2,13 +2,13 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EnemyInstructionCodePointersVerification
 {
     /// <summary>
     /// Verifies that enemy animation bytecode and list catalogs contain unique mapped
     /// pointers, then touches every bank-local entry in the retail ROM when it is present.
     /// </summary>
-    static void VerifyEnemyInstructionCodePointerCatalogs()
+    internal static void VerifyEnemyInstructionCodePointerCatalogs()
     {
         // Private opcode sets the generic enemy interpreter hands to owner handlers after
         // the common commands. Routing decodes common commands first, so no owner set may
@@ -192,7 +192,7 @@ internal static partial class Program
             AssertTrue(pointer >= 0x8000, $"{catalog.Name} pointer ${pointer:X4} is mapped");
     }
 
-    private static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
+    internal static FieldInfo[] GetUshortConstants(Type catalog) => CatalogFields.Of(catalog, BindingFlags.Public | BindingFlags.Static)
         .Where(field => field.IsLiteral && (field.FieldType == typeof(ushort) ||
             field.FieldType.IsEnum && Enum.GetUnderlyingType(field.FieldType) == typeof(ushort)))
         .ToArray();

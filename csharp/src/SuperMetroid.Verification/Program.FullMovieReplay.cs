@@ -1,3 +1,11 @@
+using System.Globalization;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
 using System.Buffers.Binary;
 using System.IO.Compression;
 using System.Security.Cryptography;
@@ -6,11 +14,13 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static NativeSnapshotImportVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class FullMovieReplayVerification
 {
-    private const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
-    private const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
+    internal const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
+    internal const string FullPlaythroughMovieSha256 = "4D0E6E671E11BD99439AE498210943711135E6CBE8F57D97B2C56815315AE07E";
     private const string LowPercentPlaythroughMoviePath = "csharp/test-fixtures/low-13-percent/13_speedbooster.lsmv";
     private const string LowPercentPlaythroughMovieSha256 = "1D217BB073309AE44EA3D972C5EC3201BE0EC434C60F034E1E958F94FD1BCDA8";
     private const string DrunkPlaythroughMoviePath = "csharp/test-fixtures/issue-1275-movies/Samus drunk.smv";
@@ -18,25 +28,25 @@ internal static partial class Program
     private const string MotherBrainGlitchMoviePath = "csharp/test-fixtures/issue-1275-movies/mother brain glitch.smv";
     private const string MotherBrainGlitchMovieSha256 = "C63BF68D4F24F378B2E3E3591281ABC158DDBAEBA113D35A63E3307A32D6E505";
 
-    private static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+    internal static void VerifyFullPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256),
             traceDirectory, traceFromUpdate);
 
     /// <summary>The 13% Speed Booster lsnes TAS, captured on bsnes v085.</summary>
-    private static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+    internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("13%", LowPercentPlaythroughMoviePath, LowPercentPlaythroughMovieSha256),
             traceDirectory, traceFromUpdate);
 
     /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough.</summary>
-    private static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
+    internal static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("Samus drunk", DrunkPlaythroughMoviePath, DrunkPlaythroughMovieSha256),
             traceDirectory, traceFromUpdate);
 
     /// <summary>The #1275 Mother Brain glitch movie, which starts from a snapshot paused in her room.</summary>
-    private static void VerifyMotherBrainGlitchMovie(string traceDirectory, int? traceFromUpdate = null) =>
+    internal static void VerifyMotherBrainGlitchMovie(string traceDirectory, int? traceFromUpdate = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("Mother Brain glitch", MotherBrainGlitchMoviePath, MotherBrainGlitchMovieSha256),
             traceDirectory, traceFromUpdate);
@@ -67,7 +77,7 @@ internal static partial class Program
     /// its native checkpoint and failing at the first divergence.
     /// </summary>
     /// <returns>The game and the native WRAM after <paramref name="lastUpdate"/>, which must have a checkpoint.</returns>
-    private static (SuperMetroidGame Game, byte[] Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
+    internal static (SuperMetroidGame Game, byte[] Memory, int UncheckpointedUpdates) ReplayConvertedMovie(
         ReplayMovie movie, NativeMovieCheckpoints checkpoints, int? traceFromUpdate, int lastUpdate)
     {
         var updates = checkpoints.Updates;
@@ -417,5 +427,57 @@ internal static partial class Program
             Check(owner + " health", actor.Health, address + MovieDesyncMemory.EnemyHealthOffset);
         }
         return mismatches;
+    }
+
+    [VerificationCommand("--lsmv-playthrough-movie", "lowTraceDirectory")]
+    internal static int LsmvPlaythroughMovieCommand(string lowTraceDirectory)
+    {
+     VerifyLowPercentPlaythroughMovie(lowTraceDirectory); return 0; 
+    }
+
+    [VerificationCommand("--full-playthrough-movie", "fullTraceDirectory")]
+    internal static int FullPlaythroughMovieCommand(string fullTraceDirectory)
+    {
+     VerifyFullPlaythroughMovie(fullTraceDirectory); return 0; 
+    }
+
+    [VerificationCommand("--drunk-playthrough-movie", "drunkTraceDirectory")]
+    internal static int DrunkPlaythroughMovieCommand(string drunkTraceDirectory)
+    {
+     VerifyDrunkPlaythroughMovie(drunkTraceDirectory); return 0; 
+    }
+
+    [VerificationCommand("--mother-brain-glitch-movie", "glitchTraceDirectory")]
+    internal static int MotherBrainGlitchMovieCommand(string glitchTraceDirectory)
+    {
+     VerifyMotherBrainGlitchMovie(glitchTraceDirectory); return 0; 
+    }
+
+    [VerificationCommand("--lsmv-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
+    internal static int LsmvPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
+    {
+        VerifyLowPercentPlaythroughMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
+        return 0;
+    }
+
+    [VerificationCommand("--full-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
+    internal static int FullPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
+    {
+        VerifyFullPlaythroughMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
+        return 0;
+    }
+
+    [VerificationCommand("--drunk-playthrough-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
+    internal static int DrunkPlaythroughMovieTraceCommand(string traceDirectory, string traceFromUpdate)
+    {
+        VerifyDrunkPlaythroughMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
+        return 0;
+    }
+
+    [VerificationCommand("--mother-brain-glitch-movie", "traceDirectory", "--trace-from", "traceFromUpdate")]
+    internal static int MotherBrainGlitchMovieTraceCommand(string traceDirectory, string traceFromUpdate)
+    {
+        VerifyMotherBrainGlitchMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
+        return 0;
     }
 }

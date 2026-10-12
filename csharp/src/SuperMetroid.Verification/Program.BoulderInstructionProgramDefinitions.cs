@@ -1,10 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BoulderInstructionProgramDefinitionsVerification
 {
     private static ushort[] BoulderPresentationOracle() =>
         [0x86a9,0x86ad,0x86b1,0x86b5,0x86b9,0x86bd,0x86c1,0x86c5,
@@ -90,13 +100,13 @@ internal static partial class Program
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoulderFrameAt(address), "Boulder far invalid visual");
     }
 
-    private static void VerifyBoulderInstructionProgramDefinitions()
+    internal static void VerifyBoulderInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoulderInstructionProgramDefinitions), () => VerifyBoulderInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyBoulderInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBoulderInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
 
@@ -185,5 +195,12 @@ internal static partial class Program
         return new CartridgeReadGuard(source)
             .Forbid(BoulderInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, Message)
             .ForbidWords(0xa60000, BoulderInstructionProgramDefinitionsTooling.PresentationWordCount, BoulderInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
+    }
+
+    [VerificationCommand("--boulder-instruction-mechanics")]
+    internal static int BoulderInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyBoulderInstructionProgramDefinitions), () => VerifyBoulderInstructionProgramDefinitions());
+        return 0;
     }
 }

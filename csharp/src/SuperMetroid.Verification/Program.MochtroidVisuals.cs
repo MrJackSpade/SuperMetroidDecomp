@@ -2,12 +2,13 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
 
-internal static partial class Program
+internal static class MochtroidVisualsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
-    private static void VerifyInstalledMochtroidVisuals(
+    internal static void VerifyInstalledMochtroidVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var selectedFrames = new HashSet<ushort>();

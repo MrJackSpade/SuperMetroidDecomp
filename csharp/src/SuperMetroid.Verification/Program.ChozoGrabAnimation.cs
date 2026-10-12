@@ -1,3 +1,7 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -8,9 +12,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-internal static partial class Program
+internal static class ChozoGrabAnimationVerification
 {
-    private static void VerifyChozoGrabAnimation(bool powerBomb = false)
+    internal static void VerifyChozoGrabAnimation(bool powerBomb = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
@@ -165,5 +169,18 @@ internal static partial class Program
         AssertTrue(animationResumed, "ball animation resumes after release");
         if (powerBomb) Console.WriteLine("Power Bomb continues through capture: exact phases, radii, rendered state, colors and flag cleanup pass.");
         Console.WriteLine($"Walking Chozo: native hand, frozen frame/timer through {frames} carry frames, movement and release verified.");
+    }
+
+    [VerificationCommand("--chozo-power-bomb")]
+    internal static int ChozoPowerBombCommand()
+    {
+     VerifyChozoGrabAnimation(powerBomb: true); return 0; 
+    }
+
+    [VerificationCommand("--chozo-grab-animation")]
+    internal static int ChozoGrabAnimationCommand()
+    {
+        Suite(nameof(VerifyChozoGrabAnimation), () => VerifyChozoGrabAnimation());
+        return 0;
     }
 }

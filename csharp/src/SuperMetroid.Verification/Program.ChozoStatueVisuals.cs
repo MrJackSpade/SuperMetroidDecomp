@@ -4,10 +4,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static LookupChozoStockVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ChozoStatueVisualsVerification
 {
-    private static void VerifyChozoStatueVisualInstallation(
+    internal static void VerifyChozoStatueVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
         using var testRootScratch = new TestScratchDirectory("chozo-statue-visual");
@@ -144,7 +146,7 @@ internal static partial class Program
         }
     }
 
-    private static CartridgeReadGuard NewChozoProgramAndDrawReadGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewChozoProgramAndDrawReadGuard(ISnesAddressSpace source) =>
         new MutableCartridgeReadGuard(source)
             .Forbid(address =>
                     (address >= (0x840000 | ChozoStatuePlmProgramDefinitions.CrumblePlugStart) &&

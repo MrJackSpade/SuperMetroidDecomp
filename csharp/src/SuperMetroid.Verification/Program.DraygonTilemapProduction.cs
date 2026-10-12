@@ -1,14 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class DraygonTilemapProductionVerification
 {
     /// <summary>#385: reconstruct fresh-room BG2 staging and native DMA, not merely retained current-command destinations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon tilemap production")]
-    private static void VerifyDraygonTilemapProduction()
+    internal static void VerifyDraygonTilemapProduction()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, DraygonProductionAuditDefinitions.Room);
@@ -84,6 +95,13 @@ internal static partial class Program
         AssertTrue(commands > 0 && transfers > 0 && destinations.Count > 8 && streams.Count > 1,
             "fresh producer audit must cover newly published commands and more than retained eight-word fragments");
         Console.WriteLine($"Fresh Draygon production: {commands} commands, {transfers} transfers, {streams.Count} distinct streams, {destinations.Count} distinct destinations, {functions.Count} AI functions, {comparisons} complete-map word comparisons agree with native staging/DMA reconstruction.");
+    }
+
+    [VerificationCommand("--draygon-tilemap-production")]
+    internal static int DraygonTilemapProductionCommand()
+    {
+        Suite(nameof(VerifyDraygonTilemapProduction), () => VerifyDraygonTilemapProduction());
+        return 0;
     }
 }
 

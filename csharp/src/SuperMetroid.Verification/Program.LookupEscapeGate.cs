@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupEscapeGateVerification
 {
-    private static void VerifyEscapeGateProgramControls(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, false);
-    private static void VerifyEscapeGateProgramDraws(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, true);
+    internal static void VerifyEscapeGateProgramControls(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, false);
+    internal static void VerifyEscapeGateProgramDraws(SuperMetroidAddressSpace rom) => VerifyEscapeGateProgramField(rom, true);
 
     private static void VerifyEscapeGateProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
@@ -43,9 +44,9 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for escape gate program field")]
     private static byte EscapeGateProgramFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 0);
-    private static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 1);
-    private static void VerifyEscapeGateDrawVisuals(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 2);
+    internal static void VerifyEscapeGateDrawGeometry(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 0);
+    internal static void VerifyEscapeGateDrawCollision(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 1);
+    internal static void VerifyEscapeGateDrawVisuals(SuperMetroidAddressSpace rom) => VerifyEscapeGateDrawField(rom, 2);
 
     private static void VerifyEscapeGateDrawField(SuperMetroidAddressSpace rom, int field)
     {

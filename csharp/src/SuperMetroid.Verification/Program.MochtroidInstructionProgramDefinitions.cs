@@ -1,17 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CompiledEnemyVisualSelectorAssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MochtroidInstructionProgramDefinitionsVerification
 {
-    private static void VerifyMochtroidInstructionProgramDefinitions()
+    internal static void VerifyMochtroidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyMochtroidInstructionProgramDefinitions(
+    internal static void VerifyMochtroidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
@@ -127,4 +139,11 @@ internal static partial class Program
             .Forbid(address => MochtroidInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Mochtroid mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, MochtroidInstructionProgramDefinitionsTooling.PresentationWordCount, MochtroidInstructionProgramDefinitionsTooling.PresentationWordAddress);
+
+    [VerificationCommand("--mochtroid-instruction-program-definitions")]
+    internal static int MochtroidInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyMochtroidInstructionProgramDefinitions), () => VerifyMochtroidInstructionProgramDefinitions());
+        return 0;
+    }
 }

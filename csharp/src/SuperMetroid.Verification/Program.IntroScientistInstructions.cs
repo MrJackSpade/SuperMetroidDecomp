@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroScientistInstructionsVerification
 {
-    private static void VerifyIntroScientistInstructions(ISnesAddressSpace rom)
+    internal static void VerifyIntroScientistInstructions(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcb9f, 0xcbcd), (0xcbcd, 0xcc2b), (0xce53, 0xce55) })
         {

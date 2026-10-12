@@ -1,10 +1,12 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static IntroMotherBrainExplosionPartsVerification;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class ZebesPlanetBandPartsVerification
 {
-    private static void VerifyZebesPlanetBandParts(ISnesAddressSpace rom)
+    internal static void VerifyZebesPlanetBandParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ZebesPlanetBand", value.AppendIdentity);
         foreach (var definition in CeresDestructionSpriteDefinitions.Frames.Where(frame => frame.Name == "planet-zebes"))

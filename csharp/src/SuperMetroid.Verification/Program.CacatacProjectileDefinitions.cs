@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CacatacProjectileDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Cacatac projectile definitions")]
-    private static void VerifyCacatacProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCacatacProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0x86d96a;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

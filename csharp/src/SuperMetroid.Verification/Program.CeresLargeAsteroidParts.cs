@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class CeresLargeAsteroidPartsVerification
 {
-    private static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
+    internal static void VerifyCeresLargeAsteroidParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresLargeAsteroid", value.AppendIdentity);
         foreach (var definition in new[] { new { Pointer = (ushort)0x909d, StockPartCount = 19, Name = "under-attack" }, new { Pointer = (ushort)0x94f7, StockPartCount = 19, Name = "approach" } })

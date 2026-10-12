@@ -1,14 +1,14 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MakeSamusFaceForwardVerification
 {
     /// <summary>
     /// Confirms <c>MakeSamusFaceForward</c> ($91:E3F6) leaves the live collision radius
     /// to the next alpha's SetSamusRadius and lifts both Y words by three when that radius
     /// is not the front view's 24, as when Samus boards an elevator aiming up.
     /// </summary>
-    private static void VerifyMakeSamusFaceForward()
+    internal static void VerifyMakeSamusFaceForward()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Pose = SamusPoseId.StandingAimUpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x7b, 0x8b)) };

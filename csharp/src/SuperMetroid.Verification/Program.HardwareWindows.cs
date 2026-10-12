@@ -1,8 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static MagicNumberAuditVerification;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
+using static WindowRegisterCacheVerification;
 
-internal static partial class Program
+internal static class HardwareWindowsVerification
 {
-    private static void VerifyHardwareWindows()
+    internal static void VerifyHardwareWindows()
     {
         Suite(nameof(VerifyWindowRegisterCache), () => VerifyWindowRegisterCache());
         // Independent truth-table oracle for pinned ppu_getWindowState (ppu.c).
@@ -64,5 +78,13 @@ internal static partial class Program
                     "disabled TMW/TSW leaves membership unconsumed");
             }
         }
+    }
+
+    [VerificationCommand("--hardware-windows")]
+    internal static int HardwareWindowsCommand()
+    {
+        Suite(nameof(VerifyHardwareWindows), () => VerifyHardwareWindows());
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

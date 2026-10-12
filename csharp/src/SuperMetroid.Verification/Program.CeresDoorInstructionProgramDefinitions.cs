@@ -1,17 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresDoorInstructionProgramDefinitionsVerification
 {
-    private static void VerifyCeresDoorInstructionProgramDefinitions()
+    internal static void VerifyCeresDoorInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCeresDoorInstructionProgramDefinitions), () => VerifyCeresDoorInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyCeresDoorInstructionProgramDefinitions(
+    internal static void VerifyCeresDoorInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -230,4 +241,11 @@ internal static partial class Program
             .ForbidWords(0xa60000, CeresDoorInstructionProgramDefinitions.PresentationWordCount,
                 CeresDoorInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read compiled Ceres door visual selector byte ${address:X6}.");
+
+    [VerificationCommand("--ceres-door-instruction-mechanics")]
+    internal static int CeresDoorInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyCeresDoorInstructionProgramDefinitions), () => VerifyCeresDoorInstructionProgramDefinitions());
+        return 0;
+    }
 }

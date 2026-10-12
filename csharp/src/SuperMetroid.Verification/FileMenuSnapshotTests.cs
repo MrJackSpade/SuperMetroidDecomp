@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static FileMapSnapshotTestsVerification;
+using static FrontendCompletionVerification;
+using static MessageSnapshotTestsVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using static RenderPacketCodecTestsVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class FileMenuSnapshotTestsVerification
 {
-    private static void VerifyFileMenuRenderSnapshots()
+    internal static void VerifyFileMenuRenderSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
@@ -89,5 +100,11 @@ internal static partial class Program
                 if (expected[i] != actual[i])
                     throw new InvalidOperationException($"File/options snapshot sample {comparisons}, pixel ({i % FrontendFrame.Width},{i / FrontendFrame.Width}): expected {expected[i]}, got {actual[i]}.");
         }
+    }
+
+    [VerificationCommand("--menu-fixtures")]
+    internal static int MenuFixturesCommand()
+    {
+     VerifyFileMenuRenderSnapshots(); VerifyFileMapSnapshots(); VerifyControllerBindingsAndOptionsSubmenus(); VerifyMessageSnapshots(); return 0; 
     }
 }

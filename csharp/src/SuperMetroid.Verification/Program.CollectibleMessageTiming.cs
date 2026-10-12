@@ -1,16 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class CollectibleMessageTimingVerification
 {
     // #1255: $84:8968 grants energy before its synchronous bank-$85 message,
     // but the following PLM empty draw and main-loop HUD update wait for return.
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyCollectibleMessageTiming()
+    internal static void VerifyCollectibleMessageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -81,5 +88,11 @@ internal static partial class Program
             if (i % 32 < 26)
                 AssertEqual(runtime.Hud.Tiles[i], runtime.Vram.ReadWord((ushort)(0x5820 + i)), "post-message NMI publishes HUD");
         Console.WriteLine("  Pickup message: native early grant, retained pickup/HUD during fanfare, and post-message visual update agree.");
+    }
+
+    [VerificationCommand("--collectible-message-timing")]
+    internal static int CollectibleMessageTimingCommand()
+    {
+     VerifyCollectibleMessageTiming(); return 0; 
     }
 }

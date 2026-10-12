@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static RoomFxRomDataVerification;
 
-internal static partial class Program
+internal static class RoomFxSharedRandomVerification
 {
-    private static void VerifyRoomFxSharedRandomState(TestAddressSpace bus, SnesVram vram,
+    internal static void VerifyRoomFxSharedRandomState(TestAddressSpace bus, SnesVram vram,
         SnesCgram cgram, RoomLayer3FxState fx, ushort record, RoomFxType type)
     {
         bool swaps = type is RoomFxType.Lava or RoomFxType.Acid;

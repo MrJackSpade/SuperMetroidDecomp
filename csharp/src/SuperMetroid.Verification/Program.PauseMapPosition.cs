@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static PauseHudLocationVerification;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
@@ -6,12 +15,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static MapSpritesVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseMapPositionVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map position tiles and spritemaps")]
-    private static void VerifyPauseMapPosition()
+    internal static void VerifyPauseMapPosition()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
@@ -63,5 +74,13 @@ internal static partial class Program
         }
         Console.WriteLine("Pause current-position marker: raw ROM OAM, all opaque pixels, two room positions, and two 24-frame pulse cycles agree.");
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
+    }
+
+    [VerificationCommand("--pause-map-position")]
+    internal static int PauseMapPositionCommand()
+    {
+        Suite(nameof(VerifyPauseMapPosition), () => VerifyPauseMapPosition());
+        Suite(nameof(VerifyPauseHudLocation), () => VerifyPauseHudLocation());
+        return 0;
     }
 }

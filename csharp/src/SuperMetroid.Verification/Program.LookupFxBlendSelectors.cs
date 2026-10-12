@@ -1,12 +1,14 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static LookupFxPairColorsVerification;
 
-internal static partial class Program
+internal static class LookupFxBlendSelectorsVerification
 {
     // Original public selector domain/order before conversion at11df17c7.
-    private static byte[] OriginalFxBlendIds() => [0x02, 0x22, 0x42, 0x48, 0x62, 0xe2, 0xe8, 0xee];
+    internal static byte[] OriginalFxBlendIds() => [0x02, 0x22, 0x42, 0x48, 0x62, 0xe2, 0xe8, 0xee];
 
-    private static void VerifyFxBlendSelectorIdentities()
+    internal static void VerifyFxBlendSelectorIdentities()
     {
         byte[] original = OriginalFxBlendIds();
         AssertTrue(original.SequenceEqual(RoomFxPaletteBlendDefinitions.Ids.Select(id => (byte)id)), "Original blend selector order/domain");
@@ -19,7 +21,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyFxBlendSourceAddresses(ISnesAddressSpace rom)
+    internal static void VerifyFxBlendSourceAddresses(ISnesAddressSpace rom)
     {
         // Original LDA.l operand at89:AB5F supplies the color-one base.
         int nativeBase = (int)new SnesAddress(FxBlendSourceAddressesRomByte(rom, 0x89ab61), SnesLittleEndian.Word(FxBlendSourceAddressesRomByte(rom, 0x89ab5f), FxBlendSourceAddressesRomByte(rom, 0x89ab60)));
@@ -37,7 +39,7 @@ internal static partial class Program
     private static byte FxBlendSourceAddressesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
+    internal static void VerifyFxBlendPageDispatch(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         var document = new RoomFxPaletteBlendDocument { Version = 1, Blends = new() };
         byte[] ids = OriginalFxBlendIds();

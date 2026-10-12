@@ -1,12 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static LookupMotherBrainStockVerification;
+using static MotherBrainFakeDeathPlmsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class MotherBrainFakeDeathVisualsVerification
 {
-    private static void VerifyMotherBrainFakeDeathVisuals()
+    internal static void VerifyMotherBrainFakeDeathVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -122,5 +136,12 @@ internal static partial class Program
             $"Mother Brain visual header ${(int)header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Mother Brain visual header ${(int)header:X4} reads no compiled source");
+    }
+
+    [VerificationCommand("--mother-brain-fake-death-visuals")]
+    internal static int MotherBrainFakeDeathVisualsCommand()
+    {
+        Suite(nameof(VerifyMotherBrainFakeDeathVisuals), () => VerifyMotherBrainFakeDeathVisuals());
+        return 0;
     }
 }

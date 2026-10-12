@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroEyeInstructionsVerification
 {
-    private static void VerifyIntroEyeInstructions(ISnesAddressSpace rom)
+    internal static void VerifyIntroEyeInstructions(ISnesAddressSpace rom)
     {
         for (int pointer = 0xd5df; pointer < 0xd629; pointer++)
         {

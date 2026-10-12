@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -8,8 +12,10 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusShinesparkVerification
 {
 
 /// <summary>
@@ -32,7 +38,7 @@ static void SeedStoredShinePalettes(TestAddressSpace bus)
 
 /// <summary>Stored-shine and shinespark verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusStoredShineAndShinespark()
+internal static void VerifySamusStoredShineAndShinespark()
 {
     var bus = new TestAddressSpace();
 
@@ -462,4 +468,12 @@ static void VerifySamusStoredShineAndShinespark()
 // Walks the exact `$90:D5A2-$D792` Crystal Flash handler chain, including its strict
 // controller equality test, ten raise calls, NMI-mod-eight ammo cadence, ROM delay-list
 // finish command, energy overflow, and one-frame-late movement-handler cleanup.
+
+    [VerificationCommand("--shinespark")]
+    internal static int ShinesparkCommand()
+    {
+        Suite(nameof(VerifySamusStoredShineAndShinespark), () => VerifySamusStoredShineAndShinespark());
+        Console.WriteLine("PASS shinespark: native movement, energy cutoff, invincibility, and crash lifecycle.");
+        return 0;
+    }
 }

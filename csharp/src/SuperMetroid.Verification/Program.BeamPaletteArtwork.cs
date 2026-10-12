@@ -1,14 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BeamTileArtworkVerification;
+using static ProjectileCompositionsVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BeamPaletteArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus, BeamTileCatalog tiles)
+    internal static void VerifyBeamPaletteArtwork(ISnesAddressSpace bus, BeamTileCatalog tiles)
     {
         byte[] bytes = BeamPaletteExtractor.Extract(bus);
         var catalog = BeamPaletteCatalog.Load(new MemoryStream(bytes));
@@ -112,5 +125,13 @@ internal static partial class Program
         AssertTrue(nativeRuntime.Cgram.Colors.Slice(224, 16).SequenceEqual(grappleExpected.Colors.Slice(224, 16)),
             "Bound debug grapple selection uses edited extracted palette, not cartridge colors");
         AssertEqual(32657, nativeRuntime.Cgram.Colors[223], "Debug grapple retains the adjacent fixed flare color");
+    }
+
+    [VerificationCommand("--beam-palette-artwork")]
+    internal static int BeamPaletteArtworkCommand()
+    {
+        var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyBeamPaletteArtwork), () => VerifyBeamPaletteArtwork(rom, BeamTileCatalog.Load(BeamTileExtractor.Extract(rom))));
+        return 0;
     }
 }

@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SpcSoundLibrary2PointersVerification
 {
-    private static void VerifySpcSoundLibrary2Pointers()
+    internal static void VerifySpcSoundLibrary2Pointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -13,9 +23,9 @@ internal static partial class Program
         Suite(nameof(VerifySpcSoundStream2), () => VerifySpcSoundStream2(rom));
     }
 
-    private static void VerifySpcSoundStream1(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 0, 66, 0xcf96f5);
-    private static void VerifySpcSoundStream2(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 1, 127, 0xcfa5bb);
-    private static void VerifySpcSoundStream3(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 2, 47, 0xcfba97);
+    internal static void VerifySpcSoundStream1(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 0, 66, 0xcf96f5);
+    internal static void VerifySpcSoundStream2(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 1, 127, 0xcfa5bb);
+    internal static void VerifySpcSoundStream3(ISnesAddressSpace rom) => VerifySpcSoundStreams(rom, 2, 47, 0xcfba97);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC sound streams")]
     private static void VerifySpcSoundStreams(ISnesAddressSpace rom, int library, int count, int source)
@@ -49,5 +59,12 @@ internal static partial class Program
         invalidPlayer.GenerateFrame(pcm);
         AssertThrows<InvalidDataException>(() => invalidPlayer.GenerateFrame(pcm),
             "runtime rejects the first undefined sound command before stream dispatch");
+    }
+
+    [VerificationCommand("--spc-sound-library-2-pointers")]
+    internal static int SpcSoundLibrary2PointersCommand()
+    {
+        Suite(nameof(VerifySpcSoundLibrary2Pointers), () => VerifySpcSoundLibrary2Pointers());
+        return 0;
     }
 }

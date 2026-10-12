@@ -1,5 +1,17 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static VerificationHelpersVerification;
 
 internal static class AreaMapAssetVerificationDefinitions
 {
@@ -24,13 +36,13 @@ internal static class AreaMapAssetVerificationDefinitions
     public static ReadOnlySpan<int> SecretOnlyCellCounts => [50, 86, 131, 24, 53, 34, 0];
 }
 
-internal static partial class Program
+internal static class AreaMapAssetsVerification
 {
     /// <summary>
     /// Compares every freshly exported lossless area-map artifact with its originating cartridge
     /// range and checks the station-visible and secret-only coverage counts.
     /// </summary>
-    static void VerifyAreaMapAssets()
+    internal static void VerifyAreaMapAssets()
     {
         using var scratch = new TestScratchDirectory("area-map-export");
         string root = scratch.Root;
@@ -84,5 +96,12 @@ internal static partial class Program
             "representative Brinstar secret-only map cell");
         Console.WriteLine(
             "  Area maps: seven tilemaps/masks and coverage counts agree.");
+    }
+
+    [VerificationCommand("--area-map-assets")]
+    internal static int AreaMapAssetsCommand()
+    {
+        Suite(nameof(VerifyAreaMapAssets), () => VerifyAreaMapAssets());
+        return 0;
     }
 }

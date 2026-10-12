@@ -1,13 +1,15 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupSkyChunkPointersVerification
 {
-    private static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyLandSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Land, RoomMainCallback.ScrollingSkyLand));
 
-    private static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyOceanSkyChunkPointers(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySkyChunkPointers), () => VerifySkyChunkPointers(rom, ScrollingSkyChunkTable.Ocean, RoomMainCallback.ScrollingSkyOcean));
 
     private static void VerifySkyChunkPointers(SuperMetroidAddressSpace rom, ScrollingSkyChunkTable table, RoomMainCallback callback)

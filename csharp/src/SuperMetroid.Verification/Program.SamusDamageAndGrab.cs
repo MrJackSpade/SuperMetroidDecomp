@@ -1,3 +1,6 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,13 +10,18 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static DrainedPoseHistoryVerification;
+using static HyperBeamPaletteFxProgramDefinitionsVerification;
+using static SyntheticSamusCartridgeVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusDamageAndGrabVerification
 {
 
 /// <summary>Drained Samus, solid-enemy collision, and Draygon-grab verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusDrainedController()
+internal static void VerifySamusDrainedController()
 {
     var bus = new TestAddressSpace();
 
@@ -391,7 +399,7 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
 /// intentionally synthetic: no translated room currently owns a live enemy actor list, and
 /// silently substituting terrain or decorative sprites would not test the native routine.
 /// </summary>
-static void VerifySamusSolidEnemyCollision()
+internal static void VerifySamusSolidEnemyCollision()
 {
     var samus = new SamusKinematicsState
     {
@@ -595,7 +603,7 @@ static void VerifySamusSolidEnemyCollision()
 /// transition-table priority, no-input fallback, the alternating-D-pad escape counter, and
 /// every velocity word cleared by `$90:E2DE` release.
 /// </summary>
-static void VerifySamusGrabbedByDraygon()
+internal static void VerifySamusGrabbedByDraygon()
 {
     var bus = new TestAddressSpace();
 
@@ -863,4 +871,12 @@ static void InstallHyperBeamProjectilePaletteProgramFixture(TestAddressSpace bus
     WriteTestWord(bus, 0x8dd9cc, 0xc61e);
     WriteTestWord(bus, 0x8dd9ce, 0xd904);
 }
+
+    [VerificationCommand("--samus-solid-enemy-collision")]
+    internal static int SamusSolidEnemyCollisionCommand()
+    {
+        VerifySamusSolidEnemyCollision();
+        Console.WriteLine("Samus solid-enemy collision: native target rounding, eligibility and edge clipping passed.");
+        return 0;
+    }
 }

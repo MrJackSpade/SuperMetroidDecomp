@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using static EnemyContentIdentityFixtureVerification;
 
-internal static partial class Program
+internal static class AttractRuntimeBindingsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyAttractRuntimeBindings()
+    internal static void VerifyAttractRuntimeBindings()
     {
         var palettes = GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
@@ -47,5 +57,12 @@ internal static partial class Program
         AssertTrue(selected.PlayerInvincibilityEnabled && selected.InfiniteAmmoEnabled && selected.PreventEscapeTimeout,
             "selected runtime retains host options");
         Console.WriteLine("Attract runtime bindings: missing-palette failure reproduced; shared construction loads installed colors/artwork without ROM, preserves RNG, and isolates demo options.");
+    }
+
+    [VerificationCommand("--attract-runtime-bindings")]
+    internal static int AttractRuntimeBindingsCommand()
+    {
+        Suite(nameof(VerifyAttractRuntimeBindings), () => VerifyAttractRuntimeBindings());
+        return 0;
     }
 }

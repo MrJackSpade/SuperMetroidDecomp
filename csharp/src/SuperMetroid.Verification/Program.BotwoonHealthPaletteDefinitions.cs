@@ -5,10 +5,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class BotwoonHealthPaletteDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palette definitions")]
-    private static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
 
         for (ushort phase = 0;

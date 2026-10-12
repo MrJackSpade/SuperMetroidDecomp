@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SurfaceMotionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for surface motion")]
-    private static void VerifyCompiledSurfaceMotion(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSurfaceMotion(SuperMetroidAddressSpace rom)
     {
         for (int shape = 0; shape < 32; shape++)
         {

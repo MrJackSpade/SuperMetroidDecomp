@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
+using static IntroEggEffectProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroEggEffectDefinitionsVerification
 {
-    private static void VerifyIntroEggEffectDefinitions()
+    internal static void VerifyIntroEggEffectDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroEggEffectPrograms), () => VerifyIntroEggEffectPrograms(retail));
@@ -85,4 +97,11 @@ internal static partial class Program
                 >= 0x8bcd39 and < 0x8bcd83 or
                 >= 0x8bce53 and < 0x8bce55,
             address => $"Intro egg effect reread compiled definition byte ${address:X6}.");
+
+    [VerificationCommand("--intro-egg-effect-definitions")]
+    internal static int IntroEggEffectDefinitionsCommand()
+    {
+        Suite(nameof(VerifyIntroEggEffectDefinitions), () => VerifyIntroEggEffectDefinitions());
+        return 0;
+    }
 }

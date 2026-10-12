@@ -2,9 +2,9 @@ using System.Globalization;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SoundQueueReturnVerification
 {
-    private static void VerifySoundQueueAccumulator(SuperMetroidAddressSpace bus)
+    internal static void VerifySoundQueueAccumulator(SuperMetroidAddressSpace bus)
     {
         string fixture = Path.GetFullPath("csharp/test-fixtures/movement-release/soundqueue-return.csv");
         string[] rows = File.ReadAllLines(fixture);

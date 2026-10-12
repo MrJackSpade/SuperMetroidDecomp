@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PhantoonTimersVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon timers")]
-    private static void VerifyCompiledPhantoonTimers(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonTimers(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 8; i++)
         {

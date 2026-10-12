@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class RidleyInstructionProgramDefinitionsVerification
 {
     /// <summary>
     /// Proves that every production Ridley mechanics word matches the pinned cartridge and
     /// that both facing paths execute while those cartridge bytes are inaccessible.
     /// </summary>
-    private static void VerifyRidleyInstructionProgramDefinitions()
+    internal static void VerifyRidleyInstructionProgramDefinitions()
     {
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
         EnemyDefinitionId ceresRidleyDefinition = EnemyDefinitionId.RidleyCeres;
@@ -171,4 +182,11 @@ internal static partial class Program
                 address => $"Production read compiled Ridley mechanics ${address:X6}.")
             .ObserveWords(0xa60000, RidleyInstructionProgramDefinitionsTooling.PresentationWordCount,
                 RidleyInstructionProgramDefinitionsTooling.PresentationWordAddress);
+
+    [VerificationCommand("--ridley-instruction-mechanics")]
+    internal static int RidleyInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyRidleyInstructionProgramDefinitions), () => VerifyRidleyInstructionProgramDefinitions());
+        return 0;
+    }
 }

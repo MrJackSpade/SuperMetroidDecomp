@@ -4,10 +4,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class EndingLogoSpriteArtworkVerification
 {
-    private static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
+    internal static void VerifyEndingLogoSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
         foreach (EndingLogoSpriteFrameDefinition frame in EndingLogoSpriteDefinitions.Frames)
@@ -37,7 +38,7 @@ internal static partial class Program
         }
     }
 
-    private static EndingObjectArtworkCatalog LoadEditedEndingLogoArtwork(
+    internal static EndingObjectArtworkCatalog LoadEditedEndingLogoArtwork(
         GameInstallation installation)
     {
         string name = EndingLogoSpriteFormat.FileName;

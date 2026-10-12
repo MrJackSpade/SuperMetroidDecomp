@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -5,12 +12,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class OceanSkyVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ocean Sky")]
-    private static void VerifyOceanSky()
+    internal static void VerifyOceanSky()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -83,5 +91,12 @@ internal static partial class Program
         AssertTrue(runtime.VramWrites.Entries.Any(entry => entry.SourceAddress == expectedSource && entry.SizeInBytes == 64),
             "ordinary runtime frame queues the ocean table, not the land table");
         Console.WriteLine("  Ocean sky: visible rows across 65 camera positions match ocean ROM chunks and native vertical-page rendering.");
+    }
+
+    [VerificationCommand("--ocean-sky")]
+    internal static int OceanSkyCommand()
+    {
+        Suite(nameof(VerifyOceanSky), () => VerifyOceanSky());
+        return 0;
     }
 }

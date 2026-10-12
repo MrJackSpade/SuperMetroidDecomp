@@ -2,9 +2,9 @@ using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class CinematicTextGlowVerification
 {
-    private static void VerifyCinematicTextGlow()
+    internal static void VerifyCinematicTextGlow()
     {
         var glow = new CinematicTextGlowSystem();
         var map = Enumerable.Repeat((ushort)0xe155, 1024).ToArray();

@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
+using static TorizoLandingLifetimeVerification;
 
-internal static partial class Program
+internal static class TorizoPaletteShakeVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static int VerifyTorizoPaletteShake()
+    internal static int VerifyTorizoPaletteShake()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -104,5 +116,11 @@ internal static partial class Program
                 AssertEqual(native, catalog, $"Torizo {name} color {i} matches cartridge");
             }
         }
+    }
+
+    [VerificationCommand("--torizo-palette-shake")]
+    internal static int TorizoPaletteShakeCommand()
+    {
+        return VerifyTorizoPaletteShake();
     }
 }

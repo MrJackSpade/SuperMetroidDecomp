@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupBombTorizoHandStockVerification
 {
-    private static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyBombTorizoHandStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmBombTorizoHandVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x9877,"intact"),(0x989d,"cleared")];

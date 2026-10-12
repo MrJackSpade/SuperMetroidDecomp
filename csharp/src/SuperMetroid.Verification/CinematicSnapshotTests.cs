@@ -1,13 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static EndingSnapshotTestsVerification;
+using static FrontendCompletionVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using static CeresExplosionVerification;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
+using static ZebesDescentVerification;
 
-internal static partial class Program
+internal static class CinematicSnapshotTestsVerification
 {
-    private static void VerifyCinematicRenderSnapshots()
+    internal static void VerifyCinematicRenderSnapshots()
     {
         Suite(nameof(VerifyCeresExplosionTimeline), () => VerifyCeresExplosionTimeline());
         Suite(nameof(VerifyZebesDoesNotWrapDuringDescent), () => VerifyZebesDoesNotWrapDuringDescent());
@@ -154,5 +169,11 @@ internal static partial class Program
             && phases.Contains(IntroCinematicPhase.BabyDiscovery)
             && phases.Contains(IntroCinematicPhase.BabyMetroidExamination), "full intro covers each illustration family");
         Console.WriteLine($"  Intro snapshots: {samples} sampled frames across {phases.Count} phases agree with independent legacy display owner.");
+    }
+
+    [VerificationCommand("--cinematic-fixtures")]
+    internal static int CinematicFixturesCommand()
+    {
+     VerifyCinematicRenderSnapshots(); VerifyEndingRenderSnapshots(); VerifyEndingCreditsState(); return 0; 
     }
 }

@@ -5,11 +5,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static LookupGlassLayoutsVerification;
+using static LookupMotherBrainGlassStockVerification;
+using static MotherBrainGlassPlmProgramVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
 
-internal static partial class Program
+internal static class MotherBrainGlassPlmDrawDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM draw definitions")]
-    private static void VerifyMotherBrainGlassPlmDrawDefinitions(
+    internal static void VerifyMotherBrainGlassPlmDrawDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyMotherBrainGlassPlmProgram), () => VerifyMotherBrainGlassPlmProgram(rom));

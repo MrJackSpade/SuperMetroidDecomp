@@ -5,12 +5,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkCrocomireColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire palette bands")]
-    private static void VerifyInstalledCrocomireColors(
+    internal static void VerifyInstalledCrocomireColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         CrocomireColorCatalog native = stock.CrocomireColors ??

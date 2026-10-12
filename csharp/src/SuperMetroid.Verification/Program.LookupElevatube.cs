@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupElevatubeVerification
 {
-    private static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatubePhysicalDraw(SuperMetroidAddressSpace rom)
     {
         AssertEqual(ReadSamusEaterPlmWord(rom, 0x849369), MaridiaElevatubePlmDefinitions.PhysicalWord, "Elevatube native scalar");
         var all = MaridiaElevatubePlmDefinitions.AllDraws.ToArray();
@@ -30,8 +31,8 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Elevatube physical draw")]
     private static byte ElevatubePhysicalDrawRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyElevatubeProgramControls(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, false);
-    private static void VerifyElevatubeProgramDraw(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, true);
+    internal static void VerifyElevatubeProgramControls(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, false);
+    internal static void VerifyElevatubeProgramDraw(SuperMetroidAddressSpace rom) => VerifyElevatubeProgramField(rom, true);
 
     private static void VerifyElevatubeProgramField(SuperMetroidAddressSpace rom, bool draw)
     {
@@ -50,7 +51,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyElevatubeProgramSound(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatubeProgramSound(SuperMetroidAddressSpace rom)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

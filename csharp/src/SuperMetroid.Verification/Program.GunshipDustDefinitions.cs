@@ -2,9 +2,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class GunshipDustDefinitionsVerification
 {
-    private static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();

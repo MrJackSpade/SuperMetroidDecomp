@@ -1,17 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class BeamImpactSoundVerification
 {
     /// <summary>
     /// A beam that strikes a wall queues library-two $0C ($93:80EF, Max6) as it becomes an
     /// explosion. The 13% movie's door wait depends on it: the busy library holds back the
     /// next door sound for one more $82:E29E dispatch.
     /// </summary>
-    private static void VerifyBeamImpactSound()
+    internal static void VerifyBeamImpactSound()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -55,5 +64,12 @@ internal static partial class Program
             }
         }
         throw new InvalidOperationException("The beam never reached the wall at block 44.");
+    }
+
+    [VerificationCommand("--beam-impact-sound")]
+    internal static int BeamImpactSoundCommand()
+    {
+        Suite(nameof(VerifyBeamImpactSound), () => VerifyBeamImpactSound());
+        return 0;
     }
 }

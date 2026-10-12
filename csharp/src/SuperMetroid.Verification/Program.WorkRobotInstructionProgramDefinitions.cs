@@ -1,11 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static CompiledEnemyVisualSelectorAssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class WorkRobotInstructionProgramDefinitionsVerification
 {
     private static readonly ushort[] WorkRobotInstructionEntries =
     [
@@ -33,13 +44,13 @@ internal static partial class Program
         WorkRobotInstructionProgramDefinitions.ApproachingFallLeft,
     ];
 
-    private static void VerifyWorkRobotInstructionProgramDefinitions()
+    internal static void VerifyWorkRobotInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWorkRobotInstructionProgramDefinitions), () => VerifyWorkRobotInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyWorkRobotInstructionProgramDefinitions(
+    internal static void VerifyWorkRobotInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         int mechanics = 0;
@@ -121,7 +132,7 @@ internal static partial class Program
             "entries, 18 callbacks, and 227 compiled visual selectors pass.");
     }
 
-    private static RoomEnemySystem CreateWorkRobotInstructionSystem(
+    internal static RoomEnemySystem CreateWorkRobotInstructionSystem(
         ISnesAddressSpace bus,
         out RoomEnemySlot robot)
     {
@@ -164,7 +175,7 @@ internal static partial class Program
         return checksum;
     }
 
-    private static CartridgeReadGuard NewWorkRobotInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
+    internal static CartridgeReadGuard NewWorkRobotInstructionReadGuard(ISnesAddressSpace source, bool forbidPresentation = false)
     {
         var guard = new CartridgeReadGuard(source).Forbid(WorkRobotInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             address => $"Production read compiled Work Robot mechanics byte ${address:X6}.");
@@ -172,5 +183,12 @@ internal static partial class Program
             ? guard.ForbidWords(0xa80000, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Installed Work Robot read presentation byte ${address:X6}.")
             : guard.ObserveWords(0xa80000, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordCount, WorkRobotInstructionProgramDefinitionsTooling.PresentationWordAddress);
+    }
+
+    [VerificationCommand("--work-robot-instruction-program-definitions")]
+    internal static int WorkRobotInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyWorkRobotInstructionProgramDefinitions), () => VerifyWorkRobotInstructionProgramDefinitions());
+        return 0;
     }
 }

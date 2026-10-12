@@ -7,12 +7,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkTourianStatueColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Tourian statue palette sources")]
-    private static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
+    internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         TourianStatueColorCatalog colors = stock.TourianStatueColors ??

@@ -3,10 +3,11 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static PaletteJsonContractsFixturesVerification;
 
-internal static partial class Program
+internal static class PaletteJsonContractsLegacyVerification
 {
-    private static T ReadPaletteContract<T>(JsonObject document, Func<Stream, T> load)
+    internal static T ReadPaletteContract<T>(JsonObject document, Func<Stream, T> load)
     {
         using var json = new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString()), writable: false);
         return load(json);
@@ -14,7 +15,7 @@ internal static partial class Program
 
     /// <summary>Strict field validation must not delete the supported stock-assisted migrations.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyPaletteContractLegacyOverrides()
+    internal static void VerifyPaletteContractLegacyOverrides()
     {
         Dictionary<string, JsonObject> documents = PaletteJsonContracts().ToDictionary(item => item.Name, item => item.Document);
         JsonObject effects = documents["room effects"];

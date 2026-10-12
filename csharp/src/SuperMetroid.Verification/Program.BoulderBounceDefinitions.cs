@@ -5,10 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class BoulderBounceDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boulder bounces")]
-    private static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledBoulderBounces(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
         var fall = typeof(RoomEnemySystem).GetMethod("RunBoulderFalling", BindingFlags.NonPublic | BindingFlags.Instance)!

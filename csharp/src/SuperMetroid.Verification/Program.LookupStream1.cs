@@ -1,13 +1,37 @@
+using static Program;
+using static SamusAtmosphereArtworkBoundaryVerification;
+using static SamusVisorColorsVerification;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static BeamSpeedRowsVerification;
+using static ChargeFlareCompositionsVerification;
+using static EscapeDachoraInstructionProgramDefinitionsVerification;
+using static EscapeTimerPresentationVerification;
+using static FrontendRomFreeVerification;
+using static MetroidInstructionProgramDefinitionsVerification;
+using static PowampInstructionProgramDefinitionsVerification;
+using static SamusAtmosphericAnimationDefinitionsVerification;
+using static SamusBodyArtworkVerification;
+using static SamusContentIdentityVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupStream1Verification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1WorldBackground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldBackgroundRomByte(rom, address + i)).ToArray();
         byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
@@ -74,7 +98,7 @@ internal static partial class Program
     private static byte LookupStream1WorldBackgroundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1DeathPixels(ISnesAddressSpace rom)
     {
         var pages = SamusSpecialSequenceRomData.Death.TileSegments;
         int pageBytes = SamusSpecialSequenceRomData.Death.TileSegmentByteCount;
@@ -134,7 +158,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 death pixels")]
     private static byte LookupStream1DeathPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeDachoraCadenceRomByte(rom, address), LookupStream1EscapeDachoraCadenceRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -192,7 +216,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 escape Dachora cadence")]
     private static byte LookupStream1EscapeDachoraCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PowampCadenceRomByte(rom, address), LookupStream1PowampCadenceRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -263,7 +287,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Powamp cadence")]
     private static byte LookupStream1PowampCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1MetroidPulseRomByte(rom, address), LookupStream1MetroidPulseRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
@@ -307,7 +331,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Metroid pulse")]
     private static byte LookupStream1MetroidPulseRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1AtmosphericCadenceRomByte(rom, address), LookupStream1AtmosphericCadenceRomByte(rom, address + 1)));
         for (byte type = 1; type <= 7; type++)
@@ -330,7 +354,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 atmospheric cadence")]
     private static byte LookupStream1AtmosphericCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1TimerCadence(ISnesAddressSpace rom)
     {
         var failures = new List<string>();
         foreach (ushort frame in new ushort[] { 124, 125 })
@@ -376,7 +400,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer cadence")]
     private static byte LookupStream1TimerCadenceRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1TimerGlyphs(ISnesAddressSpace rom)
     {
         byte[] png = EscapeTimerTileAtlasExtractor.Extract(rom);
         var image = IndexedPng.Read(new MemoryStream(png), new(200, 8));
@@ -515,7 +539,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer glyphs")]
     private static byte LookupStream1TimerGlyphsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom, bool basisOnly = false, bool finalOnly = false)
+    internal static void VerifyLookupStream1XrayBodyFrames(ISnesAddressSpace rom, bool basisOnly = false, bool finalOnly = false)
     {
         int count = SamusBodyArtworkCatalog.FrameCount * 4;
         byte[] native = Enumerable.Range(0, count).Select(index => LookupStream1XrayBodyFramesRomByte(rom, 0x92db48 + index)).ToArray();
@@ -780,7 +804,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 X-ray body frames")]
     private static byte LookupStream1XrayBodyFramesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, 253).Select(pose => (ushort)(SnesLittleEndian.Word(LookupStream1BodyPosePointersRomByte(rom, 0x92d94e + pose * 2), LookupStream1BodyPosePointersRomByte(rom, 0x92d94f + pose * 2)))).ToArray();
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
@@ -855,7 +879,7 @@ internal static partial class Program
         });
 
 
-    private static void VerifyLookupStream1BodySetPointers(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1BodySetPointers(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1BodySetPointersRomByte(rom, address), LookupStream1BodySetPointersRomByte(rom, address + 1)));
         ushort[] top = Enumerable.Range(0, 13).Select(set => Word(0x92d91e + set * 2)).ToArray();
@@ -912,7 +936,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body set pointers")]
     private static byte LookupStream1BodySetPointersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1BodyGraphicsOrigins(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1BodyGraphicsOrigins(ISnesAddressSpace rom)
     {
         sbyte[] native = Enumerable.Range(0, 253).Select(pose => unchecked((sbyte)LookupStream1BodyGraphicsOriginsRomByte(rom, 0x91b62d + pose * 8))).ToArray();
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
@@ -953,7 +977,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body graphics origins")]
     private static byte LookupStream1BodyGraphicsOriginsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1DrainedGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/drained-geometry-native");
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
@@ -1019,7 +1043,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 drained geometry")]
     private static byte LookupStream1DrainedGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1PostureGeometry(ISnesAddressSpace rom)
     {
         string directory = Path.GetFullPath("csharp/test-temp/posture-geometry-native");
         SamusBodyArtworkFiles.Extract(rom, directory, SupportedCartridge.Sha256);
@@ -1083,7 +1107,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 posture geometry")]
     private static byte LookupStream1PostureGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1BodyFacingOffsets(ISnesAddressSpace rom)
     {
         ushort[] landing = Enumerable.Range(0, 17).Select(index => (ushort)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d28 + index)).ToArray();
         sbyte[] posture = Enumerable.Range(0, 24).Select(index => unchecked((sbyte)LookupStream1BodyFacingOffsetsRomByte(rom, 0x908d80 + index))).ToArray();
@@ -1160,7 +1184,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body facing offsets")]
     private static byte LookupStream1BodyFacingOffsetsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)
     {
         ushort[] ReadWords(int address, int count) => Enumerable.Range(0, count)
             .Select(index => (ushort)(SnesLittleEndian.Word(LookupStream1BodyOamBasesRomByte(rom, address + index * 2), LookupStream1BodyOamBasesRomByte(rom, address + index * 2 + 1)))).ToArray();
@@ -1240,7 +1264,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body OAM bases")]
     private static byte LookupStream1BodyOamBasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, 32).Select(index =>
             (ushort)(SnesLittleEndian.Word(LookupStream1HurtBlendRomByte(rom, 0x9ba380 + index * 2), LookupStream1HurtBlendRomByte(rom, 0x9ba381 + index * 2)))).ToArray();
@@ -1297,7 +1321,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 hurt blend")]
     private static byte LookupStream1HurtBlendRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1NonBeamProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1NonBeamProgramLayoutRomByte(rom, address), LookupStream1NonBeamProgramLayoutRomByte(rom, address + 1)));
         var expected = new Dictionary<int, ushort>();
@@ -1343,7 +1367,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 non beam program layout")]
     private static byte LookupStream1NonBeamProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1ChargedProgramLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1ChargedProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ChargedProgramLayoutRomByte(rom, address), LookupStream1ChargedProgramLayoutRomByte(rom, address + 1)));
         var expected = new Dictionary<int, ushort>();
@@ -1386,7 +1410,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 charged program layout")]
     private static byte LookupStream1ChargedProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1PlasmaProgramLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1PlasmaProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PlasmaProgramLayoutRomByte(rom, address), LookupStream1PlasmaProgramLayoutRomByte(rom, address + 1)));
         var expected = new Dictionary<int, ushort>();
@@ -1429,7 +1453,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Plasma program layout")]
     private static byte LookupStream1PlasmaProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1SpazerProgramLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1SpazerProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1SpazerProgramLayoutRomByte(rom, address), LookupStream1SpazerProgramLayoutRomByte(rom, address + 1)));
         var expected = new Dictionary<int, ushort>();
@@ -1472,7 +1496,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Spazer program layout")]
     private static byte LookupStream1SpazerProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1WaveIceProgramLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1WaveIceProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1WaveIceProgramLayoutRomByte(rom, address), LookupStream1WaveIceProgramLayoutRomByte(rom, address + 1)));
         var expected = new Dictionary<int, ushort>();
@@ -1515,7 +1539,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 wave ice program layout")]
     private static byte LookupStream1WaveIceProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1PowerProgramLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1PowerProgramLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PowerProgramLayoutRomByte(rom, address), LookupStream1PowerProgramLayoutRomByte(rom, address + 1)));
         var flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static;
@@ -1550,7 +1574,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 power program layout")]
     private static byte LookupStream1PowerProgramLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1CannonPoses(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
@@ -1606,7 +1630,7 @@ internal static partial class Program
     private static byte LookupStream1CannonPosesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the invalid-pose animation-delay alias pointers and the live WRAM they reach through bank $91's low-half mirror")]
-    private static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
+    internal static void VerifyLookupStream1AnimationAliases(CartridgeImportAddressSpace bus)
     {
         for (int pose = 0xFD; pose <= 0xFF; pose++)
         {
@@ -1625,7 +1649,7 @@ internal static partial class Program
         Console.WriteLine("Animation aliases: three original running-delay words and six live WRAM mutations match.");
     }
 
-    private static void VerifyLookupStream1HudPosture(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1HudPosture(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose < 256; pose++)
         {
@@ -1648,7 +1672,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 HUD posture")]
     private static byte LookupStream1HudPostureRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1EscapeDachoraPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeDachoraProgramsRomByte(rom, 0xb30000 | address), LookupStream1EscapeDachoraProgramsRomByte(rom, 0xb30000 | address + 1)));
         var controls = new List<ushort>(); var visuals = new List<ushort>();
@@ -1693,7 +1717,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 escape Dachora programs")]
     private static byte LookupStream1EscapeDachoraProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1PowampPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(LookupStream1PowampProgramsRomByte(rom, 0xa80000 | pointer), LookupStream1PowampProgramsRomByte(rom, 0xa80000 | pointer + 1)));
         var expectedMechanics = new List<ushort>(); var expectedVisual = new List<ushort>();
@@ -1739,7 +1763,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Powamp programs")]
     private static byte LookupStream1PowampProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1)));
         byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
@@ -1843,7 +1867,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 timer layout")]
     private static byte LookupStream1TimerLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1FlarePlacement(ISnesAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(LookupStream1FlarePlacementRomByte(rom, address), LookupStream1FlarePlacementRomByte(rom, address + 1))));
         byte[] json = ChargeFlarePlacementExtractor.Extract(rom);
@@ -1944,7 +1968,7 @@ internal static partial class Program
     private static byte LookupStream1FlarePlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static CartridgeReadGuard NewLookupFlareForbiddenBus() =>
         CartridgeReadGuard.Unbacked().RejectWrites(address => $"Unexpected flare write {address:X6}");
-    private static void VerifyLookupStream1(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1(ISnesAddressSpace rom)
     {
         for (int pose = 0; pose <= byte.MaxValue; pose++)
         {
@@ -2108,7 +2132,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 cadence programs")]
     private static byte LookupStream1CadenceProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1)));
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
@@ -2131,7 +2155,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 projectile motion")]
     private static byte LookupStream1ProjectileMotionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1Selection(ISnesAddressSpace rom)
     {
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
         {
@@ -2148,7 +2172,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 selection")]
     private static byte LookupStream1SelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1LaunchRoles(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1LaunchRoles(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1LaunchRolesRomByte(rom, address), LookupStream1LaunchRolesRomByte(rom, address + 1)));
         for (int index = 0; index < 5; index++)
@@ -2189,7 +2213,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 launch roles")]
     private static byte LookupStream1LaunchRolesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1SparkSpikePrograms(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1SparkSpikePrograms(ISnesAddressSpace rom)
     {
         Check(0xf353, 0xf391, 17, 14, new CompiledProgramSplit(Mechanics: i => { var w = FallingSparkInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: FallingSparkInstructionProgramDefinitions.PresentationWordAddress, Read: FallingSparkInstructionProgramDefinitions.ReadMechanicsWord, Owns: FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a < 0xf35f ? (a - 0xf353) % 4 == 2 : a >= 0xf363 && a < 0xf38f && (a - 0xf363) % 4 == 2));
         Check(0xd208, 0xd21a, 6, 3, new CompiledProgramSplit(Mechanics: i => { var w = PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: PowampSpikeInstructionProgramDefinitions.PresentationWordAddress, Read: PowampSpikeInstructionProgramDefinitions.ReadMechanicsWord, Owns: PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a < 0xd214 && (a - 0xd208) % 4 == 2));
@@ -2643,7 +2667,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 Samus policy domains")]
     private static byte LookupStream1SamusPolicyDomainsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ArmCannonTileSourcesRomByte(rom, address), LookupStream1ArmCannonTileSourcesRomByte(rom, address + 1)));
         var nativeSources = new SortedSet<ushort>();
@@ -2772,7 +2796,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 arm cannon tile sources")]
     private static byte LookupStream1ArmCannonTileSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1CannonDrawingControls(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
         SamusArmCannonArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
@@ -2939,7 +2963,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 cannon drawing controls")]
     private static byte LookupStream1CannonDrawingControlsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
     {
         ushort[] Native(int address) => Enumerable.Range(0, 4).Select(frame =>
             (ushort)(SnesLittleEndian.Word(LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2), LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2 + 1)))).ToArray();
@@ -2989,7 +3013,7 @@ internal static partial class Program
     private static byte LookupStream1AtmosphericAttributesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1EscapeText(ISnesAddressSpace rom)
     {
         byte[] json = EscapeTypewriterExtractor.Extract(rom);
         var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -3089,7 +3113,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 escape text")]
     private static byte LookupStream1EscapeTextRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1VisorColors(ISnesAddressSpace rom)
     {
         var document = System.Text.Json.JsonSerializer.Deserialize<SamusVisorColorDocument>(
             SamusVisorColorExtractor.Extract(rom), new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
@@ -3132,7 +3156,7 @@ internal static partial class Program
     private static byte LookupStream1VisorColorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1WorldForeground(ISnesAddressSpace rom)
     {
         byte[] Read(int address, int count) => Enumerable.Range(0, count).Select(i => LookupStream1WorldForegroundRomByte(rom, address + i)).ToArray();
         byte[] front = Read(WorldMapArtworkFormat.ForegroundSource, WorldMapArtworkFormat.ForegroundBytes);
@@ -3203,7 +3227,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 world foreground")]
     private static byte LookupStream1WorldForegroundRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1ProjectileRadiusLayout(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1ProjectileRadiusLayout(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ProjectileRadiusLayoutRomByte(rom, address), LookupStream1ProjectileRadiusLayoutRomByte(rom, address + 1)));
         var expected = new List<ushort>();
@@ -3305,7 +3329,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 projectile radius layout")]
     private static byte LookupStream1ProjectileRadiusLayoutRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyLookupStream1ProjectilePrograms(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1ProjectilePrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ProjectileProgramsRomByte(rom, address), LookupStream1ProjectileProgramsRomByte(rom, address + 1)));
         var programs = new List<(ushort Start, int Ticks)>();
@@ -3413,7 +3437,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 projectile programs")]
     private static byte LookupStream1ProjectileProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1CannonPlacement(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
@@ -3516,7 +3540,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 cannon placement")]
     private static byte LookupStream1CannonPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1OamPointers(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
@@ -3595,7 +3619,7 @@ internal static partial class Program
         AssertTrue(oam.LowTable[..4].SequenceEqual(new byte[] { 130, 133, 0x34, 0x12 }), "Native zero selector still reads mutable memory through actual renderer");
     }
 
-    private static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1BodyPixels(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
@@ -3681,7 +3705,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body pixels")]
     private static byte LookupStream1BodyPixelsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream1BodyTransfers(ISnesAddressSpace rom)
     {
         using var directory = new TestScratchDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
@@ -3795,4 +3819,67 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for lookup stream 1 body transfers")]
     private static byte LookupStream1BodyTransfersRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
+    [VerificationCommand("--lookup-stream-1-escape-dachora-cadence")]
+    internal static int LookupStream1EscapeDachoraCadenceCommand()
+    {
+        Suite(nameof(VerifyLookupStream1EscapeDachoraCadence), () => VerifyLookupStream1EscapeDachoraCadence(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-powamp-cadence")]
+    internal static int LookupStream1PowampCadenceCommand()
+    {
+        Suite(nameof(VerifyLookupStream1PowampCadence), () => VerifyLookupStream1PowampCadence(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-cannon-poses")]
+    internal static int LookupStream1CannonPosesCommand()
+    {
+        Suite(nameof(VerifyLookupStream1CannonPoses), () => VerifyLookupStream1CannonPoses(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-hud-posture")]
+    internal static int LookupStream1HudPostureCommand()
+    {
+        Suite(nameof(VerifyLookupStream1HudPosture), () => VerifyLookupStream1HudPosture(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-visor-colors")]
+    internal static int LookupStream1VisorColorsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyLookupStream1VisorColors), () => VerifyLookupStream1VisorColors(rom));
+        Suite(nameof(VerifySamusVisorColors), () => VerifySamusVisorColors());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-escape-text")]
+    internal static int LookupStream1EscapeTextCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyLookupStream1EscapeText), () => VerifyLookupStream1EscapeText(rom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-atmospheric-attributes")]
+    internal static int LookupStream1AtmosphericAttributesCommand()
+    {
+        string sourceRom = Path.GetFullPath("Super Metroid.smc");
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        Suite(nameof(VerifyLookupStream1AtmosphericAttributes), () => VerifyLookupStream1AtmosphericAttributes(rom));
+        Suite(nameof(VerifySamusAtmosphereArtworkBoundary), () => VerifySamusAtmosphereArtworkBoundary(sourceRom));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-1-cannon-drawing")]
+    internal static int LookupStream1CannonDrawingCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyLookupStream1CannonDrawingControls), () => VerifyLookupStream1CannonDrawingControls(rom));
+        Suite(nameof(VerifyLookupStream1CannonPoses), () => VerifyLookupStream1CannonPoses(rom));
+        return 0;
+    }
 }

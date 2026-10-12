@@ -5,12 +5,13 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CeresEscapeTileArtworkVerification;
 
-internal static partial class Program
+internal static class CeresEscapeOverlayTilemapsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
-    private static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
+    internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         CeresEscapeOverlayTilemapCatalog stockOverlay =
@@ -146,7 +147,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class CeresEscapeOverlayProvider(EnemyTileArtworkCatalog art)
+    internal sealed class CeresEscapeOverlayProvider(EnemyTileArtworkCatalog art)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>

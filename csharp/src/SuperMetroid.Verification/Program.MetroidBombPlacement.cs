@@ -1,14 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MetroidBombPlacementVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Metroid post-bomb escape jitter table")]
-    private static void VerifyMetroidBombPlacement()
+    internal static void VerifyMetroidBombPlacement()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xdae1);
@@ -126,5 +135,12 @@ internal static partial class Program
             AssertEqual(0x00950000u, samus.Kinematics.Position.X.RawValue, "Samus remains at native release X");
             AssertEqual(0x0099ffffu, samus.Kinematics.Position.Y.RawValue, "Samus stays on the floor during detach");
         }
+    }
+
+    [VerificationCommand("--metroid-bomb-placement")]
+    internal static int MetroidBombPlacementCommand()
+    {
+        Suite(nameof(VerifyMetroidBombPlacement), () => VerifyMetroidBombPlacement());
+        return 0;
     }
 }

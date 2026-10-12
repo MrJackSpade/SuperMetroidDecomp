@@ -1,8 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class DrainedSparkCrashVerification
 {
     /// <summary>
     /// Drained-Samus controller zero ($91:E4F8) changes only the pose; the movement-handler word
@@ -11,7 +22,7 @@ internal static partial class Program
     /// during her crash and native releases her when the crash timer runs out, sending its echoes
     /// at angles read past the end of the crash-pose table.
     /// </summary>
-    private static void VerifyDrainedSparkCrash()
+    internal static void VerifyDrainedSparkCrash()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -40,5 +51,12 @@ internal static partial class Program
         AssertEqual((ushort)0xb6, runtime.Projectiles!.Slots[3].Variable, "the first echo takes the overread angle $B6");
         AssertEqual((ushort)0x0a, runtime.Projectiles.Slots[4].Variable, "the second echo takes the overread angle $0A");
         Console.WriteLine("  Drained spark crash: the crash keeps its handler through the drain and stands Samus up.");
+    }
+
+    [VerificationCommand("--drained-spark-crash")]
+    internal static int DrainedSparkCrashCommand()
+    {
+        Suite(nameof(VerifyDrainedSparkCrash), () => VerifyDrainedSparkCrash());
+        return 0;
     }
 }

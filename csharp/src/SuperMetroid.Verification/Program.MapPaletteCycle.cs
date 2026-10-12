@@ -5,12 +5,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
+using static MapPresentationVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class MapPaletteCycleVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed map palette cycle")]
-    private static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
+    internal static void VerifyMapPaletteCycleIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);

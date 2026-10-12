@@ -5,12 +5,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static EndingMode7ArtworkVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class EndingRewardIconArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon Mode-7 characters")]
-    private static void VerifyEndingRewardIconArtwork(GameInstallation installation)
+    internal static void VerifyEndingRewardIconArtwork(GameInstallation installation)
     {
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
         byte[] rom = File.ReadAllBytes("Super Metroid.smc");

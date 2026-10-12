@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupLiquidWaveVerification
 {
-    private static void VerifyMirroredLiquidWave(SuperMetroidAddressSpace rom)
+    internal static void VerifyMirroredLiquidWave(SuperMetroidAddressSpace rom)
     {
         short Water(int index) => unchecked((short)ReadVerificationWord(rom, 0x88c46e + 2 * index));
         short Heat(int index) => unchecked((short)ReadVerificationWord(rom, 0x88b60a + 2 * index));

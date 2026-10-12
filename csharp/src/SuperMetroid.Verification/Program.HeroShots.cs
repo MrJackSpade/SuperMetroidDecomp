@@ -1,12 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class HeroShotsVerification
 {
     // #411: a controlled camera is an independent input to the real projectile
     // owner. This isolates lifetime/collision, not Samus camera-tracking parity.
-    private static void VerifyHeroShotCameraLifetime(string? nativeTrace = null)
+    internal static void VerifyHeroShotCameraLifetime(string? nativeTrace = null)
     {
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
             .Select(line => line.Split(','))
@@ -89,5 +102,19 @@ internal static partial class Program
         }
         if (native is not null) AssertEqual(native.Count, comparedFrames,
             "Every native lifetime frame, including deletion and impact, was compared");
+    }
+
+    [VerificationCommand("--hero-shots")]
+    internal static int HeroShotsCommand()
+    {
+        Suite(nameof(VerifyHeroShotCameraLifetime), () => VerifyHeroShotCameraLifetime());
+        return 0;
+    }
+
+    [VerificationCommand("--hero-shots", "nativeHeroTrace")]
+    internal static int HeroShotsCommand2(string nativeHeroTrace)
+    {
+        Suite(nameof(VerifyHeroShotCameraLifetime), () => VerifyHeroShotCameraLifetime(nativeHeroTrace));
+        return 0;
     }
 }

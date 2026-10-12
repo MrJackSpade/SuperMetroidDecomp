@@ -1,7 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class DraygonScrollingSpeedCapVerification
 {
     /// <summary>
     /// MoveSamusWithDraygon ($A5:94A9) ends with CapScrollingSpeed ($A0:B7A1): an axis that moved
@@ -9,7 +21,7 @@ internal static partial class Program
     /// movement, so the camera follows a carried Samus at most thirteen pixels a frame. In the
     /// 13% movie Draygon's grab drops Samus 33 pixels and native's camera moves only 13.
     /// </summary>
-    private static void VerifyDraygonScrollingSpeedCap()
+    internal static void VerifyDraygonScrollingSpeedCap()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var checkpoint = FixedPosition<RoomPixels>.FromWords(0x0190, 0, 0x0170, 0);
@@ -44,5 +56,12 @@ internal static partial class Program
         state.FacingRight = true;
         typeof(RoomEnemySystem).GetMethod("MoveSamusWithDraygon", flags)!.Invoke(enemies, [state, samus]);
         return samus.PeekPreviousPositionWords(checkpoint);
+    }
+
+    [VerificationCommand("--draygon-scrolling-speed-cap")]
+    internal static int DraygonScrollingSpeedCapCommand()
+    {
+        Suite(nameof(VerifyDraygonScrollingSpeedCap), () => VerifyDraygonScrollingSpeedCap());
+        return 0;
     }
 }

@@ -1,12 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static SamusEaterPlmDefinitionsVerification;
+using static TourianAccessPlmProgramsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class TourianAccessVisualsVerification
 {
-    private static void VerifyTourianAccessVisuals()
+    internal static void VerifyTourianAccessVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -175,5 +188,12 @@ internal static partial class Program
             $"Tourian {(clear ? "clear" : "crumble")} edit survives later streaming");
         AssertEqual(0, bus.ForbiddenReadAttempts,
             $"Tourian {(clear ? "clear" : "crumble")} edited draw reads no source bytes");
+    }
+
+    [VerificationCommand("--tourian-access-visuals")]
+    internal static int TourianAccessVisualsCommand()
+    {
+        Suite(nameof(VerifyTourianAccessVisuals), () => VerifyTourianAccessVisuals());
+        return 0;
     }
 }

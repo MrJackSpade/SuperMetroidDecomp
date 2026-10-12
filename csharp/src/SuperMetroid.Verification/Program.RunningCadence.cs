@@ -3,11 +3,12 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RunningCadenceVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for running cadence")]
-    private static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyRunningCadence(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var bus = new RunningCadenceReadGuard(rom);
         Suite(nameof(VerifyOrdinaryRunningPointer), () => VerifyOrdinaryRunningPointer(rom));
@@ -187,7 +188,7 @@ internal static partial class Program
             AssertEqual(rom.ReadCartridgeByte(address), SamusRunningCadenceDefinitions.ReadCompiledByte(address), "Original bounded cadence byte");
     }
     [CpuBusBoundary("exact bus test: live WRAM delay alias at $91:0303 plus a constructed unimplemented-hardware byte signature that witnesses running-cadence operand routing")]
-    private sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
+    internal sealed class RunningCadenceReadGuard(ISnesAddressSpace source) :
         ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public byte MutableDelay = 0x35;

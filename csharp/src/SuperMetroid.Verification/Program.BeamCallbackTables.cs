@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static BeamSpeedRowsVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class BeamCallbackTablesVerification
 {
-    private static void VerifyBeamCallbackTables(bool initializeOnly = false)
+    internal static void VerifyBeamCallbackTables(bool initializeOnly = false)
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool charged in new[] { false, true })
@@ -77,5 +88,12 @@ internal static partial class Program
         }
         Console.WriteLine(
             "Beam callback definitions: all 32 low-nibble words and 24 production firing paths pass with both source ranges forbidden.");
+    }
+
+    [VerificationCommand("--beam-callback-tables")]
+    internal static int BeamCallbackTablesCommand()
+    {
+        Suite(nameof(VerifyBeamCallbackTables), () => VerifyBeamCallbackTables());
+        return 0;
     }
 }

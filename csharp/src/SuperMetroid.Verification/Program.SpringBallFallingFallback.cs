@@ -1,15 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class SpringBallFallingFallbackVerification
 {
     // #1269: Spring Ball falling (type $13) has no transition for Jump alone, so the lookup
     // fails and $91:8304 selects command six. After movement $91:EC85 clears the acceleration
     // mode and base speed and falls through to $91:EC8E's extra-speed cancel. In the 100%
     // movie the next frame's turn therefore starts from rest instead of carrying 3.A000.
-    private static void VerifySpringBallFallingFallback()
+    internal static void VerifySpringBallFallingFallback()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -50,5 +59,12 @@ internal static partial class Program
         AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSubspeed, "command eight clears extra run subspeed");
         AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode, "command six clears the acceleration mode");
         Console.WriteLine("Spring Ball falling fallback: command six clears horizontal speed after movement.");
+    }
+
+    [VerificationCommand("--spring-ball-falling-fallback")]
+    internal static int SpringBallFallingFallbackCommand()
+    {
+        VerifySpringBallFallingFallback();
+        return 0;
     }
 }

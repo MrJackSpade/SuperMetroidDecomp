@@ -1,10 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static PoseCollisionDefinitionsVerification;
+using static PoseProjectileOriginVerification;
+using static Program;
+using static SamusHudDefinitionsVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class PoseDispatchDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose dispatch definitions")]
-    private static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPoseDispatchDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState();
@@ -61,5 +77,16 @@ internal static partial class Program
             checksum += (int)SamusPoseDispatchDefinitions.ReadNoInputPose(pose);
         }
         return GC.GetAllocatedBytesForCurrentThread() - before;
+    }
+
+    [VerificationCommand("--pose-dispatch-definitions")]
+    internal static int PoseDispatchDefinitionsCommand()
+    {
+        var poseRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyPoseDispatchDefinitions), () => VerifyPoseDispatchDefinitions(poseRom));
+        Suite(nameof(VerifyPoseCollisionDefinitions), () => VerifyPoseCollisionDefinitions(poseRom));
+        Suite(nameof(VerifyPoseProjectileOrigin), () => VerifyPoseProjectileOrigin(poseRom));
+        Suite(nameof(VerifySamusHudDefinitions), () => VerifySamusHudDefinitions(poseRom));
+        return 0;
     }
 }

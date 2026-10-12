@@ -1,18 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static EnemyProjectileProgramOracleVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyProjectileInstructionMechanicsDefinitionsVerification
 {
     /// <summary>
     /// Compares every compiled Mother Brain/misc-dust mechanics word to the pinned ROM,
     /// then runs all 39 production programs while rejecting reads from those source bytes.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile instruction mechanics definitions")]
-    private static void VerifyEnemyProjectileInstructionMechanicsDefinitions()
+    internal static void VerifyEnemyProjectileInstructionMechanicsDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -528,4 +538,11 @@ internal static partial class Program
                     (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand((ushort)address) ||
                      EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(unchecked((ushort)(address - 1)))),
                 address => presentationReadBytes.Add(address));
+
+    [VerificationCommand("--enemy-projectile-instruction-mechanics")]
+    internal static int EnemyProjectileInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyEnemyProjectileInstructionMechanicsDefinitions), () => VerifyEnemyProjectileInstructionMechanicsDefinitions());
+        return 0;
+    }
 }

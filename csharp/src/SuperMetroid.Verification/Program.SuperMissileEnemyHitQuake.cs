@@ -1,7 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SuperMissileEnemyHitQuakeVerification
 {
     /// <summary>
     /// A Super Missile touching an enemy starts quake type $12 for thirty calls
@@ -9,7 +22,7 @@ internal static partial class Program
     /// crawlers fall for. In the 13% movie a Super Missile kills a Sciser in Crab Maze and
     /// the other Scisers keep crawling.
     /// </summary>
-    private static void VerifySuperMissileEnemyHitQuake()
+    internal static void VerifySuperMissileEnemyHitQuake()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = CreateRoom(new(64, 16), new ushort[64 * 16], new byte[64 * 16]);
@@ -29,5 +42,12 @@ internal static partial class Program
         AssertEqual(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration, projectiles.EarthquakeTimer,
             "for thirty calls");
         Console.WriteLine("  Super Missile enemy-hit quake: type $12, which leaves crawlers crawling.");
+    }
+
+    [VerificationCommand("--super-missile-enemy-hit-quake")]
+    internal static int SuperMissileEnemyHitQuakeCommand()
+    {
+        Suite(nameof(VerifySuperMissileEnemyHitQuake), () => VerifySuperMissileEnemyHitQuake());
+        return 0;
     }
 }

@@ -1,13 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.SourceAudit;
 
-internal static partial class Program
+internal static class MagicNumberAuditVerification
 {
     /// <summary>
     /// Proves every required domain classifier and then enforces the repository's exact
     /// reviewed baseline. Constructed snippets make failures deterministic without needing
     /// to add deliberate bad literals to production code.
     /// </summary>
-    static void VerifyProductionMagicNumberAudit()
+    internal static void VerifyProductionMagicNumberAudit()
     {
         const string UnsafeSource = """
             _ = ReadByte(0x8f8000);
@@ -68,5 +81,12 @@ internal static partial class Program
             $"  Magic numbers: 11 domain classifiers enforced; baseline " +
             $"{repositoryAudit.BaselineCount}, current {repositoryAudit.CurrentFindingCount}, " +
             $"retired {repositoryAudit.RetiredBaselineEntries}.");
+    }
+
+    [VerificationCommand("--magic-number-audit")]
+    internal static int MagicNumberAuditCommand()
+    {
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

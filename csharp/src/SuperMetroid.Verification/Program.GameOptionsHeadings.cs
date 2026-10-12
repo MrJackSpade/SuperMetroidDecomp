@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GameOptionsHeadingsVerification
 {
-    private static void VerifyGameOptionsHeadings()
+    internal static void VerifyGameOptionsHeadings()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -71,4 +81,12 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options heading anchors")]
     private static byte GameOptionsHeadingAnchorsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [VerificationCommand("--lookup-options-headings")]
+    internal static int LookupOptionsHeadingsCommand()
+    {
+        Suite(nameof(VerifyGameOptionsHeadings), () => VerifyGameOptionsHeadings());
+        Console.WriteLine("Options headings: all three original sprite selections and anchor pairs, imported records and enum bounds pass.");
+        return 0;
+    }
 }

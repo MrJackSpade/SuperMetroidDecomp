@@ -3,13 +3,13 @@ using System.Buffers.Binary;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class RidleySamusDrawReferenceVerification
 {
     /// <summary>
     /// Oracle-owned description of one $90:C663 arm-cannon draw: whether the OBJ is visible,
     /// whether the tile upload is queued, and the OAM/DMA words the native routine emits.
     /// </summary>
-    private readonly record struct RidleyNativeCannonDrawResult(
+    internal readonly record struct RidleyNativeCannonDrawResult(
         bool SpriteWritten,
         bool TileUploadQueued,
         ushort Frame,
@@ -20,7 +20,7 @@ internal static partial class Program
 
     /// <summary>Independent $90:C663 arm-cannon draw/transfer result from native state and ROM.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:C663 arm-cannon draw")]
-    private static RidleyNativeCannonDrawResult RidleyNativeCannonDraw(
+    internal static RidleyNativeCannonDrawResult RidleyNativeCannonDraw(
         ISnesAddressSpace rom, byte[] checkpoint, bool invincibleAtDraw, ushort nmi)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));
@@ -44,7 +44,7 @@ internal static partial class Program
             true, frame, direction, attributes, CartridgeImportSource.Require(rom).ReadCartridgeWord((tiles + frame * 2)), new(unchecked((ushort)x), unchecked((ushort)y)));
     }
 
-    private static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
+    internal static bool ContainsMovieCannonSprite(ReadOnlySpan<byte> low, ReadOnlySpan<byte> high,
         RidleyNativeCannonDrawResult draw)
     {
         for (int index = 0; index < 128; index++)
@@ -64,7 +64,7 @@ internal static partial class Program
     /// Validated against visible native records before covering opposite NMI phases.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $90:85E2/$864E/$8C1F Samus body draw record")]
-    private static (ushort Top, ushort Bottom, ushort X, ushort Y) RidleyNativeBodyRecord(
+    internal static (ushort Top, ushort Bottom, ushort X, ushort Y) RidleyNativeBodyRecord(
         ISnesAddressSpace rom, byte[] checkpoint)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(checkpoint.AsSpan(address, 2));

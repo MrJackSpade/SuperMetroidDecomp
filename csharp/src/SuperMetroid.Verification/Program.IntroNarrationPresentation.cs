@@ -1,15 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class IntroNarrationPresentationVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the decompressed opening-font planar bytes")]
-    private static void VerifyIntroNarrationPresentation(string romPath)
+    internal static void VerifyIntroNarrationPresentation(string romPath)
     {
         ISnesAddressSpace nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.IntroNarrationExtractor.Extract(nativeBus);
@@ -165,7 +178,7 @@ internal static partial class Program
         _ => throw new ArgumentOutOfRangeException(nameof(page), page, null),
     };
 
-    private static void VerifyIntroNarrationAssets(
+    internal static void VerifyIntroNarrationAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
@@ -200,7 +213,7 @@ internal static partial class Program
             "Opening-narration catalog: deterministic stock, override selection/identity and corruption failure pass.");
     }
 
-    private static void VerifyIntroFontAssets(
+    internal static void VerifyIntroFontAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
@@ -242,4 +255,12 @@ internal static partial class Program
     private static CartridgeReadGuard NewIntroFontGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0x95d089, 0x95d713 - 0x95d089,
             address => $"Installed opening font read cartridge address ${address:X6}.");
+
+    [VerificationCommand("--intro-narration-presentation")]
+    internal static int IntroNarrationPresentationCommand()
+    {
+        string narrationRom = RepositoryRomPath;
+        Suite(nameof(VerifyIntroNarrationPresentation), () => VerifyIntroNarrationPresentation(narrationRom));
+        return 0;
+    }
 }

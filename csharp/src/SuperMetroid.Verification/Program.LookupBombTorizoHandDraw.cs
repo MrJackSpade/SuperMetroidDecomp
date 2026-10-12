@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupBombTorizoHandDrawVerification
 {
-    private static void VerifyBombTorizoHandDrawGeometry(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 0);
-    private static void VerifyBombTorizoHandDrawCollision(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 1);
-    private static void VerifyBombTorizoHandDrawVisuals(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 2);
+    internal static void VerifyBombTorizoHandDrawGeometry(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 0);
+    internal static void VerifyBombTorizoHandDrawCollision(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 1);
+    internal static void VerifyBombTorizoHandDrawVisuals(SuperMetroidAddressSpace rom) => VerifyBombTorizoHandDrawField(rom, 2);
 
     private static void VerifyBombTorizoHandDrawField(SuperMetroidAddressSpace rom, int field)
     {

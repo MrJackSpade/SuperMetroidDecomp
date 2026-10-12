@@ -5,11 +5,16 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static LookupNoobTubeStockVerification;
+using static LookupTubeDrawsVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
 
-internal static partial class Program
+internal static class NoobTubePlmDrawDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Noob Tube PLM draw definitions")]
-    private static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyNoobTubePlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyTubeGeometry), () => VerifyTubeGeometry(rom));
         Suite(nameof(VerifyTubeCollision), () => VerifyTubeCollision(rom));

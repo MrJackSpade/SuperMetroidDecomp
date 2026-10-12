@@ -1,3 +1,8 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
@@ -6,11 +11,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class KiHunterSpitAudioVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the KiHunter spit instruction that queues sound $4C")]
-    private static void VerifyKiHunterSpitAudio()
+    internal static void VerifyKiHunterSpitAudio()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] nativeQueueCall = [0xa9, 0x4c, 0x00, 0x22, 0xcb, 0x90, 0x80];
@@ -87,5 +95,11 @@ internal static partial class Program
         AssertEqual(1, writes, "acknowledged spit is sent once to APU port two");
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "completed spit cannot refill the door sound wait");
         AssertTrue(waitFrames <= 1, "already-drained spit queue allows the first door sound-wait pass to finish");
+    }
+
+    [VerificationCommand("--kihunter-spit-audio")]
+    internal static int KihunterSpitAudioCommand()
+    {
+     VerifyKiHunterSpitAudio(); return 0; 
     }
 }

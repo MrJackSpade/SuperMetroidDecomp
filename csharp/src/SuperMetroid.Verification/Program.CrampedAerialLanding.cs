@@ -2,15 +2,18 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static SyntheticSamusAnimationDelaysVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class CrampedAerialLandingVerification
 {
     /// <summary>
     /// Reproduces issue #259's exact collision geometry and captured pre-landing Samus state.
     /// The fixture uses the retail room's two shootable barrier cells but omits unrelated art,
     /// enemies, and PLMs so the assertion stays focused on the production pose-change path.
     /// </summary>
-    private static void VerifyCrampedAerialLandingPoseCollision()
+    internal static void VerifyCrampedAerialLandingPoseCollision()
     {
         var bus = new TestAddressSpace();
 

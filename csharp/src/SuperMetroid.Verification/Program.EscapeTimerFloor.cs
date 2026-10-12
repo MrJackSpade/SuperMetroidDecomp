@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class EscapeTimerFloorVerification
 {
-    private static void VerifyEscapeTimerFloor()
+    internal static void VerifyEscapeTimerFloor()
     {
         AssertTrue(SuperMetroidGameOptionsIni.Parse("").EndingTimeOverrideMinutes is null, "ending override defaults off");
         AssertEqual((ushort?)0, SuperMetroidGameOptionsIni.Parse("[Game]\nEndingTimeOverrideMinutes=0").EndingTimeOverrideMinutes, "fastest ending override");

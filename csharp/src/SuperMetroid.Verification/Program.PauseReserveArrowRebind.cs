@@ -1,15 +1,17 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
+using static PauseEquipmentRulesVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseReserveArrowRebindVerification
 {
     /// <summary>
     /// Rebinding the same presentation on a settled reserve page must keep the arrow palette
     /// that page setup latched; a rebind is not a tank dispatch. Previously the rebind recomputed
     /// the arrow from the selection and changed ten arrow tilemap words (palette 6 to 7).
     /// </summary>
-    private static void VerifyPauseReserveArrowRebindKeepsLatch()
+    internal static void VerifyPauseReserveArrowRebindKeepsLatch()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var catalog = RetailPresentationFixture();

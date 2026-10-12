@@ -5,11 +5,16 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static LookupColoredCapVerification;
+using static LookupColoredDoorStockVerification;
+using static LookupColoredProgramVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ColoredDoorPlmDrawDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for colored door PLM draw definitions")]
-    private static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyColoredDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
 

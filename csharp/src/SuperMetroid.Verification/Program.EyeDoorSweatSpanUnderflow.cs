@@ -1,10 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class EyeDoorSweatSpanUnderflowVerification
 {
     /// <summary>
     /// Move_EnemyProjectile_Horizontally ($86:88B6) counts the rows to test as
@@ -13,7 +23,7 @@ internal static partial class Program
     /// to the floor: the drop "collides", keeps its X and loses its X fraction. In the 13%
     /// movie a fresh sweat drop spawns at Y $80 and holds its X for one frame.
     /// </summary>
-    private static void VerifyEyeDoorSweatSpanUnderflow()
+    internal static void VerifyEyeDoorSweatSpanUnderflow()
     {
         const int width = 8, height = 8;
         var blocks = new ushort[width * height];
@@ -39,5 +49,12 @@ internal static partial class Program
         AssertEqual((ushort)0x0057, drop.Position.X.Whole, "the next frame moves the drop left");
         AssertEqual((ushort)0xc000, drop.Position.X.Fraction, "by a quarter pixel");
         Console.WriteLine("  Eye-door sweat span: a radius-zero drop on a block boundary scans down to the floor.");
+    }
+
+    [VerificationCommand("--eye-door-sweat-span-underflow")]
+    internal static int EyeDoorSweatSpanUnderflowCommand()
+    {
+        Suite(nameof(VerifyEyeDoorSweatSpanUnderflow), () => VerifyEyeDoorSweatSpanUnderflow());
+        return 0;
     }
 }

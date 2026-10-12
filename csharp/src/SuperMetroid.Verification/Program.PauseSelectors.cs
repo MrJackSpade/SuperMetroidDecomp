@@ -8,12 +8,18 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
+using static GraphDigestVerification;
+using static PauseEquipmentRulesVerification;
+using static PauseSelectorAnchorsVerification;
+using static PauseSelectorCompositionsVerification;
+using static PauseSelectorDurationsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseSelectorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause selector anchor tables")]
-    private static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
+    internal static void VerifyPauseSelectors(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog catalog)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseSelectorDefinitions.FileName), path = Path.Combine(overrides, PauseSelectorDefinitions.FileName);

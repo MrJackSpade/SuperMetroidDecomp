@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class XraySetupVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyXraySetupBuffers()
+    internal static void VerifyXraySetupBuffers()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -95,5 +105,12 @@ internal static partial class Program
             for (int i = 0; i < words.Length; i++)
                 AssertEqual(words[i], saved[firstWord + i], $"{context}, word {i}");
         }
+    }
+
+    [VerificationCommand("--xray-setup")]
+    internal static int XraySetupCommand()
+    {
+        Suite(nameof(VerifyXraySetupBuffers), () => VerifyXraySetupBuffers());
+        return 0;
     }
 }

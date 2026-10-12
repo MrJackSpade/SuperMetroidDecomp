@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class LookupStationVisualIdsVerification
 {
-    private static void VerifyStationVisualIds()
+    internal static void VerifyStationVisualIds()
     {
         // Original exported identity contract, independent of the replacement naming code.
         (ushort Pointer, string Id)[] expected =

@@ -1,8 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 
-internal static partial class Program
+internal static class MapSpriteNamesVerification
 {
-    private static (ushort NativeId, string Name)[] MapSpriteRoleOracle() =>
+    internal static (ushort NativeId, string Name)[] MapSpriteRoleOracle() =>
         [
             (0x4, "Arrow.Right"),
             (0x5, "Arrow.Left"),
@@ -32,7 +44,7 @@ internal static partial class Program
             (0x3e, "World.Tourian")
         ];
 
-    private static void VerifyMapSpriteNameCases()
+    internal static void VerifyMapSpriteNameCases()
     {
         // Independent original table from9b54e512, retained only for verification.
         var original = MapSpriteRoleOracle();
@@ -45,5 +57,13 @@ internal static partial class Program
             AssertEqual(supported.Contains((ushort)id), Enum.IsDefined((MapSpriteId)id), "complete map sprite membership domain");
         foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MapSpriteDefinitions.Name((MapSpriteId)invalid), "unsupported map sprite name");
+    }
+
+    [VerificationCommand("--lookup-map-sprite-names")]
+    internal static int LookupMapSpriteNamesCommand()
+    {
+        Suite(nameof(VerifyMapSpriteNameCases), () => VerifyMapSpriteNameCases());
+        Console.WriteLine("Map sprite names: all original identities and order, complete ushort membership and invalid names pass.");
+        return 0;
     }
 }

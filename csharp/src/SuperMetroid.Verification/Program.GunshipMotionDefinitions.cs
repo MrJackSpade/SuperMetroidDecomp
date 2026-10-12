@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static GunshipLandingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GunshipMotionDefinitionsVerification
 {
-    private static void VerifyGunshipMotionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGunshipMotionDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGunshipBrakeAlgorithm), () => VerifyGunshipBrakeAlgorithm(rom));
         Suite(nameof(VerifyGunshipHoverTimerAlgorithm), () => VerifyGunshipHoverTimerAlgorithm(rom));
@@ -118,7 +131,7 @@ internal static partial class Program
     /// The shared cartridge-read guard that also forwards enemy fixture lookups, so a sparse
     /// fixture's constructed population still reaches the production loader.
     /// </summary>
-    private sealed class GunshipMotionFixtureGuard : CartridgeReadGuard, IRoomEnemyFixtureSource
+    internal sealed class GunshipMotionFixtureGuard : CartridgeReadGuard, IRoomEnemyFixtureSource
     {
         private readonly ISnesAddressSpace source;
 
@@ -144,5 +157,14 @@ internal static partial class Program
             source is IRoomEnemyFixtureSource fixture
                 ? fixture.ReadEnemyGraphicsSet(pointer)
                 : RoomEnemyGraphicsSetDefinitions.Get(pointer);
+    }
+
+    [VerificationCommand("--gunship-motion-definitions")]
+    internal static int GunshipMotionDefinitionsCommand()
+    {
+        Suite(nameof(VerifyGunshipMotionDefinitions), () => VerifyGunshipMotionDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyPostCeresGunshipLanding), () => VerifyPostCeresGunshipLanding());
+        return 0;
     }
 }

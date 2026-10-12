@@ -4,6 +4,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
 /// <summary>Retail identities and fixture coordinates for Power Bomb renderer integration.</summary>
 internal static class PowerBombRuntimeVerificationDefinitions
@@ -21,14 +22,14 @@ internal static class PowerBombRuntimeVerificationDefinitions
     public const ushort ScreenCenterY = 0x0080;
 }
 
-internal static partial class Program
+internal static class PowerBombRuntimeIntegrationVerification
 {
     /// <summary>
     /// Proves that the shared runtime renderer used by the desktop includes the active
     /// bank-$88 Power Bomb color-math window, rather than merely testing that compositor
     /// in isolation.
     /// </summary>
-    static void VerifyPowerBombRuntimeRendererIntegration()
+    internal static void VerifyPowerBombRuntimeRendererIntegration()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

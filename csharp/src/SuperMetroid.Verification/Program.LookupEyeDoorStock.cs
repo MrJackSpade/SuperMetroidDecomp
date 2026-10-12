@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupEyeDoorStockVerification
 {
-    private static void VerifyEyeDoorStockMapping(SuperMetroidAddressSpace rom, RoomPlmEyeDoorVisualCatalog installed)
+    internal static void VerifyEyeDoorStockMapping(SuperMetroidAddressSpace rom, RoomPlmEyeDoorVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [
             (0x9c03,"left-eye-frame-0"),(0x9c0b,"left-eye-frame-1"),(0x9c13,"left-eye-frame-2"),

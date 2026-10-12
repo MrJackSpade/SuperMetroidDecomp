@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ExtendedCollisionReferenceVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CrocomireTongueCollisionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire tongue visual selectors")]
-    private static void VerifyInstalledCrocomireTongueVisualSelectors(
+    internal static void VerifyInstalledCrocomireTongueVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -45,7 +56,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue frame positions")]
-    private static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
         AssertEqual(9, CrocomireTongueCollisionDefinitions.FrameCount, "tongue frame count");
@@ -59,7 +70,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue component cases")]
-    private static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTongueComponentCases(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = [0xc65e, 0xc668, 0xc672, 0xc67c, 0xcace, 0xcad8, 0xcae2, 0xcaec, 0xcaf6];
         foreach (ushort frame in frames)
@@ -80,7 +91,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CrocomireTongueCollisionDefinitions.HitboxCountAt(ClosedNativeWords.Decode<CrocomireTongueHitboxList>(0x8000, "compiled Crocomire tongue hitbox list")), "tongue rejects unknown hitbox list");
     }
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire tongue collision definitions")]
-    private static void VerifyCrocomireTongueCollisionDefinitions()
+    internal static void VerifyCrocomireTongueCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -159,8 +170,15 @@ internal static partial class Program
             $"{probes} native-equivalent touch/shot probes; installed path reads no ROM.");
     }
 
-    private static CartridgeReadGuard NewCrocomireTongueNoReadBus() =>
+    internal static CartridgeReadGuard NewCrocomireTongueNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Crocomire tongue read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Crocomire tongue wrote ROM byte ${address:X6}.");
+
+    [VerificationCommand("--verify-crocomire-tongue-collision")]
+    internal static int VerifyCrocomireTongueCollisionCommand()
+    {
+        Suite(nameof(VerifyCrocomireTongueCollisionDefinitions), () => VerifyCrocomireTongueCollisionDefinitions());
+        return 0;
+    }
 }

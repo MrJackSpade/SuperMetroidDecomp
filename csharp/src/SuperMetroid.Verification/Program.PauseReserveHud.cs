@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using static PauseEquipmentRulesVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class PauseReserveHudVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve HUD")]
-    private static void VerifyPauseReserveHud()
+    internal static void VerifyPauseReserveHud()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -75,5 +86,12 @@ internal static partial class Program
         Step();
         AssertEqual(bus.ReadCartridgeWord((0x809dbf + samus.Health % 10 * 2)), displayed.ReadWord(HudState.VramDestination + 71), "first fade frame accepts final paused HUD write");
         Console.WriteLine("Pause reserve HUD: real frontend input, six AUTO cells and per-frame health DMA pass.");
+    }
+
+    [VerificationCommand("--pause-reserve-hud")]
+    internal static int PauseReserveHudCommand()
+    {
+        Suite(nameof(VerifyPauseReserveHud), () => VerifyPauseReserveHud());
+        return 0;
     }
 }

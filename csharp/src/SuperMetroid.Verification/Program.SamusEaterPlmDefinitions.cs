@@ -3,10 +3,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SamusEaterPlmDefinitionsVerification
 {
-    private static void VerifySamusEaterPlmDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusEaterPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySamusEaterHeaderInstructionMapping), () => VerifySamusEaterHeaderInstructionMapping(rom));
         Suite(nameof(VerifySamusEaterMountingMapping), () => VerifySamusEaterMountingMapping(rom));
@@ -157,6 +158,6 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus eater PLM words")]
-    private static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>
+    internal static ushort ReadSamusEaterPlmWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 }

@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupTubeDrawsVerification
 {
-    private static void VerifyTubeGeometry(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 0);
-    private static void VerifyTubeCollision(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 1);
-    private static void VerifyTubeVisuals(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 2);
+    internal static void VerifyTubeGeometry(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 0);
+    internal static void VerifyTubeCollision(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 1);
+    internal static void VerifyTubeVisuals(SuperMetroidAddressSpace rom) => VerifyTubeDrawField(rom, 2);
 
     private static void VerifyTubeDrawField(SuperMetroidAddressSpace rom, int field)
     {

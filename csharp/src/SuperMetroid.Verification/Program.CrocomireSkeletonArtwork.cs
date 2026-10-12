@@ -5,11 +5,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class CrocomireSkeletonArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton artwork")]
-    private static void VerifyCrocomireSkeletonArtwork(
+    internal static void VerifyCrocomireSkeletonArtwork(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         CrocomireSkeletonArtwork artwork = stock.CrocomireSkeleton ??

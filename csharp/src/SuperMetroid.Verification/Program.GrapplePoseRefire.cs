@@ -3,10 +3,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Desktop;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class GrapplePoseRefireVerification
 {
-    private static void VerifyGrapplePoseRefire()
+    internal static void VerifyGrapplePoseRefire()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);

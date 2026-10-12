@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -8,13 +12,17 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static RetailRuntimeFixtureVerification;
+using static SyntheticSamusCartridgeVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusMorphBallVerification
 {
 
 /// <summary>Morph Ball, bomb, reaction-PLM, and tunnel verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-static void VerifySamusMorphBallMovement()
+internal static void VerifySamusMorphBallMovement()
 {
     var bus = new TestAddressSpace();
 
@@ -1868,4 +1876,11 @@ static void InstallBombReactionPlmFixture(TestAddressSpace bus)
     bus.WriteBytes(0x84a4ed, [0x01, 0x00, 0x9f, 0xc0, 0x00, 0x00]);
     bus.WriteBytes(0x84a4f3, [0x01, 0x00, 0xb6, 0xb0, 0x00, 0x00]);
 }
+
+    [VerificationCommand("--samus-morph-ball")]
+    internal static int SamusMorphBallCommand()
+    {
+        Suite(nameof(VerifySamusMorphBallMovement), () => VerifySamusMorphBallMovement());
+        return 0;
+    }
 }

@@ -3,10 +3,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static LookupScrollProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CompiledScrollPlmProgramsVerification
 {
-    private static void VerifyCompiledRoomScrollPrograms(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRoomScrollPrograms(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyScrollProgramIdentities), () => VerifyScrollProgramIdentities(rom));
         Suite(nameof(VerifyScrollProgramIndices), () => VerifyScrollProgramIndices(rom));

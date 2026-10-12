@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
 using System.Text;
@@ -6,14 +12,20 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static CeresShaftRotationVerification;
+using static SamusRenderingVerification;
+using static SuiteTimingVerification;
+using static SyntheticSamusAnimationDelaysVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class CeresEscapeHandoffVerification
 {
     /// <summary>
     /// Verifies Ridley's delayed ejection handler, the shaft's ROM-driven Mode 7 room main,
     /// and bank-$82's exact 60-frame hold plus fifteen-step forced-blank transition.
     /// </summary>
-    static void VerifyCeresEscapeHandoff()
+    internal static void VerifyCeresEscapeHandoff()
     {
         Suite(nameof(VerifyCeresRidleyEjectionHandler), () => VerifyCeresRidleyEjectionHandler());
         Suite(nameof(VerifyCeresElevatorShaftRoomMain), () => VerifyCeresElevatorShaftRoomMain());
@@ -238,5 +250,12 @@ internal static partial class Program
                 (SamusMovementRomData.HorizontalMotion.NormalAirSpeedTable +
                 0x0a * SpeedTableEntry.ByteCount),
             1, 0, 1, 0, 0, 0);
+    }
+
+    [VerificationCommand("--ceres-escape-handoff")]
+    internal static int CeresEscapeHandoffCommand()
+    {
+        VerifyCeresEscapeHandoff();
+        return 0;
     }
 }

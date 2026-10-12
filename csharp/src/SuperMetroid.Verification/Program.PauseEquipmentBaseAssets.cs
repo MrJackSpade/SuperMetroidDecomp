@@ -6,11 +6,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
+using static PauseEquipmentRulesVerification;
 
-internal static partial class Program
+internal static class PauseEquipmentBaseAssetsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause equipment base tilemap")]
-    private static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
+    internal static void VerifyPauseEquipmentBaseAssets(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);

@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -5,10 +15,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class PlmPopulationInputBoundaryVerification
 {
     /// <summary>Verifies the identified typed-input conversion, without importing a ROM or driving gameplay.</summary>
-    private static void VerifyPlmPopulationInputBoundary()
+    internal static void VerifyPlmPopulationInputBoundary()
     {
         byte[] pairs = [1, (byte)RoomScrollState.Green, 0x80];
         var trigger = new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),
@@ -60,5 +70,12 @@ internal static partial class Program
         AssertEqual(RoomPlmPopulationDefinitions.RetailRecordCount, count,
             "every compiled population converts to the typed contract before gameplay");
         Console.WriteLine("PLM input boundary: 284 compiled populations/941 records, immutable pairs, native slot reuse, RAM-only scroll execution, and bounded validation pass.");
+    }
+
+    [VerificationCommand("--plm-population-input-boundary")]
+    internal static int PlmPopulationInputBoundaryCommand()
+    {
+        Suite(nameof(VerifyPlmPopulationInputBoundary), () => VerifyPlmPopulationInputBoundary());
+        return 0;
     }
 }

@@ -1,10 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class MissileEdgeVerification
 {
-    private static void VerifyMissileImpactCameraEdge(string nativeTrace)
+    internal static void VerifyMissileImpactCameraEdge(string nativeTrace)
     {
         var native = File.ReadLines(nativeTrace).Skip(1).Select(line => line.Split(','))
             .ToDictionary(row => (int.Parse(row[0]), int.Parse(row[1])), row => row.Skip(2)
@@ -42,5 +54,12 @@ internal static partial class Program
         }
         AssertEqual(native.Count, compared, "Every native missile impact and lifetime frame is checked");
         Console.WriteLine($"Missile impact camera edge: {compared} original-cartridge frames match, including retained and deleted explosions.");
+    }
+
+    [VerificationCommand("--missile-edge")]
+    internal static int MissileEdgeCommand()
+    {
+        Suite(nameof(VerifyMissileImpactCameraEdge), () => VerifyMissileImpactCameraEdge("csharp/test-fixtures/movement-release/missile-edge-602.csv"));
+        return 0;
     }
 }

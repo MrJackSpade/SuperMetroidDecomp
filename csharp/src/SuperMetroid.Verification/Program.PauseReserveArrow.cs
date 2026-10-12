@@ -1,3 +1,10 @@
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static PauseReserveArrowRebindVerification;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -6,11 +13,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static PauseEquipmentRulesVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseReserveArrowVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve arrow spritemap")]
-    private static void VerifyPauseReserveArrow()
+    internal static void VerifyPauseReserveArrow()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 2,
@@ -66,5 +75,13 @@ internal static partial class Program
             var expectedPixels = SoftwareLayeredSnapshotRenderer.Render(new(memory, capture.Layers, capture.ObjectSelection, capture.Brightness));
             AssertTrue(pause.Render().AsSpan().SequenceEqual(expectedPixels), context + " rendered arrow matches native tile/palette writes");
         }
+    }
+
+    [VerificationCommand("--pause-reserve-arrow")]
+    internal static int PauseReserveArrowCommand()
+    {
+        Suite(nameof(VerifyPauseReserveArrow), () => VerifyPauseReserveArrow());
+        Suite(nameof(VerifyPauseReserveArrowRebindKeepsLatch), () => VerifyPauseReserveArrowRebindKeepsLatch());
+        return 0;
     }
 }

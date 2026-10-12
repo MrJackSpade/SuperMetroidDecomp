@@ -1,17 +1,31 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static PolypInstructionProgramDefinitionsVerification;
+using static PolypRockInstructionProgramDefinitionsVerification;
+using static SingleFrameEnemyVisualsVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KzanInstructionProgramDefinitionsVerification
 {
-    private static void VerifyKzanInstructionProgramDefinitions()
+    internal static void VerifyKzanInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyKzanInstructionProgramDefinitions(
+    internal static void VerifyKzanInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -90,4 +104,21 @@ internal static partial class Program
                 address => $"Production read compiled Kzan mechanics byte ${address:X6}.")
             .ForbidRange(0xa60000 | KzanInstructionProgramDefinitionsTooling.PresentationWord, 2,
                 _ => "Production read the compiled Kzan visual operand.");
+
+    [VerificationCommand("--single-frame-enemy-visuals")]
+    internal static int SingleFrameEnemyVisualsCommand()
+    {
+        Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions());
+        Suite(nameof(VerifyPolypInstructionProgramDefinitions), () => VerifyPolypInstructionProgramDefinitions());
+        Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions());
+        Suite(nameof(VerifySingleFrameEnemyVisuals), () => VerifySingleFrameEnemyVisuals());
+        return 0;
+    }
+
+    [VerificationCommand("--kzan-instruction-mechanics")]
+    internal static int KzanInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyKzanInstructionProgramDefinitions), () => VerifyKzanInstructionProgramDefinitions());
+        return 0;
+    }
 }

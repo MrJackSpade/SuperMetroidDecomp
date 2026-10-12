@@ -1,9 +1,14 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ZebesDescentVerification
 {
-    private static void VerifyZebesDoesNotWrapDuringDescent()
+    internal static void VerifyZebesDoesNotWrapDuringDescent()
     {
         Suite(nameof(VerifyOffScreenCinematicOam), () => VerifyOffScreenCinematicOam());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

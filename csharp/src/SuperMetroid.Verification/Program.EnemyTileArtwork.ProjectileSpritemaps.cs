@@ -4,11 +4,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyProjectileProgramOracleVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkProjectileSpritemapsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyInstalledEnemyProjectileSpritemaps(
+    internal static void VerifyInstalledEnemyProjectileSpritemaps(
         ISnesAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
     {
         EnemyProjectileSpritemapCatalog installed = stock.ProjectileSpritemaps

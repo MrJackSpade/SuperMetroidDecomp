@@ -1,9 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
+using static EnemyDropsVerification;
 
-internal static partial class Program
+internal static class EvirDeathFrameVerification
 {
-    private static void VerifyEvirDeathFrame()
+    internal static void VerifyEvirDeathFrame()
     {
         var samus = CreateDropTestSamus();
         samus.Position = samus.Position.WithWhole(new(128, 128));
@@ -56,5 +69,12 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => initialize(arms, samus),
             "initialization still rejects a missing body even when a prior typed state survives");
         Console.WriteLine("Evir death frame: real contact kill, cleared-slot arm/spit reads, single death and next-frame removal confirmed.");
+    }
+
+    [VerificationCommand("--evir-death-frame")]
+    internal static int EvirDeathFrameCommand()
+    {
+        Suite(nameof(VerifyEvirDeathFrame), () => VerifyEvirDeathFrame());
+        return 0;
     }
 }

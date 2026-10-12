@@ -1,3 +1,6 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
@@ -9,10 +12,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-internal static partial class Program
+internal static class XrayNoFxDarkeningVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyXrayNoFxDarkening()
+    internal static void VerifyXrayNoFxDarkening()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -117,5 +120,12 @@ internal static partial class Program
         AssertEqual(new Rgba32(140, 107, 74, 255), darkPixels[80 * 256 + 64],
             "Fireflea subtracts seven without halving");
         Console.WriteLine("X-ray no-FX capture: opaque BG3 darkening, transparent fallback and Fireflea exception verified.");
+    }
+
+    [VerificationCommand("--xray-no-fx-darkening")]
+    internal static int XrayNoFxDarkeningCommand()
+    {
+        Suite(nameof(VerifyXrayNoFxDarkening), () => VerifyXrayNoFxDarkening());
+        return 0;
     }
 }

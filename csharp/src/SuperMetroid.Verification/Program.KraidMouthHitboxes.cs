@@ -1,10 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidMouthMappingsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidMouthHitboxesVerification
 {
-    private static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
         Suite(nameof(VerifyKraidLowHalfBoundaryMapping), () => VerifyKraidLowHalfBoundaryMapping(rom));
@@ -133,7 +146,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: synthetic bank-$A7 low-window WRAM/SRAM/peripheral responder witnessing which bus source each Kraid mouth and head boundary-crossing operand byte selects")]
-    private sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace, IImportCartridgeSource,
+    internal sealed class KraidMouthBoundaryReadBus : ISnesAddressSpace, IImportCartridgeSource,
         ISnesMutableMemory, ISnesCpuPeripheralSource
     {
         public byte ReadWorkRamByte(int address) => ReadByte(address);
@@ -157,5 +170,13 @@ internal static partial class Program
 
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException("Kraid mouth geometry is read-only.");
+    }
+
+    [VerificationCommand("--kraid-mouth-hitboxes")]
+    internal static int KraidMouthHitboxesCommand()
+    {
+        Suite(nameof(VerifyKraidMouthHitboxes), () => VerifyKraidMouthHitboxes(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

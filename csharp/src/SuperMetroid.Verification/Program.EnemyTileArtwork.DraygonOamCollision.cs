@@ -3,11 +3,12 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static FrontendRomFreeVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkDraygonOamCollisionVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon OAM collision")]
-    private static void VerifyCompiledDraygonOamCollision(
+    internal static void VerifyCompiledDraygonOamCollision(
         SuperMetroidAddressSpace rom)
     {
         // Version 6 grouped all 60 selected bank-$A5 OAM roots under a

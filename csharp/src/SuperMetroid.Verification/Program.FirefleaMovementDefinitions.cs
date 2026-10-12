@@ -1,10 +1,11 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class FirefleaMovementDefinitionsVerification
 {
-    private static void VerifyFirefleaMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFirefleaMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const ushort radiusTable = 0x8d1d;
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

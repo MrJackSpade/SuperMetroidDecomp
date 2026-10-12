@@ -1,12 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static RoomMainCodeCatalogVerification;
 
-internal static partial class Program
+internal static class RoomScrollDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for room scroll definitions")]
-    private static void VerifyCompiledRoomScrollDefinitions()
+    internal static void VerifyCompiledRoomScrollDefinitions()
     {
         string symbolPath = Path.GetFullPath(
             Path.Combine("upstream-sm", "assets", "names.txt"));
@@ -135,5 +146,12 @@ internal static partial class Program
         guard.Forbid(address => address >= start && address < start + RoomScrollGrid.StorageByteCount,
             address => $"Production runtime read native room-scroll data at ${address:X6}.");
         return guard;
+    }
+
+    [VerificationCommand("--room-scroll-definitions")]
+    internal static int RoomScrollDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCompiledRoomScrollDefinitions), () => VerifyCompiledRoomScrollDefinitions());
+        return 0;
     }
 }

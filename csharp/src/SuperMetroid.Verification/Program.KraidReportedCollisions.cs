@@ -5,9 +5,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 
-internal static partial class Program
+internal static class KraidReportedCollisionsVerification
 {
-    private static int VerifyKraidReportedCollisions(ISnesAddressSpace bus, SuperMetroidGame game,
+    internal static int VerifyKraidReportedCollisions(ISnesAddressSpace bus, SuperMetroidGame game,
         SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState state)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -3,9 +3,9 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 
-internal static partial class Program
+internal static class PlmDrawOperandsVerification
 {
-    private delegate bool TryCompiledPlmWord(ushort address, out ushort value);
+    internal delegate bool TryCompiledPlmWord(ushort address, out ushort value);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
     private static ushort ReadImportedPlmWord(SuperMetroidAddressSpace source, ushort offset)

@@ -2,14 +2,15 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupFxBlendBlackColorsVerification
 {
     private static byte[] OriginalBlackBlendIds() => [0x02, 0x42, 0x48, 0xe2, 0xe8, 0xee];
 
-    private static void VerifyFxBlendBlackRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 0);
-    private static void VerifyFxBlendBlackGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 5);
-    private static void VerifyFxBlendBlackBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 10);
+    internal static void VerifyFxBlendBlackRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 0);
+    internal static void VerifyFxBlendBlackGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 5);
+    internal static void VerifyFxBlendBlackBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxBlendBlackComponent(rom, stock, 10);
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxBlendBlackComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
@@ -25,7 +26,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyFxBlendBlackStorageAndEdits(RoomFxPaletteBlendCatalog stock)
+    internal static void VerifyFxBlendBlackStorageAndEdits(RoomFxPaletteBlendCatalog stock)
     {
         for (int value = 0; value <= byte.MaxValue; value++)
         {
@@ -56,7 +57,7 @@ internal static partial class Program
         }
     }
 
-    private static CartridgeReadGuard NewBlackBlendSourceGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewBlackBlendSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => OriginalBlackBlendIds().Any(id => address == 0x89aa06 + id || address == 0x89aa07 + id),
             _ => "FX blend extraction read a calculated black color.");

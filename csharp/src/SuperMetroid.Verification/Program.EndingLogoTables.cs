@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EndingLogoTablesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette sources")]
-    private static void VerifyEndingLogoPaletteSources(ISnesAddressSpace rom)
+    internal static void VerifyEndingLogoPaletteSources(ISnesAddressSpace rom)
     {
         for (int palette = 0; palette < 2; palette++)
         for (int step = 0; step < 16; step++)
@@ -21,7 +21,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending post shot transfer fields")]
-    private static void VerifyEndingPostShotTransferFields(ISnesAddressSpace rom)
+    internal static void VerifyEndingPostShotTransferFields(ISnesAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
         {

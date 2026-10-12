@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GrappleSpinVerification
 {
-    private static void VerifyGrappleSpinInput()
+    internal static void VerifyGrappleSpinInput()
     {
         foreach (bool left in new[] { false, true })
         foreach (bool held in new[] { false, true })
@@ -36,5 +46,12 @@ internal static partial class Program
             AssertEqual(held ? GrapplePhase.Firing : GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "held grapple extends; one-frame tap cancels on the next firing pass");
         }
+    }
+
+    [VerificationCommand("--grapple-spin")]
+    internal static int GrappleSpinCommand()
+    {
+        Suite(nameof(VerifyGrappleSpinInput), () => VerifyGrappleSpinInput());
+        return 0;
     }
 }

@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
@@ -5,14 +11,17 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class DoorEntryRoomFxSoundVerification
 {
     // #1269: MainGameLoop runs the HDMA pass ($88:84B9) before game state $09's handler, so a
     // rising-lava rumble ($88:B21D) on the door-entry frame is queued before the handler's
     // library-two cancel ($71) and DisableSounds. In the 100% movie's Rising Tide exit that
     // extra rumble lengthens the door's sound-queue wait by one drained sound.
-    private static void VerifyDoorEntryRoomFxSound()
+    internal static void VerifyDoorEntryRoomFxSound()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -74,5 +83,12 @@ internal static partial class Program
         AssertEqual((byte)0x71, audio.SoundQueueEntryForVerification(1, (start + 1) & 0x0f),
             "the door's library-two cancel follows it");
         Console.WriteLine("Door entry room-FX sound: the entry frame's rumble precedes the door's cancel and DisableSounds.");
+    }
+
+    [VerificationCommand("--door-entry-room-fx-sound")]
+    internal static int DoorEntryRoomFxSoundCommand()
+    {
+        VerifyDoorEntryRoomFxSound();
+        return 0;
     }
 }

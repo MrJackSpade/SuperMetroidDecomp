@@ -1,8 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 
-internal static partial class Program
+internal static class IniEditingVerification
 {
-    private static void VerifyIniEditing()
+    internal static void VerifyIniEditing()
     {
         string original = "; preserved comment\r\n[Audio]\r\nMasterVolumePercent=37\r\n[Game]\r\nInvincibility=false\r\n";
         string edited = SuperMetroidGameOptionsIni.WithValue(original, "Game", "Invincibility", "true");
@@ -31,5 +43,12 @@ internal static partial class Program
             }
         }
         Console.WriteLine("INI edits: preservation, existing/missing keys, section insertion, and invalid input checks pass.");
+    }
+
+    [VerificationCommand("--ini-edit")]
+    internal static int IniEditCommand()
+    {
+        Suite(nameof(VerifyIniEditing), () => VerifyIniEditing());
+        return 0;
     }
 }

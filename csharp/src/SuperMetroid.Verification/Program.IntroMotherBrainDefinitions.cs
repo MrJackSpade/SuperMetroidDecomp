@@ -1,13 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using System.Collections;
 using System.Reflection;
+using static ColorWordsVerification;
+using static IntroMotherBrainExplosionProgramsVerification;
+using static IntroMotherBrainInstructionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroMotherBrainDefinitionsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyIntroMotherBrainDefinitions()
+    internal static void VerifyIntroMotherBrainDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroMotherBrainInstructions), () => VerifyIntroMotherBrainInstructions(retail));
@@ -157,4 +171,11 @@ internal static partial class Program
                 >= 0x8bb9b6 and < 0x8bb9d4 or
                 >= 0x8bb9fd and < 0x8bba0f,
             address => $"Intro Mother Brain reread compiled byte ${address:X6}.");
+
+    [VerificationCommand("--intro-mother-brain-definitions")]
+    internal static int IntroMotherBrainDefinitionsCommand()
+    {
+        Suite(nameof(VerifyIntroMotherBrainDefinitions), () => VerifyIntroMotherBrainDefinitions());
+        return 0;
+    }
 }

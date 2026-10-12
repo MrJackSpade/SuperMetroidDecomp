@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class IntroMotherBrainPartsVerification
 {
-    private static void VerifyIntroMotherBrainParts(ISnesAddressSpace rom)
+    internal static void VerifyIntroMotherBrainParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrain", value.AppendIdentity);
         foreach (var definition in IntroMotherBrainSpriteDefinitions.Frames)

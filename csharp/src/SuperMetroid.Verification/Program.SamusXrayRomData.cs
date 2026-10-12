@@ -1,14 +1,15 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SamusMovementRomDataVerification;
 
-internal static partial class Program
+internal static class SamusXrayRomDataVerification
 {
     /// <summary>
     /// Validates the shared X-ray palette and tangent ranges against the private retail
     /// cartridge. The behavioral verifier separately exercises standing, crouching,
     /// turning, visor cycling, restoration, and the visible window produced by the table.
     /// </summary>
-    static void VerifySamusXrayRomData()
+    internal static void VerifySamusXrayRomData()
     {
         byte[] angleBands =
         [

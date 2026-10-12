@@ -1,12 +1,14 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
+using static ColorWordsVerification;
+using static GraphDigestVerification;
 using Hardware = SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class RenderPacketCodecTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
-    private static void VerifyRenderPacketCodec()
+    internal static void VerifyRenderPacketCodec()
     {
         var frame = new RenderFrameSnapshot(new(9876543210, 42, ushort.MaxValue),
             new Rgba32(123, 231, 76, 255), new byte[] { 9, 7 });
@@ -90,7 +92,7 @@ internal static partial class Program
         Console.WriteLine("  Display fixture codec: stable round trip, identity, fades, truncation, signature/version and trailing-data rejection agree.");
     }
 
-    private static RenderFrameSnapshot RoundTripRenderPacket(RenderFrameSnapshot frame)
+    internal static RenderFrameSnapshot RoundTripRenderPacket(RenderFrameSnapshot frame)
     {
         byte[] bytes = RenderFrameSnapshotWriter.Serialize(frame);
         RenderFrameSnapshot restored = RenderFrameSnapshotCodec.Deserialize(bytes);

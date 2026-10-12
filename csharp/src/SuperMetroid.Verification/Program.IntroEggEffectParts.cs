@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class IntroEggEffectPartsVerification
 {
-    private static void VerifyIntroEggEffectParts(ISnesAddressSpace rom)
+    internal static void VerifyIntroEggEffectParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("egg-effect", value.AppendIdentity);
         foreach (var definition in IntroEggEffectSpriteDefinitions.Frames)

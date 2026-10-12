@@ -3,10 +3,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class TorizoFallingLeftDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo falling left definitions")]
-    private static void VerifyTorizoFallingLeftDefinitions(ISnesAddressSpace rom)
+    internal static void VerifyTorizoFallingLeftDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
         var addresses = new HashSet<ushort>();

@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupColoredCapVerification
 {
-    private static void VerifyColoredCapGeometry(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 0);
-    private static void VerifyColoredCapCollision(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 1);
-    private static void VerifyColoredCapVisuals(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 2);
+    internal static void VerifyColoredCapGeometry(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 0);
+    internal static void VerifyColoredCapCollision(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 1);
+    internal static void VerifyColoredCapVisuals(SuperMetroidAddressSpace rom) => VerifyColoredCapField(rom, 2);
 
     private static void VerifyColoredCapField(SuperMetroidAddressSpace rom, int field)
     {

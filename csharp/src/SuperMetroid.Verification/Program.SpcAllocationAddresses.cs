@@ -1,8 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 
-internal static partial class Program
+internal static class SpcAllocationAddressesVerification
 {
-    private static void VerifySpcAllocationAddresses()
+    internal static void VerifySpcAllocationAddresses()
     {
         // Independent original kSomeAddrs and SpcPlayer member offsets from
         // upstream-sm 578f90b3cc49557bb70060ad033bb90b8cf8ac50/src/spc_player.c.
@@ -20,5 +32,13 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress(invalid, SpcAllocationField.VoiceBitset), "invalid library");
             AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.AllocationStateAddress(0, (SpcAllocationField)invalid), "invalid field");
         }
+    }
+
+    [VerificationCommand("--lookup-spc-allocation-addresses")]
+    internal static int LookupSpcAllocationAddressesCommand()
+    {
+        Suite(nameof(VerifySpcAllocationAddresses), () => VerifySpcAllocationAddresses());
+        Console.WriteLine("SPC allocation layout: all original field bases, channel addresses and rejected indices pass.");
+        return 0;
     }
 }

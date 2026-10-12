@@ -1,11 +1,15 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BossDisplayBindingsDocumentsVerification;
+using static BossDisplayBindingsFixtureVerification;
+using static BossDisplayBindingsVerification;
+using static EnemyContentIdentityFixtureVerification;
 
-internal static partial class Program
+internal static class BossDisplayBindingsResourcesVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
+    internal static void VerifyBossDisplayResources(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
         foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())
         {
@@ -62,7 +66,7 @@ internal static partial class Program
     }
 
     /// <summary>Focused native duration/goto acceptance, not an AI playthrough or read search.</summary>
-    private static void VerifyBossDisplayClocks(BossDisplayDocuments stock, BossDisplayDocuments edits)
+    internal static void VerifyBossDisplayClocks(BossDisplayDocuments stock, BossDisplayDocuments edits)
     {
         var programs = new[]
         {

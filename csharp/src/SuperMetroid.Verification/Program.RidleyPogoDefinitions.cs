@@ -3,11 +3,13 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RidleyPogoDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley pogo")]
-    private static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRidleyPogo(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRidleyAttackTimerRandomReads), () => VerifyRidleyAttackTimerRandomReads(rom));
         var reference = new (ushort X, ushort Y, ushort Up, ushort Down)[4, 6];

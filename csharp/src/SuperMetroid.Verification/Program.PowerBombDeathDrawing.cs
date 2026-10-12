@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyDropsVerification;
 
-internal static partial class Program
+internal static class PowerBombDeathDrawingVerification
 {
     // #1168: reproduce the runtime's queue -> power-bomb damage -> draw ordering.
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyPowerBombDeathDrawing()
+    internal static void VerifyPowerBombDeathDrawing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var spritemaps = EnemySpritemapCatalog.Load(new MemoryStream(EnemySpritemapFiles.Extract(rom)));
@@ -65,5 +75,12 @@ internal static partial class Program
                     "a live actor's missing composition must not be silently hidden");
             }
         }
+    }
+
+    [VerificationCommand("--power-bomb-death-drawing")]
+    internal static int PowerBombDeathDrawingCommand()
+    {
+        Suite(nameof(VerifyPowerBombDeathDrawing), () => VerifyPowerBombDeathDrawing());
+        return 0;
     }
 }

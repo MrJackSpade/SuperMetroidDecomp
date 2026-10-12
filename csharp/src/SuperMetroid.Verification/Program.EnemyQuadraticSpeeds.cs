@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EnemyQuadraticSpeedsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled quadratic enemy speeds")]
-    private static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyCompiledQuadraticEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         for (int offset = 0; offset <= 758; offset++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset), EnemyQuadraticSpeedDefinitions.ReadWord(offset), "quadratic projectile table mirror");

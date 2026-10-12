@@ -1,9 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static ProjectileCompositionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ProjectileVisualPartsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyProjectileVisualParts()
+    internal static void VerifyProjectileVisualParts()
     {
         var parts = new OamBuffer();
         var packed = new OamBuffer();
@@ -46,5 +63,17 @@ internal static partial class Program
         WriteTestWord(bus, 0x93f702, rawX);
         bus.WriteBytes(0x93f704, [yOffset]);
         WriteTestWord(bus, 0x93f705, attribute);
+    }
+
+    [VerificationCommand("--projectile-sprite-compositions")]
+    internal static int ProjectileSpriteCompositionsCommand()
+    {
+        string projectileRom = RepositoryRomPath;
+        var source = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath(projectileRom));
+        Suite(nameof(VerifyProjectileVisualParts), () => VerifyProjectileVisualParts());
+        Suite(nameof(VerifyProjectileCompositions), () => VerifyProjectileCompositions(source, compositionOnly: true,
+            sourceRom: projectileRom));
+        return 0;
     }
 }

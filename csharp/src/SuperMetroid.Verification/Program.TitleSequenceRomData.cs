@@ -5,14 +5,18 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.AssetExtraction;
+using static CeresDestructionVerification;
+using static FrontendVerification;
+using static TitleFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class TitleSequenceRomDataVerification
 {
     /// <summary>
     /// Runs every natural title card, pan, zoom, hold, and fade, then separately proves
     /// that the native confirm-button shortcut still takes its fade-out/fade-in route.
     /// </summary>
-    static void VerifyTitleSequenceRomData()
+    internal static void VerifyTitleSequenceRomData()
     {
         byte[] rom = CreateConstructedTitleRom();
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
@@ -103,7 +107,7 @@ internal static partial class Program
             "animation, confirmation fade, and skip route agree.");
     }
 
-    private static byte[] CreateConstructedTitleRom()
+    internal static byte[] CreateConstructedTitleRom()
     {
         var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
         // Valid constructed fixed-color/control streams; retail tests check the real

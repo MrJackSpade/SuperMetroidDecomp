@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -6,10 +15,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class SamusHurtColorsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt colors")]
-    private static void VerifySamusHurtColors()
+    internal static void VerifySamusHurtColors()
     {
         if (!File.Exists("Super Metroid.smc"))
         {
@@ -91,7 +100,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifySamusHurtColorOverride(string stock, string overrides,
+    internal static void VerifySamusHurtColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline, ISnesAddressSpace rom)
     {
         string path = Path.Combine(overrides, SamusHurtColorFormat.FileName);
@@ -145,4 +154,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus hurt-cycle palette colors")]
     private static ushort ReadNativeHurtCycleColor(ISnesAddressSpace rom, int paletteAddress, int index) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom), paletteAddress + index * sizeof(ushort));
+
+    [VerificationCommand("--samus-hurt-colors")]
+    internal static int SamusHurtColorsCommand()
+    {
+        Suite(nameof(VerifySamusHurtColors), () => VerifySamusHurtColors());
+        return 0;
+    }
 }

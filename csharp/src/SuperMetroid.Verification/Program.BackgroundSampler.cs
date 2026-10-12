@@ -2,10 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
-internal static partial class Program
+internal static class BackgroundSamplerVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyBackgroundSampler()
+    internal static void VerifyBackgroundSampler()
     {
         var random = new Random(355);
         var bytes = new byte[SnesVram.ByteCount];

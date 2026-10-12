@@ -6,11 +6,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Mother Brain death colors and selectors")]
-    private static void VerifyInstalledMotherBrainDeathColors(
+    internal static void VerifyInstalledMotherBrainDeathColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         MotherBrainDeathColorCatalog native = stock.MotherBrainDeathColors ??

@@ -2,10 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PhantoonFlameSpawnsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon flame spawns")]
-    private static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonFlameSpawns(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 16; i++)
             AssertEqual(rom.ReadCartridgeByte(0x8698b4 + i), PhantoonFlameSpawnDefinitions.RageAngle(i), "All native rage start angles");

@@ -1,7 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ReleasedSamusFallsOffDraygonVerification
 {
     /// <summary>
     /// Touching a dead Draygon runs its death reaction ($A5:9618), which releases Samus to a
@@ -10,7 +22,7 @@ internal static partial class Program
     /// movie Samus sparks into Draygon and falls; the port judged the walk-off by her airborne
     /// pose from alpha and left her standing in mid-air.
     /// </summary>
-    private static void VerifyReleasedSamusFallsOffDraygon()
+    internal static void VerifyReleasedSamusFallsOffDraygon()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -49,5 +61,12 @@ internal static partial class Program
         AssertEqual(SamusPoseId.FallingRightPose, samus.Pose,
             "the released Samus walks off thin water and falls in the same frame");
         Console.WriteLine("  Released Samus falls: a mid-frame Draygon release still detects the missing floor.");
+    }
+
+    [VerificationCommand("--released-samus-falls-off-draygon")]
+    internal static int ReleasedSamusFallsOffDraygonCommand()
+    {
+        Suite(nameof(VerifyReleasedSamusFallsOffDraygon), () => VerifyReleasedSamusFallsOffDraygon());
+        return 0;
     }
 }

@@ -1,12 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static PhantoonSoundDefinitionsVerification;
+using static Program;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PhantoonCasualFlamesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon casual flames")]
-    private static void VerifyCompiledPhantoonCasualFlames(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonCasualFlames(SuperMetroidAddressSpace rom)
     {
         for (int pattern = 0; pattern < 4; pattern++)
         {
@@ -81,5 +94,14 @@ internal static partial class Program
             }
         }
         Console.WriteLine("Phantoon casual schedules: 30 native words, 65536 RNG selections and 8192 frame-exact mouth transitions match without a bus.");
+    }
+
+    [VerificationCommand("--lookup-stream5-phantoon-schedules")]
+    internal static int LookupStream5PhantoonSchedulesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyCompiledPhantoonCasualFlames), () => VerifyCompiledPhantoonCasualFlames(rom));
+        Suite(nameof(VerifyPhantoonSoundDefinitions), () => VerifyPhantoonSoundDefinitions(rom));
+        return 0;
     }
 }

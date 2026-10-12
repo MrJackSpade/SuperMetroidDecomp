@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -7,11 +13,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
+using static DoorDefinitionsVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class FileCopyArrowVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyFileCopyArrow()
+    internal static void VerifyFileCopyArrow()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var installation = RepositoryInstallation.Installation;
@@ -101,4 +109,11 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for file copy arrow")]
     private static byte FileCopyArrowRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [VerificationCommand("--file-copy-arrow")]
+    internal static int FileCopyArrowCommand()
+    {
+        Suite(nameof(VerifyFileCopyArrow), () => VerifyFileCopyArrow());
+        return 0;
+    }
 }

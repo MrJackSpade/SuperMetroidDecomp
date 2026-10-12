@@ -1,15 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static EnemyProjectileProgramOracleVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ChozoTourianDustInstructionProgramDefinitionsVerification
 {
-    private static void VerifyChozoTourianDustInstructionProgramDefinitions() =>
+    internal static void VerifyChozoTourianDustInstructionProgramDefinitions() =>
         Suite(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
-    private static void VerifyChozoTourianDustInstructionProgramDefinitions(
+    internal static void VerifyChozoTourianDustInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -166,4 +178,11 @@ internal static partial class Program
             .Forbid(ChozoTourianDustInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Chozo/Tourian dust mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, ChozoTourianDustInstructionProgramDefinitions.PresentationWordCount, ChozoTourianDustInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--chozo-tourian-dust-instruction-mechanics")]
+    internal static int ChozoTourianDustInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyChozoTourianDustInstructionProgramDefinitions), () => VerifyChozoTourianDustInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
 using System.Text;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -5,11 +14,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using static LookupRoomFxFieldsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomFxRecordDefinitionsVerification
 {
     /// <summary>Checks the complete generated catalog and every source field against the ROM.</summary>
-    private static void VerifyRoomFxRecordDefinitions(string romPath)
+    internal static void VerifyRoomFxRecordDefinitions(string romPath)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(), Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bus.Rom)), "FX oracle revision");
@@ -99,5 +110,13 @@ internal static partial class Program
                 result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (record.Pointer + offset));
         }
         return result;
+    }
+
+    [VerificationCommand("--room-fx-record-definitions")]
+    internal static int RoomFxRecordDefinitionsCommand()
+    {
+        string roomFxDefinitionsRom = RepositoryRomPath;
+        Suite(nameof(VerifyRoomFxRecordDefinitions), () => VerifyRoomFxRecordDefinitions(roomFxDefinitionsRom));
+        return 0;
     }
 }

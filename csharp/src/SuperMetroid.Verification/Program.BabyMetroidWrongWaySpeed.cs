@@ -1,14 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BabyMetroidFixtureHeadVerification;
 
-internal static partial class Program
+internal static class BabyMetroidWrongWaySpeedVerification
 {
     // #1269: the Baby's stare-down, fly-off and final-charge-staging legs call
     // $A9:F466, which stores a $10 wrong-way off-screen X extra before the accelerator.
     // The port passed zero, so in the 100% movie the off-screen Baby reversing toward X
     // $131 slowed by $0A instead of $1A ($015F -> $0145 natively).
-    private static void VerifyBabyMetroidWrongWaySpeed()
+    internal static void VerifyBabyMetroidWrongWaySpeed()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x0080)) };
@@ -25,5 +35,12 @@ internal static partial class Program
         AssertEqual((ushort)0x0145, baby.Velocity.X.RawValue,
             "the wrong-way off-screen reversal subtracts the $10 extra, $8 and two $1 steps");
         Console.WriteLine("Baby Metroid wrong-way speed: $A9:F466 legs apply the $10 off-screen extra.");
+    }
+
+    [VerificationCommand("--baby-metroid-wrong-way-speed")]
+    internal static int BabyMetroidWrongWaySpeedCommand()
+    {
+        VerifyBabyMetroidWrongWaySpeed();
+        return 0;
     }
 }

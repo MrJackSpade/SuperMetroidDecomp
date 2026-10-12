@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroEggEffectProgramsVerification
 {
-    private static void VerifyIntroEggEffectPrograms(ISnesAddressSpace rom)
+    internal static void VerifyIntroEggEffectPrograms(ISnesAddressSpace rom)
     {
         foreach ((int start, int end) in new[] { (0xcd39, 0xcd83), (0xce53, 0xce55) })
         {
@@ -26,7 +26,7 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro egg effect programs")]
     private static byte IntroEggEffectProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyIntroEggEffectFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyIntroEggEffectFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["fragment-0", "fragment-1", "fragment-2", "fragment-3", "fragment-4", "fragment-5",
             "slime-moving", "slime-impact-0", "slime-impact-1", "slime-impact-2", "slime-impact-3"];

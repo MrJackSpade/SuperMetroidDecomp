@@ -1,9 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ItemCancelClearsChargeVerification
 {
     /// <summary>
     /// An item-cancel edge runs the Nothing item's switched-to handler ($90:C545) even when
@@ -11,7 +21,7 @@ internal static partial class Program
     /// zero. In the 13% movie Samus presses Y mid spin jump; keeping the charge there let a
     /// later turn force-release a beam native never fired.
     /// </summary>
-    private static void VerifyItemCancelClearsCharge()
+    internal static void VerifyItemCancelClearsCharge()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -41,5 +51,12 @@ internal static partial class Program
         AssertEqual((ushort)1, runtime.Projectiles.FlareCounter,
             "the cancel clears the charge before held Shoot counts it again");
         Console.WriteLine("  Item cancel: a Y press with nothing selected still clears the charge.");
+    }
+
+    [VerificationCommand("--item-cancel-clears-charge")]
+    internal static int ItemCancelClearsChargeCommand()
+    {
+        Suite(nameof(VerifyItemCancelClearsCharge), () => VerifyItemCancelClearsCharge());
+        return 0;
     }
 }

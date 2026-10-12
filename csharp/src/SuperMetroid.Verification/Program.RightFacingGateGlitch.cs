@@ -1,13 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static GraphDigestVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RightFacingGateGlitchVerification
 {
-    private readonly record struct EastTunnelGateRecord(
+    internal readonly record struct EastTunnelGateRecord(
         int EnemyX,
         int ShootFrame,
         bool Opened,
@@ -17,7 +26,7 @@ internal static partial class Program
         int Pose,
         Position16<RoomPixels> Shot);
 
-    private static void VerifyRightFacingGateGlitches()
+    internal static void VerifyRightFacingGateGlitches()
     {
         Suite(nameof(VerifyPinkBrinstarRightFacingGateGlitch), () => VerifyPinkBrinstarRightFacingGateGlitch());
         Suite(nameof(VerifyEastTunnelFrozenEnemyGateGlitch), () => VerifyEastTunnelFrozenEnemyGateGlitch());
@@ -239,5 +248,12 @@ internal static partial class Program
             fields[5],
             fields[7],
             new Position16<RoomPixels>(checked((ushort)fields[8]), checked((ushort)fields[9])));
+    }
+
+    [VerificationCommand("--right-facing-gate-glitch")]
+    internal static int RightFacingGateGlitchCommand()
+    {
+        Suite(nameof(VerifyRightFacingGateGlitches), () => VerifyRightFacingGateGlitches());
+        return 0;
     }
 }

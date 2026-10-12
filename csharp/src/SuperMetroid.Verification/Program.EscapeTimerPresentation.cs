@@ -1,14 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static MapPresentationVerification;
+using static MapSpritesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EscapeTimerPresentationVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed escape-timer characters")]
-    private static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
+    internal static void VerifyEscapeTimerPresentationAssets(ISnesAddressSpace bus, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
     {
@@ -174,7 +188,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled escape-timer digit pointers")]
-    private static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
+    internal static void VerifyEscapeTimerPointerDefinitions(ISnesAddressSpace bus)
     {
         for (int digit = 0; digit < 10; digit++)
         {
@@ -216,7 +230,7 @@ internal static partial class Program
     }
 
     /// <summary>Verifies the installed timer against import-time cartridge parts.</summary>
-    private static void DrawImportedEscapeTimer(ISnesAddressSpace bus, EscapeTimer timer,
+    internal static void DrawImportedEscapeTimer(ISnesAddressSpace bus, EscapeTimer timer,
         OamBuffer oam)
     {
         ushort palette = EnemyPaletteBits.Palette5;
@@ -242,5 +256,14 @@ internal static partial class Program
             DrawImportedSpritemap(bus, oam, fullAddress,
                 new(unchecked((ushort)(timer.PixelPosition.X + offset)), timer.PixelPosition.Y), palette);
         }
+    }
+
+    [VerificationCommand("--escape-timer-pointer-definitions")]
+    internal static int EscapeTimerPointerDefinitionsCommand()
+    {
+        string timerRom = RepositoryRomPath;
+        Suite(nameof(VerifyEscapeTimerPointerDefinitions), () => VerifyEscapeTimerPointerDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(timerRom))));
+        return 0;
     }
 }

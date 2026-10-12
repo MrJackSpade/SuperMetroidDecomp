@@ -1,7 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static LookupTourianArtworkVerification;
+using static LookupTourianDescriptorsVerification;
 
-internal static partial class Program
+internal static class LookupTourianProgramVerification
 {
     private static void VerifyTourianStatueSourceOperandPositions(ISnesAddressSpace rom)
     {
@@ -91,7 +94,7 @@ internal static partial class Program
         AssertEqual(ReadVerificationWord(rom, 0x870000 | pointer), actual, "Original statue control word");
     }
 
-    private static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
+    internal static void VerifyTourianStatueProgramMappings(ISnesAddressSpace rom)
     {
         VerifyTourianStatueSourceOperandPositions(rom);
         VerifyTourianStatueInstructionOpcodes(rom);

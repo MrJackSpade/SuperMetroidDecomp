@@ -1,11 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class TourianElevatorDoorsVerification
 {
-    private static void VerifyTourianElevatorDoors()
+    internal static void VerifyTourianElevatorDoors()
     {
         // Reports #1181-1184: real Tourian list/BTS values at the production collision seam.
         foreach (SamusPoseId pose in new[]
@@ -67,5 +78,12 @@ internal static partial class Program
             else
                 AssertEqual((ushort)0xa99c, level.PendingDoorTransition!.Pointer, "correct Tourian save-room door");
         }
+    }
+
+    [VerificationCommand("--tourian-elevator-doors")]
+    internal static int TourianElevatorDoorsCommand()
+    {
+        Suite(nameof(VerifyTourianElevatorDoors), () => VerifyTourianElevatorDoors());
+        return 0;
     }
 }

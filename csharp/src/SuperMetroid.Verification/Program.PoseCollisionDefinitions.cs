@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class PoseCollisionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose collision definitions")]
-    private static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPoseCollisionDefinitions(SuperMetroidAddressSpace rom)
     {
         var forbidden = NewSlopeHeightNoReadBus();
         var samus = new SamusState();

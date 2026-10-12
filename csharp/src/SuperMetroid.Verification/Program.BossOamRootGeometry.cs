@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BossOamRootGeometryVerification
 {
-    private static void VerifyRidleyOamRootGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
         0xe983, 0xe9a5, 0xe9c7, 0xe9e9, 0xea0b, 0xea2d,
@@ -14,7 +15,7 @@ internal static partial class Program
             index => index == 10 ? 1 : 4));
     }
 
-    private static void VerifyDraygonOamRootGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
         0xa2df, 0xa2e9, 0xa2f3, 0xa2fd, 0xa307, 0xa311,
@@ -31,7 +32,7 @@ internal static partial class Program
             index => components[index % 24]));
     }
 
-    private static void VerifySporeSpawnOamRootGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifySporeSpawnOamRootGeometry(SuperMetroidAddressSpace rom)
     {
         ushort[] expected = [
         0xee65, 0xee6f, 0xee79, 0xee8b, 0xee9d, 0xeeaf, 0xeec1,

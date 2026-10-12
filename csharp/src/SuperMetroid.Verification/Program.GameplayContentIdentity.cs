@@ -1,13 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class GameplayContentIdentityVerification
 {
     /// <summary>Known shared-presentation domains only; no ROM or gameplay path discovery.</summary>
-    private static void VerifyGameplayContentIdentity()
+    internal static void VerifyGameplayContentIdentity()
     {
         IReadOnlyDictionary<string, string> baseline = CreateGameplayIdentityFixture();
         IReadOnlyDictionary<string, string> reordered = CreateGameplayIdentityFixture(reverse: true);
@@ -110,5 +119,12 @@ internal static partial class Program
         var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new XrayRevealVisualCatalog(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);
+    }
+
+    [VerificationCommand("--gameplay-content-identity")]
+    internal static int GameplayContentIdentityCommand()
+    {
+        Suite(nameof(VerifyGameplayContentIdentity), () => VerifyGameplayContentIdentity());
+        return 0;
     }
 }

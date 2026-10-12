@@ -4,12 +4,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapWindowMotionDefinitionsVerification
 {
-    private static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
+    internal static void VerifyMapWindowOriginX(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: false));
-    private static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
+    internal static void VerifyMapWindowOriginY(ISnesAddressSpace rom, WorldMapLabelLayout labels) =>
         Suite(nameof(VerifyMapWindowOrigin), () => VerifyMapWindowOrigin(rom, labels, vertical: true));
 
     private static void VerifyMapWindowOrigin(ISnesAddressSpace rom, WorldMapLabelLayout labels, bool vertical)
@@ -51,13 +53,13 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyMapWindowLeftVelocities(ISnesAddressSpace rom) =>
+    internal static void VerifyMapWindowLeftVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 0, motion => motion.Left));
-    private static void VerifyMapWindowRightVelocities(ISnesAddressSpace rom) =>
+    internal static void VerifyMapWindowRightVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 1, motion => motion.Right));
-    private static void VerifyMapWindowTopVelocities(ISnesAddressSpace rom) =>
+    internal static void VerifyMapWindowTopVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 2, motion => motion.Top));
-    private static void VerifyMapWindowBottomVelocities(ISnesAddressSpace rom) =>
+    internal static void VerifyMapWindowBottomVelocities(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMapWindowVelocity), () => VerifyMapWindowVelocity(rom, 3, motion => motion.Bottom));
 
     private static void VerifyMapWindowVelocity(ISnesAddressSpace rom, int edge,
@@ -73,7 +75,7 @@ internal static partial class Program
         Suite(nameof(VerifyMapWindowMotionBounds), () => VerifyMapWindowMotionBounds());
     }
 
-    private static void VerifyMapWindowTimers(ISnesAddressSpace rom)
+    internal static void VerifyMapWindowTimers(ISnesAddressSpace rom)
     {
         for (int area = 0; area < 6; area++)
             AssertEqual(ReadVerificationWord(rom, 0x81aa94 + area * 2),
@@ -90,7 +92,7 @@ internal static partial class Program
 
     /// <summary>Independent cartridge-data control, deliberately outside the production catalog.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the file-select map window timer and velocity tables")]
-    private static FileSelectMapWindowMotion ReadCartridgeMapWindowMotion(ISnesAddressSpace bus, int area)
+    internal static FileSelectMapWindowMotion ReadCartridgeMapWindowMotion(ISnesAddressSpace bus, int area)
     {
         uint ReadVelocity(int edge)
         {

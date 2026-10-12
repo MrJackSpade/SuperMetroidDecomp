@@ -1,14 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static GraphDigestVerification;
+using static GrappleFlarePlacementVerification;
+using static GrappleSpriteArtworkVerification;
+using static GrappleTileBindingVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GrappleTileArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple tile transfers and segment tile pointers")]
-    private static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
+    internal static void VerifyGrappleTileArtwork(SuperMetroidAddressSpace bus)
     {
         Suite(nameof(VerifyGrappleSpriteArtwork), () => VerifyGrappleSpriteArtwork(bus));
         Suite(nameof(VerifyGrappleFlarePlacement), () => VerifyGrappleFlarePlacement(bus));
@@ -86,5 +100,12 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => GrappleTileAtlas.Load(new MemoryStream(new byte[8])), "Malformed Grapple PNG rejected");
         AssertThrows<InvalidDataException>(() => stock.Resolve(VramAssetId.StandardHudTiles), "Grapple provider rejects unrelated identity");
         Console.WriteLine($"Grapple PNG: all 65536 angle selections and {cases} production uploads preserve native OAM, full state and full VRAM; all sixteen edited tiles map exactly.");
+    }
+
+    [VerificationCommand("--grapple-tile-artwork")]
+    internal static int GrappleTileArtworkCommand()
+    {
+        Suite(nameof(VerifyGrappleTileArtwork), () => VerifyGrappleTileArtwork(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

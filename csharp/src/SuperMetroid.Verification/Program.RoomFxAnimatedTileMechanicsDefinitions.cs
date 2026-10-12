@@ -1,16 +1,32 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static RoomFxAnimatedTileArtworkVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
+using static LookupAnimatedArtworkSourcesVerification;
+using static LookupAnimatedFramesVerification;
+using static LookupAnimatedHeadersVerification;
+using static LookupFxAtlasSegmentsVerification;
+using static LookupFxLegacySheetsVerification;
+using static LookupTreadmillArtworkVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
 {
     /// <summary>
     /// Compares every compiled room-FX animation control word to the pinned cartridge,
     /// then runs every complete loop while rejecting reads of those mechanics bytes.
     /// </summary>
-    private static void VerifyRoomFxAnimatedTileMechanicsDefinitions()
+    internal static void VerifyRoomFxAnimatedTileMechanicsDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -102,5 +118,20 @@ internal static partial class Program
                         offset == unchecked((ushort)(frame.SourceOperandPointer + 1)));
                 },
                 _ => presentationRead());
+    }
+
+    [VerificationCommand("--lookup-animated-frames")]
+    internal static int LookupAnimatedFramesCommand()
+    {
+        Suite(nameof(VerifyRoomFxAnimatedTileMechanicsDefinitions), () => VerifyRoomFxAnimatedTileMechanicsDefinitions());
+        return 0;
+    }
+
+    [VerificationCommand("--room-fx-animated-tiles")]
+    internal static int RoomFxAnimatedTilesCommand()
+    {
+        Suite(nameof(VerifyRoomFxAnimatedTileMechanicsDefinitions), () => VerifyRoomFxAnimatedTileMechanicsDefinitions());
+        Suite(nameof(VerifyRoomFxAnimatedTileArtwork), () => VerifyRoomFxAnimatedTileArtwork());
+        return 0;
     }
 }

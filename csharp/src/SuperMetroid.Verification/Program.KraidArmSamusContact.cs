@@ -1,8 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class KraidArmSamusContactVerification
 {
     /// <summary>
     /// Kraid's arm carries extra-property bit $0004, so $A0:9758 tests Samus against its
@@ -10,7 +21,7 @@ internal static partial class Program
     /// Samus touches the arm's frame $90FD there: $A7:9490 pushes her back, deals contact
     /// damage and makes physical slot four, the bottom lint, fire at once.
     /// </summary>
-    private static void VerifyKraidArmSamusContact()
+    internal static void VerifyKraidArmSamusContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -51,4 +62,11 @@ internal static partial class Program
     private static bool RadiusBoxesOverlapForArm(RoomEnemySlot arm, SamusState samus) =>
         Math.Abs(arm.Position.X.Whole - samus.Position.X.Whole) < arm.Radius.X + samus.Kinematics.Radius.X &&
         Math.Abs(arm.Position.Y.Whole - samus.Position.Y.Whole) < arm.Radius.Y + samus.Kinematics.Radius.Y;
+
+    [VerificationCommand("--kraid-arm-samus-contact")]
+    internal static int KraidArmSamusContactCommand()
+    {
+        Suite(nameof(VerifyKraidArmSamusContact), () => VerifyKraidArmSamusContact());
+        return 0;
+    }
 }

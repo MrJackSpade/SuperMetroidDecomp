@@ -3,14 +3,16 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ScrollPlmsVerification
 {
     /// <summary>
     /// Locks the resident `$84:B703` room-scroll object and all four extension setup
     /// directions to the same bank-$94 collision path used by ordinary Samus movement.
     /// </summary>
-    static void VerifyRoomScrollPlms()
+    internal static void VerifyRoomScrollPlms()
     {
         var bus = new TestAddressSpace();
         const int width = 8;

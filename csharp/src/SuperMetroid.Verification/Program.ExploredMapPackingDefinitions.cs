@@ -1,11 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ExploredMapPackingDefinitionsVerification
 {
     /// <summary>
     /// Bank-$81 pointers to the native sparse map-byte lists (SRAMMapData_crateria through
@@ -16,7 +25,7 @@ internal static partial class Program
     private static readonly ushort[] ExploredMapNativeSourcePointers =
         [0x8146, 0x8196, 0x81e6, 0x8236, 0x8256, 0x82a6];
 
-    private static void VerifyExploredMapPackingDefinitions()
+    internal static void VerifyExploredMapPackingDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -186,5 +195,12 @@ internal static partial class Program
                 return true;
         }
         return false;
+    }
+
+    [VerificationCommand("--explored-map-packing-definitions")]
+    internal static int ExploredMapPackingDefinitionsCommand()
+    {
+        Suite(nameof(VerifyExploredMapPackingDefinitions), () => VerifyExploredMapPackingDefinitions());
+        return 0;
     }
 }

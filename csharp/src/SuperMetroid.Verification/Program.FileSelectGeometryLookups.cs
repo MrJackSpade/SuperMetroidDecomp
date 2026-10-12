@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FileSelectGeometryLookupsVerification
 {
-    private static void VerifyFileSelectGeometryLookups()
+    internal static void VerifyFileSelectGeometryLookups()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -72,5 +82,12 @@ internal static partial class Program
     {
         foreach (int index in new[] { int.MinValue, -1, count, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => lookup(index), $"unsupported geometry index {index}");
+    }
+
+    [VerificationCommand("--lookup-file-select-geometry")]
+    internal static int LookupFileSelectGeometryCommand()
+    {
+        Suite(nameof(VerifyFileSelectGeometryLookups), () => VerifyFileSelectGeometryLookups());
+        return 0;
     }
 }

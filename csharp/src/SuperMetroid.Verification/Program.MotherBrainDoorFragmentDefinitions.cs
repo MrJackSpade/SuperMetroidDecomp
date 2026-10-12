@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MotherBrainDoorFragmentDefinitionsVerification
 {
-    private static void VerifyMotherBrainDoorFragmentDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainDoorFragmentDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 8; parameter++)
         {

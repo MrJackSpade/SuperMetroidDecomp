@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using static DoorAlignmentVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
@@ -6,10 +13,13 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static CeresDestructionVerification;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class FrontendCompletionVerification
 {
-static void VerifyGameOptionsRomDataCatalog()
+internal static void VerifyGameOptionsRomDataCatalog()
 {
     const ushort packedTile = 0xe155;
     SnesBgTilemapWord selected = new SnesBgTilemapWord(packedTile)
@@ -32,7 +42,7 @@ static void VerifyGameOptionsRomDataCatalog()
         "palette replacement agree.");
 }
 
-static void VerifyControllerBindingsAndOptionsSubmenus()
+internal static void VerifyControllerBindingsAndOptionsSubmenus()
 {
     ControllerBindings swapped = ControllerBindings.Default.AssignAndSwap(
         action: 0,
@@ -132,7 +142,7 @@ static void VerifyControllerBindingsAndOptionsSubmenus()
     Console.WriteLine("  Options: controller swap, both submenus, normalization, and SRAM persistence agree.");
 }
 
-static void VerifyReserveAutoRecovery()
+internal static void VerifyReserveAutoRecovery()
 {
     var samus = new SamusState
     {
@@ -171,7 +181,7 @@ static void VerifyReserveAutoRecovery()
     Console.WriteLine("  Reserve tanks: lock, one-point transfer, sound cadence, exhaustion, and clamp agree.");
 }
 
-static void VerifyDoorOpeningTrajectories()
+internal static void VerifyDoorOpeningTrajectories()
 {
     // Door destination screens are multiplied by $100. Up is the only direction whose
     // IRQ endpoint is destination+$20; the other three finish on the header coordinate.
@@ -313,7 +323,7 @@ static void VerifyDoorOpeningTrajectories()
         "  Doors: all four IRQ trajectories, frame counts, endpoints, and delayed nudge agree.");
 }
 
-static void VerifyCreditsObjectInterpreter()
+internal static void VerifyCreditsObjectInterpreter()
 {
     ushort[][] rows = Enumerable.Range(0, 33)
         .Select(index => Enumerable.Repeat((ushort)(0x0100 + index), 32).ToArray())
@@ -343,7 +353,7 @@ static void VerifyCreditsObjectInterpreter()
         "  Credits: half-pixel scroll, installed rows, circular staging, and completion agree.");
 }
 
-static void VerifyEndingCreditsState()
+internal static void VerifyEndingCreditsState()
 {
     string romPath = Path.GetFullPath("Super Metroid.smc");
     if (!File.Exists(romPath))
@@ -442,4 +452,12 @@ private static void StepOptionsUntil(
         options.Step(0);
     AssertEqual(expected, options.Phase, $"options reaches {expected}");
 }
+
+    [VerificationCommand("--door-alignment")]
+    internal static int DoorAlignmentCommand()
+    {
+        Suite(nameof(VerifyDoorOpeningTrajectories), () => VerifyDoorOpeningTrajectories());
+        Suite(nameof(VerifyDoorAlignmentParity), () => VerifyDoorAlignmentParity());
+        return 0;
+    }
 }

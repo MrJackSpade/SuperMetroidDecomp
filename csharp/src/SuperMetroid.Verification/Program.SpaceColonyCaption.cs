@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SpaceColonyCaptionVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Space Colony caption")]
-    private static void VerifySpaceColonyCaption(ISnesAddressSpace rom)
+    internal static void VerifySpaceColonyCaption(ISnesAddressSpace rom)
     {
         AssertEqual(11, SpaceColonyCaptionDefinitions.LetterCount, "native caption length");
         for (int index = 0; index < 11; index++)

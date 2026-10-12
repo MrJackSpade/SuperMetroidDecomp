@@ -1,15 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class BabyMetroidHeadTargetVerification
 {
     // #1269: every Baby routine reads the head enemy Enemy[1]'s X/Y, which head AI moved
     // earlier this frame. The port read the rainbow sequence's own brain copy, one frame
     // stale, so in the 100% movie the Baby latched onto the head's previous position
     // ($7E,$5B-$18 instead of $7D,$5D-$18).
-    private static void VerifyBabyMetroidHeadTarget()
+    internal static void VerifyBabyMetroidHeadTarget()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -38,5 +48,12 @@ internal static partial class Program
         AssertEqual((ushort)0x007d, slot.Position.X.Whole, "the Baby pins to the head enemy's current X");
         AssertEqual((ushort)0x0045, slot.Position.Y.Whole, "the Baby pins $18 above the head enemy's current Y");
         Console.WriteLine("Baby Metroid head target: the Baby reads the head enemy's current position.");
+    }
+
+    [VerificationCommand("--baby-metroid-head-target")]
+    internal static int BabyMetroidHeadTargetCommand()
+    {
+        VerifyBabyMetroidHeadTarget();
+        return 0;
     }
 }

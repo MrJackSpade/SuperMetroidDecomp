@@ -3,10 +3,12 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MotherBrainRoomColorsVerification
 {
-    private static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
+    internal static void VerifyMotherBrainRoomColors(ISnesAddressSpace rom, string stock,
         string overrides, AreaMapPresentationCatalog original,
         GameplayBasePaletteCatalog initialPalettes)
     {

@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PhantoonMotionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon motion")]
-    private static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonMotion(SuperMetroidAddressSpace rom)
     {
         ushort[] definitions = [PhantoonMotionDefinitions.SlowFraction, PhantoonMotionDefinitions.SlowWhole,
             PhantoonMotionDefinitions.FastFraction, PhantoonMotionDefinitions.FastWhole,

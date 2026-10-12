@@ -3,10 +3,11 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BombTorizoStatueFragmentDefinitionsVerification
 {
-    private static void VerifyBombTorizoStatueFragmentDefinitions(
+    internal static void VerifyBombTorizoStatueFragmentDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyStatueFragmentProgramField), () => VerifyStatueFragmentProgramField(rom));

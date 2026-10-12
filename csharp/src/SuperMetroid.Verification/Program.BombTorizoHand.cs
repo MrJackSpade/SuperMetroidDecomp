@@ -1,18 +1,33 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static BombTorizoHandArtworkVerification;
+using static BombTorizoHandVisualsVerification;
+using static LookupBombTorizoHandDrawVerification;
+using static LookupBombTorizoHandProgramVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class BombTorizoHandVerification
 {
     /// <summary>
     /// Locks Bomb Torizo's resident `$D6EA` header, Bombs inventory gate, odd-byte DMA,
     /// eight debris requests, final music command, and cartridge-timed deletion together.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    static void VerifyBombTorizoHandPlm(EnemyTileArtworkCatalog? installedArtwork = null)
+    internal static void VerifyBombTorizoHandPlm(EnemyTileArtworkCatalog? installedArtwork = null)
     {
         Suite(nameof(VerifyBombTorizoHandProgramDefinitions), () => VerifyBombTorizoHandProgramDefinitions());
         Suite(nameof(VerifyBombTorizoHandVisualInstallation), () => VerifyBombTorizoHandVisualInstallation());
@@ -209,5 +224,12 @@ internal static partial class Program
             0xc7, 0xd3,
             0xbc, 0x86,
         ]);
+    }
+
+    [VerificationCommand("--bomb-torizo-hand-plm-program")]
+    internal static int BombTorizoHandPlmProgramCommand()
+    {
+        Suite(nameof(VerifyBombTorizoHandPlm), () => VerifyBombTorizoHandPlm());
+        return 0;
     }
 }

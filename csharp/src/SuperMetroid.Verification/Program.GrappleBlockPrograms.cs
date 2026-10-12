@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static BabyMetroidRouteDefinitionsVerification;
+using static ShotBlockPlmProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GrappleBlockProgramsVerification
 {
     private static void VerifyGrappleBlockControlMapping(SuperMetroidAddressSpace rom)
     {
@@ -111,7 +123,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmGrappleBlockVisualCatalog(entries),"Grapple rejects artwork collision bits");
     }
 
-    private static void VerifyGrappleBlockPrograms()
+    internal static void VerifyGrappleBlockPrograms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -286,7 +298,7 @@ internal static partial class Program
         }
     }
 
-    private sealed record GrappleBlockFixture(
+    internal sealed record GrappleBlockFixture(
         RoomLevelData Level, BackgroundTilemapStreamer Streamer, RoomPlmSystem Plms);
 
     private static GrappleBlockFixture NewGrappleBlockFixture(byte bts)
@@ -300,5 +312,12 @@ internal static partial class Program
         AssertTrue(plms.TrySpawnBreakableGrappleBlock(level, blockIndex, bts),
             $"Grapple BTS {bts} installs its native program");
         return new GrappleBlockFixture(level, level.CreateBackgroundStreamer(), plms);
+    }
+
+    [VerificationCommand("--grapple-block-programs")]
+    internal static int GrappleBlockProgramsCommand()
+    {
+        Suite(nameof(VerifyGrappleBlockPrograms), () => VerifyGrappleBlockPrograms());
+        return 0;
     }
 }

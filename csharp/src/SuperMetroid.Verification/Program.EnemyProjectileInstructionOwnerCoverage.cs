@@ -1,10 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EnemyProjectileInstructionOwnerCoverageVerification
 {
-    private static void VerifyEnemyProjectileInstructionOwnerCoverage()
+    internal static void VerifyEnemyProjectileInstructionOwnerCoverage()
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
         const BindingFlags staticFlags = BindingFlags.Static | BindingFlags.NonPublic;
@@ -89,4 +100,11 @@ internal static partial class Program
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Projectile mechanics attempted forbidden cartridge read ${address:X6}.")
             .RejectWrites(address => $"Projectile mechanics attempted unexpected write ${address:X6}.");
+
+    [VerificationCommand("--enemy-projectile-instruction-owner-coverage")]
+    internal static int EnemyProjectileInstructionOwnerCoverageCommand()
+    {
+        Suite(nameof(VerifyEnemyProjectileInstructionOwnerCoverage), () => VerifyEnemyProjectileInstructionOwnerCoverage());
+        return 0;
+    }
 }

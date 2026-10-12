@@ -4,10 +4,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
+using static PowerBombFixedColorsVerification;
 
-internal static partial class Program
+internal static class CeresExplosionVerification
 {
-    private static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
+    internal static void VerifyCeresExplosionTimeline(PowerBombFixedColorCatalog? colors = null)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);

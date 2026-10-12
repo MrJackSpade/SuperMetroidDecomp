@@ -1,11 +1,13 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SamusAtmosphericEffectDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus atmospheric effect definitions")]
-    private static void VerifySamusAtmosphericEffectDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusAtmosphericEffectDefinitions(SuperMetroidAddressSpace rom)
     {
         const int waterSplashTypes = 0x9081a4;
         const int runningFootstepFrames = 0x90a424;

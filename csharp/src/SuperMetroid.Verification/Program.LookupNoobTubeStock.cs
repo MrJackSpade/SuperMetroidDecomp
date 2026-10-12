@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupNoobTubeStockVerification
 {
-    private static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyNoobTubeStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmNoobTubeVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x98d1,"intact"),(0x98d7,"damaged"),(0x98dd,"opened"),(0x98e3,"cleared"),(0x9953,"broken-late"),(0x9991,"opened-rows"),(0x99e5,"broken-full")];

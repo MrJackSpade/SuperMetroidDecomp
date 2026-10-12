@@ -1,15 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Input;
 
-internal static partial class Program
+internal static class XrayWindowGeometryVerification
 {
     // Per-pixel reference raster, refilled for every scroll the interval check compares.
-    private static readonly Rgba32[] xrayGeometryReference = new Rgba32[256 * 224];
+    internal static readonly Rgba32[] xrayGeometryReference = new Rgba32[256 * 224];
 
-    private static void VerifyXrayWindowGeometry()
+    internal static void VerifyXrayWindowGeometry()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SamusPoseId pose in new[] { SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
@@ -26,7 +34,7 @@ internal static partial class Program
         }
         Console.WriteLine("  X-ray intervals: standing/crouching, both facings, widening, aim sweep and clipped origins match per-pixel reference.");
     }
-    private static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus, Rgba32[] reference)
+    internal static void VerifyXrayWindowGeometry(ISnesAddressSpace bus, SamusState samus, Rgba32[] reference)
     {
         if (samus.Xray.SetupStage != XraySetupStage.Complete || samus.Xray.BeamPhase is not (XrayBeamPhase.Widening or XrayBeamPhase.Full)) return;
         foreach (var scroll in new[] { (0, 0), (160, 0), (220, 180) })
@@ -46,5 +54,12 @@ internal static partial class Program
                     throw new InvalidOperationException($"X-ray interval disagrees with per-pixel reference at ({x},{y}), angle {samus.Xray.Angle}, scroll {scroll}.");
             }
         }
+    }
+
+    [VerificationCommand("--xray-window-geometry")]
+    internal static int XrayWindowGeometryCommand()
+    {
+        Suite(nameof(VerifyXrayWindowGeometry), () => VerifyXrayWindowGeometry());
+        return 0;
     }
 }

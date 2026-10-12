@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class GameTimeVerification
 {
     /// <summary>Checks `$82:DB69` rollover, saturation, and save-snapshot ownership.</summary>
-    static void VerifyGameTimeState()
+    internal static void VerifyGameTimeState()
     {
         var time = new GameTimeState();
         for (int frame = 0; frame < 59; frame++)

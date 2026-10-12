@@ -1,10 +1,12 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static CeresStationPartsVerification;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class CeresVortexPartsVerification
 {
-    private static void VerifyCeresVortexParts(ISnesAddressSpace rom)
+    internal static void VerifyCeresVortexParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
         foreach (var definition in CeresFlightSpriteDefinitions.Frames.Where(frame => frame.Name.StartsWith("vortex-", StringComparison.Ordinal)))

@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class EvirInitTimerVerification
 {
     // #1269: InitAI_Evir loads its first bobbing half-cycle from Enemy.init1+1 indexed by Y,
     // the speed-table offset, reading absolute enemy RAM. In room $D4C2 a speed-8 body reads
     // slot 1's zero init1 high byte, while speed-12 bodies read slot 2's palette high byte (2).
-    private static void VerifyEvirInitTimer()
+    internal static void VerifyEvirInitTimer()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -39,5 +49,12 @@ internal static partial class Program
         AssertEqual((ushort)1, runtime.Enemies.EvirStates[3]!.MovementTimer,
             "the speed-12 body reads slot 2's palette high byte (2) halved");
         Console.WriteLine("Evir init timer: $A8:8811's Y-indexed read takes absolute enemy RAM.");
+    }
+
+    [VerificationCommand("--evir-init-timer")]
+    internal static int EvirInitTimerCommand()
+    {
+        VerifyEvirInitTimer();
+        return 0;
     }
 }

@@ -5,15 +5,16 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class XrayRevealVisualInstallationVerification
 {
 
     /// <summary>
     /// Checks every installed visual rule against the compiled cartridge dispatcher,
     /// then changes a tall reveal without changing its two-block copy behavior.
     /// </summary>
-    private static void VerifyXrayRevealVisualInstallation(GameInstallation installed)
+    internal static void VerifyXrayRevealVisualInstallation(GameInstallation installed)
     {
         XrayRevealVisualCatalog stock = installed.LoadXrayRevealVisuals();
         int drawable = 0;

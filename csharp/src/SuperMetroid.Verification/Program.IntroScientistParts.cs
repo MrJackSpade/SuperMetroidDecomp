@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class IntroScientistPartsVerification
 {
-    private static void VerifyIntroScientistParts(ISnesAddressSpace rom)
+    internal static void VerifyIntroScientistParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Scientist", value.AppendIdentity);
         foreach (var definition in IntroScientistSpriteDefinitions.Frames)

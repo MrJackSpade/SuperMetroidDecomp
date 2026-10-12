@@ -1,8 +1,10 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidMovementChoicesVerification
 {
     private static void VerifyKraidMovementTargets(ushort[] positions,
         Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
@@ -32,7 +34,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1)));
         var positions = new ushort[6];

@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ShaktoolSegmentDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shaktool segment definitions")]
-    private static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyShaktoolSegmentDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyShaktoolPropertySelection), () => VerifyShaktoolPropertySelection(rom));
         Suite(nameof(VerifyShaktoolOwnerOffsetAlgorithm), () => VerifyShaktoolOwnerOffsetAlgorithm(rom));
@@ -93,7 +94,7 @@ internal static partial class Program
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativePropertiesAddress,
             definition => definition.PropertyMask, "property selection"));
 
-    private static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyShaktoolInitialAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyShaktoolDefinitionField), () => VerifyShaktoolDefinitionField(rom, ShaktoolSegmentDefinitions.NativeInitialAngleAddress,
             definition => definition.InitialOrbitAngle, "initial angle algorithm"));
 

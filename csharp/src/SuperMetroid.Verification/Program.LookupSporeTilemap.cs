@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupSporeTilemapVerification
 {
     private static void VerifySporeTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifySporeTileAttribute), () => VerifySporeTileAttribute(rom, stock, 0x1c00));
@@ -60,7 +62,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for spore attribute storage and edits")]
     private static byte SporeAttributeStorageAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifySporeTilemapAttributes(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifySporeTilePalette), () => VerifySporeTilePalette(rom, stock));
         Suite(nameof(VerifySporeTilePriority), () => VerifySporeTilePriority(rom, stock));

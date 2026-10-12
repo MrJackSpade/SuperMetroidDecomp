@@ -5,11 +5,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using static LookupSkyChunkPointersVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomSkyTilemapsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyRoomSkyTilemaps()
+    internal static void VerifyRoomSkyTilemaps()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -213,7 +215,7 @@ internal static partial class Program
         return guard;
     }
 
-    private sealed class SkyPageProvider(RoomSkyTilemapCatalog art)
+    internal sealed class SkyPageProvider(RoomSkyTilemapCatalog art)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>

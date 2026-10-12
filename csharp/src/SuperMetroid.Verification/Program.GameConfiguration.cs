@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class GameConfigurationVerification
 {
-static void VerifyGameConfigurationIni()
+internal static void VerifyGameConfigurationIni()
 {
     AssertEqual(SuperMetroid.Core.Rendering.RendererSelection.Auto,
         SuperMetroidGameOptionsIni.Parse("").Renderer, "omitted renderer prefers hardware");
@@ -136,7 +136,7 @@ static void VerifyGameConfigurationIni()
         "  Game INI: startup/map/audio/diagnostic defaults, strict values, and typo rejection agree.");
 }
 
-private static void AssertInvalidGameConfiguration(string contents, string expectedMessagePart)
+internal static void AssertInvalidGameConfiguration(string contents, string expectedMessagePart)
 {
     try
     {

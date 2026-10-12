@@ -4,11 +4,15 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static ColorWordsVerification;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class Mode7GameplaySnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
-    private static void VerifyMode7GameplaySnapshots()
+    internal static void VerifyMode7GameplaySnapshots()
     {
         var random = new Random(32109);
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount]; random.NextBytes(bytes);

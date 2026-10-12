@@ -1,9 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static MagicNumberAuditVerification;
+using static PowerBombBoundaryVerification;
+using static PowerBombRuntimeIntegrationVerification;
+using static RenderingAndRoomsVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PowerBombFuseVerification
 {
-    private static void VerifyPowerBombFuse()
+    internal static void VerifyPowerBombFuse()
     {
         // Expected boundary cases follow the literal C157 branches, including a
         // positive nonzero flag (native tests zero, not merely the sign bit).
@@ -59,5 +75,21 @@ internal static partial class Program
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "cleanup preserves native radius-speed word");
         explosion.Spawn(new(128, 128));
         AssertEqual(retainedSpeed, explosion.RadiusSpeed, "next allocation preserves radius speed until setup");
+    }
+
+    [VerificationCommand("--power-bomb-fixtures")]
+    internal static int PowerBombFixturesCommand()
+    {
+     VerifyPowerBombFuse(); VerifyPowerBombColorMathWindow(); return 0; 
+    }
+
+    [VerificationCommand("--power-bomb-fuse")]
+    internal static int PowerBombFuseCommand()
+    {
+        Suite(nameof(VerifyPowerBombFuse), () => VerifyPowerBombFuse());
+        Suite(nameof(VerifyPowerBombBoundary), () => VerifyPowerBombBoundary());
+        Suite(nameof(VerifyPowerBombRuntimeRendererIntegration), () => VerifyPowerBombRuntimeRendererIntegration());
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

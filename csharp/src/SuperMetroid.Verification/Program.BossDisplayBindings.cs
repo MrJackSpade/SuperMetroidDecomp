@@ -1,12 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BossDisplayBindingsClippingVerification;
+using static BossDisplayBindingsDocumentsVerification;
+using static BossDisplayBindingsFixtureVerification;
+using static BossDisplayBindingsResourcesVerification;
+using static EnemyAnimationIsolationFixtureVerification;
+using static MotherBrainBodyPresentationVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class BossDisplayBindingsVerification
 {
     /// <summary>Acceptance for the source-identified mismatch between selected OAM and physical BG2.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyBossDisplayBindings()
+    internal static void VerifyBossDisplayBindings()
     {
         var stock = new BossDisplayDocuments(edited: false);
         var edits = new BossDisplayDocuments(edited: true);
@@ -60,7 +77,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
+    internal static void AssertBossBg2(SnesVram actual, EnemyBg2WriteDocument[] writes)
     {
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];
         foreach (EnemyBg2WriteDocument write in writes)
@@ -70,7 +87,7 @@ internal static partial class Program
             AssertEqual(expected[index], actual.ReadWord(EnemyBg2FrameLayout.VramBase + index), "boss BG2 exact ordered destinations and payload");
     }
 
-    private static void AssertBossDisplayMechanics(BossDisplayFixture baseline, BossDisplayFixture edited, string context)
+    internal static void AssertBossDisplayMechanics(BossDisplayFixture baseline, BossDisplayFixture edited, string context)
     {
         AssertAnimationValues(baseline.Actor, edited.Actor, context);
         AssertAnimationValues(baseline.Enemies, edited.Enemies, context);
@@ -78,5 +95,12 @@ internal static partial class Program
         AssertSameBytes(baseline.Memory.SaveRam, edited.Memory.SaveRam, context + " preserves all SRAM");
         AssertTrue(baseline.Enemies.SoundRequests.SequenceEqual(edited.Enemies.SoundRequests), context + " preserves audio callbacks");
         AssertTrue(baseline.Enemies.MusicRequests.SequenceEqual(edited.Enemies.MusicRequests), context + " preserves music callbacks");
+    }
+
+    [VerificationCommand("--boss-display-bindings")]
+    internal static int BossDisplayBindingsCommand()
+    {
+        Suite(nameof(VerifyBossDisplayBindings), () => VerifyBossDisplayBindings());
+        return 0;
     }
 }

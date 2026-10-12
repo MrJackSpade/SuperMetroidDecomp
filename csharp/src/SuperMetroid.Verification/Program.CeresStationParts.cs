@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class CeresStationPartsVerification
 {
-    private static void VerifyCeresStationParts(ISnesAddressSpace rom)
+    internal static void VerifyCeresStationParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
         foreach (var definition in CeresFlightSpriteDefinitions.Frames.Where(frame => frame.Name == "station-under-attack"))
@@ -57,7 +58,7 @@ internal static partial class Program
             }
         }
     }
-    private static void CheckCeresStationLoader(ushort pointer, SpriteVisualPart[] visual)
+    internal static void CheckCeresStationLoader(ushort pointer, SpriteVisualPart[] visual)
     {
         var definition = CeresFlightSpriteDefinitions.Frames.FirstOrDefault(frame => frame.Pointer == pointer);
         if (definition.Name is null) return;

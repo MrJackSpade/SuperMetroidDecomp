@@ -5,14 +5,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class LookupDachoraColorsVerification
 {
     /// <summary>
     /// #1165: Dachora's speed and shine frames calculate from the normal colors. Confirms every
     /// native word, that the stock install stores no speed/shine colors, and that every
     /// single-cell edit resolves exactly while storing only that cell.
     /// </summary>
-    private static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
+    internal static void VerifyLookupDachoraColors(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupDachoraColorsRomByte(rom, address), LookupDachoraColorsRomByte(rom, address + 1)));
         ushort[] Row(int address) => Enumerable.Range(0, 16).Select(color => Word(address + color * 2)).ToArray();

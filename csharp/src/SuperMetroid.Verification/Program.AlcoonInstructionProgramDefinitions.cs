@@ -1,14 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class AlcoonInstructionProgramDefinitionsVerification
 {
     private const ushort AlcoonInstructionAuditRoom = 0x93aa;
 
-    private static void VerifyAlcoonMechanicsMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyAlcoonMechanicsMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
         [
@@ -67,7 +77,7 @@ internal static partial class Program
             0xdc97,0xdc9d,0xdca1,0xdca5,0xdca9,0xdcad,0xdcb3,0xdcb9,0xdcbd,0xdcc3,
         ];
 
-    private static void VerifyAlcoonPresentationAddressMapping()
+    internal static void VerifyAlcoonPresentationAddressMapping()
     {
         ushort[] expected = AlcoonPresentationAddressOracle();
         AssertEqual(expected.Length, AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount, "Alcoon visual count");
@@ -83,7 +93,7 @@ internal static partial class Program
                 "Alcoon presentation ordinal bounds");
     }
 
-    private static void VerifyAlcoonVisualSelectorMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyAlcoonVisualSelectorMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = AlcoonPresentationAddressOracle();
         foreach (ushort address in addresses)
@@ -111,13 +121,13 @@ internal static partial class Program
                 "Alcoon distant invalid visual operand");
     }
 
-    private static void VerifyAlcoonInstructionProgramDefinitions()
+    internal static void VerifyAlcoonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyAlcoonInstructionProgramDefinitions(
+    internal static void VerifyAlcoonInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? installedArt = null)
     {
         Suite(nameof(VerifyAlcoonMechanicsMapping), () => VerifyAlcoonMechanicsMapping(rom));
@@ -235,7 +245,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Alcoon instruction words")]
-    private static ushort ReadAlcoonInstructionWord(
+    internal static ushort ReadAlcoonInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa80000 | address);
@@ -265,5 +275,12 @@ internal static partial class Program
             }
             return null;
         }
+    }
+
+    [VerificationCommand("--alcoon-instruction-mechanics")]
+    internal static int AlcoonInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions());
+        return 0;
     }
 }

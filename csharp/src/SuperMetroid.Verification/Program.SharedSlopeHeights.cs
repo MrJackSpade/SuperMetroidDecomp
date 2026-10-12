@@ -4,10 +4,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class SharedSlopeHeightsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for slope heights")]
-    private static void VerifyCompiledSlopeHeights(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSlopeHeights(SuperMetroidAddressSpace rom)
     {
         byte[] native = new byte[512];
         for (int i = 0; i < native.Length; i++)
@@ -72,7 +72,7 @@ internal static partial class Program
         Console.WriteLine("Shared slopes: 512 native heights, 12288 Samus samples and 55296 cross-consumer collision/alignment cases pass with ROM reads forbidden.");
     }
 
-    private static CartridgeReadGuard NewSlopeHeightNoReadBus() =>
+    internal static CartridgeReadGuard NewSlopeHeightNoReadBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Unexpected slope ROM read at {address:X6}.")
             .RejectWrites(_ => "Unexpected slope bus write.");

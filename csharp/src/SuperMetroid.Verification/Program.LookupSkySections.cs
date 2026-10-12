@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupSkySectionsVerification
 {
-    private static void VerifySkySectionTopPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionTopPositions(SuperMetroidAddressSpace rom)
     {
         int originalCount = ReadVerificationWord(rom, 0x88adef) / 8;
         AssertEqual(23, originalCount, "Native sky loop bound");
@@ -49,21 +50,21 @@ internal static partial class Program
         }
     }
 
-    private static void VerifySkySectionSubspeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionSubspeeds(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
             AssertEqual(ReadVerificationWord(rom, 0x88aec3 + index * 8),
                 RoomFxRomData.ScrollingSky.GetSection(index).Subspeed, "Sky fractional speed including band17");
     }
 
-    private static void VerifySkySectionSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionSpeeds(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
             AssertEqual(ReadVerificationWord(rom, 0x88aec5 + index * 8),
                 RoomFxRomData.ScrollingSky.GetSection(index).Speed, "Sky integer speed");
     }
 
-    private static void VerifySkySectionDataSlots(SuperMetroidAddressSpace rom)
+    internal static void VerifySkySectionDataSlots(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 23; index++)
             AssertEqual((ReadVerificationWord(rom, 0x88aec7 + index * 8) - 0x9f80) / 4,

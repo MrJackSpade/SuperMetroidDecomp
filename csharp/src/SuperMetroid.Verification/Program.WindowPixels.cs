@@ -1,11 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static GameplaySnapshotTestsVerification;
+using static MagicNumberAuditVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static ColorWordsVerification;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
 
-internal static partial class Program
+internal static class WindowPixelsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
-    private static void VerifyWindowPixels()
+    internal static void VerifyWindowPixels()
     {
         var random = new Random(396);
         byte[] bytes = new byte[SnesPpuLayout.VramByteCount];
@@ -83,5 +98,14 @@ internal static partial class Program
                 new OrdinaryGameplayRenderLayer(new OrdinaryGameplayRegisters(new Position16<RoomPixels>(3, 5), new Position16<Bg2Pixels>(7, 11),
                     new Extent16<TilemapCells>(64, 32), GameplayVramLayout.Bg2TilemapWord, 0, 0, GameplayVramLayout.HudCharacterWord,
                     enabled, Windows: windows, MainScreenWindowMask: admission)));
+    }
+
+    [VerificationCommand("--window-pixels")]
+    internal static int WindowPixelsCommand()
+    {
+        Suite(nameof(VerifyWindowPixels), () => VerifyWindowPixels());
+        Suite(nameof(VerifyGameplaySnapshots), () => VerifyGameplaySnapshots());
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

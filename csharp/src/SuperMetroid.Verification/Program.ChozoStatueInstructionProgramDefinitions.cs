@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ChozoStatueInstructionProgramDefinitionsVerification
 {
-    private static void VerifyChozoStatueInstructionProgramDefinitions()
+    internal static void VerifyChozoStatueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyChozoStatueInstructionProgramDefinitions(
+    internal static void VerifyChozoStatueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int index = 0;
@@ -61,5 +72,12 @@ internal static partial class Program
                 ChozoStatueInstructionProgramDefinitions.WreckedShipActivated);
         }
         return checksum;
+    }
+
+    [VerificationCommand("--chozo-statue-instruction-mechanics")]
+    internal static int ChozoStatueInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions());
+        return 0;
     }
 }

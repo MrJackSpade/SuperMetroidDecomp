@@ -1,19 +1,21 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidNailSiblingVerification
 {
-    private static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.XFraction));
 
-    private static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.XWhole));
 
-    private static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.YFraction));
 
-    private static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.YWhole));
 
     private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
@@ -38,7 +40,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid nail launch field")]
     private static byte KraidNailLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailSibling(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidNailLaunchXFraction), () => VerifyKraidNailLaunchXFraction(rom));
         Suite(nameof(VerifyKraidNailLaunchXWhole), () => VerifyKraidNailLaunchXWhole(rom));

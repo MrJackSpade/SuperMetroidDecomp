@@ -3,8 +3,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static LibraryBackgroundProgramsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RoomBackgroundLibraryParityVerification
 {
     /// <summary>
     /// Exercise every cartridge-authored background list, including each door-gated
@@ -27,7 +31,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLibraryBackgroundInstalledParity(
+    internal static void VerifyLibraryBackgroundInstalledParity(
         string sourceRom, GameInstallation installed)
     {
         SuperMetroidAddressSpace inventoryBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);

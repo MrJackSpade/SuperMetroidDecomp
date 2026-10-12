@@ -2,8 +2,9 @@ using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidSinkScheduleVerification
 {
     private static void VerifyKraidSinkCallbackSelection(Dictionary<ushort, ushort> callbacks)
     {
@@ -82,7 +83,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid sink rock placement")]
     private static byte KraidSinkRockPlacementRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyKraidSinkSchedule(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidSinkScheduleRomByte(rom, a), KraidSinkScheduleRomByte(rom, a + 1)));
         var callbacks = new Dictionary<ushort, ushort>();

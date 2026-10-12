@@ -1,18 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using static PauseEquipmentRulesVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class UnpauseStationLockReleaseVerification
 {
     /// <summary>
     /// Unpause command $0C ($90:F2A2) restores Samus's normal handlers whenever command six's
     /// station lock holds them. In the 13% movie Samus touches a recharge station while the
     /// pause fades out; native frees her when the menu closes, and the port kept her locked.
     /// </summary>
-    private static void VerifyUnpauseStationLockRelease()
+    internal static void VerifyUnpauseStationLockRelease()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -42,5 +53,12 @@ internal static partial class Program
         AssertTrue(!samus.InputLocked, "gameplay resume restores Samus's normal handlers");
         AssertTrue(!samus.RefillStationLocked, "and clears the station lock");
         Console.WriteLine("  Unpause station lock: command $0C frees a station-locked Samus.");
+    }
+
+    [VerificationCommand("--unpause-station-lock-release")]
+    internal static int UnpauseStationLockReleaseCommand()
+    {
+        Suite(nameof(VerifyUnpauseStationLockRelease), () => VerifyUnpauseStationLockRelease());
+        return 0;
     }
 }

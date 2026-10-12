@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using static MagicNumberAuditVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -5,15 +12,20 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static PauseEquipmentRulesVerification;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SpacetimeBeamVerification
 {
     /// <summary>
     /// Replays the two alpha passes measured by the native Pit Room probe. Expected
     /// pointers, hashes and the saved dispatcher word come from the retail callback at
     /// $90:AD16, not from another C# implementation.
     /// </summary>
-    private static void VerifySpacetimeBeam()
+    internal static void VerifySpacetimeBeam()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -341,5 +353,13 @@ internal static partial class Program
         guard.Forbid(address => SnesDmaSourceMap.Classify(SnesAddress.FromBusAddress(address)) == SnesDmaSourceKind.Cartridge,
             address => $"SpaceTime gameplay read cartridge byte ${address:X6}.");
         return guard;
+    }
+
+    [VerificationCommand("--spacetime-beam")]
+    internal static int SpacetimeBeamCommand()
+    {
+        Suite(nameof(VerifySpacetimeBeam), () => VerifySpacetimeBeam());
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupGlassLayoutsVerification
 {
-    private static void VerifyGlassLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 0);
-    private static void VerifyGlassLayoutCollision(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 1);
-    private static void VerifyGlassLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 2);
+    internal static void VerifyGlassLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 0);
+    internal static void VerifyGlassLayoutCollision(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 1);
+    internal static void VerifyGlassLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyGlassLayoutDrawField(rom, 2);
 
     private static void VerifyGlassLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {

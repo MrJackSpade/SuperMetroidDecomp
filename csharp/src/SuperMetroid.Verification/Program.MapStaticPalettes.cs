@@ -4,12 +4,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class MapStaticPalettesVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed static map palettes")]
-    private static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
+    internal static void VerifyMapStaticPaletteIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules)
     {
         var guard = NewMapDataGuard(bus, rules);

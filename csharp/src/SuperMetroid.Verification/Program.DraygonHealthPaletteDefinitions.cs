@@ -5,10 +5,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class DraygonHealthPaletteDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon health palette definitions")]
-    private static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonHealthPaletteDefinitions(SuperMetroidAddressSpace rom)
     {
 
         ushort[] thresholds = new ushort[8];

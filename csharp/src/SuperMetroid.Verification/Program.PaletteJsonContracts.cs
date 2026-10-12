@@ -1,11 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using static PaletteJsonContractsFixturesVerification;
+using static PaletteJsonContractsLegacyVerification;
+using static PaletteJsonContractsVisibleVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PaletteJsonContractsVerification
 {
     /// <summary>Finite source-inventoried palette formats; no gameplay or ROM-read discovery.</summary>
-    private static void VerifyPaletteJsonContracts()
+    internal static void VerifyPaletteJsonContracts()
     {
         var accepted = new List<string>();
         int rejected = 0;
@@ -85,10 +101,10 @@ internal static partial class Program
             "legacy overrides and exact visible palette/animation isolation.");
     }
 
-    private sealed record PaletteJsonContract(string Name, JsonObject Document, Action<Stream> Load,
+    internal sealed record PaletteJsonContract(string Name, JsonObject Document, Action<Stream> Load,
         bool CaseInsensitive = false);
 
-    private static JsonObject PaletteContractDocument(object document) => (JsonObject)JsonSerializer.SerializeToNode(
+    internal static JsonObject PaletteContractDocument(object document) => (JsonObject)JsonSerializer.SerializeToNode(
         document, document.GetType(), new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })!;
 
     private static void LoadPaletteContract(PaletteJsonContract contract, string json)
@@ -142,5 +158,12 @@ internal static partial class Program
         }
         else if (node is JsonArray array)
             foreach (string[] child in PaletteContractColorPaths(array[0], [.. path, "0"])) yield return child;
+    }
+
+    [VerificationCommand("--palette-json-contracts")]
+    internal static int PaletteJsonContractsCommand()
+    {
+        Suite(nameof(VerifyPaletteJsonContracts), () => VerifyPaletteJsonContracts());
+        return 0;
     }
 }

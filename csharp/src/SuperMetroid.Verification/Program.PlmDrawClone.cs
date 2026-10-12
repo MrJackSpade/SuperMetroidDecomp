@@ -1,9 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class PlmDrawCloneVerification
 {
-    private static void VerifyPlmDrawClone()
+    internal static void VerifyPlmDrawClone()
     {
         foreach (ushort instruction in new[] { RoomPlmInstruction.DrawPlmBlock,
             RoomPlmInstruction.DrawPlmBlockClone })
@@ -30,5 +43,12 @@ internal static partial class Program
             AssertEqual(0, plms.ActiveCount, "draw opcode resumes immediately after its operand-free word");
         }
         Console.WriteLine("  Both native PLM draw entry points restore terrain, redraw, yield, and resume identically.");
+    }
+
+    [VerificationCommand("--plm-draw-clone")]
+    internal static int PlmDrawCloneCommand()
+    {
+        Suite(nameof(VerifyPlmDrawClone), () => VerifyPlmDrawClone());
+        return 0;
     }
 }

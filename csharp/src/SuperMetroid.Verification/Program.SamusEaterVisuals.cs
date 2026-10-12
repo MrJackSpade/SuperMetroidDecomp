@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -5,10 +14,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusEaterVisualsVerification
 {
-    private static void VerifySamusEaterVisuals()
+    internal static void VerifySamusEaterVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -279,4 +291,11 @@ internal static partial class Program
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Samus Eater drew from native ROM ${address:X6}.")
             .RejectWrites(_ => "Samus Eater draw wrote to CPU bus.");
+
+    [VerificationCommand("--samus-eater-visuals")]
+    internal static int SamusEaterVisualsCommand()
+    {
+        Suite(nameof(VerifySamusEaterVisuals), () => VerifySamusEaterVisuals());
+        return 0;
+    }
 }

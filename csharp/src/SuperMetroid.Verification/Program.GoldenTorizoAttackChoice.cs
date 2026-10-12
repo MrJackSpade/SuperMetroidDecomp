@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GoldenTorizoAttackChoiceVerification
 {
     // #1269: Instruction_GoldenTorizo_CallY_OrY2_ForAttack ($AA:D53B) adds NMI_FrameCounter
     // ($05B6), not the 8-bit counter at $05B5. In the 100% movie the two disagree in bit 3
     // when the Torizo lands from a backward jump: native throws sonic booms, not chozo orbs.
-    private static void VerifyGoldenTorizoAttackChoice()
+    internal static void VerifyGoldenTorizoAttackChoice()
     {
         const ushort landedFacingLeft = 0xcdaf;
         const ushort sonicBoomsFacingLeft = 0xcbed;
@@ -34,5 +44,12 @@ internal static partial class Program
             $"NMI_FrameCounter selects the sonic-boom list, not chozo orbs (${chozoOrbsFacingLeft:X4}); " +
             $"instruction ${torizo.CurrentInstruction:X4}");
         Console.WriteLine("Golden Torizo attack choice: the landing chooser adds NMI_FrameCounter, not the 8-bit counter.");
+    }
+
+    [VerificationCommand("--golden-torizo-attack-choice")]
+    internal static int GoldenTorizoAttackChoiceCommand()
+    {
+        VerifyGoldenTorizoAttackChoice();
+        return 0;
     }
 }

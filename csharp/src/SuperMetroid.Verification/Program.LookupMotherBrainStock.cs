@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupMotherBrainStockVerification
 {
-    private static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyMotherBrainStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainFakeDeathVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x94a3,"fill-wall"),(0x94b1,"escape-door"),

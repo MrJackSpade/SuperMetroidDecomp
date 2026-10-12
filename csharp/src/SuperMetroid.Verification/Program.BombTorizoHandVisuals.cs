@@ -3,10 +3,11 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static LookupBombTorizoHandStockVerification;
 
-internal static partial class Program
+internal static class BombTorizoHandVisualsVerification
 {
-    private static void VerifyBombTorizoHandVisualInstallation()
+    internal static void VerifyBombTorizoHandVisualInstallation()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));

@@ -3,10 +3,16 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static CollectiblesVerification;
+using static GameSaveJsonVerification;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SaveSchemaTranslationVerification
 {
-    private static void VerifySaveSchemaTranslation()
+    internal static void VerifySaveSchemaTranslation()
     {
         // Isolated arrays only; no player save file is read or changed.
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();

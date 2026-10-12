@@ -2,14 +2,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 
-internal static partial class Program
+internal static class NativeSnapshotImportMotherBrainVerification
 {
     /// <summary>
     /// Imports Mother Brain's shared encounter state (enemy records $EC7F/$EC3F) from the
     /// native body/brain slot words and her extended WRAM ($7E:7800-$787B, $7E:8000-$8069).
     /// Called only when the room loaded her; the physical slot words were imported first.
     /// </summary>
-    private static void ImportNativeMotherBrain(SuperMetroidRuntime runtime, Func<int, ushort> W)
+    internal static void ImportNativeMotherBrain(SuperMetroidRuntime runtime, Func<int, ushort> W)
     {
         MotherBrainEnemyState state = runtime.Enemies.MotherBrain ?? throw new InvalidDataException(
             "The native snapshot holds Mother Brain, but the room load did not create her.");

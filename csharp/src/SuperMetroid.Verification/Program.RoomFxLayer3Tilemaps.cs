@@ -1,15 +1,30 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static LookupAtmosphereTilemapsVerification;
+using static LookupFxTilemapDispatchVerification;
+using static LookupFxTilemapSourcesVerification;
+using static LookupLiquidTilemapsVerification;
+using static LookupSporeTilemapVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomFxLayer3TilemapsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for every room-FX BG3 tilemap page")]
-    private static void VerifyRoomFxLayer3Tilemaps()
+    internal static void VerifyRoomFxLayer3Tilemaps()
     {
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -45,7 +60,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyRoomFxLayer3TilemapOverride(
+    internal static void VerifyRoomFxLayer3TilemapOverride(
         string stock, string overrides, AreaMapPresentationCatalog baseline)
     {
         string path = Path.Combine(overrides, RoomFxLayer3TilemapFormat.FileName);
@@ -117,4 +132,18 @@ internal static partial class Program
                 address >= RoomFxRomData.Tables.Layer3TilemapPointers &&
                 address < RoomFxRomData.Tables.Layer3TilemapPointers + 14,
             address => $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
+
+    [VerificationCommand("--lookup-fx-tilemap-sources")]
+    internal static int LookupFxTilemapSourcesCommand()
+    {
+        Suite(nameof(VerifyRoomFxLayer3Tilemaps), () => VerifyRoomFxLayer3Tilemaps());
+        return 0;
+    }
+
+    [VerificationCommand("--room-fx-layer3-tilemaps")]
+    internal static int RoomFxLayer3TilemapsCommand()
+    {
+        Suite(nameof(VerifyRoomFxLayer3Tilemaps), () => VerifyRoomFxLayer3Tilemaps());
+        return 0;
+    }
 }

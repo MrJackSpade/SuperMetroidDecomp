@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ProjectileNativeFixtureVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile lifetime")]
-    private static int NativeProjectileLifetime(SuperMetroidAddressSpace rom, int selector)
+    internal static int NativeProjectileLifetime(SuperMetroidAddressSpace rom, int selector)
     {
         int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(selector), ticks = 0;
         var seen = new HashSet<int>();
@@ -24,7 +26,7 @@ internal static partial class Program
     // Keep synthetic artwork and terrain, but use the cartridge-selected programs.
     // Only sprite-reference fields are replaced; timing/damage/collision stay native.
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile fixture")]
-    private static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
+    internal static SuperMetroid.AssetExtraction.CartridgeImportAddressSpace SeedNativeProjectileFixture(TestAddressSpace bus)
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         void Art(int entry, ushort map)

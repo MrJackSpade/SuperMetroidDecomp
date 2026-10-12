@@ -4,11 +4,11 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class TitleFixtureVerification
 {
     // Extract from the fixture's own source, including constructed/patched ROMs.
     // Supplying retail artwork here would erase the synthetic visual assertions.
-    private static TitleSequenceState CreateTitleFixture(ISnesAddressSpace source,
+    internal static TitleSequenceState CreateTitleFixture(ISnesAddressSpace source,
         CartridgeAudioState? audio = null, TitleGradientPresentation? titleGradientPresentation = null)
     {
         var files = TitleGraphicsExtractor.Extract(source);

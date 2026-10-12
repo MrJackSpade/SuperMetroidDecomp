@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class BoyonSpeedDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Boyon speeds")]
-    private static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledBoyonSpeeds(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBoyon", BindingFlags.NonPublic | BindingFlags.Instance)!

@@ -1,6 +1,8 @@
 using SuperMetroid.Core.Assets;
+using static DoorDefinitionsVerification;
+using static LookupTourianArtworkVerification;
 
-internal static partial class Program
+internal static class LookupFxAtlasSegmentsVerification
 {
     // Independent pre-conversion strip order at22b928b4: native simple animation
     // operands, rightward treadmill operands, complete statue strip, then spores.
@@ -43,7 +45,7 @@ internal static partial class Program
         new(0x879e84, 0x0080, true),
     ];
 
-    private static void VerifyRoomFxAtlasSegmentSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
+    internal static void VerifyRoomFxAtlasSegmentSources(SuperMetroid.Core.Hardware.ISnesAddressSpace rom)
     {
         var expected = OriginalRoomFxAtlasSegments();
         var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
@@ -83,7 +85,7 @@ internal static partial class Program
             AssertEqual(expected[index].SourceAddress, actual[index].SourceAddress, "Atlas source order");
     }
 
-    private static void VerifyRoomFxAtlasSegmentSizes()
+    internal static void VerifyRoomFxAtlasSegmentSizes()
     {
         var expected = OriginalRoomFxAtlasSegments();
         var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();
@@ -92,7 +94,7 @@ internal static partial class Program
         AssertEqual(3616, actual.Sum(segment => segment.ByteCount), "Complete original PNG byte geometry");
     }
 
-    private static void VerifyRoomFxAtlasSegmentRoles()
+    internal static void VerifyRoomFxAtlasSegmentRoles()
     {
         var expected = OriginalRoomFxAtlasSegments();
         var actual = RoomFxAnimatedTileAtlasFormat.Segments.ToArray();

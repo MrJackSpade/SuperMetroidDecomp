@@ -5,11 +5,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static IntroCinematicArtworkVerification;
+using static IntroRinkaSpriteArtworkVerification;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class IntroEggEffectSpriteArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroEggEffectSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;

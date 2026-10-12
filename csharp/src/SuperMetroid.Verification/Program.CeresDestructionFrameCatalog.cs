@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresDestructionFrameCatalogVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres destruction frame catalog")]
-    private static void VerifyCeresDestructionFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyCeresDestructionFrameCatalog(ISnesAddressSpace rom)
     {
         int[] backdropOperands = [0xcc41, 0xccad, 0xccc3, 0xcd85, 0xcd8d, 0xcd95, 0xcd9d];
         string[] backdropNames = ["station-under-attack-large-asteroid", "planet-zebes", "planet-zebes-title",

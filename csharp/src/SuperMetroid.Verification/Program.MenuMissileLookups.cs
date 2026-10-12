@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class MenuMissileLookupsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu missile spritemap ids")]
-    private static void VerifyMenuMissileSpritemapIds(ISnesAddressSpace rom)
+    internal static void VerifyMenuMissileSpritemapIds(ISnesAddressSpace rom)
     {
         AssertEqual(4, MenuMissileAnimationDefinitions.FrameCount, "menu missile frame count");
         AssertEqual((byte)0x29, rom.ReadCartridgeByte(0x82ba80), "native frame wrap AND immediate");
@@ -18,7 +19,7 @@ internal static partial class Program
                 $"menu missile invalid frame {frame}");
     }
 
-    private static void VerifyMenuMissileDurations(ISnesAddressSpace rom)
+    internal static void VerifyMenuMissileDurations(ISnesAddressSpace rom)
     {
         for (int frame = 0; frame < 4; frame++)
             AssertEqual((int)ReadVerificationWord(rom, 0x82baaa + frame * 2),

@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static TitleSequenceRomDataVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -6,8 +14,9 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class TitleGradientVerification
 {
     private static TitleSequenceState CreateTitlePresentationFixture(ISnesAddressSpace bus,
         TitleGradientPresentation? titleGradientPresentation = null,
@@ -16,7 +25,7 @@ internal static partial class Program
  =>
         RepositoryInstallation.CreateTitle(bus, titleGradientPresentation: titleGradientPresentation,
             titlePalettePresentation: titlePalettePresentation, titleGraphicsPresentation: titleGraphicsPresentation);
-    private static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
+    internal static void VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus)
     {
         Suite(nameof(VerifyTitleGradientObjectEligibility), () => VerifyTitleGradientObjectEligibility());
         Suite(nameof(VerifyExtractedTitleGraphics), () => VerifyExtractedTitleGraphics(bus));
@@ -464,7 +473,7 @@ internal static partial class Program
             "title gradient rejects native-address escape hatch");
     }
 
-    private static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
+    internal static (TitleGradientLine[] Lines, ushort Zoom) CaptureInstalledTitleGradient(
         ISnesAddressSpace bus,
         TitleGradientPresentation presentation,
         TitlePalettePresentation palette,
@@ -515,9 +524,18 @@ internal static partial class Program
             TitleGradientColorMath.Apply(new(255, 255, 255, 255), new(1, 1, 1, 0xa1)), "native five-bit subtraction");
     }
 
-    private static CartridgeReadGuard NewTitlePresentationReadBus(ISnesAddressSpace source, HashSet<int> addresses, bool forbidReads) =>
+    internal static CartridgeReadGuard NewTitlePresentationReadBus(ISnesAddressSpace source, HashSet<int> addresses, bool forbidReads) =>
         forbidReads
             ? new CartridgeReadGuard(source).Forbid(addresses.Contains,
                 address => $"Production title gradient reread cartridge byte {SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4}.")
             : new CartridgeReadGuard(source).Observe(_ => true, address => addresses.Add(address));
+
+    [VerificationCommand("--title-instruction-definitions")]
+    internal static int TitleInstructionDefinitionsCommand()
+    {
+        Suite(nameof(VerifyTitleGradientTables), () => VerifyTitleGradientTables(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyTitleSequenceRomData), () => VerifyTitleSequenceRomData());
+        return 0;
+    }
 }

@@ -1,16 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static CollectiblesVerification;
+using static SpeedBoosterPlmProgramsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SpeedBoosterCollisionBlocksVerification
 {
     /// <summary>
     /// Reproduces issue #297 at the real bank-$94 vertical and horizontal movement seams.
     /// The fixture uses type-$B terrain and the cartridge's exact BTS-to-PLM definitions;
     /// it does not call the block mutation routine directly.
     /// </summary>
-    private static void VerifySpeedBoosterCollisionBlocks()
+    internal static void VerifySpeedBoosterCollisionBlocks()
     {
         Suite(nameof(VerifyInactiveSpeedBlockRemainsSolid), () => VerifyInactiveSpeedBlockRemainsSolid());
         Suite(nameof(VerifyBoostedFloorContactRunsRespawningPlm), () => VerifyBoostedFloorContactRunsRespawningPlm());
@@ -137,7 +150,7 @@ internal static partial class Program
         }
     }
 
-    private static (TestAddressSpace Bus, RoomLevelData Level, RoomPlmSystem Plms, int BlockIndex)
+    internal static (TestAddressSpace Bus, RoomLevelData Level, RoomPlmSystem Plms, int BlockIndex)
         CreateSpeedBoosterBlockFixture(RoomBlockBehavior bts, AreaId area)
     {
         const int width = 8;
@@ -163,7 +176,7 @@ internal static partial class Program
         return (bus, level, plms, blockIndex);
     }
 
-    private static SamusState CreateSpeedBoosterCollisionSamus(bool active)
+    internal static SamusState CreateSpeedBoosterCollisionSamus(bool active)
     {
         var samus = new SamusState
         {
@@ -234,4 +247,11 @@ internal static partial class Program
         RoomLevelData level,
         BackgroundTilemapStreamer streamer) =>
         plms.Step(bus, level, streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 }, new PlmFrameInputs { Scrolls = null, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
+
+    [VerificationCommand("--speed-booster-block-plms")]
+    internal static int SpeedBoosterBlockPlmsCommand()
+    {
+        Suite(nameof(VerifySpeedBoosterCollisionBlocks), () => VerifySpeedBoosterCollisionBlocks());
+        return 0;
+    }
 }

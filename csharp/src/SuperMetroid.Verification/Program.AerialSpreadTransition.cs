@@ -1,14 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class AerialSpreadTransitionVerification
 {
     /// <summary>
     /// Issue 415 turnaround and walljump spreads, earned from charge and input alone: only the
     /// native one-frame window releases the aerial spread, and the walljump retains its charge.
     /// </summary>
-    private static void VerifyAerialSpreadTransitions(bool wallRoute = false)
+    internal static void VerifyAerialSpreadTransitions(bool wallRoute = false)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool left in new[] { false, true })
@@ -87,5 +98,19 @@ internal static partial class Program
                 AssertEqual((ushort)0, samus.ProjectileFlareCounter, "intervening turn fires the retained charge instead of morphing");
         }
         if (frame == 299) AssertEqual((ushort)0, runtime.BombProjectiles.BombCounter, "walljump spread expires");
+    }
+
+    [VerificationCommand("--wall-spread-transition")]
+    internal static int WallSpreadTransitionCommand()
+    {
+        Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions(wallRoute: true));
+        return 0;
+    }
+
+    [VerificationCommand("--aerial-spread-transition")]
+    internal static int AerialSpreadTransitionCommand()
+    {
+        Suite(nameof(VerifyAerialSpreadTransitions), () => VerifyAerialSpreadTransitions());
+        return 0;
     }
 }

@@ -1,11 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static MagicNumberAuditVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ProjectileCompositionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class InvalidBeamGraphicsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: LDA [dp],Y operand reads of the glitched Chainsaw/SpaceTime palette pointers, open bus and compiled instruction bytes")]
-    private static void VerifyInvalidBeamGraphics()
+    internal static void VerifyInvalidBeamGraphics()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(0x9090, SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x7ffe, 0),
@@ -71,5 +85,13 @@ internal static partial class Program
                     $"Chainsaw native palette color {color}, queued={queued}");
         }
         Console.WriteLine("Chainsaw graphics: both production loaders match native DMA and instruction-context palette trace.");
+    }
+
+    [VerificationCommand("--invalid-beam-graphics")]
+    internal static int InvalidBeamGraphicsCommand()
+    {
+        Suite(nameof(VerifyInvalidBeamGraphics), () => VerifyInvalidBeamGraphics());
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

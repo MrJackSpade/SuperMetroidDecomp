@@ -1,13 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AudioOverridesVerification;
+using static ControllerInputRecordingVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomContentIdentityVerification
 {
     /// <summary>Direct selected-data checks: no cartridge, installation, or gameplay traversal.</summary>
-    private static void VerifyRoomContentIdentity()
+    internal static void VerifyRoomContentIdentity()
     {
         RoomIdentityFixture baseline = CreateRoomIdentityFixture();
         IReadOnlyDictionary<string, string> hashes = baseline.Identity;
@@ -136,12 +148,19 @@ internal static partial class Program
         static MemoryStream Json<T>(T document) => new(JsonSerializer.SerializeToUtf8Bytes(document));
     }
 
-    private sealed record RoomIdentityFixture(RoomCharacterAtlasCatalog Characters,
+    internal sealed record RoomIdentityFixture(RoomCharacterAtlasCatalog Characters,
         RoomStaticPaletteCatalog Palettes, RoomMetatileCatalog Metatiles,
         RoomBackgroundTilemapCatalog Backgrounds, RoomSkyTilemapCatalog Skies,
         RoomVisualLayoutCatalog Layouts)
     {
         public IReadOnlyDictionary<string, string> Identity => RoomPresentationIdentity.Create(
             Characters, Palettes, Metatiles, Backgrounds, Skies, Layouts);
+    }
+
+    [VerificationCommand("--room-content-identity")]
+    internal static int RoomContentIdentityCommand()
+    {
+        Suite(nameof(VerifyRoomContentIdentity), () => VerifyRoomContentIdentity());
+        return 0;
     }
 }

@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class SlopeSpeedDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for slope speeds")]
-    private static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSlopeSpeeds(SuperMetroidAddressSpace rom)
     {
         var bus = NewSlopeHeightNoReadBus();
         var multipliers = new ushort[32];

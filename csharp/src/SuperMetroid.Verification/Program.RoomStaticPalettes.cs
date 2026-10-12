@@ -1,15 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class RoomStaticPalettesVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room base palettes")]
-    private static void VerifyRoomStaticPaletteExtraction()
+    internal static void VerifyRoomStaticPaletteExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -95,4 +105,11 @@ internal static partial class Program
     private static CartridgeReadGuard NewRoomBasePaletteReadGuard(ISnesAddressSpace source, int paletteSource) =>
         new CartridgeReadGuard(source).Forbid(address => address == paletteSource,
             address => $"Installed room loader reread base palette source ${address:X6}.");
+
+    [VerificationCommand("--room-static-palettes")]
+    internal static int RoomStaticPalettesCommand()
+    {
+        Suite(nameof(VerifyRoomStaticPaletteExtraction), () => VerifyRoomStaticPaletteExtraction());
+        return 0;
+    }
 }

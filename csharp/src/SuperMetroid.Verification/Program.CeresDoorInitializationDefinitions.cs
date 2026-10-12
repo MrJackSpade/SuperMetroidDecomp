@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresDoorInitializationDefinitionsVerification
 {
-    private static void VerifyCeresDoorInitializationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresDoorInitializationDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa6f52c;
         const int functionTable = 0xa6f72b;
@@ -59,4 +71,12 @@ internal static partial class Program
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa6f52c and < 0xa6f53a or >= 0xa6f72b and < 0xa6f739,
                 address => $"Ceres door attempted migrated initialization-table read ${address:X6}.");
+
+    [VerificationCommand("--ceres-door-initialization-definitions")]
+    internal static int CeresDoorInitializationDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCeresDoorInitializationDefinitions), () => VerifyCeresDoorInitializationDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

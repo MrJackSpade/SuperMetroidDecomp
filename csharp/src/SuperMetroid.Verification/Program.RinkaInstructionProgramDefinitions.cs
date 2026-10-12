@@ -1,15 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CompiledEnemyVisualSelectorAssertionsVerification;
 
-internal static partial class Program
+internal static class RinkaInstructionProgramDefinitionsVerification
 {
     /// <summary>
     /// Compares both Rinka programs with the pinned ROM, then executes them through the
     /// production interpreter while every compiled mechanics byte is unavailable.
     /// </summary>
-    private static void VerifyRinkaInstructionProgramDefinitions()
+    internal static void VerifyRinkaInstructionProgramDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -144,4 +156,11 @@ internal static partial class Program
                 address => $"Production read compiled Rinka mechanics byte ${address:X6}.")
             .ObserveWords(0xa20000, RinkaInstructionProgramDefinitions.PresentationWordCount,
                 RinkaInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--rinka-instruction-mechanics")]
+    internal static int RinkaInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyRinkaInstructionProgramDefinitions), () => VerifyRinkaInstructionProgramDefinitions());
+        return 0;
+    }
 }

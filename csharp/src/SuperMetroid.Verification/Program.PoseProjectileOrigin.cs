@@ -1,13 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailRuntimeFixtureVerification;
+using static SamusContentIdentityVerification;
+using static WordSamplesVerification;
 
-internal static partial class Program
+internal static class PoseProjectileOriginVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for pose projectile origin")]
-    private static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
+    internal static void VerifyPoseProjectileOrigin(SuperMetroidAddressSpace rom)
     {
         short Word(int a) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(a));
         var initialize = typeof(SamusProjectileSystem).GetMethod("InitializePosition", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -75,5 +89,13 @@ internal static partial class Program
             AssertEqual(endpoint, g.Anchor.Y, "Late draw does not move collision endpoint");
         }
         Console.WriteLine("Pose projectile origins: every pose and direction with each signed graphics-Y class, and authored Grapple launch/cancellation checks, preserve physics while replacing the graphics-Y byte.");
+    }
+
+    [VerificationCommand("--pose-projectile-origins")]
+    internal static int PoseProjectileOriginsCommand()
+    {
+        Suite(nameof(VerifyPoseProjectileOrigin), () => VerifyPoseProjectileOrigin(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

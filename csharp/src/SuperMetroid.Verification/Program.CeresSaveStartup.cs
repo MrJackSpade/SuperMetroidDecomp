@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInstallation;
+using static SuiteTimingVerification;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -5,15 +15,17 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static FrontendRomFreeVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class CeresSaveStartupVerification
 {
     /// <summary>
     /// #1153: confirm the native Ceres checkpoint mode, not a playthrough. Enter
     /// the actual options dispatcher at its completed fade with checksummed SRAM.
     /// The cinematic checkpoint must never construct an escaping Ceres room.
     /// </summary>
-    private static void VerifyCeresSaveStartup(string installationRoot, EnemyTileArtworkCatalog? enemyArtwork = null)
+    internal static void VerifyCeresSaveStartup(string installationRoot, EnemyTileArtworkCatalog? enemyArtwork = null)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var maps = installation.LoadMaps();
@@ -207,10 +219,18 @@ internal static partial class Program
         Console.WriteLine("#1153: native $1F/$22/$05 checkpoint writes; normal $1F/$22 reload routing, first Landing Site fade with initialized HUD, inactive initial station and preserved progress/SRAM; no inferred legacy recovery pass.");
     }
 
-    private static void SetState(SuperMetroidGame owner, SuperMetroidGameState state) =>
+    internal static void SetState(SuperMetroidGame owner, SuperMetroidGameState state) =>
         typeof(SuperMetroidGame).GetProperty(nameof(owner.GameState))!.SetValue(owner, state);
 
     private static void SetField(SuperMetroidGame owner, string name, object value) =>
         typeof(SuperMetroidGame).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(owner, value);
+
+    [VerificationCommand("--ceres-save-startup")]
+    internal static int CeresSaveStartupCommand()
+    {
+        string ceresSaveInstallation = RepositoryInstallation.Installation.Root;
+        Suite(nameof(VerifyCeresSaveStartup), () => VerifyCeresSaveStartup(ceresSaveInstallation));
+        return 0;
+    }
 }

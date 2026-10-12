@@ -3,15 +3,17 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Desktop;
+using static FrontendRomFreeVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FrontendRomFreeCensusVerification
 {
     /// <summary>
     /// Opt-in bounded retail-room census. Restore each room from the same live
     /// gameplay state so native VRAM queues, PLM slots, and room events from an
     /// earlier diagnostic room cannot affect the next result.
     /// </summary>
-    private static void VerifyFrontendRomFreeRoomCensus(SuperMetroidGame native,
+    internal static void VerifyFrontendRomFreeRoomCensus(SuperMetroidGame native,
         SuperMetroidGame installed, Action<SuperMetroidGame, bool> bindInstalled)
     {
         using var nativeSnapshot = new MemoryStream();

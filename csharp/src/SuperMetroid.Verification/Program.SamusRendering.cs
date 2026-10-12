@@ -1,3 +1,8 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SamusVisorColorsVerification;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,13 +12,16 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static SamusRenderingFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusRenderingVerification
 {
 
 /// <summary>Samus rendering, arm cannon, visor, hurt palette, and pose fixture verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-static void VerifySamusRenderingSlice()
+internal static void VerifySamusRenderingSlice()
 {
     var bus = new TestAddressSpace();
     SeedPoseOneSamusData(bus);
@@ -464,7 +472,7 @@ static void VerifySamusRenderingSlice()
 /// host animation cannot pass by substituting invented timing or a fixed bitmap.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-static void VerifySamusArmCannon()
+internal static void VerifySamusArmCannon()
 {
     var bus = new TestAddressSpace();
     SeedPoseOneSamusData(bus);
@@ -608,7 +616,7 @@ static void VerifySamusArmCannon()
 /// room reset, X-ray exclusion, and the inactive-charge call seam.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusVisorPalette()
+internal static void VerifySamusVisorPalette()
 {
     var bus = new TestAddressSpace();
     var cgram = new SnesCgram();
@@ -700,7 +708,7 @@ static void VerifySamusVisorPalette()
 /// frames: an off-by-one at seven, forty, or sixty would otherwise look visually plausible.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusHurtFlashPalette()
+internal static void VerifySamusHurtFlashPalette()
 {
     var bus = new TestAddressSpace();
     var cgram = new SnesCgram();
@@ -867,7 +875,7 @@ static void VerifySamusHurtFlashPalette()
 /// the DebugRunner separately executes the same code against the user's actual cartridge.
 /// </summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for retail pose $01 frame zero rendering")]
-static void SeedPoseOneSamusData(TestAddressSpace bus)
+internal static void SeedPoseOneSamusData(TestAddressSpace bus)
 {
     // Pose definition $91:B631: facing right, standing movement type, +6 graphics Y.
     bus.WriteBytes(0x91b631, [0x08, 0x00, 0xff, 0x02, 0x06, 0x00, 0x15, 0x00]);
@@ -1060,4 +1068,23 @@ static void SeedHurtFlashPalettes(TestAddressSpace bus)
 
 // Checks required-new/required-held masks, extra-button acceptance, ROM priority order,
 // terminators, and same-pose suppression in the bank-$91 prospective-pose lookup.
+
+    [VerificationCommand("--arm-cannon-fixture")]
+    internal static int ArmCannonFixtureCommand()
+    {
+     VerifySamusArmCannon(); return 0; 
+    }
+
+    [VerificationCommand("--samus-palette-fixtures")]
+    internal static int SamusPaletteFixturesCommand()
+    {
+     VerifySamusVisorPalette(); VerifySamusHurtFlashPalette(); VerifySamusVisorColors(); return 0; 
+    }
+
+    [VerificationCommand("--samus-rendering-slice")]
+    internal static int SamusRenderingSliceCommand()
+    {
+        Suite(nameof(VerifySamusRenderingSlice), () => VerifySamusRenderingSlice());
+        return 0;
+    }
 }

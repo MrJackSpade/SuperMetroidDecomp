@@ -1,9 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class KraidRoomVisualSelectionVerification
 {
-    private static void VerifyKraidRoomVisualSelection()
+    internal static void VerifyKraidRoomVisualSelection()
     {
         // Independent published pointer/ID/shape contract, not production enumeration.
         (ushort Pointer, string Id, int Count)[] definitions =
@@ -69,5 +80,12 @@ internal static partial class Program
         AssertThrows<ArgumentNullException>(() => new RoomPlmKraidVisualCatalog(null!),
             "Kraid visual selection rejects null source");
         Console.WriteLine("Kraid room visual selection: ten roles, all 45 blocks, legacy identity, copied data and validation pass.");
+    }
+
+    [VerificationCommand("--lookup-kraid-room-visual-selection")]
+    internal static int LookupKraidRoomVisualSelectionCommand()
+    {
+        Suite(nameof(VerifyKraidRoomVisualSelection), () => VerifyKraidRoomVisualSelection());
+        return 0;
     }
 }

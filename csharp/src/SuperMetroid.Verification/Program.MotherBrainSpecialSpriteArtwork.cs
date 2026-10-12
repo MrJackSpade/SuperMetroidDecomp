@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MotherBrainSpecialSpriteArtworkVerification
 {
     /// <summary>
     /// Plants a distinct cartridge byte at the bank-$A0 alias of the corpse tile source so a
@@ -16,7 +26,7 @@ internal static partial class Program
         source.WriteBytes(0xa0c000, [0x6b]);
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyMotherBrainSpriteTransferSources()
+    internal static void VerifyMotherBrainSpriteTransferSources()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var source = new TestAddressSpace();
@@ -45,7 +55,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain special sprite sheets and Baby tile records")]
-    private static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
+    internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
         MotherBrainSpecialSpriteArtworkCatalog installed =
@@ -363,4 +373,11 @@ internal static partial class Program
             address < MotherBrainSpecialSpriteArtworkDefinitions.Attack.SourceAddress +
                 MotherBrainSpecialSpriteArtworkDefinitions.Attack.ByteCount,
                 address => $"Mother Brain leg loading reread migrated ROM data at ${address:X6}.");
+
+    [VerificationCommand("--mother-brain-transfer-sources")]
+    internal static int MotherBrainTransferSourcesCommand()
+    {
+        Suite(nameof(VerifyMotherBrainSpriteTransferSources), () => VerifyMotherBrainSpriteTransferSources());
+        return 0;
+    }
 }

@@ -1,11 +1,27 @@
+using System.Buffers.Binary;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
 using System.Runtime.InteropServices;
 using System.Text.Json;
+using static AudioBankTransitionVerification;
+using static AudioInstrumentsVerification;
+using static AudioMusicProgramsVerification;
+using static AudioOverridesVerification;
+using static AudioSoundProgramsVerification;
+using static BrrLoopExtractionVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ManagedAudioVerification
 {
-    private static void VerifyManagedSnesDsp()
+    internal static void VerifyManagedSnesDsp()
     {
         Suite(nameof(VerifyManagedDspResetProducesSilence), () => VerifyManagedDspResetProducesSilence());
         Suite(nameof(VerifyManagedDspPlaysConstructedPcmSample), () => VerifyManagedDspPlaysConstructedPcmSample());
@@ -49,7 +65,7 @@ internal static partial class Program
     }
 
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
-    private static void VerifyManagedDspUsesIndependentLoopEntry()
+    internal static void VerifyManagedDspUsesIndependentLoopEntry()
     {
         var dsp = new ManagedSnesDsp(new byte[65536]);
         var sources = new Dictionary<byte, ManagedPcmSample>
@@ -298,7 +314,7 @@ internal static partial class Program
     }
 
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
-    private static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
+    internal static void ConfigureAudibleVoiceZero(ManagedSnesDsp dsp, byte sourceNumber = 0)
     {
         dsp.WriteRegister(0x00, 0x7f);
         dsp.WriteRegister(0x01, 0x7f);
@@ -418,5 +434,12 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(
             () => PcmWaveFile.ReadMonoPcm16("not-wave"u8, "constructed invalid WAV"),
             "managed PCM rejects malformed WAV container");
+    }
+
+    [VerificationCommand("--pcm-loop-entry")]
+    internal static int PcmLoopEntryCommand()
+    {
+        Suite(nameof(VerifyManagedDspUsesIndependentLoopEntry), () => VerifyManagedDspUsesIndependentLoopEntry());
+        return 0;
     }
 }

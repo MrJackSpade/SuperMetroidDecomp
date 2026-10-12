@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PipeBugAnimationDefinitionsVerification
 {
-    private static void VerifyPipeBugAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPipeBugAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         const int normalTable = 0xb3882b;
         const int strongTable = 0xb38833;

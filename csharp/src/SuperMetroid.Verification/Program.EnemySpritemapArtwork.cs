@@ -4,8 +4,40 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AlcoonInstructionProgramDefinitionsVerification;
+using static BeetomInstructionProgramDefinitionsVerification;
+using static BlueBrinstarFaceBlockInstructionProgramDefinitionsVerification;
+using static BotwoonVisualsVerification;
+using static BullInstructionProgramDefinitionsVerification;
+using static ChootInstructionProgramDefinitionsVerification;
+using static DeadTorizoArtworkVerification;
+using static EvirVisualsVerification;
+using static FlyInstructionProgramDefinitionsVerification;
+using static GrowingShutterInstructionProgramDefinitionsVerification;
+using static HZoomerArtworkVerification;
+using static HZoomerInstructionProgramDefinitionsVerification;
+using static HopperAnimationDefinitionsVerification;
+using static HorizontalShutterInstructionProgramDefinitionsVerification;
+using static ImportedSpritemapsVerification;
+using static KagoInstructionProgramDefinitionsVerification;
+using static LowerNorfairRioInstructionProgramDefinitionsVerification;
+using static MetroidInstructionProgramDefinitionsVerification;
+using static MochtroidVisualsVerification;
+using static MorphBallEyeInstructionProgramDefinitionsVerification;
+using static NativeEnemyVisualSelectorsVerification;
+using static NorfairRioInstructionProgramDefinitionsVerification;
+using static PuyoInstructionProgramDefinitionsVerification;
+using static RidleySupplementalArtworkVerification;
+using static RioInstructionProgramDefinitionsVerification;
+using static SciserInstructionProgramDefinitionsVerification;
+using static SharedCrawlerArtworkVerification;
+using static SharedCrawlerInstructionProgramDefinitionsVerification;
+using static SuiteTimingVerification;
+using static VerticalShutterInstructionProgramDefinitionsVerification;
+using static WorkRobotVisualsVerification;
+using static YardVisualsVerification;
 
-internal static partial class Program
+internal static class EnemySpritemapArtworkVerification
 {
     private static void VerifyInstalledAlcoonInstructionFrames(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
@@ -204,7 +236,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyInstalledEnemySpritemaps(
+    internal static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
     {

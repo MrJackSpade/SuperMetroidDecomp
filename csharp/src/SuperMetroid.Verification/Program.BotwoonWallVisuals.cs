@@ -1,13 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static BabyMetroidRouteDefinitionsVerification;
+using static BotwoonWallPlmsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class BotwoonWallVisualsVerification
 {
-    private static void VerifyBotwoonWallStockMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonWallStockMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] native = new ushort[9];
         for (int index = 0; index < native.Length; index++)
@@ -42,7 +55,7 @@ internal static partial class Program
         Suite(nameof(VerifyBotwoonWallVisualSeparation), () => VerifyBotwoonWallVisualSeparation(custom));
     }
 
-    private static void VerifyBotwoonWallVisualIdMapping()
+    internal static void VerifyBotwoonWallVisualIdMapping()
     {
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (pointer == 0x930f)
@@ -51,7 +64,7 @@ internal static partial class Program
                 AssertThrows<InvalidDataException>(() => BotwoonWallPlmDrawDefinitions.VisualId((ushort)pointer), "Botwoon visual ID accepts only the clear draw");
     }
 
-    private static void VerifyBotwoonWallVisuals()
+    internal static void VerifyBotwoonWallVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -126,7 +139,7 @@ internal static partial class Program
             "Botwoon wall visuals: native nine-tile clear, live art edit, physical/timing isolation, stock repair and strict failures pass.");
     }
 
-    private static void VerifyBotwoonWallVisualSeparation(
+    internal static void VerifyBotwoonWallVisualSeparation(
         RoomPlmBotwoonWallVisualCatalog edited)
     {
         const int width = 32;
@@ -163,5 +176,12 @@ internal static partial class Program
             "edited Botwoon wall preserves native deletion timing");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "edited Botwoon wall draw reads no source bytes");
+    }
+
+    [VerificationCommand("--botwoon-wall-visuals")]
+    internal static int BotwoonWallVisualsCommand()
+    {
+        Suite(nameof(VerifyBotwoonWallVisuals), () => VerifyBotwoonWallVisuals());
+        return 0;
     }
 }

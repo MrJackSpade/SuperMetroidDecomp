@@ -4,15 +4,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static GoldenTorizoRightOrbFramesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class EnemyAnimationIsolationFixtureVerification
 {
     /// <summary>
     /// Small RAM-only room for the statically identified ordinary/extended display-binding
     /// boundary. It deliberately starts at a known compiled AI phase, not a controller
     /// playthrough, and cannot provide cartridge bytes to production code.
     /// </summary>
-    private sealed class EnemyAnimationFixture
+    internal sealed class EnemyAnimationFixture
     {
         private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
         internal const int FloorY = 224;
@@ -112,7 +114,7 @@ internal static partial class Program
         }
     }
 
-    private static void AssertEnemyAnimationMechanics(EnemyAnimationFixture baseline,
+    internal static void AssertEnemyAnimationMechanics(EnemyAnimationFixture baseline,
         EnemyAnimationFixture edited, int frame)
     {
         string context = $"enemy animation replacement at frame {frame}";
@@ -143,13 +145,13 @@ internal static partial class Program
     // health and typed extra state. Do not compare reference owners or editable catalogs:
     // they intentionally belong to different instances. Non-value collections above are
     // compared explicitly, so a matching endpoint cannot hide a changed intermediate frame.
-    private static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class
+    internal static void AssertAnimationValues<T>(T baseline, T edited, string context) where T : class
     {
         foreach (PropertyInfo property in AnimationValueProperties<T>.All)
             AssertEqual(property.GetValue(baseline), property.GetValue(edited), context + " " + typeof(T).Name + "." + property.Name);
     }
 
-    private static class AnimationValueProperties<T> where T : class
+    internal static class AnimationValueProperties<T> where T : class
     {
         internal static readonly PropertyInfo[] All = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Where(property => property.GetIndexParameters().Length == 0 &&

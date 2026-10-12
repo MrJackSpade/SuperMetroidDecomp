@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupCannonLayoutsVerification
 {
-    private static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 0);
-    private static void VerifyCannonLayoutCollision(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 1);
-    private static void VerifyCannonLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 2);
+    internal static void VerifyCannonLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 0);
+    internal static void VerifyCannonLayoutCollision(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 1);
+    internal static void VerifyCannonLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyCannonLayoutDrawField(rom, 2);
 
     private static void VerifyCannonLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {

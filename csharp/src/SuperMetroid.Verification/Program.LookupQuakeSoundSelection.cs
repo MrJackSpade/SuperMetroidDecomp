@@ -2,10 +2,11 @@ using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupQuakeSoundSelectionVerification
 {
-    private static void VerifyQuakeSoundSelection(ISnesAddressSpace rom)
+    internal static void VerifyQuakeSoundSelection(ISnesAddressSpace rom)
     {
         int count = 0;
         while (unchecked((short)ReadVerificationWord(rom, 0x88b256 + 4 * count)) >= 0)

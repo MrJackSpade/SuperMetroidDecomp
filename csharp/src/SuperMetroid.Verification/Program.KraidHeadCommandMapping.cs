@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class KraidHeadCommandMappingVerification
 {
-    private static void VerifyKraidHeadCommandMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidHeadCommandMapping(SuperMetroidAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidHeadCommandMappingRomByte(rom, 0xa70000 | pointer), KraidHeadCommandMappingRomByte(rom, 0xa70000 | (pointer + 1))));
         var expected = new List<KraidHeadInstructionDefinition>();

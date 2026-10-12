@@ -1,11 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static KraidHeadInstructionsVerification;
+using static Program;
 using System.Reflection;
 using System.Linq.Expressions;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidContourCaseMappingsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidBodyContourVerification
 {
-    private static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe()
+    internal static Func<RoomEnemySlot, SamusProjectileSlot, bool> CreateKraidBodyContourProbe()
     {
         Type scratchType = typeof(RoomEnemySystem).GetNestedType(
             "KraidCollisionScratch", BindingFlags.NonPublic)!;
@@ -32,7 +46,7 @@ internal static partial class Program
                 Expression.Call(scratch, scratchType.GetMethod("OverlapsBody")!, body, nativeShot)),
             body, shot).Compile();
     }
-    private static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidBodyContour(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidBodyContourCases), () => VerifyKraidBodyContourCases(rom));
         var enemies = new RoomEnemySystem();
@@ -58,5 +72,15 @@ internal static partial class Program
             }
         }
         Console.WriteLine("Kraid body contour: every signed Y and 1769472 actual collision boundary probes pass with ROM reads forbidden.");
+    }
+
+    [VerificationCommand("--kraid-contour-head-fixtures")]
+    internal static int KraidContourHeadFixturesCommand()
+    {
+        var kraidFixtureRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyKraidBodyContour), () => VerifyKraidBodyContour(kraidFixtureRom));
+        Suite(nameof(VerifyKraidHeadInstructionDefinitions), () => VerifyKraidHeadInstructionDefinitions(kraidFixtureRom));
+        return 0;
     }
 }

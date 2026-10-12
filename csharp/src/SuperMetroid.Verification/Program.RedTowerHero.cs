@@ -1,14 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class RedTowerHeroVerification
 {
     // Isolates the real target/PLM interaction with deliberately controlled camera
     // coordinates. This is NOT a successful controller-only Red Tower climb.
-    private static void VerifyControlledRedTowerHeroShot()
+    internal static void VerifyControlledRedTowerHeroShot()
     {
         SamusProjectileSpawnSnapshot? stationaryLaunch = null;
         foreach (bool followShot in new[] { false, true })
@@ -79,5 +88,12 @@ internal static partial class Program
             }
             Console.WriteLine($"Red Tower controlled camera={followShot}: impact={impact}, deletion={deleted}.");
         }
+    }
+
+    [VerificationCommand("--red-tower-hero")]
+    internal static int RedTowerHeroCommand()
+    {
+        Suite(nameof(VerifyControlledRedTowerHeroShot), () => VerifyControlledRedTowerHeroShot());
+        return 0;
     }
 }

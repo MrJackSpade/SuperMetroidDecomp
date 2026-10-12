@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -10,10 +12,10 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-internal static partial class Program
+internal static class CrocomirePresentation1193Verification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static int VerifyCrocomirePresentation(bool spikes)
+    internal static int VerifyCrocomirePresentation(bool spikes)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -244,5 +246,17 @@ internal static partial class Program
         runtime.RoomSpikes.Step(bus, runtime.Vram, restarted);
         AssertEqual(0x879d84, restarted.Entries.Single().SourceAddress,
             "Absent legacy spike state restarts the current room's selected object");
+    }
+
+    [VerificationCommand("--crocomire-spike-animation")]
+    internal static int CrocomireSpikeAnimationCommand()
+    {
+        return VerifyCrocomirePresentation(true);
+    }
+
+    [VerificationCommand("--crocomire-comeback-rumble")]
+    internal static int CrocomireComebackRumbleCommand()
+    {
+        return VerifyCrocomirePresentation(false);
     }
 }

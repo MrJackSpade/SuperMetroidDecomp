@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidMouthHitboxesVerification;
 
-internal static partial class Program
+internal static class KraidMouthMappingsVerification
 {
-    private static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidMouthShapeCases(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)(SnesLittleEndian.Word(KraidMouthShapeCasesRomByte(rom, address), KraidMouthShapeCasesRomByte(rom, address + 1))));
         for (int entry = 0; entry < 8; entry++)
@@ -29,7 +30,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid mouth shape cases")]
     private static byte KraidMouthShapeCasesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidLowHalfBoundaryMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidLowHalfBoundaryMapping(SuperMetroidAddressSpace rom)
     {
         AssertEqual(7, KraidMouthHitboxes.LowHalfBoundaryLength, "Native compatibility window length");
         for (int index = 0; index < 7; index++)

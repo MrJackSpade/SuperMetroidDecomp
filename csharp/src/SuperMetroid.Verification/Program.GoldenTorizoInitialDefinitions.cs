@@ -1,10 +1,33 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static GoldenTorizoEyeBeamAttackDefinitionsVerification;
+using static GoldenTorizoJumpLandingDefinitionsVerification;
+using static GoldenTorizoLeftFootOrbDefinitionsVerification;
+using static GoldenTorizoLeftOrbDefinitionsVerification;
+using static GoldenTorizoLeftTurnDefinitionsVerification;
+using static GoldenTorizoRightOrbDefinitionsVerification;
+using static GoldenTorizoRightSonicDefinitionsVerification;
+using static GoldenTorizoRightwardDefinitionsVerification;
+using static GoldenTorizoStunnedDefinitionsVerification;
+using static GoldenTorizoWalkingDefinitionsVerification;
+using static SuiteTimingVerification;
+using static TorizoFallingLeftDefinitionsVerification;
+using static TorizoJumpBackDefinitionsVerification;
 
-internal static partial class Program
+internal static class GoldenTorizoInitialDefinitionsVerification
 {
-    private static void VerifyGoldenTorizoInitialDefinitions(ISnesAddressSpace rom)
+    internal static void VerifyGoldenTorizoInitialDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = 0xaa;
         foreach (InstructionMechanicsWord word in
@@ -63,7 +86,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo initial definitions")]
     private static byte GoldenTorizoInitialDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyGoldenTorizoAwakeningDefinitions(ISnesAddressSpace rom)
+    internal static void VerifyGoldenTorizoAwakeningDefinitions(ISnesAddressSpace rom)
     {
         const byte bank = TorizoCollisionDefinitions.Bank;
         var mechanicsAddresses = new HashSet<ushort>();
@@ -174,4 +197,11 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo awakening definitions")]
     private static byte GoldenTorizoAwakeningDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [VerificationCommand("--lookup-stream2-golden-awakening-layout")]
+    internal static int LookupStream2GoldenAwakeningLayoutCommand()
+    {
+        Suite(nameof(VerifyGoldenTorizoAwakeningDefinitions), () => VerifyGoldenTorizoAwakeningDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

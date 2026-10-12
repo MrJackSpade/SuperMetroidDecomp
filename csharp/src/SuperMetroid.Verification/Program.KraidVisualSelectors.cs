@@ -1,17 +1,18 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidVisualSelectorsVerification
 {
-    private static void VerifyKraidNailVisualSelectors(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0x8b0c, 0x8b10, 0x8b14, 0x8b18, 0x8b1c, 0x8b20, 0x8b24, 0x8b28];
         foreach (EnemyDefinitionId enemy in new[] { EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad })
             VerifyKraidVisualSelectorDomain(rom, 0xa70000, enemy, operands);
     }
 
-    private static void VerifyFakeKraidVisualSelectors(SuperMetroidAddressSpace rom)
+    internal static void VerifyFakeKraidVisualSelectors(SuperMetroidAddressSpace rom)
     {
         ushort[] operands =
         [

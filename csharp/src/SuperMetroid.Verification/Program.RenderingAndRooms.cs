@@ -1,3 +1,8 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static RoomSkyTilemapsVerification;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rom;
 using System.Runtime.InteropServices;
@@ -9,8 +14,12 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static MapSpritesVerification;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RenderingAndRoomsVerification
 {
 
 /// <summary>
@@ -33,7 +42,7 @@ private static byte[] AllBlueExplicitScrollTable() =>
 
 /// <summary>OBJ, HUD, cameras, scrolling, tilemaps, room data, and sky verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifyObjRendering()
+internal static void VerifyObjRendering()
 {
     var bus = new TestAddressSpace();
     var vram = new SnesVram();
@@ -102,7 +111,7 @@ static void VerifyObjRendering()
 /// interpretation, palette selection, and final pixel without relying on the private ROM.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-static void VerifyHudStateAndBg3Rendering()
+internal static void VerifyHudStateAndBg3Rendering()
 {
     var bus = new TestAddressSpace();
 
@@ -354,7 +363,7 @@ static void SeedBg3TilemapEntry(TestAddressSpace bus) =>
     bus.WriteBytes(0x818000, [0x02, 0x04]);
 
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Mother Brain bank-$A9 walk program")]
-static void SeedMotherBrainWalkProgram(
+internal static void SeedMotherBrainWalkProgram(
     TestAddressSpace bus,
     ushort listAddress,
     ushort duration,
@@ -381,7 +390,7 @@ static void SeedMotherBrainWalkProgram(
 }
 
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Mother Brain bank-$A9 fast crouch program")]
-static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
+internal static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 {
     ushort[] words =
     [
@@ -398,7 +407,7 @@ static void SeedMotherBrainCrouchFastProgram(TestAddressSpace bus)
 /// Exercises the exact 50-byte room loader plus all four directional bank-$80 handlers at
 /// internal red boundaries and physical room edges.
 /// </summary>
-static void VerifyRoomScrollGridAndBoundaryCamera()
+internal static void VerifyRoomScrollGridAndBoundaryCamera()
 {
     var bus = new TestAddressSpace();
     byte[] source = AllBlueExplicitScrollTable();
@@ -503,7 +512,7 @@ static void VerifyRoomScrollGridAndBoundaryCamera()
 /// Checks bank-$90 moved-axis target selection and 16.16 "distance + 1" arithmetic before
 /// those results enter the already-verified bank-$80 boundary handlers.
 /// </summary>
-static void VerifyMovedSamusCameraTracking()
+internal static void VerifyMovedSamusCameraTracking()
 {
     var bus = new TestAddressSpace();
     byte[] source = AllBlueExplicitScrollTable();
@@ -625,7 +634,7 @@ static void VerifyMovedSamusCameraTracking()
 /// Checks the exact parallax multiply, scroll-register wrapping, signed block conversion,
 /// and row/column selection at $80:A2F9-$80:A527.
 /// </summary>
-static void VerifyBackgroundScrollState()
+internal static void VerifyBackgroundScrollState()
 {
     var state = new BackgroundScrollState
     {
@@ -796,7 +805,7 @@ static void VerifyBackgroundScrollState()
 }
 
 /// <summary>Checks all four branches shared by $80:AA95 and $80:AC57.</summary>
-static void VerifyLevelBlockTilemapExpansion()
+internal static void VerifyLevelBlockTilemapExpansion()
 {
     // Put the definition at index one so the test also exercises the level entry's ten-bit
     // lookup. Existing child flip/palette bits are retained and XORed, never reconstructed.
@@ -845,7 +854,7 @@ static void VerifyLevelBlockTilemapExpansion()
 /// Verifies the shared row-major BG1/BTS model that will feed bank-$94 collision while
 /// continuing to construct the already-verified bank-$80 visual streamer.
 /// </summary>
-static void VerifyRoomLevelData()
+internal static void VerifyRoomLevelData()
 {
     const int width = 3;
     const int height = 2;
@@ -923,7 +932,7 @@ static void SeedRoomStateSelectorWords(TestAddressSpace bus, ushort roomPointer,
 /// <summary>
 /// Exercises bank-$8F's inline room-state selector bytecode without the private cartridge.
 /// </summary>
-static void VerifyCartridgeRoomStateSelection()
+internal static void VerifyCartridgeRoomStateSelection()
 {
     var bus = new TestAddressSpace();
     const ushort roomPointer = 0x9000;
@@ -994,7 +1003,7 @@ static void VerifyCartridgeRoomStateSelection()
 
 /// <summary>Checks $80:A9DE-$80:AD17 staging geometry and $80:8CD8 NMI destinations.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-static void VerifyBackgroundTilemapStreamer()
+internal static void VerifyBackgroundTilemapStreamer()
 {
     const int width = 32;
     var level = new ushort[width * 32];
@@ -1080,7 +1089,7 @@ static void VerifyBackgroundTilemapStreamer()
 
 /// <summary>Checks Mode-1 4-bpp BG pixels, palette selection, transparency, and H flip.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-static void VerifyFourBitBackgroundRendering()
+internal static void VerifyFourBitBackgroundRendering()
 {
     var vram = new SnesVram();
     var cgram = new SnesCgram();
@@ -1184,7 +1193,7 @@ static void VerifyFourBitBackgroundRendering()
 /// Samus/OAM. The gameplay IRQ hides BG1 behind the HUD; it does not rewind BG1VOFS when
 /// BG1 becomes visible again on line 32.
 /// </summary>
-static void VerifyHostRoomViewportAlignment()
+internal static void VerifyHostRoomViewportAlignment()
 {
     const int roomWidth = 300;
     const int roomHeight = 260;
@@ -1259,7 +1268,7 @@ static TestAddressSpace CreatePowerBombColorMathWindowCartridge()
     return bus;
 }
 
-static void VerifyPowerBombColorMathWindow()
+internal static void VerifyPowerBombColorMathWindow()
 {
     TestAddressSpace bus = CreatePowerBombColorMathWindowCartridge();
 
@@ -1339,7 +1348,7 @@ static Rgba32[] CreateOpaqueBlackGameplayFrame()
 
 /// <summary>Checks bank-$88 sky fixed-point bands and four queued circular-map rows.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-static void VerifyScrollingSkyState()
+internal static void VerifyScrollingSkyState()
 {
     AssertTrue(
         ScrollingSkyState.IsLandRoomMain(RoomMainCallback.ScrollingSkyLand),
@@ -1390,4 +1399,26 @@ static void VerifyScrollingSkyState()
 
 // Exercises bank-$90 firing and movement, bank-$93 animation, and bank-$94 solid collision
 // for an uncharged power beam without sharing implementation code with the production path.
+
+    [VerificationCommand("--hud-state")]
+    internal static int HudStateCommand()
+    {
+        Suite(nameof(VerifyHudStateAndBg3Rendering), () => VerifyHudStateAndBg3Rendering());
+        return 0;
+    }
+
+    [VerificationCommand("--cartridge-room-state-selection")]
+    internal static int CartridgeRoomStateSelectionCommand()
+    {
+        Suite(nameof(VerifyCartridgeRoomStateSelection), () => VerifyCartridgeRoomStateSelection());
+        return 0;
+    }
+
+    [VerificationCommand("--room-sky-tilemaps")]
+    internal static int RoomSkyTilemapsCommand()
+    {
+        Suite(nameof(VerifyScrollingSkyState), () => VerifyScrollingSkyState());
+        Suite(nameof(VerifyRoomSkyTilemaps), () => VerifyRoomSkyTilemaps());
+        return 0;
+    }
 }

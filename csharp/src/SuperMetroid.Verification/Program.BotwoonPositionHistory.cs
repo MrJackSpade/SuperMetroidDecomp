@@ -1,15 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class BotwoonPositionHistoryVerification
 {
     // #1269: InitAI_Botwoon seeds only the four delayed head positions. Its position
     // history ($7E:9000-$93FF) lies in the range Initialise_Enemies zeroes, so the body
     // segments' first placements read (0,0); the port seeded it with the head position.
     // Its hidden/dying head sets property $0400, which the port had mistranslated as $8000.
-    private static void VerifyBotwoonPositionHistory()
+    internal static void VerifyBotwoonPositionHistory()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -41,5 +51,12 @@ internal static partial class Program
             !head.Properties.HasAny(EnemyProperties.SolidToSamus),
             "a lethal hit makes the head intangible with property $0400");
         Console.WriteLine("Botwoon position history and collision bit: ring starts zeroed; $0400 hides the head.");
+    }
+
+    [VerificationCommand("--botwoon-position-history")]
+    internal static int BotwoonPositionHistoryCommand()
+    {
+        VerifyBotwoonPositionHistory();
+        return 0;
     }
 }

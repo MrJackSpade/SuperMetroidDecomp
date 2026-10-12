@@ -1,10 +1,13 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ShaktoolOrbitAlgorithmVerification;
+using static SuiteTimingVerification;
+using static WordSamplesVerification;
 
-internal static partial class Program
+internal static class FamilyTrigonometryVerification
 {
-    private static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySignedSixteenBitSineDefinitions(SuperMetroidAddressSpace rom)
     {
         var bullSample = typeof(RoomEnemySystem)
             .GetMethod("ReadBullSignedSine", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -21,7 +24,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for signed sixteen bit sine definitions")]
     private static byte SignedSixteenBitSineDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledFamilyTrigonometry(SuperMetroidAddressSpace rom)
     {
         short Read(int address) => unchecked((short)(SnesLittleEndian.Word(CompiledFamilyTrigonometryRomByte(rom, address), CompiledFamilyTrigonometryRomByte(rom, address + 1))));
         short[] native = Enumerable.Range(0, 256)

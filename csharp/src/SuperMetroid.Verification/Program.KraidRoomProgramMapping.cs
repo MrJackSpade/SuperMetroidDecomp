@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class KraidRoomProgramMappingVerification
 {
-    private static void VerifyKraidRoomProgramMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidRoomProgramMapping(SuperMetroidAddressSpace rom)
     {
         // Independent native lists. The byte timer shifts the loop onto even addresses;
         // the seven-byte machine-code callback is not part of any instruction list.

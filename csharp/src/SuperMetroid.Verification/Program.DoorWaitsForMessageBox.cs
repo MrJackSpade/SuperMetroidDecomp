@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class DoorWaitsForMessageBoxVerification
 {
     /// <summary>
     /// A door hit during movement changes game_state at once, but a station notice opened
@@ -13,7 +23,7 @@ internal static partial class Program
     /// only the next dispatch runs state $09. In the 13% movie a missile station's refill
     /// finishes on the frame Samus enters a door.
     /// </summary>
-    private static void VerifyDoorWaitsForMessageBox()
+    internal static void VerifyDoorWaitsForMessageBox()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -48,5 +58,12 @@ internal static partial class Program
         }
         AssertEqual(SuperMetroidGameState.HitDoorBlock, game.GameState, "the box's final frame publishes the door");
         Console.WriteLine("  Door waits for message box: state $09 follows the station notice.");
+    }
+
+    [VerificationCommand("--door-waits-for-message-box")]
+    internal static int DoorWaitsForMessageBoxCommand()
+    {
+        Suite(nameof(VerifyDoorWaitsForMessageBox), () => VerifyDoorWaitsForMessageBox());
+        return 0;
     }
 }

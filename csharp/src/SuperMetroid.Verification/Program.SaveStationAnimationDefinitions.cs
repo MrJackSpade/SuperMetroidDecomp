@@ -1,10 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RoomPlmPopulationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SaveStationAnimationDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for save station animation definitions")]
-    private static void VerifySaveStationAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySaveStationAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         AssertEqual(
             rom.ReadCartridgeByte(SaveStationAnimationDefinitions.NativeSaveAnimationLoopsAddress),
@@ -16,5 +29,13 @@ internal static partial class Program
         Console.WriteLine(
             "Save-station animation definitions: the native 21-loop operand matches the " +
             "cartridge; the real station fixture completes with the retired byte absent.");
+    }
+
+    [VerificationCommand("--save-station-animation-definitions")]
+    internal static int SaveStationAnimationDefinitionsCommand()
+    {
+        Suite(nameof(VerifySaveStationAnimationDefinitions), () => VerifySaveStationAnimationDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

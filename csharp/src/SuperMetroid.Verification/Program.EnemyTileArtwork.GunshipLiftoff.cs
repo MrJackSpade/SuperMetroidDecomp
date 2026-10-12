@@ -5,12 +5,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkGunshipLiftoffVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed gunship liftoff transfers")]
-    private static void VerifyInstalledGunshipLiftoffArtwork(
+    internal static void VerifyInstalledGunshipLiftoffArtwork(
         SuperMetroidAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
     {
         GunshipLiftoffArtworkCatalog installed = stock.GunshipLiftoff ??

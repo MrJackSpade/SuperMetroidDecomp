@@ -1,8 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class ElevatorStandUpContactVerification
 {
     /// <summary>
     /// <c>$91:F404</c> installs the new pose before <c>$91:FDAE</c> probes the larger body, so
@@ -10,7 +21,7 @@ internal static partial class Program
     /// <c>$94:938B</c>'s below-$09 gate. In the 13% movie Samus stands up ($28 to $02) on
     /// Kraid's lair elevator; native arms it in that frame and Down boards it next frame.
     /// </summary>
-    private static void VerifyElevatorStandUpContact()
+    internal static void VerifyElevatorStandUpContact()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int Width = 4, Height = 6, DoorRow = 4;
@@ -37,5 +48,12 @@ internal static partial class Program
         AssertTrue(level.ConsumeElevatorDoorContact(),
             "the probe for the new standing pose ($02 < $09) arms the elevator");
         Console.WriteLine("  Elevator stand-up contact: standing up on the elevator arms it in the same frame.");
+    }
+
+    [VerificationCommand("--elevator-stand-up-contact")]
+    internal static int ElevatorStandUpContactCommand()
+    {
+        Suite(nameof(VerifyElevatorStandUpContact), () => VerifyElevatorStandUpContact());
+        return 0;
     }
 }

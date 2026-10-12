@@ -1,6 +1,8 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
 /// <summary>
 /// #223: the canonical word reads and the background format model. Each read takes the low byte at the
@@ -8,9 +10,9 @@ using SuperMetroid.Core.Rom;
 /// the linear progression continues into the next bank, the fixed-bank progression wraps to the same
 /// bank's first byte, and a failing source's exception reaches the caller unchanged.
 /// </summary>
-internal static partial class Program
+internal static class WordReadsVerification
 {
-    private static void VerifyCanonicalWordReads()
+    internal static void VerifyCanonicalWordReads()
     {
         Suite(nameof(VerifyWordReadByteOrder), () => VerifyWordReadByteOrder());
         Suite(nameof(VerifyWordReadBankBoundary), () => VerifyWordReadBankBoundary());
@@ -109,14 +111,14 @@ internal static partial class Program
         AssertEqual((ushort)0x1234, SnesVramAddressing.ReadWord(vram, 0xffff), "VRAM word addresses wrap and read low byte first");
     }
 
-    private sealed class UnmappedByteException(int address) : Exception($"No byte at ${address:X6}.")
+    internal sealed class UnmappedByteException(int address) : Exception($"No byte at ${address:X6}.")
     {
         public int Address { get; } = address;
     }
 
     /// <summary>A byte store that records every read and fails at unmapped addresses.</summary>
     [CpuBusBoundary("exact bus test: recording byte source for the canonical word reads' order, boundary and failure contract")]
-    private sealed class RecordingByteSource(Dictionary<int, byte> bytes) : ISnesMutableMemory, IImportCartridgeSource
+    internal sealed class RecordingByteSource(Dictionary<int, byte> bytes) : ISnesMutableMemory, IImportCartridgeSource
     {
         public List<int> Reads { get; } = [];
 

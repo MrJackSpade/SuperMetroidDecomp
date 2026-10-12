@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.AssetExtraction;
 using System.Buffers.Binary;
@@ -9,13 +12,17 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static SamusRenderingFixtureVerification;
+using static SyntheticSamusCartridgeVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusGrappleVerification
 {
 
 /// <summary>Grapple swing, collision, release, and drawing verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-static void VerifySamusGrappleSwingAndRelease()
+internal static void VerifySamusGrappleSwingAndRelease()
 {
     var bus = new TestAddressSpace();
     void BindGrapplePresentation(SamusState state)
@@ -29,7 +36,7 @@ static void VerifySamusGrappleSwingAndRelease()
     }
     SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position)
     {
-        SamusState state = Program.CreateSamus(pose, position);
+        SamusState state = VerificationHelpersVerification.CreateSamus(pose, position);
         BindGrapplePresentation(state);
         return state;
     }
@@ -1165,4 +1172,11 @@ static void WriteGrappleFlareOrigin(TestAddressSpace bus, int direction, Offset1
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the $9B:C1C2 grapple swing-frame table")]
 static void WriteGrappleSwingFrame(TestAddressSpace bus, byte angle, byte frame) =>
     WriteTestByte(bus, 0x9bc1c2 + angle, frame);
+
+    [VerificationCommand("--samus-grapple")]
+    internal static int SamusGrappleCommand()
+    {
+        Suite(nameof(VerifySamusGrappleSwingAndRelease), () => VerifySamusGrappleSwingAndRelease());
+        return 0;
+    }
 }

@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RoomMainCodeCatalogVerification;
 
-internal static partial class Program
+internal static class RoomStateSelectionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for room state selection definitions")]
-    private static void VerifyCompiledRoomStateSelectionDefinitions()
+    internal static void VerifyCompiledRoomStateSelectionDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -108,5 +118,12 @@ internal static partial class Program
         AssertEqual(61, clauses, "All native conditional branch destinations");
         AssertEqual(323, reached.Count, "All original selected room states reached by their predicate partitions");
         Console.WriteLine($"Room selectors: 262 identities, 54 conditional programs, 61 ordered branches, 323 states and {comparisons} native predicate-partition comparisons pass.");
+    }
+
+    [VerificationCommand("--room-state-definitions")]
+    internal static int RoomStateDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCompiledRoomStateSelectionDefinitions), () => VerifyCompiledRoomStateSelectionDefinitions());
+        return 0;
     }
 }

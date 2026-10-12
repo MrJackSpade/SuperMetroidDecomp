@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Assets;
 
-internal static partial class Program
+internal static class LookupFxLegacySheetsVerification
 {
-    private static void VerifyRoomFxLegacySheetSelection()
+    internal static void VerifyRoomFxLegacySheetSelection()
     {
         // Pre-conversion widths at1fefba07, independently fixed compatibility contract.
         // Uniform pixel1 encodes FF/00 per row; pixel2 encodes 00/FF.
@@ -48,7 +48,7 @@ internal static partial class Program
         }
     }
 
-    private sealed class FxAtlasForwardOnlyStream(byte[] bytes) : MemoryStream(bytes)
+    internal sealed class FxAtlasForwardOnlyStream(byte[] bytes) : MemoryStream(bytes)
     {
         public override bool CanSeek => false;
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }

@@ -5,11 +5,17 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class GameplayCaptureIntegrationTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
-    private static void VerifyGameplayCaptureIntegration()
+    internal static void VerifyGameplayCaptureIntegration()
     {
         byte[] rom = File.ReadAllBytes(Path.GetFullPath("Super Metroid.smc"));
         var bus = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);

@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresZebesActorMetadataVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres Zebes actor metadata")]
-    private static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
+    internal static void VerifyCeresZebesActorMetadata(ISnesAddressSpace retail)
     {
         int[] xAddresses = [0x8bc83c, 0x8bc944, 0x8bc958, 0x8bc96c, 0x8bc980, 0x8bc993];
         int[] yAddresses = [0x8bc842, 0x8bc94a, 0x8bc95e, 0x8bc972, 0x8bc986, 0x8bc999];

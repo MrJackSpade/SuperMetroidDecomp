@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class DraygonBurialEvirDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Draygon burial Evir definitions")]
-    private static void VerifyDraygonBurialEvirDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonBurialEvirDefinitions(SuperMetroidAddressSpace rom)
     {
         const int subspeedTable = 0xa5a1af;
         const int positionTable = 0xa5a1c7;

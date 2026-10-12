@@ -1,10 +1,11 @@
 using System.Reflection;
 using SuperMetroid.Core.Assets;
+using static EnemyContentIdentityFixtureVerification;
 
-internal static partial class Program
+internal static class EnemyExtendedLegacyOverridesVerification
 {
     /// <summary>Verifies declared historical component/binding schemas with authored JSON only.</summary>
-    private static void VerifyEnemyExtendedLegacyOverrides()
+    internal static void VerifyEnemyExtendedLegacyOverrides()
     {
         var fixture = new EnemyIdentityFixture();
         EnemyExtendedFrameDefinition[] definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();

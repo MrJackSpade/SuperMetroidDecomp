@@ -1,12 +1,22 @@
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class GameOptionsLanguagePalettesVerification
 {
-    private static void VerifyGameOptionsToggleGeometry()
+    internal static void VerifyGameOptionsToggleGeometry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -58,7 +68,7 @@ internal static partial class Program
     private static byte GameOptionsToggleGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyGameOptionsLanguagePalettes()
+    internal static void VerifyGameOptionsLanguagePalettes()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -116,4 +126,18 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for game options language palettes")]
     private static byte GameOptionsLanguagePalettesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [VerificationCommand("--lookup-options-toggle-geometry")]
+    internal static int LookupOptionsToggleGeometryCommand()
+    {
+        Suite(nameof(VerifyGameOptionsToggleGeometry), () => VerifyGameOptionsToggleGeometry());
+        return 0;
+    }
+
+    [VerificationCommand("--game-options-language-palettes")]
+    internal static int GameOptionsLanguagePalettesCommand()
+    {
+        Suite(nameof(VerifyGameOptionsLanguagePalettes), () => VerifyGameOptionsLanguagePalettes());
+        return 0;
+    }
 }

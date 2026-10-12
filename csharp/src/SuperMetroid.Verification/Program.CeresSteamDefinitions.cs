@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresSteamDefinitionsVerification
 {
-    private static void VerifyCeresSteamDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCeresSteamDefinitions(SuperMetroidAddressSpace rom)
     {
         const int instructionTable = 0xa6eff5;
         const int functionTable = 0xa6f001;

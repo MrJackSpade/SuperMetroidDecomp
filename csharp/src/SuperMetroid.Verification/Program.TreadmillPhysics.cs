@@ -2,10 +2,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class TreadmillPhysicsVerification
 {
-    private static void VerifyTreadmillPhysics()
+    internal static void VerifyTreadmillPhysics()
     {
         var bus = new TestAddressSpace();
         ushort[] words = new ushort[16];

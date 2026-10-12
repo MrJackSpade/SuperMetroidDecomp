@@ -4,10 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class BossDisplayBindingsFixtureVerification
 {
     /// <summary>One compiled boss actor with RAM only, exercising the public queued draw path.</summary>
-    private sealed class BossDisplayFixture
+    internal sealed class BossDisplayFixture
     {
         private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();

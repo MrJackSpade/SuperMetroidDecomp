@@ -1,14 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class RoomEnemyLoadContractsVerification
 {
     /// <summary>
     /// #633: the room-enemy load contract is the union of its children's contracts, each child contract
     /// exposes only its own capabilities, the concrete request rejects missing required capabilities, and
     /// standalone services fail at an uninstalled dependency instead of returning a default.
     /// </summary>
-    private static void VerifyRoomEnemyLoadContracts()
+    internal static void VerifyRoomEnemyLoadContracts()
     {
         AssertTrue(typeof(IRoomEnemyPopulationSource).IsAssignableFrom(typeof(IRoomEnemyLoad)) &&
             typeof(IRoomEnemyActorContext).IsAssignableFrom(typeof(IRoomEnemyLoad)),
@@ -42,5 +53,12 @@ internal static partial class Program
         var seeded = new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => seed, SeedRandom = value => seed = value };
         seeded.Random.Seed(0x0017);
         AssertEqual((ushort)0x0017, seeded.Random.Read(), "installed RNG seed reads and writes share the word");
+    }
+
+    [VerificationCommand("--room-enemy-load-contracts")]
+    internal static int RoomEnemyLoadContractsCommand()
+    {
+        Suite(nameof(VerifyRoomEnemyLoadContracts), () => VerifyRoomEnemyLoadContracts());
+        return 0;
     }
 }

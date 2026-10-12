@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class TorizoInitializationDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo initialization")]
-    private static void VerifyCompiledTorizoInitialization(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledTorizoInitialization(SuperMetroidAddressSpace rom)
     {
         for (int variant = 0; variant < 2; variant++)
         {

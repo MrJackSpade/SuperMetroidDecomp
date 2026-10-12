@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
@@ -5,8 +12,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class UnpauseReserveBlackoutVerification
 {
     /// <summary>
     /// State $12 ($82:93A1) runs the whole state-eight routine, so a Samus unpaused at zero
@@ -14,7 +23,7 @@ internal static partial class Program
     /// ($51 never finished fading in). A later pause darkens from that black register: state
     /// $0C ends on its first frame. The 13% movie does both after switching reserve to auto.
     /// </summary>
-    private static void VerifyUnpauseReserveBlackout()
+    internal static void VerifyUnpauseReserveBlackout()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -57,5 +66,12 @@ internal static partial class Program
         AssertEqual(SuperMetroidGameState.Pausing, pausing.GameState,
             "darkening from a black screen ends on its first frame");
         Console.WriteLine("  Unpause reserve blackout: the refill starts in state $12 and the next pause darkens from black.");
+    }
+
+    [VerificationCommand("--unpause-reserve-blackout")]
+    internal static int UnpauseReserveBlackoutCommand()
+    {
+        Suite(nameof(VerifyUnpauseReserveBlackout), () => VerifyUnpauseReserveBlackout());
+        return 0;
     }
 }

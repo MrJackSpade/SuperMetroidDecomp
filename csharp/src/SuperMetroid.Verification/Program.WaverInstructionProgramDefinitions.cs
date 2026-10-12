@@ -1,18 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class WaverInstructionProgramDefinitionsVerification
 {
-    private static void VerifyWaverInstructionProgramDefinitions()
+    internal static void VerifyWaverInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyWaverInstructionProgramDefinitions), () => VerifyWaverInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyWaverInstructionProgramDefinitions(
+    internal static void VerifyWaverInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -144,4 +154,11 @@ internal static partial class Program
                 address => $"Production read compiled Waver mechanics byte ${address:X6}.")
             .ForbidWords(0xa30000, WaverInstructionProgramDefinitionsTooling.PresentationWordCount, WaverInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Production read installed Waver selector ${address:X6}.");
+
+    [VerificationCommand("--waver-instruction-mechanics")]
+    internal static int WaverInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyWaverInstructionProgramDefinitions), () => VerifyWaverInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,12 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Input;
 using System.Reflection;
+using static IntroBabyDiscoveryInputVerification;
+using static IntroBabyDiscoveryInstructionsVerification;
+using static IntroDiscoveryCollisionVerification;
+using static IntroScientistInstructionsVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroBabyActorDefinitionsVerification
 {
-    private static void VerifyIntroBabyActorDefinitions()
+    internal static void VerifyIntroBabyActorDefinitions()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyIntroBabyDiscoveryInstructions), () => VerifyIntroBabyDiscoveryInstructions(retail));
@@ -248,7 +263,7 @@ internal static partial class Program
             address => $"Intro egg/baby actor reread compiled byte ${address:X6}.");
 
     /// <summary>A demo owner that accepts every pre-instruction without effect and has no private routines (#633).</summary>
-    private sealed class InertPreInstructionDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
+    internal sealed class InertPreInstructionDemoProgram(Func<ushort, ushort> readWord) : IDemoInputProgram
     {
         public ushort ReadInstructionWord(ushort pointer) => readWord(pointer);
 
@@ -256,5 +271,12 @@ internal static partial class Program
 
         public DemoInputInstructionResult RunSpecialInstruction(DemoInputState demo, ushort opcode, ushort cursor) =>
             DemoInputInstructionResult.NotHandled(cursor);
+    }
+
+    [VerificationCommand("--intro-baby-actor-definitions")]
+    internal static int IntroBabyActorDefinitionsCommand()
+    {
+        Suite(nameof(VerifyIntroBabyActorDefinitions), () => VerifyIntroBabyActorDefinitions());
+        return 0;
     }
 }

@@ -2,7 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class RoomPlmInstructionListCatalogVerification
 {
     /// <summary>
     /// Protects the semantic bank-$84 list catalog from accidental aliases and invalid
@@ -10,7 +10,7 @@ internal static partial class Program
     /// read through the production address space so a typo cannot survive as documentation.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room PLM instruction list catalog")]
-    static void VerifyRoomPlmInstructionListCatalog()
+    internal static void VerifyRoomPlmInstructionListCatalog()
     {
         FieldInfo[] fields = CatalogFields.Of(typeof(RoomPlmInstructionLists), BindingFlags.Public | BindingFlags.Static)
             .Where(field => field.IsLiteral && field.FieldType == typeof(ushort))

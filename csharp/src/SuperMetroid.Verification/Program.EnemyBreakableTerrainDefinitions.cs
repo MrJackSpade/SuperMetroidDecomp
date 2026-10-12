@@ -5,9 +5,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class EnemyBreakableTerrainDefinitionsVerification
 {
-    private static void VerifyEnemyBreakableTerrainDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEnemyBreakableTerrainDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 16; index++)
         {

@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static DoorDefinitionsVerification;
+using static RoomMainCodeCatalogVerification;
 
-internal static partial class Program
+internal static class LookupRetailDoorListsVerification
 {
-    private static void VerifyRetailDoorListMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyRetailDoorListMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] rooms = File.ReadLines(Path.GetFullPath(Path.Combine("upstream-sm", "assets", "names.txt")))
             .Select(TryParseRoomHeaderPointer).Where(pointer => pointer.HasValue)

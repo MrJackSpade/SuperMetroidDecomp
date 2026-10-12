@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RidleyExplosionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley explosion definitions")]
-    private static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
 
         ReadOnlySpan<ushort> spawnPointerOperands =
@@ -264,4 +276,12 @@ internal static partial class Program
                 >= 0xa6c89a and < 0xa6c8a2 or
                 >= 0xa6c8cc and < 0xa6c8d4,
             address => $"Ridley breakup attempted migrated definition read ${address:X6}.");
+
+    [VerificationCommand("--ridley-explosion-definitions")]
+    internal static int RidleyExplosionDefinitionsCommand()
+    {
+        Suite(nameof(VerifyRidleyExplosionDefinitions), () => VerifyRidleyExplosionDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

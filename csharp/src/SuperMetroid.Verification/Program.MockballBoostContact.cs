@@ -1,10 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static EnemyDropsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class MockballBoostContactVerification
 {
-    private static void VerifyMockballBoostContact()
+    internal static void VerifyMockballBoostContact()
     {
         // The report concerns the retained boost after a mockball has landed. Exercise
         // the real moving-ball handler, then the enemy contact pass that consumes its
@@ -63,5 +74,11 @@ internal static partial class Program
             AssertEqual(0, speed.SpeedBoostCounter, "stopping retains native boost cancellation");
         }
         Console.WriteLine("Mockball boost: moving Morph/Spring Ball republishes contact damage for consecutive frames, deals 500 damage, and respects boost threshold and stopping.");
+    }
+
+    [VerificationCommand("--mockball-boost-contact")]
+    internal static int MockballBoostContactCommand()
+    {
+     VerifyMockballBoostContact(); return 0; 
     }
 }

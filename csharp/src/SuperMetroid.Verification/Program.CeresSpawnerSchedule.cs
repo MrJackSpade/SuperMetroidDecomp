@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresSpawnerScheduleVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres spawner schedule")]
-    private static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
+    internal static void VerifyCeresSpawnerSchedule(ISnesAddressSpace rom)
     {
         // C33B loads the repeat countdown seed; C4A8 reloads the period after a spawn.
         AssertEqual((byte)0xa9, rom.ReadCartridgeByte(0x8bc33b), "native countdown seed opcode");

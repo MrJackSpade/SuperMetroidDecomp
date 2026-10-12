@@ -1,3 +1,6 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,9 +12,11 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
-internal static partial class Program
+using static KraidReportedCollisionsVerification;
+using static SuiteTimingVerification;
+internal static class KraidSuperMissileDamageVerification
 {
-    private static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
+    internal static int VerifyKraidSuperMissileDamage(bool collisionReport = false)
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -206,6 +211,18 @@ internal static partial class Program
             sprite.Kind == RoomSpriteObjectKind.EnemyProjectileDud && sprite.Position.X.Whole == 176 && sprite.Position.Y.Whole == 486),
             "Non-damaging mouth callback emits its native dud sprite");
         Console.WriteLine("Kraid close-range damage, deferred owner/link cleanup, count traversal and adjacent bomb slot verified.");
+    }
+
+    [VerificationCommand("--kraid-reported-collisions")]
+    internal static int KraidReportedCollisionsCommand()
+    {
+        return VerifyKraidSuperMissileDamage(collisionReport: true);
+    }
+
+    [VerificationCommand("--kraid-super-missile-damage")]
+    internal static int KraidSuperMissileDamageCommand()
+    {
+        return VerifyKraidSuperMissileDamage();
     }
 }
 

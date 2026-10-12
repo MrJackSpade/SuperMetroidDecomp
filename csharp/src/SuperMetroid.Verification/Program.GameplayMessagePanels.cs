@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static GameplayMessageTitlesVerification;
 
-internal static partial class Program
+internal static class GameplayMessagePanelsVerification
 {
-    private static void VerifyGameplayMessagePanels(string romPath)
+    internal static void VerifyGameplayMessagePanels(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.GameplayMessagePanelExtractor.Extract(bus);
@@ -64,7 +76,7 @@ internal static partial class Program
             $"Gameplay-message panels: {GameplayMessagePanelDefinitions.MessageIds.Length} UTF-8 titles and {comparedWords} installed words match the cartridge with message ROM reads forbidden; diagrams, remapped controls, live edit/rebind and invalid glyph rejection pass.");
     }
 
-    private static void VerifyGameplayMessagePanelAssets(
+    internal static void VerifyGameplayMessagePanelAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
@@ -100,5 +112,13 @@ internal static partial class Program
             "corrupt gameplay-message panel override fails loudly");
         Console.WriteLine(
             "Gameplay-message panel catalog: deterministic stock, override selection/identity and corruption failure pass.");
+    }
+
+    [VerificationCommand("--gameplay-message-panels")]
+    internal static int GameplayMessagePanelsCommand()
+    {
+        string messagePanelRom = RepositoryRomPath;
+        Suite(nameof(VerifyGameplayMessagePanels), () => VerifyGameplayMessagePanels(messagePanelRom));
+        return 0;
     }
 }

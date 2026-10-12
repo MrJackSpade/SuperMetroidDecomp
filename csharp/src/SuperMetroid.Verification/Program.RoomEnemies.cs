@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -6,8 +14,15 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static CeresDoorQuakeDefinitionsVerification;
+using static ProjectileNativeFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static SignedSineFixtureVerification;
+using static SyntheticEnemyCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RoomEnemiesVerification
 {
 
 /// <summary>
@@ -38,7 +53,7 @@ static void SeedRoomEnemyLoadingArtworkAndSpawnData(
 }
 
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-static void VerifyRoomEnemyLoading()
+internal static void VerifyRoomEnemyLoading()
 {
     const ushort populationPointer = 0x9100;
     const ushort tilesetPointer = 0x9100;
@@ -210,7 +225,7 @@ static void VerifyRoomEnemyLoading()
 }
 
 [CpuBusBoundary("exact bus test: enemy fixture source that forwards fixture tables and forbids the native enemy tile-upload ROM ranges")]
-private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
+internal sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     ISnesAddressSpace, IRoomEnemyFixtureSource, IImportCartridgeSource,
     ISnesMutableMemory
 {
@@ -250,7 +265,7 @@ private sealed class EnemyTileSourceReadGuard(TestAddressSpace source) :
     }
 }
 
-private static void VerifyEnemyMappedSourceRouting()
+internal static void VerifyEnemyMappedSourceRouting()
 {
     const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
     foreach (string removed in new[] { "ReadEnemySourceByte", "ReadWord", "ReadLong" })
@@ -283,7 +298,7 @@ private static void VerifyEnemyWorkRamWordMapping(SuperMetroidAddressSpace memor
 /// Bank $A0 marks both direction words and lets their own next pre-instruction dispose of
 /// them; it never creates either of the visible bank-$93 missile-explosion programs here.
 /// </summary>
-static void VerifyEnemyProjectileCollisionLifecycle()
+internal static void VerifyEnemyProjectileCollisionLifecycle()
 {
     const ushort populationPointer = 0x9400;
     var bus = new TestAddressSpace();
@@ -353,7 +368,7 @@ static void VerifyEnemyProjectileCollisionLifecycle()
 /// speed word, animation list, and vulnerability byte is expressed in its native ROM layout;
 /// the assertions then enter only through the public loader/frame/contact/projectile seams.
 /// </summary>
-static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXrayTimers = false,
+internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXrayTimers = false,
     string? nativeXrayTimerTrace = null)
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.Ripper;
@@ -646,7 +661,7 @@ private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddress
 /// door actor, not by either arrival projectile that is deleted when the platform lands.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-static void VerifyCeresElevatorPlatformAnimation()
+internal static void VerifyCeresElevatorPlatformAnimation()
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
     const ushort populationPointer = 0x9480;
@@ -691,7 +706,7 @@ static void VerifyCeresElevatorPlatformAnimation()
 /// type-$9 room cap: the enemy is solid during the fight and its ROM instruction stream must
 /// make it intangible after `$A6:C117` sets Ceres's area-boss bit.
 /// </summary>
-static void VerifyCeresDoorBossBranch()
+internal static void VerifyCeresDoorBossBranch()
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.CeresDoor;
     const ushort populationPointer = 0x94c0;
@@ -775,7 +790,7 @@ static List<VramWriteEntry> ReadRetailCeresEscapeTransfers(ISnesAddressSpace rom
 /// dispatcher through the complete initial delay, eye fade, and body fade.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-static void VerifyCeresRidleyRoomEntry()
+internal static void VerifyCeresRidleyRoomEntry()
 {
     const EnemyDefinitionId definitionPointer = EnemyDefinitionId.RidleyCeres;
     const ushort populationPointer = 0x9500;
@@ -1424,7 +1439,7 @@ static (ushort[] PaletteWords, byte[] Planar) ReadCeresRidleyFixtureArtwork(Test
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one complete bank-$A0 enemy definition header")]
-static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
+internal static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
     int address = 0xa00000 | (ushort)definitionPointer;
     for (int offset = 0; offset < 64; offset += 2)
@@ -1660,4 +1675,60 @@ static void SeedCeresRidleyRoomEntryCartridge(
     WriteTestWord(bus, 0x939108, 0x822f);
     WriteTestWord(bus, 0x90c28f, 0x000b);
 }
+
+    [VerificationCommand("--room-enemy-loading")]
+    internal static int RoomEnemyLoadingCommand()
+    {
+        Suite(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading());
+        return 0;
+    }
+
+    [VerificationCommand("--enemy-source-routing")]
+    internal static int EnemySourceRoutingCommand()
+    {
+        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
+        return 0;
+    }
+
+    [VerificationCommand("--enemy-contact-phase")]
+    internal static int EnemyContactPhaseCommand()
+    {
+        Suite(nameof(VerifyRipperEnemy), () => VerifyRipperEnemy(verifyDeferredContact: true));
+        return 0;
+    }
+
+    [VerificationCommand("--ripper-enemy")]
+    internal static int RipperEnemyCommand()
+    {
+        Suite(nameof(VerifyRipperEnemy), () => VerifyRipperEnemy());
+        return 0;
+    }
+
+    [VerificationCommand("--ceres-elevator-platform")]
+    internal static int CeresElevatorPlatformCommand()
+    {
+        Suite(nameof(VerifyCeresElevatorPlatformAnimation), () => VerifyCeresElevatorPlatformAnimation());
+        return 0;
+    }
+
+    [VerificationCommand("--ceres-door-boss")]
+    internal static int CeresDoorBossCommand()
+    {
+        Suite(nameof(VerifyCeresDoorBossBranch), () => VerifyCeresDoorBossBranch());
+        return 0;
+    }
+
+    [VerificationCommand("--x-plasma-timers")]
+    internal static int XPlasmaTimersCommand()
+    {
+        Suite(nameof(VerifyRipperEnemy), () => VerifyRipperEnemy(verifyXrayTimers: true));
+        return 0;
+    }
+
+    [VerificationCommand("--ceres-ridley-room-entry")]
+    internal static int CeresRidleyRoomEntryCommand()
+    {
+        Suite(nameof(VerifyCeresRidleyRoomEntry), () => VerifyCeresRidleyRoomEntry());
+        return 0;
+    }
 }

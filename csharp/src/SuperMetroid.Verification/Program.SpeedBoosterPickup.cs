@@ -1,12 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static CollectiblesVerification;
+using static RoomFxRetailInventoryVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SpeedBoosterPickupVerification
 {
     // GR-2: the Chozo pickup must arm native lava motion only on message return.
-    private static void VerifySpeedBoosterPickupContinuation()
+    internal static void VerifySpeedBoosterPickupContinuation()
     {
         var cartridge = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool chozo in new[] { true, false })
@@ -65,5 +78,12 @@ internal static partial class Program
             AssertEqual((ushort)0, fx.PackedYVelocity, "message continuation is consumed once");
         }
         Console.WriteLine("Speed Booster pickup continuation, delay, rise and earthquake verified.");
+    }
+
+    [VerificationCommand("--speed-booster-pickup")]
+    internal static int SpeedBoosterPickupCommand()
+    {
+        Suite(nameof(VerifySpeedBoosterPickupContinuation), () => VerifySpeedBoosterPickupContinuation());
+        return 0;
     }
 }

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class DmaSourceRoutingVerification
 {
     /// <summary>
     /// Checks the actual PPU transfer paths, including a fixed-bank DMA wrap that changes
@@ -8,7 +8,7 @@ internal static partial class Program
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: PPU DMA and import palette source routing across cartridge, WRAM and SRAM")]
-    private static void VerifyDmaSourceRouting()
+    internal static void VerifyDmaSourceRouting()
     {
         var source = new DmaReadRoutingBus();
         source.SetCartridge(0x80fffe, 0x11);
@@ -50,7 +50,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: sparse per-region store whose read counters witness PPU DMA source routing")]
-    private sealed class DmaReadRoutingBus : ISnesMemoryBus,
+    internal sealed class DmaReadRoutingBus : ISnesMemoryBus,
         IImportCartridgeSource
     {
         private readonly Dictionary<int, byte> cartridge = [];

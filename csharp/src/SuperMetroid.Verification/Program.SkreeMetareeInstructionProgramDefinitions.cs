@@ -1,18 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SkreeMetareeInstructionProgramDefinitionsVerification
 {
-    private static void VerifySkreeMetareeInstructionProgramDefinitions()
+    internal static void VerifySkreeMetareeInstructionProgramDefinitions()
     {
         Suite(nameof(VerifySkreeMetareeInstructionProgramDefinitions), () => VerifySkreeMetareeInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifySkreeMetareeInstructionProgramDefinitions(
+    internal static void VerifySkreeMetareeInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         for (int species = 0; species < 2; species++)
@@ -191,4 +201,11 @@ internal static partial class Program
             .ForbidWords(0xa30000, SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordCount(),
                 index => SkreeMetareeInstructionProgramDefinitionsTooling.PresentationWordAddress(false, index),
                 address => $"Production read installed Skree/Metaree selector ${address:X6}.");
+
+    [VerificationCommand("--skree-metaree-instruction-mechanics")]
+    internal static int SkreeMetareeInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifySkreeMetareeInstructionProgramDefinitions), () => VerifySkreeMetareeInstructionProgramDefinitions());
+        return 0;
+    }
 }

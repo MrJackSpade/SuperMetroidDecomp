@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class MotherBrainWalkBackwardsPoseVerification
 {
     // #1269: $A9:C647 tests the target, then the body pose, and only a standing body
     // reaches the $30 arena limit. The port tested the limit regardless of pose, so in the
     // 100% movie a mid-step body at X $29 finished the painful backward walk two frames
     // before native and the neck sped up early.
-    private static void VerifyMotherBrainWalkBackwardsPose()
+    internal static void VerifyMotherBrainWalkBackwardsPose()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo step = typeof(MotherBrainRainbowBeamAttackSequence).GetMethod("StepPainfulWalking", flags)!;
@@ -38,5 +49,12 @@ internal static partial class Program
         step.Invoke(arrived, null);
         AssertEqual((ushort)0x0010, arrived.PainfulWalkingFunctionTimer, "a mid-step body at the target has arrived");
         Console.WriteLine("Mother Brain walk backwards: pose gates the $30 limit, not the target.");
+    }
+
+    [VerificationCommand("--mother-brain-walk-backwards-pose")]
+    internal static int MotherBrainWalkBackwardsPoseCommand()
+    {
+        VerifyMotherBrainWalkBackwardsPose();
+        return 0;
     }
 }

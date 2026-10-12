@@ -1,17 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CompiledEnemyVisualSelectorAssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ViolaInstructionProgramDefinitionsVerification
 {
-    private static void VerifyViolaInstructionProgramDefinitions()
+    internal static void VerifyViolaInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyViolaInstructionProgramDefinitions), () => VerifyViolaInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyViolaInstructionProgramDefinitions(
+    internal static void VerifyViolaInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -132,4 +144,11 @@ internal static partial class Program
             .Forbid(ViolaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Viola mechanics byte ${address:X6}.")
             .ObserveWords(0xa30000, ViolaInstructionProgramDefinitions.PresentationWordCount, ViolaInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--viola-instruction-program-definitions")]
+    internal static int ViolaInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyViolaInstructionProgramDefinitions), () => VerifyViolaInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,8 +11,12 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static ColorWordsVerification;
+using static SamusDeathExplosionTimingDefinitionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusSpecialStatesVerification
 {
 
 /// <summary>The largest component of the stock fixed-color row three at $88:8D85, which bounds the native afterglow.</summary>
@@ -83,7 +91,7 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
 
 /// <summary>Crystal Flash, X-ray, and death-sequence verification.</summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusCrystalFlash()
+internal static void VerifySamusCrystalFlash()
 {
     var bus = new TestAddressSpace();
 
@@ -384,7 +392,7 @@ static void SeedXrayCartridge(TestAddressSpace bus)
 /// widening, aiming, visor palette, teardown, and the native crouched-turn stand-up glitch.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusXray()
+internal static void VerifySamusXray()
 {
     var bus = new TestAddressSpace();
 
@@ -750,7 +758,7 @@ static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddres
 /// no-draw state.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-static void VerifySamusDeathSequence()
+internal static void VerifySamusDeathSequence()
 {
     var bus = new TestAddressSpace();
 
@@ -901,4 +909,30 @@ static void VerifySamusDeathSequence()
 
 // Exercises all five `$91:E4AD` drained-controller entries, command `$F7`, the shared
 // old-speed vertical recurrence, collision handoff, and both asymmetric `$FD` releases.
+
+    [VerificationCommand("--death-sequence-fixture")]
+    internal static int DeathSequenceFixtureCommand()
+    {
+     VerifySamusDeathSequence(); return 0; 
+    }
+
+    [VerificationCommand("--special-palette-fixtures")]
+    internal static int SpecialPaletteFixturesCommand()
+    {
+     VerifySamusCrystalFlash(); VerifySamusXray(); return 0; 
+    }
+
+    [VerificationCommand("--samus-xray")]
+    internal static int SamusXrayCommand()
+    {
+        Suite(nameof(VerifySamusXray), () => VerifySamusXray());
+        return 0;
+    }
+
+    [VerificationCommand("--crystal-flash")]
+    internal static int CrystalFlashCommand()
+    {
+        Suite(nameof(VerifySamusCrystalFlash), () => VerifySamusCrystalFlash());
+        return 0;
+    }
 }

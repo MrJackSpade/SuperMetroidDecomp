@@ -3,11 +3,13 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static PowerBombCallbackDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ShotCallbackDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for shot callback definitions")]
-    private static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyShotCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         var shotCallbacks = new HashSet<int>();
         var touchCallbacks = new HashSet<int>();

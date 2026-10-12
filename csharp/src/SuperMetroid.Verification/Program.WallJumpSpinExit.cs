@@ -1,15 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class WallJumpSpinExitVerification
 {
     // #1269: releasing every input during a wall jump falls back to spin-jump art, and movement
     // type $14 selects command six (kill X speed). HandleSamusPoseChange sets carry only when
     // InitializeSamusPose replaces the installed pose, and UpdateSamusPose then skips the
     // command: with Space Jump the spin is promoted and the launch speed carries; without it
     // the pose is kept and command six clears the speed.
-    private static void VerifyWallJumpSpinExit()
+    internal static void VerifyWallJumpSpinExit()
     {
         Confirm(SamusEquipmentFlags.SpaceJump, speedKept: true);
         Confirm(0, speedKept: false);
@@ -54,5 +64,12 @@ internal static partial class Program
             AssertEqual(speedKept ? (ushort)0x6000 : (ushort)0, samus.HorizontalSpeed.BaseSubspeed, $"{label}: base subspeed");
             AssertEqual(speedKept ? (ushort)2 : (ushort)0, samus.HorizontalSpeed.AccelerationMode, $"{label}: acceleration mode");
         }
+    }
+
+    [VerificationCommand("--wall-jump-spin-exit")]
+    internal static int WallJumpSpinExitCommand()
+    {
+        VerifyWallJumpSpinExit();
+        return 0;
     }
 }

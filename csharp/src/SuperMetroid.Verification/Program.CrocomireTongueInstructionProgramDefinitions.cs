@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CrocomireTongueInstructionProgramDefinitionsVerification
 {
-    private static void VerifyCrocomireTongueInstructionProgramDefinitions()
+    internal static void VerifyCrocomireTongueInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireTongueInstructionProgramDefinitions), () => VerifyCrocomireTongueInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyCrocomireTongueInstructionProgramDefinitions(
+    internal static void VerifyCrocomireTongueInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCrocomireTongueMechanicsDispatch), () => VerifyCrocomireTongueMechanicsDispatch(rom));
@@ -29,7 +40,7 @@ internal static partial class Program
             "presentation data.");
     }
 
-    private static void VerifyCrocomireTongueMechanicsDispatch(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTongueMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
         [
@@ -61,7 +72,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireTongueInstructionProgramDefinitionsTooling.MechanicsWord(14), "tongue mechanics index past end");
     }
 
-    private static void VerifyCrocomireTonguePresentationPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireTonguePresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
         AssertEqual(addresses.Length, CrocomireTongueInstructionProgramDefinitionsTooling.PresentationWordCount, "tongue presentation count");
@@ -85,5 +96,12 @@ internal static partial class Program
                 CrocomireTongueInstructionProgramDefinitions.Fight);
         }
         return checksum;
+    }
+
+    [VerificationCommand("--crocomire-tongue-instruction-mechanics")]
+    internal static int CrocomireTongueInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyCrocomireTongueInstructionProgramDefinitions), () => VerifyCrocomireTongueInstructionProgramDefinitions());
+        return 0;
     }
 }

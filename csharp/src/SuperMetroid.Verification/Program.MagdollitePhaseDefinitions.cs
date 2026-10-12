@@ -2,10 +2,11 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class MagdollitePhaseDefinitionsVerification
 {
-    private static void VerifyMagdollitePhaseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMagdollitePhaseDefinitions(SuperMetroidAddressSpace rom)
     {
         const int thresholdTable = 0xa8af55;
         const int instructionTable = 0xa8af67;
@@ -122,7 +123,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Magdollite words")]
-    private static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
+    internal static ushort ReadMagdolliteWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewMagdollitePhaseGuard(ISnesAddressSpace source) =>

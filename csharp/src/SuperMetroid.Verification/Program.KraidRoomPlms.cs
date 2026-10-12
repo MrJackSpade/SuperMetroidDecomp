@@ -1,9 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static KraidDrawMappingsVerification;
+using static KraidRoomProgramMappingVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class KraidRoomPlmsVerification
 {
-    private static void VerifyCompiledKraidRoomPlms()
+    internal static void VerifyCompiledKraidRoomPlms()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -89,7 +104,7 @@ internal static partial class Program
             $"Kraid mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
-    private static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 (((SnesAddressMath.OffsetInBank(address)) >= KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1 &&
@@ -99,4 +114,11 @@ internal static partial class Program
                  ((SnesAddressMath.OffsetInBank(address)) >= (ushort)KraidRoomDraw.CrumbleFirst &&
                   (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");
+
+    [VerificationCommand("--kraid-room-plms")]
+    internal static int KraidRoomPlmsCommand()
+    {
+        Suite(nameof(VerifyCompiledKraidRoomPlms), () => VerifyCompiledKraidRoomPlms());
+        return 0;
+    }
 }

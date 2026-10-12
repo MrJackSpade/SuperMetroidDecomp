@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupElevatubeStockVerification
 {
-    private static void VerifyElevatubeStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyElevatubeStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMaridiaElevatubeVisualCatalog installed)
     {
         ushort original = (ushort)(ReadSamusEaterPlmWord(rom, 0x849369) & 0xfff);

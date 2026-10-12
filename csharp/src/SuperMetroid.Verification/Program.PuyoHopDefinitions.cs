@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PuyoHopDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Puyo hops")]
-    private static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPuyoHops(SuperMetroidAddressSpace rom)
     {
         var calculate = typeof(RoomEnemySystem).GetMethod("CalculateInitialPuyoHopSpeed", BindingFlags.Static | BindingFlags.NonPublic)!
             .CreateDelegate<Action<PuyoEnemyState>>();

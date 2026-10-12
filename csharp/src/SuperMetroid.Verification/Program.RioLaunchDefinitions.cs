@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class RioLaunchDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Rio launches")]
-    private static void VerifyCompiledRioLaunches(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRioLaunches(SuperMetroidAddressSpace rom)
     {
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa2bbbb), RioLaunchDefinitions.RioYVelocity, "Rio NTSC Y launch");
         AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa2bbbf), RioLaunchDefinitions.RioXVelocity, "Rio X launch");

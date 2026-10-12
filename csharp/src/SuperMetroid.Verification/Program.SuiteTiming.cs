@@ -1,12 +1,12 @@
 using System.Diagnostics;
 
-internal static partial class Program
+internal static class SuiteTimingVerification
 {
     /// <summary>Suites slower than this are logged as needing to be broken down. Reporting only.</summary>
     private static readonly TimeSpan SuiteBreakdownThreshold = TimeSpan.FromSeconds(30);
 
     /// <summary>A flag whose peak working set, or a suite whose allocation, exceeds this is marked over budget.</summary>
-    private const long MemoryBudgetBytes = 1L << 30;
+    internal const long MemoryBudgetBytes = 1L << 30;
 
     private static int suiteDepth;
     // Elapsed time of suites nested directly inside each open suite, so a bundle's own work
@@ -15,17 +15,17 @@ internal static partial class Program
     private static readonly Stack<long> nestedSuiteAllocation = new();
 
     /// <summary>Outermost suites that failed during this run, in the order they failed.</summary>
-    private static readonly List<string> failedSuites = [];
+    internal static readonly List<string> failedSuites = [];
 
     /// <summary>
     /// Runs one named verification suite and logs its elapsed time, nested under any enclosing
     /// suite. The time is logged even when the suite fails. A failure inside a nested suite
     /// propagates to its outermost suite, whose remaining steps depend on it; the outermost
     /// suite then writes the complete exception and records the failure so the run continues
-    /// with the next suite. <see cref="Main"/> reports every recorded failure and exits nonzero.
+    /// with the next suite. <c>Main</c> reports every recorded failure and exits nonzero.
     /// The breakdown marker applies to self time: a bundle made of fast suites is already broken down.
     /// </summary>
-    private static void Suite(string name, Action body)
+    internal static void Suite(string name, Action body)
     {
         var watch = Stopwatch.StartNew();
         long allocatedBefore = GC.GetTotalAllocatedBytes();
@@ -64,7 +64,7 @@ internal static partial class Program
     }
 
     /// <summary>The flag's peak working set, with the over-budget marker.</summary>
-    private static string PeakMemoryReport()
+    internal static string PeakMemoryReport()
     {
         long peak = Process.GetCurrentProcess().PeakWorkingSet64;
         return $"peak {peak / (1024.0 * 1024.0):0} MB" + (peak > MemoryBudgetBytes ? "  [over 1 GB: reduce]" : "");

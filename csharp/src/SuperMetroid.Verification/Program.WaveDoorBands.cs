@@ -1,11 +1,12 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class WaveDoorBandsVerification
 {
     /// <summary>Checks the XBA/BMI guard at pixel-half, screen, and signed-coordinate boundaries.</summary>
-    private static void VerifyHorizontalWaveDoorBands()
+    internal static void VerifyHorizontalWaveDoorBands()
     {
         foreach (ushort y in new ushort[] { 64, 127, 128, 192, 255, 256, 383, 384, 390, 511, 512, 65408 })
         foreach (bool left in new[] { false, true })

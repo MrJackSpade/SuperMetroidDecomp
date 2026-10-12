@@ -1,12 +1,14 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BossDisplayBindingsDocumentsVerification;
+using static BossDisplayBindingsFixtureVerification;
 
-internal static partial class Program
+internal static class BossDisplayBindingsClippingVerification
 {
     /// <summary>Newly authored OAM on BG2-only roots must use the common native wrap/clipping path.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyBossDisplayClipping()
+    internal static void VerifyBossDisplayClipping()
     {
         int checks = 0;
         foreach ((EnemyDefinitionId definition, EnemyExtendedFrameDefinition[] family) in BossDisplayDocuments.Families())

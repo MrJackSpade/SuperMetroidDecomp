@@ -2,10 +2,10 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PolypLaunchDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp launch definitions")]
-    private static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPolypLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int random = 0; random <= ushort.MaxValue; random++)
         {

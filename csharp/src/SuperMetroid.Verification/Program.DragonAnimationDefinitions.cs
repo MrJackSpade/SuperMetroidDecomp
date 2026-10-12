@@ -2,10 +2,11 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DragonAnimationDefinitionsVerification
 {
-    private static void VerifyDragonAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDragonAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
         {

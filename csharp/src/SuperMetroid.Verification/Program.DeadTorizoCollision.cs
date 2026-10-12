@@ -1,10 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class DeadTorizoCollisionVerification
 {
-    private static int VerifyDeadTorizoCollision()
+    internal static int VerifyDeadTorizoCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -76,5 +86,11 @@ internal static partial class Program
         {
             if (!condition) throw new InvalidDataException(message);
         }
+    }
+
+    [VerificationCommand("--dead-torizo-collision")]
+    internal static int DeadTorizoCollisionCommand()
+    {
+        return VerifyDeadTorizoCollision();
     }
 }

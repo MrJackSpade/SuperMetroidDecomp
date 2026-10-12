@@ -2,10 +2,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
-internal static partial class Program
+internal static class ViewportParityVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyViewportTileRowParity()
+    internal static void VerifyViewportTileRowParity()
     {
         var random = new Random(54);
         var vram = new SnesVram();

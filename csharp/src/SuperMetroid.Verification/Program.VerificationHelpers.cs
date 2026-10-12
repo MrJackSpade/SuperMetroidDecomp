@@ -3,11 +3,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class VerificationHelpersVerification
 {
     /// <summary>Compares two memory images, reporting the first differing byte offset and values.</summary>
-    static void AssertSameBytes(ReadOnlySpan<byte> expected, ReadOnlySpan<byte> actual, string context)
+    internal static void AssertSameBytes(ReadOnlySpan<byte> expected, ReadOnlySpan<byte> actual, string context)
     {
         AssertEqual(expected.Length, actual.Length, $"{context} length");
         int first = expected.CommonPrefixLength(actual);
@@ -21,7 +22,7 @@ internal static partial class Program
     /// a useful failure to "the sequences differ". Materializing once also makes this safe
     /// for one-shot iterators returned by render and projectile pipelines.
     /// </summary>
-    static void AssertSequenceEqual<T>(
+    internal static void AssertSequenceEqual<T>(
         IEnumerable<T> expected,
         IEnumerable<T> actual,
         string context)
@@ -47,7 +48,7 @@ internal static partial class Program
     /// Position pairs are one domain value throughout movement tests; keeping this check
     /// together prevents a new fixture from accidentally validating only one axis.
     /// </summary>
-    static void AssertSamusPosition(
+    internal static void AssertSamusPosition(
         Position16<RoomPixels> expected,
         SamusState actual,
         string context)
@@ -61,7 +62,7 @@ internal static partial class Program
     /// intentional: tile, palette, priority, flips, and size are all visually meaningful,
     /// and partial OBJ assertions have repeatedly allowed rendering regressions to hide.
     /// </summary>
-    static void AssertOamEntry(OamEntry expected, OamEntry actual, string context) =>
+    internal static void AssertOamEntry(OamEntry expected, OamEntry actual, string context) =>
         AssertEqual(expected, actual, context);
 
     /// <summary>
@@ -70,15 +71,14 @@ internal static partial class Program
     /// palette behavior they were meant to prove.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    static void AssertPaletteSlice(
+    internal static void AssertPaletteSlice(
         SnesCgram actual,
         int destinationIndex,
         ReadOnlySpan<ushort> expected,
         string context)
     {
         Ensure.NotNull(actual);
-        if (destinationIndex < 0 || destinationIndex > SnesCgram.ColorCount - expected.Length)
-            throw new ArgumentOutOfRangeException(nameof(destinationIndex));
+        Ensure.BetweenInclusive(0, SnesCgram.ColorCount - expected.Length, destinationIndex);
 
         for (int color = 0; color < expected.Length; color++)
         {
@@ -96,7 +96,7 @@ internal static partial class Program
     /// </summary>
     [CpuBusBoundary("exact bus test: seeds one byte of the sparse synthetic CPU address space fixture")]
     [CpuBusAccess]
-    static void WriteTestByte(TestAddressSpace bus, int address, byte value)
+    internal static void WriteTestByte(TestAddressSpace bus, int address, byte value)
     {
         Ensure.NotNull(bus);
         bus.WriteByte(address, value);
@@ -109,7 +109,7 @@ internal static partial class Program
     /// </summary>
     [CpuBusBoundary("exact bus test: seeds one little-endian word of the sparse synthetic CPU address space fixture")]
     [CpuBusAccess]
-    static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
+    internal static void WriteTestWord(TestAddressSpace bus, int address, ushort value)
     {
         WriteTestByte(bus, address, (byte)value);
         WriteTestByte(bus, address + 1, SnesLittleEndian.HighByte(value));
@@ -121,7 +121,7 @@ internal static partial class Program
     /// </summary>
     [CpuBusBoundary("exact bus test: seeds consecutive little-endian words of the sparse synthetic CPU address space fixture")]
     [CpuBusAccess]
-    static void WriteTestWords(TestAddressSpace bus, int address, params ushort[] values)
+    internal static void WriteTestWords(TestAddressSpace bus, int address, params ushort[] values)
     {
         Ensure.NotNull(values);
         for (int index = 0; index < values.Length; index++)
@@ -135,19 +135,14 @@ internal static partial class Program
     /// the verified table base, record stride, and record-width invariant.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus pose definition record")]
-    static void WritePoseDefinition(
+    internal static void WritePoseDefinition(
         TestAddressSpace bus,
         int pose,
         ReadOnlySpan<byte> definition)
     {
         if ((uint)pose > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(pose));
-        if (definition.Length != 8)
-        {
-            throw new ArgumentException(
-                "A native Samus pose definition is exactly eight bytes.",
-                nameof(definition));
-        }
+        Ensure.LengthEqual(definition, 8);
 
         bus.WriteBytes(
             SamusMovementRomData.Poses.Definitions + pose * SamusMovementRomData.Poses.DefinitionByteCount,
@@ -159,7 +154,7 @@ internal static partial class Program
     /// a test intentionally varies one discriminator while retaining the rest of its fixture.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one byte of a bank-$91 Samus pose definition record")]
-    static void WritePoseDefinitionByte(TestAddressSpace bus, int pose, int byteOffset, byte value)
+    internal static void WritePoseDefinitionByte(TestAddressSpace bus, int pose, int byteOffset, byte value)
     {
         if ((uint)pose > byte.MaxValue)
             throw new ArgumentOutOfRangeException(nameof(pose));
@@ -177,12 +172,12 @@ internal static partial class Program
     /// (<c>$91:B010</c>, one same-bank word per pose) at a synthetic delay stream.
     /// </summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus animation-delay pointer")]
-    static void WritePoseAnimationDelayPointer(TestAddressSpace bus, SamusPoseId pose, ushort stream) =>
+    internal static void WritePoseAnimationDelayPointer(TestAddressSpace bus, SamusPoseId pose, ushort stream) =>
         WriteTestWord(bus, SamusAnimationDelayDefinitions.PointerTableAddress + (int)pose * sizeof(ushort), stream);
 
     /// <summary>Installs one synthetic animation-delay stream at a bank-$91 offset.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one bank-$91 Samus animation-delay stream")]
-    static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)
+    internal static void WriteAnimationDelayStream(TestAddressSpace bus, ushort stream, ReadOnlySpan<byte> delays)
     {
         Ensure.NotNull(bus);
         bus.WriteBytes(SamusMovementRomData.Banks.Pose | stream, delays);
@@ -192,7 +187,7 @@ internal static partial class Program
     /// Installs a pose's animation-delay pointer and the stream it selects together, the common
     /// fixture shape for a pose whose delay bytes no other pose shares.
     /// </summary>
-    static void WritePoseAnimationDelays(
+    internal static void WritePoseAnimationDelays(
         TestAddressSpace bus,
         SamusPoseId pose,
         ushort stream,
@@ -207,7 +202,7 @@ internal static partial class Program
     /// not care about. Foreground and BTS remain mandatory because silently inventing either
     /// collision input would make physics fixtures ambiguous.
     /// </summary>
-    static RoomLevelData CreateRoom(
+    internal static RoomLevelData CreateRoom(
         Extent16<RoomBlocks> size,
         ReadOnlySpan<ushort> foreground,
         ReadOnlySpan<byte> behavior,
@@ -232,7 +227,7 @@ internal static partial class Program
     /// Creates a completely empty collision room. Dimensions stay explicit at the call site
     /// because room boundaries are frequently part of the behavior under test.
     /// </summary>
-    static RoomLevelData CreateEmptyRoom(Extent16<RoomBlocks> size)
+    internal static RoomLevelData CreateEmptyRoom(Extent16<RoomBlocks> size)
     {
         int blockCount = checked(size.X * size.Y);
         return CreateRoom(
@@ -246,7 +241,7 @@ internal static partial class Program
     /// and whole-pixel position are assigned; all other fields retain production defaults
     /// unless the test changes them explicitly afterward.
     /// </summary>
-    static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new()
+    internal static SamusState CreateSamus(SamusPoseId pose, Position16<RoomPixels> position) => new()
     {
         Pose = pose,
         Position = FixedPosition<RoomPixels>.FromWhole(position),
@@ -256,7 +251,7 @@ internal static partial class Program
     /// Runs an exact number of verifier frames. Passing the index preserves native timelines
     /// that intentionally change input or inspect state on a particular tick.
     /// </summary>
-    static void StepFrames(int frameCount, Action<int> step)
+    internal static void StepFrames(int frameCount, Action<int> step)
     {
         Ensure.AtLeastZero(frameCount);
         Ensure.NotNull(step);
@@ -270,7 +265,7 @@ internal static partial class Program
     /// A missed transition fails at this shared boundary instead of silently continuing
     /// after an arbitrary loop limit.
     /// </summary>
-    static int StepUntil(
+    internal static int StepUntil(
         Func<bool> isComplete,
         Action<int> step,
         int maximumFrames,

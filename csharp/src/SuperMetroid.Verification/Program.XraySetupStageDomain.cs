@@ -2,14 +2,14 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class XraySetupStageDomainVerification
 {
     /// <summary>
     /// #627: the X-ray setup stage is a closed domain. Every call advances through a bounded
     /// transition, the display rule is defined for every member, and the debugger boundary
     /// decodes older byte payloads while rejecting undefined values.
     /// </summary>
-    private static void VerifyXraySetupStageDomain()
+    internal static void VerifyXraySetupStageDomain()
     {
         XraySetupStage[] order =
         [

@@ -1,16 +1,17 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupGlassProgramVerification
 {
-    private static void VerifyGlassControls(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 0);
-    private static void VerifyGlassDraws(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 1);
-    private static void VerifyGlassTargets(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 2);
-    private static void VerifyGlassCallback(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 3);
-    private static void VerifyGlassEvents(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 4);
-    private static void VerifyGlassBossMask(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 5);
-    private static void VerifyGlassThresholds(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 6);
-    private static void VerifyGlassShardArguments(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 7);
+    internal static void VerifyGlassControls(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 0);
+    internal static void VerifyGlassDraws(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 1);
+    internal static void VerifyGlassTargets(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 2);
+    internal static void VerifyGlassCallback(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 3);
+    internal static void VerifyGlassEvents(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 4);
+    internal static void VerifyGlassBossMask(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 5);
+    internal static void VerifyGlassThresholds(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 6);
+    internal static void VerifyGlassShardArguments(SuperMetroidAddressSpace rom) => VerifyGlassField(rom, 7);
 
     private static void VerifyGlassField(SuperMetroidAddressSpace rom, int field)
     {

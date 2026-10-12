@@ -1,10 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EnemyAngleDivisionVerification
 {
-    private static void VerifyEnemyAngleDivision()
+    internal static void VerifyEnemyAngleDivision()
     {
         AssertEqual(ushort.MaxValue, SnesUnsignedDivision.Quotient(0, 0), "Hardware zero-over-zero quotient");
         AssertEqual(ushort.MaxValue, SnesUnsignedDivision.Quotient(1234, 0), "Hardware divide-by-zero quotient");
@@ -19,5 +30,12 @@ internal static partial class Program
             byte actual = (byte)angle.Invoke(null, [new Offset16<RoomPixels>(x, y)])!;
             AssertEqual(byte.Parse(fields[2]), actual, $"Native enemy angle ({x},{y})");
         }
+    }
+
+    [VerificationCommand("--enemy-angle-division")]
+    internal static int EnemyAngleDivisionCommand()
+    {
+        Suite(nameof(VerifyEnemyAngleDivision), () => VerifyEnemyAngleDivision());
+        return 0;
     }
 }

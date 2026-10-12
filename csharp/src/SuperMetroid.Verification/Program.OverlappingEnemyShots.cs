@@ -1,11 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class OverlappingEnemyShotsVerification
 {
-    private static void VerifyOverlappingEnemyShots()
+    internal static void VerifyOverlappingEnemyShots()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem();
@@ -56,5 +67,12 @@ internal static partial class Program
         AssertEqual(0, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus),
             "removed projectile cannot damage the stack on the next pass");
         Console.WriteLine("Overlapping Beetoms: all three receive one shot's damage; deferred removal prevents a later hit.");
+    }
+
+    [VerificationCommand("--overlapping-enemy-shots")]
+    internal static int OverlappingEnemyShotsCommand()
+    {
+        Suite(nameof(VerifyOverlappingEnemyShots), () => VerifyOverlappingEnemyShots());
+        return 0;
     }
 }

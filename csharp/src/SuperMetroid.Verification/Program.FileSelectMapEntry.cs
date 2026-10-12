@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class FileSelectMapEntryVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyFileSelectMapEntry()
+    internal static void VerifyFileSelectMapEntry()
     {
         var white = Enumerable.Repeat(new PaletteRgb5 { Red = 31, Green = 31, Blue = 31 },
             SnesCgram.ColorCount).ToArray();
@@ -59,5 +68,12 @@ internal static partial class Program
         }
         AssertTrue(entry.IsComplete, "twenty-eighth reveal update disables the window");
         AssertTrue(entry.Render(scene).SequenceEqual(scene), "complete entry reveals entire scene without clipped border");
+    }
+
+    [VerificationCommand("--file-select-map-entry")]
+    internal static int FileSelectMapEntryCommand()
+    {
+        Suite(nameof(VerifyFileSelectMapEntry), () => VerifyFileSelectMapEntry());
+        return 0;
     }
 }

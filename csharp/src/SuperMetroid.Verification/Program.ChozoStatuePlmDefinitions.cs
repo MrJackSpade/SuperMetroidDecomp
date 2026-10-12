@@ -3,10 +3,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static ChozoStatueVisualsVerification;
+using static LookupChozoLayoutsVerification;
+using static LookupChozoProgramVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ChozoStatuePlmDefinitionsVerification
 {
-    private static void VerifyChozoStatuePlmDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyChozoStatuePlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyChozoTerrainHeaders), () => VerifyChozoTerrainHeaders(rom));
         Suite(nameof(VerifyChozoProgramControls), () => VerifyChozoProgramControls(rom));

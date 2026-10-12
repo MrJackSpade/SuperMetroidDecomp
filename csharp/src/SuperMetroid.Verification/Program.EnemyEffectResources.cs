@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
+using static EnemyAnimationIsolationFixtureVerification;
+using static EnemyEffectsFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyEffectResourcesVerification
 {
-    private static void VerifyEnemyEffectResources()
+    internal static void VerifyEnemyEffectResources()
     {
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         var corpse = new MotherBrainCorpseRottingState();
@@ -71,7 +83,7 @@ internal static partial class Program
         AssertTrue(expected.Vram.ImageEquals(actual.Vram), context + " VRAM unchanged");
     }
 
-    private static void VerifyCrocomireMeltJson()
+    internal static void VerifyCrocomireMeltJson()
     {
         string valid = MeltEffectJson();
         _ = MeltEffectArtwork(firstJson: valid);
@@ -87,5 +99,19 @@ internal static partial class Program
         })
             AssertThrows<InvalidDataException>(() => MeltEffectArtwork(firstJson: malformed), name + " cannot be silently discarded");
         Console.WriteLine("  Crocomire melt JSON: valid schema/casing preserved; unknown, duplicate and case-aliased root/cell fields rejected.");
+    }
+
+    [VerificationCommand("--enemy-effect-resources")]
+    internal static int EnemyEffectResourcesCommand()
+    {
+        Suite(nameof(VerifyEnemyEffectResources), () => VerifyEnemyEffectResources());
+        return 0;
+    }
+
+    [VerificationCommand("--crocomire-melt-json")]
+    internal static int CrocomireMeltJsonCommand()
+    {
+        Suite(nameof(VerifyCrocomireMeltJson), () => VerifyCrocomireMeltJson());
+        return 0;
     }
 }

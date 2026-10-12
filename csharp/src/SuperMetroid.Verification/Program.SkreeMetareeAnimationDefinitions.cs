@@ -2,10 +2,11 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SkreeMetareeAnimationDefinitionsVerification
 {
-    private static void VerifySkreeMetareeAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySkreeMetareeAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 4; index++)
         {

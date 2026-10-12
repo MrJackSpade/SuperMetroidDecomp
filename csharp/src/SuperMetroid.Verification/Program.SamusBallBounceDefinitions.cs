@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SamusImpulseDefinitionsVerification;
 
-internal static partial class Program
+internal static class SamusBallBounceDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus ball bounce definitions")]
-    private static void VerifySamusBallBounceDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusBallBounceDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort whole = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementRomDataVerticalMotionConstants.BallBounceSpeed);
         ushort fraction = CartridgeImportSource.Require(rom).ReadCartridgeWord(SamusMovementRomDataVerticalMotionConstants.BallBounceSubspeed);

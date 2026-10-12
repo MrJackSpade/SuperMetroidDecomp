@@ -1,12 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static EndingSnapshotTestsVerification;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static EndingCloudPlacementVerification;
+using static EndingExplosionSlotOrderVerification;
+using static EndingRewardGestureVerification;
+using static ObjSubscreenVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingDmaVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending escape and reward VRAM DMA")]
-    private static void VerifyEndingDma()
+    internal static void VerifyEndingDma()
     {
         Suite(nameof(VerifyObjSubscreenAddition), () => VerifyObjSubscreenAddition());
         Suite(nameof(VerifyEndingRewardGesture), () => VerifyEndingRewardGesture());
@@ -41,5 +57,13 @@ internal static partial class Program
         byte[] reward = RomDataReader.Decompress(bus, 0x97b957, 0x8000);
         AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(ending.CaptureRenderSnapshot().Memory.Vram[..0x4000]),
             "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");
+    }
+
+    [VerificationCommand("--ending-dma")]
+    internal static int EndingDmaCommand()
+    {
+        Suite(nameof(VerifyEndingDma), () => VerifyEndingDma());
+        Suite(nameof(VerifyEndingRenderSnapshots), () => VerifyEndingRenderSnapshots());
+        return 0;
     }
 }

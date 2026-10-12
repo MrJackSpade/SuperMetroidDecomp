@@ -6,11 +6,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static GraphDigestVerification;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class ChargeFlareProductionVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
+    internal static void VerifyChargeFlareProduction(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps)
@@ -120,7 +122,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native charge-flare spritemap extents the guard forbids")]
-    private static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
+    internal static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();
         for (int i = 0; i < ChargeFlareSpriteDefinitions.Selectors.Length * 2; i++)

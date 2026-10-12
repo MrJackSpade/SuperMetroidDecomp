@@ -1,15 +1,16 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidGrowthPlmMappingsVerification
 {
-    private static void VerifyKraidGrowthPlmColumns(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidGrowthPlmColumns(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 4, request => request.Block.X));
 
-    private static void VerifyKraidGrowthPlmRows(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidGrowthPlmRows(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 5, request => request.Block.Y));
 
-    private static void VerifyKraidGrowthPlmHeaders(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidGrowthPlmHeaders(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidGrowthPlmField), () => VerifyKraidGrowthPlmField(rom, 6, request => (ushort)request.Header));
 
     private static void VerifyKraidGrowthPlmField(SuperMetroidAddressSpace rom, int offset,

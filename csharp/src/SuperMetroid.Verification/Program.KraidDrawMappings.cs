@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidDrawMappingsVerification
 {
-    private static void VerifyKraidDrawOwnerClassification(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidDrawOwnerClassification(SuperMetroidAddressSpace rom)
     {
         // Independent native header/list identities from bank_84.asm B7A3..B7C1.
         // B79F is the unused background-one setter, outside the managed owner set.
@@ -34,7 +35,7 @@ internal static partial class Program
         (0x939d, 15, "clear-ceiling"), (0x93bf, 22, "clear-spikes"),
     ];
 
-    private static void VerifyKraidDrawAddresses()
+    internal static void VerifyKraidDrawAddresses()
     {
         var expected = KraidDrawOracle();
         AssertEqual(expected.Length, KraidRoomPlmDrawDefinitions.DrawCount, "Kraid draw count");
@@ -57,7 +58,7 @@ internal static partial class Program
                 "Kraid draw ordinal bounds");
     }
 
-    private static void VerifyKraidDrawShapes(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidDrawShapes(SuperMetroidAddressSpace rom)
     {
         var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => draw.Pointer);
         foreach (var expected in KraidDrawOracle())
@@ -77,7 +78,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyKraidDrawWords(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidDrawWords(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidSingleDrawWords), () => VerifyKraidSingleDrawWords(rom));
         Suite(nameof(VerifyKraidCeilingClearWords), () => VerifyKraidCeilingClearWords(rom));
@@ -112,7 +113,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyKraidDrawVisualIds()
+    internal static void VerifyKraidDrawVisualIds()
     {
         var expected = KraidDrawOracle();
         foreach (var entry in expected)

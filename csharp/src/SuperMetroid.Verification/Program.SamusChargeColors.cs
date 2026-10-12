@@ -3,12 +3,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static ColorWordsVerification;
+using static DoorDefinitionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusChargeColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge palette color words")]
-    private static void VerifySamusChargeColorOverride(string stockDirectory,
+    internal static void VerifySamusChargeColorOverride(string stockDirectory,
         string overrideDirectory, AreaMapPresentationCatalog original, ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
@@ -142,7 +145,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus charge color phases")]
-    private static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
+    internal static HashSet<int> VerifySamusChargeColorPhases(ISnesAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.SamusChargeColorExtractor.Extract(rom);
         var catalog = SamusChargeColorCatalog.Load(new MemoryStream(extracted));

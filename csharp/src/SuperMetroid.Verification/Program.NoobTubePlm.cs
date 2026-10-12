@@ -1,17 +1,32 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static CollectiblesVerification;
+using static GrappleDoorsVerification;
+using static LookupTubeProgramVerification;
+using static RoomFxRetailInventoryVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class NoobTubePlmVerification
 {
     /// <summary>
     /// Drives the complete n00b-tube coroutine in a deliberately small synthetic room. The
     /// fixture contains the cartridge's real instruction words and timing, while using
     /// one-block draw lists so this test isolates PLM control flow from unrelated art data.
     /// </summary>
-    private static void VerifyNoobTubePlm()
+    internal static void VerifyNoobTubePlm()
     {
         Suite(nameof(VerifyNoobTubeProgramDefinitions), () => VerifyNoobTubeProgramDefinitions());
         var bus = new TestAddressSpace();
@@ -330,7 +345,7 @@ internal static partial class Program
     /// Loads the Glass Tunnel's relevant FX words: water at Y $0010 with the small-tide
     /// option and the bit that suppresses water physics until the tube breaks.
     /// </summary>
-    private static RoomLayer3FxState CreateNoobTubeWaterFx(TestAddressSpace bus)
+    internal static RoomLayer3FxState CreateNoobTubeWaterFx(TestAddressSpace bus)
     {
         // FX mechanics now come from compiled records. Use the actual Glass Tunnel
         // record and import its presentation dependencies at this verification boundary.
@@ -341,7 +356,7 @@ internal static partial class Program
         return roomFx;
     }
 
-    private static void StepNoobTube(
+    internal static void StepNoobTube(
         RoomPlmSystem plms,
         ISnesAddressSpace bus,
         RoomLevelData level,
@@ -351,7 +366,7 @@ internal static partial class Program
 
     /// <summary>Writes the exact n00b-tube list words plus intentionally tiny draw data.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for the Noob Tube PLM header, instruction list and crack projectile")]
-    private static void SeedNoobTubeRom(TestAddressSpace bus)
+    internal static void SeedNoobTubeRom(TestAddressSpace bus)
     {
         // Three seven-word enemy-projectile definitions. Their lists do not need draw data
         // for initializer checks, but the pointers themselves remain the cartridge values.
@@ -408,5 +423,20 @@ internal static partial class Program
         WriteOneBlockDraw(bus, 0x9991, 0x8003);
         WriteOneBlockDraw(bus, 0x99e5, 0x8004);
         WriteOneBlockDraw(bus, 0x98dd, 0x8005);
+    }
+
+    [VerificationCommand("--noob-tube-plm-program")]
+    internal static int NoobTubePlmProgramCommand()
+    {
+        Suite(nameof(VerifyNoobTubePlm), () => VerifyNoobTubePlm());
+        return 0;
+    }
+
+    [VerificationCommand("--grapple-resident-trigger")]
+    internal static int GrappleResidentTriggerCommand()
+    {
+        Suite(nameof(VerifyNoobTubePlm), () => VerifyNoobTubePlm());
+        Suite(nameof(VerifyPermanentCollectibles), () => VerifyPermanentCollectibles());
+        return 0;
     }
 }

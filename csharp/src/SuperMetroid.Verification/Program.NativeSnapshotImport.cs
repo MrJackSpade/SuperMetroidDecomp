@@ -6,8 +6,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static NativeSnapshotImportMotherBrainVerification;
+using static NativeSnapshotImportPauseVerification;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class NativeSnapshotImportVerification
 {
     /// <summary>
     /// Builds a production game from one native WRAM snapshot. This is the single initial-state
@@ -17,7 +21,7 @@ internal static partial class Program
     /// <param name="memory">The 128 KiB native WRAM image at the movie's first input boundary.</param>
     /// <param name="saveRam">The movie's starting 8 KiB cartridge SRAM.</param>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static (CartridgeImportAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus, SuperMetroidGame Game)
+    internal static (CartridgeImportAddressSpace Bus, SuperMetroidRuntime Runtime, SamusState Samus, SuperMetroidGame Game)
         ImportNativeSnapshot(byte[] memory, byte[] saveRam)
     {
         ushort W(int address) => BinaryPrimitives.ReadUInt16LittleEndian(memory.AsSpan(address));

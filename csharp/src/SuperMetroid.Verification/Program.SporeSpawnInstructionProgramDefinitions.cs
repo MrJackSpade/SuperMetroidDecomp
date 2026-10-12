@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification;
 
-internal static partial class Program
+internal static class SporeSpawnInstructionProgramDefinitionsVerification
 {
     /// <summary>
     /// Compares the complete mechanics side of Spore Spawn's mixed streams with the pinned
     /// ROM, then drives all five production entry points with those source bytes forbidden.
     /// </summary>
-    private static void VerifySporeSpawnInstructionProgramDefinitions()
+    internal static void VerifySporeSpawnInstructionProgramDefinitions()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -125,7 +136,7 @@ internal static partial class Program
             "reads forbidden.");
     }
 
-    private static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
+    internal static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
         MutableCartridgeReadGuard bus,
         ushort initialPointer,
         int frames,
@@ -170,12 +181,12 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn program words")]
-    private static ushort ReadSporeSpawnProgramWord(
+    internal static ushort ReadSporeSpawnProgramWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa50000 | address);
 
-    private static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)
+    internal static MutableCartridgeReadGuard NewSporeSpawnInstructionReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(SporeSpawnInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
@@ -184,5 +195,12 @@ internal static partial class Program
                 SporeSpawnInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Installed Spore Spawn reread visual selector ${address:X6}.");
         return guard;
+    }
+
+    [VerificationCommand("--spore-spawn-instruction-mechanics")]
+    internal static int SporeSpawnInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifySporeSpawnInstructionProgramDefinitions), () => VerifySporeSpawnInstructionProgramDefinitions());
+        return 0;
     }
 }

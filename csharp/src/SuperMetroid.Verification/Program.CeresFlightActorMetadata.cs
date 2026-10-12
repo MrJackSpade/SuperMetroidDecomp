@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresFlightActorMetadataVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight actor metadata")]
-    private static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
+    internal static void VerifyCeresFlightActorMetadata(ISnesAddressSpace retail)
     {
         CeresFlightActorDefinition front = CeresFlightActorDefinitions.FrontStars;
         ushort frontDefinition = CartridgeImportSource.Require(retail).ReadCartridgeWord(0x8bbe57);

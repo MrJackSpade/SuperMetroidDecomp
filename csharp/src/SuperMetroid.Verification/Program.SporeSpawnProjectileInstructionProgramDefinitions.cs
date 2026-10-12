@@ -1,17 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SporeSpawnProjectileInstructionProgramDefinitionsVerification
 {
-    private static void VerifySporeSpawnProjectileInstructionProgramDefinitions() =>
+    internal static void VerifySporeSpawnProjectileInstructionProgramDefinitions() =>
         Suite(nameof(VerifySporeSpawnProjectileInstructionProgramDefinitions), () => VerifySporeSpawnProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile instruction program definitions")]
-    private static void VerifySporeSpawnProjectileInstructionProgramDefinitions(
+    internal static void VerifySporeSpawnProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -157,4 +169,11 @@ internal static partial class Program
             .Forbid(SporeSpawnProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Spore Spawn mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordCount, SporeSpawnProjectileInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--spore-spawn-projectile-instruction-mechanics")]
+    internal static int SporeSpawnProjectileInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifySporeSpawnProjectileInstructionProgramDefinitions), () => VerifySporeSpawnProjectileInstructionProgramDefinitions());
+        return 0;
+    }
 }

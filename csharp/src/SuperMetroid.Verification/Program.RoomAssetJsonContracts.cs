@@ -1,9 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInstallation;
+using static SuiteTimingVerification;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using static TilemapJsonContractsVerification;
 
-internal static partial class Program
+internal static class RoomAssetJsonContractsVerification
 {
     /// <summary>
     /// Checks the five statically identified installed room-visual JSON families.
@@ -11,7 +25,7 @@ internal static partial class Program
     /// Defective stock manifests and selected overrides must fail with their path,
     /// while valid historical casing keeps the exact selected-content identity.
     /// </summary>
-    private static void VerifyRoomAssetJsonContracts(string installationRoot)
+    internal static void VerifyRoomAssetJsonContracts(string installationRoot)
     {
         GameInstallation installed = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
         using var temporaryScratch = new TestScratchDirectory("room-json-contract");
@@ -98,7 +112,7 @@ internal static partial class Program
         }
     }
 
-    private sealed record RoomJsonFileContract(string Name, string Source, string Manifest, Func<string, string?, string> Identity);
+    internal sealed record RoomJsonFileContract(string Name, string Source, string Manifest, Func<string, string?, string> Identity);
 
     private static IEnumerable<string> RoomJsonCorruptions(string json, string versionField = "version")
     {
@@ -138,12 +152,20 @@ internal static partial class Program
         }
     }
 
-    private static Dictionary<string, string> SnapshotRoomJsonFiles(string directory) => Directory.GetFiles(directory)
+    internal static Dictionary<string, string> SnapshotRoomJsonFiles(string directory) => Directory.GetFiles(directory)
         .ToDictionary(path => Path.GetFileName(path), path => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))));
 
-    private static void AssertRoomJsonUnchanged(Dictionary<string, string> expected, string directory, string description)
+    internal static void AssertRoomJsonUnchanged(Dictionary<string, string> expected, string directory, string description)
     {
         Dictionary<string, string> actual = SnapshotRoomJsonFiles(directory);
         AssertTrue(expected.Count == actual.Count && expected.All(pair => actual.TryGetValue(pair.Key, out string? value) && value == pair.Value), description);
+    }
+
+    [VerificationCommand("--room-asset-json-contracts")]
+    internal static int RoomAssetJsonContractsCommand()
+    {
+        string roomAssetRoot = RepositoryInstallation.Installation.Root;
+        Suite(nameof(VerifyRoomAssetJsonContracts), () => VerifyRoomAssetJsonContracts(roomAssetRoot));
+        return 0;
     }
 }

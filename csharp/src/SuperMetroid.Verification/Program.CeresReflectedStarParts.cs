@@ -2,9 +2,9 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresReflectedStarPartsVerification
 {
-    private static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
+    internal static void VerifyCeresReflectedStarParts(ISnesAddressSpace rom)
     {
         var original = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x9478, 25, "stars");
         var vortex = IntroCinematicSpriteFrameExtractor.Extract(rom, 0x8fe7, 36, "vortex-even");

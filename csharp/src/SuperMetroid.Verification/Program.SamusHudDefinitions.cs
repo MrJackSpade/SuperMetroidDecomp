@@ -2,11 +2,13 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static GrappleFiringDefinitionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusHudDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus HUD definitions")]
-    private static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusHudDefinitions(SuperMetroidAddressSpace rom)
     {
         bool Transition(SamusPoseId pose, bool active) => pose >= SamusHudRomData.StandardTransitionStart ||
             (pose < SamusHudRomData.NonFiringTransitionStart &&

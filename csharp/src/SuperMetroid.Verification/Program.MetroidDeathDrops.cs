@@ -1,8 +1,18 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MetroidDeathDropsVerification
 {
     // #1269: EnemyShot_Metroid records the drop origin ($A3:EF31), runs EnemyDeath ($A3:EF4B),
     // which spawns the death explosion, and only then MetroidDeathItemDropRoutine ($A3:EF74).
@@ -10,7 +20,7 @@ internal static partial class Program
     // free slot and the drops follow below it, as in the 100% movie's first Metroid room.
     // #1269: $A0:A184 also does not reject a projectile an earlier enemy marked for removal
     // this pass; the movie's Super Missile hits a respawning Rinka and then the Metroid.
-    private static void VerifyMetroidDeathDrops()
+    internal static void VerifyMetroidDeathDrops()
     {
         VerifyMetroidDeathDrops(alreadyMarked: false);
         VerifyMetroidDeathDrops(alreadyMarked: true);
@@ -54,5 +64,12 @@ internal static partial class Program
             AssertTrue(projectiles[slot].Kind != RoomEnemyProjectileKind.EnemyDeathPickup,
                 $"no drop sits above the explosion (slot {slot})");
         AssertEqual(5, runtime.Enemies.MetroidDropRequests.Count, "the Metroid requests its five special drops");
+    }
+
+    [VerificationCommand("--metroid-death-drops")]
+    internal static int MetroidDeathDropsCommand()
+    {
+        VerifyMetroidDeathDrops();
+        return 0;
     }
 }

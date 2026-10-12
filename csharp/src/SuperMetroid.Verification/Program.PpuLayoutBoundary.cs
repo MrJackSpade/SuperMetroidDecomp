@@ -1,9 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PpuLayoutBoundaryVerification
 {
     /// <summary>
     /// Checks the #630 PPU layout boundary: catalog identities and aliases, the repository
@@ -12,7 +23,7 @@ internal static partial class Program
     /// allocation-free view paths.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: suite driver over the layout catalog inventory")]
-    private static void VerifyPpuLayoutBoundary()
+    internal static void VerifyPpuLayoutBoundary()
     {
         IReadOnlyList<PpuLayoutCatalogEntry> entries = PpuLayoutCatalogInventory.Enumerate(PpuLayoutCatalogInventory.ProductionAssemblies);
         Suite(nameof(VerifyPpuLayoutCatalogIdentities), () => VerifyPpuLayoutCatalogIdentities(entries));
@@ -340,5 +351,12 @@ internal static partial class Program
                 new Mode7Vram(vram).LoadMap(mapRow, (frame & 127) * 128);
             }
         }
+    }
+
+    [VerificationCommand("--ppu-layout-boundary")]
+    internal static int PpuLayoutBoundaryCommand()
+    {
+        Suite(nameof(VerifyPpuLayoutBoundary), () => VerifyPpuLayoutBoundary());
+        return 0;
     }
 }

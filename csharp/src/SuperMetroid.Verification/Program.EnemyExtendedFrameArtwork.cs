@@ -5,8 +5,15 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static CeresSteamCollisionDefinitionsVerification;
+using static CrocomireTongueCollisionDefinitionsVerification;
+using static EnemyExtendedFrameArtworkCommonEmptyVerification;
+using static EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification;
+using static ImportedSpritemapsVerification;
+using static MaridiaLargeSnailCollisionDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyExtendedFrameArtworkVerification
 {
     /// <summary>
     /// Collects the Draygon presentation selectors that do not name an installed OAM frame and
@@ -39,7 +46,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyInstalledEnemyExtendedFrames(
+    internal static void VerifyInstalledEnemyExtendedFrames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
     {
@@ -1383,7 +1390,7 @@ internal static partial class Program
     // BG2 streams are covered by their dedicated fixture; this comparison owns
     // only component offsets, clipping, and the packed sprite compositions.
     [CpuBusBoundary("exact bus test: retail ROM oracle for the reference extended-frame drawer")]
-    private static OamBuffer DrawReferenceExtendedFrame(
+    internal static OamBuffer DrawReferenceExtendedFrame(
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<ScreenPixels> origin)
     {
         byte ReadByte(int address) => bus.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(address))))));
@@ -1414,7 +1421,7 @@ internal static partial class Program
             pointer, position, inspect);
     }
 
-    private static OamBuffer DrawExtendedForBank(EnemyTileArtworkCatalog? art,
+    internal static OamBuffer DrawExtendedForBank(EnemyTileArtworkCatalog? art,
         ISnesAddressSpace bus, byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
     {
@@ -1493,7 +1500,7 @@ internal static partial class Program
             $"Extended Space Pirate frame $B2:{pointer:X4} is not installed.");
     }
 
-    private static CartridgeReadGuard NewExtendedVisualReadGuard(
+    internal static CartridgeReadGuard NewExtendedVisualReadGuard(
         ISnesAddressSpace source, out Action<byte, ushort> blockFrame)
     {
         var blocked = new HashSet<int>();

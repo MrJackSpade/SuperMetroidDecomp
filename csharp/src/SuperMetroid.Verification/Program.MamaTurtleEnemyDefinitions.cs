@@ -1,16 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
+using static EnemyDefinitionsVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MamaTurtleEnemyDefinitionsVerification
 {
     /// <summary>
     /// Compares both compiled family headers field-for-field with the pinned cartridge,
     /// then loads the real Mama Turtle room while every source-header byte is forbidden.
     /// </summary>
-    private static void VerifyMamaTurtleEnemyDefinitions()
+    internal static void VerifyMamaTurtleEnemyDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guard = NewMamaTurtleDefinitionGuard(rom);
@@ -20,7 +31,7 @@ internal static partial class Program
                      EnemyDefinitionId.BabyTurtle,
                  })
         {
-            RoomEnemyDefinition expected = ReadNativeEnemyDefinition(rom, pointer);
+            RoomEnemyDefinition expected = EnemyDefinitionsVerification.ReadNativeEnemyDefinition(rom, pointer);
             AssertTrue(MamaTurtleEnemyDefinitionCatalogAccess.TryGet(pointer, out RoomEnemyDefinition actual),
                 $"Mama Turtle header $A0:{(int)pointer:X4} is compiled");
             AssertEqual(expected, actual, $"compiled enemy header $A0:{(int)pointer:X4}");
@@ -41,11 +52,11 @@ internal static partial class Program
             enemies.Slots[0].EnemyDefinitionPointer, "Mama Turtle parent header identity");
         AssertEqual(EnemyDefinitionId.BabyTurtle,
             enemies.Slots[1].EnemyDefinitionPointer, "Baby Turtle header identity");
-        AssertEqual(ReadNativeEnemyDefinition(rom, EnemyDefinitionId.MamaTurtle),
+        AssertEqual(EnemyDefinitionsVerification.ReadNativeEnemyDefinition(rom, EnemyDefinitionId.MamaTurtle),
             enemies.Slots[0].Definition, "Mama Turtle loaded definition");
         for (int slot = 1; slot < 5; slot++)
         {
-            AssertEqual(ReadNativeEnemyDefinition(rom, EnemyDefinitionId.BabyTurtle),
+            AssertEqual(EnemyDefinitionsVerification.ReadNativeEnemyDefinition(rom, EnemyDefinitionId.BabyTurtle),
                 enemies.Slots[slot].Definition, $"Baby Turtle loaded definition slot {slot}");
         }
 
@@ -70,4 +81,11 @@ internal static partial class Program
         new CartridgeReadGuard(source).ForbidRange(MamaTurtleEnemyDefinitionCatalogConstants.SourceAddress,
             MamaTurtleEnemyDefinitionCatalogConstants.SourceByteLength,
             address => $"Mama Turtle family still reads compiled header byte ${address:X6}.");
+
+    [VerificationCommand("--mama-turtle-enemy-definitions")]
+    internal static int MamaTurtleEnemyDefinitionsCommand()
+    {
+        Suite(nameof(VerifyMamaTurtleEnemyDefinitions), () => VerifyMamaTurtleEnemyDefinitions());
+        return 0;
+    }
 }

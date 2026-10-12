@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupRetailDoorHeadersVerification
 {
-    private static void VerifyRetailDoorHeaders(SuperMetroidAddressSpace rom)
+    internal static void VerifyRetailDoorHeaders(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyDoorHeaderIdentities), () => VerifyDoorHeaderIdentities());
         Suite(nameof(VerifyDoorHeaderDestinationRoomPointer), () => VerifyDoorHeaderDestinationRoomPointer(rom));

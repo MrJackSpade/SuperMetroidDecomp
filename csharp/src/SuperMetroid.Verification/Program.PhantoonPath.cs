@@ -2,10 +2,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PhantoonPathVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon path")]
-    private static void VerifyCompiledPhantoonPath(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledPhantoonPath(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 534; index++)
         {

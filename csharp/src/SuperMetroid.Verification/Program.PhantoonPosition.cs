@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class PhantoonPositionVerification
 {
-    private static void VerifyPhantoonPosition()
+    internal static void VerifyPhantoonPosition()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // The native NTSC negative caps must hold at -8 and -6 pixels/frame.
@@ -76,5 +86,12 @@ internal static partial class Program
         }
         AssertTrue(positions.Count > 20, "Phantoon test includes moving body positions, not only stationary introduction");
         Console.WriteLine($"  Phantoon: 1400 live/NMI/capture frames follow {positions.Count} distinct body positions.");
+    }
+
+    [VerificationCommand("--phantoon-position")]
+    internal static int PhantoonPositionCommand()
+    {
+        Suite(nameof(VerifyPhantoonPosition), () => VerifyPhantoonPosition());
+        return 0;
     }
 }

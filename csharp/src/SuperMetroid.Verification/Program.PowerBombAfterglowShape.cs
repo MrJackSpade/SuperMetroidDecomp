@@ -1,13 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 
-internal static partial class Program
+internal static class PowerBombAfterglowShapeVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb afterglow shape")]
-    private static void VerifyPowerBombAfterglowShape()
+    internal static void VerifyPowerBombAfterglowShape()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var colors = PowerBombFixedColorCatalog.Load(new MemoryStream(PowerBombFixedColorExtractor.Extract(rom)));
@@ -48,5 +56,12 @@ internal static partial class Program
         }
         AssertTrue(checkedFrames > 1, "confirms both final expansion and fading frames");
         Console.WriteLine($"Power Bomb afterglow: {checkedFrames} frames retain the native oval, including captured windows and rendered corner pixels.");
+    }
+
+    [VerificationCommand("--power-bomb-afterglow-shape")]
+    internal static int PowerBombAfterglowShapeCommand()
+    {
+        Suite(nameof(VerifyPowerBombAfterglowShape), () => VerifyPowerBombAfterglowShape());
+        return 0;
     }
 }

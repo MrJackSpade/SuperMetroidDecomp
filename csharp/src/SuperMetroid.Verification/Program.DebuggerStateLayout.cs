@@ -1,14 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class DebuggerStateLayoutVerification
 {
     /// <summary>
     /// #1270: debugger states restore only this build's exact layout. A stale field, a type this build
     /// lacks, or a retyped value is rejected as an unsupported state version instead of being converted.
     /// </summary>
-    private static void VerifyDebuggerStateRejectsStaleLayouts()
+    internal static void VerifyDebuggerStateRejectsStaleLayouts()
     {
         var state = new SamusGrappleState { PoseChangeAutoFireTimer = 7 };
         byte[] current = SerializeDebuggerGraph(state);
@@ -66,5 +78,12 @@ internal static partial class Program
     {
         using var stream = new MemoryStream(graph, writable: false);
         return DebuggerObjectGraphSerializer.Deserialize<T>(stream);
+    }
+
+    [VerificationCommand("--debugger-state-layout")]
+    internal static int DebuggerStateLayoutCommand()
+    {
+        Suite(nameof(VerifyDebuggerStateRejectsStaleLayouts), () => VerifyDebuggerStateRejectsStaleLayouts());
+        return 0;
     }
 }

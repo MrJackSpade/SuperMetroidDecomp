@@ -1,18 +1,33 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static MagicNumberAuditVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static EnemyDropsVerification;
+using static PauseEquipmentRulesVerification;
+using static ProjectileSoundRoutingVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static SamusHudSelectionVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MurderBeamVerification
 {
     /// <summary>
     /// Verifies the cartridge-safe left-facing Murder Beam against the bounded original-CPU
     /// probe. The unsafe directions enter unrelated native code and are asserted separately
     /// as unsupported rather than being disguised as an ordinary Wave projectile.
     /// </summary>
-    private static void VerifyMurderBeam()
+    internal static void VerifyMurderBeam()
     {
         var bus = NewProjectileSoundRoutingForbiddenBus(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc")));
@@ -241,5 +256,13 @@ internal static partial class Program
         };
         AssertThrows<NotSupportedException>(() => CreateProjectileFixture().StepFrame(new SamusTerrain { Bus = bus, Level = level }, samus, new ProjectileButtonInput { ControllerInput = (ushort)SnesButton.X, ControllerNewInput = (ushort)SnesButton.X }, new(0, 0), CreateBombFixture()),
             "unsafe uncharged Murder Beam does not silently become an ordinary projectile");
+    }
+
+    [VerificationCommand("--murder-beam")]
+    internal static int MurderBeamCommand()
+    {
+        Suite(nameof(VerifyMurderBeam), () => VerifyMurderBeam());
+        Suite(nameof(VerifyProductionMagicNumberAudit), () => VerifyProductionMagicNumberAudit());
+        return 0;
     }
 }

@@ -3,14 +3,15 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupSmallGameTablesVerification
 {
     /// <summary>
     /// #1165: one proof per converted small game table. Each compares the calculation with every
     /// native word of its cartridge source and asserts the bounded domain.
     /// </summary>
-    private static void VerifyLookupSmallGameTables(ISnesAddressSpace rom)
+    internal static void VerifyLookupSmallGameTables(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyMotherBrainFallingTubeBodies), () => VerifyMotherBrainFallingTubeBodies(rom));
         Suite(nameof(VerifyMotherBrainBombBounceAccelerations), () => VerifyMotherBrainBombBounceAccelerations(rom));

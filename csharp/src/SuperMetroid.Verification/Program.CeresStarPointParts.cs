@@ -2,9 +2,9 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresStarPointPartsVerification
 {
-    private static void VerifyCeresStarPointParts(ISnesAddressSpace rom)
+    internal static void VerifyCeresStarPointParts(ISnesAddressSpace rom)
     {
         foreach (bool reflected in new[] { false, true })
         {

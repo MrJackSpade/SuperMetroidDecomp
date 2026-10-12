@@ -3,11 +3,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class BossDisplayBindingsOracleVerification
 {
     /// <summary>Independent bounded decode of the already inventoried native visual and collision records.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for native boss extended OAM and BG2 display records")]
-    private static (EnemyExtendedDrawComponent[] Oam, EnemyBg2TilemapWrite[] Bg2) ReadBossDisplayOracle(
+    internal static (EnemyExtendedDrawComponent[] Oam, EnemyBg2TilemapWrite[] Bg2) ReadBossDisplayOracle(
         CartridgeImportAddressSpace source, EnemyExtendedFrameDefinition frame, HashSet<int> checkedLists)
     {
         int Address(ushort pointer) => ((int)new SnesAddress(frame.Bank, pointer));

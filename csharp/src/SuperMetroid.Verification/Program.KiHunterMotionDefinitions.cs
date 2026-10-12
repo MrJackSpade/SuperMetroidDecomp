@@ -2,9 +2,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class KiHunterMotionDefinitionsVerification
 {
-    private static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyKiHunterMotionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KiHunterMotionDefinitionsRomByte(rom, address), KiHunterMotionDefinitionsRomByte(rom, address + 1)));
         AssertEqual(Word(0xa8f180), KiHunterMotionDefinitions.SwoopTriggerDistance, "Native KiHunter proximity");

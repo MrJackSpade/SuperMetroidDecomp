@@ -3,12 +3,16 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static EndingLogoTablesVerification;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingLogoVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo crossfade palette tables")]
-    private static void VerifyEndingLogo(ISnesAddressSpace bus)
+    internal static void VerifyEndingLogo(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyEndingLogoDefinitions), () => VerifyEndingLogoDefinitions(bus));
         Suite(nameof(VerifyEndingLogoPrograms), () => VerifyEndingLogoPrograms(bus));
@@ -62,7 +66,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending logo instruction words")]
-    private static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
+    internal static void VerifyEndingLogoPrograms(ISnesAddressSpace bus)
     {
         ushort[] operands = [0xee5f, 0xee67, 0xee73, 0xee77, 0xee7b, 0xee8d, 0xee91, 0xee95];
         string[] names = ["s-upper", "s-lower", "circle-right-1", "circle-right-2", "circle-right-3",
@@ -195,7 +199,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo definitions")]
-    private static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
+    internal static void VerifyEndingLogoDefinitions(ISnesAddressSpace bus)
     {
 
         for (int index = 0; index < EndingLogoDefinitions.ActorCount; index++)

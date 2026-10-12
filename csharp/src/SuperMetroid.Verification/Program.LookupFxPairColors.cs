@@ -2,11 +2,13 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static DoorDefinitionsVerification;
+using static LookupFxBlendSelectorsVerification;
 
-internal static partial class Program
+internal static class LookupFxPairColorsVerification
 {
     // Independent reviewed fields, not the production rule's reported coverage.
-    private static int OriginalFxPairCalculatedMask(byte id, int color) => color == 0 && id is (0x42 or 0xe2 or 0xee) ? 0x7fff : id switch
+    internal static int OriginalFxPairCalculatedMask(byte id, int color) => color == 0 && id is (0x42 or 0xe2 or 0xee) ? 0x7fff : id switch
     {
         0x02 => 0x7c1f,
         0x22 or 0x62 => 0x7fe0,
@@ -15,9 +17,9 @@ internal static partial class Program
         _ => 0,
     };
 
-    private static void VerifyFxPairRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 0);
-    private static void VerifyFxPairGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 5);
-    private static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 10);
+    internal static void VerifyFxPairRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 0);
+    internal static void VerifyFxPairGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 5);
+    internal static void VerifyFxPairBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyFxPairComponent(rom, stock, 10);
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyFxPairComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock, int shift)
@@ -42,7 +44,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyFxPairStorageAndEdits(ISnesAddressSpace rom)
+    internal static void VerifyFxPairStorageAndEdits(ISnesAddressSpace rom)
     {
         foreach (byte id in OriginalFxBlendIds())
         {
@@ -85,7 +87,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: cartridge source that clears the calculated FX-pair color bits, proving the blend extractor recomputes them")]
-    private sealed class DerivedBlendSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    internal sealed class DerivedBlendSourceGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadByte(int address)
         {

@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CrawlerSpeedsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled crawler speeds")]
-    private static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledCrawlerSpeeds(SuperMetroidAddressSpace rom)
     {
         T Method<T>(string name) where T : Delegate => typeof(RoomEnemySystem)
             .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Static)!.CreateDelegate<T>();

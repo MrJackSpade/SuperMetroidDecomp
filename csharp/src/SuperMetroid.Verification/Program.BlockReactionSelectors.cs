@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static BabyMetroidRouteDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BlockReactionSelectorsVerification
 {
-    private static void VerifySharedBreakAnimationSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifySharedBreakAnimationSelection(SuperMetroidAddressSpace rom)
     {
         // Independent operands in the four original respawning bomb programs,
         // including their reverse reveal. These are not draw-layout base pointers.
@@ -24,7 +26,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for bombed reveal physical draw mapping")]
-    private static void VerifyBombedRevealPhysicalDrawMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombedRevealPhysicalDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
@@ -49,7 +51,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyBombedRevealControlMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombedRevealControlMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] controls = [0xc8ec,0xc8f0,0xc8f2,0xc8f6,0xc8f8,0xc8fc,0xc8fe,0xc902,0xc91c,0xc920,0xc922,0xc926];
         ushort[] operands = [0xc8ee,0xc8f4,0xc8fa,0xc900,0xc91e,0xc924];
@@ -69,7 +71,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyBombedRevealDrawMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombedRevealDrawMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xc8ee,0xc8f4,0xc8fa,0xc900,0xc91e,0xc924];
         foreach (ushort address in operands)
@@ -81,7 +83,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyContactCrumbleHeaderSelection(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 8; index++)
             AssertEqual(ReadRomWord(rom, 0x949139 + 2 * index),
@@ -94,23 +96,23 @@ internal static partial class Program
                 "contact crumble header int bounds");
     }
 
-    private static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyCollisionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94936b, 8,
             RoomPlmInstructionLists.CollisionBombByReactionIndex, "collision bomb"));
 
-    private static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyReactionBombInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x94a012, 8,
             RoomPlmInstructionLists.ReactionBombByReactionIndex, "bomb reaction"));
 
-    private static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyCrumbleRevealInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 4,
             RoomPlmInstructionLists.CrumbleRevealBySize, "crumble reveal"));
 
-    private static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyContactCrumbleInstructionSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949139, 8,
             RoomPlmInstructionLists.ContactCrumbleByReactionIndex, "contact crumble"));
 
-    private static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombSpecialInstructionSelection(SuperMetroidAddressSpace rom)
     {
         AssertEqual(80, BombSpecialBlockReactions.Count, "bounded native normal-BTS compatibility extent");
         Suite(nameof(VerifyNativeBlockInstructionSelection), () => VerifyNativeBlockInstructionSelection(rom, 0x949da4, 80,

@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupColoredDoorStockVerification
 {
-    private static void VerifyColoredDoorStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyColoredDoorStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmColoredDoorVisualCatalog installed)
     {
         (ushort First, string Name)[] families = [

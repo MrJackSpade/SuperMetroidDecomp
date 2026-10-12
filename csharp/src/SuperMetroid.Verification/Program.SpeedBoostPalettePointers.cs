@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class SpeedBoostPalettePointersVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for speed boost palette pointers")]
-    private static void VerifySpeedBoostPalettePointers()
+    internal static void VerifySpeedBoostPalettePointers()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SamusFullBodyCycleColorCatalog cycleColors = SamusFullBodyCycleColorCatalog.Load(
@@ -56,4 +66,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Speed Booster full-body shade colors")]
     private static ushort ReadNativeSpeedBoosterShadeColor(IImportCartridgeSource rom, int nativePointer, int color) =>
         RomDataReader.ReadWordFixedBank(rom, SamusPaletteRomData.Banks.Palette | (nativePointer + color * sizeof(ushort)));
+
+    [VerificationCommand("--speed-boost-palette-pointers")]
+    internal static int SpeedBoostPalettePointersCommand()
+    {
+        Suite(nameof(VerifySpeedBoostPalettePointers), () => VerifySpeedBoostPalettePointers());
+        return 0;
+    }
 }

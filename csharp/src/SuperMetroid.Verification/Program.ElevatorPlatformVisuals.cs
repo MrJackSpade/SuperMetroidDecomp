@@ -4,10 +4,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static LookupElevatorPlatformStockVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class ElevatorPlatformVisualsVerification
 {
-    private static void VerifyElevatorPlatformVisuals()
+    internal static void VerifyElevatorPlatformVisuals()
     {
         RoomPlmElevatorPlatformVisualCatalog stock =
             RoomPlmElevatorPlatformVisualCatalog.Stock();

@@ -1,11 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class WrapShotWidthsVerification
 {
-    private static void VerifyWrapShotWidths(string tracePath)
+    internal static void VerifyWrapShotWidths(string tracePath)
     {
         var native = File.ReadLines(tracePath).Skip(1).ToArray();
         AssertEqual(1080, native.Length, "Complete native width matrix");
@@ -50,5 +61,12 @@ internal static partial class Program
         }
         AssertEqual(0, mismatches, "Native beam-width trajectory, radii, lifetime and remote-door setup writes");
         Console.WriteLine("PASS 1080 original-cartridge width-boundary records.");
+    }
+
+    [VerificationCommand("--wrap-shot-widths")]
+    internal static int WrapShotWidthsCommand()
+    {
+        Suite(nameof(VerifyWrapShotWidths), () => VerifyWrapShotWidths("csharp/test-fixtures/movement-release/wrap-width-409.csv"));
+        return 0;
     }
 }

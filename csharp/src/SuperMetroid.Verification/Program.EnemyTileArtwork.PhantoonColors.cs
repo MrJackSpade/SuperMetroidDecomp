@@ -5,12 +5,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkPhantoonColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon palette bands")]
-    private static void VerifyInstalledPhantoonColors(
+    internal static void VerifyInstalledPhantoonColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         PhantoonColorCatalog native = stock.PhantoonColors ??

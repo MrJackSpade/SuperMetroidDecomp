@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static BabyMetroidRouteDefinitionsVerification;
+using static SpeedBoosterCollisionBlocksVerification;
+using static SpeedBoosterPlmProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SpeedBoosterVisualsVerification
 {
     private static void VerifySpeedBoosterStockVisualMapping(SuperMetroidAddressSpace rom)
     {
@@ -39,7 +52,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native,native])]),"speed visual rejects altered shape");
     }
 
-    private static void VerifySpeedBoosterVisuals()
+    internal static void VerifySpeedBoosterVisuals()
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -132,5 +145,12 @@ internal static partial class Program
         }
         Console.WriteLine(
             "Speed Booster visuals: native reveal parity, live edit, physical isolation, stock repair and strict failures pass.");
+    }
+
+    [VerificationCommand("--speed-booster-visuals")]
+    internal static int SpeedBoosterVisualsCommand()
+    {
+        Suite(nameof(VerifySpeedBoosterVisuals), () => VerifySpeedBoosterVisuals());
+        return 0;
     }
 }

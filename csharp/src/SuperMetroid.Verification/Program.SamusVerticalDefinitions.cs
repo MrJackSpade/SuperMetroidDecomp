@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class SamusVerticalDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus vertical definitions")]
-    private static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusVerticalDefinitions(SuperMetroidAddressSpace rom)
     {
         var guard = NewSlopeHeightNoReadBus();
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };

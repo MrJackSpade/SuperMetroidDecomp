@@ -1,9 +1,9 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class RidleyNeutralTailVerification
 {
-    private static void VerifyRidleyPowerBombNeutralTail()
+    internal static void VerifyRidleyPowerBombNeutralTail()
     {
         var prepare = typeof(RoomEnemySystem).GetMethod("PrepareNorfairRidleyCombatFrame", BindingFlags.NonPublic | BindingFlags.Static)!
             .CreateDelegate<Action<RidleyEnemyState, SamusBombProjectileSystem>>();

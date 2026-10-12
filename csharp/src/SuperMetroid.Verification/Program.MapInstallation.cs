@@ -1,12 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Security.Cryptography;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 
-internal static partial class Program
+internal static class MapInstallationVerification
 {
     /// <summary>Opt-in full importer transaction; all ROM/audio/fixture data stays in ignored test-temp.</summary>
-    private static void VerifyMapInstallation(string sourceRom)
+    internal static void VerifyMapInstallation(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("map-installation");
         string root = rootScratch.Root;
@@ -382,8 +395,16 @@ internal static partial class Program
         }
     }
 
-    private sealed class ImmediateInstallProgress(Action<string>? onReport = null) : IProgress<string>
+    internal sealed class ImmediateInstallProgress(Action<string>? onReport = null) : IProgress<string>
     {
         public void Report(string message) { Console.WriteLine(message); onReport?.Invoke(message); }
+    }
+
+    [VerificationCommand("--map-installation")]
+    internal static int MapInstallationCommand()
+    {
+        string installationRom = RepositoryRomPath;
+        Suite(nameof(VerifyMapInstallation), () => VerifyMapInstallation(installationRom));
+        return 0;
     }
 }

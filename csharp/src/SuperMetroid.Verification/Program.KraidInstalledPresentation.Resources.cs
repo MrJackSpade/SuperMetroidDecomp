@@ -3,11 +3,13 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidInstalledPresentationHeadClockVerification;
+using static TilemapJsonContractsVerification;
 
-internal static partial class Program
+internal static class KraidInstalledPresentationResourcesVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyKraidLiveHeadAlias(EnemyTileArtworkCatalog art)
+    internal static void VerifyKraidLiveHeadAlias(EnemyTileArtworkCatalog art)
     {
         var fixture = new KraidHeadClockFixture(art);
         ushort[] bodyMap = fixture.State.BackgroundTilemapWords.ToArray();
@@ -35,7 +37,7 @@ internal static partial class Program
             memory.WriteByte(KraidBackgroundRomData.NativeBank | (pointer + index), source[index]);
     }
 
-    private static void VerifyKraidRequiredFiles(string directory)
+    internal static void VerifyKraidRequiredFiles(string directory)
     {
         IEnumerable<string> files = new[] { KraidBackgroundArtworkFormat.UpperFileName,
             KraidBackgroundArtworkFormat.LowerFileName, KraidBackgroundArtworkFormat.RoomBackgroundFileName }

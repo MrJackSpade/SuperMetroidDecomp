@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class WorkRobotInitialSelectionVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Work Robot initial selection")]
-    private static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyWorkRobotInitialSelection(SuperMetroidAddressSpace rom)
     {
         ushort NativeWord(int selector)
         {

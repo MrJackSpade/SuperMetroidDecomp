@@ -1,3 +1,6 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,12 +10,15 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusTurnsAndKnockbackVerification
 {
 
 /// <summary>Aerial turn, wall-jump, knockback, and damage-boost verification.</summary>
-static void VerifySamusAerialTurnsAndWallJump()
+internal static void VerifySamusAerialTurnsAndWallJump()
 {
     var bus = new TestAddressSpace();
 
@@ -441,7 +447,7 @@ static void VerifySamusAerialTurnsAndWallJump()
 /// the production path still reads them through <see cref="ISnesAddressSpace"/> instead of
 /// embedding friendly host-side velocities or pose metadata.
 /// </summary>
-static void VerifySamusKnockbackAndDamageBoost()
+internal static void VerifySamusKnockbackAndDamageBoost()
 {
     var bus = new TestAddressSpace();
 
@@ -965,4 +971,11 @@ static void SeedKnockbackDryVerticalRows(TestAddressSpace bus)
 
 // Exercises the bank-$9B/$94 connected-pendulum order with deliberately tiny ROM tables.
 // Hard-coded positions and velocities make this independent of production helper formulas.
+
+    [VerificationCommand("--samus-aerial-turns-walljump")]
+    internal static int SamusAerialTurnsWalljumpCommand()
+    {
+        Suite(nameof(VerifySamusAerialTurnsAndWallJump), () => VerifySamusAerialTurnsAndWallJump());
+        return 0;
+    }
 }

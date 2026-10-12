@@ -1,15 +1,16 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupColoredProgramVerification
 {
-    private static void VerifyColoredProgramControls(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 0);
-    private static void VerifyColoredProgramDraws(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 1);
-    private static void VerifyColoredProgramTargets(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 2);
-    private static void VerifyColoredProgramSounds(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 3);
-    private static void VerifyColoredProgramHitCount(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 4);
+    internal static void VerifyColoredProgramControls(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 0);
+    internal static void VerifyColoredProgramDraws(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 1);
+    internal static void VerifyColoredProgramTargets(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 2);
+    internal static void VerifyColoredProgramSounds(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 3);
+    internal static void VerifyColoredProgramHitCount(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 4);
 
-    private static void VerifyColoredProgramCallback(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 5);
+    internal static void VerifyColoredProgramCallback(SuperMetroidAddressSpace rom) => VerifyColoredProgramField(rom, 5);
 
     private static void VerifyColoredProgramField(SuperMetroidAddressSpace rom, int field)
     {

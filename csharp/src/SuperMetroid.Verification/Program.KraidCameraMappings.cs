@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class KraidCameraMappingsVerification
 {
-    private static void VerifyKraidInitialScrollMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidInitialScrollMapping(SuperMetroidAddressSpace rom)
     {
         // Read the two LDA immediate operands stored to Scrolls and Scrolls+2.
         int[] operandAddresses = [0xa7a9eb, 0xa7a9ec, 0xa7a9f2, 0xa7a9f3];
@@ -19,7 +19,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid initial scroll mapping")]
     private static byte KraidInitialScrollMappingRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidGrownScrollMapping(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidGrownScrollMapping(SuperMetroidAddressSpace rom)
     {
         int[] operandAddresses = [0xa7c0a8, 0xa7c0a9, 0xa7c0af, 0xa7c0b0];
         AssertEqual(operandAddresses.Length, KraidCameraDefinitions.ScreenCount, "Kraid grown screen count");

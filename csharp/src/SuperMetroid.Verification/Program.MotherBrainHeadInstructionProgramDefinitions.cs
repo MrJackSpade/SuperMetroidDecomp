@@ -3,7 +3,7 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class MotherBrainHeadInstructionProgramDefinitionsVerification
 {
     private static readonly (ushort Start, ushort End)[] MotherBrainHeadRegions =
     [
@@ -22,7 +22,7 @@ internal static partial class Program
     ];
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain head instruction words")]
-    private static void VerifyMotherBrainHeadInstructionProgramDefinitions()
+    internal static void VerifyMotherBrainHeadInstructionProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         int checkedWords = 0;

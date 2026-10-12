@@ -2,11 +2,12 @@ using System.Collections;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupTourianSpawnVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue spawn order")]
-    private static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
+    internal static void VerifyTourianStatueSpawnOrder(ISnesAddressSpace rom)
     {
         var expected = new List<ushort>();
         int cursor = 0x8f91d7;

@@ -1,12 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static RetailRuntimeFixtureVerification;
+using static SamusRenderingFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
+using static WordSamplesVerification;
 
-internal static partial class Program
+internal static class GrappleFiringDefinitionsVerification
 {
-    private static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleFiringDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleLaunchXSelection), () => VerifyGrappleLaunchXSelection(rom));
         Suite(nameof(VerifyGrappleLaunchYSelection), () => VerifyGrappleLaunchYSelection(rom));
@@ -183,7 +197,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple firing definitions")]
     private static byte GrappleFiringDefinitionsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleOriginXSelection(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginXReferenceAddress,
             false, origin => origin.X, "default X alias"));
@@ -191,11 +205,11 @@ internal static partial class Program
             true, origin => origin.X, "running X alias"));
     }
 
-    private static void VerifyGrappleOriginDefaultYSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleOriginDefaultYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.OriginYReferenceAddress,
             false, origin => origin.Y, "default Y"));
 
-    private static void VerifyGrappleOriginRunningYSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleOriginRunningYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleOriginField), () => VerifyGrappleOriginField(rom, GrappleFiringDefinitions.RunningOriginYReferenceAddress,
             true, origin => origin.Y, "running Y"));
 
@@ -216,15 +230,15 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple origin field")]
     private static byte GrappleOriginFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
-    private static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity"));
 
-    private static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
             direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).YVelocity), "Y velocity"));
 
-    private static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
             direction => GrappleFiringDefinitions.Launch(direction).Angle, "angle"));
 
@@ -244,7 +258,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple launch field")]
     private static byte GrappleLaunchFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     /// <summary>Forbids the selected source pose's compiled movement and graphics-offset bytes and every migrated Grapple firing table.</summary>
-    private static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,
+    internal static MutableCartridgeReadGuard NewGrappleFiringReadGuard(ISnesAddressSpace source,
         Func<SamusPoseId> sourcePose)
     {
         int PoseRecord() => SamusMovementRomData.Poses.Definitions + (int)sourcePose() * 8;
@@ -258,5 +272,13 @@ internal static partial class Program
                 address => $"Compiled Grapple mechanics read ROM ${address:X6}.")
             .RejectWrites(_ => "Unexpected Grapple definition write.");
         return guard;
+    }
+
+    [VerificationCommand("--grapple-firing-definitions")]
+    internal static int GrappleFiringDefinitionsCommand()
+    {
+        Suite(nameof(VerifyGrappleFiringDefinitions), () => VerifyGrappleFiringDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

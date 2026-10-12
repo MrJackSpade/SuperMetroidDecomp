@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static LookupStream5Verification;
 
-internal static partial class Program
+internal static class DeadTourianCorpseDefinitionsVerification
 {
-    private static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadTourianCorpseDefinitions(SuperMetroidAddressSpace rom)
     {
         (DeadTourianCorpseSpecies Species, EnemyDefinitionId EnemyDefinition, int VariantCount,
             int InstructionTable, int ConfigurationTable)[] families =
@@ -142,4 +155,12 @@ internal static partial class Program
                     >= 0xa9e254 and < 0xa9e256 or
                     >= 0xa9e25a and < 0xa9e25c,
                 address => $"Dead Tourian corpse attempted migrated metadata read ${address:X6}.");
+
+    [VerificationCommand("--dead-tourian-corpse-definitions")]
+    internal static int DeadTourianCorpseDefinitionsCommand()
+    {
+        Suite(nameof(VerifyDeadTourianCorpseDefinitions), () => VerifyDeadTourianCorpseDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

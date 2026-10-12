@@ -6,11 +6,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class NinjaSpacePiratePaletteArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ninja Space Pirate palette")]
-    private static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
+    internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.RoomEnemyDefinitionImporter.Load(bus,

@@ -1,18 +1,30 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Desktop;
+using static EnemyAnimationIsolationFixtureVerification;
+using static EnemyContentIdentityFixtureVerification;
+using static MotherBrainBodyPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class MotherBrainBodyPresentationVerification
 {
     /// <summary>
     /// Exercises the statically identified missing Mother Brain body draw path with
     /// a RAM-only fixture. This is not a gameplay search for cartridge accesses.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyMotherBrainBodyPresentation()
+    internal static void VerifyMotherBrainBodyPresentation()
     {
         var author = new EnemyIdentityFixture();
         EnemyExtendedFrameDocument stockOam = BodyOam(edited: false), editedOam = BodyOam(edited: true);
@@ -112,7 +124,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
+    internal static void AssertBodyOam(OamBuffer actual, EnemyExtendedVisualComponent[] authored, RoomEnemySlot body)
     {
         var expected = new byte[authored.Length * 4];
         byte high = 0;
@@ -147,7 +159,7 @@ internal static partial class Program
     }
 
     /// <summary>Invokes import-only parsers for the 17 statically inventoried body roots.</summary>
-    private static void VerifyMotherBrainBodyStockPresentation()
+    internal static void VerifyMotherBrainBodyStockPresentation()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         MotherBrainBodyBg2FrameCatalog bg2 = MotherBrainBodyBg2FrameCatalog.Load(new MemoryStream(
@@ -198,5 +210,19 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.ValidateStock(stockPath),
             "modified Mother Brain stock fails its manifest hash");
         Console.WriteLine("PASS Mother Brain installation: stock hashes, selected overrides/identity and malformed/tampered-data rejection.");
+    }
+
+    [VerificationCommand("--mother-brain-body-presentation")]
+    internal static int MotherBrainBodyPresentationCommand()
+    {
+        Suite(nameof(VerifyMotherBrainBodyPresentation), () => VerifyMotherBrainBodyPresentation());
+        return 0;
+    }
+
+    [VerificationCommand("--mother-brain-body-stock-presentation")]
+    internal static int MotherBrainBodyStockPresentationCommand()
+    {
+        Suite(nameof(VerifyMotherBrainBodyStockPresentation), () => VerifyMotherBrainBodyStockPresentation());
+        return 0;
     }
 }

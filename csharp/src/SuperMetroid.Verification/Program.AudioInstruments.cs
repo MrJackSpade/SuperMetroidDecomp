@@ -1,8 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.Core.Audio;
 
-internal static partial class Program
+internal static class AudioInstrumentsVerification
 {
     /// <summary>
     /// Proves that the readable manifest is the live instrument owner rather than a report
@@ -10,7 +21,7 @@ internal static partial class Program
     /// match every uploaded SPC record; an edited copy must then alter both APU RAM and PCM.
     /// </summary>
     [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
-    private static void VerifyEditableAudioInstruments()
+    internal static void VerifyEditableAudioInstruments()
     {
         string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
@@ -172,20 +183,20 @@ internal static partial class Program
             "audible PCM change and malformed-bank rejection pass.");
     }
 
-    private static AudioAssetManifest ReadAudioManifest(string path)
+    internal static AudioAssetManifest ReadAudioManifest(string path)
     {
         using var input = File.OpenRead(path);
         return JsonSerializer.Deserialize<AudioAssetManifest>(input, AudioAssetJson.Options)
             ?? throw new InvalidDataException($"Audio manifest '{path}' deserialized to null.");
     }
 
-    private static void WriteAudioManifest(string path, AudioAssetManifest manifest)
+    internal static void WriteAudioManifest(string path, AudioAssetManifest manifest)
     {
         using var output = File.Create(path);
         JsonSerializer.Serialize(output, manifest, AudioAssetJson.Options);
     }
 
-    private static void CopyAudioDirectory(string source, string destination)
+    internal static void CopyAudioDirectory(string source, string destination)
     {
         Directory.CreateDirectory(destination);
         foreach (string directory in Directory.EnumerateDirectories(
@@ -201,5 +212,12 @@ internal static partial class Program
                 file,
                 Path.Combine(destination, Path.GetRelativePath(source, file)));
         }
+    }
+
+    [VerificationCommand("--audio-instruments")]
+    internal static int AudioInstrumentsCommand()
+    {
+        Suite(nameof(VerifyEditableAudioInstruments), () => VerifyEditableAudioInstruments());
+        return 0;
     }
 }

@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupChozoStockVerification
 {
-    private static void VerifyChozoStatueStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyChozoStatueStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmChozoStatueVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0xa2b5,"lower-norfair-cleared-hand"),(0x9cc5,"wrecked-ship-clear-slope-access"),(0x9d0f,"wrecked-ship-block-slope-access")];

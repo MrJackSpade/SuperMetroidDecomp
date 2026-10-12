@@ -1,13 +1,15 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupDownwardGateDrawsVerification
 {
-    private static void VerifyDownwardGateDrawGeometry(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateDrawGeometry(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 0));
-    private static void VerifyDownwardGateDrawCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateDrawCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 1));
-    private static void VerifyDownwardGateDrawVisuals(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyDownwardGateDrawVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyDownwardGateDrawField), () => VerifyDownwardGateDrawField(rom, 2));
 
     private static void VerifyDownwardGateDrawField(SuperMetroidAddressSpace rom, int field)

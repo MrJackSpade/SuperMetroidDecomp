@@ -3,10 +3,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static DownwardGatePlmsVerification;
+using static LookupDownwardGateStockVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DownwardGateVisualsVerification
 {
-    private static void VerifyDownwardGateVisuals()
+    internal static void VerifyDownwardGateVisuals()
     {
         RoomPlmDownwardGateVisualCatalog stock = RoomPlmDownwardGateVisualCatalog.Stock();
         RoomPlmDownwardGateVisualEntry[] entries = DownwardGatePlmDrawDefinitions.All

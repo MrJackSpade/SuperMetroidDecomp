@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Frontend;
 using System.Reflection;
 using SuperMetroid.Core.Rom;
@@ -6,10 +14,28 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static BrinstarPipeBugInstructionProgramDefinitionsVerification;
+using static ChozoStatueInstructionProgramDefinitionsVerification;
+using static ColorWordsVerification;
+using static DoorDefinitionsVerification;
+using static EnemyContentIdentityFixtureVerification;
+using static EnemyDropsVerification;
+using static GoldenTorizoJumpLandingDefinitionsVerification;
+using static NinjaSpacePirateInstructionProgramDefinitionsVerification;
+using static NorfairLavaJumperInstructionProgramDefinitionsVerification;
+using static NorfairPipeBugInstructionProgramDefinitionsVerification;
+using static PaletteFxInstructionCodesVerification;
+using static ProjectileCompositionsVerification;
+using static ProjectileTrailArtworkVerification;
+using static ProjectileTrailDefinitionsVerification;
+using static StatueWalkDefinitionsVerification;
+using static SuiteTimingVerification;
+using static YellowPipeBugInstructionProgramDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupStream2Verification
 {
-    private static void VerifyLookupStream2YardGroups()
+    internal static void VerifyLookupStream2YardGroups()
     {
         var frames = YardVisualDefinitions.Frames();
         AssertEqual(104, frames.Length, "Yard semantic groups preserve complete registry");
@@ -21,7 +47,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo foot geometry")]
-    private static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2ChozoFootGeometry(SuperMetroidAddressSpace rom)
     {
         int[] nativeIdentities = [0xaae943, 0xaae9ae, 0xaaea1e, 0xaaea8e, 0xaaeafe, 0xaaeb69, 0xaaebd9, 0xaaec49];
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
@@ -104,7 +130,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ghost palette")]
-    private static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2GhostPalette(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -175,7 +201,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpace rom)
     {
         Suite(nameof(VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions), () => VerifyOldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions(rom));
         foreach (var definition in OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All)
@@ -213,7 +239,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.Duration(15), "Accent duration upper domain");
         Console.WriteLine("Old Tourian accent cadence:30 native durations,90 repeated color words,68 mechanics words and130 actual per-tick CGRAM/loop states pass with mechanics reads blocked.");
     }
-    private static void VerifyLookupStream2NinjaProgramLayout()
+    internal static void VerifyLookupStream2NinjaProgramLayout()
     {
         AssertEqual(308, NinjaSpacePirateInstructionProgramDefinitions.MechanicsWordCount, "Complete native Ninja mechanics count");
         AssertEqual(140, NinjaSpacePirateInstructionProgramDefinitions.PresentationWordCount, "Complete native Ninja visual count");
@@ -239,7 +265,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2ProjectileIdentityGeometry(ISnesAddressSpace rom)
     {
         var expected = new SortedSet<ushort>();
         foreach (ushort record in SamusProjectileRadiusDefinitions.TimedRecordPointers)
@@ -433,7 +459,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = ProjectileSpriteDefinitions.NativePointers[417], "Projectile identity upper bound");
         Console.WriteLine("Projectile identity geometry:417 exact identities from805 native selectors,48 physical startup records,417 actual extracted OAM draws,independent composition edit/ownership,all existing flare selectors and bounds pass;all417 identities and 208 stock beam/missile/effect compositions calculate; independent frame selection/composition/art inputs remain pending.");
     }
-    private static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
+    internal static void VerifyLookupStream2EnvironmentalCatalogs(CartridgeImportAddressSpace rom)
     {
         var norfair = NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.All;
         var accents = OldTourianEscapeAccentPaletteFxProgramMechanicsDefinitions.All;
@@ -470,7 +496,7 @@ internal static partial class Program
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2BackdropGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseBackdropExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseBackdropDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -544,7 +570,7 @@ internal static partial class Program
             AssertTrue(expected.AsSpan().SequenceEqual(vram.Bytes), "Actual area load preserves every selected word and untouched VRAM byte");
         }
     }
-    private static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2EquipmentBaseGeometry(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentBaseExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentBaseDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -619,7 +645,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for wireframe mirrors")]
-    private static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2WireframeMirrors(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseWireframeExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseWireframeDocument>(json,
@@ -686,7 +712,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2ReserveLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseReserveUiExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(json,
@@ -746,7 +772,7 @@ internal static partial class Program
         Console.WriteLine("Reserve labels:22 native words/four destinations,22 independent cell edits,56 actual attribute-preserving/ordinary/moved patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
 
-    private static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2EquipmentLabels(SuperMetroidAddressSpace rom)
     {
         byte[] json = PauseEquipmentLabelExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(json,
@@ -848,7 +874,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for equipment blank")]
-    private static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2EquipmentBlank(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = PauseEquipmentLabelExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseEquipmentLabelDocument>(
@@ -902,7 +928,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2DeadTorizoGeometry(SuperMetroidAddressSpace rom)
     {
         WorkRamByteTable corpseTiles = new EnemyScratchMemory(rom).CorpseTiles;
         var expected = new byte[0x1000];
@@ -1044,7 +1070,7 @@ internal static partial class Program
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for crawler ramps")]
-    private static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2CrawlerRamps(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
         var reset = typeof(RoomEnemySystem).GetMethod("ResetCrawlerVelocitiesFromProperties", flags)!
@@ -1081,7 +1107,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => CrawlerSpeedDefinitions.ForParameter(32), "Crawler parameter upper bound");
         Console.WriteLine("Crawler speed ramps: both 32 native words and 384 actual crawler/Yard velocity resets pass; irregular gaps/terminal choices remain pending.");
     }
-    private static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2LavaJumperLayout(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyNorfairLavaJumperInstructionProgramDefinitions), () => VerifyNorfairLavaJumperInstructionProgramDefinitions(rom));
         int visual = 0;
@@ -1103,7 +1129,7 @@ internal static partial class Program
         AssertEqual(14, visual, "All fourteen lava-jumper visual operands independently confirmed");
         Console.WriteLine("Lava-jumper calculated layout:23 native controls,14 native selectors, actual parent/follower programs and handshake pass; seven pose holds remain pending.");
     }
-    private static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2ChozoLayout(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyChozoStatueInstructionProgramDefinitions), () => VerifyChozoStatueInstructionProgramDefinitions(rom));
         int visual = 0;
@@ -1139,7 +1165,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => ChozoStatueInstructionProgramDefinitions.PresentationWordAddress(-1), "Chozo visual lower bound");
         Console.WriteLine("Chozo calculated layouts:166 native controls,52 independently decoded native visual operands, exact list boundaries and existing allocation checks pass; hold/footstep payloads remain pending.");
     }
-    private static void VerifyLookupStream2HorizontalCameraTargets(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2HorizontalCameraTargets(ISnesAddressSpace rom)
     {
         var storage = new byte[RoomScrollGrid.StorageByteCount];
         Array.Fill(storage, (byte)1);
@@ -1170,7 +1196,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo page dispatch")]
-    private static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2TorizoPageDispatch(ISnesAddressSpace rom)
     {
         TorizoInstructionTileSheetDefinition[] original =
         [
@@ -1216,7 +1242,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = TorizoInstructionVramArtworkDefinitions.All[8], "Torizo page upper bound");
         Console.WriteLine("Torizo page dispatch:eight exact ordered identities, native decoded page resolution/bounds and canonical content hash pass.");
     }
-    private static void VerifyLookupStream2KagoFrameGeometry(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2KagoFrameGeometry(ISnesAddressSpace rom)
     {
         int count = 0;
         foreach (var frame in KagoVisualDefinitions.Frames())
@@ -1234,7 +1260,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid Lint initialization")]
-    private static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2KraidLintInitialization(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -1271,7 +1297,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for drop selection")]
-    private static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2DropSelection(SuperMetroidAddressSpace rom)
     {
         // Native first record weights60,60,60,5,60,10 yield cumulative thresholds
         //60,120,180,185,245,255 when all resources are eligible.
@@ -1297,7 +1323,7 @@ internal static partial class Program
             "Drop column upper bound");
         Console.WriteLine("Enemy drop selection:six native identities and actual cumulative selections, RNG-zero reroll, energy hysteresis and full-resource eligibility pass.");
     }
-    private static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2PipeBugVisualGeometry(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBrinstarPipeBugInstructionProgramDefinitions), () => VerifyBrinstarPipeBugInstructionProgramDefinitions(rom));
         Suite(nameof(VerifyNorfairPipeBugInstructionProgramDefinitions), () => VerifyNorfairPipeBugInstructionProgramDefinitions(rom));
@@ -1326,7 +1352,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Pipe Bug formation")]
-    private static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2PipeBugFormation(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo initialize = typeof(RoomEnemySystem).GetMethod("InitializeNorfairPipeBug", flags)!;
@@ -1375,7 +1401,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo control words")]
-    private static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2GoldenControl(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyGoldenTorizoJumpLandingDefinitions), () => VerifyGoldenTorizoJumpLandingDefinitions(rom));
         int address = 0xc9cb;
@@ -1410,7 +1436,7 @@ internal static partial class Program
             "Golden landing control index boundary");
         Console.WriteLine("Golden Torizo control dispatch:7 initial words,20 landing words, native instruction positions, exact installed initial sprite and bounded ownership pass.");
     }
-    private static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2TrailAppearance(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileTrailExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<ProjectileTrailDocument>(json, MapPresentationFormat.JsonOptions)!;
@@ -1453,7 +1479,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program words")]
-    private static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
+    internal static void VerifyLookupStream2TrailPrograms(ISnesAddressSpace bus)
     {
         byte[] json = ProjectileTrailExtractor.Extract(bus);
         var catalog = ProjectileTrailCatalog.Load(new MemoryStream(json));
@@ -1540,7 +1566,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
-    private static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
+    internal static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
 
         int start = SamusProjectileRomData.Trails.LeftInstructionPointers;
@@ -1571,7 +1597,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream2TubeRamp(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2TubeRamp(ISnesAddressSpace rom)
     {
         PaletteRgb5[] Read(int address) => Enumerable.Range(0, 32).Select(index =>
         {
@@ -1645,7 +1671,7 @@ internal static partial class Program
             AssertEqual(expected, catalog.ContentIdentity, "tube canonical identity preserved");
         }
     }
-    private static void VerifyLookupStream2PauseOwnership(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2PauseOwnership(ISnesAddressSpace rom)
     {
         for (int cell = -1; cell <= PauseEquipmentBaseDefinitions.Cells; cell++)
         {
@@ -1670,7 +1696,7 @@ internal static partial class Program
         }
         Console.WriteLine("Pause ownership: all1024 cells plus rejected outer bounds match native label/reserve destinations, including the nine-cell Plasma overlap.");
     }
-    private static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2DeadTorizoTransfers(ISnesAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
         var state = new DeadTorizoEnemyState(enemies.Slots[0], new CorpseRottingProgram { TablePointer = 0, VramTablePointer = 0, CopyFunction = 0, MoveFunction = 0, RotationTablePointer = 0, FinishFunction = 0, EntryCount = 0, YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 0 });
@@ -1710,7 +1736,7 @@ internal static partial class Program
         }
         Console.WriteLine("Dead Torizo: all56 native descriptor fields, two terminators, actual fourteen queued live-WRAM transfers, phase parity, enumeration and bounds pass.");
     }
-    private static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2GunshipTransfers(ISnesAddressSpace rom)
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
@@ -1742,7 +1768,7 @@ internal static partial class Program
         Console.WriteLine("Gunship transfers: all10 native source/destination fields, five typed identities, actual queued uploads/phase handoff, enumeration and bounds pass.");
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2ReserveArrowColors(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
@@ -1806,7 +1832,7 @@ internal static partial class Program
         }
         static ushort Pack(PaletteRgb5 rgb) => (ushort)(rgb.Red | rgb.Green << 5 | rgb.Blue << 10);
     }
-    private static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2ReserveGeometry(ISnesAddressSpace rom)
     {
         byte[] source = PauseReserveUiExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<PauseReserveUiDocument>(source, MapPresentationFormat.JsonOptions)!;
@@ -1861,7 +1887,7 @@ internal static partial class Program
             }
         }
     }
-    private static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2GhostAndNorfair(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags methods = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
         var spawn = typeof(RoomEnemySystem).GetMethod("SpawnWreckedShipGhost", methods)!
@@ -1936,7 +1962,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => NorfairEnvironmentalPaletteFxProgramMechanicsDefinitions.Duration(16), "Norfair duration upper bound");
         Console.WriteLine("Ghost appearance: 18 native offset fields, 17 native intervals, actual wrapped positions/timing/visibility and malformed states pass; Norfair: 64 native durations and four 116-tick cycles pass.");
     }
-    private static void VerifyLookupStream2PaletteMechanics(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2PaletteMechanics(ISnesAddressSpace rom)
     {
         int upperWords = 0, oldWords = 0, bellyWords = 0;
         for (int address = 0; address <= ushort.MaxValue; address++)
@@ -2012,7 +2038,7 @@ internal static partial class Program
         Console.WriteLine("Stream 2 palette mechanics: original mechanics, inline color offsets, durations, dispatch and bounds pass.");
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2CrystalBody(ISnesAddressSpace rom)
     {
         byte[] source = CrystalFlashColorExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<CrystalFlashColorDocument>(
@@ -2090,7 +2116,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, -1), "Calculated body lower color bound");
         AssertThrows<ArgumentOutOfRangeException>(() => stock.ResolveBody(0, 10), "Calculated body upper color bound");
         Console.WriteLine("Stream 2 Crystal Flash body: all100 body and36 bubble native colors, CGRAM application and every independent supplied edit pass; one bubble residual remains pending.");
-    }    private static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
+    }    internal static void VerifyLookupStream2KraidRamps(ISnesAddressSpace rom)
     {
         PaletteRgb5[] ReadSource(KraidPaletteSource source) => Enumerable.Range(0, KraidPaletteRomData.ColorCount(source))
             .Select(index =>
@@ -2173,7 +2199,7 @@ internal static partial class Program
             }
         }
     }
-    private static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream2PowerDirectionBindings(ISnesAddressSpace rom)
     {
         byte[] json = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(json));
@@ -2276,7 +2302,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo foot geometry")]
-    private static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream2GoldenTorizoFootGeometry(SuperMetroidAddressSpace rom)
     {
         var definitions = EnemyExtendedFrameDefinitions.Frames.ToArray();
         var document = new EnemyIdentityFixture().ExtendedDocument();
@@ -2388,5 +2414,207 @@ internal static partial class Program
         Suite(nameof(VerifyCompiledStatueWalking), () => VerifyCompiledStatueWalking(rom));
         AssertThrows<ArgumentOutOfRangeException>(() => GoldenTorizoStrideGeometryDefinitions.HorizontalAdvance(10), "Golden Torizo phase upper bound");
         Console.WriteLine("Golden Torizo foot geometry:20derived words,39native byte windows,220body parts/40components,10calculated views,36independent foot-X edits,display rebind/hash/packed OAM and actual walking calls pass; seven artwork origins remain required.");
+    }
+
+    [VerificationCommand("--lookup-stream2-golden-torizo-strides")]
+    internal static int LookupStream2GoldenTorizoStridesCommand()
+    {
+        Suite(nameof(VerifyLookupStream2GoldenTorizoFootGeometry), () => VerifyLookupStream2GoldenTorizoFootGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-chozo-strides")]
+    internal static int LookupStream2ChozoStridesCommand()
+    {
+        Suite(nameof(VerifyLookupStream2ChozoFootGeometry), () => VerifyLookupStream2ChozoFootGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-tourian-accent-cadence")]
+    internal static int LookupStream2TourianAccentCadenceCommand()
+    {
+        Suite(nameof(VerifyLookupStream2TourianAccentCadence), () => VerifyLookupStream2TourianAccentCadence(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-ninja-program-layout")]
+    internal static int LookupStream2NinjaProgramLayoutCommand()
+    {
+        Suite(nameof(VerifyLookupStream2NinjaProgramLayout), () => VerifyLookupStream2NinjaProgramLayout());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-yard-groups")]
+    internal static int LookupStream2YardGroupsCommand()
+    {
+     VerifyLookupStream2YardGroups(); return 0; 
+    }
+
+    [VerificationCommand("--lookup-stream2-power-direction-bindings")]
+    internal static int LookupStream2PowerDirectionBindingsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2PowerDirectionBindings), () => VerifyLookupStream2PowerDirectionBindings(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-projectile-identity-geometry")]
+    internal static int LookupStream2ProjectileIdentityGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream2ProjectileIdentityGeometry), () => VerifyLookupStream2ProjectileIdentityGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-reserve-labels")]
+    internal static int LookupStream2ReserveLabelsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2ReserveLabels), () => VerifyLookupStream2ReserveLabels(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-equipment-labels")]
+    internal static int LookupStream2EquipmentLabelsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2EquipmentLabels), () => VerifyLookupStream2EquipmentLabels(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-equipment-blank")]
+    internal static int LookupStream2EquipmentBlankCommand()
+    {
+        Suite(nameof(VerifyLookupStream2EquipmentBlank), () => VerifyLookupStream2EquipmentBlank(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-dead-torizo-geometry")]
+    internal static int LookupStream2DeadTorizoGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream2DeadTorizoGeometry), () => VerifyLookupStream2DeadTorizoGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-crawler-ramps")]
+    internal static int LookupStream2CrawlerRampsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2CrawlerRamps), () => VerifyLookupStream2CrawlerRamps(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-reserve-arrow-colors")]
+    internal static int LookupStream2ReserveArrowColorsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2ReserveArrowColors), () => VerifyLookupStream2ReserveArrowColors(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-trail-appearance")]
+    internal static int LookupStream2TrailAppearanceCommand()
+    {
+        Suite(nameof(VerifyLookupStream2TrailAppearance), () => VerifyLookupStream2TrailAppearance(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-lava-jumper-layout")]
+    internal static int LookupStream2LavaJumperLayoutCommand()
+    {
+        Suite(nameof(VerifyLookupStream2LavaJumperLayout), () => VerifyLookupStream2LavaJumperLayout(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-chozo-layout")]
+    internal static int LookupStream2ChozoLayoutCommand()
+    {
+        Suite(nameof(VerifyLookupStream2ChozoLayout), () => VerifyLookupStream2ChozoLayout(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-torizo-page-dispatch")]
+    internal static int LookupStream2TorizoPageDispatchCommand()
+    {
+        Suite(nameof(VerifyLookupStream2TorizoPageDispatch), () => VerifyLookupStream2TorizoPageDispatch(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-kraid-lint-initialization")]
+    internal static int LookupStream2KraidLintInitializationCommand()
+    {
+        Suite(nameof(VerifyLookupStream2KraidLintInitialization), () => VerifyLookupStream2KraidLintInitialization(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-kago-frame-geometry")]
+    internal static int LookupStream2KagoFrameGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream2KagoFrameGeometry), () => VerifyLookupStream2KagoFrameGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-pipe-bug-visual-geometry")]
+    internal static int LookupStream2PipeBugVisualGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream2PipeBugVisualGeometry), () => VerifyLookupStream2PipeBugVisualGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-horizontal-camera-targets")]
+    internal static int LookupStream2HorizontalCameraTargetsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2HorizontalCameraTargets), () => VerifyLookupStream2HorizontalCameraTargets(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-drop-selection")]
+    internal static int LookupStream2DropSelectionCommand()
+    {
+        Suite(nameof(VerifyLookupStream2DropSelection), () => VerifyLookupStream2DropSelection(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-pipe-bug-formation")]
+    internal static int LookupStream2PipeBugFormationCommand()
+    {
+        Suite(nameof(VerifyLookupStream2PipeBugFormation), () => VerifyLookupStream2PipeBugFormation(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-golden-control")]
+    internal static int LookupStream2GoldenControlCommand()
+    {
+        Suite(nameof(VerifyLookupStream2GoldenControl), () => VerifyLookupStream2GoldenControl(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-trail-programs")]
+    internal static int LookupStream2TrailProgramsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2TrailPrograms), () => VerifyLookupStream2TrailPrograms(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-trail-selectors")]
+    internal static int LookupStream2TrailSelectorsCommand()
+    {
+        Suite(nameof(VerifyLookupStream2TrailSelectors), () => VerifyLookupStream2TrailSelectors(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-tube-ramp")]
+    internal static int LookupStream2TubeRampCommand()
+    {
+        Suite(nameof(VerifyLookupStream2TubeRamp), () => VerifyLookupStream2TubeRamp(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-pause-ownership")]
+    internal static int LookupStream2PauseOwnershipCommand()
+    {
+        Suite(nameof(VerifyLookupStream2PauseOwnership), () => VerifyLookupStream2PauseOwnership(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream2-dead-torizo-transfers")]
+    internal static int LookupStream2DeadTorizoTransfersCommand()
+    {
+        Suite(nameof(VerifyLookupStream2DeadTorizoTransfers), () => VerifyLookupStream2DeadTorizoTransfers(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

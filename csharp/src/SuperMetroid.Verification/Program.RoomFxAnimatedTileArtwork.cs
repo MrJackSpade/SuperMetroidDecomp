@@ -5,12 +5,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 
-internal static partial class Program
+internal static class RoomFxAnimatedTileArtworkVerification
 {
     /// <summary>Exercises every retail frame through both native transfer owners.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room-FX animated tile transfer frames")]
-    private static void VerifyRoomFxAnimatedTileArtwork()
+    internal static void VerifyRoomFxAnimatedTileArtwork()
     {
         if (!File.Exists("Super Metroid.smc"))
         {
@@ -113,7 +113,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
+    internal static void VerifyRoomFxAnimatedTileArtworkOverride(ISnesAddressSpace rom,
         string stock, string overrides, AreaMapPresentationCatalog baseline,
         GameplayBasePaletteCatalog initialPalettes)
     {
@@ -246,7 +246,7 @@ internal static partial class Program
         Console.WriteLine("Room-FX animation override: edited simple/treadmill/statue pixels reach VRAM; both legacy sheet sizes retain edits.");
     }
 
-    private static MutableCartridgeReadGuard NewRoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
+    internal static MutableCartridgeReadGuard NewRoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
     {
         var guard = new MutableCartridgeReadGuard(inner);
         guard.Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x87,
@@ -254,7 +254,7 @@ internal static partial class Program
         return guard;
     }
 
-    private sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
+    internal sealed class RoomFxArtworkTestProvider(RoomFxAnimatedTileAtlas atlas) :
         IVramAssetProvider, IInstalledArtworkTransferSource
     {
         public ReadOnlyMemory<byte> Resolve(VramAssetId asset) =>

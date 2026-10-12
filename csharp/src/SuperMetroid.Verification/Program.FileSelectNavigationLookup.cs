@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class FileSelectNavigationLookupVerification
 {
-    private static void VerifyFileSelectSourceNavigation(ISnesAddressSpace rom)
+    internal static void VerifyFileSelectSourceNavigation(ISnesAddressSpace rom)
     {
         // Complete filtered lists produced by the old source/clear code in
         // 3058abb7. Keep the ordinal-list representation only in this oracle.
@@ -32,7 +33,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select source navigation")]
     private static byte FileSelectSourceNavigationRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyFileSelectDestinationNavigation(ISnesAddressSpace rom)
+    internal static void VerifyFileSelectDestinationNavigation(ISnesAddressSpace rom)
     {
         // Original destination lists exclude just the source, even if another
         // slot is empty. Native $81:9843/$81:98A8 compare directly with that source.
@@ -96,7 +97,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyFileSelectMainNavigation()
+    internal static void VerifyFileSelectMainNavigation()
     {
         // Independent original managed lists from b9e1e0ff, cross-checked against
         // native $81:A25E..A2AF. Preserve this former representation only as the oracle.

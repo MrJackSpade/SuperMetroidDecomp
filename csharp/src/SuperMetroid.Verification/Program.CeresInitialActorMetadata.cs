@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresInitialActorMetadataVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres initial actor metadata")]
-    private static void VerifyCeresInitialActorMetadata(ISnesAddressSpace retail)
+    internal static void VerifyCeresInitialActorMetadata(ISnesAddressSpace retail)
     {
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
         {

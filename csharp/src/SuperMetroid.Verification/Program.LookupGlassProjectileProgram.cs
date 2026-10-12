@@ -1,14 +1,15 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static MotherBrainGlassShardDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupGlassProjectileProgramVerification
 {
-    private static void VerifyGlassMechanicsAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 0);
-    private static void VerifyGlassPresentationAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 1);
-    private static void VerifyGlassShardCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 2);
-    private static void VerifyGlassSparkleCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 3);
-    private static void VerifyGlassProjectileControls(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 4);
-    private static void VerifyGlassProjectileLoopTargets(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 5);
+    internal static void VerifyGlassMechanicsAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 0);
+    internal static void VerifyGlassPresentationAddresses(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 1);
+    internal static void VerifyGlassShardCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 2);
+    internal static void VerifyGlassSparkleCadence(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 3);
+    internal static void VerifyGlassProjectileControls(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 4);
+    internal static void VerifyGlassProjectileLoopTargets(SuperMetroidAddressSpace rom) => VerifyGlassProjectileField(rom, 5);
 
     private static void VerifyGlassProjectileField(SuperMetroidAddressSpace rom, int field)
     {

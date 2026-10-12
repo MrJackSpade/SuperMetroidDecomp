@@ -1,16 +1,30 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DmaSourceRoutingVerification;
+using static HardwareVerification;
+using static QueuedVramAssetsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DmaArtworkBoundaryVerification
 {
     /// <summary>
     /// Verifies the source-identified Kraid DMA conversions, without traversing
     /// gameplay to search for reads. Exact transfer owners are invoked directly.
     /// </summary>
-    private static void VerifyDmaArtworkBoundary(string sourceRom)
+    internal static void VerifyDmaArtworkBoundary(string sourceRom)
     {
         Suite(nameof(VerifyVramWriteQueue), () => VerifyVramWriteQueue());
         Suite(nameof(VerifyDmaSourceRouting), () => VerifyDmaSourceRouting());
@@ -80,5 +94,13 @@ internal static partial class Program
         AssertThrows<InvalidOperationException>(() => animation.Step(memory, new SnesVram()),
             "direct animated characters require installed art, not a bus reader");
         Console.WriteLine("DMA artwork boundary: typed memory/asset ports, mixed queues, Kraid background, eight BG3 transfer cases and missing-artwork rejection pass.");
+    }
+
+    [VerificationCommand("--dma-artwork-boundary")]
+    internal static int DmaArtworkBoundaryCommand()
+    {
+        string dmaArtworkRom = RepositoryRomPath;
+        Suite(nameof(VerifyDmaArtworkBoundary), () => VerifyDmaArtworkBoundary(dmaArtworkRom));
+        return 0;
     }
 }

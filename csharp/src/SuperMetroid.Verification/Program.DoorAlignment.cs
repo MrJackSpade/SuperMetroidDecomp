@@ -7,10 +7,12 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DoorAlignmentVerification
 {
-    private static void VerifyDoorAlignmentParity(
+    internal static void VerifyDoorAlignmentParity(
         string fixture = "csharp/test-fixtures/movement-release/door-alignment-448-v1.csv")
     {
         string[] rows = File.ReadAllLines(Path.GetFullPath(fixture));

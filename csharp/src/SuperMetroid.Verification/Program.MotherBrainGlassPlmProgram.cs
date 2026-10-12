@@ -3,8 +3,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static LookupGlassProgramVerification;
 
-internal static partial class Program
+internal static class MotherBrainGlassPlmProgramVerification
 {
     /// <summary>
     /// Compares the entire bounded cartridge list, then drives its real PLM
@@ -12,7 +14,7 @@ internal static partial class Program
     /// read of the compiled control bytes.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain glass PLM program")]
-    private static void VerifyMotherBrainGlassPlmProgram(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainGlassPlmProgram(SuperMetroidAddressSpace rom)
     {
         VerifyGlassControls(rom);
         VerifyGlassDraws(rom);

@@ -8,12 +8,14 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using static GraphDigestVerification;
+using static PauseEquipmentRulesVerification;
 
-internal static partial class Program
+internal static class PauseBackdropsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause backdrop, button and area-label tilemaps")]
-    private static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyPauseBackdrops(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseBackdropDefinitions.FileName);

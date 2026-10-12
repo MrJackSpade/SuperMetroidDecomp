@@ -7,12 +7,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkDachoraColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Dachora colors and selector pointers")]
-    private static void VerifyInstalledDachoraColors(
+    internal static void VerifyInstalledDachoraColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         DachoraColorCatalog native = stock.DachoraColors ??

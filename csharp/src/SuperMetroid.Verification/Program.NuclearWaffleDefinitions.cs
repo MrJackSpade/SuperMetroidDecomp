@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
 
-internal static partial class Program
+internal static class NuclearWaffleDefinitionsVerification
 {
-    private static void VerifyNuclearWaffleDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyNuclearWaffleDefinitions(SuperMetroidAddressSpace rom)
     {
         const int endpointTable = 0xa695f6;
         const int spacingTable = 0xa695fe;
@@ -173,4 +186,12 @@ internal static partial class Program
             .Forbid(address => NuclearWaffleInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Nuclear Waffle mechanics byte ${address:X6}.")
             .ObserveWords(0xa60000, NuclearWaffleInstructionProgramDefinitions.PresentationWordCount, NuclearWaffleInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--nuclear-waffle-instruction-mechanics")]
+    internal static int NuclearWaffleInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyNuclearWaffleDefinitions), () => VerifyNuclearWaffleDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

@@ -1,3 +1,10 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using System.Security.Cryptography;
 using SuperMetroid.AssetExtraction;
@@ -6,15 +13,22 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static EnemyDefinitionsVerification;
+using static EnemyDropChanceDefinitionsVerification;
+using static EnemyDropsVerification;
+using static EnemyRoomListsVerification;
+using static EnemyVulnerabilityDefinitionsVerification;
+using static EnemyVulnerabilityDispatchVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyGameplayAcceptanceVerification
 {
     /// <summary>
     /// Acceptance for the statically inventoried enemy definition/population boundary.
     /// Import bytes are an independent oracle, never the production memory provider.
     /// No controller sequence or frame probe is used to discover remaining reads.
     /// </summary>
-    private static void VerifyEnemyGameplayAcceptance()
+    internal static void VerifyEnemyGameplayAcceptance()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyCompiledEnemyDefinitions), () => VerifyCompiledEnemyDefinitions());
@@ -149,5 +163,12 @@ internal static partial class Program
                     ? EnemyDefinitionId.KihunterGreen : EnemyDefinitionId.KihunterGreenWings)) return false;
             return true;
         }
+    }
+
+    [VerificationCommand("--enemy-gameplay-acceptance")]
+    internal static int EnemyGameplayAcceptanceCommand()
+    {
+        Suite(nameof(VerifyEnemyGameplayAcceptance), () => VerifyEnemyGameplayAcceptance());
+        return 0;
     }
 }

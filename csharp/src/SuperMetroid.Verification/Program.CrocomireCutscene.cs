@@ -1,14 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static CrocomireTongueCollisionDefinitionsVerification;
 
-internal static partial class Program
+internal static class CrocomireCutsceneVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire corpse collision")]
-    private static void VerifyCrocomireCorpseCollision()
+    internal static void VerifyCrocomireCorpseCollision()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -74,7 +83,7 @@ internal static partial class Program
     private static byte[] ReadNativeCrocomireRoomScrolls(ISnesAddressSpace rom) =>
         Enumerable.Range(0, RoomScrollGrid.StorageByteCount).Select(index => rom.ReadCartridgeByte(0x8fa9d7 + index)).ToArray();
 
-    private static void VerifyCrocomireCutsceneCamera()
+    internal static void VerifyCrocomireCutsceneCamera()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] storage = ReadNativeCrocomireRoomScrolls(rom);
@@ -152,5 +161,19 @@ internal static partial class Program
         camera.MoveLeft(1);
         AssertEqual((ushort)511, camera.PixelPosition.X, "left camera unlocks at the native completion phase");
         Console.WriteLine("Left skeleton cutscene: existing code locks X=512 for both directions and unlocks at completion; reported overrun not reproduced.");
+    }
+
+    [VerificationCommand("--crocomire-cutscene-camera")]
+    internal static int CrocomireCutsceneCameraCommand()
+    {
+        Suite(nameof(VerifyCrocomireCutsceneCamera), () => VerifyCrocomireCutsceneCamera());
+        return 0;
+    }
+
+    [VerificationCommand("--crocomire-corpse-collision")]
+    internal static int CrocomireCorpseCollisionCommand()
+    {
+        Suite(nameof(VerifyCrocomireCorpseCollision), () => VerifyCrocomireCorpseCollision());
+        return 0;
     }
 }

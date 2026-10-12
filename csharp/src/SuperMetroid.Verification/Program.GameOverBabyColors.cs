@@ -2,11 +2,13 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static ColorWordsVerification;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class GameOverBabyColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
+    internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
         var palettes = new Dictionary<string, ushort[]>();
         for (int phase = 0; phase < 4; phase++)

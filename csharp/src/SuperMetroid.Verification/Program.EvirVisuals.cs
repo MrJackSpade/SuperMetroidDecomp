@@ -2,11 +2,13 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EvirInstructionProgramDefinitionsVerification;
+using static ImportedSpritemapsVerification;
 
-internal static partial class Program
+internal static class EvirVisualsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyInstalledEvirVisuals(
+    internal static void VerifyInstalledEvirVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var selectedFrames = new HashSet<ushort>();

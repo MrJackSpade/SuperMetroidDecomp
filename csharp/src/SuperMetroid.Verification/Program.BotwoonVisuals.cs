@@ -4,11 +4,12 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
 
-internal static partial class Program
+internal static class BotwoonVisualsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyInstalledBotwoonVisuals(
+    internal static void VerifyInstalledBotwoonVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         // The head animations' frames are checked against the cartridge lists by VerifyBotwoonHeadAnimations;

@@ -2,11 +2,11 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MenuBeveledSquarePixelsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu beveled square pixels")]
-    private static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)
+    internal static void VerifyMenuBeveledSquarePixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0x98, 0x99];
         var files = MapSpriteExtractor.Extract(rom);

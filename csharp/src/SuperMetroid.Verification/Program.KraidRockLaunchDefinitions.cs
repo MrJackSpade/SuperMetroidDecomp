@@ -1,8 +1,9 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidRockLaunchDefinitionsVerification
 {
     private static void VerifyKraidRockLaunchSpeedSelection(SuperMetroidAddressSpace rom)
     {
@@ -18,7 +19,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid rock launch speed selection")]
     private static byte KraidRockLaunchSpeedSelectionRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyKraidRockLaunchDefinitions(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         Suite(nameof(VerifyKraidRockLaunchSpeedSelection), () => VerifyKraidRockLaunchSpeedSelection(rom));
         if (definitionsOnly)

@@ -1,12 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RunningCadenceVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static FrontendRomFreeVerification;
 
-internal static partial class Program
+internal static class SamusAnimationDelayDefinitionsVerification
 {
     /// <summary>Checks the entire compiled pose-delay definition domain against retail.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus pose-delay definitions and the invalid-pose $0302 low-WRAM overread")]
-    private static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus,
+    internal static void VerifySamusAnimationDelayDefinitions(ISnesAddressSpace bus,
         string sourceRom)
     {
         for (int pose = 0; pose < 256; pose++)
@@ -63,5 +77,15 @@ internal static partial class Program
                 0xB5D1, 0),
             "uncompiled immutable pose-delay addresses fail explicitly");
         Console.WriteLine("Samus pose animation: 256 pointers and every stream byte match retail; mutable overread remains live.");
+    }
+
+    [VerificationCommand("--mutable-animation-aliases")]
+    internal static int MutableAnimationAliasesCommand()
+    {
+        string sourceRom = Path.GetFullPath("Super Metroid.smc");
+        SuperMetroidAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
+        Suite(nameof(VerifySamusAnimationDelayDefinitions), () => VerifySamusAnimationDelayDefinitions(bus, sourceRom));
+        Suite(nameof(VerifyRunningCadence), () => VerifyRunningCadence(bus));
+        return 0;
     }
 }

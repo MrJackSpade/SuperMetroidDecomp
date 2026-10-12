@@ -1,11 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresRidleyGetawayDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley getaway")]
-    private static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledCeresRidleyGetaway(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 224; offset += 2)
         {
@@ -27,7 +28,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Ceres Ridley Mode 7 transfers")]
-    private static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledCeresRidleyMode7Transfers(SuperMetroidAddressSpace rom)
     {
         int checkedTransfers = 0;
         foreach (CeresMode7TransferList pointer in Enum.GetValues<CeresMode7TransferList>())

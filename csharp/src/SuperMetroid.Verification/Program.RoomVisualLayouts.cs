@@ -6,15 +6,16 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class RoomVisualLayoutsVerification
 {
     /// <summary>
     /// Checks every stock visual reference against its native source, then proves an
     /// installed override changes both rendered planes without changing collision/BTS.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room level streams")]
-    private static void VerifyRoomVisualLayouts(GameInstallation installed,
+    internal static void VerifyRoomVisualLayouts(GameInstallation installed,
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace bus, CartridgeRoomHeader landing)
     {
         RoomVisualLayoutCatalog stock = installed.LoadRoomVisualLayouts();

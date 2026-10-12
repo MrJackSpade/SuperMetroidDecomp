@@ -1,14 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class GoldNinjaDeathDropsVerification
 {
     // #1269: the Gold Ninja Pirate's shot tail calls EnemyDeath ($B2:87B4), which spawns the
     // death explosion, and only then MetalNinjaPirateDeathItemDropRoutine ($B2:87B8). Enemy
     // projectiles allocate from the top slot down, so the explosion takes the highest free
     // slot and the five drops follow below it, as in the 100% movie's Metal Pirates fight.
-    private static void VerifyGoldNinjaDeathDrops()
+    internal static void VerifyGoldNinjaDeathDrops()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -51,5 +61,12 @@ internal static partial class Program
         AssertEqual(5, projectiles.Take(explosion).Count(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathPickup),
             "MetalNinjaPirateDeathItemDropRoutine spawns its five drops below the explosion");
         Console.WriteLine("Gold Ninja death drops: the explosion is spawned before the five drops.");
+    }
+
+    [VerificationCommand("--gold-ninja-death-drops")]
+    internal static int GoldNinjaDeathDropsCommand()
+    {
+        VerifyGoldNinjaDeathDrops();
+        return 0;
     }
 }

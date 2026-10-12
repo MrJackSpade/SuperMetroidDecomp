@@ -3,15 +3,18 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static MapSpritesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseReserveFramesVerification
 {
     // Preconversion sparse visual identities, independent of the production selector.
     private static (string Name, ushort Id)[] ReserveFrameOracle() =>
         [("Full", 0x1b), ("EndCap", 0x1f), ("Empty", 0x20), ("Fill1", 0x21), ("Fill2", 0x22),
          ("Fill3", 0x23), ("Fill4", 0x24), ("Fill5", 0x25), ("Fill6", 0x26), ("Fill7", 0x27)];
 
-    private static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
+    internal static void VerifyPauseReserveFrameCases(ISnesAddressSpace rom)
     {
         byte[] bytes = PauseReserveTankExtractor.Extract(rom);
         var document = JsonSerializer.Deserialize<PauseReserveTankDocument>(bytes, MapPresentationFormat.JsonOptions)!;
@@ -87,7 +90,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for pause reserve native frames")]
-    private static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
+    internal static void VerifyPauseReserveNativeFrames(ISnesAddressSpace rom, PauseReserveTankPresentation presentation)
     {
         foreach (var (site, identity) in new[] { (0x82b305, 0x1b), (0x82b37d, 0x20), (0x82b396, 0x1f) })
         {

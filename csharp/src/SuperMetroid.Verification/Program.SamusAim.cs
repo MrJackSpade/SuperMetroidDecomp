@@ -1,3 +1,7 @@
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using SuperMetroid.Core.Assets;
@@ -7,12 +11,15 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static SyntheticSamusCartridgeVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SamusAimVerification
 {
 
 /// <summary>Standing, aerial, and gun-extended aim verification.</summary>
-static void VerifySamusStandingAimMovement()
+internal static void VerifySamusStandingAimMovement()
 {
     var bus = new TestAddressSpace();
 
@@ -154,7 +161,7 @@ static void VerifySamusStandingAimMovement()
 /// Verifies the equal-radius aimed jump/fall family, command-$FD launch, shot-direction
 /// landing table, command-$F8 completion, walk-off selection, and velocity preservation.
 /// </summary>
-static void VerifySamusAimedAerialMovement()
+internal static void VerifySamusAimedAerialMovement()
 {
     var bus = new TestAddressSpace();
 
@@ -507,7 +514,7 @@ static void VerifySamusAimedAerialMovement()
 /// from projectile ownership: a fired beam is a bank-$90 system, while `$0B/$13/$67` and
 /// their mirrors are bank-$91 movement/animation states selected by the same controller word.
 /// </summary>
-static void VerifySamusGunExtendedMovement()
+internal static void VerifySamusGunExtendedMovement()
 {
     var bus = new TestAddressSpace();
 
@@ -842,4 +849,18 @@ static void VerifySamusGunExtendedMovement()
 
 // Fixes the two ROM tables and signed formulas used by Landing Site's actual BTS-$12
 // non-square floor path at $94:84D6 and $94:87F4.
+
+    [VerificationCommand("--samus-aimed-aerial")]
+    internal static int SamusAimedAerialCommand()
+    {
+        Suite(nameof(VerifySamusAimedAerialMovement), () => VerifySamusAimedAerialMovement());
+        return 0;
+    }
+
+    [VerificationCommand("--samus-gun-extended")]
+    internal static int SamusGunExtendedCommand()
+    {
+        Suite(nameof(VerifySamusGunExtendedMovement), () => VerifySamusGunExtendedMovement());
+        return 0;
+    }
 }

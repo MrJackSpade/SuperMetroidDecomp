@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static MaridiaElevatubeVisualsVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
+using static AssertionsVerification;
+using static LookupElevatubeVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class MaridiaElevatubePlmVerification
 {
-    private static void VerifyMaridiaElevatubePlm()
+    internal static void VerifyMaridiaElevatubePlm()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -49,7 +62,7 @@ internal static partial class Program
             "Maridia elevatube PLM: native delay, draw, sound, and delete pass with source reads forbidden.");
     }
 
-    private static CartridgeReadGuard NewMaridiaElevatubeSourceGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewMaridiaElevatubeSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
         {
             int pointer = SnesAddressMath.OffsetInBank(address);
@@ -59,4 +72,19 @@ internal static partial class Program
                  (pointer >= MaridiaElevatubePlmDefinitions.DrawPointer &&
                   pointer < MaridiaElevatubePlmDefinitions.DrawPointer + 6));
         }, address => $"Elevatube PLM reread compiled source ${address:X6}.");
+
+    [VerificationCommand("--maridia-elevatube-plm")]
+    internal static int MaridiaElevatubePlmCommand()
+    {
+        Suite(nameof(VerifyMaridiaElevatubePlm), () => VerifyMaridiaElevatubePlm());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream-4-elevatube")]
+    internal static int LookupStream4ElevatubeCommand()
+    {
+        Suite(nameof(VerifyMaridiaElevatubePlm), () => VerifyMaridiaElevatubePlm());
+        Suite(nameof(VerifyMaridiaElevatubeVisuals), () => VerifyMaridiaElevatubeVisuals());
+        return 0;
+    }
 }

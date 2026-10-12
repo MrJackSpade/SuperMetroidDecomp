@@ -4,10 +4,13 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapSaveMarkerCoordinatesVerification
 {
-    private static void VerifyMapSaveMarkerCoordinates(ISnesAddressSpace rom)
+    internal static void VerifyMapSaveMarkerCoordinates(ISnesAddressSpace rom)
     {
         var points = new Dictionary<string, Position16<MapPixels>>();
         for (int area = 0; area < 6; area++)

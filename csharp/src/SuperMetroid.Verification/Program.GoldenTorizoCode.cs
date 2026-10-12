@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class GoldenTorizoCodeVerification
 {
-    private static void VerifyGoldenTorizoCode()
+    internal static void VerifyGoldenTorizoCode()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GoldenTorizoCodeRomByte(rom, address), GoldenTorizoCodeRomByte(rom, address + 1)));
@@ -60,4 +70,11 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Golden Torizo code")]
     private static byte GoldenTorizoCodeRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [VerificationCommand("--golden-torizo-code")]
+    internal static int GoldenTorizoCodeCommand()
+    {
+        Suite(nameof(VerifyGoldenTorizoCode), () => VerifyGoldenTorizoCode());
+        return 0;
+    }
 }

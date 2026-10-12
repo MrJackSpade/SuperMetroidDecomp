@@ -1,15 +1,16 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidFootCoordinateMappingsVerification
 {
-    private static void VerifyKraidFootFirstX(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootFirstX(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, false, KraidFootCollisionDefinitions.FirstX));
-    private static void VerifyKraidFootFirstY(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootFirstY(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 0, true, KraidFootCollisionDefinitions.FirstY));
-    private static void VerifyKraidFootSecondX(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootSecondX(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, false, KraidFootCollisionDefinitions.SecondX));
-    private static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyKraidFootSecondY(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyKraidFootCoordinate), () => VerifyKraidFootCoordinate(rom, 1, true, KraidFootCollisionDefinitions.SecondY));
 
     private static void VerifyKraidFootCoordinate(SuperMetroidAddressSpace rom, int component, bool vertical, Func<int, short> calculate)
@@ -32,7 +33,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kraid foot coordinate")]
     private static byte KraidFootCoordinateRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyKraidFootSharedHitbox(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidFootSharedHitbox(SuperMetroidAddressSpace rom)
     {
         ushort Word(int pointer) => (ushort)(SnesLittleEndian.Word(KraidFootSharedHitboxRomByte(rom, 0xa70000 | pointer), KraidFootSharedHitboxRomByte(rom, 0xa70000 | (pointer + 1))));
         var boxes = KraidFootCollisionDefinitions.HitboxesAt(0x9453);

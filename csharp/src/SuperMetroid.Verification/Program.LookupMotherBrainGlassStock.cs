@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupMotherBrainGlassStockVerification
 {
-    private static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyMotherBrainGlassStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmMotherBrainGlassVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x9717,"initial"),(0x971d,"pane-damage-1"),(0x9731,"pane-damage-2"),(0x9745,"pane-transition"),(0x974f,"shifted-pane-1"),(0x9769,"shifted-pane-2"),(0x9781,"shifted-pane-3"),(0x978f,"shatter-1"),(0x97b7,"shatter-2"),(0x97e7,"shatter-3"),(0x9817,"cleared")];

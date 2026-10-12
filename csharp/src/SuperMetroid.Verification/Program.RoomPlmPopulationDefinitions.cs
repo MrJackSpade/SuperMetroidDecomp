@@ -3,10 +3,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static CompiledDynamicCollectibleGraphicsVerification;
+using static CompiledScrollPlmProgramsVerification;
+using static LookupRetailPlmHeadersVerification;
+using static LookupRetailPopulationsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomPlmPopulationDefinitionsVerification
 {
-    private static void VerifyCompiledRoomPlmPopulationDefinitions(
+    internal static void VerifyCompiledRoomPlmPopulationDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRetailPopulationMappings), () => VerifyRetailPopulationMappings(rom));
@@ -19,7 +24,7 @@ internal static partial class Program
         Console.WriteLine("  PLM populations, headers, scroll programs and collectible uploads match ROM.");
     }
 
-    private static void VerifyCompiledRoomPlmHeaderLoad(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledRoomPlmHeaderLoad(SuperMetroidAddressSpace rom)
     {
         const ushort populatedPointer = 0x8000;
         int sourceLength = RoomPlmPopulationDefinition.FromCompiled(populatedPointer).Placements.Length * 6 + 2;

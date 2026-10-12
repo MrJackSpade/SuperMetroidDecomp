@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidArmInstructionProgramDefinitionsVerification;
+using static KraidArmPhysicalFrameMappingsVerification;
 
-internal static partial class Program
+internal static class KraidArmComponentHitboxesVerification
 {
-    private static void VerifyKraidArmComponentHitboxes(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmComponentHitboxes(SuperMetroidAddressSpace rom)
     {
         ushort[] frames = NativeKraidArmPhysicalFrames(rom);
         int checkedComponents = 0;

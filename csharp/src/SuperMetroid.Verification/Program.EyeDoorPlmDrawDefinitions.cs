@@ -5,10 +5,18 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static EyeDoorPlmsVerification;
+using static LookupEyeDoorLayoutsVerification;
+using static LookupEyeDoorProgramVerification;
+using static LookupEyeDoorStockVerification;
+using static LookupEyeDoorVisualIdsVerification;
+using static SuiteTimingVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
 
-internal static partial class Program
+internal static class EyeDoorPlmDrawDefinitionsVerification
 {
-    private static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEyeDoorPlmDrawDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyEyeDoorVisualIds), () => VerifyEyeDoorVisualIds());
         Suite(nameof(VerifyEyeDoorProgramDefinitions), () => VerifyEyeDoorProgramDefinitions(rom));

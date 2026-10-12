@@ -1,14 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static CeresExplosionVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PowerBombFixedColorsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb fixed colors")]
-    private static void VerifyPowerBombFixedColors()
+    internal static void VerifyPowerBombFixedColors()
     {
         if (!File.Exists("Super Metroid.smc"))
         {
@@ -92,7 +103,7 @@ internal static partial class Program
         AssertEqual(0, guarded.ForbiddenReadAttempts, "installed explosion never rereads fixed-color ROM tables");
     }
 
-    private static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
+    internal static void VerifyPowerBombFixedColorOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
     {
         string path = Path.Combine(overrides, PowerBombFixedColorFormat.FileName);
@@ -130,11 +141,18 @@ internal static partial class Program
         Console.WriteLine("Power Bomb color override: edited component reaches explosion and removal restores stock.");
     }
 
-    private static CartridgeReadGuard NewForbiddenPowerBombColorBus(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewForbiddenPowerBombColorBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => Enum.GetValues<PowerBombFixedColorSequence>().Any(sequence =>
                     address >= PowerBombFixedColorFormat.SourceAddress(sequence) &&
                     address < PowerBombFixedColorFormat.SourceAddress(sequence) +
                         PowerBombFixedColorFormat.Count(sequence) * SamusPaletteRomData.PowerBomb.BytesPerColor),
                 address => $"Installed explosion read color ROM ${address:X6}.");
+
+    [VerificationCommand("--power-bomb-fixed-colors")]
+    internal static int PowerBombFixedColorsCommand()
+    {
+        Suite(nameof(VerifyPowerBombFixedColors), () => VerifyPowerBombFixedColors());
+        return 0;
+    }
 }

@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class BombJumpRunMomentumVerification
 {
     /// <summary>
     /// A bomb jump's special target pose installs through $91:F433, which runs the normal-jump
     /// initializer $91:F543: retained extra run speed selects deceleration mode two. In the 13%
     /// movie a bomb lifts a dashing Samus, and her run speed then decays rather than grows.
     /// </summary>
-    private static void VerifyBombJumpRunMomentum()
+    internal static void VerifyBombJumpRunMomentum()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int width = 8, height = 8;
@@ -30,5 +41,12 @@ internal static partial class Program
         AssertEqual(SamusHorizontalAccelerationModes.Decelerating, samus.HorizontalSpeed.AccelerationMode,
             "retained extra run speed selects deceleration");
         Console.WriteLine("  Bomb-jump run momentum: the forward-jump pose decelerates retained dash speed.");
+    }
+
+    [VerificationCommand("--bomb-jump-run-momentum")]
+    internal static int BombJumpRunMomentumCommand()
+    {
+        Suite(nameof(VerifyBombJumpRunMomentum), () => VerifyBombJumpRunMomentum());
+        return 0;
     }
 }

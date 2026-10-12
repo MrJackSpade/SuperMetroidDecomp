@@ -5,10 +5,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class InstalledFileSelectMapVerification
 {
-    private static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, ISnesAddressSpace guard,
+    internal static void VerifyInstalledFileSelectMenu(ISnesAddressSpace bus, ISnesAddressSpace guard,
         AreaMapPresentationCatalog original, AreaMapPresentationCatalog edited, bool verifyCapturedRendering = false)
     {
         var saves = new SuperMetroidSaveRam(bus, RetailPresentationFixture());

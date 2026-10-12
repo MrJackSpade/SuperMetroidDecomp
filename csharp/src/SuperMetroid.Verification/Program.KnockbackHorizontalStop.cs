@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class KnockbackHorizontalStopVerification
 {
-    private static void VerifyKnockbackHorizontalStop()
+    internal static void VerifyKnockbackHorizontalStop()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);

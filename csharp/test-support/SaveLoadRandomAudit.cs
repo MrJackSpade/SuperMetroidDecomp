@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static RepositoryInstallation;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -96,5 +105,11 @@ internal static class SaveLoadRandomAudit
                 throw new InvalidDataException("A true reset must reseed before the state-zero main-loop advance.");
         }
         return 0;
+    }
+
+    [VerificationCommand("--save-load-rng-fixture")]
+    internal static int SaveLoadRngFixtureCommand()
+    {
+     return SaveLoadRandomAudit.Run(Path.GetFullPath("Super Metroid.smc"), RepositoryInstallation.BindGame); 
     }
 }

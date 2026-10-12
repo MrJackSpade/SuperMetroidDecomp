@@ -3,10 +3,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class KraidNailBounceVerification
 {
-    private static void VerifyKraidNailBounce(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailBounce(SuperMetroidAddressSpace rom)
     {
         var words = new ushort[32 * 32];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);

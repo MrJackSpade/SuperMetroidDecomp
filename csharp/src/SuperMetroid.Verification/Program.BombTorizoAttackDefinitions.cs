@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class BombTorizoAttackDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo attack definitions")]
-    private static void VerifyBombTorizoAttackDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombTorizoAttackDefinitions(SuperMetroidAddressSpace rom)
     {
         const int swipeXAddress = 0x86a738;
         const int swipeYAddress = 0x86a74e;

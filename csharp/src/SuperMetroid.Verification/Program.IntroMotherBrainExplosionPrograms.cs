@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroMotherBrainExplosionProgramsVerification
 {
-    private static void VerifyIntroMotherBrainExplosionPrograms(ISnesAddressSpace rom)
+    internal static void VerifyIntroMotherBrainExplosionPrograms(ISnesAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(IntroMotherBrainExplosionProgramsRomByte(rom, address), IntroMotherBrainExplosionProgramsRomByte(rom, address + 1)));
         for (int pointer = 0xcdab; pointer < 0xcdeb; pointer++)
@@ -28,7 +28,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Mother Brain explosion programs")]
     private static byte IntroMotherBrainExplosionProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyIntroMotherBrainExplosionFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyIntroMotherBrainExplosionFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["small-explosion-0", "small-explosion-1", "small-explosion-2", "small-explosion-3", "small-explosion-4", "small-explosion-5",
             "big-explosion-0", "big-explosion-1", "big-explosion-2", "big-explosion-3", "big-explosion-4", "big-explosion-5"];

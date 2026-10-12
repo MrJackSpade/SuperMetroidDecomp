@@ -1,14 +1,27 @@
+using static Program;
+using static RepositoryInputsVerification;
+using static RoomBackgroundLibraryParityVerification;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static LibraryBackgroundProgramsVerification;
 
-internal static partial class Program
+internal static class LibraryBackgroundVerification
 {
 [CpuBusBoundary("exact bus test: retail ROM oracle decompressing every library-background tilemap source to validate its page count")]
-static void VerifyLibraryBackgroundSourceInventory()
+internal static void VerifyLibraryBackgroundSourceInventory()
 {
     ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
         Path.GetFullPath("Super Metroid.smc"));
@@ -105,7 +118,7 @@ static void VerifyKraidLibraryHudArtwork(
 }
 
 [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-static void VerifyLibraryBackgroundLoader()
+internal static void VerifyLibraryBackgroundLoader()
 {
     var rom = new byte[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.RetailRomByteCount];
 
@@ -192,7 +205,7 @@ private static void VerifyLibraryBackgroundBankEndWrap(byte[] rom)
 }
 
 [CpuBusBoundary("exact bus test: counts cartridge and WRAM reads separately to witness that library backgrounds route each source byte through its typed bus read")]
-private sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
+internal sealed class LibraryBackgroundTypedReadGuard(SuperMetroidAddressSpace source) :
     ISnesMemoryBus, IImportCartridgeSource
 {
     public int CartridgeReads { get; private set; }
@@ -232,4 +245,29 @@ private static void WriteLibraryByte(byte[] rom, ushort pointer, byte value)
     int offset = SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(0x8f0000 | pointer);
     rom[offset] = value;
 }
+
+    [VerificationCommand("--library-background-loader")]
+    internal static int LibraryBackgroundLoaderCommand()
+    {
+        Suite(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader());
+        return 0;
+    }
+
+    [VerificationCommand("--library-background-inventory")]
+    internal static int LibraryBackgroundInventoryCommand()
+    {
+        Suite(nameof(VerifyLibraryBackgroundSourceInventory), () => VerifyLibraryBackgroundSourceInventory());
+        return 0;
+    }
+
+    [VerificationCommand("--library-background-artwork-boundary")]
+    internal static int LibraryBackgroundArtworkBoundaryCommand()
+    {
+        string libraryArtworkRom = RepositoryRomPath;
+        using var directory = new TestScratchDirectory("map-catalog");
+        var installation = GameAssetInstaller.Install(libraryArtworkRom, directory.Root);
+        Suite(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader());
+        Suite(nameof(VerifyLibraryBackgroundInstalledParity), () => VerifyLibraryBackgroundInstalledParity(libraryArtworkRom, installation));
+        return 0;
+    }
 }

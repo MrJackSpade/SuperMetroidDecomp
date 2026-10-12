@@ -1,13 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static EnemyExtendedLegacyOverridesVerification;
+using static EnemyProjectileLegacyOverridesVerification;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
+using static EnemyContentIdentityFixtureVerification;
 
-internal static partial class Program
+internal static class EnemyLegacyOverridesVerification
 {
     /// <summary>
     /// Exercises every source-catalogued JSON schema through the production loader.
     /// This is an authored-data compatibility check, not a gameplay or ROM-read probe.
     /// </summary>
-    private static void VerifyEnemyLegacyOverrides()
+    internal static void VerifyEnemyLegacyOverrides()
     {
         var fixture = new EnemyIdentityFixture();
         EnemySpritemapDefinition[] definitions = EnemySpritemapDefinitions.Frames.ToArray();
@@ -121,4 +136,13 @@ internal static partial class Program
         [.. Enum.GetValues<EnemySpritemapSchema>()
             .Select(schema => ((int)schema, EnemySpritemapDefinitions.FrameCount(schema)))
             .OrderBy(schema => schema.Item1)];
+
+    [VerificationCommand("--enemy-legacy-overrides")]
+    internal static int EnemyLegacyOverridesCommand()
+    {
+        Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
+        Suite(nameof(VerifyEnemyExtendedLegacyOverrides), () => VerifyEnemyExtendedLegacyOverrides());
+        Suite(nameof(VerifyEnemyProjectileLegacyOverrides), () => VerifyEnemyProjectileLegacyOverrides());
+        return 0;
+    }
 }

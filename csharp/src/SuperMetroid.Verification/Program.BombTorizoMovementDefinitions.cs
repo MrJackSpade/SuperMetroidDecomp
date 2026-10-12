@@ -1,3 +1,14 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
@@ -5,10 +16,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class BombTorizoMovementDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo movement definitions")]
-    private static void VerifyBombTorizoMovementDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombTorizoMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         const int standingXAddress = 0xaac3ee;
         const int standingYAddress = 0xaac40e;
@@ -122,4 +133,11 @@ internal static partial class Program
                     >= 0xaac4bd and < 0xaac4e5 or
                     >= 0xaac532 and < 0xaac55a,
             address => $"Bomb Torizo movement attempted migrated table read ${address:X6}.");
+
+    [VerificationCommand("--lookup-stream2-torizo-movement")]
+    internal static int LookupStream2TorizoMovementCommand()
+    {
+        Suite(nameof(VerifyBombTorizoMovementDefinitions), () => VerifyBombTorizoMovementDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

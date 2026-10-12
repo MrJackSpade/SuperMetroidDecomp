@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static WordSamplesVerification;
 
-internal static partial class Program
+internal static class CompiledProjectileMathVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile math")]
-    private static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledProjectileMath(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 20; parameter++)
         {

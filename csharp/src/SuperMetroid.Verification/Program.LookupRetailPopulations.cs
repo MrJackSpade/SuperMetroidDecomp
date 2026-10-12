@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupRetailPopulationsVerification
 {
     // Independent population identities captured from the original Sources in
     // 80cc06ebb64ec54caabbd686a9a286fda0d16b3a, before replacing that storage.
@@ -34,7 +36,7 @@ internal static partial class Program
         0xC8A5, 0xC8B3, 0xC8BB, 0xC8BD, 0xC8BF, 0xC8C1, 0xC8C3, 0xC8C5,
     ];
 
-    private static void VerifyRetailPopulationMappings(SuperMetroidAddressSpace rom)
+    internal static void VerifyRetailPopulationMappings(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyRetailPopulationIdentities), () => VerifyRetailPopulationIdentities());
         Suite(nameof(VerifyRetailPopulationHeaders), () => VerifyRetailPopulationHeaders(rom));

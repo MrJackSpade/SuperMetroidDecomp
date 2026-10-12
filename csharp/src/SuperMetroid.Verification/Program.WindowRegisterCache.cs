@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class WindowRegisterCacheVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks PPU register numbers")]
-    private static void VerifyWindowRegisterCache()
+    internal static void VerifyWindowRegisterCache()
     {
         // Literal addresses independently match the native CPU STY probe. Check
         // every neighboring byte, not merely the selected field's final value.

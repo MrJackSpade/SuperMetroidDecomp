@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CinematicCrystalFlashVerification
 {
-    private static void VerifyCinematicCrystalFlash(string nativeTracePath)
+    internal static void VerifyCinematicCrystalFlash(string nativeTracePath)
     {
         Suite(nameof(VerifyNativeCinematicFlashOwnership), () => VerifyNativeCinematicFlashOwnership(nativeTracePath));
 
@@ -269,5 +278,12 @@ internal static partial class Program
         for (ushort frame = 0; frame < movementCalls; frame++)
             samus.CrystalFlash.Step(bus, samus, frame);
         return (bus, runtime, samus);
+    }
+
+    [VerificationCommand("--cinematic-flash")]
+    internal static int CinematicFlashCommand()
+    {
+        Suite(nameof(VerifyCinematicCrystalFlash), () => VerifyCinematicCrystalFlash("csharp/test-fixtures/movement-release/cinematic-flash-432.csv"));
+        return 0;
     }
 }

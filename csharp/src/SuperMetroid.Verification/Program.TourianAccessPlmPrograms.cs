@@ -1,12 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
+using static AssertionsVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
+using static TourianAccessPlmDefinitionsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class TourianAccessPlmProgramsVerification
 {
-    private static void VerifyCompiledTourianAccessPlmPrograms()
+    internal static void VerifyCompiledTourianAccessPlmPrograms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -174,7 +187,7 @@ internal static partial class Program
             $"Tourian {(clear ? "clear" : "crumble")} reads no migrated ROM bytes");
     }
 
-    private static CartridgeReadGuard NewTourianAccessSourceGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewTourianAccessSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
                 int pointer = SnesAddressMath.OffsetInBank(address);
@@ -187,4 +200,11 @@ internal static partial class Program
                       pointer < 0x930f));
             },
             address => $"Tourian access PLM reread compiled source ${address:X6}.");
+
+    [VerificationCommand("--tourian-access-plms")]
+    internal static int TourianAccessPlmsCommand()
+    {
+        Suite(nameof(VerifyCompiledTourianAccessPlmPrograms), () => VerifyCompiledTourianAccessPlmPrograms());
+        return 0;
+    }
 }

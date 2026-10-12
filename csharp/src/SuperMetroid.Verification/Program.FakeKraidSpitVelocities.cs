@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FakeKraidSpitVelocitiesVerification
 {
-    private static void VerifyFakeKraidSpitHorizontalVelocity(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyFakeKraidSpitHorizontalVelocity(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 0, launch => launch.X.RawValue));
 
-    private static void VerifyFakeKraidSpitVerticalVelocity(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyFakeKraidSpitVerticalVelocity(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyFakeKraidSpitVelocityField), () => VerifyFakeKraidSpitVelocityField(rom, 2, launch => launch.Y.RawValue));
 
     private static void VerifyFakeKraidSpitVelocityField(

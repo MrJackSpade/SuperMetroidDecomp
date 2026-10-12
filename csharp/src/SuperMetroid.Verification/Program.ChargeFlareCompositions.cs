@@ -1,14 +1,31 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static ChargeFlareProductionVerification;
+using static GrappleFlarePresentationVerification;
+using static GrapplePointAnimationVerification;
+using static GrappleTileArtworkVerification;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ChargeFlareCompositionsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
+    internal static void VerifyChargeFlareCompositions(SuperMetroidAddressSpace bus,
         bool flareOnly = false, string sourceRom = "Super Metroid.smc")
     {
         byte[] json = ChargeFlareSpriteExtractor.Extract(bus);
@@ -81,7 +98,7 @@ internal static partial class Program
 
     /// <summary>Import-only oracle for the bank-$93 flare selector and part records.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the imported charge-flare spritemap drawer")]
-    private static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
+    internal static void DrawImportedFlareSpritemap(SuperMetroidAddressSpace bus, OamBuffer oam,
         ushort selector, Position16<OamPixels> origin)
     {
         int table = SnesAddressMath.AddWithinBank(0x93a1a1, selector * 2);
@@ -102,4 +119,14 @@ internal static partial class Program
     private static ushort ReadNativeChargeFlareSelector(ISnesAddressSpace bus, int selector) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
             ChargeFlareSpriteDefinitions.SelectorTable + selector * 2);
+
+    [VerificationCommand("--charge-flare-compositions")]
+    internal static int ChargeFlareCompositionsCommand()
+    {
+        string flareRom = RepositoryRomPath;
+        Suite(nameof(VerifyChargeFlareCompositions), () => VerifyChargeFlareCompositions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath(flareRom)),
+            flareOnly: true, sourceRom: flareRom));
+        return 0;
+    }
 }

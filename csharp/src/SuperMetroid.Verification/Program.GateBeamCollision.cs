@@ -1,12 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
+using static WaveDoorBandsVerification;
 
-internal static partial class Program
+internal static class GateBeamCollisionVerification
 {
-    private static void VerifyKronicGateBeamCollision()
+    internal static void VerifyKronicGateBeamCollision()
     {
         Suite(nameof(VerifyGateScanTermination), () => VerifyGateScanTermination());
         Suite(nameof(VerifyHorizontalWaveDoorBands), () => VerifyHorizontalWaveDoorBands());
@@ -65,5 +76,12 @@ internal static partial class Program
             if (!wave) AssertEqual(!full, (bool)result!, "Only executed gate setup overrides earlier air reaction");
             AssertEqual((ushort)0xc000, level.GetCollisionBlockByIndex(first).LevelWord, "Gate scan does not mutate terrain");
         }
+    }
+
+    [VerificationCommand("--gate-beam-collision")]
+    internal static int GateBeamCollisionCommand()
+    {
+        Suite(nameof(VerifyKronicGateBeamCollision), () => VerifyKronicGateBeamCollision());
+        return 0;
     }
 }

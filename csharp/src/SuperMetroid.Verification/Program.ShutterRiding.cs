@@ -1,12 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Input;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class ShutterRidingVerification
 {
-    private static void VerifyShutterRiding()
+    internal static void VerifyShutterRiding()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (int slot in new[] { 0, 1 })
@@ -43,5 +52,12 @@ internal static partial class Program
                 "rolling off does not spuriously reactivate the shutter");
         }
         Console.WriteLine("  Shootable shutters: real bomb activation, upper stop, rider alignment and roll-off agree in both room $01/$22 slots.");
+    }
+
+    [VerificationCommand("--shutter-riding")]
+    internal static int ShutterRidingCommand()
+    {
+        Suite(nameof(VerifyShutterRiding), () => VerifyShutterRiding());
+        return 0;
     }
 }

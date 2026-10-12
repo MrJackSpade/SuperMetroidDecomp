@@ -1,10 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
+using static AssertionsVerification;
+using static LookupCrocomireDrawsVerification;
+using static LookupCrocomireProgramsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class CrocomireArenaPlmsVerification
 {
-    private static void VerifyCompiledCrocomireArenaPlms()
+    internal static void VerifyCompiledCrocomireArenaPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -71,7 +85,7 @@ internal static partial class Program
             $"Crocomire header ${(int)header:X4} reads no migrated ROM records");
     }
 
-    private static CartridgeReadGuard NewCrocomireSourceGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewCrocomireSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address =>
             {
@@ -82,4 +96,11 @@ internal static partial class Program
                      (pointer >= (ushort)CrocomireArenaDraw.ClearBridge &&
                       pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive));
             }, address => $"Crocomire PLM reread compiled source ${address:X6}.");
+
+    [VerificationCommand("--crocomire-arena-plms")]
+    internal static int CrocomireArenaPlmsCommand()
+    {
+        Suite(nameof(VerifyCompiledCrocomireArenaPlms), () => VerifyCompiledCrocomireArenaPlms());
+        return 0;
+    }
 }

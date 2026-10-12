@@ -1,13 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
+using static RenderPacketCodecTestsVerification;
+using static TitleFixtureVerification;
+using static TitleSequenceRomDataVerification;
 
-internal static partial class Program
+internal static class TitleSnapshotTestsVerification
 {
-    private static void VerifyTitleRenderSnapshots()
+    internal static void VerifyTitleRenderSnapshots()
     {
         Verify(CreateConstructedTitleRom(), "constructed");
         string path = Path.GetFullPath("Super Metroid.smc");
@@ -81,5 +90,11 @@ internal static partial class Program
                 if (expected[index] != actual[index])
                     throw new InvalidOperationException($"Title snapshot {phase} frame {frame}: pixel ({index % FrontendFrame.Width},{index / FrontendFrame.Width}) expected {expected[index]}, got {actual[index]}.");
         }
+    }
+
+    [VerificationCommand("--title-fixtures")]
+    internal static int TitleFixturesCommand()
+    {
+     VerifyTitleRenderSnapshots(); VerifyTitleSequenceRomData(); return 0; 
     }
 }

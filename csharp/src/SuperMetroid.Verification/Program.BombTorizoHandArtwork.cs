@@ -1,14 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
+using static BombTorizoHandVerification;
 
-internal static partial class Program
+internal static class BombTorizoHandArtworkVerification
 {
     /// <summary>Confirm #1162's exact PLM-to-installed-art-to-NMI handoff, not a room sweep.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bomb Torizo hand artwork")]
-    private static void VerifyBombTorizoHandArtwork()
+    internal static void VerifyBombTorizoHandArtwork()
     {
         var importer = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
@@ -76,10 +85,17 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
+    internal static GameplayBasePaletteCatalog BombTorizoHandFixturePalette() =>
         GameplayBasePaletteCatalog.Load(new MemoryStream(GameplayBasePaletteCatalog.Write(
             new GameplayBasePaletteDocument(GameplayBasePaletteFormat.Version,
                 Enumerable.Range(0, SnesCgram.ColorCount).Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray(),
                 Enumerable.Range(0, GameplayBasePaletteFormat.SpriteColorCount)
                     .Select(_ => new PaletteRgb5 { Red = 0, Green = 0, Blue = 0 }).ToArray()))));
+
+    [VerificationCommand("--bomb-torizo-hand-artwork")]
+    internal static int BombTorizoHandArtworkCommand()
+    {
+        Suite(nameof(VerifyBombTorizoHandArtwork), () => VerifyBombTorizoHandArtwork());
+        return 0;
+    }
 }

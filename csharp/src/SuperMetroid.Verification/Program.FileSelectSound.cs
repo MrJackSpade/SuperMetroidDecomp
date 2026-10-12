@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Game;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class FileSelectSoundVerification
 {
-    private static void VerifyFileSelectSound()
+    internal static void VerifyFileSelectSound()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var audio = new CartridgeAudioState();
@@ -83,5 +93,12 @@ internal static partial class Program
             "suppressed sound cannot change PCM before its command is published");
         AssertEqual(existingSave, reachedSavedMap, "fixture actually distinguishes saved-map and new-game routes");
         Console.WriteLine($"Full frontend existing={existingSave} accept={accept}: {writes} requests at tick {firstSoundTick}; PCM begins {firstDifferenceTick}; {differentSamples} samples differ.");
+    }
+
+    [VerificationCommand("--file-select-sound")]
+    internal static int FileSelectSoundCommand()
+    {
+        Suite(nameof(VerifyFileSelectSound), () => VerifyFileSelectSound());
+        return 0;
     }
 }

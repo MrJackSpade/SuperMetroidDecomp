@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class GamepadInputVerification
 {
-static void VerifyGenericGamepadInput()
+internal static void VerifyGenericGamepadInput()
 {
     UsbGamepadIdentifier snesAdapter =
         WindowsGamepadIdentifiers.SnesUsbAdapter0079_0011;

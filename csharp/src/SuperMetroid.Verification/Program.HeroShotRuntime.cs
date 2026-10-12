@@ -1,12 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using static Program;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class HeroShotRuntimeVerification
 {
-    private static void VerifyHeroShotRuntimeCamera(string? nativeTrace = null)
+    internal static void VerifyHeroShotRuntimeCamera(string? nativeTrace = null)
     {
         Suite(nameof(VerifyPoseCollisionCameraCheckpoint), () => VerifyPoseCollisionCameraCheckpoint());
         var native = nativeTrace is null ? null : File.ReadLines(nativeTrace).Skip(1)
@@ -144,5 +155,19 @@ internal static partial class Program
             "Unobstructed pose expansion takes the no-correction branch");
         AssertEqual(previous, unobstructed.ApplyPreviousPositionWrites(previous),
             "No-collision pose expansion leaves the existing camera checkpoint untouched");
+    }
+
+    [VerificationCommand("--hero-shot-runtime")]
+    internal static int HeroShotRuntimeCommand()
+    {
+        Suite(nameof(VerifyHeroShotRuntimeCamera), () => VerifyHeroShotRuntimeCamera("csharp/test-fixtures/movement-release/hero-runtime-603.csv"));
+        return 0;
+    }
+
+    [VerificationCommand("--hero-shot-runtime", "nativeHeroRuntimeTrace")]
+    internal static int HeroShotRuntimeCommand2(string nativeHeroRuntimeTrace)
+    {
+        Suite(nameof(VerifyHeroShotRuntimeCamera), () => VerifyHeroShotRuntimeCamera(nativeHeroRuntimeTrace));
+        return 0;
     }
 }

@@ -1,12 +1,16 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class LookupEyeDoorLayoutsVerification
 {
-    private static void VerifyEyeDoorLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,0);
-    private static void VerifyEyeDoorLayoutCollision(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,1);
-    private static void VerifyEyeDoorLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,2);
+    internal static void VerifyEyeDoorLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,0);
+    internal static void VerifyEyeDoorLayoutCollision(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,1);
+    internal static void VerifyEyeDoorLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyEyeDoorLayoutField(rom,2);
 
     private static void VerifyEyeDoorLayoutField(SuperMetroidAddressSpace rom, int field)
     {

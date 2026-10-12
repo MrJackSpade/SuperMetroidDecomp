@@ -1,11 +1,13 @@
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static LookupFxBlendSelectorsVerification;
 
-internal static partial class Program
+internal static class LookupFxWeatherBlueVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyFxWeatherThirdGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
+    internal static void VerifyFxWeatherThirdGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })
         {
@@ -31,7 +33,7 @@ internal static partial class Program
         }
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyFxWeatherThirdBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
+    internal static void VerifyFxWeatherThirdBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock)
     {
         foreach (byte id in new byte[] { 0x22, 0x62 })
         {

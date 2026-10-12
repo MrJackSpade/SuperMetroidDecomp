@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -6,11 +16,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class ProjectileFrameBindingsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for timed projectile records' native sprite references")]
-    private static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
+    internal static void VerifyProjectileFrameBindings(ISnesAddressSpace rom)
     {
         byte[] stockJson = ProjectileFrameBindingExtractor.Extract(rom);
         var stock = ProjectileFrameBindingCatalog.Load(new MemoryStream(stockJson, writable: false));
@@ -153,4 +163,12 @@ internal static partial class Program
     private static CartridgeReadGuard NewProjectileFrameBindingReadGuard(ISnesAddressSpace source, HashSet<int> blocked) =>
         new CartridgeReadGuard(source).Forbid(blocked.Contains,
             address => new InvalidDataException($"Installed projectile frame read ROM sprite reference ${address:X6}."));
+
+    [VerificationCommand("--projectile-frame-bindings")]
+    internal static int ProjectileFrameBindingsCommand()
+    {
+        Suite(nameof(VerifyProjectileFrameBindings), () => VerifyProjectileFrameBindings(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

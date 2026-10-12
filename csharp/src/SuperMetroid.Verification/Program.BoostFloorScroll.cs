@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
@@ -5,10 +11,11 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class BoostFloorScrollVerification
 {
-    private static void VerifyBoostFloorScroll()
+    internal static void VerifyBoostFloorScroll()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -52,5 +59,12 @@ internal static partial class Program
         AssertEqual((ushort)1707, samus.Position.Y.Whole, "descent lands on the retail bottom floor");
         AssertEqual((ushort)1567, runtime.Camera.PixelPosition.Y, "camera reaches the bottom blue-scroll alignment");
         Console.WriteLine($"Dachora floor descent completed: SamusY={samus.Position.Y.Whole}, cameraY={runtime.Camera.PixelPosition.Y}.");
+    }
+
+    [VerificationCommand("--boost-floor-scroll")]
+    internal static int BoostFloorScrollCommand()
+    {
+        Suite(nameof(VerifyBoostFloorScroll), () => VerifyBoostFloorScroll());
+        return 0;
     }
 }

@@ -1,9 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Game;
+using static PhantoonInstructionProgramDefinitionsVerification;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class PhantoonFlameSoundVerification
 {
-    private static void VerifyPhantoonFlameSound()
+    internal static void VerifyPhantoonFlameSound()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = CreatePhantoonInstructionSystem(NewSlopeHeightNoReadBus());
@@ -33,5 +47,12 @@ internal static partial class Program
             SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x79), 6)),
             "flame audio does not overwrite the independent materialization sound");
         Console.WriteLine("Phantoon casual flame: actual spawn emits library 3 / 1D / Max6; materialization audio remains independent.");
+    }
+
+    [VerificationCommand("--phantoon-flame-sound")]
+    internal static int PhantoonFlameSoundCommand()
+    {
+        Suite(nameof(VerifyPhantoonFlameSound), () => VerifyPhantoonFlameSound());
+        return 0;
     }
 }

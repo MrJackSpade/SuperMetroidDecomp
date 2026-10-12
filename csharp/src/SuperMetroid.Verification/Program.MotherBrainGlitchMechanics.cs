@@ -1,8 +1,9 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BabyMetroidFixtureHeadVerification;
 
-internal static partial class Program
+internal static class MotherBrainGlitchMechanicsVerification
 {
     /// <summary>
     /// #1275 Mother Brain glitch movie. The drained controllers store a pose without
@@ -10,7 +11,7 @@ internal static partial class Program
     /// (and can wall-jump out); the Baby's latch touch runs before its main AI with the strict
     /// $A0:A07A test; Samus command $19 cancels the pending pose transition.
     /// </summary>
-    private static void VerifyMotherBrainGlitchMechanics()
+    internal static void VerifyMotherBrainGlitchMechanics()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
 

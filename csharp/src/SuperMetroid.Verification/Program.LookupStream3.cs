@@ -1,3 +1,12 @@
+using static Program;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -5,10 +14,32 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static ColorWordsVerification;
+using static CreditsPresentationVerification;
+using static DoorDefinitionsVerification;
+using static EnemyDefinitionsVerification;
+using static EnemyLegacyOverridesVerification;
+using static GrappleConnectionDefinitionsVerification;
+using static ImportedSpritemapsVerification;
+using static MochtroidInstructionProgramDefinitionsVerification;
+using static MotherBrainContactHitboxesVerification;
+using static MotherBrainCorpseArtworkVerification;
+using static MotherBrainEscapeTextArtworkVerification;
+using static MotherBrainFallingTubeInstructionDefinitionsVerification;
+using static MotherBrainHandBeamBodyInstructionDefinitionsVerification;
+using static MotherBrainRoomPaletteProgramDefinitionsVerification;
+using static MotherBrainTurretDefinitionsVerification;
+using static MotherBrainTurretInstructionProgramDefinitionsVerification;
+using static PaletteFxInstructionCodesVerification;
+using static RipperInstructionProgramDefinitionsVerification;
+using static SuiteTimingVerification;
+using static WorkRobotLaserInstructionProgramDefinitionsVerification;
+using static YellowPipeBugInstructionProgramDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupStream3Verification
 {
-    private static void VerifyStream3FallingTubePopulationLayout(ISnesAddressSpace rom)
+    internal static void VerifyStream3FallingTubePopulationLayout(ISnesAddressSpace rom)
     {
         ushort[] expected = [0x8ae5, 0x8af5, 0x8b05, 0x8b15, 0x8b25];
         IReadOnlyList<ushort> pointers = MotherBrainFallingTubePopulationDefinitions.Pointers;
@@ -26,7 +57,7 @@ internal static partial class Program
         Console.WriteLine("Falling-tube layout: five native records, all eight columns, production spawns and independent fixture behavior pass; placement magnitudes and delay remain required.");
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
+    internal static void VerifyStream3IntroPaletteRows(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, SnesCgram.ColorCount)
             .Select(color => ReadVerificationWord(rom, IntroCinematicRomData.Assets.Palette + 2 * color)).ToArray();
@@ -66,7 +97,7 @@ internal static partial class Program
         }
     }
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
+    internal static void VerifyStream3IntroEyeRectangles(ISnesAddressSpace rom)
     {
         ushort[][] native = Enumerable.Range(0, 4).Select(frame => Enumerable.Range(0, 6)
             .Select(cell => ReadVerificationWord(rom, 0x8cd785 + 16 * frame + 2 * cell)).ToArray()).ToArray();
@@ -141,7 +172,7 @@ internal static partial class Program
             return IntroEyeTilemapPresentation.Load(json);
         }
     }
-    private static void VerifyStream3IntroDivider(ISnesAddressSpace rom)
+    internal static void VerifyStream3IntroDivider(ISnesAddressSpace rom)
     {
         var native = new ushort[IntroFinalLineTilemapFormat.CellCount];
         for (int index = 0; index < native.Length; index++)
@@ -183,7 +214,7 @@ internal static partial class Program
             return IntroFinalLineTilemap.Load(json);
         }
     }
-    private static void VerifyStream3HandBeamBodyLayout()
+    internal static void VerifyStream3HandBeamBodyLayout()
     {
         ushort[] nativeOperands = [0x9a46, 0x9a4a, 0x9a4e, 0x9a5a, 0x9a66, 0x9a72,
             0x9a7e, 0x9a8a, 0x9a96, 0x9aa2, 0x9aae, 0x9ab2, 0x9ab8, 0x9abc, 0x9ac0];
@@ -199,7 +230,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for options borders")]
-    private static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
+    internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         GameOptionsPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<GameOptionsPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
@@ -269,7 +300,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select borders")]
-    private static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
+    internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
@@ -339,7 +370,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for grapple tile patterns")]
-    private static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
+    internal static void VerifyStream3GrappleTilePatterns(ISnesAddressSpace rom, GrappleTileTransfer[] transfers)
     {
         byte[] planar = transfers.SelectMany(transfer => Enumerable.Range(0, transfer.ByteCount)
             .Select(index => rom.ReadCartridgeByte(transfer.SourceAddress + index))).ToArray();
@@ -389,7 +420,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for narration layout")]
-    private static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
+    internal static void VerifyStream3NarrationLayout(ISnesAddressSpace rom, byte[] json, IntroNarrationPresentation stock)
     {
         const System.Reflection.BindingFlags fields = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         int nativeCharacters = 0;
@@ -446,7 +477,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
-    private static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
+    internal static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
     {
         EnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();
         AssertEqual(6, frames.Length, "Mochtroid calculated registration count");
@@ -476,7 +507,7 @@ internal static partial class Program
             }
         }
     }
-    private static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
+    internal static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         static Dictionary<string, SpriteComposition> Sprites(object presentation) =>
@@ -579,7 +610,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy frame registration")]
-    private static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
+    internal static void VerifyStream3EnemyFrameRegistration(ISnesAddressSpace rom)
     {
         // Ordered bank:pointer:name snapshot of the 472 source registrations at commit 723df7b36.
         const string originalNamedIdentity = "421A60158BA376F9A6AD58EA817315553AD268A44B411B87A4B25059EE5DFE92";
@@ -609,7 +640,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for hopper operand positions")]
-    private static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
+    internal static void VerifyStream3HopperOperandPositions(ISnesAddressSpace rom)
     {
         var operands = new SortedSet<ushort>();
         for (int selector = 0; selector < 16; selector++)
@@ -632,7 +663,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select patches")]
-    private static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
+    internal static void VerifyStream3FileSelectPatches(ISnesAddressSpace rom, byte[] imported, FileSelectPresentation stock)
     {
         const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         FileSelectPresentationDocument Read() => System.Text.Json.JsonSerializer.Deserialize<FileSelectPresentationDocument>(imported, MapPresentationFormat.JsonOptions)!;
@@ -865,7 +896,7 @@ internal static partial class Program
         }
     }
     [CpuBusBoundary("exact bus test: retail ROM oracle for stream-3 inline tables")]
-    private static void VerifyLookupStream3(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream3(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyStream3GameOverText), () => VerifyStream3GameOverText(rom));
         Suite(nameof(VerifyStream3OptionsGeometry), () => VerifyStream3OptionsGeometry(rom));
@@ -1521,7 +1552,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Shitroid pulse")]
-    private static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
+    internal static void VerifyStream3ShitroidPulse(ISnesAddressSpace rom)
     {
         PaletteRgb5 Rgb(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort[] Words(int address, int count) => Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2 * i))).ToArray();
@@ -1646,7 +1677,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for drain fades")]
-    private static void VerifyStream3DrainFades(ISnesAddressSpace rom)
+    internal static void VerifyStream3DrainFades(ISnesAddressSpace rom)
     {
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = word >> 5 & 31, Blue = word >> 10 & 31 };
         ushort Word(PaletteRgb5 color) => (ushort)(color.Red | color.Green << 5 | color.Blue << 10);
@@ -1929,7 +1960,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby fade")]
-    private static void VerifyStream3BabyFade(ISnesAddressSpace rom)
+    internal static void VerifyStream3BabyFade(ISnesAddressSpace rom)
     {
         var initial = new ushort[15];
         var fade = new ushort[6][];
@@ -2020,7 +2051,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain fades")]
-    private static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)
+    internal static void VerifyStream3MotherBrainFades(ISnesAddressSpace rom)
     {
         var body = new ushort[16][];
         var leg = new ushort[16][];
@@ -2548,7 +2579,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for recovery lights")]
-    private static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
+    internal static void VerifyStream3RecoveryLights(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
@@ -2643,7 +2674,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room flash")]
-    private static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
+    internal static void VerifyStream3RoomFlash(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
@@ -2789,7 +2820,7 @@ internal static partial class Program
             $"${opcode:X2} at ${SnesAddressMath.BankNumber(opcodeAddress):X2}:{SnesAddressMath.OffsetInBank(opcodeAddress):X4}.");
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for phase two rear leg")]
-    private static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
+    internal static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var stock = MotherBrainRoomColorPresentation.Load(new MemoryStream(json));
@@ -2827,7 +2858,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for auxiliary palettes")]
-    private static void VerifyStream3AuxiliaryPalettes(ISnesAddressSpace rom)
+    internal static void VerifyStream3AuxiliaryPalettes(ISnesAddressSpace rom)
     {
         EnemyAuxiliaryPaletteDefinition[] definitions =
         [
@@ -2906,7 +2937,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby sprite reflection")]
-    private static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
+    internal static void VerifyStream3BabySpriteReflection(ISnesAddressSpace rom)
     {
         var definitions = EnemySpritemapDefinitions.Frames.ToArray();
         var document = new EnemySpritemapDocument
@@ -3020,7 +3051,7 @@ internal static partial class Program
         }
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
     }
-    private static void VerifyStream3HandBeamLayout()
+    internal static void VerifyStream3HandBeamLayout()
     {
         ushort[] stages = [0xc796, 0xc7b7, 0xc7d8];
         int[] frameOffsets = [0, 9, 13, 17, 21, 25, 29];
@@ -3062,7 +3093,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby instruction layout")]
-    private static void VerifyStream3BabyInstructionLayout(ISnesAddressSpace rom)
+    internal static void VerifyStream3BabyInstructionLayout(ISnesAddressSpace rom)
     {
         ushort[] mechanics = [0xcfa2,0xcfa6,0xcfaa,0xcfae,0xcfb2,0xcfb8,0xcfbc,0xcfc0,0xcfc4,0xcfc8,0xcfce,0xcfd2];
         ushort[] visual = [0xcfa4,0xcfa8,0xcfac,0xcfb0,0xcfba,0xcfbe,0xcfc2,0xcfc6,0xcfd0];
@@ -3089,7 +3120,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain attack palette")]
-    private static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
+    internal static void VerifyStream3MotherBrainAttackPalette(ISnesAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var document = System.Text.Json.Nodes.JsonNode.Parse(json)!;
@@ -3141,7 +3172,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for final room paints")]
-    private static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
+    internal static void VerifyStream3FinalRoomPaints(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(imported, MapPresentationFormat.JsonOptions)!;
@@ -3207,7 +3238,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room entry palettes")]
-    private static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
+    internal static void VerifyStream3RoomEntryPalettes(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.MotherBrainRoomColorExtractor.Extract(rom);
         MotherBrainRoomColorDocument Read() => System.Text.Json.JsonSerializer.Deserialize<MotherBrainRoomColorDocument>(
@@ -3306,7 +3337,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby initial paints")]
-    private static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
+    internal static void VerifyStream3BabyInitialPaints(ISnesAddressSpace rom)
     {
         var babyDocument = System.Text.Json.Nodes.JsonNode.Parse(SuperMetroid.AssetExtraction.BabyMetroidCutsceneColorExtractor.Extract(rom))!;
         var liveDocument = System.Text.Json.Nodes.JsonNode.Parse(SuperMetroid.AssetExtraction.ShitroidColorExtractor.Extract(rom))!;
@@ -3367,7 +3398,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the initial narration tilemap and opening font")]
-    private static void VerifyStream3InitialNarrationMap()
+    internal static void VerifyStream3InitialNarrationMap()
     {
         using var rootScratch = new TestScratchDirectory("initial-narration");
         string root = rootScratch.Root;
@@ -3428,7 +3459,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select sprites")]
-    private static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
+    internal static void VerifyStream3FileSelectSprites(ISnesAddressSpace rom)
     {
         byte[] imported = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
         Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, imported));
@@ -3510,7 +3541,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the opening font")]
-    private static void VerifyStream3IntroFont()
+    internal static void VerifyStream3IntroFont()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] native = SuperMetroid.Core.Rom.RomDataReader.Decompress(rom,
@@ -3561,7 +3592,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro background page tilemaps")]
-    private static void VerifyStream3BackgroundMaps()
+    internal static void VerifyStream3BackgroundMaps()
     {
         using var rootScratch = new TestScratchDirectory("background-maps");
         string root = rootScratch.Root;
@@ -3618,7 +3649,7 @@ internal static partial class Program
     }
 
 
-    private static void VerifyStream3WorkRobotRegistry()
+    internal static void VerifyStream3WorkRobotRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemySpritemapDefinition[] frames = WorkRobotVisualDefinitions.Frames().ToArray();
@@ -3646,7 +3677,7 @@ internal static partial class Program
         Console.WriteLine("Work Robot registry: 27 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
     }
 
-    private static void VerifyStream3ShaktoolRegistry()
+    internal static void VerifyStream3ShaktoolRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         EnemySpritemapDefinition[] frames = ShaktoolVisualDefinitions.Frames().ToArray();
@@ -3667,7 +3698,7 @@ internal static partial class Program
         Console.WriteLine("Shaktool registry: 15 native headers and exact legacy bank/pointer/name/order hash pass; artwork and timing remain separate.");
     }
 
-    private static void VerifyStream3NintendoFadeEntries()
+    internal static void VerifyStream3NintendoFadeEntries()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var entries = NintendoLogoFadePaletteFxProgramMechanicsDefinitionsTooling.All;
@@ -3708,7 +3739,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry")]
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro Samus head tilemap")]
-    private static void VerifyStream3PortraitMap()
+    internal static void VerifyStream3PortraitMap()
     {
         using var rootScratch = new TestScratchDirectory("portrait-map");
         string root = rootScratch.Root;
@@ -3753,4 +3784,170 @@ internal static partial class Program
         finally { if (Directory.Exists(root)) Directory.Delete(root, recursive: true); }
     }
 
+    [VerificationCommand("--lookup-stream3-room-flash")]
+    internal static int LookupStream3RoomFlashCommand()
+    {
+        Suite(nameof(VerifyStream3RoomFlash), () => VerifyStream3RoomFlash(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Console.WriteLine("Room flash:336native colors/mirrors,1008independent edits,zero stock arrays/paint scalars pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-room-entry-palettes")]
+    internal static int LookupStream3RoomEntryPalettesCommand()
+    {
+        Suite(nameof(VerifyStream3RoomEntryPalettes), () => VerifyStream3RoomEntryPalettes(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Console.WriteLine("Glass/tube:30native colors,90edits,room/recovery independence and legacy inheritance pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-recovery-lights")]
+    internal static int LookupStream3RecoveryLightsCommand()
+    {
+        Suite(nameof(VerifyStream3RecoveryLights), () => VerifyStream3RecoveryLights(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Console.WriteLine("Recovery lights:196native colors,588channel edits,72room edits,routing and legacy inheritance pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-attack-palette")]
+    internal static int LookupStream3AttackPaletteCommand()
+    {
+        Suite(nameof(VerifyStream3MotherBrainAttackPalette), () => VerifyStream3MotherBrainAttackPalette(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Console.WriteLine("Mother Brain attack palette:15 native colors,45 edits,recovery independence and paired rear routing pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-intro-font")]
+    internal static int LookupStream3IntroFontCommand()
+    {
+     VerifyStream3IntroFont(); return 0; 
+    }
+
+    [VerificationCommand("--lookup-stream3-background-maps")]
+    internal static int LookupStream3BackgroundMapsCommand()
+    {
+     VerifyStream3BackgroundMaps(); return 0; 
+    }
+
+    [VerificationCommand("--lookup-stream3-work-robot-registry")]
+    internal static int LookupStream3WorkRobotRegistryCommand()
+    {
+     VerifyStream3WorkRobotRegistry(); return 0; 
+    }
+
+    [VerificationCommand("--lookup-stream3-shaktool-registry")]
+    internal static int LookupStream3ShaktoolRegistryCommand()
+    {
+     VerifyStream3ShaktoolRegistry(); return 0; 
+    }
+
+    [VerificationCommand("--lookup-stream3-nintendo-fade-entries")]
+    internal static int LookupStream3NintendoFadeEntriesCommand()
+    {
+     VerifyStream3NintendoFadeEntries(); return 0; 
+    }
+
+    [VerificationCommand("--lookup-stream3-portrait-map")]
+    internal static int LookupStream3PortraitMapCommand()
+    {
+        Suite(nameof(VerifyStream3PortraitMap), () => VerifyStream3PortraitMap());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-initial-narration")]
+    internal static int LookupStream3InitialNarrationCommand()
+    {
+        Suite(nameof(VerifyStream3InitialNarrationMap), () => VerifyStream3InitialNarrationMap());
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-baby-sprite-reflection")]
+    internal static int LookupStream3BabySpriteReflectionCommand()
+    {
+        Suite(nameof(VerifyStream3BabySpriteReflection), () => VerifyStream3BabySpriteReflection(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Console.WriteLine("Baby sprite reflection:90 native parts/OAM,90 isolated X edits,27 field edits,order/count/empty layouts,hashes/bounds and64 legacy schemas pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-final-room-paints")]
+    internal static int LookupStream3FinalRoomPaintsCommand()
+    {
+        var native = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyStream3FinalRoomPaints), () => VerifyStream3FinalRoomPaints(native));
+        Console.WriteLine("Final room:24native colors,72independent channel edits and dependent-palette isolation pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-menu-sprites")]
+    internal static int LookupStream3MenuSpritesCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyStream3MenuSpriteGeometry), () => VerifyStream3MenuSpriteGeometry(oracle));
+        Console.WriteLine("Menu sprites: 15 native parts, 135 independent field edits, reordered/expanded compositions and shared cursor loaders pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-file-select-sprites")]
+    internal static int LookupStream3FileSelectSpritesCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyStream3FileSelectSprites), () => VerifyStream3FileSelectSprites(oracle));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-options-sprites")]
+    internal static int LookupStream3OptionsSpritesCommand()
+    {
+        var oracle = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyStream3OptionsBorders), () => VerifyStream3OptionsBorders(oracle, SuperMetroid.AssetExtraction.GameOptionsPresentationExtractor.Extract(oracle)));
+        Console.WriteLine("Options headings: 144 native parts, 576 independent edits, reordered/expanded compositions and actual OAM draw pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-file-select-borders")]
+    internal static int LookupStream3FileSelectBordersCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyStream3FileSelectBorders), () => VerifyStream3FileSelectBorders(rom, FileSelectPresentationExtractor.Extract(rom)));
+        Console.WriteLine("File-select borders:114native parts,456independent edits,reversed orders and expanded compositions pass;bounds,appearance and order remain required.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream3-grapple-tile-patterns")]
+    internal static int LookupStream3GrappleTilePatternsCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+            GrappleTileTransfer[] expectedTransfers =
+            [
+                new(VramAssetId.GrapplePointFirstTiles, 0x9a8200, 0, 32),
+                new(VramAssetId.GrapplePointSecondTiles, 0x9a8400, 32, 32),
+                new(VramAssetId.GrapplePointThirdTiles, 0x9a8600, 64, 32),
+                new(VramAssetId.GrapplePointFourthTiles, 0x9a8800, 96, 32),
+                new(VramAssetId.GrappleHorizontalSegmentTiles, 0x9a8220, 128, 128),
+                new(VramAssetId.GrappleDiagonalSegmentTiles, 0x9a8a20, 256, 128),
+                new(VramAssetId.GrappleVerticalSegmentTiles, 0x9a9220, 384, 128),
+            ];
+            VerifyStream3GrappleTilePatterns(rom, expectedTransfers);
+        Console.WriteLine("Grapple tiles:512 native bytes,64 plane edits,8 coverage edits and seven transfer bindings pass; only reviewed stroke masks and visual shape choices remain.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-narration-layout")]
+    internal static int LookupNarrationLayoutCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var json = IntroNarrationExtractor.Extract(rom);
+        Suite(nameof(VerifyStream3NarrationLayout), () => VerifyStream3NarrationLayout(rom, json, IntroNarrationPresentation.Load(new MemoryStream(json))));
+        Console.WriteLine("Narration layout: 770 native glyph/coordinate records, six calculated pages, one retained hard break and 34 independent edits pass.");
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-file-select-patches")]
+    internal static int LookupFileSelectPatchesCommand()
+    {
+        var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        var data = SuperMetroid.AssetExtraction.FileSelectPresentationExtractor.Extract(rom);
+        Suite(nameof(VerifyStream3FileSelectPatches), () => VerifyStream3FileSelectPatches(rom, data, FileSelectPresentation.Load(new MemoryStream(data))));
+        Console.WriteLine("File-select patches: native cells, zero stock fallback, independent edits and actual placement pass.");
+        return 0;
+    }
 }

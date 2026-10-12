@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static CompiledDynamicCollectibleGraphicsVerification;
 
-internal static partial class Program
+internal static class LookupDynamicCollectiblePalettesVerification
 {
-    private static void VerifyDynamicCollectiblePaletteSelectors(SuperMetroidAddressSpace rom)
+    internal static void VerifyDynamicCollectiblePaletteSelectors(SuperMetroidAddressSpace rom)
     {
         var exported = RoomPlmDynamicCollectibleGraphicsDefinitions.All.ToArray();
         AssertEqual(17, exported.Length, "Dynamic palette original kind count");

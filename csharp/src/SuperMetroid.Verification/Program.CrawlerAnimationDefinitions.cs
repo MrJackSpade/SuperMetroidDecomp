@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CrawlerAnimationDefinitionsVerification
 {
-    private static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrawlerAnimationDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;

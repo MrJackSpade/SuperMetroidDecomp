@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 
-internal static partial class Program
+internal static class BrrLoopExtractionVerification
 {
-    private static void VerifyBrrLoopExtractionRetainsPredictorHistory()
+    internal static void VerifyBrrLoopExtractionRetainsPredictorHistory()
     {
         var ram = new byte[65536];
         var written = new bool[65536];

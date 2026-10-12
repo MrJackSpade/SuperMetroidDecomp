@@ -1,11 +1,60 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static RoomEnemiesVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using System.Text.Json;
+using static BombTorizoDormantDefinitionsVerification;
+using static CeresEscapeOverlayTilemapsVerification;
+using static CeresEscapeTileArtworkVerification;
+using static CrocomireBg2ScrollVerification;
+using static CrocomireBodyVisualsVerification;
+using static CrocomireMeltingDefinitionsVerification;
+using static CrocomireSkeletonArtworkVerification;
+using static DeadTorizoArtworkVerification;
+using static DeadTourianCorpseArtworkVerification;
+using static EnemyExtendedFrameArtworkVerification;
+using static EnemySpritemapArtworkVerification;
+using static EnemyTileArtworkBabyMetroidCutsceneColorsVerification;
+using static EnemyTileArtworkBotwoonColorsVerification;
+using static EnemyTileArtworkCeresDoorVerification;
+using static EnemyTileArtworkChozoAndTubeColorsVerification;
+using static EnemyTileArtworkCrocomireColorsVerification;
+using static EnemyTileArtworkDachoraColorsVerification;
+using static EnemyTileArtworkDraygonBg2FramesVerification;
+using static EnemyTileArtworkDraygonColorsVerification;
+using static EnemyTileArtworkGunshipLiftoffVerification;
+using static EnemyTileArtworkKraidColorsVerification;
+using static EnemyTileArtworkKraidVerification;
+using static EnemyTileArtworkMagdollitePaletteVerification;
+using static EnemyTileArtworkMotherBrainDeathColorsVerification;
+using static EnemyTileArtworkNorfairRidleyColorsVerification;
+using static EnemyTileArtworkPhantoonBg2FramesVerification;
+using static EnemyTileArtworkPhantoonColorsVerification;
+using static EnemyTileArtworkProjectileSpritemapsVerification;
+using static EnemyTileArtworkShitroidColorsVerification;
+using static EnemyTileArtworkSporeSpawnColorsVerification;
+using static EnemyTileArtworkTourianStatueColorsVerification;
+using static EnemyTileArtworkWorkRobotPaletteVerification;
+using static EnemyTileArtworkZebetiteColorsVerification;
+using static GoldenTorizoInitialDefinitionsVerification;
+using static MotherBrainCorpseArtworkVerification;
+using static MotherBrainEscapeTextArtworkVerification;
+using static MotherBrainSpecialSpriteArtworkVerification;
+using static NinjaSpacePiratePaletteArtworkVerification;
+using static SuiteTimingVerification;
+using static TorizoInstructionVramArtworkVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for an enemy's native tile bytes")]
     private static byte[] ReadNativeEnemyTiles(ISnesAddressSpace bus, RoomEnemyDefinition definition, int byteCount) =>
@@ -36,7 +85,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyEnemyTileArtwork()
+    internal static void VerifyEnemyTileArtwork()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -294,5 +343,14 @@ internal static partial class Program
         }
             Console.WriteLine("  Enemy artwork: 122 retail tile/color sheets, Crocomire melts, Kraid body/head maps, backdrop PNG, palette effects and four HUD-derived death restores, plus Boyon/Cacatac/Boulder/Atomic/Skultera/Waver/Skree/Metaree/Zoa/Pipe Bug/Fake Kraid/Kraid nail/Owtch/Stoke/Ripper/Fireflea/Magdollite/Ceres door/Ceres Baby/Rio/Lower Norfair Rio/Norfair Rio/Puyo/Bull/Alcoon/Beetom/Sidehopper/Dessgeega/Choot/HZoomer/Sbug/Fune/Namihe/Kamer platform/Elevator/Zeela/Sova/Zoomer/Stone Zoomer visual frames pass stock parity, live edits, persistence, and invalid-resource checks.");
             Console.WriteLine("  Sciser, shared Mellow/Mella/Memu, Kago, face-block, Morph Ball eye, shutter, ordinary Metroid, Shaktool, Tripper/Kamer, Dragon, Multiviola, Norfair lava-jumper, Chozo statue, Viola, and Rinka OAM frames: cartridge parity, installed draws, and legacy composition overrides pass.");
+    }
+
+    [VerificationCommand("--enemy-tile-artwork")]
+    internal static int EnemyTileArtworkCommand()
+    {
+        Suite(nameof(VerifyEnemyTileArtwork), () => VerifyEnemyTileArtwork());
+        Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
+        Suite(nameof(VerifyRoomEnemyLoading), () => VerifyRoomEnemyLoading());
+        return 0;
     }
 }

@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ZebetiteDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Zebetite definitions")]
-    private static void VerifyZebetiteDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyZebetiteDefinitions(SuperMetroidAddressSpace rom)
     {
         int[] generationTables =
             [0xa6fc03, 0xa6fc0b, 0xa6fc13, 0xa6fc1b, 0xa6fc23, 0xa6fc2b];
@@ -162,4 +174,11 @@ internal static partial class Program
                 >= 0xa6fcf9 and < 0xa6fd09 or
                 >= 0xa6fd4a and < 0xa6fd5e,
             address => $"Zebetite attempted migrated definition read ${address:X6}.");
+
+    [VerificationCommand("--lookup-stream5-zebetite-geometry")]
+    internal static int LookupStream5ZebetiteGeometryCommand()
+    {
+        Suite(nameof(VerifyZebetiteDefinitions), () => VerifyZebetiteDefinitions(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

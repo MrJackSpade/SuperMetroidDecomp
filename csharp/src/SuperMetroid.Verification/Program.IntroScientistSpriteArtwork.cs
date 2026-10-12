@@ -5,10 +5,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static IntroCinematicArtworkVerification;
+using static IntroRinkaSpriteArtworkVerification;
+using static MapSpritesVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class IntroScientistSpriteArtworkVerification
 {
-    private static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
+    internal static void VerifyIntroScientistSpriteArtwork(SuperMetroidAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         const ushort x = 120;

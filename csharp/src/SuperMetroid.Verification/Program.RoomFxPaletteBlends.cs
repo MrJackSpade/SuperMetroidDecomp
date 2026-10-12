@@ -1,3 +1,9 @@
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Buffers.Binary;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
@@ -6,11 +12,18 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static LookupCeresDefaultTintsVerification;
+using static LookupFxBlendBlackColorsVerification;
+using static LookupFxBlendSelectorsVerification;
+using static LookupFxPairColorsVerification;
+using static LookupFxWeatherBlueVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomFxPaletteBlendsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyRoomFxPaletteBlends()
+    internal static void VerifyRoomFxPaletteBlends()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -134,7 +147,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
+    internal static void VerifyRoomFxPaletteBlendOverride(string stock, string overrides,
         AreaMapPresentationCatalog baseline)
     {
         string path = Path.Combine(overrides, RoomFxPaletteBlendDefinitions.FileName);
@@ -208,4 +221,18 @@ internal static partial class Program
     private static CartridgeReadGuard NewForbiddenRoomFxPaletteBus(TestAddressSpace inner) =>
         new CartridgeReadGuard(inner).Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x89,
             address => $"Installed room-FX blend read ROM ${address:X6}.");
+
+    [VerificationCommand("--lookup-fx-blends")]
+    internal static int LookupFxBlendsCommand()
+    {
+        Suite(nameof(VerifyRoomFxPaletteBlends), () => VerifyRoomFxPaletteBlends());
+        return 0;
+    }
+
+    [VerificationCommand("--room-fx-palette-blends")]
+    internal static int RoomFxPaletteBlendsCommand()
+    {
+        Suite(nameof(VerifyRoomFxPaletteBlends), () => VerifyRoomFxPaletteBlends());
+        return 0;
+    }
 }

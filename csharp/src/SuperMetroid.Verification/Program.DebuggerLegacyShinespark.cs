@@ -2,7 +2,7 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class DebuggerLegacyShinesparkVerification
 {
     private static void VerifyLegacyShinesparkGraph()
     {

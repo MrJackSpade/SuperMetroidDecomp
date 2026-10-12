@@ -1,3 +1,7 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,9 +13,9 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
-internal static partial class Program
+internal static class PauseDoorShinesparkVerification
 {
-    private static void VerifyPauseDoorShinespark()
+    internal static void VerifyPauseDoorShinespark()
     {
         foreach (var scenario in new[] { (Brightening: false, Terminal: false), (Brightening: false, Terminal: true), (Brightening: true, Terminal: false), (Brightening: true, Terminal: true) })
         {
@@ -125,5 +129,12 @@ internal static partial class Program
             }
         }
         Console.WriteLine("Pause-door shinespark: door hits during both fades preserve native normal/terminal state ordering and start transitions without extra source movement.");
+    }
+
+    [VerificationCommand("--pause-door-shinespark")]
+    internal static int PauseDoorShinesparkCommand()
+    {
+        Suite(nameof(VerifyPauseDoorShinespark), () => VerifyPauseDoorShinespark());
+        return 0;
     }
 }

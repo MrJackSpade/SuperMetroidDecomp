@@ -1,15 +1,17 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupSpeedEscapeStagesVerification
 {
-    private static void VerifySpeedEscapeStageTargets(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySpeedEscapeStageTargets(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 0));
 
-    private static void VerifySpeedEscapeStageHeights(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySpeedEscapeStageHeights(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 1));
 
-    private static void VerifySpeedEscapeStageVelocities(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySpeedEscapeStageVelocities(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifySpeedEscapeStageField), () => VerifySpeedEscapeStageField(rom, 2));
 
     private static void VerifySpeedEscapeStageField(SuperMetroidAddressSpace rom, int field)

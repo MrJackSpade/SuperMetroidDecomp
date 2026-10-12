@@ -1,10 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Audio;
+using static AudioInstrumentsVerification;
 
-internal static partial class Program
+internal static class AudioSoundProgramsVerification
 {
     [SpcMemoryBoundary("exact APU memory test: checks uploaded APU RAM bytes")]
-    private static void VerifyEditableSoundEffectPrograms()
+    internal static void VerifyEditableSoundEffectPrograms()
     {
         string sourceDirectory = Path.GetFullPath("standalone-assets/audio");
         ExtractedAudioAssetCatalog stock = ExtractedAudioAssetCatalog.Load(sourceDirectory);
@@ -150,5 +162,12 @@ internal static partial class Program
         Console.WriteLine(
             $"Editable SFX programs: {stock.SoundPrograms.Count} programs/{instructionCount} named instructions, " +
             "exact stock bytes, live audible note edit and strict failures pass.");
+    }
+
+    [VerificationCommand("--audio-sfx-programs")]
+    internal static int AudioSfxProgramsCommand()
+    {
+        Suite(nameof(VerifyEditableSoundEffectPrograms), () => VerifyEditableSoundEffectPrograms());
+        return 0;
     }
 }

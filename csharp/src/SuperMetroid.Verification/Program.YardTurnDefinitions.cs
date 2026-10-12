@@ -1,14 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class YardTurnDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yard turn definitions")]
-    private static void VerifyYardTurnDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyYardTurnDefinitions(SuperMetroidAddressSpace rom)
     {
         (YardMovementFunction Movement, bool Disabled, int Address)[] records =
         [
@@ -129,4 +140,12 @@ internal static partial class Program
     private static CartridgeReadGuard NewYardTurnReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa3cce2 and < 0xa3cd42,
             address => $"Yard attempted migrated turn-definition read ${address:X6}.");
+
+    [VerificationCommand("--yard-turn-definitions")]
+    internal static int YardTurnDefinitionsCommand()
+    {
+        Suite(nameof(VerifyYardTurnDefinitions), () => VerifyYardTurnDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

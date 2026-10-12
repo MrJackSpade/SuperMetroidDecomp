@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupAnimatedAreasVerification
 {
-    private static void VerifyAnimatedAreaListPointers(SuperMetroidAddressSpace rom)
+    internal static void VerifyAnimatedAreaListPointers(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 8; area++)
             AssertEqual(ReadVerificationWord(rom, 0x83ac56 + 2 * area),
@@ -13,7 +14,7 @@ internal static partial class Program
                 () => AreaAnimatedTileObjectDefinitions.NativeListPointer(invalid), "Native area bounds");
     }
 
-    private static void VerifyAnimatedAreaObjectSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyAnimatedAreaObjectSelection(SuperMetroidAddressSpace rom)
     {
         for (int area = 0; area < 256; area++)
         for (int bit = 0; bit < 256; bit++)

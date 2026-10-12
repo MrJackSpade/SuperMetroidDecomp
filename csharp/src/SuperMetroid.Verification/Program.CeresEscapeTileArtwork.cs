@@ -5,11 +5,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresEscapeTileArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape tile artwork")]
-    private static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
+    internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
         string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         AssertTrue(stock.CeresEscapeTiles is not null,
@@ -172,7 +172,7 @@ internal static partial class Program
             "transfers match VRAM without ROM art reads; edit, reload, and rejection pass.");
     }
 
-    private sealed class CeresEscapeArtworkProvider(
+    internal sealed class CeresEscapeArtworkProvider(
         EnemyTileArtworkCatalog tiles, EscapeTimerTileAtlas timer)
         : IVramAssetProvider, IInstalledArtworkTransferSource
     {
@@ -183,7 +183,7 @@ internal static partial class Program
             tiles.TryResolve(sourceAddress, byteCount, out data);
     }
 
-    private static CartridgeReadGuard NewCeresEscapeArtworkReadGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewCeresEscapeArtworkReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => CeresEscapeVramTransferDefinitions.IsDescriptorByteAddress(address) ||
                 CeresEscapeOverlayTilemapDefinitions.ContainsByteAddress(address) ||

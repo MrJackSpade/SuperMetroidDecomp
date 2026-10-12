@@ -1,11 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class YappingMawGrappleReleaseVerification
 {
-    private static void VerifyYappingMawGrappleRelease()
+    internal static void VerifyYappingMawGrappleRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual((ushort)0xc8c5, bus.ReadCartridgeWord(0x90f15b), "pinned cartridge command three selects Dropped");
@@ -52,5 +61,11 @@ internal static partial class Program
         AssertTrue(runtime.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");
         AssertEqual((ushort)936, samus.Position.X.Whole, "Maw release retains native held X");
         Console.WriteLine($"  Yapping Maw grapple release: pose=${(int)samus.Pose:X2}, position={samus.Position.X.Whole}/{samus.Position.Y.Whole}, input unlocked.");
+    }
+
+    [VerificationCommand("--yapping-maw-grapple-release")]
+    internal static int YappingMawGrappleReleaseCommand()
+    {
+     VerifyYappingMawGrappleRelease(); return 0; 
     }
 }

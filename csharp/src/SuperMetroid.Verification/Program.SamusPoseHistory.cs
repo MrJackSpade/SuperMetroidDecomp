@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class SamusPoseHistoryVerification
 {
-    static void VerifySamusPoseHistory()
+    internal static void VerifySamusPoseHistory()
     {
         // Literal fixture for $91:E719. Preserve the packed direction/movement words
         // and distinct pose identities so every shifted field is observable.

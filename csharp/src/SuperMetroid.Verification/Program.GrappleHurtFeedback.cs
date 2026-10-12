@@ -1,3 +1,6 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,9 +12,11 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
-internal static partial class Program
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
+internal static class GrappleHurtFeedbackVerification
 {
-    private static void VerifyGrappleHurtFeedback()
+    internal static void VerifyGrappleHurtFeedback()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
@@ -159,5 +164,12 @@ internal static partial class Program
         AssertEqual((ushort)77, migrated.PreviousHealthForHurtCheck, "legacy capture initializes missing history from saved health");
         migrated.UpdateHurtFlashFromHealthLoss();
         AssertEqual((ushort)0, migrated.HurtFlashCounter, "legacy load does not invent a damage event");
+    }
+
+    [VerificationCommand("--grapple-hurt-feedback")]
+    internal static int GrappleHurtFeedbackCommand()
+    {
+        Suite(nameof(VerifyGrappleHurtFeedback), () => VerifyGrappleHurtFeedback());
+        return 0;
     }
 }

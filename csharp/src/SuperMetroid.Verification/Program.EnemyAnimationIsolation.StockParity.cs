@@ -1,9 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static GoldenTorizoRightOrbDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyAnimationIsolationStockParityVerification
 {
     /// <summary>
     /// Import-only oracle for the explicitly selected Boyon and Torizo programs.
@@ -11,7 +21,7 @@ internal static partial class Program
     /// receives this source; the separate isolation fixture uses mutable RAM only.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Boyon and Torizo animation words")]
-    private static void VerifyEnemyAnimationStockParity()
+    internal static void VerifyEnemyAnimationStockParity()
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < BoyonInstructionProgramDefinitionsTooling.MechanicsWordCount; index++)
@@ -45,5 +55,12 @@ internal static partial class Program
             $"{TorizoInstructionProgramDefinitionsTooling.MechanicsWordCount} shared/Bomb/Golden Torizo control/timing words; " +
             $"{BoyonInstructionProgramDefinitionsTooling.PresentationWordCount + TorizoInstructionProgramDefinitions.PresentationWordCount} " +
             "separate native visual selectors match the pinned import source.");
+    }
+
+    [VerificationCommand("--enemy-animation-stock-parity")]
+    internal static int EnemyAnimationStockParityCommand()
+    {
+        Suite(nameof(VerifyEnemyAnimationStockParity), () => VerifyEnemyAnimationStockParity());
+        return 0;
     }
 }

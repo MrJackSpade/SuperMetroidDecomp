@@ -4,8 +4,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static BabyMetroidRouteDefinitionsVerification;
+using static ShotBlockPlmProgramsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LinkedRestoreVisualsVerification
 {
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
@@ -65,7 +68,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => new RoomPlmLinkedRestoreVisualCatalog(entries), "linked restore rejects collision bits in artwork");
     }
 
-    private static void VerifyLinkedRestoreVisualInstallation(
+    internal static void VerifyLinkedRestoreVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyLinkedRestoreStockMapping), () => VerifyLinkedRestoreStockMapping(rom));
@@ -140,7 +143,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyLinkedRestoreVisualSeparation(
+    internal static void VerifyLinkedRestoreVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden, bool bomb)
     {
         RoomPlmLinkedRestoreVisualEntry[] entries =

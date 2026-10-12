@@ -1,11 +1,15 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static ColorWordsVerification;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ObjSubscreenVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native PPU geometry, native VRAM words")]
-    private static void VerifyObjSubscreenAddition()
+    internal static void VerifyObjSubscreenAddition()
     {
         Suite(nameof(VerifyMode7ObjSubtraction), () => VerifyMode7ObjSubtraction());
         Suite(nameof(VerifyMode7Bg1Addition), () => VerifyMode7Bg1Addition());

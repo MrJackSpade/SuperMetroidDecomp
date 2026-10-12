@@ -1,12 +1,12 @@
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ExtendedBg2ReferenceVerification
 {
     // Native $A0:96CA copies each $FFFE stream into the $7E:2000 tilemap,
     // later transferred to VRAM word $4800. This test reference reads raw
     // cartridge streams independently of installed catalogs and runtime writers.
     [CpuBusBoundary("exact bus test: retail ROM oracle for reference extended BG2 VRAM")]
-    private static byte[] ReadReferenceExtendedBg2Vram(
+    internal static byte[] ReadReferenceExtendedBg2Vram(
         ISnesAddressSpace rom, byte bank, ushort pointer, bool newInstructionFrame)
     {
         byte ReadByte(int address) => rom.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(address))))));

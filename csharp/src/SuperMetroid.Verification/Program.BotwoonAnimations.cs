@@ -1,3 +1,15 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
@@ -9,7 +21,7 @@ using SuperMetroid.Core.Hardware;
 /// native instruction lists the cartridge selects and the typed animation must match it frame by
 /// frame: timers, drawn frames, collision radius, spit cues and the new-frame flag.
 /// </summary>
-internal static partial class Program
+internal static class BotwoonAnimationsVerification
 {
     private const BindingFlags BotwoonFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
 
@@ -35,7 +47,7 @@ internal static partial class Program
     private const ushort BotwoonQueueSpitSoundOpcode = 0x9572;
 
     /// <summary>Every head program the cartridge can select runs exactly like its native list.</summary>
-    private static void VerifyBotwoonHeadAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonHeadAnimations(SuperMetroidAddressSpace rom)
     {
         int compared = 0;
         var drawn = new HashSet<ushort>();
@@ -61,7 +73,7 @@ internal static partial class Program
     }
 
     /// <summary>The AI selects the typed program the cartridge would, and reinstalling one does not restart it.</summary>
-    private static void VerifyBotwoonAnimationSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonAnimationSelection(SuperMetroidAddressSpace rom)
     {
         var animateHead = typeof(RoomEnemySystem).GetMethod("AnimateBotwoonHeadFromMovement", BotwoonFlags)!
             .CreateDelegate<Action<RoomEnemySlot, BotwoonEnemyState>>();
@@ -123,7 +135,7 @@ internal static partial class Program
     }
 
     /// <summary>Every body, tail, hidden and spit animation runs exactly like its native bank-$86 list.</summary>
-    private static void VerifyBotwoonProjectileAnimations(SuperMetroidAddressSpace rom)
+    internal static void VerifyBotwoonProjectileAnimations(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
         MethodInfo process = typeof(RoomEnemySystem).GetMethod("ProcessEnemyProjectileInstructions", BotwoonFlags)!;
@@ -268,7 +280,7 @@ internal static partial class Program
     }
 
     /// <summary>A native bank-$B3 head list, read from the cartridge with the enemy interpreter's timer gate.</summary>
-    private sealed class NativeBotwoonHead(ushort cursor, ushort timer, Extent16<RoomPixels> radius)
+    internal sealed class NativeBotwoonHead(ushort cursor, ushort timer, Extent16<RoomPixels> radius)
     {
         private ushort cursor = cursor;
 
@@ -314,5 +326,27 @@ internal static partial class Program
             }
             throw new InvalidDataException("A Botwoon native head list ran eight commands without a frame.");
         }
+    }
+
+    [VerificationCommand("--botwoon-projectile-instruction-mechanics")]
+    internal static int BotwoonProjectileInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyBotwoonProjectileAnimations), () => VerifyBotwoonProjectileAnimations(LoadRepositoryRom()));
+        return 0;
+    }
+
+    [VerificationCommand("--botwoon-instruction-mechanics")]
+    internal static int BotwoonInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyBotwoonHeadAnimations), () => VerifyBotwoonHeadAnimations(LoadRepositoryRom()));
+        return 0;
+    }
+
+    [VerificationCommand("--botwoon-instruction-definitions")]
+    internal static int BotwoonInstructionDefinitionsCommand()
+    {
+        Suite(nameof(VerifyBotwoonAnimationSelection), () => VerifyBotwoonAnimationSelection(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

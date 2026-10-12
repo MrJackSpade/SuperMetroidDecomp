@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupDraygonCannonStockVerification
 {
-    private static void VerifyDraygonCannonStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyDraygonCannonStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDraygonCannonVisualCatalog installed)
     {
         (ushort Pointer, string Id)[] frames = [(0x9fcd,"right-shield-a"),(0x9fdd,"right-shield-b"),(0xa02d,"right-damaged-a"),(0xa03d,"right-damaged-b"),(0xa04d,"right-damaged-c"),(0xa05d,"right-damaged-d"),(0xa0ed,"left-shield-a"),(0xa101,"left-shield-b"),(0xa165,"left-damaged-a"),(0xa179,"left-damaged-b"),(0xa18d,"left-damaged-c"),(0xa1a1,"left-damaged-d")];

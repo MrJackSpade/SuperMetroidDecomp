@@ -2,11 +2,14 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static ProjectileTrailCoordinatesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ProjectileTrailDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail selector words")]
-    private static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
+    internal static void VerifyProjectileTrailDefinitions(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailCoordinates), () => VerifyProjectileTrailCoordinates(bus));
         int start = SamusProjectileRomData.Trails.LeftInstructionPointers;
@@ -36,7 +39,7 @@ internal static partial class Program
         Console.WriteLine("Trail selectors: 103 reachable native words and 64 real spawn selections pass with the complete selector window forbidden.");
     }
 
-    private static MutableCartridgeReadGuard NewTrailSelectorGuard(int start, int end)
+    internal static MutableCartridgeReadGuard NewTrailSelectorGuard(int start, int end)
     {
         // Unrelated visual offsets and a wrapped trail-coordinate pointer into the low WRAM
         // mirror read the zero-filled sparse fixture, so all low-six-bit combinations have

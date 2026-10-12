@@ -5,11 +5,16 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyTileArtworkDraygonOamCollisionVerification;
+using static EnemyTileArtworkSporeSpawnCollisionVerification;
+using static ExtendedBg2ReferenceVerification;
+using static FrontendRomFreeVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkDraygonBg2FramesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon BG2 frames")]
-    private static void VerifyInstalledDraygonBg2Frames(
+    internal static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
         EnemyTileArtworkCatalog stock)
     {
@@ -126,7 +131,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Draygon BG2 collision")]
-    private static void VerifyCompiledDraygonBg2Collision(
+    internal static void VerifyCompiledDraygonBg2Collision(
         SuperMetroidAddressSpace rom)
     {
         var nativeLists = new HashSet<ushort>();

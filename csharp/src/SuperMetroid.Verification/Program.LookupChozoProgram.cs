@@ -1,13 +1,14 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupChozoProgramVerification
 {
-    private static void VerifyChozoProgramControls(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 0);
-    private static void VerifyChozoProgramDraws(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 1);
-    private static void VerifyChozoProgramTargets(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 2);
-    private static void VerifyChozoProgramCallback(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 3);
-    private static void VerifyChozoProgramEvent(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 4);
+    internal static void VerifyChozoProgramControls(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 0);
+    internal static void VerifyChozoProgramDraws(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 1);
+    internal static void VerifyChozoProgramTargets(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 2);
+    internal static void VerifyChozoProgramCallback(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 3);
+    internal static void VerifyChozoProgramEvent(SuperMetroidAddressSpace rom) => VerifyChozoProgramField(rom, 4);
 
     private static void VerifyChozoProgramField(SuperMetroidAddressSpace rom, int field)
     {

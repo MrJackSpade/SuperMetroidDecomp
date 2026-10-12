@@ -2,11 +2,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static RenderPacketCodecTestsVerification;
 
-internal static partial class Program
+internal static class EyeWindowSnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyEyeWindowSnapshots()
+    internal static void VerifyEyeWindowSnapshots()
     {
         for (long coefficient = -9; coefficient <= 9; coefficient++)
         for (long constant = -9; constant <= 9; constant++)

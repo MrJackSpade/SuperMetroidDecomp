@@ -6,11 +6,14 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static EndingRewardIconArtworkVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingMode7ArtworkVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending Mode-7 scene artwork")]
-    private static void VerifyEndingMode7Artwork(GameInstallation installation)
+    internal static void VerifyEndingMode7Artwork(GameInstallation installation)
     {
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         EndingMode7ArtworkCatalog stock = installation.LoadEndingMode7Art();
@@ -221,7 +224,7 @@ internal static partial class Program
     }
 
 
-    private static MutableCartridgeReadGuard NewEndingMode7SourceReadGuard(ISnesAddressSpace source)
+    internal static MutableCartridgeReadGuard NewEndingMode7SourceReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(address =>

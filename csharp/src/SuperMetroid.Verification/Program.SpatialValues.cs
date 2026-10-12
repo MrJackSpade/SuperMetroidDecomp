@@ -2,14 +2,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Desktop;
 
-internal static partial class Program
+internal static class SpatialValuesVerification
 {
     /// <summary>
     /// Confirms the #628 Samus spatial values: the external displacement's native 16.16 arithmetic
     /// and half-word operations, the fixed position's axis/half-word operations, and the debugger
     /// migration that rebuilds them from the retired per-component words.
     /// </summary>
-    private static void VerifySamusSpatialValues()
+    internal static void VerifySamusSpatialValues()
     {
         VerifyExtraDisplacementArithmetic();
         VerifyFixedPositionOperations();

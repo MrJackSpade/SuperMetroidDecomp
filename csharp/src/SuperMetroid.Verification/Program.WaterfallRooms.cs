@@ -1,3 +1,6 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
@@ -9,9 +12,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
-internal static partial class Program
+internal static class WaterfallRoomsVerification
 {
-    private static void VerifyWaterfallRooms()
+    internal static void VerifyWaterfallRooms()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -98,5 +101,12 @@ internal static partial class Program
             AssertEqual(256 * 224, pixels.Length, "reported room composes full frame");
             Console.WriteLine($"Waterfall room {room:X4}: TM=11 TS=06 CGADSUB=B1, combined subscreen capture passed.");
         }
+    }
+
+    [VerificationCommand("--waterfall-rooms")]
+    internal static int WaterfallRoomsCommand()
+    {
+        Suite(nameof(VerifyWaterfallRooms), () => VerifyWaterfallRooms());
+        return 0;
     }
 }

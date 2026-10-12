@@ -4,11 +4,14 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static FrontendRomFreeVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DeadTorizoArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyInstalledDeadTorizoArtwork(
+    internal static void VerifyInstalledDeadTorizoArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
         Suite(nameof(VerifyDeadTorizoVramTransferDefinitions), () => VerifyDeadTorizoVramTransferDefinitions(stock));
@@ -239,7 +242,7 @@ internal static partial class Program
             .CreateDelegate<Action<ushort>>(enemies)(line);
     }
 
-    private static OamBuffer DrawDeadTorizoCorpseFrame(
+    internal static OamBuffer DrawDeadTorizoCorpseFrame(
         EnemyTileArtworkCatalog artwork, SuperMetroidAddressSpace bus,
         Position16<RoomPixels> camera)
     {

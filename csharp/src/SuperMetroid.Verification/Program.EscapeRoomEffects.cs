@@ -3,10 +3,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Assets;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class EscapeRoomEffectsVerification
 {
-    private static void VerifyEscapeRoomEffects(string romPath)
+    internal static void VerifyEscapeRoomEffects(string romPath)
     {
         foreach (ushort room in new ushort[] { 0xde4d, 0xde7a, 0xdea7, 0xdede, 0x92fd, 0x9804 })
         {

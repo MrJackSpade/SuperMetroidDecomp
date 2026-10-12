@@ -1,14 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
+using static BeamTileArtworkVerification;
+using static HyperBeamFxColorArtworkVerification;
+using static IntroProjectileArtworkVerification;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ProjectileCompositionsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
+    internal static void VerifyProjectileCompositions(SuperMetroidAddressSpace rom,
         bool compositionOnly = false, string sourceRom = "Super Metroid.smc")
     {
         byte[] json = ProjectileSpriteExtractor.Extract(rom);
@@ -80,7 +94,7 @@ internal static partial class Program
 
     /// <summary>Import-only bank-$93 record decoder for the projectile OAM oracle.</summary>
     [CpuBusBoundary("exact bus test: reference bank-$93 projectile spritemap decoder over a retail or synthetic cartridge")]
-    private static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
+    internal static void DrawImportedProjectileSpritemap(ISnesAddressSpace source,
         OamBuffer oam, ushort pointer, Position16<OamPixels> origin)
     {
         int record = 0x930000 | pointer;
@@ -143,7 +157,7 @@ internal static partial class Program
         Console.WriteLine($"Projectile composition owners: {comparisons} stock OAM comparisons with every ROM access forbidden.");
     }
 
-    private static CartridgeReadGuard NewProjectileCompositionForbiddenBus() =>
+    internal static CartridgeReadGuard NewProjectileCompositionForbiddenBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Composition draw read ROM {address:X6}.")
             .RejectWrites(_ => "Composition draw mutated the bus.");
@@ -480,5 +494,13 @@ internal static partial class Program
         File.WriteAllText(swingOverride, "broken override");
         AssertThrows<InvalidDataException>(() => installation.LoadProjectiles(), "Invalid swing override never falls back");
         Console.WriteLine("Projectile installation: stock/override identity, persistent edits, missing/corrupt content and manifest validation pass.");
+    }
+
+    [VerificationCommand("--projectile-compositions-fixture")]
+    internal static int ProjectileCompositionsFixtureCommand()
+    {
+        Suite(nameof(VerifyProjectileCompositions), () => VerifyProjectileCompositions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

@@ -5,10 +5,12 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static CeresFlightArtworkVerification;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class CeresFlightSpriteArtworkVerification
 {
-    private static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
+    internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock,
         ISnesAddressSpace guardedBus)
     {

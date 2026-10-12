@@ -1,12 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static AttractCaptureTestsVerification;
+using static FrontendRenderCaptureTestsVerification;
+using static GameplayCaptureIntegrationTestsVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using System.Reflection;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class IntroPoseHistoryVerification
 {
-    private static void VerifyIntroPoseHistory()
+    internal static void VerifyIntroPoseHistory()
     {
         Suite(nameof(VerifyIntroScenePoseHistory), () => VerifyIntroScenePoseHistory());
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -113,5 +127,11 @@ internal static partial class Program
         AssertTrue(setup && terminal && handoff && transitions == 9, $"intro history fixture covers hurt recovery, return run/jump/landing, terminal and discovery; transitions={transitions}");
         AssertTrue(jumpRadiusRetained && jumpRadiusPublished, "intro fixture covers jump radius publication across alpha/beta");
         AssertEqual(0, failures.Count, "intro scene history: " + string.Join("; ", failures));
+    }
+
+    [VerificationCommand("--frontend-fixtures")]
+    internal static int FrontendFixturesCommand()
+    {
+     VerifyIntroPoseHistory(); VerifyFrontendRenderCapture(); VerifyGameplayCaptureIntegration(); VerifyAttractCapture(); return 0; 
     }
 }

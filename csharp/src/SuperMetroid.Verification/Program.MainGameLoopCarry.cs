@@ -1,14 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.Core.Game;
+using static AssertionsVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class MainGameLoopCarryVerification
 {
     // #1269: Handle_Earthquake_SoundEffect reloads its timer with ADC .baseTimer ($88:B245)
     // after QueueSound_Lib2_Max6 restores the entry flags, so it adds the carry MainGameLoop
     // has preserved since boot's DetermineNumberOfDemoSets ($80:8261). Without it, every
     // rumble in the 100% movie's rising-lava room came a frame early and the door's
     // sound-queue wait ended six updates before native.
-    private static void VerifyMainGameLoopCarry()
+    internal static void VerifyMainGameLoopCarry()
     {
         var bus = new TestAddressSpace();
         var saveRam = new SuperMetroidSaveRam(bus, RetailPresentationFixture());
@@ -33,5 +46,12 @@ internal static partial class Program
                 $"earthquake reload with main-loop carry {carry}");
         }
         Console.WriteLine("Main-loop carry: boot SRAM decides it, and the earthquake timer reload adds it.");
+    }
+
+    [VerificationCommand("--main-game-loop-carry")]
+    internal static int MainGameLoopCarryCommand()
+    {
+        VerifyMainGameLoopCarry();
+        return 0;
     }
 }

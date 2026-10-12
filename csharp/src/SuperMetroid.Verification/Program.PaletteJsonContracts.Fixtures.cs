@@ -3,8 +3,9 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static PaletteJsonContractsVerification;
 
-internal static partial class Program
+internal static class PaletteJsonContractsFixturesVerification
 {
     private static PaletteRgb5[] PaletteContractColors(int count, int seed = 0) => Enumerable.Range(0, count)
         .Select(index => new PaletteRgb5 { Red = (index + seed) % 32, Green = (index * 3 + seed) % 32,
@@ -14,7 +15,7 @@ internal static partial class Program
         .Select(row => PaletteContractColors(colors, row)).ToArray();
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
+    internal static IEnumerable<PaletteJsonContract> PaletteJsonContracts()
     {
         yield return new("room static", PaletteContractDocument(new RoomStaticPaletteDocument
         { Version = RoomStaticPaletteFormat.Version, Colors = PaletteContractColors(RoomStaticPaletteFormat.ColorCount) }),

@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresBackdropProgramsVerification
 {
-    private static void VerifyCeresBackdropPrograms(ISnesAddressSpace rom)
+    internal static void VerifyCeresBackdropPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xcc3f, 0xcc47, false));
         Suite(nameof(VerifyCeresBackdropProgram), () => VerifyCeresBackdropProgram(rom, 0xccab, 0xccb3, false));

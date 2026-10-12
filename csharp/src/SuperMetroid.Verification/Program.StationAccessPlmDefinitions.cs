@@ -1,10 +1,12 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RoomPlmPopulationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class StationAccessPlmDefinitionsVerification
 {
-    private static void VerifyStationAccessPlmDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyStationAccessPlmDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyStationAccessHeaders), () => VerifyStationAccessHeaders(rom));
         Suite(nameof(VerifyStationAccessInitialLists), () => VerifyStationAccessInitialLists(rom));
@@ -20,8 +22,8 @@ internal static partial class Program
 
     private static void VerifyStationAccessHeaders(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 0);
     private static void VerifyStationAccessInitialLists(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 1);
-    private static void VerifyStationAccessRetractedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 2);
-    private static void VerifyStationAccessExtendedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 3);
+    internal static void VerifyStationAccessRetractedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 2);
+    internal static void VerifyStationAccessExtendedDraws(SuperMetroidAddressSpace rom) => VerifyStationAccessField(rom, 3);
 
     private static void VerifyStationAccessField(SuperMetroidAddressSpace rom, int field)
     {

@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
@@ -5,11 +13,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
+using static DoorDefinitionsVerification;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class SamusSuitColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyNormalSuitCatalogBoundary()
+    internal static void VerifyNormalSuitCatalogBoundary()
     {
         var cartridge = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -97,7 +107,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifySamusSuitColorOverride(
+    internal static void VerifySamusSuitColorOverride(
         string stockDirectory,
         string overrideDirectory,
         AreaMapPresentationCatalog original,
@@ -233,4 +243,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus normal-suit palette colors")]
     private static ushort ReadNativeSuitColor(IImportCartridgeSource cartridge, int sourceAddress, int color) =>
         RomDataReader.ReadWordFixedBank(cartridge, sourceAddress + color * sizeof(ushort));
+
+    [VerificationCommand("--normal-suit-catalog-boundary")]
+    internal static int NormalSuitCatalogBoundaryCommand()
+    {
+        Suite(nameof(VerifyNormalSuitCatalogBoundary), () => VerifyNormalSuitCatalogBoundary());
+        return 0;
+    }
 }

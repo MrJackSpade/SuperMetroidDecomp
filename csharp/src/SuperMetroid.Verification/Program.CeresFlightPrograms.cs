@@ -1,17 +1,18 @@
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CeresFlightProgramsVerification
 {
-    private static void VerifyCeresRearPrograms(ISnesAddressSpace rom)
+    internal static void VerifyCeresRearPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc47, 0xcc4f, true, true));
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc4f, 0xcc57, true, true));
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcc57, 0xcc63, false, true));
     }
 
-    private static void VerifyCeresFlightPrograms(ISnesAddressSpace rom)
+    internal static void VerifyCeresFlightPrograms(ISnesAddressSpace rom)
     {
         Suite(nameof(VerifyCeresRearPrograms), () => VerifyCeresRearPrograms(rom));
         Suite(nameof(VerifyCeresFlightProgram), () => VerifyCeresFlightProgram(rom, 0xcda3, 0xcdab, false, false));

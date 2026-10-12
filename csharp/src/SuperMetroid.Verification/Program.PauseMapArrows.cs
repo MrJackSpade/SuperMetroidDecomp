@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,12 +15,14 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
+using static MapSpritesVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseMapArrowsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause map arrow tiles, palette and spritemaps")]
-    private static void VerifyPauseMapArrows()
+    internal static void VerifyPauseMapArrows()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
@@ -103,5 +111,12 @@ internal static partial class Program
         ushort Read(int address) => RomDataReader.ReadWordFixedBank(cart, address);
         void Set(string name, object value) => typeof(PauseMenuState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(pause, value);
         T Get<T>(string name) => (T)typeof(PauseMenuState).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(pause)!;
+    }
+
+    [VerificationCommand("--pause-map-arrows")]
+    internal static int PauseMapArrowsCommand()
+    {
+        Suite(nameof(VerifyPauseMapArrows), () => VerifyPauseMapArrows());
+        return 0;
     }
 }

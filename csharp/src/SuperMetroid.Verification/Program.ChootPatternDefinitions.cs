@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ChootPatternDefinitionsVerification
 {
-    private static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyChootPatternDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
         var initializeMethod = typeof(RoomEnemySystem).GetMethod("InitializeChoot", flags)!;
@@ -138,4 +150,12 @@ internal static partial class Program
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0xa2d84c and < 0xa2df74,
                 address => $"Choot attempted migrated pattern-definition read ${address:X6}.");
+
+    [VerificationCommand("--choot-pattern-definitions")]
+    internal static int ChootPatternDefinitionsCommand()
+    {
+        Suite(nameof(VerifyChootPatternDefinitions), () => VerifyChootPatternDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

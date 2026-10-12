@@ -3,12 +3,14 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
+using static WorkRobotInstructionProgramDefinitionsVerification;
 
-internal static partial class Program
+internal static class WorkRobotVisualsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Work Robot visuals")]
-    private static void VerifyInstalledWorkRobotVisuals(
+    internal static void VerifyInstalledWorkRobotVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var selectedFrames = new HashSet<ushort>();

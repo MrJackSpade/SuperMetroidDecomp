@@ -5,10 +5,11 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class FileSelectPresentationVerification
 {
-    private static void VerifyFileSelectPresentationAssets(
+    internal static void VerifyFileSelectPresentationAssets(
         ISnesAddressSpace bus,
         string stock,
         string overrides,

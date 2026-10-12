@@ -1,10 +1,12 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FuneNamiheDefinitionsVerification
 {
-    private static void VerifyFuneNamiheDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFuneNamiheDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyFuneNamiheProgramSelection), () => VerifyFuneNamiheProgramSelection(rom));
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |

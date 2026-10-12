@@ -1,16 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MotherBrainSmallPurpleBreathVerification
 {
     // #1269: DrawMotherBrainHead ($A9:9357) spawns the small purple breath ($86:CB3D) whenever
     // generation is enabled, none is active and the sampled RNG has bit 15 clear. Its
     // initializer marks it active; its last instruction ($86:CAEE) clears the flag before it
     // deletes itself. The port never spawned it, so in the 100% movie a projectile slot native
     // filled stayed empty.
-    private static void VerifyMotherBrainSmallPurpleBreath()
+    internal static void VerifyMotherBrainSmallPurpleBreath()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -61,5 +70,12 @@ internal static partial class Program
         AssertTrue(!state.SmallPurpleBreathGenerationEnabled,
             "an unwritten rainbow-body flag leaves the brain-list clear in place");
         Console.WriteLine("Mother Brain small purple breath: RNG-gated spawn, one at a time, flag cleared on its last instruction.");
+    }
+
+    [VerificationCommand("--mother-brain-small-purple-breath")]
+    internal static int MotherBrainSmallPurpleBreathCommand()
+    {
+        VerifyMotherBrainSmallPurpleBreath();
+        return 0;
     }
 }

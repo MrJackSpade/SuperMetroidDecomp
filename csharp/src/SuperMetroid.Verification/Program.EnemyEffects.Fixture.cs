@@ -4,11 +4,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static EnemyAnimationIsolationFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class EnemyEffectsFixtureVerification
 {
     /// <summary>Known melt phases, pure RAM and authored PNG/JSON; no cartridge capability.</summary>
-    private sealed class CrocomireEffectFixture
+    internal sealed class CrocomireEffectFixture
     {
         private const BindingFlags PrivateInstance = BindingFlags.Instance | BindingFlags.NonPublic;
         internal SuperMetroidAddressSpace Memory { get; } = SuperMetroidAddressSpace.CreateWithoutCartridge();
@@ -52,7 +54,7 @@ internal static partial class Program
             .CreateDelegate<Action<CrocomireEnemyState, SamusState?>>(Enemies)(Actor, null);
     }
 
-    private static void AssertCrocomireEffectMechanics(CrocomireEffectFixture expected,
+    internal static void AssertCrocomireEffectMechanics(CrocomireEffectFixture expected,
         CrocomireEffectFixture actual, string context)
     {
         AssertAnimationValues(expected.Actor, actual.Actor, context);
@@ -73,7 +75,7 @@ internal static partial class Program
 
     // Decode authored bitplanes and write a genuine indexed PNG so fixtures exercise the
     // production asset compiler, rather than injecting unvalidated private buffers.
-    private static MemoryStream EffectPng(int byteCount, int usedBytes, byte pattern)
+    internal static MemoryStream EffectPng(int byteCount, int usedBytes, byte pattern)
     {
         var bytes = new byte[byteCount];
         bytes.AsSpan(0, usedBytes).Fill(pattern);
@@ -86,11 +88,11 @@ internal static partial class Program
         return output;
     }
 
-    private static RoomCharacterAtlas CorpseEffectArtwork(byte pattern) => RoomCharacterAtlas.Load(
+    internal static RoomCharacterAtlas CorpseEffectArtwork(byte pattern) => RoomCharacterAtlas.Load(
         EffectPng(MotherBrainCorpseArtworkDefinitions.ByteCount, MotherBrainCorpseArtworkDefinitions.ByteCount, pattern),
         MotherBrainCorpseArtworkDefinitions.ByteCount);
 
-    private static string MeltEffectJson(int seed = 0) => JsonSerializer.Serialize(new CrocomireMeltingTilemapDocument
+    internal static string MeltEffectJson(int seed = 0) => JsonSerializer.Serialize(new CrocomireMeltingTilemapDocument
     {
         Version = CrocomireMeltingArtworkFormat.TilemapVersion,
         Width = CrocomireMeltingArtworkFormat.TilemapWidth,
@@ -103,7 +105,7 @@ internal static partial class Program
             }).ToArray(),
     }, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
-    private static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,
+    internal static CrocomireMeltingArtwork MeltEffectArtwork(byte pattern = 0x55,
         int seed = 0, string? firstJson = null)
     {
         using var first = EffectPng(CrocomireMeltingArtworkFormat.FirstByteCount,

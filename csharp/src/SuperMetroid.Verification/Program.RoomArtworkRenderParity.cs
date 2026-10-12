@@ -7,8 +7,9 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class RoomArtworkRenderParityVerification
 {
     /// <summary>
     /// Compare final displayed pixels, not only decompressed bytes. Ceres exercises the
@@ -17,7 +18,7 @@ internal static partial class Program
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky transfer bytes compared with installed artwork")]
-    private static void VerifyRoomArtworkRenderParity(
+    internal static void VerifyRoomArtworkRenderParity(
         GameInstallation installation, string sourceRom)
     {
         foreach ((string name, ushort roomPointer, bool useRealLandingDoor) in new[]

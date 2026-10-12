@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class TorizoRandomizedProjectileDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo randomized projectile definitions")]
-    private static void VerifyTorizoRandomizedProjectileDefinitions(
+    internal static void VerifyTorizoRandomizedProjectileDefinitions(
         SuperMetroidAddressSpace rom)
     {
         (int Address, TorizoRandomizedProjectileDefinition Definition, string Name)[] definitions =

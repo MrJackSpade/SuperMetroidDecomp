@@ -1,7 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class SuperMissileDeathAnimationVerification
 {
     /// <summary>
     /// A Super Missile kill starts explosion two for headers zero to two and the header's own
@@ -9,7 +21,7 @@ internal static partial class Program
     /// Dragon (header four); its big explosion's first instructions spawn two randomly placed
     /// sprites, consuming RNG the port skipped with explosion two.
     /// </summary>
-    private static void VerifySuperMissileDeathAnimation()
+    internal static void VerifySuperMissileDeathAnimation()
     {
         AssertEqual(EnemyDeathInstructionProgramDefinitions.BigExplosion, SuperMissileKillProgram(EnemyDefinitionId.Dragon),
             "a Super Missile kill keeps the Dragon's big explosion");
@@ -49,5 +61,12 @@ internal static partial class Program
         RoomEnemyProjectileSlot explosion = runtime.Enemies.EnemyProjectiles
             .Single(projectile => projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         return explosion.InstructionPointer;
+    }
+
+    [VerificationCommand("--super-missile-death-animation")]
+    internal static int SuperMissileDeathAnimationCommand()
+    {
+        Suite(nameof(VerifySuperMissileDeathAnimation), () => VerifySuperMissileDeathAnimation());
+        return 0;
     }
 }

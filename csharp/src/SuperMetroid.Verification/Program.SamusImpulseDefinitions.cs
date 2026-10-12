@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class SamusImpulseDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Samus impulse definitions")]
-    private static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySamusImpulseDefinitions(SuperMetroidAddressSpace rom)
     {
         var noReads = NewSlopeHeightNoReadBus();
         // Bomb jumps start in morph ball. Since #1258 the medium test samples the current pose's
@@ -81,7 +82,7 @@ internal static partial class Program
         Console.WriteLine($"Samus impulse definitions: {bombCases} surface/equipment/direction bomb launches and {hurtCases} hurt transitions pass; physics ROM reads forbidden.");
     }
 
-    private static CartridgeReadGuard NewImpulsePoseReadGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewImpulsePoseReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
             .Forbid(address => SnesAddressMath.BankNumber(address) != 0x91,
                 address => $"Impulse test permits only remaining pose/animation reads, got ${address:X6}.")

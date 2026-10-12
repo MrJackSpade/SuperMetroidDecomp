@@ -1,10 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidFootCoordinateMappingsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidFootCollisionDefinitionsVerification
 {
-    private static void VerifyKraidFootCollisionDefinitions()
+    internal static void VerifyKraidFootCollisionDefinitions()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo walker = typeof(RoomEnemySystem).GetMethod(
@@ -143,4 +155,11 @@ internal static partial class Program
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Kraid-foot collision read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Kraid-foot collision wrote byte ${address:X6}.");
+
+    [VerificationCommand("--kraid-foot-collision")]
+    internal static int KraidFootCollisionCommand()
+    {
+        Suite(nameof(VerifyKraidFootCollisionDefinitions), () => VerifyKraidFootCollisionDefinitions());
+        return 0;
+    }
 }

@@ -1,11 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
+using static LookupStationLayoutsVerification;
+using static LookupStationVisualIdsVerification;
+using static RoomPlmPopulationVerification;
+using static StationAccessPlmDefinitionsVerification;
+using static StationVisualsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class StationAnimationProgramDefinitionsVerification
 {
-    private static void VerifyStationAnimationProgramDefinitions()
+    internal static void VerifyStationAnimationProgramDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -62,5 +77,12 @@ internal static partial class Program
                 AssertEqual(expected, enumerated.Value, "Station original enumerated field");
             }
         }
+    }
+
+    [VerificationCommand("--station-animation-programs")]
+    internal static int StationAnimationProgramsCommand()
+    {
+        Suite(nameof(VerifyStationAnimationProgramDefinitions), () => VerifyStationAnimationProgramDefinitions());
+        return 0;
     }
 }

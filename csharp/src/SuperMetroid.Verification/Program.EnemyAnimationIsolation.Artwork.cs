@@ -1,10 +1,13 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyAnimationIsolationFixtureVerification;
+using static EnemyContentIdentityFixtureVerification;
+using static GoldenTorizoRightOrbFramesVerification;
 
-internal static partial class Program
+internal static class EnemyAnimationIsolationArtworkVerification
 {
-    private static EnemyTileArtworkCatalog CreateEditedEnemyAnimationArtwork()
+    internal static EnemyTileArtworkCatalog CreateEditedEnemyAnimationArtwork()
     {
         var fixture = new EnemyIdentityFixture();
         EnemySpritemapDocument ordinary = fixture.OamDocument();
@@ -60,7 +63,7 @@ internal static partial class Program
     ];
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
+    internal static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
     {
         RoomEnemySlot actor = edited.Actor;
         if (actor.EnemyDefinitionPointer == 0 || actor.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))

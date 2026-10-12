@@ -1,8 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text.Json;
+using static FullRunSuitesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SuiteSchedulingVerification
 {
     /// <summary>
     /// Previous run's elapsed time per suite, read to start the longest suites first. Ignored
@@ -11,10 +25,10 @@ internal static partial class Program
     private const string SuiteDurationsPath = "csharp/test-temp/verification-suite-durations.json";
 
     /// <summary>One suite's result, sent by a worker to the coordinator as a single JSON line.</summary>
-    private sealed record SuiteReport(int Index, bool Passed, double Seconds, string Output, string Error, long PeakWorkingSetBytes);
+    internal sealed record SuiteReport(int Index, bool Passed, double Seconds, string Output, string Error, long PeakWorkingSetBytes);
 
     /// <summary>Runs every suite in this process, in registry order (<c>--serial</c>, <c>--render-contract</c>).</summary>
-    private static void RunSuitesSerially(RegisteredSuite[] suites)
+    internal static void RunSuitesSerially(RegisteredSuite[] suites)
     {
         foreach (RegisteredSuite suite in suites)
             Suite(suite.Name, suite.Body);
@@ -27,7 +41,7 @@ internal static partial class Program
     /// <see cref="Suite"/> records it in a serial run. Separate processes keep every suite's static
     /// and runtime state isolated from suites running at the same time.
     /// </summary>
-    private static void RunSuitesInParallel(RegisteredSuite[] suites)
+    internal static void RunSuitesInParallel(RegisteredSuite[] suites)
     {
         // Workers only read the shared installation; extraction must finish before any of them opens it.
         _ = RepositoryInstallation.Installation;
@@ -108,7 +122,7 @@ internal static partial class Program
     /// from standard input until it closes and answers each with one <see cref="SuiteReport"/> line.
     /// Console output is captured per suite so the coordinator can print it as one block.
     /// </summary>
-    private static int RunSuiteWorker(RegisteredSuite[] suites)
+    internal static int RunSuiteWorker(RegisteredSuite[] suites)
     {
         TextWriter protocol = Console.Out;
         TextWriter processError = Console.Error;
@@ -177,7 +191,7 @@ internal static partial class Program
     }
 
     /// <summary>A <c>--suite-worker</c> child process of this verifier, driven over its standard streams.</summary>
-    private sealed class SuiteWorkerProcess : IDisposable
+    internal sealed class SuiteWorkerProcess : IDisposable
     {
         private readonly Process process;
         private readonly System.Text.StringBuilder unexpectedError = new();
@@ -244,5 +258,38 @@ internal static partial class Program
             }
             process.Dispose();
         }
+    }
+
+    [VerificationCommand("--render-contract")]
+    internal static int RenderContractCommand()
+    {
+        Console.WriteLine("Verifying translated Super Metroid routines...");
+        RunSuitesSerially(RenderContractSuites());
+        if (failedSuites.Count == 0)
+            Console.WriteLine($"Portable render contract passed on {RuntimeInformation.OSDescription}; {RuntimeInformation.FrameworkDescription}.");
+        return 0;
+    }
+
+    /// <summary>The no-argument run: every registered suite, spread across worker processes.</summary>
+    internal static int RunFullSuite() => RunFullSuite(serial: false);
+
+    /// <summary>Every registered suite in this one process, in registration order.</summary>
+    [VerificationCommand("--serial")]
+    internal static int SerialFullSuiteCommand() => RunFullSuite(serial: true);
+
+    /// <summary>The worker process <see cref="RunSuitesInParallel"/> starts.</summary>
+    [VerificationCommand("--suite-worker")]
+    internal static int SuiteWorkerCommand() => RunSuiteWorker(FullRunSuites());
+
+    private static int RunFullSuite(bool serial)
+    {
+        Console.WriteLine("Verifying translated Super Metroid routines...");
+        if (serial)
+            RunSuitesSerially(FullRunSuites());
+        else
+            RunSuitesInParallel(FullRunSuites());
+        if (failedSuites.Count == 0)
+            Console.WriteLine("All bank $80 verification checks passed.");
+        return 0;
     }
 }

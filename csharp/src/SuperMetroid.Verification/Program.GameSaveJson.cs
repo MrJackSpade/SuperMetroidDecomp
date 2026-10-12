@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SaveSchemaTranslationVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class GameSaveJsonVerification
 {
     /// <summary>
     /// Exercises the named JSON schema, canonical native encoding, strict parsing,
     /// atomic replacement, and one-time legacy migration against the retail map packer.
     /// </summary>
-    private static void VerifyGameSaveJsonPersistence()
+    internal static void VerifyGameSaveJsonPersistence()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -159,7 +170,7 @@ internal static partial class Program
             "  JSON saves: named schema, all slot domains, canonical SRAM, strict errors, atomic writes, and legacy migration agree.");
     }
 
-    private static void AssertInvalidJsonSave(string json, string expectedMessagePart)
+    internal static void AssertInvalidJsonSave(string json, string expectedMessagePart)
     {
         try
         {
@@ -172,5 +183,20 @@ internal static partial class Program
             AssertTrue(exception.Message.Contains(expectedMessagePart, StringComparison.OrdinalIgnoreCase),
                 $"invalid JSON save identifies '{expectedMessagePart}'");
         }
+    }
+
+    [VerificationCommand("--game-save-json")]
+    internal static int GameSaveJsonCommand()
+    {
+        Suite(nameof(VerifyGameSaveJsonPersistence), () => VerifyGameSaveJsonPersistence());
+        Suite(nameof(VerifySaveSchemaTranslation), () => VerifySaveSchemaTranslation());
+        return 0;
+    }
+
+    [VerificationCommand("--save-json-persistence")]
+    internal static int SaveJsonPersistenceCommand()
+    {
+        Suite(nameof(VerifyGameSaveJsonPersistence), () => VerifyGameSaveJsonPersistence());
+        return 0;
     }
 }

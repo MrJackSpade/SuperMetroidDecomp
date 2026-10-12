@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EnemyPickupDefinitionsVerification
 {
-    private static void VerifyEnemyPickupDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyEnemyPickupDefinitions(SuperMetroidAddressSpace rom)
     {
         for (int index = 0; index < 6; index++)
         {

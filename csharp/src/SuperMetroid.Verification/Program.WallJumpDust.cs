@@ -1,9 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
+using static WallJumpExpansionVerification;
 
-internal static partial class Program
+internal static class WallJumpDustVerification
 {
-    private static void VerifyWallJumpDust()
+    internal static void VerifyWallJumpDust()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyWallJumpExpansion), () => VerifyWallJumpExpansion(bus));
@@ -39,5 +51,12 @@ internal static partial class Program
             AssertEqual(0x0101, liquid.AtmosphericEffects.Slots[2].FrameAndType, context + " preserves other slot");
         }
         Console.WriteLine("Wall-jump dust: both launch paths match native facing, liquid boundary, timer and slot-preservation outputs.");
+    }
+
+    [VerificationCommand("--wall-jump-dust")]
+    internal static int WallJumpDustCommand()
+    {
+        Suite(nameof(VerifyWallJumpDust), () => VerifyWallJumpDust());
+        return 0;
     }
 }

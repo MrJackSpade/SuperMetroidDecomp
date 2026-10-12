@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupQuakeSoundSuppressionVerification
 {
-    private static void VerifyQuakeSoundSuppression(SuperMetroidAddressSpace rom)
+    internal static void VerifyQuakeSoundSuppression(SuperMetroidAddressSpace rom)
     {
         var nativeRooms = new HashSet<ushort>();
         for (int instruction = 0x8882cd; instruction <= 0x8882e6; instruction += 5)

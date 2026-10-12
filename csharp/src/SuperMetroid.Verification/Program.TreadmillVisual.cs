@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
@@ -5,11 +13,12 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.Core.Rendering;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class TreadmillVisualVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyTreadmillVisual()
+    internal static void VerifyTreadmillVisual()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         using var rooms = JsonDocument.Parse(File.ReadAllText("standalone-assets/maps/room-placements.json"));
@@ -64,5 +73,12 @@ internal static partial class Program
             AssertEqual(4, images.Count, $"{room.Identity} powered floor uploads all four graphics frames");
             AssertEqual(4, renderedFrames.Count, $"{room.Identity} powered floor renders four distinct character frames");
         }
+    }
+
+    [VerificationCommand("--treadmill-visual")]
+    internal static int TreadmillVisualCommand()
+    {
+        Suite(nameof(VerifyTreadmillVisual), () => VerifyTreadmillVisual());
+        return 0;
     }
 }

@@ -6,11 +6,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class EnemyTileArtworkMagdollitePaletteVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Magdollite palette cycle")]
-    private static void VerifyInstalledMagdollitePaletteCycle(
+    internal static void VerifyInstalledMagdollitePaletteCycle(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         MagdollitePaletteCycle native = stock.MagdollitePaletteCycle ??

@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static MotherBrainNeckSineVerification;
+using static Program;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class BombTorizoDroolSineVerification
 {
-    private static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
+    internal static void VerifyBombTorizoDroolSine(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         MethodInfo spawn = typeof(RoomEnemySystem).GetMethod(
@@ -105,4 +118,14 @@ internal static partial class Program
     private static CartridgeReadGuard NewBombTorizoDroolSineReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address => address is >= 0xa0b3c3 and < 0xa0b643,
             address => $"Bomb Torizo drool attempted migrated sine or negative-cosine read ${address:X6}.");
+
+    [VerificationCommand("--remaining-signed-sine-consumers")]
+    internal static int RemainingSignedSineConsumersCommand()
+    {
+        SuperMetroidAddressSpace rom =
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyBombTorizoDroolSine), () => VerifyBombTorizoDroolSine(rom));
+        Suite(nameof(VerifyMotherBrainNeckSine), () => VerifyMotherBrainNeckSine(rom));
+        return 0;
+    }
 }

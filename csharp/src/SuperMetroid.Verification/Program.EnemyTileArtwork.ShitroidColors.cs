@@ -5,12 +5,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkShitroidColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
-    private static void VerifyInstalledShitroidColors(
+    internal static void VerifyInstalledShitroidColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         ShitroidColorCatalog native = stock.ShitroidColors ??

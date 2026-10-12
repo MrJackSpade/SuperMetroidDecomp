@@ -1,9 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SamusAtmosphereArtworkBoundaryVerification
 {
 
     /// <summary>Seeds the WRAM bytes a null bank-$90 atmospheric pointer reads through its system-bank mirror.</summary>
@@ -15,7 +26,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
+    internal static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("samus-atmosphere-boundary");
         string root = rootScratch.Root;
@@ -72,5 +83,13 @@ internal static partial class Program
         {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
+    }
+
+    [VerificationCommand("--samus-atmosphere-artwork-boundary")]
+    internal static int SamusAtmosphereArtworkBoundaryCommand()
+    {
+        string atmosphereRom = RepositoryRomPath;
+        Suite(nameof(VerifySamusAtmosphereArtworkBoundary), () => VerifySamusAtmosphereArtworkBoundary(atmosphereRom));
+        return 0;
     }
 }

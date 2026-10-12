@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static BabyMetroidRouteDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class QuicksandVerification
 {
-    static void VerifyQuicksand()
+    internal static void VerifyQuicksand()
     {
         var bus = new TestAddressSpace();
         RoomLevelData Room(byte bts) => new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x3000, 16).ToArray(), Enumerable.Repeat(bts, 16).ToArray(), new ushort[16]), new byte[8]);
@@ -55,7 +68,7 @@ internal static partial class Program
         Console.WriteLine("  Quicksand: suit/direction branches, sinking contact, pose clearance, and sandfall forces agree.");
     }
 
-    private static void VerifyQuicksandDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyQuicksandDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySpecialAirInsideHeaderMapping), () => VerifySpecialAirInsideHeaderMapping(rom));
         Suite(nameof(VerifySpecialAirInsideSetupMapping), () => VerifySpecialAirInsideSetupMapping(rom));
@@ -242,4 +255,13 @@ internal static partial class Program
                 0x84d6da or 0x84d6db or
                 0x84d6f2 or 0x84d6f3,
             address => $"Quicksand attempted migrated definition read ${address:X6}.");
+
+    [VerificationCommand("--quicksand-definitions")]
+    internal static int QuicksandDefinitionsCommand()
+    {
+        Suite(nameof(VerifyQuicksandDefinitions), () => VerifyQuicksandDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyQuicksand), () => VerifyQuicksand());
+        return 0;
+    }
 }

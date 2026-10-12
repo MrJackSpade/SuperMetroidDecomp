@@ -1,10 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BoyonInstructionProgramDefinitionsVerification
 {
     private static ushort[] BoyonPresentationOracle() =>
         [0x86ad,0x86b1,0x86b5,0x86b9,0x86c5,0x86c9,0x86cd,0x86d1,0x86d5,0x86d9];
@@ -78,13 +88,13 @@ internal static partial class Program
         foreach (ushort address in new ushort[] { 0, 0x7fff, 0xffff })
             AssertThrows<InvalidDataException>(() => EnemySpritemapDefinitions.BoyonFrameAt(address), "Boyon distant visual rejected");
     }
-    private static void VerifyBoyonInstructionProgramDefinitions()
+    internal static void VerifyBoyonInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyBoyonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBoyonInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
             BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
@@ -186,5 +196,12 @@ internal static partial class Program
         return new CartridgeReadGuard(source)
             .Forbid(BoyonInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, Message)
             .ForbidWords(0xa20000, BoyonInstructionProgramDefinitionsTooling.PresentationWordCount, BoyonInstructionProgramDefinitionsTooling.PresentationWordAddress, Message);
+    }
+
+    [VerificationCommand("--boyon-instruction-mechanics")]
+    internal static int BoyonInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyBoyonInstructionProgramDefinitions), () => VerifyBoyonInstructionProgramDefinitions());
+        return 0;
     }
 }

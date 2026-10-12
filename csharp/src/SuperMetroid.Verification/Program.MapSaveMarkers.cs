@@ -8,11 +8,14 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
 using SuperMetroid.Core.Spatial;
+using static InstalledFileSelectMapVerification;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapSaveMarkersVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native save/elevator marker slots per area")]
-    private static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
+    internal static void VerifySaveMarkerEligibility(ISnesAddressSpace bus)
     {
         var expectedIds = new List<string>();
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
@@ -73,7 +76,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapSaveMarkers(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var guard = NewSaveMarkerGuard(bus);
         Suite(nameof(VerifySaveMarkerEligibility), () => VerifySaveMarkerEligibility(bus));

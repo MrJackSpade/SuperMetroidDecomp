@@ -1,14 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingCloudPlacementVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyEndingCloudPlacement()
+    internal static void VerifyEndingCloudPlacement()
     {
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: true));
         Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(checkWrapping: false));
@@ -74,7 +84,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyEndingTakeoffColorMath(bool checkWrapping)
+    internal static void VerifyEndingTakeoffColorMath(bool checkWrapping)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
@@ -144,5 +154,13 @@ internal static partial class Program
             int value = Math.Min(31, (a >> 3) + (b >> 3));
             return (byte)((value << 3) | (value >> 2));
         }
+    }
+
+    [VerificationCommand("--ending-takeoff-wrap")]
+    [VerificationCommand("--ending-takeoff-math")]
+    internal static int EndingTakeoffWrapCommand(string[] args)
+    {
+        Suite(nameof(VerifyEndingTakeoffColorMath), () => VerifyEndingTakeoffColorMath(args[0] == "--ending-takeoff-wrap"));
+        return 0;
     }
 }

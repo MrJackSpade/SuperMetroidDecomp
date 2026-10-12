@@ -1,13 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static BeamPaletteArtworkVerification;
+using static ProjectileCompositionsVerification;
+using static ProjectileTrailArtworkVerification;
+using static ProjectileTrailDefinitionsVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BeamTileArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
+    internal static void VerifyBeamTileArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailDefinitions), () => VerifyProjectileTrailDefinitions(bus));
         Suite(nameof(VerifyProjectileTrailArtwork), () => VerifyProjectileTrailArtwork(bus));
@@ -81,7 +96,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native beam tile artwork fixture")]
-    private static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
+    internal static void LoadNativeBeamFixture(ISnesAddressSpace bus, SnesVram? vram,
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {
         int tileSource = SamusProjectileRomData.Banks.CharacterData |
@@ -146,5 +161,13 @@ internal static partial class Program
         AssertTrue(restored.Vram.Bytes.Slice(start, 256).SequenceEqual(stock.Resolve(BeamTileCatalog.AssetFor(SamusBeamCombination.Wave)).Span),
             "Restored runtime resolves queued beam selection through its bound provider");
         Console.WriteLine("Runtime beam PNG: retained/lag display stability, accepted-NMI refresh after legacy writes, equipment queue and restored provider pass.");
+    }
+
+    [VerificationCommand("--beam-tile-artwork-fixture")]
+    internal static int BeamTileArtworkFixtureCommand()
+    {
+        Suite(nameof(VerifyBeamTileArtwork), () => VerifyBeamTileArtwork(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

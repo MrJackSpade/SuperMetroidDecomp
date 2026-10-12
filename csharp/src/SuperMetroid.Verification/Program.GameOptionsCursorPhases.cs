@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.AssetExtraction;
+using static DoorDefinitionsVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class GameOptionsCursorPhasesVerification
 {
-    private static void VerifyGameOptionsCursorPhases()
+    internal static void VerifyGameOptionsCursorPhases()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -79,12 +89,19 @@ internal static partial class Program
 
     // The cursor spritemap is appended after the heading; its final OAM entry
     // suffices to check that the native X=$0180 anchor is outside the viewport.
-    private static int LastSpriteX(LayeredRenderSnapshot frame)
+    internal static int LastSpriteX(LayeredRenderSnapshot frame)
     {
         int sprite = frame.Memory.ModeledSpriteCount - 1;
         AssertTrue(sprite >= 0, "options has a cursor OAM entry");
         ReadOnlySpan<byte> oam = frame.Memory.Oam;
         int highBits = oam[512 + sprite / 4] >> (2 * (sprite % 4));
         return SnesLittleEndian.Word(oam[sprite * 4], (byte)(highBits & 1));
+    }
+
+    [VerificationCommand("--game-options-cursor-phases")]
+    internal static int GameOptionsCursorPhasesCommand()
+    {
+        Suite(nameof(VerifyGameOptionsCursorPhases), () => VerifyGameOptionsCursorPhases());
+        return 0;
     }
 }

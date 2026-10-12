@@ -3,9 +3,9 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class PermanentMessageFixtureVerification
 {
-    private static GameplayMessageBoxState CreatePermanentMessageFixture()
+    internal static GameplayMessageBoxState CreatePermanentMessageFixture()
     {
         string directory = RepositoryInstallation.Installation.MapDirectory;
         JsonNode Read(string name) => JsonNode.Parse(File.ReadAllText(Path.Combine(directory, name)))!;

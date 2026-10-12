@@ -1,11 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MotherBrainTubeDescentVerification
 {
-    private static int VerifyMotherBrainTubeDescent()
+    internal static int VerifyMotherBrainTubeDescent()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -51,5 +60,11 @@ internal static partial class Program
         AssertEqual((ushort)0x20, enemies.EarthquakeTimer, "Landing retains native earthquake duration");
         Console.WriteLine($"Mother Brain tube descent: {frame + 1} exact trajectory frames, hide threshold and landing passed.");
         return 0;
+    }
+
+    [VerificationCommand("--mother-brain-tube-descent")]
+    internal static int MotherBrainTubeDescentCommand()
+    {
+        return VerifyMotherBrainTubeDescent();
     }
 }

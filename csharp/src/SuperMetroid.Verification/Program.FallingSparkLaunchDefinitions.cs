@@ -2,9 +2,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class FallingSparkLaunchDefinitionsVerification
 {
-    private static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
         var enemies = new RoomEnemySystem();

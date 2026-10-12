@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -5,12 +14,17 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static ProjectileCompositionsVerification;
+using static ProjectileTrailAtlasVerification;
+using static RetailGameFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ProjectileTrailArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled projectile trail program and frame attribute words")]
-    private static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
+    internal static void VerifyProjectileTrailArtwork(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyProjectileTrailAtlas), () => VerifyProjectileTrailAtlas(bus));
         byte[] json = ProjectileTrailExtractor.Extract(bus);
@@ -200,7 +214,7 @@ internal static partial class Program
         AssertTrue(Draw(runtime).SequenceEqual(Draw(restoredRuntime)), "Old state draws current selected trail appearance after rebind");
         AssertEqual(3, restoredRuntime.Projectiles.TrailSlots[0].Left.InstructionTimer, "Trail rebind preserves saved timing");
     }
-    private static void VerifyTrailMutableAlias()
+    internal static void VerifyTrailMutableAlias()
     {
         var mirror = new TrailMutableMirrorBus();
         AssertEqual((ushort)0x3412, ProjectileTrailProgramDefinitions.Read(mirror, 0x900100),
@@ -210,7 +224,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: witnesses that a bank-$90 low-half trail word is read as two typed WRAM mirror bytes")]
-    private sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
+    internal sealed class TrailMutableMirrorBus : ISnesAddressSpace, IImportCartridgeSource, ISnesMutableMemory
     {
         public int WorkRamReads { get; private set; }
 
@@ -235,5 +249,20 @@ internal static partial class Program
 
         public void WriteByte(int address, byte value) =>
             throw new InvalidOperationException($"Unexpected trail write ${address:X6}.");
+    }
+
+    [VerificationCommand("--projectile-trail-artwork-fixture")]
+    internal static int ProjectileTrailArtworkFixtureCommand()
+    {
+        Suite(nameof(VerifyProjectileTrailArtwork), () => VerifyProjectileTrailArtwork(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--trail-mutable-alias")]
+    internal static int TrailMutableAliasCommand()
+    {
+        Suite(nameof(VerifyTrailMutableAlias), () => VerifyTrailMutableAlias());
+        return 0;
     }
 }

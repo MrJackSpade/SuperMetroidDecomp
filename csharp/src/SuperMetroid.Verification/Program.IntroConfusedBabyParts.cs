@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class IntroConfusedBabyPartsVerification
 {
-    private static void VerifyIntroConfusedBabyParts(ISnesAddressSpace rom)
+    internal static void VerifyIntroConfusedBabyParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("ConfusedBaby", value.AppendIdentity);
         foreach (var definition in IntroDiscoveryActorSpriteDefinitions.Frames.Skip(16).Take(3))

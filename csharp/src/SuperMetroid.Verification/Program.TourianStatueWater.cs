@@ -1,3 +1,5 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -10,9 +12,9 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Desktop;
-internal static partial class Program
+internal static class TourianStatueWaterVerification
 {
-    private static int VerifyTourianStatueWater()
+    internal static int VerifyTourianStatueWater()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation = RepositoryInstallation.Installation;
@@ -137,5 +139,11 @@ internal static partial class Program
         AssertEqual((ushort)0xb1, runtime.RoomLayer3Fx.CurrentYPosition, "Frozen HDMA retains the current water surface");
         Console.WriteLine("Four-statues water: actual FX, liquid publication, visible BG3 pixels and independent statue descent verified.");
         return 0;
+    }
+
+    [VerificationCommand("--tourian-statue-water")]
+    internal static int TourianStatueWaterCommand()
+    {
+        return VerifyTourianStatueWater();
     }
 }

@@ -3,8 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupAtmosphereTilemapsVerification
 {
     private static void VerifyRainTilePalette(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock) =>
         Suite(nameof(VerifyAtmosphereTileField), () => VerifyAtmosphereTileField(rom, stock, RoomFxType.Rain, 0x1c00));
@@ -77,7 +79,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for atmosphere tilemap domain and edits")]
     private static byte AtmosphereTilemapDomainAndEditsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifyAtmosphereTilemapFields(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifyRainTilePalette), () => VerifyRainTilePalette(rom, stock));
         Suite(nameof(VerifyFogTilePalette), () => VerifyFogTilePalette(rom, stock));

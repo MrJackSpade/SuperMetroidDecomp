@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SpcFirAddressingVerification
 {
     [DspRegisterBoundary("exact register test: checks S-DSP register behaviour")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for SPC FIR addressing")]
-    private static void VerifySpcFirAddressing()
+    internal static void VerifySpcFirAddressing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -45,5 +55,12 @@ internal static partial class Program
             AssertEqual((ushort)0x6003, channel.PatternOrderPointer, "F7 consumes exactly three operands");
         }
         Console.WriteLine("SPC FIR: all256 byte presets preserve native low-byte indexing and mutable RAM reads.");
+    }
+
+    [VerificationCommand("--lookup-spc-fir-addressing")]
+    internal static int LookupSpcFirAddressingCommand()
+    {
+        Suite(nameof(VerifySpcFirAddressing), () => VerifySpcFirAddressing());
+        return 0;
     }
 }

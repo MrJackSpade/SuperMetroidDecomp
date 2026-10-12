@@ -1,12 +1,13 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MenuFontEvidenceVerification;
 
-internal static partial class Program
+internal static class MenuSmallFontPixelsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu small font pixels")]
-    private static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)
+    internal static void VerifyMenuSmallFontPixels(ISnesAddressSpace rom)
     {
         var files = MapSpriteExtractor.Extract(rom);
         byte[] json = files[MapSpriteFormat.JsonFile];

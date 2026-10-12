@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FileSelectSlotDestinationsVerification
 {
-    private static void VerifyFileSelectSlotDestinations()
+    internal static void VerifyFileSelectSlotDestinations()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -86,4 +96,12 @@ internal static partial class Program
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for file select slot label sources")]
     private static byte FileSelectSlotLabelSourcesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
+
+    [VerificationCommand("--lookup-file-select-slot-fields")]
+    internal static int LookupFileSelectSlotFieldsCommand()
+    {
+        Suite(nameof(VerifyFileSelectSlotDestinations), () => VerifyFileSelectSlotDestinations());
+        Console.WriteLine("File-select slot fields: all 24 original destinations, both slot-label source views, extracted anchors/text and bounds pass.");
+        return 0;
+    }
 }

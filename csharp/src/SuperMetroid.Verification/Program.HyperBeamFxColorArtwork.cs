@@ -5,11 +5,13 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static ProjectileCompositionsVerification;
 
-internal static partial class Program
+internal static class HyperBeamFxColorArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
+    internal static void VerifyHyperBeamFxColorArtwork(ISnesAddressSpace bus)
     {
         byte[] json = HyperBeamFxColorExtractor.Extract(bus);
         var catalog = HyperBeamFxColorCatalog.Load(new MemoryStream(json));

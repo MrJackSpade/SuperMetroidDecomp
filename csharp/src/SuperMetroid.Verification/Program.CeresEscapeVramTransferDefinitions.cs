@@ -1,3 +1,13 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
@@ -5,10 +15,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresEscapeVramTransferDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape VRAM transfer definitions")]
-    private static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
+    internal static void VerifyCeresEscapeVramTransferDefinitions(ISnesAddressSpace rom)
     {
         IReadOnlyList<CeresEscapeVramTransferDefinition> records =
             CeresEscapeVramTransferDefinitionsTooling.All;
@@ -146,4 +156,12 @@ internal static partial class Program
                 IndexedTilePageExtractor.Extract(rom, page.SourceAddress,
                     page.ByteCount, page.FileName), writable: false),
                 page.ByteCount)).ToArray();
+
+    [VerificationCommand("--ceres-escape-transfers")]
+    internal static int CeresEscapeTransfersCommand()
+    {
+        Suite(nameof(VerifyCeresEscapeVramTransferDefinitions), () => VerifyCeresEscapeVramTransferDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

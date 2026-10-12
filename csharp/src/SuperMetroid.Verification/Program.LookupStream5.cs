@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
@@ -6,10 +14,19 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Spatial;
+using static CeresDoorQuakeDefinitionsVerification;
+using static ColorWordsVerification;
+using static CrocomireMeltingDefinitionsVerification;
+using static CrocomireSkeletonArtworkVerification;
+using static DoorDefinitionsVerification;
+using static EnemyTileArtworkPhantoonBg2FramesVerification;
+using static ImportedSpritemapsVerification;
+using static PhantoonPatternsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupStream5Verification
 {
-    private static void VerifyLookupStream5MeltingTilemaps()
+    internal static void VerifyLookupStream5MeltingTilemaps()
     {
         var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -57,7 +74,7 @@ internal static partial class Program
         }
         finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
     }
-    private static void VerifyLookupStream5SkeletonTransfers()
+    internal static void VerifyLookupStream5SkeletonTransfers()
     {
         var oracle = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -83,7 +100,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyLookupStream5CeresRumble(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresRumble(SuperMetroidAddressSpace rom)
     {
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Rumble native revision");
@@ -131,7 +148,7 @@ internal static partial class Program
         }
         Console.WriteLine("Ceres rumble: eight native words, bounds, 98 actual calls, 20 emitted native positions/order/animations, wrap and expiry pass.");
     }
-    private static void VerifyLookupStream5PhantoonRainWait(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonRainWait(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int totalTicks = 0;
@@ -188,7 +205,7 @@ internal static partial class Program
         AssertEqual(210, totalTicks, "Three exact native hidden wait lengths");
         Console.WriteLine("Phantoon rain wait:30/60/120 holds,210actual countdown calls,fade-gated selection/exact expiry RNG-placement and24real rain spawns pass.");
     }
-    private static void VerifyLookupStream5PhantoonClosedEye(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonClosedEye(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int totalTicks = 0;
@@ -245,7 +262,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres platform")]
-    private static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresPlatform(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
         {
@@ -334,7 +351,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyLookupStream5PhantoonExposure(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonExposure(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         int ticks = 0;
@@ -389,7 +406,7 @@ internal static partial class Program
         AssertEqual(210, ticks, "All three actual exposure lengths and both expiry branches");
         Console.WriteLine("Phantoon exposure: three native window lengths,210 actual countdown calls, exact collision/shot/close transitions and separate swoop hold pass.");
     }
-    private static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresOverlayWords(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.CeresEscapeOverlayTilemapFiles.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<CeresEscapeOverlayTilemapDocument>(json, new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web))!;
@@ -448,7 +465,7 @@ internal static partial class Program
         }
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CrocomireSharedPaint(SuperMetroidAddressSpace rom)
     {
         int[] sources = [CrocomirePaletteRomData.FightBodySource, CrocomirePaletteRomData.InitialWallSource,
             CrocomirePaletteRomData.InitialProjectileSource, CrocomirePaletteRomData.SkeletonArmSource, CrocomirePaletteRomData.WallSpikesSource];
@@ -517,7 +534,7 @@ internal static partial class Program
             return result;
         }
     }
-    private static void VerifyLookupStream5CeresSourcePages()
+    internal static void VerifyLookupStream5CeresSourcePages()
     {
         CeresEscapeTileSheetDefinition[] tilePages = [new(0xb7da00, 0x900, "ceres-escape-warning-tiles.png"), new(0xb0ba00, 0x600, "ceres-escape-door-tiles.png")];
         AssertTrue(tilePages.SequenceEqual(CeresEscapeTileArtworkDefinitions.All), "Original named character page order/source/extent/file");
@@ -542,7 +559,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => _ = CeresEscapeOverlayTilemapDefinitions.All[5], "Overlay upper bound");
         Console.WriteLine("Ceres source page cases: two character sheets/five overlays preserve exact identities, order, extents, enumeration and range domains.");
     }
-    private static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MapLandmarkCases(SuperMetroidAddressSpace rom)
     {
         byte[] extracted = SuperMetroid.AssetExtraction.MapLandmarkExtractor.Extract(rom);
         MapLandmarkLayout layout = MapLandmarkLayout.Load(new MemoryStream(extracted));
@@ -652,7 +669,7 @@ internal static partial class Program
         AssertEqual(17, elevatorSlots, "Seventeen native destination labels");
         Console.WriteLine("Map landmark cases: eight native boss slots, seventeen destinations, extraction/schema, 23 ordered IDs, bounds and 56 stock/edited ordered OAM/state cases pass.");
     }
-    private static void VerifyLookupStream5PhantoonCollision(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonCollision(SuperMetroidAddressSpace rom)
     {
         int componentCount = 0;
         var lists = new HashSet<ushort>();
@@ -701,7 +718,7 @@ internal static partial class Program
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.HitboxesAt(0), "Hitbox domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");
     }
-    private static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonFade(SuperMetroidAddressSpace rom)
     {
         byte[] bytes = SuperMetroid.AssetExtraction.PhantoonColorExtractor.Extract(rom);
         PhantoonColorDocument document = System.Text.Json.JsonSerializer.Deserialize<PhantoonColorDocument>(bytes,
@@ -794,7 +811,7 @@ internal static partial class Program
             return result;
         }
     }
-    private static void VerifyLookupStream5MapButtons(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MapButtons(SuperMetroidAddressSpace rom)
     {
         var native = new ushort[4];
         for (int i = 0; i < native.Length; i++)
@@ -829,7 +846,7 @@ internal static partial class Program
         Console.WriteLine("Map buttons: four native semantic cases, domain bounds, four-direction pulses, release and priority pass.");
     }
 
-    private sealed class LookupStream5ScrollMap : IAreaMapView
+    internal sealed class LookupStream5ScrollMap : IAreaMapView
     {
         public AreaId Area => AreaId.Crateria;
         public MapTileWord GetTile(Position16<MapTiles> cell) => default;
@@ -840,7 +857,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Zebes star fields")]
-    private static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5ZebesStarFields(SuperMetroidAddressSpace rom)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
@@ -919,7 +936,7 @@ internal static partial class Program
         }
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5StatueRamps(SuperMetroidAddressSpace rom)
     {
         byte[] nativeJson = SuperMetroid.AssetExtraction.TourianStatueColorExtractor.Extract(rom);
         var document = System.Text.Json.JsonSerializer.Deserialize<TourianStatueColorDocument>(nativeJson,
@@ -1001,7 +1018,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon markers")]
-    private static void VerifyLookupStream5PhantoonMarkers(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonMarkers(SuperMetroidAddressSpace rom)
     {
         AssertEqual(SuperMetroid.AssetExtraction.SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Marker reference ROM revision");
@@ -1038,7 +1055,7 @@ internal static partial class Program
 
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MagdollitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.MagdollitePaletteCycleExtractor.Extract(rom);
         var native = System.Text.Json.JsonSerializer.Deserialize<MagdollitePaletteCycleDocument>(json,
@@ -1088,7 +1105,7 @@ internal static partial class Program
         }
     }
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5ZebetitePulse(SuperMetroidAddressSpace rom)
     {
         byte[] json = SuperMetroid.AssetExtraction.ZebetiteColorExtractor.Extract(rom);
         var native = System.Text.Json.JsonSerializer.Deserialize<ZebetiteColorDocument>(json,
@@ -1139,7 +1156,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Yapping Maw offsets")]
-    private static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5YappingMawOffsets(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Static | BindingFlags.NonPublic;
         var begin = typeof(RoomEnemySystem).GetMethod("BeginYappingMawExtension", flags)!
@@ -1177,7 +1194,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Eye geometry")]
-    private static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5EyeGeometry(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int direction = 0; direction < 4; direction++)
@@ -1229,7 +1246,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for map highlight")]
-    private static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5MapHighlight(SuperMetroidAddressSpace rom)
     {
         var frames = Enumerable.Range(0, 14).Select(frame => new MapPaletteCycleFrame
         {
@@ -1287,7 +1304,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyLookupStream5SidehopperGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5SidehopperGeometry(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         ushort Word(int address) => ReadVerificationWord(rom, address);
@@ -1375,7 +1392,7 @@ internal static partial class Program
         Enumerable.Range(0, count).Select(offset => rom.ReadCartridgeByte(address + offset)).ToArray();
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the dead Tourian corpse fixture artwork")]
-    private static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
+    internal static EnemyTileArtworkCatalog LookupStream5CorpseFixtureArtwork(SuperMetroidAddressSpace rom)
     {
         byte[] planar = Enumerable.Range(0,DeadTourianCorpseArtworkDefinitions.ByteCount)
             .Select(index => rom.ReadCartridgeByte(DeadTourianCorpseArtworkDefinitions.SourceAddress+index)).ToArray();
@@ -1396,7 +1413,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon rain")]
-    private static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5PhantoonRain(SuperMetroidAddressSpace rom)
     {
         for (int i = 0; i < 8; i++)
         {
@@ -1481,7 +1498,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door ramp")]
-    private static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresDoorRamp(SuperMetroidAddressSpace rom)
     {
         var document = new CeresDoorVisualDocument
         {
@@ -1568,7 +1585,7 @@ internal static partial class Program
             AssertEqual(identity,actual.ContentIdentity,"Ceres calculated colors preserve canonical resource identity");
         }
     }
-    private static void VerifyLookupStream5CorpseViews()
+    internal static void VerifyLookupStream5CorpseViews()
     {
         var expected = new List<DeadMonsterVramTransferDefinition>();
         foreach (ushort table in new ushort[] { 0xe0e0, 0xe10a, 0xe134, 0xe146, 0xe158, 0xe16a, 0xe17c, 0xe18e, 0xe1b0, 0xe1d2 })
@@ -1591,7 +1608,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SandSource(16), "sand source past end rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => DeadMonsterRottingDefinitions.SandDestination(16), "sand destination past end rejected");
     }
-    private static void VerifyLookupStream5ActorLayouts(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream5ActorLayouts(ISnesAddressSpace rom)
     {
         var flight = Enumerable.Range(0, 5).Select(index =>
         {
@@ -1681,7 +1698,7 @@ internal static partial class Program
             }
         }
     }
-    private static void VerifyLookupStream5Initialization(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream5Initialization(ISnesAddressSpace rom)
     {
         for (ushort variant = 0; variant < 7; variant++)
         {
@@ -1712,7 +1729,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = CeresEscapeVramTransferDefinitionsTooling.All[19]; }, "Ceres DMA list upper bound");
         Console.WriteLine("Stream 5 initialization: all 53 native selector/phase words and rejected domains pass.");
     }
-    private static void VerifyLookupStream5PaletteEntries(ISnesAddressSpace rom)
+    internal static void VerifyLookupStream5PaletteEntries(ISnesAddressSpace rom)
     {
         // Ceres light entries carry no identity; their native definition/program pairs are
         // the compiled owner constants, checked against the original definition list.
@@ -1798,7 +1815,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Ceres door earthquake offsets")]
-    private static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5DoorQuakeDecoding(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
         byte[] stockJson = SuperMetroid.AssetExtraction.EnemySpritemapFiles.Extract(rom);
@@ -1836,7 +1853,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres flight palette")]
-    private static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresFlightPalette(SuperMetroidAddressSpace rom)
     {
         var colors = new PaletteRgb5[SnesCgram.ColorCount];
         for (int index = 0; index < colors.Length; index++)
@@ -1906,7 +1923,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres normal paint")]
-    private static void VerifyLookupStream5CeresNormalPaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresNormalPaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
         {
@@ -1973,7 +1990,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape paint")]
-    private static void VerifyLookupStream5CeresEscapePaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresEscapePaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
         {
@@ -2039,7 +2056,7 @@ internal static partial class Program
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres beacon paint")]
-    private static void VerifyLookupStream5CeresBeaconPaint(SuperMetroidAddressSpace rom)
+    internal static void VerifyLookupStream5CeresBeaconPaint(SuperMetroidAddressSpace rom)
     {
         PaletteRgb5[] Colors(int source, int count) => Enumerable.Range(0, count).Select(i =>
         {
@@ -2107,5 +2124,122 @@ internal static partial class Program
             AssertEqual(identity, visual.ContentIdentity, "Beacon edits preserve normal/escape/platform and canonical hash");
             return basis;
         }
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-normal-paint")]
+    internal static int LookupStream5CeresNormalPaintCommand()
+    {
+        Suite(nameof(VerifyLookupStream5CeresNormalPaint), () => VerifyLookupStream5CeresNormalPaint(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-escape-paint")]
+    internal static int LookupStream5CeresEscapePaintCommand()
+    {
+        Suite(nameof(VerifyLookupStream5CeresEscapePaint), () => VerifyLookupStream5CeresEscapePaint(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-beacon-paint")]
+    internal static int LookupStream5CeresBeaconPaintCommand()
+    {
+        Suite(nameof(VerifyLookupStream5CeresBeaconPaint), () => VerifyLookupStream5CeresBeaconPaint(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-rumble")]
+    internal static int LookupStream5CeresRumbleCommand()
+    {
+        Suite(nameof(VerifyLookupStream5CeresRumble), () => VerifyLookupStream5CeresRumble(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-zebes-star-fields")]
+    internal static int LookupStream5ZebesStarFieldsCommand()
+    {
+        Suite(nameof(VerifyLookupStream5ZebesStarFields), () => VerifyLookupStream5ZebesStarFields(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-statue-ramps")]
+    internal static int LookupStream5StatueRampsCommand()
+    {
+        Suite(nameof(VerifyLookupStream5StatueRamps), () => VerifyLookupStream5StatueRamps(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-phantoon-markers")]
+    internal static int LookupStream5PhantoonMarkersCommand()
+    {
+        Suite(nameof(VerifyLookupStream5PhantoonMarkers), () => VerifyLookupStream5PhantoonMarkers(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-magdollite-pulse")]
+    internal static int LookupStream5MagdollitePulseCommand()
+    {
+        Suite(nameof(VerifyLookupStream5MagdollitePulse), () => VerifyLookupStream5MagdollitePulse(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-zebetite-pulse")]
+    internal static int LookupStream5ZebetitePulseCommand()
+    {
+        Suite(nameof(VerifyLookupStream5ZebetitePulse), () => VerifyLookupStream5ZebetitePulse(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-yapping-maw-offsets")]
+    internal static int LookupStream5YappingMawOffsetsCommand()
+    {
+        Suite(nameof(VerifyLookupStream5YappingMawOffsets), () => VerifyLookupStream5YappingMawOffsets(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-eye-geometry")]
+    internal static int LookupStream5EyeGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream5EyeGeometry), () => VerifyLookupStream5EyeGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-map-highlight")]
+    internal static int LookupStream5MapHighlightCommand()
+    {
+        Suite(nameof(VerifyLookupStream5MapHighlight), () => VerifyLookupStream5MapHighlight(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-sidehopper-geometry")]
+    internal static int LookupStream5SidehopperGeometryCommand()
+    {
+        Suite(nameof(VerifyLookupStream5SidehopperGeometry), () => VerifyLookupStream5SidehopperGeometry(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-phantoon-rain")]
+    internal static int LookupStream5PhantoonRainCommand()
+    {
+        Suite(nameof(VerifyLookupStream5PhantoonRain), () => VerifyLookupStream5PhantoonRain(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-ceres-door-ramp")]
+    internal static int LookupStream5CeresDoorRampCommand()
+    {
+        Suite(nameof(VerifyLookupStream5CeresDoorRamp), () => VerifyLookupStream5CeresDoorRamp(CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
+
+    [VerificationCommand("--lookup-stream5-skeleton-transfers")]
+    internal static int LookupStream5SkeletonTransfersCommand()
+    {
+     VerifyLookupStream5SkeletonTransfers(); return 0; 
+    }
+
+    [VerificationCommand("--lookup-stream5-melting-tilemaps")]
+    internal static int LookupStream5MeltingTilemapsCommand()
+    {
+     VerifyLookupStream5MeltingTilemaps(); return 0; 
     }
 }

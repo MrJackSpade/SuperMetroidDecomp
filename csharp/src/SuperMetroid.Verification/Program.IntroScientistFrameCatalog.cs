@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroScientistFrameCatalogVerification
 {
-    private static void VerifyIntroScientistFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyIntroScientistFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["examined-loop-1", "examined-loop-2", "examined-loop-3",
             "delivered-baby-1", "delivered-baby-2", "delivered-baby-3",

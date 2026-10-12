@@ -1,12 +1,16 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class LookupElevatorPlatformLayoutsVerification
 {
-    private static void VerifyElevatorPlatformLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 0);
-    private static void VerifyElevatorPlatformLayoutCollision(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 1);
-    private static void VerifyElevatorPlatformLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 2);
+    internal static void VerifyElevatorPlatformLayoutGeometry(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 0);
+    internal static void VerifyElevatorPlatformLayoutCollision(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 1);
+    internal static void VerifyElevatorPlatformLayoutVisuals(SuperMetroidAddressSpace rom) => VerifyElevatorPlatformLayoutDrawField(rom, 2);
 
     private static void VerifyElevatorPlatformLayoutDrawField(SuperMetroidAddressSpace rom, int field)
     {

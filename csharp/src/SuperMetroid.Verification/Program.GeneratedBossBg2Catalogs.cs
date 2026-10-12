@@ -2,9 +2,9 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class GeneratedBossBg2CatalogsVerification
 {
-    private static void VerifyPhantoonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
+    internal static void VerifyPhantoonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected =
         [
@@ -39,7 +39,7 @@ internal static partial class Program
             AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
                 "Phantoon generated catalog loads native stream");
     }
-    private static void VerifyDraygonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
+    internal static void VerifyDraygonGeneratedBg2Catalog(SuperMetroidAddressSpace rom)
     {
         EnemyBg2FrameDefinition[] expected =
         [

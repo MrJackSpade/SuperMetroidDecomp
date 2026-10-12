@@ -1,16 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class SquareSlopeBeamCollisionVerification
 {
     /// <summary>
     /// A beam meeting a square slope tests its quarter cells ($94:A66A) rather than passing
     /// through it as air. The 100% movie's falling beams hit such a slope at one height and
     /// pass it at another.
     /// </summary>
-    private static void VerifySquareSlopeBeamCollision()
+    internal static void VerifySquareSlopeBeamCollision()
     {
         // Samus at Y 490 fires a beam spanning Y 482-489: it crosses the slope row's midline.
         AssertEqual(true, BeamExplodesAtSlope(slopeBts: 0x00),
@@ -71,5 +81,12 @@ internal static partial class Program
             }
         }
         throw new InvalidOperationException("The beam reached neither the slope nor the wall.");
+    }
+
+    [VerificationCommand("--square-slope-beam-collision")]
+    internal static int SquareSlopeBeamCollisionCommand()
+    {
+        Suite(nameof(VerifySquareSlopeBeamCollision), () => VerifySquareSlopeBeamCollision());
+        return 0;
     }
 }

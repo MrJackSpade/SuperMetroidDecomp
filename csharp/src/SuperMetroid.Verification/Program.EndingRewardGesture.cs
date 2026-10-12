@@ -1,14 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static EndingCloudMotionVerification;
+using static EndingLogoVerification;
+using static EndingPostShotVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingRewardGestureVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for reward icon graphics and upload tables")]
-    private static void VerifyEndingRewardGesture()
+    internal static void VerifyEndingRewardGesture()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         Suite(nameof(VerifyEndingRewardActorDefinitions), () => VerifyEndingRewardActorDefinitions(bus));
@@ -120,7 +132,7 @@ internal static partial class Program
         [0x8be3a1, 0x8be3a7, 0x8be385, 0x8be37f, 0x8be379, 0x8be38d, 0x8bf51e, 0x8bf575, 0x8bf55d, 0x8bf56a];
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending reward actor definitions")]
-    private static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
+    internal static void VerifyEndingRewardActorDefinitions(ISnesAddressSpace bus)
     {
 
         // Original LDY operands independently identify all ten records.
@@ -169,5 +181,12 @@ internal static partial class Program
         }
         return new CartridgeReadGuard(source).Forbid(forbidden.Contains,
             address => $"Ending reward actor reread definition byte ${address:X6}.");
+    }
+
+    [VerificationCommand("--ending-reward-definitions")]
+    internal static int EndingRewardDefinitionsCommand()
+    {
+        Suite(nameof(VerifyEndingRewardGesture), () => VerifyEndingRewardGesture());
+        return 0;
     }
 }

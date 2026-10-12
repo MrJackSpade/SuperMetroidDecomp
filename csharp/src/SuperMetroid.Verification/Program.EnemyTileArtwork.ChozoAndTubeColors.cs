@@ -5,12 +5,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkChozoAndTubeColorsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Chozo and tube palette bands")]
-    private static void VerifyInstalledChozoAndTubeColors(
+    internal static void VerifyInstalledChozoAndTubeColors(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         ChozoAndTubeColorCatalog native = stock.ChozoAndTubeColors ??

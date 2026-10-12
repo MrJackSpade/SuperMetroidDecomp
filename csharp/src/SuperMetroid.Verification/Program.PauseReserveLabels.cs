@@ -1,3 +1,9 @@
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -6,11 +12,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static PauseEquipmentRulesVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseReserveLabelsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause reserve label tilemaps")]
-    private static void VerifyPauseReserveLabels()
+    internal static void VerifyPauseReserveLabels()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (ushort capacity in new ushort[] { 0, 100 })
@@ -60,5 +68,12 @@ internal static partial class Program
                 $"visible reserve labels match native ownership/mode ({capacity}/{mode})");
         }
         Console.WriteLine("Pause reserve labels: six ownership/mode cases match native rendered labels.");
+    }
+
+    [VerificationCommand("--pause-reserve-labels")]
+    internal static int PauseReserveLabelsCommand()
+    {
+        Suite(nameof(VerifyPauseReserveLabels), () => VerifyPauseReserveLabels());
+        return 0;
     }
 }

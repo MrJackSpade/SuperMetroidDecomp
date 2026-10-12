@@ -7,11 +7,13 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using static GraphDigestVerification;
+using static PauseEquipmentRulesVerification;
 
-internal static partial class Program
+internal static class PauseWireframesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the pause wireframe artwork")]
-    private static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyPauseWireframes(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         Directory.CreateDirectory(overrides);
         string stockPath = Path.Combine(stock, PauseWireframeDefinitions.FileName), path = Path.Combine(overrides, PauseWireframeDefinitions.FileName);

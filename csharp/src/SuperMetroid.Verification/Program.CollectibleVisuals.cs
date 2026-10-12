@@ -1,13 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static CollectiblesVerification;
+using static LookupCollectibleDrawsVerification;
+using static LookupCollectibleSelectorsVerification;
+using static LookupCollectibleStockVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CollectibleVisualsVerification
 {
-    private static void VerifyCollectibleVisuals()
+    internal static void VerifyCollectibleVisuals()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -164,7 +178,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for collectible visual words")]
-    private static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
+    internal static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
         ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
 
     private static CartridgeReadGuard NewCollectibleDrawReadGuard(ISnesAddressSpace source)
@@ -180,5 +194,12 @@ internal static partial class Program
                 blocked.Add(0x840000 | checked((ushort)(table + offset)));
         return new CartridgeReadGuard(source).Forbid(blocked.Contains,
             address => $"Live collectible read compiled draw or selector byte ${address:X6}.");
+    }
+
+    [VerificationCommand("--collectible-visuals")]
+    internal static int CollectibleVisualsCommand()
+    {
+        Suite(nameof(VerifyCollectibleVisuals), () => VerifyCollectibleVisuals());
+        return 0;
     }
 }

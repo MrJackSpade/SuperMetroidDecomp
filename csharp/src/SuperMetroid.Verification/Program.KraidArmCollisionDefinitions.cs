@@ -1,9 +1,14 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidArmCallbackMappingsVerification;
+using static KraidArmComponentHitboxesVerification;
+using static KraidArmInstructionProgramDefinitionsVerification;
+using static KraidArmPhysicalFrameMappingsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidArmCollisionDefinitionsVerification
 {
-    private static void VerifyKraidArmCollisionDefinitions(
+    internal static void VerifyKraidArmCollisionDefinitions(
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidArmComponentHitboxes), () => VerifyKraidArmComponentHitboxes(rom));
@@ -20,7 +25,7 @@ internal static partial class Program
             "and 24 rectangles/callback pairs match the retail ROM.");
     }
 
-    private static void VerifyKraidArmHitboxListSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidArmHitboxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native arm-list identities, independently transcribed from bank_A7.asm.
         // Counts, ordering and selected geometry are checked against the ROM;

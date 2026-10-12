@@ -1,15 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static HardwareVerification;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemySpriteArtworkBoundaryVerification
 {
     /// <summary>Verifies the statically identified enemy OAM owners after deleting their address readers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile presentation spritemap pointers")]
-    private static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
+    internal static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
         using var temporary = new TestScratchDirectory("map-catalog");
         var installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
@@ -108,5 +121,13 @@ internal static partial class Program
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, context + " count");
             AssertTrue(expected.ImageEquals(actual), context + " packed OAM");
         }
+    }
+
+    [VerificationCommand("--enemy-sprite-artwork-boundary")]
+    internal static int EnemySpriteArtworkBoundaryCommand()
+    {
+        string enemySpriteRom = RepositoryRomPath;
+        Suite(nameof(VerifyEnemySpriteArtworkBoundary), () => VerifyEnemySpriteArtworkBoundary(enemySpriteRom));
+        return 0;
     }
 }

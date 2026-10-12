@@ -2,11 +2,13 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MotherBrainFakeDeathPaletteVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed Mother Brain fake-death palette")]
-    private static void VerifyMotherBrainFakeDeathPalette(
+    internal static void VerifyMotherBrainFakeDeathPalette(
         ISnesAddressSpace rom, MotherBrainRainbowPalettePresentation installed)
     {
         Suite(nameof(VerifyFade), () => VerifyFade(toGrey: true));
@@ -71,7 +73,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static (Bgr555[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
+    internal static (Bgr555[] Colors, ushort FunctionTimer, MotherBrainBodyFunction Function)
         CaptureFakeDeathPaletteFrame(MotherBrainRainbowPalettePresentation colors, bool toGrey)
     {
         var cgram = new SnesCgram();

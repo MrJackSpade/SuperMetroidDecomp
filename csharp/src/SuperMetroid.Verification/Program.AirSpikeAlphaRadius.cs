@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class AirSpikeAlphaRadiusVerification
 {
     /// <summary>
     /// Air spikes are sampled by <c>$94:9B60</c> after alpha's SetSamusRadius, so a pose whose
     /// radius grew in the previous beta reaches them with its new body. The 13% movie's
     /// diagonal jump ($1A to $6A, radius 12 to 19) takes air-spike damage this way.
     /// </summary>
-    private static void VerifyAirSpikeAlphaRadius()
+    internal static void VerifyAirSpikeAlphaRadius()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus);
@@ -51,5 +62,12 @@ internal static partial class Program
         AssertTrue(samus.KnockbackTimer != 0, "the air spike starts its knockback window");
         AssertTrue(samus.Health < health, "the air spike deals its damage");
         Console.WriteLine("  Air spike alpha radius: the refreshed standing body reaches the spike.");
+    }
+
+    [VerificationCommand("--air-spike-alpha-radius")]
+    internal static int AirSpikeAlphaRadiusCommand()
+    {
+        Suite(nameof(VerifyAirSpikeAlphaRadius), () => VerifyAirSpikeAlphaRadius());
+        return 0;
     }
 }

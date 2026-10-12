@@ -3,12 +3,13 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class ImportedSpritemapsVerification
 {
     // These adapters require an import source at the diagnostic boundary. Core has no
     // address-based artwork loader, including when tests use constructed cartridge data.
-    private static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, EnemySpritemapDraw draw) =>
+    internal static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, EnemySpritemapDraw draw) =>
         ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, draw);
 
     /// <summary>
@@ -17,13 +18,13 @@ internal static partial class Program
     /// for such a frame is the word stored at that operand in bank $86.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the bank-$86 spritemap word an installed-presentation enemy projectile operand names")]
-    private static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, RoomEnemyProjectileSlot projectile) =>
+    internal static ushort NativeEnemyProjectileSpritemap(ISnesAddressSpace bus, RoomEnemyProjectileSlot projectile) =>
         projectile.PresentationOperandAddress != 0
             ? SuperMetroid.Core.Rom.RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                 0x860000 | projectile.PresentationOperandAddress)
             : projectile.SpritemapPointer;
 
-    private static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
+    internal static void DrawImportedEnemyProjectileSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
         ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
@@ -51,7 +52,7 @@ internal static partial class Program
                 ProgramFrames = programs,
             })));
     }
-    private static void VerifyExecutedEnemySelector(ISnesAddressSpace rom,
+    internal static void VerifyExecutedEnemySelector(ISnesAddressSpace rom,
         RoomEnemySlot slot, HashSet<ushort> executedOperands)
     {
         if (slot.InstructionTimer == 0) return;
@@ -68,7 +69,7 @@ internal static partial class Program
     // Confirm the visual actually selected by a timed instruction, whether its owner
     // carries an installed operand or a legacy compiled sprite identity.
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
+    internal static void VerifyExecutedProjectileFrame(ISnesAddressSpace rom,
         RoomEnemyProjectileSlot projectile, EnemyProjectileSpritemapCatalog artwork,
         HashSet<ushort> executedOperands, ushort? expectedOperand = null)
     {

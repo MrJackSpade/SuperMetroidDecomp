@@ -1,11 +1,13 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupRetailPlmHeadersVerification
 {
-    private static void VerifyRetailPlmHeaderSetups(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyRetailPlmHeaderSetups(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, false));
-    private static void VerifyRetailPlmHeaderInstructions(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyRetailPlmHeaderInstructions(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyRetailPlmHeaderField), () => VerifyRetailPlmHeaderField(rom, true));
 
     private static void VerifyRetailPlmHeaderField(SuperMetroidAddressSpace rom, bool instruction)

@@ -2,10 +2,11 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BotwoonSpeedsVerification
 {
-    private static void VerifyCompiledBotwoonSpeeds(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledBotwoonSpeeds(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyBotwoonSpeedAlgorithm), () => VerifyBotwoonSpeedAlgorithm(rom));
         Suite(nameof(VerifyBotwoonSpacingAlgorithm), () => VerifyBotwoonSpacingAlgorithm(rom));

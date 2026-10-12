@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 
-internal static partial class Program
+internal static class GoldenTorizoRoomSetupVerification
 {
     /// <summary>
     /// A newly loaded Golden Torizo is still an immobile statue. Injecting a
@@ -32,7 +32,7 @@ internal static partial class Program
     /// selecting a callable turn. The fixture preserves the cartridge's room
     /// and enemy population; only the instruction cursor is chosen for coverage.
     /// </summary>
-    private static void ForceGoldenTorizoLeftTurn(
+    internal static void ForceGoldenTorizoLeftTurn(
         SuperMetroidGame native, SuperMetroidGame installed, ushort instruction)
     {
         PrimeGoldenTorizoAwakenedRoom(native, installed);

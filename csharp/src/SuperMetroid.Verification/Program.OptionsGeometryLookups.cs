@@ -1,25 +1,27 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class OptionsGeometryLookupsVerification
 {
-    private static void VerifyOptionsPrimaryCursorY(ISnesAddressSpace rom) =>
+    internal static void VerifyOptionsPrimaryCursorY(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f309, 4, 5,
             GameOptionsRomData.Cursors.PrimaryY, "primary cursor Y"));
 
-    private static void VerifyOptionsControllerCursorY(ISnesAddressSpace rom) =>
+    internal static void VerifyOptionsControllerCursorY(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f31d, 4, 9,
             GameOptionsRomData.Cursors.ControllerY, "controller cursor Y"));
 
-    private static void VerifyOptionsSpecialCursorY(ISnesAddressSpace rom) =>
+    internal static void VerifyOptionsSpecialCursorY(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f341, 4, 3,
             GameOptionsRomData.Cursors.SpecialY, "special cursor Y"));
 
-    private static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
+    internal static void VerifyOptionsLabelDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f639, 2, 7,
             GameOptionsRomData.ControllerLabels.Destination, "controller label destination"));
 
-    private static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>
+    internal static void VerifyOptionsLabelSources(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyOptionsGeometryWords), () => VerifyOptionsGeometryWords(rom, 0x82f647, 2, 7,
             GameOptionsRomData.ControllerLabels.Source, "controller label source"));
 

@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static CompiledDynamicCollectibleGraphicsVerification;
 
-internal static partial class Program
+internal static class LookupDynamicCollectibleStockVerification
 {
-    private static void VerifyDynamicCollectibleStockMapping(SuperMetroidAddressSpace rom,
+    internal static void VerifyDynamicCollectibleStockMapping(SuperMetroidAddressSpace rom,
         RoomPlmDynamicCollectibleArtCatalog installed)
     {
         var original = new List<RoomPlmDynamicCollectibleGraphic>();

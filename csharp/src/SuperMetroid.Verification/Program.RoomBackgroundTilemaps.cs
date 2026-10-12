@@ -1,3 +1,12 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -5,11 +14,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class RoomBackgroundTilemapsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for compressed room background tilemaps")]
-    private static void VerifyRoomBackgroundTilemapExtraction()
+    internal static void VerifyRoomBackgroundTilemapExtraction()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
@@ -82,5 +91,12 @@ internal static partial class Program
         guard.Forbid(address => address == blockedSource,
             address => $"Installed room background reread source ${address:X6}.");
         return guard;
+    }
+
+    [VerificationCommand("--room-background-tilemaps")]
+    internal static int RoomBackgroundTilemapsCommand()
+    {
+        Suite(nameof(VerifyRoomBackgroundTilemapExtraction), () => VerifyRoomBackgroundTilemapExtraction());
+        return 0;
     }
 }

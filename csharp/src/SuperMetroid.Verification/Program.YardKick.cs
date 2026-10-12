@@ -2,10 +2,11 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class YardKickVerification
 {
-    private static void VerifyYardKickWords(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
+    internal static void VerifyYardKickWords(SuperMetroidAddressSpace bus, CartridgeRoomHeader room)
     {
         var assets = LoadFixtureRoomAssets(bus, room);
         int cases = 0;

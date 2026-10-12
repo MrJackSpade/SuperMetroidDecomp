@@ -3,11 +3,12 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class DeadSidehopperLaunchDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Dead Sidehopper launch definitions")]
-    private static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyDeadSidehopperLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

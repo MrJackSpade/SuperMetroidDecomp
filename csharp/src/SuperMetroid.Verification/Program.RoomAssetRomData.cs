@@ -1,18 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static RetailRuntimeFixtureVerification;
+using static RoomMainCodeCatalogVerification;
 
-internal static partial class Program
+internal static class RoomAssetRomDataVerification
 {
     /// <summary>
     /// Proves the named room-asset definitions remain inside the retail cartridge and that
     /// every graphics set selected by a retail room state resolves to three valid streams.
     /// </summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for tileset definition pointers and compressed graphics streams")]
-    static void VerifyRoomAssetRomData()
+    internal static void VerifyRoomAssetRomData()
     {
         ValidateTilemapTransfer(RoomAssetRomData.LibraryBackground.ClearFx, "clear FX");
         ValidateTilemapTransfer(RoomAssetRomData.LibraryBackground.ClearBg2, "clear BG2");
@@ -140,7 +151,7 @@ internal static partial class Program
     /// <summary>Exercises every distinct room-character PNG against its native 4-bpp source.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for room character streams compared with installed character atlases")]
-    static void VerifyRoomCharacterAtlases()
+    internal static void VerifyRoomCharacterAtlases()
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         if (!File.Exists(romPath))
@@ -303,5 +314,19 @@ internal static partial class Program
             $"{description} transfer remains in bank $7E");
         AssertTrue(transfer.VramDestinationWord + transfer.ByteCount / 2 <= 0x8000,
             $"{description} transfer remains in 64-KiB VRAM");
+    }
+
+    [VerificationCommand("--room-tileset-definitions")]
+    internal static int RoomTilesetDefinitionsCommand()
+    {
+        Suite(nameof(VerifyRoomAssetRomData), () => VerifyRoomAssetRomData());
+        return 0;
+    }
+
+    [VerificationCommand("--room-character-atlases")]
+    internal static int RoomCharacterAtlasesCommand()
+    {
+        Suite(nameof(VerifyRoomCharacterAtlases), () => VerifyRoomCharacterAtlases());
+        return 0;
     }
 }

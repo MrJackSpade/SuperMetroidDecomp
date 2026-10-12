@@ -7,9 +7,9 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class RetailPresentationFixtureVerification
 {
-    private static GameplayMessageBoxState CreateGameplayMessageFixture()
+    internal static GameplayMessageBoxState CreateGameplayMessageFixture()
     {
         var maps = RetailPresentationFixture();
         var state = new GameplayMessageBoxState();
@@ -28,13 +28,13 @@ internal static partial class Program
         AssertTrue(!pause.PageTransitionActive, "pause page switch completes");
     }
 
-    private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus, PauseMenuEntry entry) =>
+    internal static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus, PauseMenuEntry entry) =>
         RepositoryInstallation.CreatePause(bus, entry);
 
     /// <summary>
     /// The shared installation's map presentation, the same extracted content contract the
     /// playable host uses. Independent game instances still own their mutable state.
     /// </summary>
-    private static AreaMapPresentationCatalog RetailPresentationFixture() =>
+    internal static AreaMapPresentationCatalog RetailPresentationFixture() =>
         RepositoryInstallation.Maps;
 }

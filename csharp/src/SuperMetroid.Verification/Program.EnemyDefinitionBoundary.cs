@@ -1,3 +1,15 @@
+using static Program;
+using static RepositoryInputsVerification;
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static LookupStream5Verification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text;
@@ -6,12 +18,16 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static EnemyExtendedFrameArtworkVerification;
+using static ImportedSpritemapsVerification;
+using static RoomEnemiesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyDefinitionBoundaryVerification
 {
     /// <summary>Verifies only the already statically identified enemy-reader conversions; no gameplay read discovery.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyEnemyDefinitionBoundary(string sourceRom)
+    internal static void VerifyEnemyDefinitionBoundary(string sourceRom)
     {
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         Suite(nameof(VerifyEnemyMappedSourceRouting), () => VerifyEnemyMappedSourceRouting());
@@ -111,7 +127,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
+    internal static void VerifyCorpseMetadataDefinitions(ISnesAddressSpace source)
     {
         foreach ((ushort pointer, int count) in new (ushort, int)[]
             { (0xe226, 13), (0xe240, 6), (0xe24c, 3), (0xe252, 3), (0xe258, 5) })
@@ -188,5 +204,22 @@ internal static partial class Program
             Encoding.UTF8.GetBytes(text.Replace("\"version\": 1", "\"version\": 1, \"version\": 1", StringComparison.Ordinal)))),
             "duplicate palette JSON property rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => catalog.Resolve(EnemyAuxiliaryPalette.FaceBlock, 8, 0), "palette frame bounded");
+    }
+
+    [VerificationCommand("--lookup-stream5-corpse-geometry")]
+    internal static int LookupStream5CorpseGeometryCommand()
+    {
+        Suite(nameof(VerifyCorpseMetadataDefinitions), () => VerifyCorpseMetadataDefinitions(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        Suite(nameof(VerifyLookupStream5CorpseViews), () => VerifyLookupStream5CorpseViews());
+        Console.WriteLine("Corpse geometry: all30 rotation offsets,32 sand offsets,32 four-field DMA descriptors and10 terminators match original ROM.");
+        return 0;
+    }
+
+    [VerificationCommand("--enemy-definition-boundary")]
+    internal static int EnemyDefinitionBoundaryCommand()
+    {
+        string enemyDefinitionRom = RepositoryRomPath;
+        Suite(nameof(VerifyEnemyDefinitionBoundary), () => VerifyEnemyDefinitionBoundary(enemyDefinitionRom));
+        return 0;
     }
 }

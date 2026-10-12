@@ -1,8 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CpuBusBoundaryVerification
 {
     /// <summary>
     /// Checks the #629 CPU-bus boundary: catalog identities and aliases, the repository inventory,
@@ -10,7 +21,7 @@ internal static partial class Program
     /// <see cref="SuperMetroidAddressSpace"/>.
     /// </summary>
     [CpuBusBoundary("exact bus test: suite driver over the catalog inventory")]
-    private static void VerifyCpuBusBoundary()
+    internal static void VerifyCpuBusBoundary()
     {
         IReadOnlyList<CpuBusCatalogEntry> entries = CpuBusCatalogInventory.Enumerate(CpuBusCatalogInventory.ProductionAssemblies);
         Suite(nameof(VerifyCpuBusCatalogIdentities), () => VerifyCpuBusCatalogIdentities(entries));
@@ -237,7 +248,7 @@ internal static partial class Program
 
     /// <summary>A real address space that records each write in order.</summary>
     [CpuBusBoundary("exact bus test: write-order recording double")]
-    private sealed class WriteOrderRecordingBus : ISnesMemoryBus
+    internal sealed class WriteOrderRecordingBus : ISnesMemoryBus
     {
         private readonly SuperMetroidAddressSpace inner = SuperMetroidAddressSpace.CreateWithoutCartridge();
 
@@ -252,5 +263,12 @@ internal static partial class Program
         public byte ReadWorkRamByte(int cpuAddress) => inner.ReadWorkRamByte(cpuAddress);
 
         public byte ReadSaveRamByte(int cpuAddress) => inner.ReadSaveRamByte(cpuAddress);
+    }
+
+    [VerificationCommand("--cpu-bus-boundary")]
+    internal static int CpuBusBoundaryCommand()
+    {
+        Suite(nameof(VerifyCpuBusBoundary), () => VerifyCpuBusBoundary());
+        return 0;
     }
 }

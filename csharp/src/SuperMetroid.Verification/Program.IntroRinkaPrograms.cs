@@ -2,9 +2,9 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroRinkaProgramsVerification
 {
-    private static void VerifyIntroRinkaPrograms(ISnesAddressSpace rom)
+    internal static void VerifyIntroRinkaPrograms(ISnesAddressSpace rom)
     {
         for (int pointer = 0xcdeb; pointer < 0xce1b; pointer++)
         {
@@ -24,7 +24,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for intro Rinka programs")]
     private static byte IntroRinkaProgramsRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
+    internal static void VerifyIntroRinkaFrameCatalog(ISnesAddressSpace rom)
     {
         string[] names = ["rinka-0", "rinka-1", "rinka-2"];
         var frames = IntroRinkaSpriteDefinitions.Frames;

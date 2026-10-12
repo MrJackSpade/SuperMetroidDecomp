@@ -3,11 +3,14 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class MessageSnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native PPU geometry, native VRAM words")]
-    private static void VerifyMessageSnapshots()
+    internal static void VerifyMessageSnapshots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var vram = new SnesVram();

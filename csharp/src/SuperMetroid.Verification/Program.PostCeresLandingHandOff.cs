@@ -2,15 +2,17 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
+using static RoomDefinitionIntegrationVerification;
 
-internal static partial class Program
+internal static class PostCeresLandingHandOffVerification
 {
     /// <summary>
     /// Confirms the post-Ceres station load and gunship hand-off boundaries against the
     /// native word ownership: fractions survive the load, the hatch placement writes
     /// both Samus X words, and the unlock affects only the following alpha.
     /// </summary>
-    private static void VerifyPostCeresLandingHandOff()
+    internal static void VerifyPostCeresLandingHandOff()
     {
         var runtime = CreateRetailRuntimeFixture(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(

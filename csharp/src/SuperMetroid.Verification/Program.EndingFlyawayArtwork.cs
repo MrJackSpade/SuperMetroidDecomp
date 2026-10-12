@@ -5,10 +5,12 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static IntroCinematicArtworkVerification;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class EndingFlyawayArtworkVerification
 {
-    private static void VerifyEndingFlyawayArtwork(GameInstallation installation)
+    internal static void VerifyEndingFlyawayArtwork(GameInstallation installation)
     {
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var nativeBus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);

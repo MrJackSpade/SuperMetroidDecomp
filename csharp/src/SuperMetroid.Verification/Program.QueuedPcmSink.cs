@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Audio;
 
-internal static partial class Program
+internal static class QueuedPcmSinkVerification
 {
-    private static void VerifyQueuedPcmSink()
+    internal static void VerifyQueuedPcmSink()
     {
         using var entered = new ManualResetEventSlim();
         using var release = new ManualResetEventSlim();

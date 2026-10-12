@@ -1,11 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LoadStationDefinitionsVerification
 {
-    private static void VerifyCompiledLoadStationDefinitions()
+    internal static void VerifyCompiledLoadStationDefinitions()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -83,5 +93,12 @@ internal static partial class Program
             total++;
         }
         AssertEqual(134, total, "Complete original field domain including placeholders and Ceres exception");
+    }
+
+    [VerificationCommand("--load-station-definitions")]
+    internal static int LoadStationDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCompiledLoadStationDefinitions), () => VerifyCompiledLoadStationDefinitions());
+        return 0;
     }
 }

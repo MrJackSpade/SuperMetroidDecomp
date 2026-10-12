@@ -1,16 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Game;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class MotherBrainGlassSuperMissileVerification
 {
     // #1269: In Mother Brain's first form the bank-$A0 walker marks the colliding projectile
     // and EnemyShot_MotherBrainHead ($A9:B507) bumps the glass, queues library-two $6E and
     // runs the normal damage. The next projectile pass removes the marked Super Missile and
     // its pair. The port converted the missile on the spot, leaving the pair live to hit the
     // glass again: in the 100% movie Mother Brain dropped to 2400 instead of 2700.
-    private static void VerifyMotherBrainGlassSuperMissile()
+    internal static void VerifyMotherBrainGlassSuperMissile()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -61,5 +71,12 @@ internal static partial class Program
         AssertEqual(0, enemies.ResolveOrdinaryProjectileHits(bus, shots, bombs, samus), "nothing of the pair is left to hit the glass");
         AssertEqual((ushort)2700, head.Health, "the glass takes no second hit");
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");
+    }
+
+    [VerificationCommand("--mother-brain-glass-super-missile")]
+    internal static int MotherBrainGlassSuperMissileCommand()
+    {
+        VerifyMotherBrainGlassSuperMissile();
+        return 0;
     }
 }

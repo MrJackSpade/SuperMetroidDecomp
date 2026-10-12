@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupCeresDefaultTintsVerification
 {
-    private static void VerifyCeresDefaultRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x20, color => color.Red);
-    private static void VerifyCeresDefaultGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x40, color => color.Green);
-    private static void VerifyCeresDefaultBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x80, color => color.Blue);
+    internal static void VerifyCeresDefaultRed(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x20, color => color.Red);
+    internal static void VerifyCeresDefaultGreen(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x40, color => color.Green);
+    internal static void VerifyCeresDefaultBlue(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock) => VerifyCeresDefaultComponent(rom, stock, 0x80, color => color.Blue);
 
     private static void VerifyCeresDefaultComponent(ISnesAddressSpace rom, RoomFxPaletteBlendCatalog stock,
         int channelMask, Func<PaletteRgb5, int> component)
@@ -26,7 +27,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCeresDefaultTintStructure(ISnesAddressSpace rom)
+    internal static void VerifyCeresDefaultTintStructure(ISnesAddressSpace rom)
     {
         AssertEqual(ReadVerificationWord(rom, 0x88de43), CeresHazeDefinitions.FadeSteps, "Original native fade stop counter");
         foreach (string name in new[] { "StockCeresHazeBlue", "StockCeresHazeRed" })

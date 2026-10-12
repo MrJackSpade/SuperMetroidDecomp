@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupCrocomireProgramsVerification
 {
-    private static void VerifyCrocomireProgramControls(ISnesAddressSpace rom) =>
+    internal static void VerifyCrocomireProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, false));
 
-    private static void VerifyCrocomireProgramDraws(ISnesAddressSpace rom) =>
+    internal static void VerifyCrocomireProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyCrocomireProgramField), () => VerifyCrocomireProgramField(rom, true));
 
     private static void VerifyCrocomireProgramField(ISnesAddressSpace rom, bool draw)

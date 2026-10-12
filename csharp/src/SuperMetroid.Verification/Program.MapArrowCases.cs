@@ -3,10 +3,12 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapArrowCasesVerification
 {
-    private static void VerifyMapArrowCases(ISnesAddressSpace rom)
+    internal static void VerifyMapArrowCases(ISnesAddressSpace rom)
     {
         byte[] bytes = MapArrowExtractor.Extract(rom);
         var original = MapArrowPresentation.Load(new MemoryStream(bytes));

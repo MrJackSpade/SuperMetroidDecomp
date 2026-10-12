@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using System.Text.Json;
@@ -6,12 +14,13 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SharedSlopeHeightsVerification;
 
-internal static partial class Program
+internal static class RidleyBreakupProgramsVerification
 {
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyRidleyBreakupPrograms()
+    internal static void VerifyRidleyBreakupPrograms()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var enemies = new RoomEnemySystem();
@@ -104,5 +113,12 @@ internal static partial class Program
         AssertEqual((ushort)1, enemies.EnemiesKilled, "fragment death updates shared kill count");
         Console.WriteLine("Ridley breakup: death while grabbing releases Samus and runs all twelve fragment programs without cartridge access.");
         Console.WriteLine("All 29 breakup programs match native mechanics, frame selection, sleep and installed OAM.");
+    }
+
+    [VerificationCommand("--ridley-breakup-programs")]
+    internal static int RidleyBreakupProgramsCommand()
+    {
+        Suite(nameof(VerifyRidleyBreakupPrograms), () => VerifyRidleyBreakupPrograms());
+        return 0;
     }
 }

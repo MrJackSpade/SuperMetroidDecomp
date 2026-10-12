@@ -1,17 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class EndingSetupNmiWaitsVerification
 {
     // #1269: MainGameLoop calls GenerateRandomNumber ($82:894F) before every state dispatch.
     // State $27's first call enters CinematicFunction_Ending_Setup, which makes nine NMI
     // waits ($8B:D484-$D48C) before its scene setup, so calls two to ten resume inside it and
     // make no main-loop RNG call; every later call makes one. The port never advanced the RNG
     // in the ending and ran the setup at once, so in the 100% movie the RNG fell behind.
-    private static void VerifyEndingSetupNmiWaits()
+    internal static void VerifyEndingSetupNmiWaits()
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
@@ -42,5 +51,12 @@ internal static partial class Program
                 $"the scene setup runs on call {EndingCreditsRomData.SetupNmiWaits + 1}, not call {call}");
         }
         Console.WriteLine("Ending setup NMI waits: nine resumed calls skip the main-loop RNG and precede the scene setup.");
+    }
+
+    [VerificationCommand("--ending-setup-nmi-waits")]
+    internal static int EndingSetupNmiWaitsCommand()
+    {
+        VerifyEndingSetupNmiWaits();
+        return 0;
     }
 }

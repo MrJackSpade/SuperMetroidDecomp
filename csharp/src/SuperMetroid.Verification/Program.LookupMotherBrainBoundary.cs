@@ -1,9 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupMotherBrainBoundaryVerification
 {
-    private static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainBoundaryGeometry(SuperMetroidAddressSpace rom)
     {
         var exports = MotherBrainFakeDeathPlmDrawDefinitions.All.Take(2).ToArray();
         ushort[] pointers = [0x94a3,0x94b1];
@@ -54,13 +56,13 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain boundary geometry")]
     private static byte MotherBrainBoundaryGeometryRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyMotherBrainBoundaryCollision(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 0));
 
-    private static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyMotherBrainWallVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 1));
 
-    private static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
+    internal static void VerifyMotherBrainDoorVisuals(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainBoundaryCells), () => VerifyMotherBrainBoundaryCells(rom, 2));
 
     private static void VerifyMotherBrainBoundaryCells(SuperMetroidAddressSpace rom, int field)

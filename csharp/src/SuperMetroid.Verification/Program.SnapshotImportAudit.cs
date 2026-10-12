@@ -1,7 +1,20 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static FullMovieReplayVerification;
+using static NativeSnapshotImportVerification;
 
-internal static partial class Program
+internal static class SnapshotImportAuditVerification
 {
     /// <summary>
     /// Audits the native snapshot import against a moment the 100% movie reaches by replay.
@@ -11,7 +24,7 @@ internal static partial class Program
     /// </summary>
     /// <param name="traceDirectory">The converted 100% movie trace.</param>
     /// <param name="update">The converted update after which the import is audited.</param>
-    private static void AuditSnapshotImport(string traceDirectory, int update)
+    internal static void AuditSnapshotImport(string traceDirectory, int update)
     {
         var movie = ReplayMovie.Load("100%", FullPlaythroughMoviePath, FullPlaythroughMovieSha256);
         using var checkpoints = NativeMovieCheckpoints.Open(traceDirectory, movie.Bytes);
@@ -23,5 +36,11 @@ internal static partial class Program
         foreach (string difference in differences)
             Console.WriteLine(difference);
         Console.WriteLine($"Snapshot import audit after update {update}: {differences.Count} differences.");
+    }
+
+    [VerificationCommand("--snapshot-import-audit", "auditTraceDirectory", "auditUpdate")]
+    internal static int SnapshotImportAuditCommand(string auditTraceDirectory, string auditUpdate)
+    {
+     AuditSnapshotImport(auditTraceDirectory, int.Parse(auditUpdate)); return 0; 
     }
 }

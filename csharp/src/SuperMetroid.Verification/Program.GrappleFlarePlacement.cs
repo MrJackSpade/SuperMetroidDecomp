@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
+using static SuiteTimingVerification;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
@@ -7,11 +15,15 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static GraphDigestVerification;
+using static GrappleFiringDefinitionsVerification;
+using static RetailRuntimeFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class GrappleFlarePlacementVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Grapple flare placement offsets")]
-    private static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleFlarePlacement(SuperMetroidAddressSpace rom)
     {
         byte[] json = GrappleFlarePlacementExtractor.Extract(rom);
         var stock = ChargeFlarePlacementCatalog.Load(new MemoryStream(json));
@@ -129,4 +141,11 @@ internal static partial class Program
         new CartridgeReadGuard(source)
             .Forbid(address => address is >= 0x9bc14a and < 0x9bc172 or >= 0x9bc19a and < 0x9bc1c2,
                 _ => "Grapple still reads visual flare origins from ROM.");
+
+    [VerificationCommand("--grapple-flare-placement")]
+    internal static int GrappleFlarePlacementCommand()
+    {
+        Suite(nameof(VerifyGrappleFlarePlacement), () => VerifyGrappleFlarePlacement(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

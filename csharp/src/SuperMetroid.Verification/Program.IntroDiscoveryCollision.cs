@@ -2,10 +2,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class IntroDiscoveryCollisionVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro discovery-room collision words at $8C:C083")]
-    private static byte[] VerifyIntroDiscoveryCollision(IImportCartridgeSource rom)
+    internal static byte[] VerifyIntroDiscoveryCollision(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cc083, 0x300);
         ushort[] actual = IntroBabyDiscoveryCollisionDefinitions.CreateForeground();

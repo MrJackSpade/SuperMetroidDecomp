@@ -2,13 +2,17 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static GrappleFiringDefinitionsVerification;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class GrappleConnectionDefinitionsVerification
 {
-    private delegate bool SpecialGrappleHandler(ISnesAddressSpace bus, SamusState samus,
+    internal delegate bool SpecialGrappleHandler(ISnesAddressSpace bus, SamusState samus,
         SamusGrappleState grapple, Position16<RoomPixels> previous, out GrappleMovementResult result);
 
-    private static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDefinitionsRomByte(rom, address), GrappleConnectionDefinitionsRomByte(rom, address + 1)));
         var guard = NewGrappleConnectionReadGuard(rom);

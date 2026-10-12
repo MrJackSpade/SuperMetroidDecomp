@@ -1,15 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
+using static RetailGameFixtureVerification;
 
-internal static partial class Program
+internal static class LowPercentIntroTimelineVerification
 {
     /// <summary>
     /// Plays the 13% lsnes movie's power-on intro through the production game and checks the
     /// milestones its native bsnes capture records. Every press lands on the update native
     /// consumed it, so each scene must open its input window on native's exact dispatch.
     /// </summary>
-    private static void VerifyLowPercentIntroTimeline()
+    internal static void VerifyLowPercentIntroTimeline()
     {
         // Converted controller words of the movie's first 7742 updates; all others are zero.
         var inputs = new Dictionary<int, ushort>
@@ -151,5 +162,12 @@ internal static partial class Program
                 AssertEqual((ushort)0x5000, discovery.Kinematics.Position.X.Fraction, "update 3990 stopped Samus X fraction");
                 break;
         }
+    }
+
+    [VerificationCommand("--low-percent-intro-timeline")]
+    internal static int LowPercentIntroTimelineCommand()
+    {
+        Suite(nameof(VerifyLowPercentIntroTimeline), () => VerifyLowPercentIntroTimeline());
+        return 0;
     }
 }

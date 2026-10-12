@@ -1,12 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static LookupPaletteFxAreasVerification;
+using static LookupPaletteFxDispatchVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class RoomPaletteFxDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for room palette FX definitions")]
-    private static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomPaletteFxDefinitions(SuperMetroidAddressSpace rom)
     {
 
         ushort[] pointers =
@@ -120,7 +134,7 @@ internal static partial class Program
             "with fixed metadata reads forbidden.");
     }
 
-    private static void VerifyPaletteFxDispatchSpawns(ISnesAddressSpace guardedRom, IEnumerable<ushort> pointers)
+    internal static void VerifyPaletteFxDispatchSpawns(ISnesAddressSpace guardedRom, IEnumerable<ushort> pointers)
     {
         foreach (ushort pointer in pointers)
         {
@@ -172,7 +186,15 @@ internal static partial class Program
     private static ushort PaletteFxSlotWord(object slot, string name) =>
         (ushort)slot.GetType().GetProperty(name)!.GetValue(slot)!;
 
-    private static CartridgeReadGuard NewRoomPaletteFxDefinitionGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
+    internal static CartridgeReadGuard NewRoomPaletteFxDefinitionGuard(ISnesAddressSpace source, HashSet<int> forbidden) =>
         new CartridgeReadGuard(source).Forbid(forbidden.Contains,
             address => $"Palette-FX runtime reread compiled metadata byte ${address:X6}.");
+
+    [VerificationCommand("--room-palette-fx-definitions")]
+    internal static int RoomPaletteFxDefinitionsCommand()
+    {
+        Suite(nameof(VerifyRoomPaletteFxDefinitions), () => VerifyRoomPaletteFxDefinitions(
+            SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
+    }
 }

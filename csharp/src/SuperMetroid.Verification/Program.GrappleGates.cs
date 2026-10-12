@@ -1,12 +1,27 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static DraygonTilemapProductionVerification;
+using static GrappleEnemyDeathVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
+using static AssertionsVerification;
+using static DownwardGatePlmsVerification;
+using static GrappleDoorsVerification;
+using static SyntheticRoomCartridgeFixturesVerification;
 
-internal static partial class Program
+internal static class GrappleGatesVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyGrappleGreenGateVisibility()
+    internal static void VerifyGrappleGreenGateVisibility()
     {
         var retail = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var trigger in new[] { DownwardGateTriggerBehavior.GreenLeft, DownwardGateTriggerBehavior.GreenRight })
@@ -64,5 +79,18 @@ internal static partial class Program
         var maps = new byte[0x8000];
         for (int i = 0; i < maps.Length; i++) maps[i] = GrappleGreenGateVisibilityRomByte(retail, 0x8d8000 + i);
         bus.WriteBytes(0x8d8000, maps);
+    }
+
+    [VerificationCommand("--enemy-art-fixtures")]
+    internal static int EnemyArtFixturesCommand()
+    {
+     VerifyGrappleGreenGateVisibility(); VerifyGrappleEnemyDeath(); VerifyDraygonTilemapProduction(); return 0; 
+    }
+
+    [VerificationCommand("--grapple-gates")]
+    internal static int GrappleGatesCommand()
+    {
+        Suite(nameof(VerifyGrappleGreenGateVisibility), () => VerifyGrappleGreenGateVisibility());
+        return 0;
     }
 }

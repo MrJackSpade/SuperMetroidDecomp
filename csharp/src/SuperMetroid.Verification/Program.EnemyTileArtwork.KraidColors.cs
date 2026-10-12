@@ -5,11 +5,14 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static ColorWordsVerification;
+using static KraidPaletteDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyTileArtworkKraidColorsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid palette rows")]
-    private static void VerifyInstalledKraidColors(
+    internal static void VerifyInstalledKraidColors(
         SuperMetroid.AssetExtraction.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
     {
         Suite(nameof(VerifyKraidPaletteSourceAddresses), () => VerifyKraidPaletteSourceAddresses(rom));
@@ -235,7 +238,7 @@ internal static partial class Program
         return cgram.Colors.ToArray();
     }
 
-    private enum KraidPaletteConsumer
+    internal enum KraidPaletteConsumer
     {
         BackdropLoad,
         InitialTargetLoad,

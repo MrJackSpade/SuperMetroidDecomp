@@ -1,11 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static FileSelectMapEntryVerification;
+using static FileSelectRoomMapVerification;
+using static MapWindowMotionDefinitionsVerification;
+using static RetailPresentationFixtureVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class FileSelectMapWindowVerification
 {
     private static WorldMapLabelLayout CreateWindowLabelFixture(Position16<OamPixels> label)
     {
@@ -16,7 +31,7 @@ internal static partial class Program
         stream.Position = 0;
         return WorldMapLabelLayout.Load(stream);
     }
-    private static void VerifyFileSelectMapWindow()
+    internal static void VerifyFileSelectMapWindow()
     {
         Suite(nameof(VerifyFileSelectAreaMapGraphics), () => VerifyFileSelectAreaMapGraphics());
         Suite(nameof(VerifyFileSelectRoomMapGraphics), () => VerifyFileSelectRoomMapGraphics());
@@ -175,5 +190,11 @@ internal static partial class Program
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 10, 0xffff);
         WriteTestWord(fake, FileSelectMapRomData.WindowVelocities + 14, 1);
         return fake;
+    }
+
+    [VerificationCommand("--file-map-fixtures")]
+    internal static int FileMapFixturesCommand()
+    {
+     VerifyFileSelectMapWindow(); return 0; 
     }
 }

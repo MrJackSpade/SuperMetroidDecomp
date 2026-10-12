@@ -1,3 +1,6 @@
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
@@ -13,10 +16,17 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static ImportedSpritemapsVerification;
+using static NativeSnapshotImportVerification;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static RidleySamusDrawReferenceVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class RidleyFullMovieVerification
 {
-    private static void VerifyRidleySpinFireball()
+    internal static void VerifyRidleySpinFireball()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -43,7 +53,7 @@ internal static partial class Program
         Console.WriteLine("Ridley spin-response fireball: native RNG threshold, roar/turn gates and instruction reset pass.");
     }
 
-    private static void VerifyRidleyContactOrdering()
+    internal static void VerifyRidleyContactOrdering()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -71,7 +81,7 @@ internal static partial class Program
         Console.WriteLine("Ridley body contact: pre-movement boundary and subsequent damaging overlap pass.");
     }
 
-    private static void VerifyRidleySwoopTimer()
+    internal static void VerifyRidleySwoopTimer()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -95,7 +105,7 @@ internal static partial class Program
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
     }
 
-    private static void VerifyRidleyDeathFinish()
+    internal static void VerifyRidleyDeathFinish()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -117,7 +127,7 @@ internal static partial class Program
         Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
     }
 
-    private static void VerifyRidleyGrabEntry()
+    internal static void VerifyRidleyGrabEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -188,7 +198,7 @@ internal static partial class Program
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
 
-    private static void VerifyRidleyMapInitialization()
+    internal static void VerifyRidleyMapInitialization()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (bool defeated in new[] { false, true })
@@ -219,7 +229,7 @@ internal static partial class Program
         Console.WriteLine("Ridley map: live initializer explores both arena cells and blanks all fifteen HUD cells; defeated gate and door reset pass.");
     }
 
-    private static void VerifyRetainedHorizontalSpeed()
+    internal static void VerifyRetainedHorizontalSpeed()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
@@ -256,7 +266,7 @@ internal static partial class Program
         Console.WriteLine("No-direction normal jump, fall, Spring Ball jump and grapple release retain total speed while clearing base motion.");
     }
 
-    private static void VerifyPauseDispatcherRandom()
+    internal static void VerifyPauseDispatcherRandom()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -284,7 +294,7 @@ internal static partial class Program
         Console.WriteLine("Pause RNG: all five pause-only dispatchers advance once; gameplay fades avoid duplicate advances.");
     }
 
-    private static void VerifySpinFallbackHistory()
+    internal static void VerifySpinFallbackHistory()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (SamusPoseId pose in new[] { SamusPoseId.SpinJumpRightPose, SamusPoseId.SpinJumpLeftPose,
@@ -315,7 +325,7 @@ internal static partial class Program
         Console.WriteLine("Spin fallback history: ordinary, Space Jump and Screw Attack both facings retain pose and admit wall probe.");
     }
 
-    private static void VerifyMorphCameraCheckpoint()
+    internal static void VerifyMorphCameraCheckpoint()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
@@ -350,7 +360,7 @@ internal static partial class Program
         Console.WriteLine("Morph camera checkpoint: both facings, alignment, fractions, one-time consumption and unmorph pass.");
     }
 
-    private static void VerifyAimUpLandingAnimation()
+    internal static void VerifyAimUpLandingAnimation()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var level = CreateRoom(new(16, 32), new ushort[16 * 32], new byte[16 * 32]);
@@ -375,7 +385,7 @@ internal static partial class Program
         Console.WriteLine("Aim-up landing: both facing directions preserve raised-gun animation frame and native delay.");
     }
 
-    private static void VerifyRidleyFireballSquareSlope()
+    internal static void VerifyRidleyFireballSquareSlope()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -402,7 +412,7 @@ internal static partial class Program
         Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
     }
 
-    private static void VerifyRidleyFireballDamage()
+    internal static void VerifyRidleyFireballDamage()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -431,7 +441,7 @@ internal static partial class Program
         Console.WriteLine("Ridley fireball damage: default/Norfair/Tourian initializers, directional afterburn and suit reduction pass.");
     }
 
-    private static void VerifyRidleyTailImpact()
+    internal static void VerifyRidleyTailImpact()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -453,7 +463,7 @@ internal static partial class Program
         Console.WriteLine("Ridley tail impact: native dust slot, position, instruction variant and sound pass.");
     }
 
-    private static void VerifyRidleyScreenGate()
+    internal static void VerifyRidleyScreenGate()
     {
         var update = typeof(RoomEnemySystem).GetMethod("UpdateNorfairRidleyIntangibility", BindingFlags.Static | BindingFlags.NonPublic)!;
         var body = new RoomEnemySlot(0) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
@@ -475,7 +485,7 @@ internal static partial class Program
         Console.WriteLine("Ridley screen gate: recorded reentry, signed bounds and timer ownership pass.");
     }
 
-    private static void VerifySpringBallRelease()
+    internal static void VerifySpringBallRelease()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -517,7 +527,7 @@ internal static partial class Program
         Console.WriteLine("Spring Ball release: native movie displacement, pose and immediate momentum reset pass.");
     }
 
-    private static void VerifyRidleyTailOffsets()
+    internal static void VerifyRidleyTailOffsets()
     {
         var tick = typeof(RoomEnemySystem).GetMethod("TickRidleyTailSegment", BindingFlags.Static | BindingFlags.NonPublic)!;
         var state = new RidleyEnemyState
@@ -574,7 +584,7 @@ internal static partial class Program
         Console.WriteLine("Ridley tail offsets: stagger/stop retention, clockwise arithmetic, signed multiplication and predecessor gate pass.");
     }
 
-    private static void VerifyRidleyCenterFacing()
+    internal static void VerifyRidleyCenterFacing()
     {
         var method = typeof(RoomEnemySystem).GetMethod("SelectNorfairRidleyFacingInstruction",
             BindingFlags.Static | BindingFlags.NonPublic)!;
@@ -606,7 +616,7 @@ internal static partial class Program
         Console.WriteLine("Ridley center facing: movie trigger, both sides/directions, mid-turn and native low-byte boundary agree.");
     }
 
-    private static void VerifyRidleyPausePageTiming()
+    internal static void VerifyRidleyPausePageTiming()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = 1 };
@@ -640,7 +650,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyRidleyPaletteSelection()
+    internal static void VerifyRidleyPaletteSelection()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -695,7 +705,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyRidleyDoorEntry()
+    internal static void VerifyRidleyDoorEntry()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus);
@@ -857,11 +867,11 @@ internal static partial class Program
 
     /// <summary>A native little-endian PLM program word at a bank-$84 CPU address.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for bank-$84 PLM program words")]
-    private static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
+    internal static ushort ReadRetailPlmProgramWord(ISnesAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables")]
-    private static void VerifyRidleyFullMovie(string directory)
+    internal static void VerifyRidleyFullMovie(string directory)
     {
         var ridleyMovie = ReplayMovie.Load("Ridley", "csharp/test-fixtures/issue-1266-ridley/Ridley fight showcase.smv",
             "7E12861DC56C5ABED12C2BFA2B00D24BFA418F49F2CE4C027D930CE9A3663F66");
@@ -1612,5 +1622,137 @@ internal static partial class Program
         AssertTrue(trace.ReadByte() == -1, "trace ends after movie terminal frame");
         Console.WriteLine($"Samus body records: {pairedBodyDraws} paired visible updates, {phaseShiftedBodyDraws} hardware-phase-shifted updates, {retainedHiddenBodyRecords} hidden-record retention checks.");
         Console.WriteLine($"Full movie input replay: {length} updates across all 10890 source frames match the currently instrumented fields.");
+    }
+
+    [VerificationCommand("--ridley-fireball-damage")]
+    internal static int RidleyFireballDamageCommand()
+    {
+     VerifyRidleyFireballDamage(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-spin-fireball")]
+    internal static int RidleySpinFireballCommand()
+    {
+     VerifyRidleySpinFireball(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-contact-ordering")]
+    internal static int RidleyContactOrderingCommand()
+    {
+     VerifyRidleyContactOrdering(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-swoop-timer")]
+    internal static int RidleySwoopTimerCommand()
+    {
+     VerifyRidleySwoopTimer(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-death-finish")]
+    internal static int RidleyDeathFinishCommand()
+    {
+     VerifyRidleyDeathFinish(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-grab-entry")]
+    internal static int RidleyGrabEntryCommand()
+    {
+     VerifyRidleyGrabEntry(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-map-initialization")]
+    internal static int RidleyMapInitializationCommand()
+    {
+     VerifyRidleyMapInitialization(); return 0; 
+    }
+
+    [VerificationCommand("--samus-retained-horizontal-speed")]
+    internal static int SamusRetainedHorizontalSpeedCommand()
+    {
+     VerifyRetainedHorizontalSpeed(); return 0; 
+    }
+
+    [VerificationCommand("--pause-dispatch-rng")]
+    internal static int PauseDispatchRngCommand()
+    {
+     VerifyPauseDispatcherRandom(); return 0; 
+    }
+
+    [VerificationCommand("--spin-fallback-history")]
+    internal static int SpinFallbackHistoryCommand()
+    {
+     VerifySpinFallbackHistory(); return 0; 
+    }
+
+    [VerificationCommand("--morph-camera-checkpoint")]
+    internal static int MorphCameraCheckpointCommand()
+    {
+     VerifyMorphCameraCheckpoint(); return 0; 
+    }
+
+    [VerificationCommand("--aim-up-landing-animation")]
+    internal static int AimUpLandingAnimationCommand()
+    {
+     VerifyAimUpLandingAnimation(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-fireball-square-slope")]
+    internal static int RidleyFireballSquareSlopeCommand()
+    {
+     VerifyRidleyFireballSquareSlope(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-tail-impact")]
+    internal static int RidleyTailImpactCommand()
+    {
+     VerifyRidleyTailImpact(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-screen-gate")]
+    internal static int RidleyScreenGateCommand()
+    {
+     VerifyRidleyScreenGate(); return 0; 
+    }
+
+    [VerificationCommand("--spring-ball-release")]
+    internal static int SpringBallReleaseCommand()
+    {
+     VerifySpringBallRelease(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-tail-offsets")]
+    internal static int RidleyTailOffsetsCommand()
+    {
+     VerifyRidleyTailOffsets(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-center-facing")]
+    internal static int RidleyCenterFacingCommand()
+    {
+     VerifyRidleyCenterFacing(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-pause-page-timing")]
+    internal static int RidleyPausePageTimingCommand()
+    {
+     VerifyRidleyPausePageTiming(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-palette-selection")]
+    internal static int RidleyPaletteSelectionCommand()
+    {
+     VerifyRidleyPaletteSelection(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-door-entry")]
+    internal static int RidleyDoorEntryCommand()
+    {
+     VerifyRidleyDoorEntry(); return 0; 
+    }
+
+    [VerificationCommand("--ridley-full-movie")]
+    internal static int RidleyFullMovieCommand()
+    {
+     VerifyRidleyFullMovie(Path.GetFullPath("native-captures/issue-1266-ridley")); return 0; 
     }
 }

@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Reflection;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
+using static EnemyContentIdentityFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyContentIdentityVerification
 {
     /// <summary>Tests this statically inventoried bundle; it never runs gameplay to discover reads.</summary>
-    private static void VerifyEnemyContentIdentity()
+    internal static void VerifyEnemyContentIdentity()
     {
         var fixture = new EnemyIdentityFixture();
         EnemyTileArtworkCatalog stock = fixture.Build();
@@ -95,5 +107,12 @@ internal static partial class Program
         AssertTrue(stockProjectiles.ContentIdentity !=
             EnemyProjectileSpritemapCatalog.Load(baseline.Json(legacyProjectiles), changedProjectiles).ContentIdentity,
             "inherited projectile program-frame changes contribute to the selected identity");
+    }
+
+    [VerificationCommand("--enemy-content-identity")]
+    internal static int EnemyContentIdentityCommand()
+    {
+        Suite(nameof(VerifyEnemyContentIdentity), () => VerifyEnemyContentIdentity());
+        return 0;
     }
 }

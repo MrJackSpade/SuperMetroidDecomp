@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static GameConfigurationVerification;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BossResetOnLoadVerification
 {
-    private static void VerifyBossResetOnLoad()
+    internal static void VerifyBossResetOnLoad()
     {
         Suite(nameof(VerifyGameConfigurationIni), () => VerifyGameConfigurationIni());
         AssertTrue(!new SuperMetroidGameOptions().ResetBossesOnLoad &&
@@ -87,5 +98,12 @@ internal static partial class Program
         AssertTrue(saves.ReadSlot(0)!.BossBytes.AsSpan().SequenceEqual(slot.BossBytes),
             "loading with reset does not rewrite the stored save");
         Console.WriteLine("Boss reset: disabled defaults, strict INI, full saved-state preservation, outside-Tourian flags, five eye doors, Spore/Torizo/Shaktool room selection and load-only application pass.");
+    }
+
+    [VerificationCommand("--boss-reset-on-load")]
+    internal static int BossResetOnLoadCommand()
+    {
+        Suite(nameof(VerifyBossResetOnLoad), () => VerifyBossResetOnLoad());
+        return 0;
     }
 }

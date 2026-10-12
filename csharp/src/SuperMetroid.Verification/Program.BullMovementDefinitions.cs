@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class BullMovementDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled Bull movement")]
-    private static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledBullMovement(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem();
         var initialize = typeof(RoomEnemySystem).GetMethod("InitializeBull", BindingFlags.Instance | BindingFlags.NonPublic)!

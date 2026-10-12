@@ -1,17 +1,33 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static EnemyInstructionCodePointersVerification;
+using static LookupTreadmillArtworkVerification;
+using static LookupTreadmillMechanicsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class AnimatedTileInstructionCodesVerification
 {
     /// <summary>
     /// Verifies the bank-$87 vocabulary and executes both compiled retail treadmill streams.
     /// Constructed non-retail streams prove that the loader cannot silently
     /// accept unsupported object definitions as compiled mechanics.
     /// </summary>
-    static void VerifyAnimatedTileInstructionCodeCatalog()
+    internal static void VerifyAnimatedTileInstructionCodeCatalog()
     {
         AssertAnimatedTileCatalog(nameof(AnimatedTileInstruction),
             Enum.GetValues<AnimatedTileInstruction>().Select(code => (ushort)code).ToArray(), 14);
@@ -57,7 +73,7 @@ internal static partial class Program
     }
 
     /// <summary>Words outside <see cref="AnimatedTileObject"/>, including a constructed bank-$87 header.</summary>
-    private static readonly ushort[] UndefinedAnimatedTileObjects = [0x0001, 0x8f00, 0xffff];
+    internal static readonly ushort[] UndefinedAnimatedTileObjects = [0x0001, 0x8f00, 0xffff];
 
     private static void VerifyConstructedAnimatedTileStreams()
     {
@@ -98,7 +114,7 @@ internal static partial class Program
         WriteTestWords(bus, 0x879000, program);
         return bus;
     }
-    private static void VerifyRetailTreadmillStream(
+    internal static void VerifyRetailTreadmillStream(
         ISnesAddressSpace bus,
         WreckedShipTreadmillDirection direction,
         int[] expectedSources)
@@ -134,7 +150,7 @@ internal static partial class Program
             $"{direction} no longer reads frame-source presentation operands");
     }
 
-    private static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
+    internal static void VerifyRetailTreadmillMechanics(ISnesAddressSpace bus)
     {
         Suite(nameof(VerifyTreadmillHeaderSelection), () => VerifyTreadmillHeaderSelection());
         Suite(nameof(VerifyTreadmillWaitPointers), () => VerifyTreadmillWaitPointers(bus));
@@ -189,5 +205,12 @@ internal static partial class Program
                         offset == unchecked((ushort)(pointer + 3)));
                 },
                 _ => reads.Value++);
+    }
+
+    [VerificationCommand("--treadmill-animated-tiles")]
+    internal static int TreadmillAnimatedTilesCommand()
+    {
+        Suite(nameof(VerifyAnimatedTileInstructionCodeCatalog), () => VerifyAnimatedTileInstructionCodeCatalog());
+        return 0;
     }
 }

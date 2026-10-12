@@ -1,3 +1,7 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -9,10 +13,10 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
-internal static partial class Program
+internal static class GameplayGrapplePaletteVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyGameplayGrapplePalette()
+    internal static void VerifyGameplayGrapplePalette()
     {
         const BindingFlags flags=BindingFlags.Instance|BindingFlags.NonPublic;
         var installation=RepositoryInstallation.Installation;
@@ -126,5 +130,12 @@ internal static partial class Program
                 phase + " loads native palette two");
             AssertEqual((ushort)0x7f91, runtime.Cgram.Colors[223], phase + " sets native flare color");
         }
+    }
+
+    [VerificationCommand("--gameplay-grapple-palette")]
+    internal static int GameplayGrapplePaletteCommand()
+    {
+        Suite(nameof(VerifyGameplayGrapplePalette), () => VerifyGameplayGrapplePalette());
+        return 0;
     }
 }

@@ -3,9 +3,9 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 
-internal static partial class Program
+internal static class MotherBrainAscentCaptureVerification
 {
-    private static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
+    internal static int VerifyMotherBrainAscentCapture(SuperMetroidRuntime runtime)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         var state = runtime.Enemies.MotherBrain!;

@@ -1,16 +1,32 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
+using static RoomArtworkRenderParityVerification;
+using static RoomBackgroundLibraryParityVerification;
+using static RoomVisualLayoutsVerification;
+using static XrayRevealVisualInstallationVerification;
 
-internal static partial class Program
+internal static class RoomCharacterInstallationVerification
 {
     /// <summary>Full stock import, live edit, repair and invalid-override contract for room art.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue ghost and scrolling-sky source bytes")]
-    private static void VerifyRoomArtworkInstallation(string sourceRom)
+    internal static void VerifyRoomArtworkInstallation(string sourceRom)
     {
         using var rootScratch = new TestScratchDirectory("room-character-installation");
         string root = rootScratch.Root;
@@ -345,5 +361,21 @@ internal static partial class Program
         {
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
+    }
+
+    [VerificationCommand("--room-character-installation")]
+    internal static int RoomCharacterInstallationCommand()
+    {
+        string roomCharacterRom = RepositoryRomPath;
+        Suite(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(roomCharacterRom));
+        return 0;
+    }
+
+    [VerificationCommand("--room-artwork-installation")]
+    internal static int RoomArtworkInstallationCommand()
+    {
+        string roomArtworkRom = RepositoryRomPath;
+        Suite(nameof(VerifyRoomArtworkInstallation), () => VerifyRoomArtworkInstallation(roomArtworkRom));
+        return 0;
     }
 }

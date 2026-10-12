@@ -1,13 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
+using static AssertionsVerification;
+using static SamusEaterPlmDefinitionsVerification;
+using static SporeSpawnCeilingPlmsVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SporeSpawnCeilingVisualsVerification
 {
-    private static void VerifySporeSpawnCeilingVisuals()
+    internal static void VerifySporeSpawnCeilingVisuals()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -192,5 +205,12 @@ internal static partial class Program
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited art preserves deletion timing");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited draw reads no source bytes");
+    }
+
+    [VerificationCommand("--spore-spawn-ceiling-visuals")]
+    internal static int SporeSpawnCeilingVisualsCommand()
+    {
+        Suite(nameof(VerifySporeSpawnCeilingVisuals), () => VerifySporeSpawnCeilingVisuals());
+        return 0;
     }
 }

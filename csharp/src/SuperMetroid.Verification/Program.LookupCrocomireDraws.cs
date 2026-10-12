@@ -1,9 +1,9 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class LookupCrocomireDrawsVerification
 {
-    private static void VerifyCrocomirePhysicalDrawMapping(ISnesAddressSpace rom)
+    internal static void VerifyCrocomirePhysicalDrawMapping(ISnesAddressSpace rom)
     {
         ushort[] pointers = [0x9b5b, 0x9b73, 0x9b79, 0x9b7f, 0x9bbb];
         var exported = CrocomireArenaPlmDrawDefinitions.All.ToArray();

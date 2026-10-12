@@ -2,9 +2,9 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MotherBrainNeckSineVerification
 {
-    private static void VerifyMotherBrainNeckSine(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainNeckSine(SuperMetroidAddressSpace rom)
     {
         for (int angle = byte.MinValue; angle <= byte.MaxValue; angle++)
         {

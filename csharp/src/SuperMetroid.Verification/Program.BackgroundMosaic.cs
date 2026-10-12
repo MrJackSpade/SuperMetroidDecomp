@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Rendering;
 
-internal static partial class Program
+internal static class BackgroundMosaicVerification
 {
-    private static void VerifyBackgroundMosaicSampling()
+    internal static void VerifyBackgroundMosaicSampling()
     {
         // Explicit boundaries catch quantizing world coordinates or starting the
         // vertical group at HUD row 32 instead of the PPU's physical line one.

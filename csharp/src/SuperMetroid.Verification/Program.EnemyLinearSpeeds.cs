@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class EnemyLinearSpeedsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for compiled linear enemy speeds")]
-    private static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
+    internal static void VerifyCompiledLinearEnemySpeeds(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
         var shared = typeof(RoomEnemySystem).GetMethod("ReadLinearEnemySpeed",
             BindingFlags.Static | BindingFlags.NonPublic)!

@@ -2,11 +2,12 @@ using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ElevatorInputDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for elevator input definitions")]
-    private static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyElevatorInputDefinitions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyElevatorDirectionInputMapping), () => VerifyElevatorDirectionInputMapping(rom));
         using var artworkDirectory = new TestScratchDirectory("map-catalog");

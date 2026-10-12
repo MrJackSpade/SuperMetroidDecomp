@@ -5,10 +5,14 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
+using static LookupStationStockVerification;
+using static RoomPlmPopulationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class StationVisualsVerification
 {
-    private static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
+    internal static void VerifyStationVisuals(SuperMetroidAddressSpace rom)
     {
         RoomPlmStationVisualCatalog stock = RoomPlmStationVisualCatalog.Stock();
         RoomPlmStationVisualEntry[] entries = RoomPlmStationDrawDefinitions.All

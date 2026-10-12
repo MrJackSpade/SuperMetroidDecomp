@@ -2,10 +2,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 
-internal static partial class Program
+internal static class IntroMotherBrainCollisionSourceVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro Mother Brain collision words at $8C:BEC3")]
-    private static byte[] VerifyIntroMotherBrainCollisionSource(IImportCartridgeSource rom)
+    internal static byte[] VerifyIntroMotherBrainCollisionSource(IImportCartridgeSource rom)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom, 0x8cbec3, 448);
         byte[] actual = IntroMotherBrainCollisionDefinitions.CopySourceBytes();

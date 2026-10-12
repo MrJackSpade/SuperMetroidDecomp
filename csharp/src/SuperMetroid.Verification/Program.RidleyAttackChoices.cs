@@ -4,10 +4,10 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
-internal static partial class Program
+internal static class RidleyAttackChoicesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ridley attack choices")]
-    private static void VerifyRidleyAttackChoices(SuperMetroidAddressSpace rom)
+    internal static void VerifyRidleyAttackChoices(SuperMetroidAddressSpace rom)
     {
         RidleyAiFunction Table(int row, int choice) => RidleyAttackChoices.Resolve(row switch
         {

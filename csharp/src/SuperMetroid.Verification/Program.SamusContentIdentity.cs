@@ -1,12 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
+using static ColorWordsVerification;
 
-internal static partial class Program
+internal static class SamusContentIdentityVerification
 {
     /// <summary>Direct, authored fixtures cover every selected Samus visual-data family.</summary>
-    private static void VerifySamusContentIdentity()
+    internal static void VerifySamusContentIdentity()
     {
         SamusBodyArtworkCatalog baseline = CreateSamusIdentityFixture();
         AssertEqual(baseline.ContentIdentity, CreateSamusIdentityFixture(reverseMaps: true).ContentIdentity,
@@ -39,7 +49,7 @@ internal static partial class Program
             "canonical spritemap order and host aggregate/warnings pass without a ROM.");
     }
 
-    private static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null, bool reverseMaps = false)
+    internal static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null, bool reverseMaps = false)
     {
         int firstPointer = SamusBodyDefinitionLayout.EndOffset -
             (SamusBodyArtworkCatalog.TopSetCount + SamusBodyArtworkCatalog.BottomSetCount) *
@@ -133,5 +143,12 @@ internal static partial class Program
             stream.Position = 0;
             return stream;
         }
+    }
+
+    [VerificationCommand("--samus-content-identity")]
+    internal static int SamusContentIdentityCommand()
+    {
+        Suite(nameof(VerifySamusContentIdentity), () => VerifySamusContentIdentity());
+        return 0;
     }
 }

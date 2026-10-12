@@ -5,11 +5,11 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class TorizoInstructionVramArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo instruction VRAM artwork")]
-    private static void VerifyTorizoInstructionVramArtwork(
+    internal static void VerifyTorizoInstructionVramArtwork(
         ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
     {
         AssertEqual(52, TorizoInstructionVramTransferDefinitions.All.Length,

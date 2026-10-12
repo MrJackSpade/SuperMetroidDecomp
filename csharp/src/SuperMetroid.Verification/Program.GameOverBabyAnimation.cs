@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class GameOverBabyAnimationVerification
 {
-    private static void VerifyGameOverBabyAnimation(ISnesAddressSpace rom)
+    internal static void VerifyGameOverBabyAnimation(ISnesAddressSpace rom)
     {
         // Walk the original serialized stream; neither record count nor group lengths
         // nor generated successor pointers determine this oracle's traversal.

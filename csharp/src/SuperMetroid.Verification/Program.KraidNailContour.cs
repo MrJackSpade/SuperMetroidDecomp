@@ -1,10 +1,13 @@
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidNailContourMappingsVerification;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KraidNailContourVerification
 {
-    private static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidNailContour(SuperMetroidAddressSpace rom)
     {
         ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidNailContourRomByte(rom, a), KraidNailContourRomByte(rom, a + 1)));
         Suite(nameof(VerifyKraidNailLeftOffsets), () => VerifyKraidNailLeftOffsets(rom));

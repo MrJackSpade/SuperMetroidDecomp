@@ -1,18 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PolypRockInstructionProgramDefinitionsVerification
 {
-    private static void VerifyPolypRockInstructionProgramDefinitions()
+    internal static void VerifyPolypRockInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyPolypRockInstructionProgramDefinitions(
+    internal static void VerifyPolypRockInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags instanceFlags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -121,7 +132,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Polyp rock instruction words")]
-    private static ushort ReadPolypRockInstructionWord(
+    internal static ushort ReadPolypRockInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(EnemyProjectileCodePointers.BankBase | address);
@@ -134,4 +145,11 @@ internal static partial class Program
             .Forbid(address => address - (EnemyProjectileCodePointers.BankBase |
                     PolypRockInstructionProgramDefinitions.PresentationWord) is 0 or 1,
                 _ => "Production read the compiled Polyp-rock visual operand.");
+
+    [VerificationCommand("--polyp-rock-instruction-mechanics")]
+    internal static int PolypRockInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyPolypRockInstructionProgramDefinitions), () => VerifyPolypRockInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupRainVelocityVerification
 {
-    private static void VerifyRainHorizontalVelocity(SuperMetroidAddressSpace rom)
+    internal static void VerifyRainHorizontalVelocity(SuperMetroidAddressSpace rom)
     {
         for (int selection = 0; selection < 4; selection++)
             AssertEqual(ReadVerificationWord(rom, 0x88d992 + 2 * selection),

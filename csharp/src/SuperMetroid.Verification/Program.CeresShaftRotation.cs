@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class CeresShaftRotationVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres shaft compiled rotation")]
-    private static void VerifyCeresShaftCompiledRotation()
+    internal static void VerifyCeresShaftCompiledRotation()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         // Numeric coefficients/phases were proven by the #1165 research; this check covers

@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class ProjectileOriginsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for projectile origins")]
-    private static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
+    internal static void VerifyProjectileOrigins(SuperMetroidAddressSpace rom)
     {
         short Word(int address) => unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord(address));
         var bus = new ProjectileOriginReadGuard(rom);
@@ -60,7 +60,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: serves substitute presentation bytes ($90:C1A8-C203) while forbidding origin rows, proving physical origins ignore presentation data")]
-    private sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
+    internal sealed class ProjectileOriginReadGuard(ISnesAddressSpace source) : ISnesAddressSpace, IImportCartridgeSource
     {
         public byte ReadCartridgeByte(int address)
         {

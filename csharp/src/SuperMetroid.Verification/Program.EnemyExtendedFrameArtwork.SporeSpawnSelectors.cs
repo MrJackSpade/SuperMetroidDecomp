@@ -1,15 +1,16 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SporeSpawnInstructionProgramDefinitionsVerification;
 
-internal static partial class Program
+internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
 {
     /// <summary>
     /// The independent diagnostic reads the pinned cartridge instruction stream.
     /// Installed play must select the same frame on the same tick from compiled
     /// operands, even through Spore Spawn's long fight and death programs.
     /// </summary>
-    private static void VerifyInstalledSporeSpawnSelectorPrograms(
+    internal static void VerifyInstalledSporeSpawnSelectorPrograms(
         SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog stock)
     {
@@ -56,7 +57,7 @@ internal static partial class Program
     // Test-only bank-$A5 stream reader. Opcode lengths and effects are taken
     // from pinned sm_a0.c / sm_a5.c, independently of the compiled catalogs.
     // Palette, sound and particle side effects have their own focused fixtures.
-    private static List<SporeSpawnProgramFrame> ReadReferenceSporeSpawnProgram(
+    internal static List<SporeSpawnProgramFrame> ReadReferenceSporeSpawnProgram(
         SuperMetroidAddressSpace rom, ushort initial, int frames, HashSet<ushort> selectors)
     {
         ushort Read(int address) => ReadSporeSpawnProgramWord(rom, unchecked((ushort)address));
@@ -135,14 +136,14 @@ internal static partial class Program
             state.DeathStarted, state.DeathDropRequested);
     }
 
-    private readonly record struct SporeSpawnProgramFrame(
+    internal readonly record struct SporeSpawnProgramFrame(
         ushort Instruction, ushort Timer, ushort VisualFrame,
         Position16<RoomPixels> Position, ushort Health,
         ushort Properties, ushort ExtraProperties,
         SporeSpawnFunction Function, ushort Angle, ushort MaximumXRadius,
         bool DeathStarted, bool DeathDropRequested);
 
-    private static void VerifySporeSpawnVisualRemapKeepsMechanics(
+    internal static void VerifySporeSpawnVisualRemapKeepsMechanics(
         SuperMetroidAddressSpace rom,
         EnemyTileArtworkCatalog stock,
         EnemyTileArtworkCatalog remapped)

@@ -1,3 +1,8 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Input;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
@@ -6,13 +11,15 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static RetailPresentationFixtureVerification;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MoatFirstEntryVerification
 {
     // #370 diagnostic: stage each reciprocal doorway, never preload the destination.
     // A completed transition is only fixture setup, not proof the water pixels are correct.
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void VerifyMoatFirstEntry()
+    internal static void VerifyMoatFirstEntry()
     {
 
         var unpausedFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
@@ -102,5 +109,12 @@ internal static partial class Program
             }
             Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
         }
+    }
+
+    [VerificationCommand("--moat-first-entry")]
+    internal static int MoatFirstEntryCommand()
+    {
+        Suite(nameof(VerifyMoatFirstEntry), () => VerifyMoatFirstEntry());
+        return 0;
     }
 }

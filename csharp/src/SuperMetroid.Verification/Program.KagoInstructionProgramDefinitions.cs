@@ -1,17 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class KagoInstructionProgramDefinitionsVerification
 {
-    private static void VerifyKagoInstructionProgramDefinitions()
+    internal static void VerifyKagoInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyKagoInstructionProgramDefinitions), () => VerifyKagoInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyKagoInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyKagoInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
         for (int index = 0;
@@ -103,7 +114,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Kago instruction words")]
-    private static ushort ReadKagoInstructionWord(
+    internal static ushort ReadKagoInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
@@ -112,4 +123,11 @@ internal static partial class Program
             .Forbid(KagoInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Kago mechanics byte ${address:X6}.")
             .ObserveWords(0xa80000, KagoInstructionProgramDefinitionsTooling.PresentationWordCount, KagoInstructionProgramDefinitionsTooling.PresentationWordAddress);
+
+    [VerificationCommand("--kago-instruction-mechanics")]
+    internal static int KagoInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyKagoInstructionProgramDefinitions), () => VerifyKagoInstructionProgramDefinitions());
+        return 0;
+    }
 }

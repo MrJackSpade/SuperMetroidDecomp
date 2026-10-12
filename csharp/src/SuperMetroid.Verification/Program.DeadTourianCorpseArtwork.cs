@@ -3,10 +3,12 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class DeadTourianCorpseArtworkVerification
 {
-    private static void VerifyInstalledDeadTourianCorpseArtwork(
+    internal static void VerifyInstalledDeadTourianCorpseArtwork(
         string directory, EnemyTileArtworkCatalog stock)
     {
         Suite(nameof(VerifyDeadTourianCorpseVisuals), () => VerifyDeadTourianCorpseVisuals(stock));

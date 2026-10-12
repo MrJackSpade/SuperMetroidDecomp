@@ -4,10 +4,12 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class PauseSelectorAnchorsVerification
 {
-    private static void VerifyPauseSelectorAnchors(ISnesAddressSpace rom)
+    internal static void VerifyPauseSelectorAnchors(ISnesAddressSpace rom)
     {
         // Original names from the preconversion definition table, kept only as the oracle.
         string[][] names = [ ["Reserve.Mode", "Reserve.Transfer"],

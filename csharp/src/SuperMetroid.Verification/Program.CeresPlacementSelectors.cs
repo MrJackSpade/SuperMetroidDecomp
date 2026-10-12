@@ -2,9 +2,9 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class CeresPlacementSelectorsVerification
 {
-    private static void VerifyCeresRearPlacementSelector(ISnesAddressSpace rom)
+    internal static void VerifyCeresRearPlacementSelector(ISnesAddressSpace rom)
     {
         // Original maintained extraction table at d12fa8fa; IDs are asset-format identities,
         // not ROM strings. Native initializer operands independently confirm their source views.
@@ -29,7 +29,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresFlightActorDefinitions.RearViewPlacementSource(i), "rear selector bounds");
     }
 
-    private static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
+    internal static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
     {
         (string Id, ushort XAddress, ushort YAddress)[] original =
         [
@@ -53,7 +53,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => CeresDestructionActorDefinitions.ZebesPlacementSource(i), "reveal selector bounds");
     }
 
-    private static void VerifyCeresInitialPlacementSelector()
+    internal static void VerifyCeresInitialPlacementSelector()
     {
         string[] original = ["large-asteroid", "small-asteroid", "vortex"];
         AssertEqual(original.Length, CeresDestructionActorDefinitions.InitialActorCount, "initial placement count");

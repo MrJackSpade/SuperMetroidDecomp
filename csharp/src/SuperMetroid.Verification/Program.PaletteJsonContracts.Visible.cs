@@ -5,12 +5,16 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static EnemyAnimationIsolationFixtureVerification;
+using static PaletteJsonContractsFixturesVerification;
+using static PaletteJsonContractsLegacyVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class PaletteJsonContractsVisibleVerification
 {
     /// <summary>Real compiled FX/animation and software pixels use only installed color data and live RAM.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static void VerifyPaletteContractVisibleIsolation()
+    internal static void VerifyPaletteContractVisibleIsolation()
     {
         var documents = PaletteJsonContracts().ToDictionary(item => item.Name, item => item.Document);
         JsonObject title = documents["title"];

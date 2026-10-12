@@ -1,10 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Input;
 
-internal static partial class Program
+internal static class SamusHudSelectionVerification
 {
     /// <summary>Runs one selector frame; true when it moved the selected index.</summary>
-    static bool SelectionChanged(SamusState samus, ushort controllerInput, ushort controllerNewInput)
+    internal static bool SelectionChanged(SamusState samus, ushort controllerInput, ushort controllerNewInput)
     {
         ushort before = samus.SelectedHudItem;
         samus.HandleHudSelection(controllerInput, controllerNewInput);
@@ -15,7 +15,7 @@ internal static partial class Program
     /// Verifies the six-entry bank-$90 HUD selector independently of weapon production.
     /// This is the controller path used to equip the first Missile before Flyway's red door.
     /// </summary>
-    static void VerifySamusHudSelection()
+    internal static void VerifySamusHudSelection()
     {
         const ushort select = (ushort)SnesButton.Select;
         const ushort cancel = (ushort)SnesButton.Y;

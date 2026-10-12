@@ -1,17 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class BullInstructionProgramDefinitionsVerification
 {
-    private static void VerifyBullInstructionProgramDefinitions()
+    internal static void VerifyBullInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyBullInstructionProgramDefinitions), () => VerifyBullInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyBullInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyBullInstructionProgramDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic |
             BindingFlags.Static;
@@ -97,11 +108,11 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Bull instruction words")]
-    private static ushort ReadBullInstructionWord(
+    internal static ushort ReadBullInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) => CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    private static CartridgeReadGuard NewBullInstructionProgramReadGuard(
+    internal static CartridgeReadGuard NewBullInstructionProgramReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
         static ushort SelectorWord(int address) => Enumerable.Range(0, BullInstructionProgramDefinitionsTooling.PresentationWordCount)
@@ -114,5 +125,12 @@ internal static partial class Program
             ? guard.ForbidWords(0xa80000, BullInstructionProgramDefinitionsTooling.PresentationWordCount, BullInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Installed Bull read cartridge visual selector $A8:{SelectorWord(address):X4}.")
             : guard.ObserveWords(0xa80000, BullInstructionProgramDefinitionsTooling.PresentationWordCount, BullInstructionProgramDefinitionsTooling.PresentationWordAddress);
+    }
+
+    [VerificationCommand("--bull-instruction-mechanics")]
+    internal static int BullInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyBullInstructionProgramDefinitions), () => VerifyBullInstructionProgramDefinitions());
+        return 0;
     }
 }

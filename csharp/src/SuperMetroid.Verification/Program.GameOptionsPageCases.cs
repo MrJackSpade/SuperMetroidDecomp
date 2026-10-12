@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static DoorDefinitionsVerification;
 
-internal static partial class Program
+internal static class GameOptionsPageCasesVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for game-options page tilemaps")]
-    private static void VerifyGameOptionsPageCases()
+    internal static void VerifyGameOptionsPageCases()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
@@ -40,5 +50,13 @@ internal static partial class Program
         foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => GameOptionsRomData.Pages.Get((GameOptionsTilemap)invalid),
                 "unsupported options tilemap selector");
+    }
+
+    [VerificationCommand("--lookup-options-pages")]
+    internal static int LookupOptionsPagesCommand()
+    {
+        Suite(nameof(VerifyGameOptionsPageCases), () => VerifyGameOptionsPageCases());
+        Console.WriteLine("Options pages: all five native source pairs, named imported page bytes, descriptions and rejected selectors pass.");
+        return 0;
     }
 }

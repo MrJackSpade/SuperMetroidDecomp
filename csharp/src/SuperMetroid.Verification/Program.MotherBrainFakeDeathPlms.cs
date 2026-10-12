@@ -1,10 +1,26 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.AssetExtraction;
+using static AssertionsVerification;
+using static LookupMotherBrainBackgroundVerification;
+using static LookupMotherBrainBoundaryVerification;
+using static LookupMotherBrainMutationProgramsVerification;
+using static LookupMotherBrainRegularDrawsVerification;
+using static SuiteTimingVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class MotherBrainFakeDeathPlmsVerification
 {
-    private static void VerifyCompiledMotherBrainFakeDeathPlms()
+    internal static void VerifyCompiledMotherBrainFakeDeathPlms()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -115,7 +131,7 @@ internal static partial class Program
             $"Mother Brain mutation ${(int)header:X4} reads no migrated source bytes");
     }
 
-    private static CartridgeReadGuard NewMotherBrainFakeDeathSourceGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewMotherBrainFakeDeathSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
         {
             int pointer = SnesAddressMath.OffsetInBank(address);
@@ -127,4 +143,11 @@ internal static partial class Program
                          draw.Runs.Span.ToArray().Sum(run =>
                              4 + run.LevelWords.Length * 2)));
         }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");
+
+    [VerificationCommand("--mother-brain-fake-death-plms")]
+    internal static int MotherBrainFakeDeathPlmsCommand()
+    {
+        Suite(nameof(VerifyCompiledMotherBrainFakeDeathPlms), () => VerifyCompiledMotherBrainFakeDeathPlms());
+        return 0;
+    }
 }

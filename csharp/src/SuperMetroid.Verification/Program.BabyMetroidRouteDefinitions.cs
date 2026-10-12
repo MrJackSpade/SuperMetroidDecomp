@@ -2,14 +2,14 @@ using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class BabyMetroidRouteDefinitionsVerification
 {
     /// <summary>
     /// Compares every compiled Baby Metroid route word with the pinned cartridge. The
     /// integrated cutscene fixture separately runs the complete route through a bus that
     /// rejects reads of this source range.
     /// </summary>
-    private static void VerifyBabyMetroidRouteDefinitions()
+    internal static void VerifyBabyMetroidRouteDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         for (int index = 0; index < BabyMetroidRouteDefinitions.RecordCount; index++)
@@ -50,7 +50,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle words for cartridge definition comparisons")]
-    private static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
+    internal static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
     private static CartridgeReadGuard NewBabyRouteReadGuard(ISnesAddressSpace source) =>

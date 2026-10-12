@@ -5,10 +5,16 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
+using static ColorWordsVerification;
+using static GraphDigestVerification;
+using static RenderPacketCodecTestsVerification;
+using static RetailGameFixtureVerification;
+using static RetailPresentationFixtureVerification;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class FileMapSnapshotTestsVerification
 {
-    private static void VerifyFileMapSnapshots()
+    internal static void VerifyFileMapSnapshots()
     {
         VerifyWindowedSceneContract();
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));

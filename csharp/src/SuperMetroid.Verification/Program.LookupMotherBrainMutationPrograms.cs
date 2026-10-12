@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupMotherBrainMutationProgramsVerification
 {
-    private static void VerifyMotherBrainMutationProgramControls(ISnesAddressSpace rom) =>
+    internal static void VerifyMotherBrainMutationProgramControls(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, false));
 
-    private static void VerifyMotherBrainMutationProgramDraws(ISnesAddressSpace rom) =>
+    internal static void VerifyMotherBrainMutationProgramDraws(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyMotherBrainMutationProgramField), () => VerifyMotherBrainMutationProgramField(rom, true));
 
     private static void VerifyMotherBrainMutationProgramField(ISnesAddressSpace rom, bool draw)

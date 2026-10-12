@@ -1,6 +1,18 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Audio;
 
-internal static partial class Program
+internal static class SpcMemoryBoundaryVerification
 {
     /// <summary>
     /// #632: the typed driver-memory views keep native byte order and 16-bit wrapping, advance stream
@@ -8,7 +20,7 @@ internal static partial class Program
     /// expose the pan-table overrun as the FIR preset table it aliases, and type the APU ports.
     /// </summary>
     [SpcMemoryBoundary("exact APU memory test: typed driver-memory views against APU RAM")]
-    private static void VerifySpcMemoryBoundary()
+    internal static void VerifySpcMemoryBoundary()
     {
         var player = new ManagedSpcPlayer();
 
@@ -48,5 +60,12 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => player.WritePort((ApuPort)4, 0), "APU input ports are $2140-$2143");
         AssertThrows<ArgumentOutOfRangeException>(() => player.ReadPort((ApuPort)4), "APU output ports are $2140-$2143");
         AssertEqual(ApuPort.SoundLibrary2, CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 1).InputPort, "port commands round-trip their port");
+    }
+
+    [VerificationCommand("--spc-memory-boundary")]
+    internal static int SpcMemoryBoundaryCommand()
+    {
+        Suite(nameof(VerifySpcMemoryBoundary), () => VerifySpcMemoryBoundary());
+        return 0;
     }
 }

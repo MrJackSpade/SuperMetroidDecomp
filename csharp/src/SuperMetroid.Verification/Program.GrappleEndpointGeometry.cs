@@ -2,11 +2,13 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using System.Reflection;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GrappleEndpointGeometryVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyGrappleEndpointGeometry(ISnesAddressSpace bus)
+    internal static void VerifyGrappleEndpointGeometry(ISnesAddressSpace bus)
     {
         // $94:B093 chooses by pose, not grapple connection phase. Keep the
         // rope origin off-screen so its first visited slot is culled and only

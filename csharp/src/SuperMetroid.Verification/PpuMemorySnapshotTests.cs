@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
+using static ColorWordsVerification;
 
-internal static partial class Program
+internal static class PpuMemorySnapshotTestsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyPpuMemorySnapshotOwnership()
+    internal static void VerifyPpuMemorySnapshotOwnership()
     {
         var vram = new SnesVram();
         var cgram = new SnesCgram();

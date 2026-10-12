@@ -4,8 +4,10 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupLiquidTilemapsVerification
 {
     private static void VerifyLiquidTileCharacters(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog catalog) =>
         Suite(nameof(VerifyLiquidTileField), () => VerifyLiquidTileField(rom, catalog, 0x03ff));
@@ -79,7 +81,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for liquid tilemap domain and storage")]
     private static byte LiquidTilemapDomainAndStorageRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyLiquidTilemaps(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifyLiquidTilemaps(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         Suite(nameof(VerifyLiquidTileCharacters), () => VerifyLiquidTileCharacters(rom, stock));
         Suite(nameof(VerifyLiquidTilePalettes), () => VerifyLiquidTilePalettes(rom, stock));
@@ -89,7 +91,7 @@ internal static partial class Program
         Suite(nameof(VerifyLiquidTilemapDomainAndStorage), () => VerifyLiquidTilemapDomainAndStorage(rom, stock));
     }
 
-    private static CartridgeReadGuard NewLiquidTilemapSourceGuard(ISnesAddressSpace source) =>
+    internal static CartridgeReadGuard NewLiquidTilemapSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).ForbidRange(0x8a8000, 0x8a98c0 - 0x8a8000,
             _ => "Liquid tilemap extraction read a converted stock page.");
 }

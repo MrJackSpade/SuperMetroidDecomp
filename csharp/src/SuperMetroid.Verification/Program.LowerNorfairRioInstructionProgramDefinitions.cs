@@ -1,18 +1,28 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LowerNorfairRioInstructionProgramDefinitionsVerification
 {
-    private static void VerifyLowerNorfairRioInstructionProgramDefinitions()
+    internal static void VerifyLowerNorfairRioInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyLowerNorfairRioInstructionProgramDefinitions(
+    internal static void VerifyLowerNorfairRioInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -159,7 +169,7 @@ internal static partial class Program
             "Lower Norfair Rio follower initializer selects flames");
     }
 
-    private static (
+    internal static (
         RoomEnemySystem Enemies,
         RoomEnemySlot Slot,
         LowerNorfairRioEnemyState State) NewLowerNorfairRioInstructionSystem(
@@ -183,7 +193,7 @@ internal static partial class Program
         return (enemies, slot, state);
     }
 
-    private static void RunLowerNorfairRioInstructionFrames(
+    internal static void RunLowerNorfairRioInstructionFrames(
         MethodInfo process,
         RoomEnemySystem enemies,
         object?[] arguments,
@@ -211,12 +221,12 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Lower Norfair Rio instruction words")]
-    private static ushort ReadLowerNorfairRioInstructionWord(
+    internal static ushort ReadLowerNorfairRioInstructionWord(
         SuperMetroidAddressSpace source,
         ushort address) =>
         CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank(0xa20000 | address);
 
-    private static CartridgeReadGuard NewLowerNorfairRioInstructionReadGuard(
+    internal static CartridgeReadGuard NewLowerNorfairRioInstructionReadGuard(
         ISnesAddressSpace source, bool forbidPresentation = false)
     {
         static ushort SelectorWord(int address) => Enumerable.Range(0, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount)
@@ -229,5 +239,12 @@ internal static partial class Program
             ? guard.ForbidWords(0xa20000, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress,
                 address => $"Installed Lower Norfair Rio read visual selector $A2:{SelectorWord(address):X4}.")
             : guard.ObserveWords(0xa20000, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordCount, LowerNorfairRioInstructionProgramDefinitionsTooling.PresentationWordAddress);
+    }
+
+    [VerificationCommand("--lower-norfair-rio-instruction-program-definitions")]
+    internal static int LowerNorfairRioInstructionProgramDefinitionsCommand()
+    {
+        Suite(nameof(VerifyLowerNorfairRioInstructionProgramDefinitions), () => VerifyLowerNorfairRioInstructionProgramDefinitions());
+        return 0;
     }
 }

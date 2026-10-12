@@ -2,11 +2,11 @@ using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MenuThinBorderPixelsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for menu thin border pixels")]
-    private static void VerifyMenuThinBorderPixels(ISnesAddressSpace rom)
+    internal static void VerifyMenuThinBorderPixels(ISnesAddressSpace rom)
     {
         int[] tiles = [0xad, 0xae];
         var files = MapSpriteExtractor.Extract(rom);

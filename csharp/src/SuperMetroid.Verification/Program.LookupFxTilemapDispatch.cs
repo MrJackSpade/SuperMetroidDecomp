@@ -3,10 +3,13 @@ using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static LookupFxTilemapSourcesVerification;
+using static TilemapJsonContractsVerification;
 
-internal static partial class Program
+internal static class LookupFxTilemapDispatchVerification
 {
-    private static void VerifyFxTilemapPageDispatch(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
+    internal static void VerifyFxTilemapPageDispatch(ISnesAddressSpace rom, RoomFxLayer3TilemapCatalog stock)
     {
         var native = new Dictionary<RoomFxType, byte[]>();
         var markers = new Dictionary<RoomFxType, ushort>();

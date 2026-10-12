@@ -3,10 +3,10 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class SporeSpawnProjectileDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Spore Spawn projectile definitions")]
-    private static void VerifySporeSpawnProjectileDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifySporeSpawnProjectileDefinitions(SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Static |
             BindingFlags.NonPublic;

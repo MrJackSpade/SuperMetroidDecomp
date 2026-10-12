@@ -2,9 +2,9 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class XrayExtensionsVerification
 {
-    private static void VerifyXrayExtensions()
+    internal static void VerifyXrayExtensions()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         RoomLevelData Create() => new RoomLevelData(new Extent16<RoomBlocks>(8, 8), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 64).ToArray(), new byte[64], new ushort[64]), Array.Empty<byte>());

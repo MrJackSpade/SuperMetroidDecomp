@@ -1,13 +1,25 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Spatial;
+using static RetailRuntimeFixtureVerification;
+using static SuiteTimingVerification;
+using static YardAirborneVerification;
+using static YardKickVerification;
 
-internal static partial class Program
+internal static class YardTrajectoriesVerification
 {
-    private static void VerifyYardTrajectories()
+    internal static void VerifyYardTrajectories()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd5a7);
@@ -80,4 +92,11 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for the $A3:E5F0 Yard crawl-speed table")]
     private static ushort ReadNativeYardCrawlSpeed(ISnesAddressSpace bus, int parameter) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0xa3e5f0 + parameter * 2);
+
+    [VerificationCommand("--yard-trajectories")]
+    internal static int YardTrajectoriesCommand()
+    {
+        Suite(nameof(VerifyYardTrajectories), () => VerifyYardTrajectories());
+        return 0;
+    }
 }

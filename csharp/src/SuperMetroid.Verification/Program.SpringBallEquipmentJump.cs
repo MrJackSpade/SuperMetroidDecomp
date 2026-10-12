@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Rendering;
+using static SuiteTimingVerification;
 using System.Reflection;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Frontend;
@@ -6,10 +12,11 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static FrontendRomFreeVerification;
 
-internal static partial class Program
+internal static class SpringBallEquipmentJumpVerification
 {
-    private static void VerifySpringBallEquipmentJump()
+    internal static void VerifySpringBallEquipmentJump()
     {
         var installation = RepositoryInstallation.Installation;
         foreach (bool left in new[] { false, true })
@@ -79,5 +86,12 @@ internal static partial class Program
             }
         }
         Console.WriteLine("Spring Ball equipment jump: real unpause preserves ascent, enables two airborne launches with native water speeds, and handles both facings.");
+    }
+
+    [VerificationCommand("--spring-ball-equipment-jump")]
+    internal static int SpringBallEquipmentJumpCommand()
+    {
+        Suite(nameof(VerifySpringBallEquipmentJump), () => VerifySpringBallEquipmentJump());
+        return 0;
     }
 }

@@ -1,8 +1,18 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class SlopeLandingPoseProbeVerification
 {
     /// <summary>
     /// #1275 "Samus drunk", updates 44757-44759 in Ceres room $DFD7: Samus falls at X $69 onto
@@ -12,7 +22,7 @@ internal static partial class Program
     /// zero probe, finds slope $54 under the bottom boundary and restores the falling pose.
     /// One frame later Samus is a pixel deeper and the landing fits by moving her up.
     /// </summary>
-    private static void VerifySlopeLandingZeroDistanceProbe()
+    internal static void VerifySlopeLandingZeroDistanceProbe()
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         const int Width = 16, Height = 32;
@@ -46,5 +56,11 @@ internal static partial class Program
         AssertEqual(SamusPoseId.NormalLandingRightPose, deeper.Pose, "native update 44759 lands");
         AssertEqual((ushort)0x16d, deeper.Position.Y.Whole, "the landing moves Samus up clear of slope $55");
         Console.WriteLine("Slope landing: a zero-distance pose-change probe rejects the landing on the clipped frame; the next frame lands.");
+    }
+
+    [VerificationCommand("--slope-landing-zero-probe")]
+    internal static int SlopeLandingZeroProbeCommand()
+    {
+     VerifySlopeLandingZeroDistanceProbe(); return 0; 
     }
 }

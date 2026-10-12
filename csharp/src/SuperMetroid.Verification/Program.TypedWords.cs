@@ -7,8 +7,9 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class TypedWordsVerification
 {
 
 /// <summary>
@@ -16,7 +17,7 @@ internal static partial class Program
 /// normalizing, discarding, or assigning meaning to any other native bits.
 /// </summary>
 [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native OAM tables, native PPU geometry, native VRAM words")]
-static void VerifyTypedNativeWords()
+internal static void VerifyTypedNativeWords()
 {
     // Equipment helpers must mutate only the requested independent bits. Bit $0080 is not
     // named by the enum and deliberately survives both operations unchanged.

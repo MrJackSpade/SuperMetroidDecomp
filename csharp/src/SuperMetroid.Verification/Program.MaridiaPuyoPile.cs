@@ -1,10 +1,21 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class MaridiaPuyoPileVerification
 {
-    private static void VerifyMaridiaPuyoPile()
+    internal static void VerifyMaridiaPuyoPile()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, 0xd27e);
@@ -45,5 +56,12 @@ internal static partial class Program
         for (int i = 0; i < population.Length; i++)
             AssertEqual(population[i].Delay + 1, firstHop[i], "native DEC/BPL starts hop on signed timer underflow");
         Console.WriteLine($"Maridia $04/$10 authored Puyo pile: first hops at {string.Join(',', firstHop)} AI updates; all six spawn coordinates and waiting trajectories match retail data.");
+    }
+
+    [VerificationCommand("--maridia-puyo-pile")]
+    internal static int MaridiaPuyoPileCommand()
+    {
+        Suite(nameof(VerifyMaridiaPuyoPile), () => VerifyMaridiaPuyoPile());
+        return 0;
     }
 }

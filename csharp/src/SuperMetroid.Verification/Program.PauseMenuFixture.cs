@@ -7,14 +7,15 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static RetailPresentationFixtureVerification;
 
-internal static partial class Program
+internal static class PauseMenuFixtureVerification
 {
     // Translate this test's deliberately constructed cartridge visuals into the
     // installed contract. Never mutate the shared retail catalog or its arrays.
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the constructed pause presentation source bytes")]
-    private static AreaMapPresentationCatalog CreateConstructedPausePresentation(
+    internal static AreaMapPresentationCatalog CreateConstructedPausePresentation(
         CartridgeImportAddressSpace bus)
     {
         var stock = RetailPresentationFixture();

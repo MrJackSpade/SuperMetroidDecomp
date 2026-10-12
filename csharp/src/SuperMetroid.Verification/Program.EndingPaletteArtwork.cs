@@ -1,3 +1,9 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Game;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Text.Json;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
@@ -6,12 +12,15 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
+using static ColorWordsVerification;
+using static RetailGameFixtureVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EndingPaletteArtworkVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending logo palette fade")]
-    private static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
+    internal static void VerifyEndingLogoPaletteFade(CartridgeImportAddressSpace rom)
     {
         var original = new byte[512 * 2];
         var colors = new PaletteRgb5[512];
@@ -109,7 +118,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for ending palette metadata")]
-    private static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
+    internal static void VerifyEndingPaletteMetadata(CartridgeImportAddressSpace rom)
     {
         // Original indexed LDA operands select the six contiguous resources. The gunship
         // uses absolute,X in bank8B; the others use long,X. No production source constants.
@@ -168,7 +177,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyEndingPaletteRoleSelection()
+    internal static void VerifyEndingPaletteRoleSelection()
     {
         // Distinct caller-owned values exercise the original constructor-position contract.
         var supplied = new EndingPalette[7];
@@ -197,7 +206,7 @@ internal static partial class Program
     }
 
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyEndingPaletteArtwork(GameInstallation installation)
+    internal static void VerifyEndingPaletteArtwork(GameInstallation installation)
     {
         Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
         EndingPaletteCatalog stock = installation.LoadEndingPalettes();
@@ -626,5 +635,13 @@ internal static partial class Program
             address => throw new InvalidOperationException(
                 $"Installed ending reread cartridge byte ${address:X6}."));
         return guard;
+    }
+
+    [VerificationCommand("--lookup-ending-palette-roles")]
+    internal static int LookupEndingPaletteRolesCommand()
+    {
+        Suite(nameof(VerifyEndingPaletteRoleSelection), () => VerifyEndingPaletteRoleSelection());
+        Console.WriteLine("Ending palette roles: all seven supplied references, original identity order and invalid-role behavior pass.");
+        return 0;
     }
 }

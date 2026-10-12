@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static KraidFootInstructionProgramDefinitionsVerification;
 
-internal static partial class Program
+internal static class KraidFootGeneratedProgramsVerification
 {
     // Independent decoder of the pinned A7:86E7-893C byte stream: duration/frame
     // pairs, no-operand callbacks, and the terminal $80ED goto with one operand.
@@ -29,7 +30,7 @@ internal static partial class Program
         return (mechanics, presentation);
     }
 
-    private static void VerifyKraidFootGeneratedMechanics(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidFootGeneratedMechanics(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidFootPrograms(rom).Mechanics;
         AssertEqual(193, original.Count, "native Kraid foot mechanics count");
@@ -54,7 +55,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => KraidFootInstructionProgramDefinitionsTooling.MechanicsWord(193), "mechanics index past end");
     }
 
-    private static void VerifyKraidFootGeneratedPresentation(SuperMetroidAddressSpace rom)
+    internal static void VerifyKraidFootGeneratedPresentation(SuperMetroidAddressSpace rom)
     {
         var original = ReadOriginalKraidFootPrograms(rom).Presentation;
         AssertEqual(106, original.Count, "native foot presentation count");

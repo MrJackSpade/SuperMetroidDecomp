@@ -6,11 +6,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
+using static ChargeFlareProductionVerification;
+using static GraphDigestVerification;
+using static MapPresentationVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GrappleFlarePresentationVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
+    internal static void VerifyGrappleFlarePresentation(SuperMetroidAddressSpace bus,
         ChargeFlareSpriteCatalog stock, ChargeFlareSpriteCatalog edited,
         SamusBodyArtworkCatalog body, MapPresentationInstalledRoomAssets roomAssets,
         AreaMapPresentationCatalog maps, GrappleTileAtlas grappleArtwork)

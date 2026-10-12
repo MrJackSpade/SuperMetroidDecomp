@@ -1,7 +1,19 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
+using static RetailRuntimeFixtureVerification;
 
-internal static partial class Program
+internal static class EmptyExtendedFrameShotsVerification
 {
     /// <summary>
     /// <c>$A0:9BA6</c> returns from the extended projectile pass while an enemy shows the
@@ -9,7 +21,7 @@ internal static partial class Program
     /// a charged beam passes over a green walking pirate on that frame without damaging it;
     /// the next frame's real body takes the hit.
     /// </summary>
-    private static void VerifyEmptyExtendedFrameShots()
+    internal static void VerifyEmptyExtendedFrameShots()
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         SuperMetroidRuntime runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -39,5 +51,12 @@ internal static partial class Program
         AssertEqual(0, hits, "the empty extended frame takes no projectile hit");
         AssertEqual(health, pirate.Health, "the beam over the empty frame deals no damage");
         Console.WriteLine("  Empty extended frame: a beam over $804F leaves the pirate untouched.");
+    }
+
+    [VerificationCommand("--empty-extended-frame-shots")]
+    internal static int EmptyExtendedFrameShotsCommand()
+    {
+        Suite(nameof(VerifyEmptyExtendedFrameShots), () => VerifyEmptyExtendedFrameShots());
+        return 0;
     }
 }

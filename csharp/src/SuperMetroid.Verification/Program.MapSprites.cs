@@ -5,12 +5,15 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Desktop;
+using static InstalledFileSelectMapVerification;
+using static MapSpriteCasesVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class MapSpritesVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the native map OBJ characters")]
-    private static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
+    internal static void VerifyMapSprites(ISnesAddressSpace bus, string stock, string overrides, AreaMapPresentationCatalog original)
     {
         var native = new OamBuffer();
         var installed = new OamBuffer();
@@ -122,7 +125,7 @@ internal static partial class Program
     /// Import-only spritemap oracle shared by map and pause-UI parity checks. Gameplay
     /// OAM cannot read immutable cartridge sprites after installation.
     /// </summary>
-    private static void DrawImportedSpritemap(ISnesAddressSpace bus, OamBuffer oam,
+    internal static void DrawImportedSpritemap(ISnesAddressSpace bus, OamBuffer oam,
         int address, Position16<OamPixels> origin, ushort paletteBits,
         bool originIsOnScreen = true) => ImportedSpritemapOracle.DrawGeneric(
             CartridgeImportSource.Require(bus), oam, address, origin,

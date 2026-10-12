@@ -1,12 +1,14 @@
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class GameOverTextLookupsVerification
 {
-    private static void VerifyGameOverTextSources(ISnesAddressSpace rom) =>
+    internal static void VerifyGameOverTextSources(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 0, 0xa0, stream => stream.SourcePointer, "source"));
 
-    private static void VerifyGameOverTextDestinations(ISnesAddressSpace rom) =>
+    internal static void VerifyGameOverTextDestinations(ISnesAddressSpace rom) =>
         Suite(nameof(VerifyGameOverTextField), () => VerifyGameOverTextField(rom, 3, 0xa2, stream => stream.DestinationByteOffset, "destination"));
 
     private static void VerifyGameOverTextField(ISnesAddressSpace rom, int fieldOffset,

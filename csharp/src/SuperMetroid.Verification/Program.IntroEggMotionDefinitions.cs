@@ -2,9 +2,9 @@ using System.Reflection;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class IntroEggMotionDefinitionsVerification
 {
-    private static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
         ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1)));
         void Compare(int address, int count, Func<int, (ushort Whole, ushort Fraction)> sample)

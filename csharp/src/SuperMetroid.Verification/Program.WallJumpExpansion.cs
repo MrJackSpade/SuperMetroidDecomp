@@ -1,9 +1,10 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static VerificationHelpersVerification;
 
-internal static partial class Program
+internal static class WallJumpExpansionVerification
 {
-    private static void VerifyWallJumpExpansion(ISnesAddressSpace bus)
+    internal static void VerifyWallJumpExpansion(ISnesAddressSpace bus)
     {
         foreach (bool ceiling in new[] { false, true })
         foreach (bool left in new[] { false, true })

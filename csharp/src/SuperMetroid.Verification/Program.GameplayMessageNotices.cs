@@ -1,12 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
+using static GameplayMessageTitlesVerification;
 
-internal static partial class Program
+internal static class GameplayMessageNoticesVerification
 {
-    private static void VerifyGameplayMessageNotices(string romPath)
+    internal static void VerifyGameplayMessageNotices(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.GameplayMessageNoticeExtractor.Extract(bus);
@@ -70,7 +82,7 @@ internal static partial class Program
             $"Gameplay-message notices: {GameplayMessageNoticeDefinitions.MessageIds.Length} UTF-8 layouts and {comparedWords} installed words match the cartridge with message ROM reads forbidden; YES/NO selection, live edit/rebind and invalid glyph rejection pass.");
     }
 
-    private static void VerifyGameplayMessageNoticeAssets(
+    internal static void VerifyGameplayMessageNoticeAssets(
         ISnesAddressSpace bus,
         string stockDirectory,
         string overrideDirectory,
@@ -107,5 +119,13 @@ internal static partial class Program
             "corrupt gameplay-message notice override fails loudly");
         Console.WriteLine(
             "Gameplay-message notice catalog: deterministic stock, override selection/identity and corruption failure pass.");
+    }
+
+    [VerificationCommand("--gameplay-message-notices")]
+    internal static int GameplayMessageNoticesCommand()
+    {
+        string messageNoticeRom = RepositoryRomPath;
+        Suite(nameof(VerifyGameplayMessageNotices), () => VerifyGameplayMessageNotices(messageNoticeRom));
+        return 0;
     }
 }

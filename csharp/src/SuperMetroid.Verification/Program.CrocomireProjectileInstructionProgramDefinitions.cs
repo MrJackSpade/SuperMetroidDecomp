@@ -1,18 +1,29 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Assets;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class CrocomireProjectileInstructionProgramDefinitionsVerification
 {
-    private static void VerifyCrocomireProjectileInstructionProgramDefinitions()
+    internal static void VerifyCrocomireProjectileInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyCrocomireProjectileInstructionProgramDefinitions), () => VerifyCrocomireProjectileInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyCrocomireProjectileInstructionProgramDefinitions(
+    internal static void VerifyCrocomireProjectileInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -168,7 +179,7 @@ internal static partial class Program
         }
     }
 
-    private static void VerifyCrocomireProjectileMechanicsDispatch(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireProjectileMechanicsDispatch(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
         [
@@ -201,7 +212,7 @@ internal static partial class Program
         AssertThrows<IndexOutOfRangeException>(() => CrocomireProjectileInstructionProgramDefinitionsTooling.MechanicsWord(22), "Crocomire projectile mechanics index past end");
     }
 
-    private static void VerifyCrocomireProjectilePresentationPositions(SuperMetroidAddressSpace rom)
+    internal static void VerifyCrocomireProjectilePresentationPositions(SuperMetroidAddressSpace rom)
     {
         ushort[] addresses =
         [
@@ -238,4 +249,11 @@ internal static partial class Program
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
                 address => $"Production read compiled Crocomire projectile mechanics byte ${address:X6}.")
             .ObserveWords(EnemyProjectileCodePointers.BankBase, CrocomireProjectileInstructionProgramDefinitions.PresentationWordCount, CrocomireProjectileInstructionProgramDefinitions.PresentationWordAddress);
+
+    [VerificationCommand("--crocomire-projectile-instruction-mechanics")]
+    internal static int CrocomireProjectileInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyCrocomireProjectileInstructionProgramDefinitions), () => VerifyCrocomireProjectileInstructionProgramDefinitions());
+        return 0;
+    }
 }

@@ -1,12 +1,13 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
+using static SamusEaterPlmDefinitionsVerification;
 
-internal static partial class Program
+internal static class LookupSpeedEscapeProgramVerification
 {
-    private static void VerifySpeedEscapeProgramControls(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySpeedEscapeProgramControls(SuperMetroidAddressSpace rom) =>
         VerifySpeedEscapeProgramField(rom, false);
 
-    private static void VerifySpeedEscapeProgramCallbacks(SuperMetroidAddressSpace rom) =>
+    internal static void VerifySpeedEscapeProgramCallbacks(SuperMetroidAddressSpace rom) =>
         VerifySpeedEscapeProgramField(rom, true);
 
     private static void VerifySpeedEscapeProgramField(SuperMetroidAddressSpace rom, bool callback)

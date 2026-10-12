@@ -1,13 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ExtendedCollisionReferenceVerification;
 
-internal static partial class Program
+internal static class MaridiaLargeSnailCollisionDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for Oum visual selectors")]
-    private static void VerifyInstalledOumVisualSelectors(
+    internal static void VerifyInstalledOumVisualSelectors(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
@@ -45,7 +56,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Maridia large snail collision definitions")]
-    private static void VerifyMaridiaLargeSnailCollisionDefinitions()
+    internal static void VerifyMaridiaLargeSnailCollisionDefinitions()
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -163,4 +174,11 @@ internal static partial class Program
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed Oum frame or collision read ROM byte ${address:X6}.")
             .RejectWrites(address => $"Installed Oum frame or collision wrote ROM byte ${address:X6}.");
+
+    [VerificationCommand("--verify-oum-collision")]
+    internal static int VerifyOumCollisionCommand()
+    {
+        Suite(nameof(VerifyMaridiaLargeSnailCollisionDefinitions), () => VerifyMaridiaLargeSnailCollisionDefinitions());
+        return 0;
+    }
 }

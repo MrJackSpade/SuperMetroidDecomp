@@ -5,12 +5,13 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rom;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Desktop;
+using static MapPresentationVerification;
 
-internal static partial class Program
+internal static class HudAtlasVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the installed HUD tile atlas")]
-    private static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
+    internal static void VerifyHudAtlasIntegration(ISnesAddressSpace bus, string stock, string overrides,
         AreaMapPresentationCatalog original, AreaMapCartridgeData[] rules,
         GameplayBasePaletteCatalog initialPalettes,
         MapPresentationInstalledRoomAssets fixtureAssets)

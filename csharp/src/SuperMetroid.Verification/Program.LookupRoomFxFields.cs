@@ -1,7 +1,9 @@
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class LookupRoomFxFieldsVerification
 {
     // Independently captured accepted identities before replacing the original record array.
     private static readonly ushort[] OriginalFxRecordPointers =
@@ -33,7 +35,7 @@ internal static partial class Program
         0xA15E, 0xA17E, 0xA180, 0xA182, 0xA184, 0xA186, 0xA188,
     ];
 
-    private static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
+    internal static void VerifyRoomFxFields(SuperMetroidAddressSpace rom,
         SortedDictionary<ushort, RoomFxRecordDefinition> originals)
     {
         Suite(nameof(VerifyRoomFxIdentities), () => VerifyRoomFxIdentities(originals));
@@ -119,7 +121,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for room FX field")]
     private static byte RoomFxFieldRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static void VerifyRoomFxListSelection(SuperMetroidAddressSpace rom)
+    internal static void VerifyRoomFxListSelection(SuperMetroidAddressSpace rom)
     {
         // Native $89:AB99..ABB7: zero loads, FFFF returns, then compare door.
         // Build a first-match map from original bytes; this oracle does not replay

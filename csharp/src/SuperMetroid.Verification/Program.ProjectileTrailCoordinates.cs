@@ -1,11 +1,22 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling;
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rom;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class ProjectileTrailCoordinatesVerification
 {
-    private static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
+    internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
         var guard = NewTrailCoordinateGuard(bus);
         int bytes = 0;
@@ -234,5 +245,13 @@ internal static partial class Program
         guard.Forbid(address => address is >= 0x9ba4b3 and <= 0x9bb3a6,
             _ => new InvalidDataException("Trail coordinate owner still reads authored ROM data."));
         return guard;
+    }
+
+    [VerificationCommand("--projectile-trail-coordinates")]
+    internal static int ProjectileTrailCoordinatesCommand()
+    {
+        Suite(nameof(VerifyProjectileTrailCoordinates), () => VerifyProjectileTrailCoordinates(SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"))));
+        return 0;
     }
 }

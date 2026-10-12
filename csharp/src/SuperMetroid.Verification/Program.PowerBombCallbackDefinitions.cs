@@ -1,11 +1,24 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static ShotCallbackDefinitionsVerification;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Rom;
 using System.Text.RegularExpressions;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class PowerBombCallbackDefinitionsVerification
 {
-    private static string FindCallbackDisassemblySource()
+    internal static string FindCallbackDisassemblySource()
     {
         // Linked worktrees share the separately checked-out diagnostic reference.
         for (DirectoryInfo? directory = new(Environment.CurrentDirectory);
@@ -21,7 +34,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for power bomb callback definitions")]
-    private static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyPowerBombCallbackDefinitions(SuperMetroidAddressSpace rom)
     {
         int headers = 0;
         var literalCallbacks = new HashSet<int>();
@@ -50,5 +63,15 @@ internal static partial class Program
                 EnemyPowerBombCallbackDefinitions.IsLiteralNoOp((byte)bank, (ushort)pointer),
                 "Power Bomb bank-qualified callback identity");
         Console.WriteLine($"Power Bomb callbacks: {headers} named headers match native opcode classification; all 16777216 bank/pointer pairs preserve the ten literal no-ops and zero/common distinction.");
+    }
+
+    [VerificationCommand("--enemy-callback-definitions")]
+    internal static int EnemyCallbackDefinitionsCommand()
+    {
+        var callbackRom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
+            Path.GetFullPath("Super Metroid.smc"));
+        Suite(nameof(VerifyPowerBombCallbackDefinitions), () => VerifyPowerBombCallbackDefinitions(callbackRom));
+        Suite(nameof(VerifyShotCallbackDefinitions), () => VerifyShotCallbackDefinitions(callbackRom));
+        return 0;
     }
 }

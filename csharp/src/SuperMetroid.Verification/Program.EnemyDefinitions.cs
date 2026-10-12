@@ -1,12 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
 using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using static AssertionsVerification;
+using static DoorDefinitionsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class EnemyDefinitionsVerification
 {
-    private static void VerifyCompiledEnemyDefinitions()
+    internal static void VerifyCompiledEnemyDefinitions()
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
@@ -83,7 +94,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mother Brain falling tube population definitions")]
-    private static void VerifyMotherBrainFallingTubePopulationDefinitions(
+    internal static void VerifyMotherBrainFallingTubePopulationDefinitions(
         ISnesAddressSpace rom)
     {
         ushort[] pointers = MotherBrainFallingTubePopulationDefinitions.Pointers.ToArray();
@@ -148,7 +159,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for native enemy definition records")]
-    private static RoomEnemyDefinition ReadNativeEnemyDefinition(
+    internal static RoomEnemyDefinition ReadNativeEnemyDefinition(
         ISnesAddressSpace bus, EnemyDefinitionId pointer)
     {
         int address = RoomEnemyRomLayout.DefinitionBank | (ushort)pointer;
@@ -157,4 +168,10 @@ internal static partial class Program
         return new RoomEnemyDefinition(Word(0), Word(2), Word(4), Word(6), new(Word(8), Word(10)), Byte(12), Byte(13), Word(14), Word(16), Word(18), Word(20), Word(22), Word(24), ClosedNativeWords.Decode<GrappleAiRoutine>(Word(26), "grapple AI routine"), Word(28), Word(30), Word(32), Word(34), Word(36), Word(38), Word(40), Word(42), Word(44), Word(46), Word(48), Word(50), Word(52), Word(54) | Byte(56) << 16, Byte(57), Word(58), Word(60), Word(62));
     }
 
+    [VerificationCommand("--enemy-definitions")]
+    internal static int EnemyDefinitionsCommand()
+    {
+        Suite(nameof(VerifyCompiledEnemyDefinitions), () => VerifyCompiledEnemyDefinitions());
+        return 0;
+    }
 }

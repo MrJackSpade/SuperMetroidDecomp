@@ -5,10 +5,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 
-internal static partial class Program
+internal static class StatueWalkDefinitionsVerification
 {
     [CpuBusBoundary("exact bus test: retail ROM oracle for statue walking")]
-    private static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledStatueWalking(SuperMetroidAddressSpace rom)
     {
         for (ushort offset = 0; offset <= 38; offset++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaad59a + offset)), GoldenTorizoWalkDefinitions.Velocity(offset), "Torizo all complete native byte windows");

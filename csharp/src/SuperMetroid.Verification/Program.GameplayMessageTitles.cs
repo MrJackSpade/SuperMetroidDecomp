@@ -1,11 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
+using static Program;
+using static RepositoryInputsVerification;
+using static SuiteTimingVerification;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class GameplayMessageTitlesVerification
 {
-    private static void VerifyGameplayMessageTitles(string romPath)
+    internal static void VerifyGameplayMessageTitles(string romPath)
     {
         ISnesAddressSpace bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(romPath);
         byte[] extracted = SuperMetroid.AssetExtraction.GameplayMessageTitleExtractor.Extract(bus);
@@ -72,8 +84,16 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for gameplay message titles")]
     private static byte GameplayMessageTitlesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
 
-    private static CartridgeReadGuard NewForbiddenGameplayMessageBus() =>
+    internal static CartridgeReadGuard NewForbiddenGameplayMessageBus() =>
         CartridgeReadGuard.Unbacked()
             .ForbidAll(address => $"Installed gameplay-message title read cartridge address ${address:X6}.")
             .RejectWrites(address => $"Installed gameplay-message title wrote cartridge address ${address:X6}.");
+
+    [VerificationCommand("--gameplay-message-titles")]
+    internal static int GameplayMessageTitlesCommand()
+    {
+        string messageTitleRom = RepositoryRomPath;
+        Suite(nameof(VerifyGameplayMessageTitles), () => VerifyGameplayMessageTitles(messageTitleRom));
+        return 0;
+    }
 }

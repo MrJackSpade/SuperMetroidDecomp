@@ -3,12 +3,14 @@ using System.Reflection;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static ImportedSpritemapsVerification;
+using static YardInstructionProgramDefinitionsVerification;
 
-internal static partial class Program
+internal static class YardVisualsVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Yard visuals")]
-    private static void VerifyInstalledYardVisuals(
+    internal static void VerifyInstalledYardVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
         var selectedFrames = new HashSet<ushort>();

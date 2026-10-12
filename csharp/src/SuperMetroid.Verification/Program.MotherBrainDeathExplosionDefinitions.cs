@@ -3,9 +3,9 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class MotherBrainDeathExplosionDefinitionsVerification
 {
-    private static void VerifyMotherBrainDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
+    internal static void VerifyMotherBrainDeathExplosionDefinitions(SuperMetroidAddressSpace rom)
     {
         for (ushort parameter = 0; parameter < 3; parameter++)
         {

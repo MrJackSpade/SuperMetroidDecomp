@@ -2,14 +2,14 @@ using System.Reflection;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 
-internal static partial class Program
+internal static class EnemyProjectileCodePointersVerification
 {
     /// <summary>
     /// Treats the bank-$86 callback and list catalogs as the executable coverage manifest:
     /// every entry must be unique, mapped, and readable from the target cartridge.
     /// </summary>
     [CpuBusBoundary("exact bus test: proves every bank-$86 enemy-projectile pointer maps to readable retail cartridge ROM")]
-    static void VerifyEnemyProjectileCodePointerCatalog()
+    internal static void VerifyEnemyProjectileCodePointerCatalog()
     {
         (string Name, ushort Pointer)[] callbacks =
         [

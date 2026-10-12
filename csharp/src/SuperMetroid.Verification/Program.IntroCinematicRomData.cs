@@ -2,15 +2,17 @@ using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using System.Reflection;
+using static EnemyInstructionCodePointersVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class IntroCinematicRomDataVerification
 {
     /// <summary>
     /// Verifies that intro resources are mapped, fixed VRAM regions fit, palette spans are
     /// byte-aligned/in-range, and actor sounds retain their library-qualified identities.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native PPU geometry, native VRAM words")]
-    static void VerifyIntroCinematicRomData()
+    internal static void VerifyIntroCinematicRomData()
     {
         int[] resources =
         [

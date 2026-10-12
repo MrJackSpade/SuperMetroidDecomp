@@ -1,10 +1,11 @@
 using SuperMetroid.AssetExtraction;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using static MapSpritesVerification;
 
-internal static partial class Program
+internal static class IntroEggRemnantPartsVerification
 {
-    private static void VerifyIntroEggRemnantParts(ISnesAddressSpace rom)
+    internal static void VerifyIntroEggRemnantParts(ISnesAddressSpace rom)
     {
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("EggRemnant", value.AppendIdentity);
         foreach (var definition in IntroDiscoveryActorSpriteDefinitions.Frames.Skip(9).Take(7))

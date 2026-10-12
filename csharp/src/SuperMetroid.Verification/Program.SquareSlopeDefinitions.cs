@@ -3,10 +3,12 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static SharedSlopeHeightsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class SquareSlopeDefinitionsVerification
 {
-    private static void VerifyCompiledSquareSlopes(SuperMetroidAddressSpace rom)
+    internal static void VerifyCompiledSquareSlopes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifySamusSquareSlopeAlgorithm), () => VerifySamusSquareSlopeAlgorithm(rom));
         Suite(nameof(VerifyEnemySquareSlopeAlgorithm), () => VerifyEnemySquareSlopeAlgorithm(rom));

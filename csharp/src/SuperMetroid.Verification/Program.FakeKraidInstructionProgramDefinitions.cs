@@ -1,3 +1,11 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rom;
 using System.Reflection;
 using SuperMetroid.Core.Assets;
@@ -5,16 +13,19 @@ using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static FakeKraidProgramMappingsVerification;
+using static KraidVisualSelectorsVerification;
+using static SuiteTimingVerification;
 
-internal static partial class Program
+internal static class FakeKraidInstructionProgramDefinitionsVerification
 {
-    private static void VerifyFakeKraidInstructionProgramDefinitions()
+    internal static void VerifyFakeKraidInstructionProgramDefinitions()
     {
         Suite(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions(
             SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"))));
     }
 
-    private static void VerifyFakeKraidInstructionProgramDefinitions(
+    internal static void VerifyFakeKraidInstructionProgramDefinitions(
         SuperMetroidAddressSpace rom)
     {
         const BindingFlags flags =
@@ -212,7 +223,7 @@ internal static partial class Program
     }
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for fake Kraid instruction words")]
-    private static ushort ReadFakeKraidInstructionWord(
+    internal static ushort ReadFakeKraidInstructionWord(
         SuperMetroidAddressSpace bus,
         int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
@@ -229,5 +240,12 @@ internal static partial class Program
                 return true;
         }
         return false;
+    }
+
+    [VerificationCommand("--fake-kraid-instruction-mechanics")]
+    internal static int FakeKraidInstructionMechanicsCommand()
+    {
+        Suite(nameof(VerifyFakeKraidInstructionProgramDefinitions), () => VerifyFakeKraidInstructionProgramDefinitions());
+        return 0;
     }
 }

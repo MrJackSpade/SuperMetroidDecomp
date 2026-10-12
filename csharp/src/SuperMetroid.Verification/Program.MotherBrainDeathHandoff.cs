@@ -1,13 +1,23 @@
+using System.Buffers.Binary;
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Runtime;
+using static SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
+using static AssertionsVerification;
 
-internal static partial class Program
+internal static class MotherBrainDeathHandoffVerification
 {
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    static void VerifyMotherBrainDeathHandoff()
+    internal static void VerifyMotherBrainDeathHandoff()
     {
         var bus = new TestAddressSpace();
         var vram = new SnesVram();
@@ -43,5 +53,12 @@ internal static partial class Program
         }
         AssertEqual((ushort)0x8123, level.GetCollisionBlock(new(0, 10)).LevelWord, "door setup does not overrun four blocks");
         Console.WriteLine("  Mother Brain escape: typewriter glyph/delay/click semantics and native door setup agree.");
+    }
+
+    [VerificationCommand("--mother-brain-death-handoff")]
+    internal static int MotherBrainDeathHandoffCommand()
+    {
+        Suite(nameof(VerifyMotherBrainDeathHandoff), () => VerifyMotherBrainDeathHandoff());
+        return 0;
     }
 }

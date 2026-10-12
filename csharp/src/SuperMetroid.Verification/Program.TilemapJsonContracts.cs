@@ -1,14 +1,24 @@
+using System.Runtime.InteropServices;
+using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Runtime;
 using System.Buffers.Binary;
 using System.Text;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
+using static SuiteTimingVerification;
+using static TilemapJsonContractsEnvironmentVerification;
 
-internal static partial class Program
+internal static class TilemapJsonContractsVerification
 {
     /// <summary>Exercises the actual shared room/Kraid loaders, not a parallel JSON validator.</summary>
-    private static void VerifyTilemapJsonContracts()
+    internal static void VerifyTilemapJsonContracts()
     {
         Suite(nameof(VerifyEnvironmentalTilemapJsonContracts), () => VerifyEnvironmentalTilemapJsonContracts());
         int rejected = 0;
@@ -74,7 +84,7 @@ internal static partial class Program
             $"exact word roundtrips/historical casing; {rejected} invalid documents rejected.");
     }
 
-    private static IEnumerable<string> TilemapContractCorruptions(string json, Func<JsonObject, JsonObject> cell)
+    internal static IEnumerable<string> TilemapContractCorruptions(string json, Func<JsonObject, JsonObject> cell)
     {
         yield return TilemapContractMutate(json, root => root["attackDuration"] = 7);
         yield return "{\"version\":1," + json[1..];
@@ -89,7 +99,7 @@ internal static partial class Program
         yield return TilemapContractMutate(json, root => cell(root)["palette"] = RoomBackgroundTilemapFormat.PaletteCount);
     }
 
-    private static byte[] TilemapContractWords(int count)
+    internal static byte[] TilemapContractWords(int count)
     {
         var bytes = new byte[count * sizeof(ushort)];
         for (int word = 0; word < count; word++)
@@ -97,7 +107,7 @@ internal static partial class Program
         return bytes;
     }
 
-    private static RoomBackgroundTilemapCell TilemapContractCell(ushort word)
+    internal static RoomBackgroundTilemapCell TilemapContractCell(ushort word)
     {
         var fields = new SnesBgTilemapWord(word);
         return new()
@@ -109,15 +119,22 @@ internal static partial class Program
         };
     }
 
-    private static string TilemapContractMutate(string json, Action<JsonObject> mutate)
+    internal static string TilemapContractMutate(string json, Action<JsonObject> mutate)
     {
         var root = (JsonObject)JsonNode.Parse(json)!;
         mutate(root);
         return root.ToJsonString();
     }
 
-    private static MemoryStream TilemapContractStream(string text) => new(Encoding.UTF8.GetBytes(text), writable: false);
-    private static string TilemapContractHistoricalCasing(string json) => json
+    internal static MemoryStream TilemapContractStream(string text) => new(Encoding.UTF8.GetBytes(text), writable: false);
+    internal static string TilemapContractHistoricalCasing(string json) => json
         .Replace("\"version\"", "\"VERSION\"", StringComparison.Ordinal)
         .Replace("\"tileColumn\"", "\"TILECOLUMN\"", StringComparison.Ordinal);
+
+    [VerificationCommand("--tilemap-json-contracts")]
+    internal static int TilemapJsonContractsCommand()
+    {
+        Suite(nameof(VerifyTilemapJsonContracts), () => VerifyTilemapJsonContracts());
+        return 0;
+    }
 }

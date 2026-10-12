@@ -7,7 +7,8 @@ internal static partial class Program
     private static void VerifyPersistentAudioOverrides()
     {
         string source = Path.GetFullPath("standalone-assets/audio");
-        string root = Path.Combine(Path.GetTempPath(), $"sm-audio-override-{Guid.NewGuid():N}");
+        using var rootScratch = new TestScratchDirectory("audio-override");
+        string root = rootScratch.Root;
         var installation = new GameInstallation(root);
         CopyAudioDirectory(source, installation.AudioDirectory);
         try

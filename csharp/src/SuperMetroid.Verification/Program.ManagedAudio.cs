@@ -319,7 +319,8 @@ internal static partial class Program
     /// </summary>
     private static void VerifyPcmReplacementPreservesStableIdentity()
     {
-        string directory = Path.Combine(Path.GetTempPath(), $"sm-pcm-replacement-{Guid.NewGuid():N}");
+        using var directoryScratch = new TestScratchDirectory("pcm-replacement");
+        string directory = directoryScratch.Root;
         string samplesDirectory = Path.Combine(directory, "samples");
         Directory.CreateDirectory(samplesDirectory);
         try

@@ -68,12 +68,8 @@ internal static partial class Program
 
     private static void VerifyElevatorPlatformVisualInstallation()
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "elevator-platform-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Elevator visual test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("elevator-platform-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

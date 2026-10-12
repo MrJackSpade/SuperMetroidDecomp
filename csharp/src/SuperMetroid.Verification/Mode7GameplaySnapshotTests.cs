@@ -35,7 +35,7 @@ internal static partial class Program
             AssertEqual(layer, (Mode7GameplayRenderLayer)restored.Layers!.Layers[0], "Mode-7 band codec preserves all register fields");
             if (samples == 1)
             {
-                byte[] old = RenderFrameSnapshotCodec.Serialize(packet);
+                byte[] old = RenderFrameSnapshotWriter.Serialize(packet);
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(old.AsSpan(RenderPacketFormat.Signature.Length),
                     RenderPacketFormat.BgColorMathLayerVersion);
                 AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(old), "old format rejects Mode-7 bands");

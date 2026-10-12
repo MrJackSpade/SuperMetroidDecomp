@@ -104,9 +104,8 @@ internal static partial class Program
             json.Replace("\"health\": 94", "\"health\": 999", StringComparison.Ordinal),
             "health");
 
-        string temporaryDirectory = Path.Combine(
-            Path.GetTempPath(),
-            "super-metroid-json-save-" + Guid.NewGuid().ToString("N"));
+        using var temporaryDirectoryScratch = new TestScratchDirectory("super-metroid-json-save");
+        string temporaryDirectory = temporaryDirectoryScratch.Root;
         Directory.CreateDirectory(temporaryDirectory);
         try
         {

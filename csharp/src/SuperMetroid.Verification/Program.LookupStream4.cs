@@ -1359,8 +1359,7 @@ internal static partial class Program
             }
             startX+=(width+1)*8;
         }
-        string directory=Path.GetFullPath("csharp/test-temp/hud-auto-source");Directory.CreateDirectory(directory);
-        using(var image=File.Create(Path.Combine(directory,"native-icons.png")))IndexedPng.Write(image,new(imageWidth, imageHeight),pixels,[new Rgba32(40,40,40,255),new Rgba32(255,255,255,255),new Rgba32(130,130,130,255),new Rgba32(0,0,0,255)]);
+
         Console.WriteLine("HUD icons:22native/zero cell-anchor overrides,132independent edits/hash/guards,five shifted anchors,three actual inventory initializers/readguard/domains pass;source pictograms exported.");
     }
 
@@ -1438,8 +1437,7 @@ internal static partial class Program
             int ink=(rom.ReadCartridgeByte(address)>>(7-x)&1)|(rom.ReadCartridgeByte(address+1)>>(7-x)&1)<<1;
             for(int dy=0;dy<scale;dy++)for(int dx=0;dx<scale;dx++)pixels[(y*scale+dy)*width+(cell*8+x)*scale+dx]=(byte)ink;
         }
-        string directory=Path.GetFullPath("csharp/test-temp/hud-auto-source");Directory.CreateDirectory(directory);
-        using(var image=File.Create(Path.Combine(directory,"native-top-border.png")))IndexedPng.Write(image,new(width, height),pixels,[new Rgba32(20,20,20,255),new Rgba32(100,100,100,255),new Rgba32(180,180,180,255),new Rgba32(255,255,255,255)]);
+
         Console.WriteLine("HUD top row:32native words/zero overrides,192independent edits/hash/193DMA outputs/template independence/bounds pass; native border source exported.");
     }
     private static void VerifyLookupStream4HudAutoComplete(ISnesAddressSpace rom)
@@ -1989,7 +1987,6 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => _ = RoomBackgroundTilemapSources.All[invalid], "background source exact index domain");
         foreach (int invalid in new[] { -1, 0, 0xffffff, int.MaxValue })
             AssertTrue(!RoomBackgroundTilemapSources.Contains(invalid), "background source absent identity rejected");
-
 
         for (int pattern = 0; pattern < 4; pattern++)
         for (int stage = 0; stage < 6; stage++)

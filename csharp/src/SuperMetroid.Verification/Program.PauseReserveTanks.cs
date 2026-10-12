@@ -63,10 +63,7 @@ internal static partial class Program
                 }
                 if (capacity == 400 && supply == 199 && phase == 0)
                 {
-                    Directory.CreateDirectory("csharp/test-temp/pause-reserve-tanks-527");
-                    PngWriterTooling.WriteRgba("csharp/test-temp/pause-reserve-tanks-527/fill-199.png", new Extent16<ScreenPixels>(256, 224), actual);
-                    File.WriteAllBytes("csharp/test-temp/pause-reserve-tanks-527/fill-199.smframe",
-                        RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 1), capture)));
+
                 }
                 cases++;
 

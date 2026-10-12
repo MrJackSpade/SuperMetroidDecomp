@@ -632,7 +632,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
 
 private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
 {
-    using var directoryScratch = new TestTempDirectory("ceres-door-fixture");
+    using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");
     string directory = directoryScratch.Root;
     SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Extract(bus, directory);
     var visuals = SuperMetroid.AssetExtraction.CeresDoorVisualFiles.Load(

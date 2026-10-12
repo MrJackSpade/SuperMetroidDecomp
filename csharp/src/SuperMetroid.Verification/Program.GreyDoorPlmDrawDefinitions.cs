@@ -290,12 +290,8 @@ internal static partial class Program
 
     private static void VerifyGreyDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "grey-door-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Grey-door test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("grey-door-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

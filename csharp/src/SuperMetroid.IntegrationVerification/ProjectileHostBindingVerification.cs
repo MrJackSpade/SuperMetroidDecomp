@@ -12,7 +12,9 @@ internal static class ProjectileHostBindingVerification
     /// <summary>Installs the repository ROM into a disposable root, verifies host binding, then removes it.</summary>
     public static int Run()
     {
-        string root = Directory.CreateTempSubdirectory("SuperMetroid-projectile-host-").FullName;
+        using var rootScratch = new TestScratchDirectory("projectile-host");
+        string root = rootScratch.Root;
+        Directory.CreateDirectory(root);
         try
         {
             return Verify(GameAssetInstaller.Install(Path.GetFullPath("Super Metroid.smc"), Path.Combine(root, "installation")));

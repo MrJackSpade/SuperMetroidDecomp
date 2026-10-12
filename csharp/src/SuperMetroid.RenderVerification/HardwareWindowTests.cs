@@ -27,7 +27,7 @@ internal static class HardwareWindowTests
                 layers, Windows: windows, MainScreenWindowMask: admission);
             var frame = new RenderFrameSnapshot(new(++sequence, 1, 0), new LayeredRenderSnapshot(memory,
                 new RenderLayer[] { new OrdinaryGameplayRenderLayer(registers) }, 3, 15));
-            frame = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(frame));
+            frame = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(frame));
             PixelComparison.Verify(frame, SoftwareFrameSnapshotRenderer.Render(frame), renderer.RenderForReadback(frame),
                 $"{device.Kind}: native windows operation={operation}, TMW={admission}, empty={empty}");
         }

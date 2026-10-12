@@ -11,8 +11,8 @@ internal static partial class Program
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var guarded = NewForbiddenPowerBombColorBus(bus);
-        string artDirectory = Path.Combine(Path.GetTempPath(),
-            "supermetroid-ceres-explosion-" + Guid.NewGuid().ToString("N"));
+        using var artDirectoryScratch = new TestScratchDirectory("ceres-explosion");
+        string artDirectory = artDirectoryScratch.Root;
         try
         {
             IntroCinematicArtworkFiles.Extract(bus, artDirectory, SupportedCartridge.Sha256);

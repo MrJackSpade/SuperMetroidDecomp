@@ -38,7 +38,7 @@ internal static class RetailElevatorCaptureTests
             arriving |= expected.GameState == SuperMetroidGameState.MainGameplay && !arrival.IsComplete;
             landed |= arrival.IsComplete;
             padPositions.Add(arrival.PadPosition.Y);
-            var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(actual.Snapshot!));
+            var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(actual.Snapshot!));
             PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet),
                 $"{device.Kind}: Ceres elevator {tick}, pad Y={arrival.PadPosition.Y}, complete={arrival.IsComplete}");
             samples++;

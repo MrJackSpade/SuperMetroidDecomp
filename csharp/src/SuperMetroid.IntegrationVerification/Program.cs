@@ -47,7 +47,9 @@ internal static partial class Program
                 throw new InvalidDataException("Resume trace lost or exceeded bounded events.");
             boundedTrace.Flush(_ => throw new InvalidDataException("Already flushed trace emitted twice."));
             Console.WriteLine("PASS bounded resume trace: capacity, event retention, flush once.");
-            string root = Directory.CreateTempSubdirectory("SuperMetroid-android-state-test-").FullName;
+            using var rootScratch = new TestScratchDirectory("android-state-test");
+        string root = rootScratch.Root;
+        Directory.CreateDirectory(root);
             try
             {
                 string rom = Path.GetFullPath("Super Metroid.smc");

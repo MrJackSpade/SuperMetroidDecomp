@@ -10,12 +10,8 @@ internal static partial class Program
     {
         var rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "bomb-torizo-hand-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Bomb Torizo hand test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("bomb-torizo-hand-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

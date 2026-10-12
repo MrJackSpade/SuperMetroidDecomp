@@ -15,7 +15,7 @@ internal static partial class Program
         Suite(nameof(VerifyVramWriteQueue), () => VerifyVramWriteQueue());
         Suite(nameof(VerifyDmaSourceRouting), () => VerifyDmaSourceRouting());
         Suite(nameof(VerifyQueuedVramAssets), () => VerifyQueuedVramAssets());
-        using var temporary = new TestTempDirectory("map-catalog");
+        using var temporary = new TestScratchDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         AreaMapPresentationCatalog maps = installation.LoadMaps();

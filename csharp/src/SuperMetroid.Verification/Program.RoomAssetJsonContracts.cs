@@ -14,7 +14,9 @@ internal static partial class Program
     private static void VerifyRoomAssetJsonContracts(string installationRoot)
     {
         GameInstallation installed = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
-        string temporary = Directory.CreateTempSubdirectory("SuperMetroid-room-json-contract-").FullName;
+        using var temporaryScratch = new TestScratchDirectory("room-json-contract");
+        string temporary = temporaryScratch.Root;
+        Directory.CreateDirectory(temporary);
         var accepted = new List<string>();
         int rejected = 0;
         try

@@ -14,8 +14,6 @@ internal static partial class Program
         const ushort sourceRoom = 0xb236;
         const ushort destinationRoom = 0xb1e5;
         const ushort drainedAcidY = 0x02d2;
-        const string output = "csharp/test-temp/issue-612-acid-entry";
-        Directory.CreateDirectory(output);
 
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
@@ -60,10 +58,8 @@ internal static partial class Program
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
-        using var trace = new StreamWriter(Path.Combine(output, "trace.csv"));
         AssertTrue(runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid),
             "completed Chozo event survives source-room staging");
-        trace.WriteLine("frame,phase,room,event,liveType,liveY,displayedType,displayedY");
         int destinationFrames = 0;
         bool sawDestinationFade = false;
         Rgba32[]? lastDestinationFadePixels = null;
@@ -74,7 +70,6 @@ internal static partial class Program
             transition.Step(runtime, audio, 0, SuperMetroid.Core.Runtime.LagFreeDoorLoaderProgress.Instance);
             ushort activeRoom = runtime.ActiveRoom!.Pointer;
             RoomLayer3FxRenderSnapshot? displayed = runtime.DisplayedRoomLayer3Fx;
-            trace.WriteLine($"{frame},{phase},{activeRoom:X4},{runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)},{runtime.RoomLayer3Fx.Type},{runtime.RoomLayer3Fx.CurrentYPosition:X4},{displayed?.Type},{displayed?.CurrentYPosition:X4}");
             if (activeRoom != destinationRoom)
                 continue;
             LayeredRenderSnapshot? snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime);
@@ -91,10 +86,7 @@ internal static partial class Program
                 lastDestinationFadePixels = pixels;
                 lastDestinationFadeSurfaceRow = displayed.Value.WaterSurfaceScreenY;
             }
-            PngWriterTooling.WriteRgba(
-                Path.Combine(output, $"destination-{destinationFrames:D3}-{phase}.png"),
-                new Extent16<ScreenPixels>(256, 224),
-                pixels);
+
             destinationFrames++;
         }
 
@@ -113,13 +105,12 @@ internal static partial class Program
         for (int frame = 0; frame < 8; frame++)
         {
             runtime.StepFrame(0);
-            trace.WriteLine($"{500 + frame},Gameplay,{runtime.ActiveRoom!.Pointer:X4},{runtime.System.HasEvent(EventNumber.LowerNorfairChozoLoweredAcid)},{runtime.RoomLayer3Fx.Type},{runtime.RoomLayer3Fx.CurrentYPosition:X4},{runtime.DisplayedRoomLayer3Fx?.Type},{runtime.DisplayedRoomLayer3Fx?.CurrentYPosition:X4}");
             Rgba32[] pixels = SoftwareLayeredSnapshotRenderer.Render(
                 GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-            PngWriterTooling.WriteRgba(Path.Combine(output, $"gameplay-{frame:D3}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
+
         }
         AssertEqual(drainedAcidY, runtime.RoomLayer3Fx.CurrentYPosition,
             $"completed Chozo event restores the drained acid height (transition ended at ${transitionEndY:X4})");
-        Console.WriteLine($"Acid Statue first entry: captured {destinationFrames} destination transition frames in {output}.");
+        Console.WriteLine($"Acid Statue first entry: checked {destinationFrames} destination transition frames.");
     }
 }

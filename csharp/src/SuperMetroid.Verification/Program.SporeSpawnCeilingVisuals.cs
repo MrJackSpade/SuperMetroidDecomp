@@ -13,13 +13,8 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Spore ceiling stock oracle revision");
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "spore-ceiling-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException(
-                "Spore Spawn ceiling visual test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("spore-ceiling-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

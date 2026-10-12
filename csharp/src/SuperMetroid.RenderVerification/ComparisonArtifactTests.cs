@@ -1,9 +1,12 @@
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Rendering.Direct3D11;
 
-/// <summary>Deliberate mismatch verifies the diagnostic artifact pipeline, not just its success path.</summary>
+/// <summary>
+/// A deliberate mismatch verifies the comparison's failure evidence, not just its success path. The
+/// comparison writes no files; its exception message carries the mismatch count, first pixel and colors,
+/// and the inclusive bounds.
+/// </summary>
 internal static class ComparisonArtifactTests
 {
     internal static void Run(D3D11RenderDevice device, D3D11FrameRenderer renderer)
@@ -15,42 +18,14 @@ internal static class ComparisonArtifactTests
         actual[first] = new(255, 0, 0);
         actual[last] = new(0, 255, 0);
         string? failure = null;
-        try { PixelComparison.Verify(packet, expected, actual, "intentional artifact verification"); }
+        try { PixelComparison.Verify(packet, expected, actual, "intentional mismatch"); }
         catch (InvalidOperationException error) { failure = error.Message; }
         if (failure is null)
             throw new InvalidOperationException("Deliberate pixel mismatch was accepted.");
-        // The comparison names its reproduction directory as the message's final field.
-        const string ArtifactsField = "; artifacts: ";
-        string directory = failure[(failure.LastIndexOf(ArtifactsField, StringComparison.Ordinal) + ArtifactsField.Length)..];
-        // Only remove this freshly-created diagnostic directory after successful
-        // verification. A failing artifact test deliberately preserves its evidence.
-        using (var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory, "comparison.json"))))
-        {
-            var root = json.RootElement;
-            var bounds = root.GetProperty("Bounds");
-            if (root.GetProperty("MismatchedPixels").GetInt32() != 2 ||
-                root.GetProperty("FirstX").GetInt32() != 2 || root.GetProperty("FirstY").GetInt32() != 1 ||
-                bounds.GetProperty("Left").GetInt32() != 2 || bounds.GetProperty("Top").GetInt32() != 1 ||
-                bounds.GetProperty("RightInclusive").GetInt32() != 5 || bounds.GetProperty("BottomInclusive").GetInt32() != 3 ||
-                root.GetProperty("Expected").GetString() != expected[first].ToString() ||
-                root.GetProperty("Actual").GetString() != actual[first].ToString())
-                throw new InvalidOperationException("Mismatch metadata lost exact coordinates, bounds or colors.");
-        }
-        var difference = Enumerable.Repeat(new Rgba32(0, 0, 0), expected.Length).ToArray();
-        difference[first] = difference[last] = new(255, 0, 255);
-        foreach (var (name, pixels) in new[] { ("expected.png", expected), ("actual.png", actual), ("difference.png", difference) })
-        {
-            string check = Path.Combine(directory, "check.png");
-            PngWriterTooling.WriteRgba(check, packet.Size, pixels);
-            if (!File.ReadAllBytes(check).AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(directory, name))))
-                throw new InvalidOperationException($"Mismatch artifact {name} contains the wrong image.");
-        }
-        byte[] serialized = File.ReadAllBytes(Path.Combine(directory, "frame.smframe"));
-        if (!serialized.AsSpan().SequenceEqual(RenderFrameSnapshotCodec.Serialize(packet)))
-            throw new InvalidOperationException("Diagnostic packet differs from the failed comparison input.");
-        var replay = RenderFrameSnapshotCodec.Deserialize(serialized);
-        PixelComparison.Verify(replay, expected, renderer.RenderForReadback(replay), "artifact packet replay");
-        Directory.Delete(directory, recursive: true);
-        Console.WriteLine($"{device.Kind}: intentional mismatch metadata/images/packet replay verified; test artifacts removed.");
+        string evidence = $"2 pixels differ; first (2,1) expected {expected[first]} actual {actual[first]}; bounds (2,1)-(5,3) inclusive.";
+        if (!failure.EndsWith(evidence, StringComparison.Ordinal))
+            throw new InvalidOperationException($"Mismatch evidence lost exact count, coordinates, colors or bounds: {failure}");
+        PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "mismatch fixture renders on the GPU");
+        Console.WriteLine($"{device.Kind}: intentional mismatch reports exact count, first pixel, colors and bounds.");
     }
 }

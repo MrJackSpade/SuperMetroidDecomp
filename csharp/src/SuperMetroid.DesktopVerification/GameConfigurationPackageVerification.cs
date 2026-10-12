@@ -18,7 +18,8 @@ internal static class GameConfigurationPackageVerification
         MethodInfo loadInstalled = config.GetMethod("LoadInstalled")!;
         // The temporary directory is test-owned. No ROM is needed: this is the same
         // loader called after installation, not a substitute INI parser.
-        string root = Path.Combine(Path.GetTempPath(), "supermetroid-config-515-" + Guid.NewGuid().ToString("N"));
+        using var rootScratch = new TestScratchDirectory("config-515");
+        string root = rootScratch.Root;
         Directory.CreateDirectory(root);
         try
         {

@@ -29,6 +29,10 @@ $projects = [ordered]@{
 
 dotnet build csharp/SuperMetroid.slnx -c Release --nologo -v quiet -clp:ErrorsOnly
 if (Test-Path -LiteralPath $run) { Remove-Item -LiteralPath $run -Recurse -Force }
+# Tests delete their own scratch when they finish; a killed or crashed run cannot, so every run
+# starts by discarding the previous runs' test scratch. Nothing else under test-temp is touched.
+$scratch = 'csharp/test-temp/scratch'
+if (Test-Path -LiteralPath $scratch) { Remove-Item -LiteralPath $scratch -Recurse -Force }
 New-Item -ItemType Directory -Path "$run/bin", "$run/logs" | Out-Null
 foreach ($project in $projects.Keys) {
     Copy-Item -Recurse -LiteralPath "csharp/src/$project/bin/Release/$($projects[$project])" -Destination "$run/bin/$project"

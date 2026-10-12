@@ -1,7 +1,7 @@
 ﻿namespace SuperMetroid.Core.Rendering;
 
 /// <summary>Stable identities and allocation limits of the portable .smframe fixture format.</summary>
-internal static class RenderPacketFormat
+public static class RenderPacketFormat
 {
     internal static ReadOnlySpan<byte> Signature => "SMFRAME\0"u8;
     internal const ushort Version = 29;
@@ -40,7 +40,17 @@ internal static class RenderPacketFormat
 }
 
 /// <summary>Exclusive on-disk composition discriminants. Never renumber existing entries.</summary>
-internal enum RenderPacketKind : byte { Solid = 1, Mode7Obj = 2, Layered = 3 }
+public enum RenderPacketKind : byte
+{
+    /// <summary>A single solid color fill.</summary>
+    Solid = 1,
+
+    /// <summary>A Mode 7 background with objects.</summary>
+    Mode7Obj = 2,
+
+    /// <summary>PPU memory plus an ordered list of composed layers.</summary>
+    Layered = 3,
+}
 
 /// <summary>Exclusive on-disk layer discriminants. Never renumber existing entries.</summary>
 internal enum RenderPacketLayerKind : byte { Obj = 1, ObjPriority = 2, Bg4Bpp = 3, Bg2Bpp = 4, Mode7 = 5, FixedColorAdd = 6, Bg2Viewport = 7, OrdinaryGameplay = 8, ScanlineColorAdd = 9, MessageBox = 10, BgColorMath = 11, Mode7Gameplay = 12, BgSubscreenAdd = 13, WindowedScene = 14, XrayGameplay = 16, ObjSubscreenAdd = 17, Mode7ObjSubtract = 18, Bg4SubscreenAdd = 19, Mode7Bg1Add = 20, ScrolledBg4SubscreenAdd = 21 }

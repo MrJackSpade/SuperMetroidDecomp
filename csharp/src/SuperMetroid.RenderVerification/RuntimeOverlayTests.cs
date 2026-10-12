@@ -58,7 +58,7 @@ internal static class RuntimeOverlayTests
         {
             Rgba32[] expected = SuperMetroidRuntimeFrameRenderer.Render(runtime).ToArray();
             var packet = new RenderFrameSnapshot(new(++sequence, 1, 0), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, SoftwareFrameSnapshotRenderer.Render(packet), $"software: {context}");
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: {context}");
             return (packet, expected);

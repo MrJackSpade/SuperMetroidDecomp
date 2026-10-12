@@ -11,89 +11,6 @@ namespace SuperMetroid.Core.Rendering;
 [PpuLayoutBoundary("codec: render-frame snapshot serialization (VRAM, CGRAM and OAM images)")]
 public static partial class RenderFrameSnapshotCodec
 {
-    /// <summary>Encodes a complete immutable display snapshot into a newly allocated, bounded little-endian SMFRAME packet at the current format version.</summary>
-    /// <returns>Portable bytes containing frame identity, composition, required PPU memory, and brightness passes; no CLR object identities or GPU resources are serialized.</returns>
-    public static byte[] Serialize(RenderFrameSnapshot frame)
-    {
-        Ensure.NotNull(frame);
-        // Every packet carries a complete VRAM image; start large enough to never regrow for it.
-        using var stream = new MemoryStream(SnesPpuLayout.VramByteCount + 16 * 1024);
-        Serialize(frame, stream);
-        return stream.ToArray();
-    }
-
-    /// <summary>Writes the packet encoding to <paramref name="output"/>, e.g. a hash for comparison.</summary>
-    public static void Serialize(RenderFrameSnapshot frame, Stream output)
-    {
-        Ensure.NotNull(frame);
-        Ensure.NotNull(output);
-        var counted = new CountingStream(output);
-        using var writer = new BinaryWriter(counted, System.Text.Encoding.UTF8, leaveOpen: true);
-        writer.Write(RenderPacketFormat.Signature);
-        writer.Write(RenderPacketFormat.Version);
-        writer.Write(frame.Identity.Sequence);
-        writer.Write(frame.Identity.Generation);
-        writer.Write(frame.Identity.SimulationFrame);
-        WriteCount(writer, frame.BrightnessPasses.Length);
-        writer.Write(frame.BrightnessPasses);
-        if (frame.SolidColor is { } color)
-        {
-            writer.Write((byte)RenderPacketKind.Solid);
-            writer.Write(color.R); writer.Write(color.G); writer.Write(color.B); writer.Write(color.A);
-        }
-        else if (frame.Mode7 is { } mode7)
-        {
-            writer.Write((byte)RenderPacketKind.Mode7Obj);
-            WriteMemory(writer, mode7.Memory);
-            writer.Write(mode7.ObjectSelection);
-            writer.Write(mode7.Brightness);
-            writer.Write(mode7.Background.HasValue);
-            if (mode7.Background is { } bg)
-            {
-                writer.Write(bg.MatrixA); writer.Write(bg.MatrixB); writer.Write(bg.MatrixC); writer.Write(bg.MatrixD);
-                WriteOffset(writer, bg.Center);
-                WriteOffset(writer, bg.Scroll);
-                writer.Write((byte)Mode7OverflowPolicy.FromRegisters(bg));
-            }
-            writer.Write(mode7.Gradient.Length != 0);
-            foreach (var line in mode7.Gradient)
-            {
-                writer.Write(line.Red); writer.Write(line.Green); writer.Write(line.Blue); writer.Write(line.Control);
-            }
-        }
-        else if (frame.Layers is { } layers)
-        {
-            writer.Write((byte)RenderPacketKind.Layered);
-            WriteMemory(writer, layers.Memory);
-            writer.Write(layers.ObjectSelection);
-            writer.Write(layers.Brightness);
-            WriteCount(writer, layers.Layers.Length);
-            foreach (RenderLayer layer in layers.Layers) WriteLayer(writer, layer);
-        }
-        else throw new InvalidDataException("Display fixture has no supported composition.");
-        writer.Flush();
-        if (counted.Written > RenderPacketFormat.MaximumPacketBytes)
-            throw new InvalidDataException("Display fixture exceeds the bounded packet size.");
-    }
-
-    /// <summary>Forwards writes and counts them, so any destination gets the packet size bound.</summary>
-    private sealed class CountingStream(Stream inner) : Stream
-    {
-        public long Written { get; private set; }
-        public override bool CanRead => false;
-        public override bool CanSeek => false;
-        public override bool CanWrite => true;
-        public override long Length => throw new NotSupportedException();
-        public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-        public override void Flush() => inner.Flush();
-        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-        public override void SetLength(long value) => throw new NotSupportedException();
-        public override void Write(byte[] buffer, int offset, int count) { inner.Write(buffer, offset, count); Written += count; }
-        public override void Write(ReadOnlySpan<byte> buffer) { inner.Write(buffer); Written += buffer.Length; }
-        public override void WriteByte(byte value) { inner.WriteByte(value); Written++; }
-    }
-
     /// <summary>Reads a packet held in an array directly, without first copying it.</summary>
     public static RenderFrameSnapshot Deserialize(byte[] bytes)
     {
@@ -152,14 +69,6 @@ public static partial class RenderFrameSnapshotCodec
         }
     }
 
-    private static void WriteMemory(BinaryWriter writer, PpuMemorySnapshot memory)
-    {
-        writer.Write(memory.Vram);
-        foreach (Bgr555 color in memory.Cgram) writer.Write(color.ToWord());
-        writer.Write(memory.Oam);
-        writer.Write(memory.ModeledSpriteCount);
-    }
-
     private static PpuMemorySnapshot ReadMemory(BinaryReader reader)
     {
         byte[] vram = ReadExact(reader, SnesPpuLayout.VramByteCount);
@@ -174,13 +83,6 @@ public static partial class RenderFrameSnapshotCodec
         byte[] result = reader.ReadBytes(count);
         if (result.Length != count) throw new EndOfStreamException("Truncated display fixture.");
         return result;
-    }
-
-    private static void WriteCount(BinaryWriter writer, int count)
-    {
-        if (count > RenderPacketFormat.MaximumOperations)
-            throw new InvalidDataException("Too many display operations for this format version.");
-        writer.Write(count);
     }
 
     private static int ReadCount(BinaryReader reader)
@@ -209,33 +111,11 @@ public static partial class RenderFrameSnapshotCodec
         return new(a, b, c, d, center, scroll, policy == Mode7OverflowMode.CharacterZero, policy == Mode7OverflowMode.Wrap);
     }
 
-    // The packet format stores each spatial value as its X then Y component at the original
-    // field widths: unsigned words for positions, signed words for Mode 7 offsets and 32-bit
-    // integers for tilemap sizes.
-    private static void WritePosition<TSpace>(BinaryWriter writer, Position16<TSpace> position)
-        where TSpace : ISpatialSpace
-    {
-        writer.Write(position.X);
-        writer.Write(position.Y);
-    }
-
     private static Position16<TSpace> ReadPosition<TSpace>(BinaryReader reader) where TSpace : ISpatialSpace =>
         new(reader.ReadUInt16(), reader.ReadUInt16());
 
-    private static void WriteOffset<TSpace>(BinaryWriter writer, Offset16<TSpace> offset) where TSpace : ISpatialSpace
-    {
-        writer.Write(offset.X);
-        writer.Write(offset.Y);
-    }
-
     private static Offset16<TSpace> ReadOffset<TSpace>(BinaryReader reader) where TSpace : ISpatialSpace =>
         new(reader.ReadInt16(), reader.ReadInt16());
-
-    private static void WriteMapSize(BinaryWriter writer, Extent16<TilemapCells> size)
-    {
-        writer.Write((int)size.X);
-        writer.Write((int)size.Y);
-    }
 
     private static Extent16<TilemapCells> ReadMapSize(BinaryReader reader) =>
         new(checked((ushort)reader.ReadInt32()), checked((ushort)reader.ReadInt32()));

@@ -48,7 +48,7 @@ static void VerifyCeresDestructionCinematic()
     WriteRepeatedCompressedChunks(rom, CeresDestructionRomData.Assets.CeresTilemaps,
         [0x11, 0x22, 0x33, 0x44]);
     byte[] maps = DecompressSyntheticCeresTilemaps(rom);
-    using var overrideRootScratch = new TestTempDirectory("ceres-timeline");
+    using var overrideRootScratch = new TestScratchDirectory("ceres-timeline");
     string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
     using (var stream = File.Create(Path.Combine(overrideRoot, CeresFlightArtworkFormat.MapFileName)))

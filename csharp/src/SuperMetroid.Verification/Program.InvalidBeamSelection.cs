@@ -74,8 +74,7 @@ internal static partial class Program
                 if (!expectedVram.AsSpan(offset, 2).SequenceEqual(after.Memory.Vram.Slice(offset, 2)))
                     Console.WriteLine($"tile mismatch {offset:X4}: expected {Convert.ToHexString(expectedVram.AsSpan(offset, 2))}, actual {Convert.ToHexString(after.Memory.Vram.Slice(offset, 2))}");
         AssertTrue(expectedPixels.AsSpan().SequenceEqual(actualPixels), $"native rendered VAR/adjacent-frame label, scenario {scenario}");
-        Directory.CreateDirectory("csharp/test-temp/issue-395-inventory");
-        SuperMetroid.Core.Assets.PngWriterTooling.WriteRgba($"csharp/test-temp/issue-395-inventory/scenario-{scenario}.png", new Extent16<ScreenPixels>(256, 224), actualPixels);
+
         }
         Console.WriteLine("Inventory beam glitch: simultaneous/adjacent/left-only inputs match retail bits, tile footprint and rendered labels.");
     }

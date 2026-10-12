@@ -33,7 +33,7 @@ internal static class RetailAttractTests
                     or SuperMetroidGameState.PlayingDemo or SuperMetroidGameState.TransitionFromDemoA or SuperMetroidGameState.TransitionFromDemoB;
                 if (demo || tick % 31 == 0)
                 {
-                    var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(actual.Snapshot!));
+                    var packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(actual.Snapshot!));
                     PixelComparison.Verify(packet, expected.Pixels, renderer.RenderForReadback(packet), $"{device.Kind}: attract tick={tick}, cancel={cancel}");
                     samples++;
                 }

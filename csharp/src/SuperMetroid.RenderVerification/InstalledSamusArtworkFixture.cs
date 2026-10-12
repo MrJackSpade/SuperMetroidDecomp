@@ -8,6 +8,7 @@ using SuperMetroid.Core.Game;
 /// </summary>
 internal sealed class InstalledSamusArtworkFixture : IDisposable
 {
+    private readonly TestScratchDirectory scratch;
     private readonly string root;
     internal SamusBodyArtworkCatalog Stock { get; }
     internal SamusBodyArtworkCatalog Edited { get; }
@@ -20,8 +21,8 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
         // Validate before copying: an absent/outdated installation must not silently
         // regenerate its data from the cartridge to make this verification pass.
         Stock = SamusBodyArtworkFiles.Load(source, null);
-        root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "installed-samus-artwork-" + Guid.NewGuid().ToString("N")));
+        scratch = new TestScratchDirectory("installed-samus-artwork");
+        root = scratch.Root;
         try
         {
             var installation = new GameInstallation(root);
@@ -66,12 +67,5 @@ internal sealed class InstalledSamusArtworkFixture : IDisposable
 
     internal static byte Remap(byte index) => index == 0 ? (byte)0 : (byte)(index % 15 + 1);
 
-    public void Dispose()
-    {
-        string owner = Path.GetFullPath(Path.Combine("csharp", "test-temp")) + Path.DirectorySeparatorChar;
-        if (!root.StartsWith(owner, StringComparison.OrdinalIgnoreCase) ||
-            !Path.GetFileName(root).StartsWith("installed-samus-artwork-", StringComparison.Ordinal))
-            throw new InvalidOperationException("Refusing to remove a non-fixture artwork directory.");
-        if (Directory.Exists(root)) Directory.Delete(root, true);
-    }
+    public void Dispose() => scratch.Dispose();
 }

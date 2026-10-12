@@ -10,12 +10,8 @@ internal static partial class Program
     private static void VerifyChozoStatueVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "chozo-statue-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Chozo statue test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("chozo-statue-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

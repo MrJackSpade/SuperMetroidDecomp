@@ -14,8 +14,7 @@ internal static partial class Program
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMoatFirstEntry()
     {
-        const string output = "csharp/test-temp/issue-370-moat";
-        Directory.CreateDirectory(output);
+
         var unpausedFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
         var unpausedTransitionFrames = new Dictionary<(ushort Source, int Frame), Rgba32[]>();
         foreach (ushort source in new ushort[] { 0x948c, 0x93fe })
@@ -86,8 +85,7 @@ internal static partial class Program
                 if (!pauseBeforeEntry) unpausedTransitionFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedTransitionFrames[(source, frame)]),
                     $"pause/equipment history leaves identical transition pixels at {phase}, frame {frame}");
-                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-transition-{frame:D3}-{phase}.png",
-                    new Extent16<ScreenPixels>(256, 224), pixels);
+
                 transitionFrames++;
             }
             AssertTrue(!transition.IsActive, "staged first-entry door transition completes");
@@ -100,8 +98,7 @@ internal static partial class Program
                 if (!pauseBeforeEntry) unpausedFrames[(source, frame)] = pixels;
                 else AssertTrue(pixels.SequenceEqual(unpausedFrames[(source, frame)]),
                     "pause/equipment history leaves identical first-entry water and scene pixels");
-                PngWriterTooling.WriteRgba($"{output}/from-{source:X4}-pause-{pauseBeforeEntry}-frame-{frame}.png", new Extent16<ScreenPixels>(256, 224),
-                    pixels);
+
             }
             Console.WriteLine($"Moat first entry from {source:X4}, pause={pauseBeforeEntry}: FX={runtime.RoomLayer3Fx.Type}, BG3 characters={runtime.GameplayHudCharacterBaseWord:X4}, camera={runtime.Camera!.PixelPosition.X}/{runtime.Camera.PixelPosition.Y}. Captured {transitionFrames} transition frames and four gameplay frames; visual diagnosis remains required.");
         }

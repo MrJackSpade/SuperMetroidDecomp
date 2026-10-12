@@ -12,13 +12,8 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Tourian stock native oracle revision");
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "tourian-access-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException(
-                "Tourian access test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("tourian-access-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

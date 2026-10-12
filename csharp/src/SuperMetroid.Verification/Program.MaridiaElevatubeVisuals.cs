@@ -13,13 +13,8 @@ internal static partial class Program
             Path.GetFullPath("Super Metroid.smc"));
         AssertEqual(SupportedCartridge.Sha256.ToUpperInvariant(),
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Elevatube stock oracle revision");
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "maridia-elevatube-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException(
-                "Maridia elevatube visual test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("maridia-elevatube-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

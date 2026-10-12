@@ -69,12 +69,8 @@ internal static partial class Program
         SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyLinkedRestoreStockMapping), () => VerifyLinkedRestoreStockMapping(rom));
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "linked-restore-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Linked restore test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("linked-restore-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

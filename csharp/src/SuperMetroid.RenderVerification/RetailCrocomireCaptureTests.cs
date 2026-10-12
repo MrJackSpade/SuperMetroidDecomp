@@ -56,7 +56,7 @@ internal static class RetailCrocomireCaptureTests
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Crocomire tick={tick}, phase={(int)boss.DeathSequenceIndex:X2}");
             }

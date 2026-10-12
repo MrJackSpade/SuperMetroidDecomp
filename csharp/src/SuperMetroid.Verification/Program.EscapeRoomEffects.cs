@@ -56,8 +56,7 @@ internal static partial class Program
                     AssertTrue(baseline.AsSpan(0, 32 * 256).SequenceEqual(unshaken.AsSpan(0, 32 * 256)), "escape shake does not move HUD");
                     if (visibleExplosion && visibleShake)
                     {
-                        Directory.CreateDirectory("csharp/test-temp/escape-effects");
-                        PngWriterTooling.WriteRgba($"csharp/test-temp/escape-effects/{room:X4}.png", new Extent16<ScreenPixels>(256, 224), actual);
+
                     }
                 }
             }

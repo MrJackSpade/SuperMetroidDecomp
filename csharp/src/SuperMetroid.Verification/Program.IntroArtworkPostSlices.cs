@@ -9,8 +9,8 @@ internal static partial class Program
     /// </summary>
     private static void VerifyIntroArtworkPostSlices(string sourceRom)
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "intro-post-slices-" + Guid.NewGuid().ToString("N")));
+        using var rootScratch = new TestScratchDirectory("intro-post-slices");
+        string root = rootScratch.Root;
         try
         {
             GameInstallation installation = GameAssetInstaller.Install(sourceRom, root);

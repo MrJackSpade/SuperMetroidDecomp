@@ -65,10 +65,7 @@ internal static partial class Program
             "live X-ray removes decorative air graphics inside its horizontal beam");
         if (Environment.GetCommandLineArgs().Contains("--xray-input"))
         {
-            Directory.CreateDirectory("csharp/test-temp/issue-348-xray");
-            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/horizontal.png", new Extent16<ScreenPixels>(256, 224), horizontalPixels);
-            File.WriteAllBytes("csharp/test-temp/issue-348-xray/horizontal.smframe",
-                RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), horizontal)));
+
         }
         for (int frame = 0; frame < 240; frame++)
         {
@@ -89,9 +86,8 @@ internal static partial class Program
             int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
             AssertEqual(frozenMap[i], (ushort)(SnesLittleEndian.Word(captured.Memory.Vram[offset], captured.Memory.Vram[offset + 1])), "captured BG2 is the setup-owned reveal map");
         }
-        if (Environment.GetCommandLineArgs().Contains("--xray-input"))
-            PngWriterTooling.WriteRgba("csharp/test-temp/issue-348-xray/aimed.png", new Extent16<ScreenPixels>(256, 224), pixels);
-        var beforeRelease = RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured));
+
+        var beforeRelease = RenderFrameSnapshotWriter.Serialize(new(new(1, 1, 0), captured));
         runtime.StepFrame(0);
         var releaseEdge = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
         AssertTrue(releaseEdge.Layers[0] is GameplayColorMathRenderLayer,
@@ -120,7 +116,7 @@ internal static partial class Program
             "release removes the X-ray display window");
         AssertTrue(pixels.SequenceEqual(RenderForComparison(captured)),
             "a queued X-ray frame remains immutable after gameplay resumes");
-        AssertTrue(beforeRelease.SequenceEqual(RenderFrameSnapshotCodec.Serialize(new(new(1, 1, 0), captured))),
+        AssertTrue(beforeRelease.SequenceEqual(RenderFrameSnapshotWriter.Serialize(new(new(1, 1, 0), captured))),
             "a queued X-ray packet retains its reveal memory after gameplay resumes");
         foreach (XrayExcludedRoom excludedRoom in Enum.GetValues<XrayExcludedRoom>())
         {

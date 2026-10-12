@@ -92,7 +92,7 @@ internal static partial class Program
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         using (var stream = new HashingStream(hash))
-            SuperMetroid.Core.Rendering.RenderFrameSnapshotCodec.Serialize(frame, stream);
+            SuperMetroid.Core.Rendering.RenderFrameSnapshotWriter.Serialize(frame, stream);
         return hash.GetHashAndReset();
     }
 }

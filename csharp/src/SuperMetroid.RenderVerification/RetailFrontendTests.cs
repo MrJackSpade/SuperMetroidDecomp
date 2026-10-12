@@ -26,7 +26,7 @@ internal static class RetailFrontendTests
                     throw new InvalidOperationException("Native scene-three gradient was not spawned.");
                 if (title.Phase == TitleSequencePhase.YearText && !packet.Mode7!.Gradient.IsEmpty)
                     throw new InvalidOperationException("Title gradient spawned before its native scene command.");
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: retail title {title.Phase}, tick {tick}");
                 titleCount++;

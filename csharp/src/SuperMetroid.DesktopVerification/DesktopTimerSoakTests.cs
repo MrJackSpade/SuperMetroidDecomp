@@ -107,10 +107,7 @@ internal static partial class Program
             }
             form.Dispose();
         }
-        string reportDirectory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-performance", Guid.NewGuid().ToString("N")));
-        Directory.CreateDirectory(reportDirectory);
-        string report = Path.Combine(reportDirectory, "desktop-timer-soak.json");
-        File.WriteAllText(report, JsonSerializer.Serialize(new { Scope = "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; " +
+        Console.WriteLine("Desktop timer soak report: " + JsonSerializer.Serialize(new { Scope = "Production PlayableGameControl WinForms timer, silent real waveOut, hardware GPU; " +
             "hidden HWND, not visible presentation.",
             OperatingSystem = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
             Runtime = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription,
@@ -118,7 +115,6 @@ internal static partial class Program
             TimestampUtc = DateTimeOffset.UtcNow, CoreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
             DesktopBuild = typeof(PlayableGameControl).Module.ModuleVersionId, Results = results },
             new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
-        Console.WriteLine($"Desktop timer soak report: {report}");
     }
 
     private static void CreateDesktopSoakSeed(SuperMetroid.AssetExtraction.GameInstallation installation,

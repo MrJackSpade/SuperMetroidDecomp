@@ -46,7 +46,7 @@ internal static partial class Program
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(document, options);
         var edited = ProjectileSpriteCatalog.Load(new MemoryStream(editedJson));
         Suite(nameof(VerifyProjectileFiles), () => VerifyProjectileFiles(rom, editedJson));
-        using var temporaryDirectory = new TestTempDirectory("map-catalog");
+        using var temporaryDirectory = new TestScratchDirectory("map-catalog");
         GameInstallation installation = GameAssetInstaller.Install(
             Path.GetFullPath(sourceRom), temporaryDirectory.Root);
         var roomAssets = new MapPresentationInstalledRoomAssets(installation);
@@ -241,7 +241,7 @@ internal static partial class Program
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyProjectileFiles(ISnesAddressSpace bus, byte[] editedJson)
     {
-        using var rootScratch = new TestTempDirectory("projectile-install");
+        using var rootScratch = new TestScratchDirectory("projectile-install");
         string root = rootScratch.Root;
         var installation = new GameInstallation(root);
         ProjectilePresentationFiles.Extract(bus, installation.ProjectileDirectory);

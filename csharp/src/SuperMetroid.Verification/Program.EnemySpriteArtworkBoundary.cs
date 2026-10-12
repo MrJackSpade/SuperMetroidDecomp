@@ -11,7 +11,7 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for enemy projectile presentation spritemap pointers")]
     private static void VerifyEnemySpriteArtworkBoundary(string sourceRom)
     {
-        using var temporary = new TestTempDirectory("map-catalog");
+        using var temporary = new TestScratchDirectory("map-catalog");
         var installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

@@ -15,8 +15,7 @@ internal static partial class Program
     private static void VerifyPillarFirstEntry()
     {
         const ushort source = 0xb3a5, destination = 0xb457;
-        const string output = "csharp/test-temp/issue-619-pillar";
-        Directory.CreateDirectory(output);
+
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var runtime = CreateRetailRuntimeFixture(bus, playerInvincibilityEnabled: true);
         runtime.InitializeHud(HudSnapshot.CeresDebug);
@@ -60,8 +59,6 @@ internal static partial class Program
         AssertEqual(2, runtime.Enemies.NuclearWaffleStates.Count(state => state is not null),
             "both Puromi actors survive normal destination initialization");
 
-        using var trace = new StreamWriter(Path.Combine(output, "trace.csv"));
-        trace.WriteLine("frame,samusX,samusY,cameraX,cameraY,head0X,head0Y,angle0,head1X,head1Y,angle1,pose");
         var visibleFrames = new int[2];
         var visiblePositions = new HashSet<(ushort X, ushort Y)>[] { new(), new() };
         for (int frame = 0; frame < 600; frame++)
@@ -71,7 +68,6 @@ internal static partial class Program
             runtime.StepFrame(input);
             var heads = runtime.Enemies.Slots.Take(2).ToArray();
             var states = runtime.Enemies.NuclearWaffleStates.Where(state => state is not null).ToArray();
-            trace.WriteLine($"{frame},{samus.Position.X.Whole},{samus.Position.Y.Whole},{runtime.Camera!.PixelPosition.X},{runtime.Camera.PixelPosition.Y},{heads[0].Position.X.Whole},{heads[0].Position.Y.Whole},{states[0]!.CurrentAngle},{heads[1].Position.X.Whole},{heads[1].Position.Y.Whole},{states[1]!.CurrentAngle},{(int)samus.Pose:X2}");
             if (frame % 8 != 0) continue;
             var snapshot = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
             var pixels = SoftwareLayeredSnapshotRenderer.Render(snapshot);
@@ -102,7 +98,7 @@ internal static partial class Program
                 visibleFrames[actor]++;
                 visiblePositions[actor].Add((heads[actor].Position.X.Whole, heads[actor].Position.Y.Whole));
             }
-            PngWriterTooling.WriteRgba(Path.Combine(output, $"frame-{frame:D3}.png"), new Extent16<ScreenPixels>(256, 224), pixels);
+
         }
         for (int actor = 0; actor < 2; actor++)
         {
@@ -110,6 +106,6 @@ internal static partial class Program
             AssertTrue(visibleFrames[actor] >= 2 && visiblePositions[actor].Count >= 2,
                 $"Puromi {actor} visibly moves in the composited room, not merely OAM");
         }
-        Console.WriteLine($"Pillar entry capture complete: {output}. Both actors visibly move after the retail door handoff; this is not a full pre-room playthrough replay.");
+        Console.WriteLine($"Pillar entry complete. Both actors visibly move after the retail door handoff; this is not a full pre-room playthrough replay.");
     }
 }

@@ -65,7 +65,7 @@ internal static class EndingWavySamusTests
                 Require(changed > 0, "Native artwork must visibly add the blue transformation effect");
                 var packet = new RenderFrameSnapshot(new(age + 1, 1, (ushort)age), snapshot);
                 PixelComparison.Verify(packet, expected, scene.Render(), "Ending direct render matches native BG3 addition");
-                var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(restored, expected, renderer.RenderForReadback(restored), "Ending wave packet and GPU match native BG3 addition");
                 PixelComparison.Verify(restored, expected, renderer.RenderForReadback(restored), "Repeated wave rendering does not advance simulation");
                 if (age == 0)
@@ -74,7 +74,7 @@ internal static class EndingWavySamusTests
                     // object flags; it has no line-scroll-presence byte.
                     var uniform = new LayeredRenderSnapshot(snapshot.Memory,
                         [wave.MainCoverage!, new BgSubscreenAddRenderLayer(0x2400, 0x2000, wave.MainCoverage)], 0, 15);
-                    byte[] oldBytes = RenderFrameSnapshotCodec.Serialize(new RenderFrameSnapshot(new(1, 1, 0), uniform));
+                    byte[] oldBytes = RenderFrameSnapshotWriter.Serialize(new RenderFrameSnapshot(new(1, 1, 0), uniform));
                     Array.Resize(ref oldBytes, oldBytes.Length - 1);
                     oldBytes[8] = 28; oldBytes[9] = 0;
                     var oldPacket = RenderFrameSnapshotCodec.Deserialize(oldBytes);

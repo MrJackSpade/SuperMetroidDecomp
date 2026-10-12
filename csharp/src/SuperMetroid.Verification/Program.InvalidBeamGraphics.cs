@@ -24,7 +24,8 @@ internal static partial class Program
         AssertThrows<InvalidOperationException>(() => SnesIndirectLongDataRead.ReadWord(bus, 0x90, 0x801e, 0,
                 ChainsawBeamGraphicsDefinitions.InstructionBytes, ChainsawBeamGraphicsDefinitions.InstructionAddress),
             "definition window cannot admit adjacent, uncompiled cartridge bytes");
-        const string installedDirectory = "csharp/test-temp/issue-1261-projectile-artwork";
+        using var scratch = new TestScratchDirectory("projectile-artwork");
+        string installedDirectory = scratch.Root;
         SuperMetroid.AssetExtraction.ProjectilePresentationFiles.Extract(bus, installedDirectory);
         var artwork = SuperMetroid.AssetExtraction.ProjectilePresentationFiles.Load(installedDirectory, null).BeamTiles;
         AssertTrue(artwork.TryResolve(ChainsawBeamGraphicsDefinitions.TileSource, 256, out var legacyTiles),

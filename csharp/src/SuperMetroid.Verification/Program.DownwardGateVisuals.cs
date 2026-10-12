@@ -90,12 +90,8 @@ internal static partial class Program
 
     private static void VerifyDownwardGateVisualInstallation()
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "downward-gate-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Gate visual test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("downward-gate-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

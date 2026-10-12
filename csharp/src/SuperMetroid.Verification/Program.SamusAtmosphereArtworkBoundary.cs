@@ -17,8 +17,8 @@ internal static partial class Program
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifySamusAtmosphereArtworkBoundary(string sourceRom)
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "samus-atmosphere-boundary-" + Guid.NewGuid().ToString("N")));
+        using var rootScratch = new TestScratchDirectory("samus-atmosphere-boundary");
+        string root = rootScratch.Root;
         try
         {
             var importBus = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);

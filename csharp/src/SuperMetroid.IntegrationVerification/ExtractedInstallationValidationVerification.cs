@@ -13,7 +13,9 @@ internal static class ExtractedInstallationValidationVerification
     internal static int Run(string sourceRoot)
     {
         GameInstallation source = GameAssetInstallerTooling.ValidateExtractedContent(sourceRoot);
-        string temporary = Directory.CreateTempSubdirectory("SuperMetroid-extracted-validation-").FullName;
+        using var temporaryScratch = new TestScratchDirectory("extracted-validation");
+        string temporary = temporaryScratch.Root;
+        Directory.CreateDirectory(temporary);
         try
         {
             string missing = Path.Combine(temporary, "absent-installation");

@@ -22,18 +22,7 @@ internal static class PixelComparison
             top = Math.Min(top, y); bottom = Math.Max(bottom, y);
         }
         if (count == 0) return;
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-comparison", Guid.NewGuid().ToString("N")));
-        Directory.CreateDirectory(directory);
-        File.WriteAllBytes(Path.Combine(directory, "frame.smframe"), RenderFrameSnapshotCodec.Serialize(packet));
-        PngWriterTooling.WriteRgba(Path.Combine(directory, "expected.png"), packet.Size, expected);
-        PngWriterTooling.WriteRgba(Path.Combine(directory, "actual.png"), packet.Size, actual);
-        PngWriterTooling.WriteRgba(Path.Combine(directory, "difference.png"), packet.Size, difference);
-        File.WriteAllText(Path.Combine(directory, "comparison.json"), JsonSerializer.Serialize(new {
-            Context = context, packet.Identity, MismatchedPixels = count,
-            FirstX = first % packet.Size.X, FirstY = first / packet.Size.X,
-            Expected = expected[first].ToString(), Actual = actual[first].ToString(),
-            Bounds = new { Left = left, Top = top, RightInclusive = right, BottomInclusive = bottom }
-        }, new JsonSerializerOptions { WriteIndented = true }));
-        throw new InvalidOperationException($"{context}: {count} pixels differ; first ({first % packet.Size.X},{first / packet.Size.X}); artifacts: {directory}");
+        throw new InvalidOperationException($"{context} ({packet.Identity}): {count} pixels differ; first ({first % packet.Size.X},{first / packet.Size.X}) " +
+            $"expected {expected[first]} actual {actual[first]}; bounds ({left},{top})-({right},{bottom}) inclusive.");
     }
 }

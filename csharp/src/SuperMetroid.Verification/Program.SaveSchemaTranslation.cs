@@ -75,7 +75,8 @@ internal static partial class Program
         illegalV2["preservedUntranslatedSram"] = new JsonArray();
         AssertInvalidJsonSave(illegalV2.ToJsonString(), "preservedUntranslatedSram");
 
-        string fixtureDirectory = Path.Combine(Path.GetTempPath(), "save-schema-two-" + Guid.NewGuid().ToString("N"));
+        using var fixtureDirectoryScratch = new TestScratchDirectory("save-schema-two");
+        string fixtureDirectory = fixtureDirectoryScratch.Root;
         Directory.CreateDirectory(fixtureDirectory);
         try
         {

@@ -64,7 +64,7 @@ internal static class XrayGameplayTests
             Check(pixels[64 * 256 + 160], reveal ? new(0, 165, 0, 255) : new(255, 0, 0, 255), "inside layer selection/no math");
             Check(pixels[0], new(24, 24, 24, 255), "unchanged HUD");
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), $"{device.Kind}: source-aware X-ray {count}");
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "source-aware X-ray packet round trip");
             // The version-24 single-X-ray-layer packet ends after its optional BG3
             // child. Remove only version 25's trailing BG2 selector and restore the
@@ -73,9 +73,9 @@ internal static class XrayGameplayTests
             // ends with the gameplay tail version 24 lacks: version 26's mosaic byte and the
             // empty main-screen HDMA table flag of RenderPacketFormat.GameplayMainScreenHdmaVersion.
             const int gameplayTailBytes = 2;
-            int mosaicOffset = RenderFrameSnapshotCodec.Serialize(new RenderFrameSnapshot(packet.Identity,
+            int mosaicOffset = RenderFrameSnapshotWriter.Serialize(new RenderFrameSnapshot(packet.Identity,
                 new LayeredRenderSnapshot(memory, [layer.Gameplay], 0, 15))).Length - gameplayTailBytes;
-            byte[] currentBytes = RenderFrameSnapshotCodec.Serialize(packet);
+            byte[] currentBytes = RenderFrameSnapshotWriter.Serialize(packet);
             byte[] legacyBytes = [.. currentBytes.AsSpan(0, mosaicOffset),
                 .. currentBytes.AsSpan(mosaicOffset + gameplayTailBytes, currentBytes.Length - mosaicOffset - gameplayTailBytes - 1)];
             legacyBytes[8] = 24; legacyBytes[9] = 0;
@@ -100,7 +100,7 @@ internal static class XrayGameplayTests
                     Check(addPixels[64 * 256 + 16], palette < 4 ? new(255, 0, 0) : yellow, "BG2 subscreen OBJ palette eligibility");
                     Check(addPixels[0], pixels[0], "BG2 subscreen preserves HUD");
                     var addPacket = new RenderFrameSnapshot(new(++count, 1, 0), addScene);
-                    var addRestored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(addPacket));
+                    var addRestored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(addPacket));
                     PixelComparison.Verify(addRestored, addPixels, renderer.RenderForReadback(addRestored), "BG2 subscreen positive colors and black identity");
                 }
             }
@@ -145,7 +145,7 @@ internal static class XrayGameplayTests
             var packet = new RenderFrameSnapshot(new(++count, 1, 0), scene);
             var expected = SoftwareLayeredSnapshotRenderer.Render(scene);
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: patterned X-ray {frame}");
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(restored, expected, renderer.RenderForReadback(restored), "patterned X-ray round trip");
         }
         Console.WriteLine($"{device.Kind}: {count} source-aware X-ray cases pass BG masking, OBJ palette exemptions, subscreen fallback, arithmetic, priority/scroll/flip patterns and packet round trips.");

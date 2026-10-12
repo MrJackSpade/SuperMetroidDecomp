@@ -39,7 +39,7 @@ internal static class RetailRidleyCaptureTests
                 mixed.HudScanlines != SnesPpuLayout.GameplayHudHeightPixels)
                 throw new InvalidOperationException("Retail Ridley fixture did not capture mixed Mode-7 floor and HUD.");
             var packet = new RenderFrameSnapshot(new(retained.Count + 1, 1, 0), scene);
-            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                 $"{device.Kind}: retail Ridley scale={scale}, tilt={tilt}, scroll={scroll}");
             retained.Add((packet, expected));

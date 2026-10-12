@@ -15,8 +15,8 @@ internal static partial class InstalledSporesTests
         AreaMapPresentationCatalog stock = AreaMapPresentationCatalog.Load(maps, null);
         CheckArtwork(stock.RoomFxAnimatedTiles, maps, romPath, nativeArtworkDirectory);
         var packets = new List<RenderFrameSnapshot>();
-        string overrides = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "installed-spores-" + Guid.NewGuid().ToString("N")));
+        using var overridesScratch = new TestScratchDirectory("installed-spores");
+        string overrides = overridesScratch.Root;
         try
         {
             Directory.CreateDirectory(overrides);
@@ -31,7 +31,7 @@ internal static partial class InstalledSporesTests
                 using var renderer = new D3D11FrameRenderer(device);
                 foreach (RenderFrameSnapshot packet in packets)
                 {
-                    RenderFrameSnapshot restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                    RenderFrameSnapshot restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                     PixelComparison.Verify(restored, SoftwareFrameSnapshotRenderer.Render(restored),
                         renderer.RenderForReadback(restored), $"{kind}: spores case {packet.Identity}");
                 }

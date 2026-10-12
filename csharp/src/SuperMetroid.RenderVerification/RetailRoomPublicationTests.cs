@@ -54,7 +54,7 @@ internal static class RetailRoomPublicationTests
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++sequence, 1, (ushort)tick),
                     GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 if (fx == PublishedFx.Heat &&
                     (packet.Layers!.Layers[0] is not OrdinaryGameplayRenderLayer heat ||
                     heat.Bg2LineScrolls.Vertical.ToArray().Distinct().Count() != 3))

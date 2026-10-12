@@ -10,8 +10,8 @@ internal static partial class Program
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static void VerifyGameplayBasePalettes(string sourceRom)
     {
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "gameplay-base-palettes-" + Guid.NewGuid().ToString("N")));
+        using var directoryScratch = new TestScratchDirectory("gameplay-base-palettes");
+        string directory = directoryScratch.Root;
         string stock = Path.Combine(directory, "stock");
         string overrides = Path.Combine(directory, "overrides");
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);

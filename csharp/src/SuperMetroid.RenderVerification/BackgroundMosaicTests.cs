@@ -59,7 +59,7 @@ internal static class BackgroundMosaicTests
                 if (actual[y * 256 + x] != cgram.GetRgba(expectedColor))
                     throw new InvalidDataException($"Mosaic size {size}, mode {mode}: wrong pixel ({x},{y}).");
             }
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(restored, actual, SoftwareFrameSnapshotRenderer.Render(restored), "mosaic packet round trip");
             PixelComparison.Verify(restored, actual, renderer.RenderForReadback(restored), $"{device.Kind}: mosaic size {size}, mode {mode}");
         }

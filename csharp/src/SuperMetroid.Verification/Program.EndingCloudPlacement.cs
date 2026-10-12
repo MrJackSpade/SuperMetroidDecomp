@@ -64,9 +64,7 @@ internal static partial class Program
             var pixels = ending.Render();
             if (frame == 19 || !pixels.AsSpan().SequenceEqual(expected))
             {
-                Directory.CreateDirectory("csharp/test-temp/ending-505");
-                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/actual.png", new Extent16<ScreenPixels>(256, 224), pixels);
-                PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/native-placement.png", new Extent16<ScreenPixels>(256, 224), expected);
+
             }
             AssertTrue(pixels.AsSpan().SequenceEqual(expected), $"scene B cloud positions/motion frame {frame} ({ending.Phase})");
             checkedFrames++;
@@ -127,10 +125,7 @@ internal static partial class Program
             expected[i] = main;
         }
         var actual = ending.Render();
-        Directory.CreateDirectory("csharp/test-temp/ending-505");
-        PngWriterTooling.WriteRgba("csharp/test-temp/ending-505/takeoff-actual.png", new Extent16<ScreenPixels>(256, 224), actual);
-        PngWriterTooling.WriteRgba(checkWrapping ? "csharp/test-temp/ending-505/takeoff-native-wrap-and-math.png"
-            : "csharp/test-temp/ending-505/takeoff-native-math.png", new Extent16<ScreenPixels>(256, 224), expected);
+
         if (checkWrapping)
         {
             // Isolate overflow from the independently missing main/subscreen math.

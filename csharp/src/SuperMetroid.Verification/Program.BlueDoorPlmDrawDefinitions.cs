@@ -142,12 +142,8 @@ internal static partial class Program
     private static void VerifyBlueDoorVisualInstallation(
         SuperMetroidAddressSpace rom, ushort firstDraw)
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "blue-door-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Blue-door test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("blue-door-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

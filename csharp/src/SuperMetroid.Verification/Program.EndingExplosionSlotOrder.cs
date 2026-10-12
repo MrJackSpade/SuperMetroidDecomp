@@ -44,9 +44,7 @@ internal static partial class Program
         var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(actual, order,
             snapshot.ObjectSelection, snapshot.Brightness));
         var actualPixels = ending.Render();
-        Directory.CreateDirectory("csharp/test-temp/ending-507");
-        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/actual.png", new Extent16<ScreenPixels>(256, 224), actualPixels);
-        PngWriterTooling.WriteRgba("csharp/test-temp/ending-507/native-priority.png", new Extent16<ScreenPixels>(256, 224), nativePixels);
+
         AssertTrue(actualPixels.AsSpan().SequenceEqual(nativePixels),
             "live getaway ship occludes priority-zero afterglow pixels");
     }

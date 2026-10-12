@@ -25,7 +25,7 @@ internal static partial class Program
         var expectedColors = new SnesCgram();
         for (int i = 0; i < 256; i++)
             expectedColors.SetColor(i, Bgr555.FromWord(checked((ushort)(RomDataReader.ReadWordFixedBank(cart, 0xb6f000 + i * 2)))));
-        Directory.CreateDirectory("csharp/test-temp/issue-1253-hud");
+
         foreach (byte phase in new byte[] { 0, 8 })
         {
             runtime.Hud.UpdateMinimap(bus, runtime.System, new MinimapFrame { AreaIndex = AreaId.Crateria, RoomMap = new(28, 1), RoomSize = new(0x90, 0x50), Samus = samus.Position.Whole, NmiFrameCounter = phase, PresentationMap = maps.Get(AreaId.Crateria) });
@@ -62,8 +62,7 @@ internal static partial class Program
                     AssertEqual(expected, packet[index], "snapshot retains the same HUD position color");
                 }
                 AssertTrue(opaque > 0, "current location test examines opaque native pixels");
-                if (frame == 0)
-                    PngWriterTooling.WriteRgba($"csharp/test-temp/issue-1253-hud/phase-{phase}.png", new Extent16<ScreenPixels>(256, 224), actual);
+
             }
             Console.WriteLine($"Pause HUD location: phase {phase}, tile ${center:X4}, native pixels retained through 24 paused HUD/NMI updates.");
         }

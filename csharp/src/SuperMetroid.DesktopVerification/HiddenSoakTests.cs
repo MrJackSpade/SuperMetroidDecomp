@@ -94,17 +94,13 @@ internal static partial class Program
             }
             finally { await worker.StopAsync(); }
         }
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-performance", Guid.NewGuid().ToString("N")));
-        Directory.CreateDirectory(directory);
-        string report = Path.Combine(directory, "hidden-soak.json");
-        File.WriteAllText(report, JsonSerializer.Serialize(new
+        Console.WriteLine("Hidden soak report: " + JsonSerializer.Serialize(new
         {
             Scope = "Paced standalone producer + real silent waveOut + hidden GPU HWND. Not visible Present or the production WinForms timer loop; not cross-backend PCM parity.",
             TimestampUtc = DateTimeOffset.UtcNow, Runtime = RuntimeInformation.FrameworkDescription,
             OS = RuntimeInformation.OSDescription, CoreBuild = typeof(SuperMetroidGame).Module.ModuleVersionId,
             DiagnosticBuild = typeof(Program).Module.ModuleVersionId, Results = results,
         }, new JsonSerializerOptions { WriteIndented = true, NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals }));
-        Console.WriteLine($"Hidden soak report: {report}");
     }
 
     private static void MixAndSubmit(SpcAudioEngine audio, WaveOutAudioDevice output, SuperMetroidGame game,

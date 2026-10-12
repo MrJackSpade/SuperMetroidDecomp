@@ -46,10 +46,7 @@ internal static partial class Program
         int exposed = pixels.Zip(hidden).Count(pair => pair.First != pair.Second);
         int wrapped = unmasked.Zip(hidden).Count(pair => pair.First != pair.Second);
         Console.WriteLine($"Pre-battle Draygon: body={boss.Body.Position.X.Whole:X4}/{boss.Body.Position.Y.Whole:X4}, Samus={samus.Position.X.Whole}/{samus.Position.Y.Whole}, camera={r.Bg1Scroll.X}/{r.Bg1Scroll.Y}; exposed={exposed}, unmasked={wrapped} pixels.");
-        const string output = "csharp/test-temp/issue-1260-draygon-xray";
-        Directory.CreateDirectory(output);
-        File.WriteAllBytes(Path.Combine(output, "frame-000.smframe"), RenderFrameSnapshotCodec.Serialize(new(new(1, 1, runtime.NmiFrameCounter), scene)));
-        PngWriterTooling.WriteRgba(Path.Combine(output, "prebattle.png"), new Extent16<ScreenPixels>(256, 224), pixels);
+
         AssertTrue(wrapped > 0, "the reported corner visibly exposes repeated body art without native clipping");
         AssertEqual(0, exposed, "pre-battle X-Ray hides the offscreen body exactly like native TM HDMA");
 
@@ -72,7 +69,6 @@ internal static partial class Program
         int visible = SoftwareLayeredSnapshotRenderer.Render(combat).Zip(SoftwareLayeredSnapshotRenderer.Render(combatWithoutBg2)).Count(pair => pair.First != pair.Second);
         Console.WriteLine($"Battle-start Draygon body: {visible} visible pixels.");
         AssertTrue(visible > 0, "battle start still displays Draygon's body");
-        File.WriteAllBytes(Path.Combine(output, "frame-001.smframe"), RenderFrameSnapshotCodec.Serialize(new(new(2, 1, runtime.NmiFrameCounter), combat)));
 
         Rgba32[] RenderWithRegisters(OrdinaryGameplayRegisters registers)
         {

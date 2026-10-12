@@ -119,12 +119,8 @@ internal static partial class Program
     private static void VerifyMotherBrainGlassVisualInstallation(
         SuperMetroidAddressSpace rom)
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "mother-brain-glass-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Glass visual test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("mother-brain-glass-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

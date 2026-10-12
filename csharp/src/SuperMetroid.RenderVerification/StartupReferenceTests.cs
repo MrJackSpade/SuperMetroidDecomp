@@ -88,10 +88,7 @@ internal static class StartupReferenceTests
             PixelComparison.Verify(closestPacket, SoftwareFrameSnapshotRenderer.Render(closestPacket), gpu, "closest native candidate GPU/software parity");
             PixelComparison.Verify(closestPacket, nativePixels, gpu, $"independent {scene}, closest candidate (not timing alignment proof)");
         }
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-comparison", Guid.NewGuid().ToString("N")));
-        Directory.CreateDirectory(directory);
-        if (lastPixels is not null) SuperMetroid.Core.Assets.PngWriterTooling.WriteRgba(Path.Combine(directory, $"managed-{scene}.png"), new Extent16<ScreenPixels>(256, 224), lastPixels);
-        throw new InvalidOperationException($"Managed {scene} never matched the preserved independent Snes9x pixels. Maximum red during search: {maximumGlyphRed}. Last frame: {directory}");
+        throw new InvalidOperationException($"Managed {scene} never matched the preserved independent Snes9x pixels. Maximum red during search: {maximumGlyphRed}.");
     }
 }
 

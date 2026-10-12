@@ -8,7 +8,9 @@ internal static class AssetImportVerification
 {
 public static int Run(string? romPath)
 {
-string temporary = Directory.CreateTempSubdirectory("SuperMetroid-import-verification-").FullName;
+using var temporaryScratch = new TestScratchDirectory("import-verification");
+        string temporary = temporaryScratch.Root;
+        Directory.CreateDirectory(temporary);
 try
 {
     string missingRoot = Path.Combine(temporary, "must-not-exist");

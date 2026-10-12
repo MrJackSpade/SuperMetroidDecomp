@@ -20,10 +20,7 @@ internal static class SimulationProfile
             Measure(SlowConsumerFixture.AlphaPowerBombRoom, paused: false),
             Measure(SimulationProfileRooms.MaridiaTube, paused: true),
         };
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "render-performance", Guid.NewGuid().ToString("N")));
-        Directory.CreateDirectory(directory);
-        string path = Path.Combine(directory, "simulation-profile.json");
-        File.WriteAllText(path, JsonSerializer.Serialize(new
+        Console.WriteLine("Simulation timing baseline: " + JsonSerializer.Serialize(new
         {
             Scope = "Unpaced captured simulation + real managed desktop audio adapter; no GPU, waveOut or presentation",
             TimestampUtc = DateTimeOffset.UtcNow,
@@ -37,7 +34,6 @@ internal static class SimulationProfile
             MeasuredFrames = 600,
             Results = results,
         }, new JsonSerializerOptions { WriteIndented = true }));
-        Console.WriteLine($"Simulation timing baseline written to {path}");
     }
 
     private static object Measure(ushort room, bool paused)

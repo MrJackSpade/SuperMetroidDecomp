@@ -42,8 +42,8 @@ internal static partial class Program
             }
         }
 
-        string editedDirectory = Path.Combine(
-            Path.GetTempPath(), $"sm-audio-sfx-programs-{Guid.NewGuid():N}");
+        using var editedDirectoryScratch = new TestScratchDirectory("audio-sfx-programs");
+        string editedDirectory = editedDirectoryScratch.Root;
         CopyAudioDirectory(sourceDirectory, editedDirectory);
         try
         {

@@ -145,12 +145,15 @@ internal static partial class RepositoryInstallation
     }
 }
 
-/// <summary>A disposable copy of an installation root in the system temporary directory.</summary>
+/// <summary>A disposable copy of an installation root in a test scratch directory.</summary>
 internal sealed class PrivateInstallationCopy : IDisposable
 {
+    private readonly TestScratchDirectory scratch = new("installation-copy");
+
     internal PrivateInstallationCopy(string sourceRoot)
     {
-        Root = Directory.CreateTempSubdirectory("SuperMetroid-installation-copy-").FullName;
+        Root = scratch.Root;
+        Directory.CreateDirectory(Root);
         foreach (string directory in Directory.GetDirectories(sourceRoot, "*", SearchOption.AllDirectories))
             Directory.CreateDirectory(Path.Combine(Root, Path.GetRelativePath(sourceRoot, directory)));
         foreach (string file in Directory.GetFiles(sourceRoot, "*", SearchOption.AllDirectories))
@@ -161,5 +164,5 @@ internal sealed class PrivateInstallationCopy : IDisposable
 
     internal GameInstallation Installation => new(Root);
 
-    public void Dispose() => Directory.Delete(Root, recursive: true);
+    public void Dispose() => scratch.Dispose();
 }

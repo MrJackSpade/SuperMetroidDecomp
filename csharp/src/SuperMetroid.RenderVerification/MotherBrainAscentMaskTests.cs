@@ -38,7 +38,7 @@ internal static class MotherBrainAscentMaskTests
             Check(0, 80, 2, "middle band retains BG2");
             var packet = new RenderFrameSnapshot(new(1, 1, 0), scene);
             PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "Mother Brain ascent mask");
-            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+            var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "ascent mask packet round trip");
             var math = new GameplayColorMathRenderLayer(layer, Enumerable.Repeat(new XrayWindowLine(255, 0), 224).ToArray(), false, new ColorMathRegisters { ColorMath = SnesColorMathControl.None, AddSubscreen = false, FixedRed = 0, FixedGreen = 0, FixedBlue = 0 });
             var mathScene = new LayeredRenderSnapshot(memory, [math], 0, 15);

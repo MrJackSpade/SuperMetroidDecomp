@@ -28,9 +28,8 @@ public static class DebuggerSaveStateSmokeTest
     {
         string fullRomPath = Path.GetFullPath(romPath);
         CartridgeImportAddressSpace bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(fullRomPath);
-        string temporaryDirectory = Path.Combine(
-            Path.GetTempPath(),
-            $"SuperMetroid-state-audit-{Guid.NewGuid():N}");
+        using var temporaryDirectoryScratch = new TestScratchDirectory("state-audit");
+        string temporaryDirectory = temporaryDirectoryScratch.Root;
         Directory.CreateDirectory(temporaryDirectory);
         try
         {

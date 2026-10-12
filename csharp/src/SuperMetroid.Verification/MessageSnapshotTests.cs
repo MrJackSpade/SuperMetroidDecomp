@@ -89,7 +89,7 @@ internal static partial class Program
                     $"message geometry {rows} rows, radius {radius}, line {y}");
             if (rows == 3 && radius == 0)
             {
-                byte[] bytes = RenderFrameSnapshotCodec.Serialize(packet);
+                byte[] bytes = RenderFrameSnapshotWriter.Serialize(packet);
                 AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(bytes[..^1]), "truncated message rejected");
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length),
                     RenderPacketFormat.ScanlineColorLayerVersion);

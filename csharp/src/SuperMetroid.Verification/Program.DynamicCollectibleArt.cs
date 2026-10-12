@@ -13,13 +13,8 @@ internal static partial class Program
     private static void VerifyInstalledDynamicCollectibleArt(
         SuperMetroidAddressSpace rom)
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "dynamic-collectible-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException(
-                "Dynamic collectible test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("dynamic-collectible");
+        string testRoot = testRootScratch.Root;
         string stockDirectory = Path.Combine(testRoot, "stock");
         string overrideDirectory = Path.Combine(testRoot, "overrides");
         try

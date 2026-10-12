@@ -19,7 +19,7 @@ internal static partial class Program
         Suite(nameof(VerifyCorpseMetadataDefinitions), () => VerifyCorpseMetadataDefinitions(source));
         Suite(nameof(VerifyCrocomirePowerBombReactionDefinitions), () => VerifyCrocomirePowerBombReactionDefinitions(source));
         Suite(nameof(VerifyEnemyAuxiliaryColors), () => VerifyEnemyAuxiliaryColors(source));
-        using var temporary = new TestTempDirectory("map-catalog");
+        using var temporary = new TestScratchDirectory("map-catalog");
         EnemyTileArtworkCatalog artwork = GameAssetInstaller.Install(sourceRom, temporary.Root).LoadEnemyTiles();
         AssertTrue(artwork.AuxiliaryColors is not null, "complete installation supplies auxiliary palettes");
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();

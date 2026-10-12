@@ -9,8 +9,8 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for standard object artwork")]
     private static void VerifyStandardObjectArtwork(string sourceRom)
     {
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "standard-objects-" + Guid.NewGuid().ToString("N")));
+        using var directoryScratch = new TestScratchDirectory("standard-objects");
+        string directory = directoryScratch.Root;
         string stock = Path.Combine(directory, "stock");
         string overrides = Path.Combine(directory, "overrides");
         var native = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);

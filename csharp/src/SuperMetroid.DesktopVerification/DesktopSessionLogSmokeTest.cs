@@ -7,7 +7,9 @@ internal static class DesktopSessionLogSmokeTest
 {
     internal static void Run(string gameAssemblyPath)
     {
-        string root = Directory.CreateTempSubdirectory("SuperMetroid-session-log-").FullName;
+        using var rootScratch = new TestScratchDirectory("session-log");
+        string root = rootScratch.Root;
+        Directory.CreateDirectory(root);
         TextWriter originalOutput = Console.Out;
         TextWriter originalError = Console.Error;
         try

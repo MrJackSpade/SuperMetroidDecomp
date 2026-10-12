@@ -52,7 +52,7 @@ internal static partial class Program
         AssertThrows<ArgumentOutOfRangeException>(() => new Bg2BppColorMathRenderLayer(0, 0, 64, 32,
             (ExpandedColorMathOperation)255, lines), "BG math rejects unknown equation");
         var encoded = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, [owned], 3, 15));
-        byte[] data = RenderFrameSnapshotCodec.Serialize(encoded);
+        byte[] data = RenderFrameSnapshotWriter.Serialize(encoded);
         AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(data[..^1]), "truncated FX packet rejected");
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(data.AsSpan(RenderPacketFormat.Signature.Length),
             RenderPacketFormat.MessageLayerVersion);

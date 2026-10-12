@@ -9,16 +9,19 @@ internal static partial class Program
 {
     /// <summary>
     /// Compares sampled finale frames with the pinned upstream PPU (csharp/test-fixtures/ending-native-ppu).
-    /// The planet-boundary pass writes each frame's <c>.smframe</c>; the probe rasterizes it with retail
-    /// <c>$8B:F2FA</c> (or <c>$8B:F2B7</c> burst) registers into a <c>.bgra</c> beside it.
+    /// The planet-boundary pass writes each requested frame's <c>.smframe</c> into this call's scratch
+    /// directory; the probe rasterizes it with retail <c>$8B:F2FA</c> (or <c>$8B:F2B7</c> burst) registers
+    /// into a <c>.bgra</c> beside it. The scratch directory is deleted when the comparison ends.
     /// </summary>
     private static void VerifyEndingNativePpu(IEnumerable<int> frames, bool burst)
     {
-        Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary());
+        using var scratch = new TestScratchDirectory("ending-native-ppu-frames");
+        var capture = new PlanetFrameCapture(scratch.Root, frames.ToHashSet());
+        Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary(capture));
         string probe = EnsureEndingNativeProbe();
-        foreach (int frame in frames)
+        foreach (int frame in capture.Frames.Order())
         {
-            string prefix = Path.GetFullPath($"csharp/test-temp/ending-506/later-{frame:D4}-ZebesExplosionAnimation");
+            string prefix = Path.Combine(scratch.Root, $"later-{frame:D4}-ZebesExplosionAnimation");
             RunNativeTool(probe, burst
                 ? [prefix + ".smframe", prefix + ".bgra", "burst"]
                 : [prefix + ".smframe", prefix + ".bgra"]);
@@ -33,7 +36,10 @@ internal static partial class Program
         }
     }
 
-    /// <summary>Builds the checked-in ending PPU probe once into ignored csharp/test-temp.</summary>
+    /// <summary>
+    /// Builds the checked-in ending PPU probe once into ignored csharp/test-temp. This is a build cache of
+    /// one executable reused by every run, not a per-run artifact.
+    /// </summary>
     private static string EnsureEndingNativeProbe()
     {
         string probe = Path.GetFullPath("csharp/test-temp/ending-native-ppu/probe.exe");
@@ -65,8 +71,11 @@ internal static partial class Program
         return output;
     }
 
+    /// <summary>Planet-explosion frames to serialize for the native PPU comparison, into a caller-owned scratch directory.</summary>
+    private sealed record PlanetFrameCapture(string Directory, IReadOnlySet<int> Frames);
+
     [CpuBusBoundary("exact bus test: retail ROM oracle for the ending planet-explosion VRAM reconstruction")]
-    private static void VerifyEndingPlanetBoundary()
+    private static void VerifyEndingPlanetBoundary(PlanetFrameCapture? capture)
     {
         var bus = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var audio = new CartridgeAudioState();
@@ -87,7 +96,6 @@ internal static partial class Program
         RomDataReader.Decompress(bus, 0x97e7de, 0x8000).AsSpan(0, 0x1000).CopyTo(nativeVram.AsSpan(0xa000));
         int memoryDifferences = nativeVram.Zip(ending.CaptureRenderSnapshot().Memory.Vram.ToArray()).Count(pair => pair.First != pair.Second);
         Console.WriteLine($"Explosion setup: {memoryDifferences} VRAM bytes differ from literal DMA reconstruction.");
-        Directory.CreateDirectory("csharp/test-temp/ending-506");
         int differences = 0, checkedFrames = 0;
         while (ending.Phase is EndingCreditsPhase.FadeInZebesExplosion or EndingCreditsPhase.ZebesExplosionPaletteCrossfade)
         {
@@ -103,11 +111,6 @@ internal static partial class Program
             var actual = ending.Render();
             int changed = actual.Zip(expected).Count(pair => pair.First != pair.Second);
             differences += changed;
-            if (checkedFrames % 8 == 0 || changed != 0)
-            {
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/actual-{checkedFrames:D2}.png", new Extent16<ScreenPixels>(256, 224), actual);
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/native-{checkedFrames:D2}.png", new Extent16<ScreenPixels>(256, 224), expected);
-            }
             checkedFrames++;
             ending.Step();
         }
@@ -121,15 +124,11 @@ internal static partial class Program
             var nativeMemory = new PpuMemorySnapshot(reconstructed, live.Memory.Cgram, live.Memory.Oam, live.Memory.ModeledSpriteCount);
             var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(nativeMemory, live.Layers, live.ObjectSelection, live.Brightness));
             differences += ending.Render().Zip(nativePixels).Count(pair => pair.First != pair.Second);
-            if (frame % 16 == 0)
+            if (capture is not null && capture.Frames.Contains(frame))
             {
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-{frame:D4}-{ending.Phase}.png", new Extent16<ScreenPixels>(256, 224), ending.Render());
-                PngWriterTooling.WriteRgba($"csharp/test-temp/ending-506/later-native-{frame:D4}-{ending.Phase}.png", new Extent16<ScreenPixels>(256, 224), nativePixels);
-                // Preserve raw graphics/register/layer evidence alongside each image.
-                // A later renderer comparison can replay exactly this sample without
-                // re-running the cinematic or depending on a mutable debugger slot.
-                File.WriteAllBytes($"csharp/test-temp/ending-506/later-{frame:D4}-{ending.Phase}.smframe",
-                    RenderFrameSnapshotCodec.Serialize(new(new(frame + 1, 1, 0), ending.CaptureRenderSnapshot())));
+                // The native comparison replays exactly this sample's graphics, registers and layers.
+                File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Phase}.smframe"),
+                    RenderFrameSnapshotWriter.Serialize(new(new(frame + 1, 1, 0), ending.CaptureRenderSnapshot())));
             }
             ending.Step();
             audio.AdvanceFrame(bus, default);

@@ -15,7 +15,9 @@ internal static partial class Program
     private static void VerifyProjectileFileContracts(string installationRoot)
     {
         GameInstallation installed = GameAssetInstallerTooling.ValidateExtractedContent(installationRoot);
-        string temporary = Directory.CreateTempSubdirectory("SuperMetroid-projectile-file-contract-").FullName;
+        using var temporaryScratch = new TestScratchDirectory("projectile-file-contract");
+        string temporary = temporaryScratch.Root;
+        Directory.CreateDirectory(temporary);
         var failures = new List<string>();
         int rejections = 0;
         try

@@ -8,7 +8,7 @@ internal static partial class Program
     /// <summary>Opt-in full importer transaction; all ROM/audio/fixture data stays in ignored test-temp.</summary>
     private static void VerifyMapInstallation(string sourceRom)
     {
-        using var rootScratch = new TestTempDirectory("map-installation");
+        using var rootScratch = new TestScratchDirectory("map-installation");
         string root = rootScratch.Root;
         byte[] sourceHash = SHA256.HashData(File.ReadAllBytes(sourceRom));
         Console.WriteLine($"Full installation fixture: {root}");

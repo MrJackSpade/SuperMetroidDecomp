@@ -177,12 +177,8 @@ internal static partial class Program
 
     private static void VerifyColoredDoorVisualInstallation(SuperMetroidAddressSpace rom)
     {
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "colored-door-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Colored-door test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("colored-door-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

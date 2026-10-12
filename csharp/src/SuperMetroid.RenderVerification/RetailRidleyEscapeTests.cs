@@ -52,7 +52,7 @@ internal static class RetailRidleyEscapeTests
                     if (ridley.Mode7Active && scene.Layers[0] is not Mode7GameplayRenderLayer { Floor: not null })
                         throw new InvalidOperationException("Native Mode-7 escape omitted its preserved floor layer.");
                     var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), scene);
-                    packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                    packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                     PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                         $"{device.Kind}: Ridley native escape hits={hitThreshold}, tick={tick}, phase={ridley.Function}");
                 }

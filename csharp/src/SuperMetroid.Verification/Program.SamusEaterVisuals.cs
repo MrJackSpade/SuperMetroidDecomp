@@ -17,12 +17,8 @@ internal static partial class Program
             "Samus Eater native oracle revision");
         Suite(nameof(VerifySamusEaterDrawGeometry), () => VerifySamusEaterDrawGeometry(rom));
         Suite(nameof(VerifySamusEaterDrawWords), () => VerifySamusEaterDrawWords(rom));
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "samus-eater-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("Samus Eater test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("samus-eater-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

@@ -56,7 +56,7 @@ internal static class WaterfallTests
         Check(112, 19, 13, 7, "backdrop participates");
         var packet = new RenderFrameSnapshot(new(1, 1, 0), scene);
         PixelComparison.Verify(packet, pixels, renderer.RenderForReadback(packet), "waterfall source/priority/color math");
-        var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+        var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
         PixelComparison.Verify(restored, pixels, renderer.RenderForReadback(restored), "combined subscreen packet round trip");
         Console.WriteLine($"{device.Kind}: waterfall priority, colors, OBJ exemptions and packet round trip passed.");
 

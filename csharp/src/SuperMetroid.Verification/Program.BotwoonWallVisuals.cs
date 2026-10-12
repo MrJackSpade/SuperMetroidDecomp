@@ -55,13 +55,8 @@ internal static partial class Program
     {
         SuperMetroidAddressSpace rom = SuperMetroid.AssetExtraction.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        string testRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "botwoon-wall-visual-" + Guid.NewGuid().ToString("N")));
-        string allowedRoot = Path.GetFullPath(Path.Combine("csharp", "test-temp")) +
-            Path.DirectorySeparatorChar;
-        if (!testRoot.StartsWith(allowedRoot, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException(
-                "Botwoon wall visual test root escaped test-temp.");
+        using var testRootScratch = new TestScratchDirectory("botwoon-wall-visual");
+        string testRoot = testRootScratch.Root;
         try
         {
             var installation = new GameInstallation(testRoot);

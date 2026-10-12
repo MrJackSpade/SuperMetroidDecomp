@@ -239,7 +239,7 @@ static void VerifyFileSelectFreshSaveTilemap()
     mapStations[0] = 0xff;
 
     var addressSpace = new SuperMetroid.AssetExtraction.CartridgeImportAddressSpace(rom);
-    using var overrideRootScratch = new TestTempDirectory("file-select-label-fixture");
+    using var overrideRootScratch = new TestScratchDirectory("file-select-label-fixture");
     string overrideRoot = overrideRootScratch.Root;
     Directory.CreateDirectory(overrideRoot);
     File.WriteAllBytes(Path.Combine(overrideRoot, FileSelectPresentationDefinitions.FileName),

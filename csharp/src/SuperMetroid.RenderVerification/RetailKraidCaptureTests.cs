@@ -36,7 +36,7 @@ internal static class RetailKraidCaptureTests
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: Kraid rise tick={tick}, AI={body.VariableA:X4}");
             }
@@ -69,7 +69,7 @@ internal static class RetailKraidCaptureTests
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid growth tick={tick}, AI={body.VariableA:X4}");
                 growthSamples++;
             }
@@ -99,7 +99,7 @@ internal static class RetailKraidCaptureTests
             {
                 var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
                 var packet = new RenderFrameSnapshot(new(++samples, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+                packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: Kraid death tick={tick}, AI={body.VariableA:X4}");
                 deathSamples++;
             }

@@ -49,7 +49,7 @@ internal static partial class Program
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
-        using var temporary = new TestTempDirectory("map-catalog");
+        using var temporary = new TestScratchDirectory("map-catalog");
         string stockPath = Path.Combine(temporary.Root, "stock");
         string overridePath = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);

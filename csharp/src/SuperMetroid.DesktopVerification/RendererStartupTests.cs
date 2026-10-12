@@ -7,7 +7,8 @@ internal static partial class Program
 {
     private static async Task VerifyRendererStartupFailure(RendererSelection selection)
     {
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "desktop-renderer", Guid.NewGuid().ToString("N")));
+        using var directoryScratch = new TestScratchDirectory("desktop-renderer");
+        string directory = directoryScratch.Root;
         Directory.CreateDirectory(directory);
         string rom = Path.Combine(directory, "Super Metroid.smc");
         File.Copy(Path.GetFullPath("Super Metroid.smc"), rom);

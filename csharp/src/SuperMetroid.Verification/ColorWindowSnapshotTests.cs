@@ -83,7 +83,7 @@ internal static partial class Program
         AssertThrows<ArgumentException>(() => new ScanlineColorAddRenderLayer(new ColorAddWindow[223]),
             "window operation rejects incomplete scanline table");
         var packet = new RenderFrameSnapshot(new(1, 1, 0), new LayeredRenderSnapshot(memory, new RenderLayer[] { owned }, 3, 15));
-        byte[] bytes = RenderFrameSnapshotCodec.Serialize(packet);
+        byte[] bytes = RenderFrameSnapshotWriter.Serialize(packet);
         AssertThrows<IOException>(() => RenderFrameSnapshotCodec.Deserialize(bytes[..^1]), "truncated window table rejected");
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length),
             RenderPacketFormat.OrdinaryGameplayLayerVersion);

@@ -14,7 +14,9 @@ internal static class InstalledSamusFileContractTests
     {
         string source = new GameInstallation(Path.GetFullPath(installationRoot)).SamusBodyDirectory;
         string baseline = SamusBodyArtworkFiles.Load(source, null).ContentIdentity;
-        string temporary = Directory.CreateTempSubdirectory("SuperMetroid-samus-file-contract-").FullName;
+        using var temporaryScratch = new TestScratchDirectory("samus-file-contract");
+        string temporary = temporaryScratch.Root;
+        Directory.CreateDirectory(temporary);
         int rejected = 0, accepted = 0;
         var failures = new List<string>();
         try

@@ -4867,7 +4867,7 @@ if (args is ["--lookup-palette-algorithms"])
 if (args is ["--gunship-landing-compositions"])
 {
     string gunshipInstallation = RepositoryInstallation.Installation.Root;
-    using var gunshipOutput = new TestTempDirectory("map-catalog");
+    using var gunshipOutput = new TestScratchDirectory("map-catalog");
     Suite(nameof(VerifyExtractedGunshipCompositions), () => VerifyExtractedGunshipCompositions(gunshipInstallation, RepositoryRomPath, gunshipOutput.Root));
     Suite(nameof(VerifyGunshipLandingCompositions), () => VerifyGunshipLandingCompositions(gunshipInstallation));
     return 0;
@@ -6802,7 +6802,7 @@ if (args is ["--library-background-loader"])
 if (args is ["--library-background-artwork-boundary"])
 {
     string libraryArtworkRom = RepositoryRomPath;
-    using var directory = new TestTempDirectory("map-catalog");
+    using var directory = new TestScratchDirectory("map-catalog");
     var installation = GameAssetInstaller.Install(libraryArtworkRom, directory.Root);
     Suite(nameof(VerifyLibraryBackgroundLoader), () => VerifyLibraryBackgroundLoader());
     Suite(nameof(VerifyLibraryBackgroundInstalledParity), () => VerifyLibraryBackgroundInstalledParity(libraryArtworkRom, installation));
@@ -7342,7 +7342,7 @@ if (args is ["--ending-takeoff-wrap"] or ["--ending-takeoff-math"])
 }
 if (args is ["--ending-planet-boundary"])
 {
-    Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary());
+    Suite(nameof(VerifyEndingPlanetBoundary), () => VerifyEndingPlanetBoundary(capture: null));
     return 0;
 }
 if (args is ["--ending-native-ppu"])

@@ -112,10 +112,10 @@ internal static partial class Program
                 pixels[y * 256 + x], "window replacement includes child backdrop and excludes outside pixels");
         AssertThrows<ArgumentException>(() => new WindowedSceneRenderLayer(parent, 0, 0, 1, 1), "nested scene rejected");
         AssertThrows<ArgumentOutOfRangeException>(() => new WindowedSceneRenderLayer(child, 0, 0, 257, 224), "invalid window rejected");
-        byte[] bytes = RenderFrameSnapshotCodec.Serialize(packet);
+        byte[] bytes = RenderFrameSnapshotWriter.Serialize(packet);
         bytes[^1] = (byte)RenderPacketLayerKind.WindowedScene;
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "nested on-disk scene rejected before recursive parsing");
-        bytes = RenderFrameSnapshotCodec.Serialize(packet);
+        bytes = RenderFrameSnapshotWriter.Serialize(packet);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Mode7GameplayLayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(bytes), "old header rejects window operation");
     }

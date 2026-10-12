@@ -14,7 +14,9 @@ internal static partial class InstallationOverrideLifecycleVerification
 {
     internal static int Run(string sourceRom)
     {
-        string temporary = Directory.CreateTempSubdirectory("SuperMetroid-override-lifecycle-").FullName;
+        using var temporaryScratch = new TestScratchDirectory("override-lifecycle");
+        string temporary = temporaryScratch.Root;
+        Directory.CreateDirectory(temporary);
         try
         {
             string input = Path.Combine(temporary, "import-input.smc");

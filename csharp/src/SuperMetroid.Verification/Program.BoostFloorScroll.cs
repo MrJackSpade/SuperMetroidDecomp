@@ -45,9 +45,7 @@ internal static partial class Program
         }
         runtime.RunNmi(0, true);
         var frame = GameplayDisplayCapture.TryCaptureFrame(runtime)!;
-        Directory.CreateDirectory("csharp/test-temp/issue-374-floor");
-        PngWriterTooling.WriteRgba("csharp/test-temp/issue-374-floor/entry.png", new Extent16<ScreenPixels>(256, 224),
-            SoftwareLayeredSnapshotRenderer.Render(frame));
+
         AssertTrue(samus.Position.Y.Whole > 1000, "fixture breaks through the actual speed floor and falls down the shaft");
         AssertTrue(runtime.Camera!.PixelPosition.Y > 900,
             "#374: camera must follow the opened shaft instead of leaving falling Samus more than a screen below it");

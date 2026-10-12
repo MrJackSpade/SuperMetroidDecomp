@@ -10,7 +10,7 @@ internal static partial class Program
     {
         var frame = new RenderFrameSnapshot(new(9876543210, 42, ushort.MaxValue),
             new Rgba32(123, 231, 76, 255), new byte[] { 9, 7 });
-        byte[] bytes = RenderFrameSnapshotCodec.Serialize(frame);
+        byte[] bytes = RenderFrameSnapshotWriter.Serialize(frame);
         RenderFrameSnapshot restored = RoundTripRenderPacket(frame);
         AssertEqual(frame.Identity, restored.Identity, "portable fixture host/cartridge identity");
         byte[] firstVersion = (byte[])bytes.Clone();
@@ -51,37 +51,37 @@ internal static partial class Program
         var wrapping = registers with { FillOutsideWithCharacterZero = false, WrapOutsideMap = true };
         var wrapPacket = new RenderFrameSnapshot(new(1, 1, 0), new Mode7ObjRenderSnapshot(memory, wrapping, 3, 15));
         AssertEqual(wrapping, RoundTripRenderPacket(wrapPacket).Mode7!.Background!.Value, "Mode 7 wrap policy survives packet round trip");
-        byte[] oldWrap = RenderFrameSnapshotCodec.Serialize(wrapPacket);
+        byte[] oldWrap = RenderFrameSnapshotWriter.Serialize(wrapPacket);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(oldWrap.AsSpan(RenderPacketFormat.Signature.Length), 21);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(oldWrap), "version 21 cannot claim Mode 7 wrapping");
-        byte[] legacyFill = RenderFrameSnapshotCodec.Serialize(mode7);
+        byte[] legacyFill = RenderFrameSnapshotWriter.Serialize(mode7);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(legacyFill.AsSpan(RenderPacketFormat.Signature.Length), 21);
         AssertEqual(registers, RenderFrameSnapshotCodec.Deserialize(legacyFill).Mode7!.Background!.Value, "legacy boolean overflow retains character-zero semantics");
         var insertedMode7 = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Mode7RenderLayer(registers) }, 3, 15));
-        byte[] invalidOldVersion = RenderFrameSnapshotCodec.Serialize(insertedMode7);
+        byte[] invalidOldVersion = RenderFrameSnapshotWriter.Serialize(insertedMode7);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
             invalidOldVersion.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FirstSupportedVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(invalidOldVersion),
             "version-one cannot claim a version-two layer operation");
-        byte[] badBool = RenderFrameSnapshotCodec.Serialize(mode7);
+        byte[] badBool = RenderFrameSnapshotWriter.Serialize(mode7);
         badBool[^1] = 2;
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(badBool), "reject noncanonical boolean");
         var layered = new RenderFrameSnapshot(new(2, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new ObjRenderLayer() }, 3, 15));
-        byte[] badLayer = RenderFrameSnapshotCodec.Serialize(layered);
+        byte[] badLayer = RenderFrameSnapshotWriter.Serialize(layered);
         badLayer[^1] = byte.MaxValue;
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(badLayer), "reject unknown layer kind");
         var fixedColor = new RenderFrameSnapshot(new(3, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new FixedColorAddRenderLayer(31, 15, 1) }, 3, 15));
-        byte[] versionTwo = RenderFrameSnapshotCodec.Serialize(fixedColor);
+        byte[] versionTwo = RenderFrameSnapshotWriter.Serialize(fixedColor);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
             versionTwo.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.Mode7LayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionTwo),
             "version-two cannot claim a version-three color operation");
         var viewport = new RenderFrameSnapshot(new(4, 1, 0), new LayeredRenderSnapshot(memory,
             new RenderLayer[] { new Bg2BppViewportRenderLayer(0, 0, 255, true, null) }, 3, 15));
-        byte[] versionThree = RenderFrameSnapshotCodec.Serialize(viewport);
+        byte[] versionThree = RenderFrameSnapshotWriter.Serialize(viewport);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(
             versionThree.AsSpan(RenderPacketFormat.Signature.Length), RenderPacketFormat.FixedColorLayerVersion);
         AssertThrows<InvalidDataException>(() => RenderFrameSnapshotCodec.Deserialize(versionThree),
@@ -92,7 +92,7 @@ internal static partial class Program
 
     private static RenderFrameSnapshot RoundTripRenderPacket(RenderFrameSnapshot frame)
     {
-        byte[] bytes = RenderFrameSnapshotCodec.Serialize(frame);
+        byte[] bytes = RenderFrameSnapshotWriter.Serialize(frame);
         RenderFrameSnapshot restored = RenderFrameSnapshotCodec.Deserialize(bytes);
         AssertEqual(frame.Identity, restored.Identity, "render fixture preserves frame identity");
         AssertTrue(System.Security.Cryptography.SHA256.HashData(bytes).AsSpan().SequenceEqual(PacketDigest(restored)),

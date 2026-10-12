@@ -8,11 +8,11 @@ internal static class HostToolbarControlsTest
 {
     public static void Run(string rom)
     {
-        string directory = Path.GetFullPath(Path.Combine("csharp", "test-temp", "toolbar-559", Guid.NewGuid().ToString("N")));
-        Directory.CreateDirectory(directory);
+        using var scratch = new TestScratchDirectory("toolbar");
+        Directory.CreateDirectory(scratch.Root);
         using var host = DesktopAccess.CreateGameControl(rom,
             new SuperMetroidGameOptions { AudioEnabled = false, Renderer = RendererSelection.Software },
-            dataDirectory: directory);
+            dataDirectory: scratch.Root);
         host.Size = new(900, 760);
         var layout = host.Controls.OfType<TableLayoutPanel>().Single();
         var toolbar = layout.Controls.OfType<ToolStrip>().Single();

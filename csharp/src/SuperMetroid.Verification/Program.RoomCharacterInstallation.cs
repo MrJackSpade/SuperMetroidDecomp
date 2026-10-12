@@ -12,8 +12,8 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle for Tourian statue ghost and scrolling-sky source bytes")]
     private static void VerifyRoomArtworkInstallation(string sourceRom)
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "room-character-installation-" + Guid.NewGuid().ToString("N")));
+        using var rootScratch = new TestScratchDirectory("room-character-installation");
+        string root = rootScratch.Root;
         try
         {
             GameInstallation installed = GameAssetInstaller.Install(sourceRom, root);

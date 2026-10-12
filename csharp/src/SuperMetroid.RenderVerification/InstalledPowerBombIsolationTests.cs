@@ -26,8 +26,8 @@ internal static partial class InstalledPowerBombIsolationTests
         CheckCompiledLifetimeOperands(stock.PowerBombFixedColors);
         CheckStateRestoration(stock.PowerBombFixedColors);
         var framesToRender = new List<(RenderFrameSnapshot Frame, string Context)>();
-        string overrides = Path.GetFullPath(Path.Combine("csharp", "test-temp",
-            "installed-power-bomb-isolation-" + Guid.NewGuid().ToString("N")));
+        using var overridesScratch = new TestScratchDirectory("installed-power-bomb-isolation");
+        string overrides = overridesScratch.Root;
         int comparisons = 0, changedColors = 0;
         try
         {
@@ -108,7 +108,7 @@ internal static partial class InstalledPowerBombIsolationTests
                 using var renderer = new D3D11FrameRenderer(device);
                 foreach (var sample in framesToRender)
                 {
-                    var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(sample.Frame));
+                    var restored = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(sample.Frame));
                     PixelComparison.Verify(restored, SoftwareFrameSnapshotRenderer.Render(restored),
                         renderer.RenderForReadback(restored), $"{kind}: {sample.Context}");
                 }

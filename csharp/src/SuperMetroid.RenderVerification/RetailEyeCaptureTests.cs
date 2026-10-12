@@ -29,7 +29,7 @@ internal static class RetailEyeCaptureTests
             fullBeam |= runtime.DisplayedMorphBallEyeBeam is { Phase: MorphBallEyeBeamPhase.Full };
             var expected = SuperMetroidRuntimeFrameRenderer.Render(runtime);
             var packet = new RenderFrameSnapshot(new(tick + 1, 1, (ushort)tick), GameplayDisplayCapture.TryCaptureFrame(runtime)!);
-            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
+            packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotWriter.Serialize(packet));
             PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), $"{device.Kind}: retail eye frame {tick}");
         }
         if (!firstBeam || !fullBeam) throw new InvalidOperationException("Eye fixture missed first visible beam or full-width beam.");

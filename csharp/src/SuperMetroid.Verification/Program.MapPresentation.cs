@@ -151,7 +151,7 @@ internal static partial class Program
 
     private static void VerifyMapPresentationCatalog(ISnesAddressSpace bus)
     {
-        using var temporaryDirectory = new TestTempDirectory("map-catalog");
+        using var temporaryDirectory = new TestScratchDirectory("map-catalog");
         string root = temporaryDirectory.Root;
         string stock = Path.Combine(root, "game", "maps"), repaired = Path.Combine(root, "replacement-stock"), overrides = Path.Combine(root, "overrides", "maps");
         var rules = Enum.GetValues<AreaId>().ToDictionary(area => area, area => SuperMetroid.AssetExtraction.AreaMapImporter.Load(bus, area));

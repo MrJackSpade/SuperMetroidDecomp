@@ -138,12 +138,11 @@ internal static partial class Program
             AssertEqual(256 * 224, frame.Length, "area map physical viewport size");
             AssertTrue(frame.All(pixel => pixel.A == 255), "area map backdrop is opaque");
             AssertTrue(frame.Distinct().Count() > 16, "area map renders tile graphics, not a flat background");
-            Directory.CreateDirectory("csharp/test-temp/file-select-map");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}.png", new Extent16<ScreenPixels>(256, 224), frame);
+
             ushort[] used = [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
             Rgba32[] labelled = graphics.Render(used).ToArray();
             AssertTrue(!labelled.SequenceEqual(graphics.Render(new ushort[6])), "visited-station masks control map labels");
-            PngWriterTooling.WriteRgba($"csharp/test-temp/file-select-map/area-{area}-labels.png", new Extent16<ScreenPixels>(256, 224), labelled);
+
         }
     }
 

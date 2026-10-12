@@ -49,7 +49,8 @@ internal static partial class Program
         DebuggerObjectGraphSerializer.Serialize(state, game);
         state.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SuperMetroidGame>(state);
-        string edits = Path.Combine(Path.GetTempPath(), "SuperMetroid-ceres-engine-1150-" + Guid.NewGuid().ToString("N"));
+        using var editsScratch = new TestScratchDirectory("ceres-engine-1150");
+        string edits = editsScratch.Root;
         Directory.CreateDirectory(edits);
         try
         {

@@ -18,7 +18,7 @@ internal static partial class Program
         foreach (var part in frame.Value!.AsArray())
             part!["offsetX"] = part["offsetX"]!.GetValue<int>() + 7;
         // The retail ROM's installation is shared and only read here; another ROM installs its own.
-        using var temporaryDirectory = new TestTempDirectory("map-catalog");
+        using var temporaryDirectory = new TestScratchDirectory("map-catalog");
         GameInstallation installation = Path.GetFullPath(sourceRom) == Path.GetFullPath("Super Metroid.smc")
             ? RepositoryInstallation.Installation
             : GameAssetInstaller.Install(Path.GetFullPath(sourceRom), temporaryDirectory.Root);

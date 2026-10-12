@@ -1436,7 +1436,7 @@ internal static partial class Program
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
-        using var temporary = new TestTempDirectory("map-catalog");
+        using var temporary = new TestScratchDirectory("map-catalog");
         SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Extract(rom, temporary.Root, SuperMetroid.AssetExtraction.SupportedCartridge.Sha256);
         Suite(nameof(VerifyInstalledMotherBrainEscapeTextArtwork), () => VerifyInstalledMotherBrainEscapeTextArtwork(temporary.Root,
             SuperMetroid.AssetExtraction.EnemyTileArtworkFiles.Load(temporary.Root, null)));
@@ -3369,7 +3369,8 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the initial narration tilemap and opening font")]
     private static void VerifyStream3InitialNarrationMap()
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "initial-narration-" + Guid.NewGuid().ToString("N")));
+        using var rootScratch = new TestScratchDirectory("initial-narration");
+        string root = rootScratch.Root;
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
@@ -3562,7 +3563,8 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro background page tilemaps")]
     private static void VerifyStream3BackgroundMaps()
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "background-maps-" + Guid.NewGuid().ToString("N")));
+        using var rootScratch = new TestScratchDirectory("background-maps");
+        string root = rootScratch.Root;
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");
@@ -3708,7 +3710,8 @@ internal static partial class Program
     [CpuBusBoundary("exact bus test: retail ROM oracle decompressing the intro Samus head tilemap")]
     private static void VerifyStream3PortraitMap()
     {
-        string root = Path.GetFullPath(Path.Combine("csharp", "test-temp", "portrait-map-" + Guid.NewGuid().ToString("N")));
+        using var rootScratch = new TestScratchDirectory("portrait-map");
+        string root = rootScratch.Root;
         try
         {
             string source = Path.GetFullPath("Super Metroid.smc");

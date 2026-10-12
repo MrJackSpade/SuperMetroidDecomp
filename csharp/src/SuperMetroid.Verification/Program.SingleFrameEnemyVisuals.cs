@@ -54,8 +54,7 @@ internal static partial class Program
             var actual = new OamBuffer();
             draw.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<OamPixels>((ushort)128, (ushort)112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true }]);
             var expected = new OamBuffer();
-            ImportedSpritemapOracle.DrawEnemy(rom, expected, definition.Bank, definition.Pointer,
-                new(128, 112), 0x0c00, 0x20);
+            ImportedSpritemapOracle.DrawEnemy(rom, expected, new EnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
             CompareOam(expected, actual, definition.Name);
         }
 
@@ -83,7 +82,7 @@ internal static partial class Program
         rockActual.AddEnemySpritemap(rockParts.Span, new Position16<OamPixels>(128, 112), 0x0c00, 0x20);
         ushort rockPointer = ReadPolypRockInstructionWord(rom, PolypRockInstructionProgramDefinitions.PresentationWord);
         var rockExpected = new OamBuffer();
-        ImportedSpritemapOracle.DrawEnemy(rom, rockExpected, 0x8d, rockPointer, new(128, 112), 0x0c00, 0x20);
+        ImportedSpritemapOracle.DrawEnemy(rom, rockExpected, new EnemySpritemapDraw { Bank = 0x8d, Pointer = rockPointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
         CompareOam(rockExpected, rockActual, "Polyp rock");
         Console.WriteLine("Single-frame artwork: Kzan, Polyp and lava-rock OAM match the cartridge; prior overrides retain edits and inherit new frames.");
 

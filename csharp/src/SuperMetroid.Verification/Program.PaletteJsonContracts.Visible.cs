@@ -113,8 +113,8 @@ internal static partial class Program
         if (color < SnesCgram.ColorCount / 2)
         {
             vram.ExecuteWordTransfer([SnesBgTilemapWord.Create(0, color / 16, priority: false)], 1024, 1);
-            stockPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, stock, 1024, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(8, 8), new Extent16<TilemapCells>(32, 32));
-            editedPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, edited, 1024, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(8, 8), new Extent16<TilemapCells>(32, 32));
+            stockPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, stock, new BgVramAddresses { TilemapBaseWord = 1024, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8), TilemapSize = new Extent16<TilemapCells>(32, 32) });
+            editedPixels = SnesBgTilemapRenderer.Render4BppViewport(vram, edited, new BgVramAddresses { TilemapBaseWord = 1024, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8), TilemapSize = new Extent16<TilemapCells>(32, 32) });
         }
         else
         {

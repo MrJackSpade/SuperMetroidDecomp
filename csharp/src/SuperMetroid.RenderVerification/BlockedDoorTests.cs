@@ -31,8 +31,7 @@ internal static partial class SwapchainTests
             PumpUntil(() => entered.IsSet);
             var clock = Stopwatch.StartNew();
             RenderFrameSnapshot? latest = null;
-            RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, door, destination, context,
-                packet =>
+            RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = door, Destination = destination }, context, packet =>
                 {
                     latest = new(new(++sequence, 1, packet.Identity.SimulationFrame), packet.Layers!, packet.BrightnessPasses);
                     worker.Publish(latest);

@@ -25,7 +25,7 @@ internal static partial class Program
                 ushort y = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), FileSelectMapRomData.MenuObjectBank | (list + record * 4 + 2));
                 var system = new Bank80SystemState();
                 system.SetAreaMapAcquired(area);
-                var pause = CreateRetailPauseFixture(bus, new SamusState(), system, (AreaId)area, new(0, 0));
+                var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                 // Center the marker under test without changing its authored position.
                 typeof(PauseMenuState).GetField("mapScrollPosition", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                     .SetValue(pause, new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112))));
@@ -93,7 +93,7 @@ internal static partial class Program
 
                 PauseMenuState CenteredPause(ISnesAddressSpace addressSpace, Bank80SystemState state)
                 {
-                    var reopened = CreateRetailPauseFixture(addressSpace, new SamusState(), state, (AreaId)area, new(0, 0));
+                    var reopened = CreateRetailPauseFixture(addressSpace, new PauseMenuEntry { Samus = new SamusState(), System = state, AreaIndex = (AreaId)area, RoomMapPosition = new(0, 0) });
                     typeof(PauseMenuState).GetField("mapScrollPosition", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
                         .SetValue(reopened, new Position16<MapPixels>(unchecked((ushort)(x - 128)), unchecked((ushort)(y - 112))));
                     return reopened;

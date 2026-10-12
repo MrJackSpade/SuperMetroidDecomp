@@ -14,7 +14,7 @@ internal static partial class Program
         var samus = new SamusState { Health = 20, MaxHealth = 99, ReserveEnergy = 10,
             MaxReserveEnergy = 100, ReserveTankMode = 1,
             CollectedBeams = (ushort)SamusBeamFlags.Charge };
-        var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0));
+        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         AssertEqual(PauseEquipmentCategory.Reserves, pause.SelectedCategory, "equipment entry selects owned reserve controls without Up");
         AssertEqual(PauseReserveTransferRomData.ModeItem, pause.SelectedItem, "equipment entry selects reserve mode item");
@@ -63,7 +63,7 @@ internal static partial class Program
             var samus = new SamusState { Health = startingHealth, MaxHealth = 99, ReserveEnergy = 10,
                 MaxReserveEnergy = 100, ReserveTankMode = 2, CollectedBeams = (ushort)SamusBeamFlags.Charge };
             var audio = new CartridgeAudioState();
-            var pause = CreateRetailPauseFixture(bus, samus, new Bank80SystemState(), AreaId.Crateria, new(0, 0), audio);
+            var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), Audio = audio });
             EnterPauseEquipment(pause);
             pause.Step(0, (ushort)SnesButton.Up);
             pause.Step(0, (ushort)SnesButton.Down);

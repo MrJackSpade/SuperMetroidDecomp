@@ -25,9 +25,7 @@ internal static partial class Program
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, rom, facing, wingFrame, tailDirection: null);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, RidleySupplementalVisualDefinitions.Bank,
-                native, new(200, 100), 0x0200, 0,
-                clipVerticalWrap: true, originYIsOnScreen: true);
+            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = native, Origin = new(200, 100), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley wing selection {index} uses installed OAM without table or frame reads");
         }
@@ -43,14 +41,9 @@ internal static partial class Program
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, rom, facing: RidleyFacing.Turning, wingFrame: 0, tailDirection: direction);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, RidleySupplementalVisualDefinitions.Bank,
-                nativeTip, new(140, 138), 0x0200, 0,
-                clipVerticalWrap: true, originYIsOnScreen: true);
+            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             for (int segment = 5; segment >= 0; segment--)
-                DrawImportedEnemySpritemap(rom, expected, RidleySupplementalVisualDefinitions.Bank,
-                    RidleySupplementalVisualDefinitions.SegmentFrameAt(segment),
-                    new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))),
-                    0x0200, 0, clipVerticalWrap: true, originYIsOnScreen: true);
+                DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = RidleySupplementalVisualDefinitions.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley tail direction {direction} retains tip-first reverse-segment OAM");
         }

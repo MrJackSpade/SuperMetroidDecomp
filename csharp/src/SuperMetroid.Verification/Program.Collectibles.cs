@@ -35,11 +35,7 @@ internal static partial class Program
         for (int kindIndex = 0; kindIndex < 21; kindIndex++)
         {
             InWorldCollectibleKind kind = (InWorldCollectibleKind)kindIndex;
-            CollectibleFixture fixture = LoadCollectible(
-                bus,
-                header: unchecked((ushort)(0xeed7 + kindIndex * 4)),
-                roomArgument: unchecked((ushort)kindIndex),
-                precollected: false);
+            CollectibleFixture fixture = LoadCollectible(bus, header: unchecked((ushort)(0xeed7 + kindIndex * 4)), roomArgument: unchecked((ushort)kindIndex), precollected: false);
 
             AssertEqual(1, fixture.Plms.Collectibles.Count,
                 $"{kind} exposed header loads through room population");
@@ -115,11 +111,7 @@ internal static partial class Program
         // A collected exposed item must draw blank and delete without applying its effect
         // again. This is the critical distinction between physical-location bits and the
         // inventory words that multiple tanks share.
-        CollectibleFixture collected = LoadCollectible(
-            bus,
-            header: 0xeed7,
-            roomArgument: 37,
-            precollected: true);
+        CollectibleFixture collected = LoadCollectible(bus, header: 0xeed7, roomArgument: 37, precollected: true);
         collected.Plms.Step(bus, collected.Level, collected.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, collected.Plms.ActiveCount,
             "previously collected exposed item removes itself");
@@ -129,11 +121,7 @@ internal static partial class Program
         // A Chozo orb accepts projectile contact, performs its authored burst, then becomes
         // the same visible/touchable item. Acquisition must retain the triggering physical
         // location rather than confusing the projectile type with an item bit.
-        CollectibleFixture orb = LoadCollectible(
-            bus,
-            header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)),
-            roomArgument: 91,
-            precollected: false);
+        CollectibleFixture orb = LoadCollectible(bus, header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)), roomArgument: 91, precollected: false);
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         var grappleSamus = new SamusState();
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
@@ -165,12 +153,7 @@ internal static partial class Program
         orb.Plms.Step(bus, orb.Level, orb.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertEqual(0, orb.Plms.Collectibles.Count, "Chozo pickup deletes after message");
 
-        CollectibleFixture reopenedOrb = LoadCollectible(
-            bus,
-            header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)),
-            roomArgument: 91,
-            precollected: false,
-            preopenedChozo: true);
+        CollectibleFixture reopenedOrb = LoadCollectible(bus, header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)), roomArgument: 91, precollected: false, preopenedChozo: true);
         AssertEqual(CollectiblePhase.ChozoOrb, reopenedOrb.Plms.CollectiblePhases[0],
             "an uncollected Chozo item rebuilds its orb on reload, whatever the chozo bit holds");
         AssertTrue(!reopenedOrb.System.HasCollectedItemBit(91),
@@ -179,11 +162,7 @@ internal static partial class Program
         // Concealed shot items reveal through the same generic projectile callback, remain
         // visible for their native timed window, and after pickup restore as an empty
         // shootable block rather than deleting the location owner.
-        CollectibleFixture shot = LoadCollectible(
-            bus,
-            header: unchecked((ushort)(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4)),
-            roomArgument: 123,
-            precollected: false);
+        CollectibleFixture shot = LoadCollectible(bus, header: unchecked((ushort)(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4)), roomArgument: 123, precollected: false);
         AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).LevelWord,
             "shot-item setup installs type-C concealed block");
         AssertTrue(shot.Plms.TryNotifyCollectibleProjectileHit(shot.BlockIndex, 0x0100),
@@ -226,9 +205,7 @@ internal static partial class Program
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
         // Retail room $9E9F/$9EB1 places Morph Ball at ($45,$29): block 5317.
-        var fixture = LoadCollectible(bus,
-            (ushort)(PlmHeaderId.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4),
-            26, precollected: false, roomSize: new(128, 48), block: new(69, 41));
+        var fixture = LoadCollectible(bus, (ushort)(PlmHeaderId.ExposedEnergyTank + (int)InWorldCollectibleKind.MorphBall * 4), 26, precollected: false, layout: new CollectibleRoomLayout { RoomSize = new(128, 48), Block = new(69, 41) });
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(1024, 512), Bg1XOffset = 0 });
         var movement = new SamusKinematicsState
         {
@@ -260,19 +237,11 @@ internal static partial class Program
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
     }
 
-    private static CollectibleFixture LoadCollectible(
-        TestAddressSpace bus,
-        ushort header,
-        ushort roomArgument,
-        bool precollected,
-        bool preopenedChozo = false,
-        RoomLayer3FxState? roomFx = null,
-        Extent16<RoomBlocks>? roomSize = null,
-        Position16<RoomBlocks>? block = null)
+    private static CollectibleFixture LoadCollectible(TestAddressSpace bus, ushort header, ushort roomArgument, bool precollected, bool preopenedChozo = false, RoomLayer3FxState? roomFx = null, CollectibleRoomLayout layout = default)
     {
         const ushort population = 0x9000;
-        Extent16<RoomBlocks> size = roomSize ?? new(8, 8);
-        Position16<RoomBlocks> itemBlock = block ?? new(3, 3);
+        Extent16<RoomBlocks> size = layout.RoomSize ?? new(8, 8);
+        Position16<RoomBlocks> itemBlock = layout.Block ?? new(3, 3);
         int blockIndex = size.RowMajorIndex(itemBlock);
         SeedRoomPlmPopulation(bus, population, [
             unchecked((byte)header), unchecked((byte)(header >> 8)),

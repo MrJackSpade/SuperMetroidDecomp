@@ -2068,53 +2068,41 @@ internal static partial class Program
         }
         foreach (int invalid in new[] { int.MinValue, 0x90c480, 0x90c4b5, int.MaxValue })
             AssertThrows<InvalidDataException>(() => ChargeFlareAnimationDefinitions.ReadByte(invalid), "stream1 flare byte domain");
-        Check(0xa80000, 0xd841, 0xd871, BullInstructionProgramDefinitions.MechanicsWordCount,
-            BullInstructionProgramDefinitionsTooling.PresentationWordCount,
-            i => { var word = BullInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
-            BullInstructionProgramDefinitionsTooling.PresentationWordAddress, BullInstructionProgramDefinitions.ReadMechanicsWord,
-            BullInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            a => a is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867);
-        Check(0x860000, 0xd92e, 0xd96a, CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount,
-            CacatacProjectileInstructionProgramDefinitions.PresentationWordCount,
-            i => { var word = CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWord(i); return (word.Address, word.Value); },
-            CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress, CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord,
-            CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            a => (a - 0xd930) % 6 == 0);
+        Check(0xa80000, 0xd841, 0xd871, BullInstructionProgramDefinitions.MechanicsWordCount, BullInstructionProgramDefinitionsTooling.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = BullInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: BullInstructionProgramDefinitionsTooling.PresentationWordAddress, Read: BullInstructionProgramDefinitions.ReadMechanicsWord, Owns: BullInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867));
+        Check(0x860000, 0xd92e, 0xd96a, CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWordCount, CacatacProjectileInstructionProgramDefinitions.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = CacatacProjectileInstructionProgramDefinitionsTooling.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: CacatacProjectileInstructionProgramDefinitions.PresentationWordAddress, Read: CacatacProjectileInstructionProgramDefinitions.ReadMechanicsWord, Owns: CacatacProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => (a - 0xd930) % 6 == 0));
         for (int address = 0xd840; address <= 0xd871; address++)
             AssertEqual(address is 0xd843 or 0xd847 or 0xd84b or 0xd84f or 0xd85b or 0xd85f or 0xd863 or 0xd867,
                 BullInstructionProgramDefinitions.IsPresentationWord((ushort)address), "stream1 Bull exact presentation classification");
 
-        void Check(int bank, int first, int end, int mechanicsCount, int presentationCount,
-            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
-            Func<ushort, ushort> read, Func<int, bool> owns, Func<int, bool> isVisual)
+        void Check(int bank, int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
         {
             int mechanical = 0, visual = 0;
             for (int address = first; address < end; address += 2)
             {
-                bool selectedVisual = isVisual(address);
+                bool selectedVisual = split.IsVisual(address);
                 if (selectedVisual)
                 {
-                    AssertEqual((ushort)address, presentation(visual++), "stream1 native presentation operand ordering");
-                    AssertThrows<InvalidDataException>(() => read((ushort)address), "stream1 presentation excluded from mechanics");
+                    AssertEqual((ushort)address, split.Presentation(visual++), "stream1 native presentation operand ordering");
+                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "stream1 presentation excluded from mechanics");
                 }
                 else
                 {
-                    var actual = mechanics(mechanical++);
+                    var actual = split.Mechanics(mechanical++);
                     AssertEqual((ushort)address, actual.Address, "stream1 native mechanics address ordering");
                     AssertEqual(Word(bank | address), actual.Value, "stream1 original program mechanics value");
-                    AssertEqual(actual.Value, read((ushort)address), "stream1 direct program mechanics value");
+                    AssertEqual(actual.Value, split.Read((ushort)address), "stream1 direct program mechanics value");
                 }
-                AssertEqual(!selectedVisual, owns(bank | address), "stream1 program low-byte ownership");
-                AssertEqual(!selectedVisual, owns(bank | (address + 1)), "stream1 program high-byte ownership");
-                AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "stream1 unaligned program word rejection");
+                AssertEqual(!selectedVisual, split.Owns(bank | address), "stream1 program low-byte ownership");
+                AssertEqual(!selectedVisual, split.Owns(bank | (address + 1)), "stream1 program high-byte ownership");
+                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "stream1 unaligned program word rejection");
             }
             AssertEqual(mechanicsCount, mechanical, "stream1 exact mechanics count");
             AssertEqual(presentationCount, visual, "stream1 exact presentation count");
-            AssertTrue(!owns(bank | (first - 1)) && !owns(bank | end) && !owns((bank ^ 0x10000) | first), "stream1 outside program byte rejection");
+            AssertTrue(!split.Owns(bank | (first - 1)) && !split.Owns(bank | end) && !split.Owns((bank ^ 0x10000) | first), "stream1 outside program byte rejection");
             foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "stream1 mechanics enumeration bounds");
+                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "stream1 mechanics enumeration bounds");
             foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream1 presentation enumeration bounds");
+                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "stream1 presentation enumeration bounds");
         }
     }
 
@@ -2203,52 +2191,40 @@ internal static partial class Program
     private static byte LookupStream1LaunchRolesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1SparkSpikePrograms(ISnesAddressSpace rom)
     {
-        Check(0xf353, 0xf391, 17, 14,
-            a => a < 0xf35f ? (a - 0xf353) % 4 == 2 : a >= 0xf363 && a < 0xf38f && (a - 0xf363) % 4 == 2,
-            i => { var w = FallingSparkInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
-            FallingSparkInstructionProgramDefinitions.PresentationWordAddress,
-            FallingSparkInstructionProgramDefinitions.ReadMechanicsWord,
-            FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
-        Check(0xd208, 0xd21a, 6, 3,
-            a => a < 0xd214 && (a - 0xd208) % 4 == 2,
-            i => { var w = PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
-            PowampSpikeInstructionProgramDefinitions.PresentationWordAddress,
-            PowampSpikeInstructionProgramDefinitions.ReadMechanicsWord,
-            PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
+        Check(0xf353, 0xf391, 17, 14, new CompiledProgramSplit(Mechanics: i => { var w = FallingSparkInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: FallingSparkInstructionProgramDefinitions.PresentationWordAddress, Read: FallingSparkInstructionProgramDefinitions.ReadMechanicsWord, Owns: FallingSparkInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a < 0xf35f ? (a - 0xf353) % 4 == 2 : a >= 0xf363 && a < 0xf38f && (a - 0xf363) % 4 == 2));
+        Check(0xd208, 0xd21a, 6, 3, new CompiledProgramSplit(Mechanics: i => { var w = PowampSpikeInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: PowampSpikeInstructionProgramDefinitions.PresentationWordAddress, Read: PowampSpikeInstructionProgramDefinitions.ReadMechanicsWord, Owns: PowampSpikeInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a < 0xd214 && (a - 0xd208) % 4 == 2));
 
-        void Check(int first, int end, int mechanicsCount, int presentationCount, Func<int, bool> isVisual,
-            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
-            Func<ushort, ushort> read, Func<int, bool> owns)
+        void Check(int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
         {
             int mechanical = 0, visual = 0;
             for (int address = first; address < end; address += 2)
             {
-                bool art = isVisual(address);
+                bool art = split.IsVisual(address);
                 if (art)
                 {
-                    AssertEqual((ushort)address, presentation(visual++), "spark/spike original presentation ordering");
-                    AssertThrows<InvalidDataException>(() => read((ushort)address), "spark/spike presentation excluded from mechanics");
+                    AssertEqual((ushort)address, split.Presentation(visual++), "spark/spike original presentation ordering");
+                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "spark/spike presentation excluded from mechanics");
                 }
                 else
                 {
-                    var actual = mechanics(mechanical++);
+                    var actual = split.Mechanics(mechanical++);
                     AssertEqual((ushort)address, actual.Address, "spark/spike original mechanics ordering");
                     ushort native = (ushort)(LookupStream1SparkSpikeProgramsRomByte(rom, 0x860000 | address) | LookupStream1SparkSpikeProgramsRomByte(rom, 0x860000 | (address + 1)) << 8);
                     AssertEqual(native, actual.Value, "spark/spike original mechanics word");
-                    AssertEqual(native, read((ushort)address), "spark/spike direct mechanics read");
+                    AssertEqual(native, split.Read((ushort)address), "spark/spike direct mechanics read");
                 }
-                AssertEqual(!art, owns(0x860000 | address), "spark/spike low-byte ownership");
-                AssertEqual(!art, owns(0x860000 | (address + 1)), "spark/spike high-byte ownership");
-                AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "spark/spike unaligned word rejection");
+                AssertEqual(!art, split.Owns(0x860000 | address), "spark/spike low-byte ownership");
+                AssertEqual(!art, split.Owns(0x860000 | (address + 1)), "spark/spike high-byte ownership");
+                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "spark/spike unaligned word rejection");
             }
             AssertEqual(mechanicsCount, mechanical, "spark/spike mechanics extent");
             AssertEqual(presentationCount, visual, "spark/spike presentation extent");
             foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "spark/spike mechanics index bounds");
+                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "spark/spike mechanics index bounds");
             foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "spark/spike presentation index bounds");
+                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "spark/spike presentation index bounds");
             foreach (int invalid in new[] { 0x850000 | first, 0x860000 | (first - 1), 0x860000 | end, int.MinValue, int.MaxValue })
-                AssertTrue(!owns(invalid), "spark/spike outside byte-domain rejection");
+                AssertTrue(!split.Owns(invalid), "spark/spike outside byte-domain rejection");
         }
     }
 
@@ -2281,51 +2257,39 @@ internal static partial class Program
     private static byte LookupStream1CommonFramesRomByte(ISnesAddressSpace rom, int address) => rom.ReadCartridgeByte(address);
     private static void VerifyLookupStream1HibashiDragonFireball(ISnesAddressSpace rom)
     {
-        Check(0x860000, 0xb4bf, 0xb4ef, 16, 8,
-            address => (address - 0xb4bf) % 12 is 2 or 6,
-            i => { var w = DragonFireballInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
-            DragonFireballInstructionProgramDefinitions.PresentationWordAddress,
-            DragonFireballInstructionProgramDefinitions.ReadMechanicsWord,
-            DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
-        Check(0xa60000, 0x8d1b, 0x8daf, 50, 24,
-            address => address == 0x8dab || address >= 0x8d1f && address <= 0x8da3 && (address - 0x8d1f) % 6 == 0,
-            i => { var w = HibashiInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); },
-            HibashiInstructionProgramDefinitions.PresentationWordAddress,
-            HibashiInstructionProgramDefinitions.ReadMechanicsWord,
-            HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte);
-        void Check(int bank, int first, int end, int count, int visualCount, Func<int, bool> isVisual,
-            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
-            Func<ushort, ushort> read, Func<int, bool> owns)
+        Check(0x860000, 0xb4bf, 0xb4ef, 16, 8, new CompiledProgramSplit(Mechanics: i => { var w = DragonFireballInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: DragonFireballInstructionProgramDefinitions.PresentationWordAddress, Read: DragonFireballInstructionProgramDefinitions.ReadMechanicsWord, Owns: DragonFireballInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: address => (address - 0xb4bf) % 12 is 2 or 6));
+        Check(0xa60000, 0x8d1b, 0x8daf, 50, 24, new CompiledProgramSplit(Mechanics: i => { var w = HibashiInstructionProgramDefinitionsTooling.MechanicsWord(i); return (w.Address, w.Value); }, Presentation: HibashiInstructionProgramDefinitions.PresentationWordAddress, Read: HibashiInstructionProgramDefinitions.ReadMechanicsWord, Owns: HibashiInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: address => address == 0x8dab || address >= 0x8d1f && address <= 0x8da3 && (address - 0x8d1f) % 6 == 0));
+        void Check(int bank, int first, int end, int count, int visualCount, CompiledProgramSplit split)
         {
             int m = 0, p = 0;
             for (int address = first; address < end; address += 2)
             {
-                bool visual = isVisual(address);
+                bool visual = split.IsVisual(address);
                 if (visual)
                 {
-                    AssertEqual((ushort)address, presentation(p++), "Hibashi/Dragon native presentation order");
-                    AssertThrows<InvalidDataException>(() => read((ushort)address), "Hibashi/Dragon presentation excluded from mechanics");
+                    AssertEqual((ushort)address, split.Presentation(p++), "Hibashi/Dragon native presentation order");
+                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "Hibashi/Dragon presentation excluded from mechanics");
                 }
                 else
                 {
-                    var word = mechanics(m++);
+                    var word = split.Mechanics(m++);
                     AssertEqual((ushort)address, word.Address, "Hibashi/Dragon native control order");
                     ushort value = (ushort)(LookupStream1HibashiDragonFireballRomByte(rom, bank | address) | LookupStream1HibashiDragonFireballRomByte(rom, bank | (address + 1)) << 8);
                     AssertEqual(value, word.Value, "Hibashi/Dragon original native control value");
-                    AssertEqual(value, read((ushort)address), "Hibashi/Dragon direct control read");
+                    AssertEqual(value, split.Read((ushort)address), "Hibashi/Dragon direct control read");
                 }
-                AssertEqual(!visual, owns(bank | address), "Hibashi/Dragon low-byte ownership");
-                AssertEqual(!visual, owns(bank | (address + 1)), "Hibashi/Dragon high-byte ownership");
-                AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "Hibashi/Dragon unaligned reads rejected");
+                AssertEqual(!visual, split.Owns(bank | address), "Hibashi/Dragon low-byte ownership");
+                AssertEqual(!visual, split.Owns(bank | (address + 1)), "Hibashi/Dragon high-byte ownership");
+                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "Hibashi/Dragon unaligned reads rejected");
             }
             AssertEqual(count, m, "Hibashi/Dragon control count");
             AssertEqual(visualCount, p, "Hibashi/Dragon presentation count");
             foreach (int invalid in new[] { -1, count, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "Hibashi/Dragon control index domain");
+                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "Hibashi/Dragon control index domain");
             foreach (int invalid in new[] { -1, visualCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "Hibashi/Dragon presentation index domain");
+                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "Hibashi/Dragon presentation index domain");
             foreach (int invalid in new[] { bank | (first - 1), bank | end, (bank ^ 0x10000) | first })
-                AssertTrue(!owns(invalid), "Hibashi/Dragon external byte domain");
+                AssertTrue(!split.Owns(invalid), "Hibashi/Dragon external byte domain");
         }
     }
 

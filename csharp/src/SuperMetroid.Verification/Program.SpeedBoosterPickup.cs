@@ -16,9 +16,7 @@ internal static partial class Program
             var vram = new SnesVram();
             RoomLayer3FxState fx = CreateRetailFxState(cartridge);
             fx.Load(cartridge, vram, new SnesCgram(), 0x8600, 0, 0);
-            CollectibleFixture fixture = LoadCollectible(bus,
-                (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster),
-                roomArgument: 8, precollected: false, roomFx: fx);
+            CollectibleFixture fixture = LoadCollectible(bus, (ushort)(chozo ? PlmHeaderId.ChozoSpeedBooster : PlmHeaderId.ExposedSpeedBooster), roomArgument: 8, precollected: false, roomFx: fx);
             fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             if (chozo)
             {

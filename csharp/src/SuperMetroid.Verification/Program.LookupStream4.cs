@@ -2336,53 +2336,41 @@ internal static partial class Program
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.StalkYOffset(invalid), "stream4 stalk spawn domain");
             AssertThrows<ArgumentOutOfRangeException>(() => SporeSpawnProjectileDefinitions.SpawnerX(invalid), "stream4 emitter spawn domain");
         }
-        Check(0xa20000, 0xb013, 0xb027, FlyInstructionProgramDefinitions.MechanicsWordCount,
-            FlyInstructionProgramDefinitionsTooling.PresentationWordCount,
-            i => { var word = FlyInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
-            FlyInstructionProgramDefinitionsTooling.PresentationWordAddress, FlyInstructionProgramDefinitions.ReadMechanicsWord,
-            FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            a => a is 0xb015 or 0xb019 or 0xb01d or 0xb021);
-        Check(0x860000, 0xb615, 0xb62d, EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount,
-            EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount,
-            i => { var word = EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); },
-            EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress, EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord,
-            EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
-            a => a is 0xb617 or 0xb621 or 0xb625 or 0xb629);
+        Check(0xa20000, 0xb013, 0xb027, FlyInstructionProgramDefinitions.MechanicsWordCount, FlyInstructionProgramDefinitionsTooling.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = FlyInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: FlyInstructionProgramDefinitionsTooling.PresentationWordAddress, Read: FlyInstructionProgramDefinitions.ReadMechanicsWord, Owns: FlyInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xb015 or 0xb019 or 0xb01d or 0xb021));
+        Check(0x860000, 0xb615, 0xb62d, EyeDoorSweatInstructionProgramDefinitions.MechanicsWordCount, EyeDoorSweatInstructionProgramDefinitions.PresentationWordCount, new CompiledProgramSplit(Mechanics: i => { var word = EyeDoorSweatInstructionProgramDefinitions.MechanicsWord(i); return (word.Address, word.Value); }, Presentation: EyeDoorSweatInstructionProgramDefinitions.PresentationWordAddress, Read: EyeDoorSweatInstructionProgramDefinitions.ReadMechanicsWord, Owns: EyeDoorSweatInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte, IsVisual: a => a is 0xb617 or 0xb621 or 0xb625 or 0xb629));
         for (int address = 0xb012; address <= 0xb027; address++)
             AssertEqual(address is 0xb015 or 0xb019 or 0xb01d or 0xb021,
                 FlyInstructionProgramDefinitions.IsPresentationWord((ushort)address), "stream4 exact fly presentation classification");
 
-        void Check(int bank, int first, int end, int mechanicsCount, int presentationCount,
-            Func<int, (ushort Address, ushort Value)> mechanics, Func<int, ushort> presentation,
-            Func<ushort, ushort> read, Func<int, bool> owns, Func<int, bool> isVisual)
+        void Check(int bank, int first, int end, int mechanicsCount, int presentationCount, CompiledProgramSplit split)
         {
             int mechanical = 0, visual = 0;
             for (int address = first; address < end; address += 2)
             {
-                bool selectedVisual = isVisual(address);
+                bool selectedVisual = split.IsVisual(address);
                 if (selectedVisual)
                 {
-                    AssertEqual((ushort)address, presentation(visual++), "stream4 native ordered presentation operand");
-                    AssertThrows<InvalidDataException>(() => read((ushort)address), "stream4 presentation excluded from mechanics");
+                    AssertEqual((ushort)address, split.Presentation(visual++), "stream4 native ordered presentation operand");
+                    AssertThrows<InvalidDataException>(() => split.Read((ushort)address), "stream4 presentation excluded from mechanics");
                 }
                 else
                 {
-                    var actual = mechanics(mechanical++);
+                    var actual = split.Mechanics(mechanical++);
                     AssertEqual((ushort)address, actual.Address, "stream4 native ordered mechanics address");
                     AssertEqual(Word(bank | address), actual.Value, "stream4 original program mechanics value");
-                    AssertEqual(actual.Value, read((ushort)address), "stream4 direct program mechanics value");
+                    AssertEqual(actual.Value, split.Read((ushort)address), "stream4 direct program mechanics value");
                 }
-                AssertEqual(!selectedVisual, owns(bank | address), "stream4 program low-byte ownership");
-                AssertEqual(!selectedVisual, owns(bank | (address + 1)), "stream4 program high-byte ownership");
-                AssertThrows<InvalidDataException>(() => read((ushort)(address + 1)), "stream4 unaligned program word rejected");
+                AssertEqual(!selectedVisual, split.Owns(bank | address), "stream4 program low-byte ownership");
+                AssertEqual(!selectedVisual, split.Owns(bank | (address + 1)), "stream4 program high-byte ownership");
+                AssertThrows<InvalidDataException>(() => split.Read((ushort)(address + 1)), "stream4 unaligned program word rejected");
             }
             AssertEqual(mechanicsCount, mechanical, "stream4 exact mechanics count");
             AssertEqual(presentationCount, visual, "stream4 exact presentation count");
-            AssertTrue(!owns(bank | (first - 1)) && !owns(bank | end) && !owns((bank ^ 0x10000) | first), "stream4 outside program bytes excluded");
+            AssertTrue(!split.Owns(bank | (first - 1)) && !split.Owns(bank | end) && !split.Owns((bank ^ 0x10000) | first), "stream4 outside program bytes excluded");
             foreach (int invalid in new[] { -1, mechanicsCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => mechanics(invalid), "stream4 program mechanics enumeration bounds");
+                AssertThrows<IndexOutOfRangeException>(() => split.Mechanics(invalid), "stream4 program mechanics enumeration bounds");
             foreach (int invalid in new[] { -1, presentationCount, int.MaxValue })
-                AssertThrows<IndexOutOfRangeException>(() => presentation(invalid), "stream4 program presentation enumeration bounds");
+                AssertThrows<IndexOutOfRangeException>(() => split.Presentation(invalid), "stream4 program presentation enumeration bounds");
         }
     }
 

@@ -1031,8 +1031,7 @@ internal static partial class Program
             {
                 var native = new OamBuffer();
                 var installed = new OamBuffer();
-                DrawImportedEnemySpritemap(rom, native, frame.Bank, frame.Pointer,
-                    new(x, y), palette, baseTile);
+                DrawImportedEnemySpritemap(rom, native, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = palette, BaseTileIndex = baseTile });
                 installed.AddEnemySpritemap(parts, new Position16<OamPixels>(x, y), palette, baseTile);
                 AssertTrue(native.ImageEquals(installed) &&
                            native.NextByteOffset == installed.NextByteOffset,
@@ -1180,8 +1179,7 @@ internal static partial class Program
                                                                                                 ? EnemyDefinitionId.Magdollite
                                 : EnemyDefinitionId.Atomic, spritemapBank: frame.Bank);
             var nativeRoom = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeRoom, frame.Bank, frame.Pointer,
-                new(0x0040, 0x0080), 0, 0);
+            DrawImportedEnemySpritemap(rom, nativeRoom, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0080), PaletteBits = 0, BaseTileIndex = 0 });
             AssertTrue(room.ImageEquals(nativeRoom),
                 $"production room draws installed {frame.Name} without visual ROM reads");
         }
@@ -3671,8 +3669,7 @@ internal static partial class Program
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, rom, frame.Pointer, new(0x0140, 0x00a0));
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, frame.Bank, frame.Pointer,
-                new(0x0040, 0x0090), 0x0400, 0x0010);
+            DrawImportedEnemySpritemap(rom, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(0x0040, 0x0090), PaletteBits = 0x0400, BaseTileIndex = 0x0010 });
             AssertTrue(actual.ImageEquals(expected) &&
                        actual.NextByteOffset == expected.NextByteOffset,
                 $"Mother Brain private draw uses installed {frame.Name} with native OAM");

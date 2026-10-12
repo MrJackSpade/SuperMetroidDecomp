@@ -22,8 +22,7 @@ internal static partial class Program
         samus.CollectedBeams = (ushort)SamusBeamFlags.Charge;
         runtime.InitializeHud(HudSnapshot.CeresDebug with { Health = 20, ReserveHealth = 2, ReserveMode = 1 });
         runtime.RunNmi(0, true);
-        var pause = CreateRetailPauseFixture(bus, samus, runtime.System, AreaId.Crateria, new(0, 0),
-            gameplayVram: runtime.Vram);
+        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         pause.Step(0, (ushort)SnesButton.Up);
         var game = new SuperMetroidGame(bus);

@@ -168,10 +168,7 @@ internal static partial class Program
         typeof(RoomEnemySystem).GetField("<Ridley>k__BackingField", flags)!.SetValue(enemies, baby);
         var nativeBaby = new OamBuffer();
         nativeBaby.BeginFrame();
-        DrawImportedEnemySpritemap(rom, nativeBaby, CeresBabyInstructionProgramDefinitions.Bank,
-            CeresBabyInstructionProgramDefinitions.HorizontalFrame, new(100, 80),
-            paletteBits: 0, baseTileIndex: 0,
-            clipVerticalWrap: true, originYIsOnScreen: true);
+        DrawImportedEnemySpritemap(rom, nativeBaby, new EnemySpritemapDraw { Bank = CeresBabyInstructionProgramDefinitions.Bank, Pointer = CeresBabyInstructionProgramDefinitions.HorizontalFrame, Origin = new(100, 80), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
         nativeBaby.FinalizeFrame();
         var installedBaby = new OamBuffer();
         installedBaby.BeginFrame();

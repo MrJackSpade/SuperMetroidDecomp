@@ -32,16 +32,12 @@ internal static class SnesBgTilemapRendererAccess
         internal static Rgba32[] Render4BppViewport(
             SnesVram vram,
             SnesCgram cgram,
-            ushort tilemapBaseWord,
-            ushort characterBaseWord,
-            Position16<BgPlanePixels> scroll,
-            Extent16<ScreenPixels> size,
-            Extent16<TilemapCells>? tilemapSize = null,
-            IReadOnlyList<ushort>? horizontalScrollByLine = null,
+            BgVramAddresses addresses,
+            BgViewport viewport,
             bool? priority = null)
         {
-            var output = new Rgba32[size.X * size.Y];
-            SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, new BgVramAddresses { TilemapBaseWord = tilemapBaseWord, CharacterBaseWord = characterBaseWord }, new BgViewport { Scroll = scroll, Size = size, TilemapSize = tilemapSize, HorizontalScrollByLine = horizontalScrollByLine }, priority);
+            var output = new Rgba32[viewport.Size.X * viewport.Size.Y];
+            SnesBgTilemapRenderer.Composite4BppViewport(output, vram, cgram, addresses, viewport, priority);
             return output;
         }
 
@@ -243,21 +239,15 @@ internal static class SnesMode7RendererAccess
         internal static Rgba32[] RenderViewport(
             SnesVram vram,
             SnesCgram cgram,
-            short matrixA,
-            short matrixB,
-            short matrixC,
-            short matrixD,
-            Offset16<Mode7Pixels> center,
-            Offset16<Mode7Pixels> scroll,
-            Extent16<ScreenPixels>? size = null,
-            bool fillOutsideWithCharacterZero = false, bool wrapOutsideMap = false)
+            Mode7RenderRegisters registers,
+            Extent16<ScreenPixels>? size = null)
         {
             ArgumentNullException.ThrowIfNull(vram);
             ArgumentNullException.ThrowIfNull(cgram);
             Extent16<ScreenPixels> viewport = size ?? SnesPpuLayout.ScreenSize;
 
             var output = new Rgba32[viewport.X * viewport.Y];
-            SnesMode7Renderer.CompositeViewport(output, vram, cgram, new Mode7RenderRegisters { MatrixA = matrixA, MatrixB = matrixB, MatrixC = matrixC, MatrixD = matrixD, Center = center, Scroll = scroll, FillOutsideWithCharacterZero = fillOutsideWithCharacterZero, WrapOutsideMap = wrapOutsideMap }, viewport);
+            SnesMode7Renderer.CompositeViewport(output, vram, cgram, registers, viewport);
             return output;
         }
     }

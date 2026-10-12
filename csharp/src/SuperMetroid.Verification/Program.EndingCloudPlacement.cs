@@ -91,10 +91,7 @@ internal static partial class Program
         var snapshot = ending.CaptureRenderSnapshot();
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
         var registers = snapshot.Layers.ToArray().OfType<Mode7RenderLayer>().First().Registers;
-        var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram,
-            registers.MatrixA, registers.MatrixB, registers.MatrixC, registers.MatrixD,
-            new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y),
-            wrapOutsideMap: registers.WrapOutsideMap);
+        var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), WrapOutsideMap = registers.WrapOutsideMap });
         // SetupPpu_5_Mode7 ($8B:8293) writes M7SEL=0, not the $80
         // transparent-overflow mode. Keep this oracle independent of the renderer's
         // overflow policy: the native tile lookup masks BOTH coordinates to ten bits.

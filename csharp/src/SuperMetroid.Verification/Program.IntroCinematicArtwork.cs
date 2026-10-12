@@ -932,8 +932,7 @@ internal static partial class Program
             IntroMotherBrainExplosionSpritePresentation.Write(output, document);
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
 
-        var guarded = NewIntroArtworkSourceReadGuard(bus,
-            blockIntroMotherBrainExplosions: true);
+        var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroMotherBrainExplosions);
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
         explosions.Step(guarded, introCrossfadeTimer: 1);
@@ -989,32 +988,19 @@ internal static partial class Program
     }
 
     private static MutableCartridgeReadGuard NewIntroArtworkSourceReadGuard(ISnesAddressSpace source,
-        bool blockIntroMotherBrainExplosions = false,
-        bool blockIntroRinkas = false,
-        bool blockIntroEggEffects = false,
-        bool blockIntroDiscoveryActors = false,
-        bool blockIntroScientistSprites = false,
-        bool blockCeresFlightSprites = false,
-        bool blockCeresDestructionSprites = false)
+        IntroArtworkSources blocked = IntroArtworkSources.None)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => IntroArtworkForbiddenRead(address, blockIntroMotherBrainExplosions, blockIntroRinkas, blockIntroEggEffects, blockIntroDiscoveryActors, blockIntroScientistSprites, blockCeresFlightSprites, blockCeresDestructionSprites) is not null,
-            address => IntroArtworkForbiddenRead(address, blockIntroMotherBrainExplosions, blockIntroRinkas, blockIntroEggEffects, blockIntroDiscoveryActors, blockIntroScientistSprites, blockCeresFlightSprites, blockCeresDestructionSprites)!);
+        guard.Forbid(address => IntroArtworkForbiddenRead(address, blocked) is not null,
+            address => IntroArtworkForbiddenRead(address, blocked)!);
         return guard;
     }
 
     /// <summary>The failure message for a cinematic read of migrated artwork, or null when the read is allowed.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static string? IntroArtworkForbiddenRead(int address,
-        bool blockIntroMotherBrainExplosions,
-        bool blockIntroRinkas,
-        bool blockIntroEggEffects,
-        bool blockIntroDiscoveryActors,
-        bool blockIntroScientistSprites,
-        bool blockCeresFlightSprites,
-        bool blockCeresDestructionSprites)
+    private static string? IntroArtworkForbiddenRead(int address, IntroArtworkSources blocked)
     {
-        if (blockCeresFlightSprites)
+        if (blocked.HasFlag(IntroArtworkSources.CeresFlightSprites))
         {
             foreach (CeresFlightSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
             {
@@ -1026,7 +1012,7 @@ internal static partial class Program
                 }
             }
         }
-        if (blockCeresDestructionSprites)
+        if (blocked.HasFlag(IntroArtworkSources.CeresDestructionSprites))
         {
             foreach (CeresDestructionSpriteFrameDefinition frame in
                 CeresDestructionSpriteDefinitions.Frames)
@@ -1116,7 +1102,7 @@ internal static partial class Program
         int explosionSpriteEnd = (int)new SnesAddress(
             IntroCinematicRomData.Banks.Spritemaps,
             IntroMotherBrainExplosionSpriteDefinitions.End);
-        if (blockIntroMotherBrainExplosions &&
+        if (blocked.HasFlag(IntroArtworkSources.IntroMotherBrainExplosions) &&
             address >= explosionSpriteStart && address < explosionSpriteEnd)
         {
             return $"Cinematic reread intro Mother Brain explosion sprite ${address:X6}.";
@@ -1125,7 +1111,7 @@ internal static partial class Program
             IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.First);
         int rinkaSpriteEnd = (int)new SnesAddress(
             IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.End);
-        if (blockIntroRinkas &&
+        if (blocked.HasFlag(IntroArtworkSources.IntroRinkas) &&
             address >= rinkaSpriteStart && address < rinkaSpriteEnd)
         {
             return $"Cinematic reread intro Rinka sprite ${address:X6}.";
@@ -1136,12 +1122,12 @@ internal static partial class Program
         int eggEffectSpriteEnd = (int)new SnesAddress(
             IntroCinematicRomData.Banks.Spritemaps,
             IntroEggEffectSpriteDefinitions.End);
-        if (blockIntroEggEffects &&
+        if (blocked.HasFlag(IntroArtworkSources.IntroEggEffects) &&
             address >= eggEffectSpriteStart && address < eggEffectSpriteEnd)
         {
             return $"Cinematic reread intro egg effect sprite ${address:X6}.";
         }
-        if (blockIntroDiscoveryActors)
+        if (blocked.HasFlag(IntroArtworkSources.IntroDiscoveryActors))
         {
             int eggStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                 IntroDiscoveryActorSpriteDefinitions.EggStart);
@@ -1168,7 +1154,7 @@ internal static partial class Program
         int scientistSpriteEnd = (int)new SnesAddress(
             IntroCinematicRomData.Banks.Spritemaps,
             IntroScientistSpriteDefinitions.End);
-        if (blockIntroScientistSprites &&
+        if (blocked.HasFlag(IntroArtworkSources.IntroScientistSprites) &&
             address >= scientistSpriteStart && address < scientistSpriteEnd)
         {
             return $"Cinematic reread intro scientist sprite ${address:X6}.";
@@ -1196,5 +1182,19 @@ internal static partial class Program
             return $"Cinematic reread opening eye source ${address:X6}.";
         }
         return null;
+    }
+
+    /// <summary>The installed artwork sources an intro read guard forbids the cinematic to reread (#633).</summary>
+    [Flags]
+    private enum IntroArtworkSources
+    {
+        None = 0,
+        IntroMotherBrainExplosions = 1 << 0,
+        IntroRinkas = 1 << 1,
+        IntroEggEffects = 1 << 2,
+        IntroDiscoveryActors = 1 << 3,
+        IntroScientistSprites = 1 << 4,
+        CeresFlightSprites = 1 << 5,
+        CeresDestructionSprites = 1 << 6,
     }
 }

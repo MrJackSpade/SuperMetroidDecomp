@@ -19,12 +19,8 @@ internal static partial class Program
             AssertEqual((ushort)0, actor.SlidePreInstruction, "destruction actor has no slide callback");
             AssertEqual(false, actor.CompletesScene, "destruction actor does not own Zebes completion");
         }
-        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(0),
-            0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46,
-            "destruction large asteroids"));
-        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(1),
-            0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a,
-            "destruction small asteroids"));
+        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(0), new WrappedActorRomFields(0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46), "destruction large asteroids"));
+        Suite(nameof(VerifyWrappedActor), () => VerifyWrappedActor(retail, CeresDestructionActorDefinitions.InitialActor(1), new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "destruction small asteroids"));
         CeresDestructionActorDefinition vortex =
             CeresDestructionActorDefinitions.InitialActor(2);
         AssertEqual(ReadWord(retail, 0x8bbfa6), vortex.Position.X, "destruction vortex X");
@@ -63,20 +59,16 @@ internal static partial class Program
         static void VerifyWrappedActor(
             ISnesAddressSpace source,
             CeresDestructionActorDefinition actor,
-            int xAddress,
-            int yAddress,
-            int attributeAddress,
-            int deltaAddress,
-            int maskAddress,
+            WrappedActorRomFields fields,
             string name)
         {
-            AssertEqual(ReadWord(source, xAddress), actor.Position.X, $"{name} X");
-            AssertEqual(ReadWord(source, yAddress), actor.Position.Y, $"{name} Y");
-            AssertEqual(ReadWord(source, attributeAddress), actor.Attributes,
+            AssertEqual(ReadWord(source, fields.XWord), actor.Position.X, $"{name} X");
+            AssertEqual(ReadWord(source, fields.YWord), actor.Position.Y, $"{name} Y");
+            AssertEqual(ReadWord(source, fields.AttributeWord), actor.Attributes,
                 $"{name} attributes");
-            AssertEqual(ReadWord(source, deltaAddress), unchecked((ushort)actor.HorizontalDelta),
+            AssertEqual(ReadWord(source, fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
                 $"{name} speed");
-            AssertEqual((ushort)0x01ff, ReadWord(source, maskAddress), $"{name} wrap mask");
+            AssertEqual((ushort)0x01ff, ReadWord(source, fields.MaskWord), $"{name} wrap mask");
             AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");
         }
 

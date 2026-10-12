@@ -38,7 +38,7 @@ internal static partial class Program
             labels.DrawElevatorLabels(gated, new(0, 0));
             AssertEqual(0, gated.NextByteOffset, "another area's map does not reveal these destinations");
             system.SetAreaMapAcquired(area);
-            var pause = CreateRetailPauseFixture(bus, new SamusState(), system, area, new(0, 0));
+            var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
             int list = 0x820000 | Read(0x82c74d + (int)area * 2);
             ushort x = unchecked((ushort)(Read(list) - 128)), y = unchecked((ushort)(Read(list + 2) - 100));
             Set("mapScrollPosition", new Position16<MapPixels>(x, y));

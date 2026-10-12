@@ -55,58 +55,34 @@ public static class ManagedAudioRegressionSmokeTest
                 $"{catalog.SourceMappingCount} aliases; expected {ExpectedCanonicalSampleCount}/" +
                 $"{ExpectedSourceAliasCount}.");
         }
-        using IncrementalHash pcmHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        using IncrementalHash acknowledgementHash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        int scenarios = 0;
-        int frames = 0;
-        int samples = 0;
+        using var tally = new AudioCorpusTally();
 
         RunMusicScenario(
             "title-long",
             AudioAssetCatalogData.Music[0],
             TitleScenarioFrames,
-            pcmHash,
-            acknowledgementHash,
-            ref scenarios,
-            ref frames,
-            ref samples);
+            tally);
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogData.Music)
         {
             RunMusicScenario(
                 bank.Name,
                 bank,
                 ShortScenarioFrames,
-                pcmHash,
-                acknowledgementHash,
-                ref scenarios,
-                ref frames,
-                ref samples);
+                tally);
         }
 
         RunSoundScenario(
             "library-1-power-beam",
             [(ApuPort.SoundLibrary1, SoundEffectLibrary1Sounds.PowerBeam.Value)],
-            pcmHash,
-            acknowledgementHash,
-            ref scenarios,
-            ref frames,
-            ref samples);
+            tally);
         RunSoundScenario(
             "library-2-door",
             [(ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value)],
-            pcmHash,
-            acknowledgementHash,
-            ref scenarios,
-            ref frames,
-            ref samples);
+            tally);
         RunSoundScenario(
             "library-3-cinematic",
             [(ApuPort.SoundLibrary3, 0x23)],
-            pcmHash,
-            acknowledgementHash,
-            ref scenarios,
-            ref frames,
-            ref samples);
+            tally);
         RunSoundScenario(
             "three-library-overlap-and-cancel",
             [
@@ -114,21 +90,13 @@ public static class ManagedAudioRegressionSmokeTest
                 (ApuPort.SoundLibrary2, SoundEffectLibrary2Sounds.DoorOpening.Value),
                 (ApuPort.SoundLibrary3, 0x23),
             ],
-            pcmHash,
-            acknowledgementHash,
-            ref scenarios,
-            ref frames,
-            ref samples,
+            tally,
             cancelHalfway: true);
         RunLifecycleScenario(
-            pcmHash,
-            acknowledgementHash,
-            ref scenarios,
-            ref frames,
-            ref samples);
+            tally);
 
-        string pcm = Convert.ToHexString(pcmHash.GetHashAndReset());
-        string acknowledgements = Convert.ToHexString(acknowledgementHash.GetHashAndReset());
+        string pcm = Convert.ToHexString(tally.Pcm.GetHashAndReset());
+        string acknowledgements = Convert.ToHexString(tally.Acknowledgements.GetHashAndReset());
         if (!pcm.Equals(ExpectedPcmSha256, StringComparison.Ordinal))
             throw new InvalidDataException($"Managed audio PCM regression: {pcm}, expected {ExpectedPcmSha256}.");
         if (!acknowledgements.Equals(ExpectedAcknowledgementSha256, StringComparison.Ordinal))
@@ -137,9 +105,9 @@ public static class ManagedAudioRegressionSmokeTest
                 $"Managed audio acknowledgement regression: {acknowledgements}, expected {ExpectedAcknowledgementSha256}.");
         }
         return new ManagedAudioRegressionSmokeTestResult(
-            scenarios,
-            frames,
-            samples,
+            tally.Scenarios,
+            tally.Frames,
+            tally.Samples,
             catalog.CanonicalSampleCount,
             catalog.SourceMappingCount,
             pcm,
@@ -150,11 +118,7 @@ public static class ManagedAudioRegressionSmokeTest
         string name,
         AudioUploadAssetDefinition bank,
         int frameCount,
-        IncrementalHash pcmHash,
-        IncrementalHash acknowledgementHash,
-        ref int scenarios,
-        ref int frames,
-        ref int samples)
+        AudioCorpusTally tally)
     {
         using var engine = DesktopAccess.CreateAudioEngine();
         for (int frame = 0; frame < frameCount; frame++)
@@ -167,19 +131,15 @@ public static class ManagedAudioRegressionSmokeTest
                     CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
                 ]
                 : Array.Empty<CartridgeAudioCommand>();
-            HashFrame(name, engine, commands, pcmHash, acknowledgementHash, ref frames, ref samples);
+            HashFrame(name, engine, commands, tally);
         }
-        scenarios++;
+        tally.Scenarios++;
     }
 
     private static void RunSoundScenario(
         string name,
         IReadOnlyList<(ApuPort Port, byte Command)> startCommands,
-        IncrementalHash pcmHash,
-        IncrementalHash acknowledgementHash,
-        ref int scenarios,
-        ref int frames,
-        ref int samples,
+        AudioCorpusTally tally,
         bool cancelHalfway = false)
     {
         using var engine = DesktopAccess.CreateAudioEngine();
@@ -201,17 +161,13 @@ public static class ManagedAudioRegressionSmokeTest
                 commands.Add(CartridgeAudioCommand.WritePort(
                     ApuPort.SoundLibrary3, SoundEffectLibrary3Sounds.CancelAll.Value));
             }
-            HashFrame(name, engine, commands, pcmHash, acknowledgementHash, ref frames, ref samples);
+            HashFrame(name, engine, commands, tally);
         }
-        scenarios++;
+        tally.Scenarios++;
     }
 
     private static void RunLifecycleScenario(
-        IncrementalHash pcmHash,
-        IncrementalHash acknowledgementHash,
-        ref int scenarios,
-        ref int frames,
-        ref int samples)
+        AudioCorpusTally tally)
     {
         AudioUploadAssetDefinition first = AudioAssetCatalogData.Music[3];
         AudioUploadAssetDefinition second = AudioAssetCatalogData.Music[4];
@@ -253,32 +209,51 @@ public static class ManagedAudioRegressionSmokeTest
                 commands.Add(CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             HashFrame(
-                "music-lifecycle", engine, commands, pcmHash, acknowledgementHash,
-                ref frames, ref samples);
+                "music-lifecycle", engine, commands, tally);
         }
-        scenarios++;
+        tally.Scenarios++;
     }
 
     private static void HashFrame(
         string scenario,
         SpcAudioEngine engine,
         IReadOnlyList<CartridgeAudioCommand> commands,
-        IncrementalHash pcmHash,
-        IncrementalHash acknowledgementHash,
-        ref int frames,
-        ref int samples)
+        AudioCorpusTally tally)
     {
         byte[] name = System.Text.Encoding.UTF8.GetBytes(scenario);
-        pcmHash.AppendData(name);
-        acknowledgementHash.AppendData(name);
+        tally.Pcm.AppendData(name);
+        tally.Acknowledgements.AppendData(name);
         ReadOnlySpan<short> pcm = engine.RenderFrame(commands);
-        pcmHash.AppendData(MemoryMarshal.AsBytes(pcm));
+        tally.Pcm.AppendData(MemoryMarshal.AsBytes(pcm));
         CartridgeAudioAcknowledgements acknowledgements = engine.ReadAcknowledgements();
         Span<byte> ports = stackalloc byte[AudioRomData.Apu.PortCount];
         foreach (ApuPort port in Enum.GetValues<ApuPort>())
             ports[(int)port] = acknowledgements[port];
-        acknowledgementHash.AppendData(ports);
-        frames++;
-        samples += pcm.Length;
+        tally.Acknowledgements.AppendData(ports);
+        tally.Frames++;
+        tally.Samples += pcm.Length;
+    }
+
+    /// <summary>
+    /// The corpus digests and counts every scenario adds to (#633): one PCM and one acknowledgement
+    /// SHA-256 stream, and the completed scenario, frame and sample totals.
+    /// </summary>
+    private sealed class AudioCorpusTally : IDisposable
+    {
+        public IncrementalHash Pcm { get; } = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+
+        public IncrementalHash Acknowledgements { get; } = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+
+        public int Scenarios { get; set; }
+
+        public int Frames { get; set; }
+
+        public int Samples { get; set; }
+
+        public void Dispose()
+        {
+            Pcm.Dispose();
+            Acknowledgements.Dispose();
+        }
     }
 }

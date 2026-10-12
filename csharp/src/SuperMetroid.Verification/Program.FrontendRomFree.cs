@@ -240,71 +240,37 @@ internal static partial class Program
                 if (roomCensus)
                     VerifyFrontendRomFreeRoomCensus(native, installed, bindInstalled);
                 VerifyFrontendRomFreeCeresInput(native, installed);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.CeresRidleyRoom, "Ceres Ridley");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.LandingSite, "Landing Site");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.ParlorAndAlcatraz, "Parlor");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.WestOcean, "West Ocean");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.NorfairRoom1E, "Norfair room 1E");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GreenBrinstarMainShaft,
-                    "Green Brinstar main shaft");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.BlueBrinstarElevatorRoom,
-                    "Blue Brinstar elevator");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.EastTunnel, "Maridia east tunnel");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointersTooling.CrateriaSaveStation, "Crateria save station");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.LowerNorfairMainHall,
-                    "Lower Norfair main hall");
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CeresRidleyRoom, RoomName = "Ceres Ridley" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.LandingSite, RoomName = "Landing Site" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.ParlorAndAlcatraz, RoomName = "Parlor" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.WestOcean, RoomName = "West Ocean" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.NorfairRoom1E, RoomName = "Norfair room 1E" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GreenBrinstarMainShaft, RoomName = "Green Brinstar main shaft" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.BlueBrinstarElevatorRoom, RoomName = "Blue Brinstar elevator" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.EastTunnel, RoomName = "Maridia east tunnel" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointersTooling.CrateriaSaveStation, RoomName = "Crateria save station" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.LowerNorfairMainHall, RoomName = "Lower Norfair main hall" });
                 // Kraid's arm switches to its rising/sinking extended frame at
                 // neutral frame 654. A short room-entry check misses that draw.
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.Kraid, "Kraid arm rising/sinking",
-                    frameCount: 700);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.Phantoon, "Phantoon");
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GauntletEast, "Gauntlet east Yapping Maw", frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.PreMoat, "pre-moat KiHunter", frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.CrabMaze, "Crab Maze Sciser", frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.Flyway, "Flyway shared fly family", frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.CrateriaKagoRoom, "Crateria Kago", frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.CrateriaFaceBlockRoom, "Crateria face block", frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.CrateriaMorphBallEyeRoom, "Crateria Morph Ball eye",
-                    frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointersTooling.BrinstarShutterRoom, "Brinstar shutters", frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.TourianMetroidRoom, "Tourian ordinary Metroids",
-                    frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.DeadTorizoCorpse, "Tourian dead-Torizo corpse",
-                    frameCount: 90);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.MotherBrainChamber, "Mother Brain chamber",
-                    frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Kraid, RoomName = "Kraid arm rising/sinking" }, frameCount: 700);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Phantoon, RoomName = "Phantoon" });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GauntletEast, RoomName = "Gauntlet east Yapping Maw" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.PreMoat, RoomName = "pre-moat KiHunter" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrabMaze, RoomName = "Crab Maze Sciser" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Flyway, RoomName = "Flyway shared fly family" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrateriaKagoRoom, RoomName = "Crateria Kago" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrateriaFaceBlockRoom, RoomName = "Crateria face block" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.CrateriaMorphBallEyeRoom, RoomName = "Crateria Morph Ball eye" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointersTooling.BrinstarShutterRoom, RoomName = "Brinstar shutters" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.TourianMetroidRoom, RoomName = "Tourian ordinary Metroids" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.DeadTorizoCorpse, RoomName = "Tourian dead-Torizo corpse" }, frameCount: 90);
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.MotherBrainChamber, RoomName = "Mother Brain chamber" }, frameCount: 90);
                 // The long neutral Draygon fight can fatally damage Samus;
                 // all shorter room checks must execute while gameplay is live.
                 BlockFrontendExtendedBg2Streams(blockedBg2Bytes, nativeBus,
                     DraygonBg2FrameDefinitions.Bank,
                     DraygonBg2FrameDefinitions.Frames);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.Draygon, "Draygon room entry, dance and fight handoff",
-                    frameCount: 2600,
-                    setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.Draygon, RoomName = "Draygon room entry, dance and fight handoff" }, frameCount: 2600, setup: (nativeRoom, installedRoom) =>
                     {
                         // Keep the fight actor alive through the long neutral
                         // comparison without letting damage switch the frontend
@@ -316,10 +282,7 @@ internal static partial class Program
                 // Cross the wake/combat handoff into the first linked walking
                 // lists. The older 700-frame low-health check reached Game Over
                 // and its trailing pixel matches did not exercise the room.
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo wake and right-facing attacks",
-                    frameCount: 850,
-                    setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo wake and right-facing attacks" }, frameCount: 850, setup: (nativeRoom, installedRoom) =>
                     {
                         // Enter the authored lower-right wake rectangle on both
                         // independently stepped games, without crossing a door.
@@ -333,10 +296,7 @@ internal static partial class Program
                         nativeRoom.RuntimeForVerification!.ApplyHostOptions(options);
                         installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
                     });
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo left-foot right-sonic program",
-                    frameCount: 90,
-                    setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo left-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -345,13 +305,8 @@ internal static partial class Program
                             boss.CurrentInstruction = GoldenTorizoRightSonicInstructionProgramDefinitions.Start;
                             boss.InstructionTimer = 1;
                         }
-                    },
-                    forcedGoldenSonicStart:
-                        GoldenTorizoRightSonicInstructionProgramDefinitions.Start);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo right-foot right-sonic program",
-                    frameCount: 90,
-                    setup: (nativeRoom, installedRoom) =>
+                    }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = GoldenTorizoRightSonicInstructionProgramDefinitions.Start });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo right-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -361,13 +316,8 @@ internal static partial class Program
                                 GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward;
                             boss.InstructionTimer = 1;
                         }
-                    },
-                    forcedGoldenSonicStart:
-                        GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward);
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo stunned tile loop",
-                    frameCount: 80,
-                    setup: (nativeRoom, installedRoom) =>
+                    }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward });
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo stunned tile loop" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -380,32 +330,22 @@ internal static partial class Program
                             enemies.GoldenTorizo!.ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
                         }
-                    },
-                    forcedGoldenStun: true);
+                    }, golden: new GoldenTorizoForcing { ForcedGoldenStun = true });
                 foreach (ushort leftTurnStart in new ushort[]
                 {
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge,
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.Turn,
                 })
                 {
-                    VerifyFrontendRomFreeRoom(native, installed,
-                        RoomHeaderPointers.GoldenTorizo,
-                        $"Golden Torizo left turn $AA:{leftTurnStart:X4}",
-                        // The dodge turn links through falling-left.
-                        frameCount: leftTurnStart ==
+                    VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = $"Golden Torizo left turn $AA:{leftTurnStart:X4}" }, frameCount: leftTurnStart ==
                             GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge
-                                ? 120 : 8,
-                        setup: (nativeRoom, installedRoom) =>
+                                ? 120 : 8, setup: (nativeRoom, installedRoom) =>
                             ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
-                                leftTurnStart),
-                        forcedGoldenLeftTurnStart: leftTurnStart);
+                                leftTurnStart), golden: new GoldenTorizoForcing { ForcedGoldenLeftTurnStart = leftTurnStart });
                 }
                 // The left-foot-forward Chozo-orb attack is RNG-selected; start it directly
                 // rather than waiting on an incidental AI trajectory to reach it.
-                VerifyFrontendRomFreeRoom(native, installed,
-                    RoomHeaderPointers.GoldenTorizo, "Golden Torizo left-foot Chozo orb",
-                    frameCount: 80,
-                    setup: (nativeRoom, installedRoom) =>
+                VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = "Golden Torizo left-foot Chozo orb" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
                     {
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
@@ -417,8 +357,7 @@ internal static partial class Program
                             enemies.GoldenTorizo!.ReturnInstruction =
                                 GoldenTorizoCombatInstructionPointers.WalkingLeftRightLeg;
                         }
-                    },
-                    forcedGoldenLeftFootOrb: true);
+                    }, golden: new GoldenTorizoForcing { ForcedGoldenLeftFootOrb = true });
                 Console.WriteLine($"Frontend ROM-free intro: {frame + 1} native-parity cinematic frames plus {postIntroFrameCount} post-handoff frames; all cartridge reads guarded in every sampled room.");
                 return;
             }
@@ -557,24 +496,16 @@ internal static partial class Program
     /// initialization and neutral-frame presentation, not incoming doors or travel.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
-    private static void VerifyFrontendRomFreeRoom(
-        SuperMetroidGame native, SuperMetroidGame installed,
-        ushort roomPointer, string roomName, int frameCount = 90,
-        Action<SuperMetroidGame, SuperMetroidGame>? setup = null,
-        ushort? forcedGoldenSonicStart = null,
-        bool forcedGoldenStun = false,
-        ushort? forcedGoldenLeftTurnStart = null,
-        bool forcedGoldenLeftFootOrb = false,
-        ushort heldInput = 0)
+    private static void VerifyFrontendRomFreeRoom(SuperMetroidGame native, SuperMetroidGame installed, RomFreeRoom room, int frameCount = 90, Action<SuperMetroidGame, SuperMetroidGame>? setup = null, GoldenTorizoForcing golden = default, ushort heldInput = 0)
     {
         native.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            roomPointer);
+            room.RoomPointer);
         installed.RuntimeForVerification!.LoadCartridgeRoomForDebug(
-            roomPointer);
+            room.RoomPointer);
         AssertEqual(SuperMetroidGameState.MainGameplay, native.GameState,
-            $"native {roomName} fixture begins in active gameplay");
+            $"native {room.RoomName} fixture begins in active gameplay");
         AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
-            $"installed {roomName} fixture begins in active gameplay");
+            $"installed {room.RoomName} fixture begins in active gameplay");
         // These isolated rooms are not one continuous playthrough. Refill on
         // entry so damage in an earlier room cannot turn a later comparison
         // into two identical death screens.
@@ -583,12 +514,12 @@ internal static partial class Program
         installed.RuntimeForVerification!.Samus!.MaxHealth = 1499;
         installed.RuntimeForVerification!.Samus!.Health = 1499;
         setup?.Invoke(native, installed);
-        RoomEnemySlot? awakenedGoldenTorizo = roomPointer == RoomHeaderPointers.GoldenTorizo &&
+        RoomEnemySlot? awakenedGoldenTorizo = room.RoomPointer == RoomHeaderPointers.GoldenTorizo &&
             setup is not null
             ? installed.RuntimeForVerification!.Enemies.Slots.FirstOrDefault(slot =>
                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
             : null;
-        if (roomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
+        if (room.RoomPointer == RoomHeaderPointers.GoldenTorizo && setup is not null)
         {
             AssertTrue(awakenedGoldenTorizo is not null,
                 "Golden Torizo wake-up fixture loaded its live boss slot");
@@ -624,15 +555,15 @@ internal static partial class Program
             catch (Exception error)
             {
                 throw new InvalidOperationException(
-                    $"Installed {roomName} failed at neutral frame {frame}.", error);
+                    $"Installed {room.RoomName} failed at neutral frame {frame}.", error);
             }
-            AssertEqual(roomPointer,
+            AssertEqual(room.RoomPointer,
                 installed.GameplayActiveRoomPointer,
-                $"installed {roomName} fixture remains in one room at frame {frame}");
+                $"installed {room.RoomName} fixture remains in one room at frame {frame}");
             AssertEqual(expected.GameState, actual.GameState,
-                $"installed {roomName} game state at frame {frame}");
+                $"installed {room.RoomName} game state at frame {frame}");
             AssertEqual(expected.Phase, actual.Phase,
-                $"installed {roomName} phase at frame {frame}");
+                $"installed {room.RoomName} phase at frame {frame}");
             if (awakenedGoldenTorizo is not null &&
                 awakenedGoldenTorizo.CurrentInstruction >
                     GoldenTorizoInitialInstructionProgramDefinitions.Sleep)
@@ -668,14 +599,14 @@ internal static partial class Program
                     GoldenTorizoEyeBeamAttackInstructionProgramDefinitions.End)
                 goldenEyeBeamAttackObserved = true;
             if (awakenedGoldenTorizo is not null &&
-                forcedGoldenSonicStart is ushort sonicStart &&
+                golden.ForcedGoldenSonicStart is ushort sonicStart &&
                 awakenedGoldenTorizo.CurrentInstruction >= sonicStart &&
                 awakenedGoldenTorizo.CurrentInstruction <
                     (sonicStart == GoldenTorizoRightSonicInstructionProgramDefinitions.Start
                         ? GoldenTorizoRightSonicInstructionProgramDefinitions.RightFootForward
                         : GoldenTorizoRightSonicInstructionProgramDefinitions.End))
                 forcedGoldenSonicObserved = true;
-            if (awakenedGoldenTorizo is not null && forcedGoldenStun &&
+            if (awakenedGoldenTorizo is not null && golden.ForcedGoldenStun &&
                 awakenedGoldenTorizo.CurrentInstruction >=
                     GoldenTorizoStunnedInstructionProgramDefinitions.Start &&
                 awakenedGoldenTorizo.CurrentInstruction <
@@ -688,12 +619,12 @@ internal static partial class Program
                      (awakenedGoldenTorizo!.Parameter2 & GoldenTorizoBehavioralProperties.Stunned) == 0)
                 forcedGoldenStunReleased = true;
             if (awakenedGoldenTorizo is not null &&
-                forcedGoldenLeftTurnStart is not null &&
+                golden.ForcedGoldenLeftTurnStart is not null &&
                 awakenedGoldenTorizo.SpritemapPointer ==
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.FacingScreenFrame)
                 forcedGoldenLeftTurnObserved = true;
             if (awakenedGoldenTorizo is not null &&
-                forcedGoldenLeftTurnStart ==
+                golden.ForcedGoldenLeftTurnStart ==
                     GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge &&
                 awakenedGoldenTorizo.SpritemapPointer ==
                     TorizoFallingLeftInstructionProgramDefinitions.FallingFrame)
@@ -745,7 +676,7 @@ internal static partial class Program
                 for (int color = 0; color < nativeColors.Length; color++)
                     if (nativeColors[color] != installedColors[color]) changedColors++;
                 throw new InvalidOperationException(
-                    $"Installed {roomName} pixels differ at frame {frame}: " +
+                    $"Installed {room.RoomName} pixels differ at frame {frame}: " +
                     $"{count} pixels, bounds ({minX},{minY})..({maxX},{maxY}), " +
                     $"first ({first % FrontendFrame.Width},{first / FrontendFrame.Width}) " +
                     $"native={expected.Pixels[first]}, installed={actual.Pixels[first]}; " +
@@ -754,7 +685,7 @@ internal static partial class Program
                     $"VRAM pages=[{string.Join(", ", changedVramPages)}], " +
                     $"CGRAM changed colors={changedColors}.");
             }
-            if (roomPointer == RoomHeaderPointers.Draygon && frame == 0)
+            if (room.RoomPointer == RoomHeaderPointers.Draygon && frame == 0)
             {
                 ReadOnlySpan<byte> nativeEvir = native.RuntimeForVerification!.Vram.Bytes
                     .Slice(DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress,
@@ -768,35 +699,35 @@ internal static partial class Program
         }
         if (awakenedGoldenTorizo is not null)
         {
-            if (forcedGoldenSonicStart is not null)
+            if (golden.ForcedGoldenSonicStart is not null)
             {
                 AssertTrue(forcedGoldenSonicObserved &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
                     "forced Golden Torizo fixture executes the sonic program in active gameplay");
-                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                Console.WriteLine($"Frontend {room.RoomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }
-            if (forcedGoldenStun)
+            if (golden.ForcedGoldenStun)
             {
                 AssertTrue(forcedGoldenStunObserved, "forced Golden Torizo stun loops its tiles");
                 AssertTrue(forcedGoldenStunReleased, "forced Golden Torizo stun then clears its shot lock and stun flag");
                 AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
                     "forced Golden Torizo stun ends in active gameplay");
-                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                Console.WriteLine($"Frontend {room.RoomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }
-            if (forcedGoldenLeftFootOrb)
+            if (golden.ForcedGoldenLeftFootOrb)
             {
                 AssertTrue(goldenLeftFootOrbProgramObserved, "forced Golden Torizo runs its left-foot Chozo-orb program");
                 AssertEqual(SuperMetroidGameState.MainGameplay, installed.GameState,
                     "forced Golden Torizo Chozo orb ends in active gameplay");
-                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                Console.WriteLine($"Frontend {room.RoomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }
-            if (forcedGoldenLeftTurnStart is not null)
+            if (golden.ForcedGoldenLeftTurnStart is not null)
             {
                 AssertTrue(forcedGoldenLeftTurnObserved &&
-                           (forcedGoldenLeftTurnStart !=
+                           (golden.ForcedGoldenLeftTurnStart !=
                                 GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge ||
                             forcedGoldenFallingLeftObserved) &&
                            installed.GameState == SuperMetroidGameState.MainGameplay,
@@ -804,7 +735,7 @@ internal static partial class Program
                     $"turn={forcedGoldenLeftTurnObserved}, " +
                     $"fall={forcedGoldenFallingLeftObserved}, " +
                     $"state={installed.GameState}");
-                Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+                Console.WriteLine($"Frontend {room.RoomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
                 return;
             }
             AssertTrue(goldenWakeObserved,
@@ -819,7 +750,7 @@ internal static partial class Program
                 $"jumpBack={goldenJumpBackObserved}, rightOrb={goldenRightOrbObserved}, " +
                 $"eyeBeam={goldenEyeBeamAttackObserved}, state={installed.GameState}");
         }
-        Console.WriteLine($"Frontend {roomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
+        Console.WriteLine($"Frontend {room.RoomName} room: {frameCount} native-parity frames; all cartridge reads guarded.");
     }
 
     /// <summary>

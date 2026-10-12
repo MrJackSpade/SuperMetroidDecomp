@@ -373,11 +373,7 @@ internal static partial class Program
     {
         var bus = new TestAddressSpace();
         SeedCollectibleRom(bus);
-        CollectibleFixture fixture = LoadCollectible(
-            bus,
-            header: 0xeed7,
-            roomArgument: 17,
-            precollected: false);
+        CollectibleFixture fixture = LoadCollectible(bus, header: 0xeed7, roomArgument: 17, precollected: false);
         fixture.Plms.Step(bus, fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
         AssertTrue(fixture.Plms.TryNotifyCollectibleTouch(fixture.BlockIndex),
             "direct G-Mode contact records the visible item's native trigger");

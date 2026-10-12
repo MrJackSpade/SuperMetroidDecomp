@@ -120,10 +120,8 @@ internal static partial class RepositoryInstallation
         new(bus, audio, titleGradientPresentation ?? Maps.TitleGradient,
             titlePalettePresentation ?? Maps.TitlePalette, titleGraphicsPresentation ?? Maps.TitleGraphics);
 
-    internal static PauseMenuState CreatePause(ISnesAddressSpace bus, SamusState samus, Bank80SystemState system,
-        AreaId areaIndex, Position16<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
-        SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
-        new(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = areaIndex, RoomMapPosition = roomMapPosition, Audio = audio, GameplayVram = gameplayVram, MapRevealMode = mapRevealMode, MapPresentation = Maps });
+    internal static PauseMenuState CreatePause(ISnesAddressSpace bus, PauseMenuEntry entry) =>
+        new(bus, new PauseMenuEntry { Samus = entry.Samus, System = entry.System, AreaIndex = entry.AreaIndex, RoomMapPosition = entry.RoomMapPosition, Audio = entry.Audio, GameplayVram = entry.GameplayVram, MapRevealMode = entry.MapRevealMode, MapPresentation = Maps });
 
     /// <summary>
     /// A private copy of the installation for a check that corrupts and restores stock files, so

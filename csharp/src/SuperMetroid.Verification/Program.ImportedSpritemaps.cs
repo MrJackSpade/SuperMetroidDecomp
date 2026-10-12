@@ -8,13 +8,8 @@ internal static partial class Program
 {
     // These adapters require an import source at the diagnostic boundary. Core has no
     // address-based artwork loader, including when tests use constructed cartridge data.
-    private static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam,
-        byte bank, ushort spritemapPointer, Position16<OamPixels> origin,
-        ushort paletteBits, ushort baseTileIndex,
-        bool clipVerticalWrap = false, bool originYIsOnScreen = true) =>
-        ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, bank,
-            spritemapPointer, origin, paletteBits, baseTileIndex,
-            clipVerticalWrap, originYIsOnScreen);
+    private static void DrawImportedEnemySpritemap(ISnesAddressSpace bus, OamBuffer oam, EnemySpritemapDraw draw) =>
+        ImportedSpritemapOracle.DrawEnemy(CartridgeImportSource.Require(bus), oam, draw);
 
     /// <summary>
     /// The cartridge spritemap an enemy projectile draws this frame. Installed-presentation frames

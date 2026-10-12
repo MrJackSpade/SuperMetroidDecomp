@@ -43,8 +43,7 @@ internal static partial class Program
                 // Restored snapshots carry no asset bindings; both games load rooms from the installation.
                 bindInstalled(nativeRoom, false);
                 bindInstalled(installedRoom, false);
-                VerifyFrontendRomFreeRoom(nativeRoom, installedRoom, room.Pointer,
-                    $"room ${room.Pointer:X4}", frameCount);
+                VerifyFrontendRomFreeRoom(nativeRoom, installedRoom, new RomFreeRoom { RoomPointer = room.Pointer, RoomName = $"room ${room.Pointer:X4}" }, frameCount);
             }
             catch (Exception error)
             {

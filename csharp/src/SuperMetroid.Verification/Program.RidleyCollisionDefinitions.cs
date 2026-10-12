@@ -100,7 +100,8 @@ internal static partial class Program
                         ushort radiusY = unchecked((ushort)((xi + yi * 2) & 1));
                         object?[] compiledArguments =
                         [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, (ushort)0];
-                        bool nativeHit = NativeCallback(frame, originX, originY, xs[xi], ys[yi], radiusX, radiusY, shot != 0, out ushort nativeCallback);
+                        bool nativeHit = NativeCallback(frame, new Position16<RoomPixels>(originX, originY), new Position16<RoomPixels>(xs[xi], ys[yi]),
+                            new Extent16<RoomPixels>(radiusX, radiusY), shot != 0, out ushort nativeCallback);
                         bool compiledHit = (bool)walker.Invoke(compiled, compiledArguments)!;
                         AssertEqual(nativeHit, compiledHit,
                             $"Ridley $A6:{frame:X4} overlap {xi},{yi}, shot={shot}");
@@ -112,8 +113,8 @@ internal static partial class Program
                             // The Ceres encounter's private projectile walker has its
                             // own edge test; compare that method to the same native
                             // component/list data without invoking an unrelated callback.
-                            bool expectedCeres = NativeCeresOverlap(frame, originX,
-                                originY, xs[xi], ys[yi], radiusX, radiusY);
+                            bool expectedCeres = NativeCeresOverlap(frame, new Position16<RoomPixels>(originX, originY),
+                                new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
                             object?[] ceresArguments =
                                 [compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY)];
                             bool actualCeres = (bool)ceresWalker.Invoke(
@@ -170,20 +171,20 @@ internal static partial class Program
 
         // A0:9ADF..9B78 touch and 9C43..9D20 shot comparisons consume the original
         // component/list records in order; only this reference reads cartridge data.
-        bool NativeCallback(ushort frame, ushort originX, ushort originY,
-            ushort x, ushort y, ushort radiusX, ushort radiusY, bool shot, out ushort callback)
+        bool NativeCallback(ushort frame, Position16<RoomPixels> origin, Position16<RoomPixels> target,
+            Extent16<RoomPixels> radius, bool shot, out ushort callback)
         {
             callback = 0;
-            ushort targetLeft = unchecked((ushort)(x - radiusX));
-            ushort targetRight = unchecked((ushort)(x + radiusX));
-            ushort targetTop = unchecked((ushort)(y - radiusY));
-            ushort targetBottom = unchecked((ushort)(y + radiusY));
+            ushort targetLeft = unchecked((ushort)(target.X - radius.X));
+            ushort targetRight = unchecked((ushort)(target.X + radius.X));
+            ushort targetTop = unchecked((ushort)(target.Y - radius.Y));
+            ushort targetBottom = unchecked((ushort)(target.Y + radius.Y));
             int count = rom.ReadCartridgeByte(0xa60000 | frame);
             for (int component = 0; component < count; component++)
             {
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + component * 8));
-                ushort componentX = unchecked((ushort)(originX + ReadWord(record)));
-                ushort componentY = unchecked((ushort)(originY + ReadWord(record + 2)));
+                ushort componentX = unchecked((ushort)(origin.X + ReadWord(record)));
+                ushort componentY = unchecked((ushort)(origin.Y + ReadWord(record + 2)));
                 ushort list = ReadWord(record + 6);
                 int boxCount = ReadWord(0xa60000 | list);
                 for (int index = 0; index < boxCount; index++)
@@ -205,19 +206,19 @@ internal static partial class Program
             }
             return false;
         }
-        bool NativeCeresOverlap(ushort frame, ushort originX, ushort originY,
-            ushort x, ushort y, ushort radiusX, ushort radiusY)
+        bool NativeCeresOverlap(ushort frame, Position16<RoomPixels> origin, Position16<RoomPixels> target,
+            Extent16<RoomPixels> radius)
         {
-            int subjectLeft = unchecked((ushort)(x - radiusX));
-            int subjectRight = unchecked((ushort)(x + radiusX));
-            int subjectTop = unchecked((ushort)(y - radiusY));
-            int subjectBottom = unchecked((ushort)(y + radiusY));
+            int subjectLeft = unchecked((ushort)(target.X - radius.X));
+            int subjectRight = unchecked((ushort)(target.X + radius.X));
+            int subjectTop = unchecked((ushort)(target.Y - radius.Y));
+            int subjectBottom = unchecked((ushort)(target.Y + radius.Y));
             int count = rom.ReadCartridgeByte(0xa60000 | frame);
             for (int component = 0; component < count; component++)
             {
                 int record = 0xa60000 | unchecked((ushort)(frame + 2 + component * 8));
-                int componentX = unchecked((ushort)(originX + ReadWord(record)));
-                int componentY = unchecked((ushort)(originY + ReadWord(record + 2)));
+                int componentX = unchecked((ushort)(origin.X + ReadWord(record)));
+                int componentY = unchecked((ushort)(origin.Y + ReadWord(record + 2)));
                 ushort list = ReadWord(record + 6);
                 int boxCount = ReadWord(0xa60000 | list);
                 for (int index = 0; index < boxCount; index++)

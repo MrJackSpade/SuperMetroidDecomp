@@ -32,7 +32,7 @@ internal static partial class Program
 
         var nativeCorpse = new OamBuffer();
         // $A9:D39A draws the fixed corpse map at world (296, 187).
-        DrawImportedEnemySpritemap(nativeBus, nativeCorpse, 0xa9, 0xd761, new(296, 187), 0, 0);
+        DrawImportedEnemySpritemap(nativeBus, nativeCorpse, new EnemySpritemapDraw { Bank = 0xa9, Pointer = 0xd761, Origin = new(296, 187), PaletteBits = 0, BaseTileIndex = 0 });
         OamBuffer installedCorpse = DrawDeadTorizoCorpseFrame(stock, installedBus, Position16<RoomPixels>.Zero);
         AssertTrue(nativeCorpse.ImageEquals(installedCorpse) &&
                    nativeCorpse.NextByteOffset == installedCorpse.NextByteOffset,
@@ -106,8 +106,7 @@ internal static partial class Program
             "Dead Torizo stationary OAM has editable installed parts");
         var nativeOam = new OamBuffer();
         var installedOam = new OamBuffer();
-        DrawImportedEnemySpritemap(rom, nativeOam, DeadTorizoArtworkDefinitions.SpritemapBank,
-            nativePointer, new(128, 128), 0, 0);
+        DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitions.SpritemapBank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
         installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
         AssertTrue(nativeOam.ImageEquals(installedOam) &&
                    nativeOam.NextByteOffset == installedOam.NextByteOffset,

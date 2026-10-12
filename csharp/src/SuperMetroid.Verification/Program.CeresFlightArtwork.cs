@@ -43,7 +43,7 @@ internal static partial class Program
             AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(nativePalette.AsSpan(index * sizeof(ushort))),
                 stock.Palette.ColorAt(index), "installed Ceres palette preserves every native color");
 
-        var guard = NewIntroArtworkSourceReadGuard(bus, blockCeresFlightSprites: true);
+        var guard = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.CeresFlightSprites);
         var referenceFiles = CeresFlightArtworkExtractor.Extract(bus);
         using var referenceCharacters = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.Mode7FileName]);
         using var referenceMaps = new MemoryStream(referenceFiles[CeresFlightArtworkFormat.MapFileName]);

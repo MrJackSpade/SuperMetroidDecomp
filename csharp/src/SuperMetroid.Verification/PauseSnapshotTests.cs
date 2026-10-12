@@ -26,8 +26,7 @@ internal static partial class Program
         ushort[] hud = new ushort[128];
         for (int i = 0; i < hud.Length; i++) hud[i] = (ushort)(0x2000 | (i % 64));
         gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayout.HudTilemapWord, 1);
-        var pause = CreateRetailPauseFixture(bus, samus, system, AreaId.Maridia, new(28, 1),
-            gameplayVram: gameplayVram);
+        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayVram = gameplayVram });
         var pages = new HashSet<int>();
         var levels = new HashSet<byte>();
         for (int frame = 0; frame < 128; frame++)

@@ -111,8 +111,7 @@ internal static class RetailKraidCaptureTests
             !deathPhases.Contains((ushort)KraidAiFunction.DeathFadeInBackground))
             throw new InvalidOperationException("Kraid death missed sinking, background fade or four BG3 restores.");
         Console.WriteLine($"{device.Kind}: Kraid death: {deathSamples} exact samples across {deathPhases.Count} AI states; sinking, fade and BG3 restore verified.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus,
-            KraidAuditDefinitions.LeftExitDoor, KraidAuditDefinitions.LeftExitDestination, "defeated Kraid left");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.LeftExitDoor, Destination = KraidAuditDefinitions.LeftExitDestination }, "defeated Kraid left");
         // The second route starts from the saved defeat bit, as in the existing
         // regression. Run the defeated-room restoration before opening the other door.
         runtime.LoadCartridgeRoomThroughDoorForVerification(SuperMetroid.AssetExtraction.CartridgeDoorHeaderImporter.Load(bus, KraidCaptureDefinitions.IncomingDoor), new Position16<RoomPixels>(0, 256));
@@ -121,8 +120,7 @@ internal static class RetailKraidCaptureTests
             runtime.StepFrame(0);
         if (runtime.Enemies.Kraid is not { DeathSequenceComplete: true })
             throw new InvalidOperationException("Defeated Kraid reload did not restore its background.");
-        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus,
-            KraidAuditDefinitions.RightExitDoor, KraidAuditDefinitions.RightExitDestination, "defeated Kraid right");
+        RetailDoorCaptureTests.VerifyTransition(device, renderer, runtime, bus, new RetailDoorCase { Door = KraidAuditDefinitions.RightExitDoor, Destination = KraidAuditDefinitions.RightExitDestination }, "defeated Kraid right");
     }
 
     private static void StrikeMouth(ISnesAddressSpace bus, SuperMetroidRuntime runtime, RoomEnemySlot body, KraidEnemyState boss)

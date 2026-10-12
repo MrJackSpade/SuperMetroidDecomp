@@ -32,12 +32,7 @@ internal static partial class Program
 
         HoldCharge(bus, level, samus, projectiles, shared);
 
-        var pause = CreateRetailPauseFixture(
-            bus,
-            samus,
-            new Bank80SystemState(),
-            AreaId.Crateria,
-            new(0, 0));
+        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0) });
         EnterPauseEquipment(pause);
         SelectPauseBoots(pause);
         pause.Step(0, (ushort)(SnesButton.Left | SnesButton.A));

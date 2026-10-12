@@ -51,29 +51,11 @@ static void VerifyRoomEnemyLoading()
     // The first header is intentionally filled at every documented offset. Besides making
     // the parsed record useful to future damage/interaction translations, this catches a
     // one-word shift immediately rather than waiting for a distant enemy AI to misbehave.
-    WriteEnemyDefinition(
-        bus,
-        primaryDefinitionPointer,
-        tileDataSize: 0x0040,
-        palettePointer: 0x9000,
-        bank: 0xa2,
-        tileDataAddress: 0xa29100,
-        bossId: 0x1234,
-        namePointer: 0x9200,
-        fieldSeed: 0x1100);
+    WriteEnemyDefinition(bus, primaryDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0x0040, PalettePointer = 0x9000, Bank = 0xa2, TileDataAddress = 0xa29100, BossId = 0x1234, NamePointer = 0x9200, FieldSeed = 0x1100 });
 
     // Bit fifteen selects the definition's encoded staging address instead of the ordinary
     // running $0800 offset. It is still part of the tile-index arithmetic in retail code.
-    WriteEnemyDefinition(
-        bus,
-        specialDefinitionPointer,
-        tileDataSize: 0x8020,
-        palettePointer: 0x9300,
-        bank: 0xa3,
-        tileDataAddress: 0xa39320,
-        bossId: 0,
-        namePointer: 0,
-        fieldSeed: 0x2200);
+    WriteEnemyDefinition(bus, specialDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0x8020, PalettePointer = 0x9300, Bank = 0xa3, TileDataAddress = 0xa39320, BossId = 0, NamePointer = 0, FieldSeed = 0x2200 });
 
     byte[] primaryPaletteBytes = Enumerable.Range(0, 32).Select(index => unchecked((byte)(0x20 + index))).ToArray();
     byte[] specialPaletteBytes = Enumerable.Range(0, 32).Select(index => unchecked((byte)(0x60 + index))).ToArray();
@@ -381,16 +363,7 @@ static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool verifyXra
     var vram = new SnesVram();
     var cgram = new SnesCgram();
 
-    WriteEnemyDefinition(
-        bus,
-        definitionPointer,
-        tileDataSize: 32,
-        palettePointer: 0xe457,
-        bank: 0xa2,
-        tileDataAddress: 0xa28000,
-        bossId: 0,
-        namePointer: 0,
-        fieldSeed: 0x5200);
+    WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 32, PalettePointer = 0xe457, Bank = 0xa2, TileDataAddress = 0xa28000, BossId = 0, NamePointer = 0, FieldSeed = 0x5200 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 4, 200);
     SeedEnemyDefinitionWord(bus, definitionPointer, 6, 5);
     SeedEnemyDefinitionWord(bus, definitionPointer, 8, 8);
@@ -681,16 +654,7 @@ static void VerifyCeresElevatorPlatformAnimation()
     var vram = new SnesVram();
     var cgram = new SnesCgram();
 
-    WriteEnemyDefinition(
-        bus,
-        definitionPointer,
-        tileDataSize: 0,
-        palettePointer: 0xf4ec,
-        bank: 0xa6,
-        tileDataAddress: 0xa68000,
-        bossId: 0,
-        namePointer: 0,
-        fieldSeed: 0x4300);
+    WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4300 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
     SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xf765);
     SeedEnemyDefinitionByte(bus, definitionPointer, 57, 2);
@@ -735,16 +699,7 @@ static void VerifyCeresDoorBossBranch()
     var vram = new SnesVram();
     var cgram = new SnesCgram();
 
-    WriteEnemyDefinition(
-        bus,
-        definitionPointer,
-        tileDataSize: 0,
-        palettePointer: 0xf4ec,
-        bank: 0xa6,
-        tileDataAddress: 0xa68000,
-        bossId: 0,
-        namePointer: 0,
-        fieldSeed: 0x4380);
+    WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa68000, BossId = 0, NamePointer = 0, FieldSeed = 0x4380 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xf6c5);
     SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xf765);
     SeedEnemyDefinitionByte(bus, definitionPointer, 57, 2);
@@ -1476,32 +1431,23 @@ static (ushort[] PaletteWords, byte[] Planar) ReadCeresRidleyFixtureArtwork(Test
 
 /// <summary>Writes one complete fixture header while keeping pointer-bearing fields valid.</summary>
 [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one complete bank-$A0 enemy definition header")]
-static void WriteEnemyDefinition(
-    TestAddressSpace bus,
-    EnemyDefinitionId definitionPointer,
-    ushort tileDataSize,
-    ushort palettePointer,
-    byte bank,
-    int tileDataAddress,
-    ushort bossId,
-    ushort namePointer,
-    ushort fieldSeed)
+static void WriteEnemyDefinition(TestAddressSpace bus, EnemyDefinitionId definitionPointer, EnemyDefinitionFields fields)
 {
     int address = 0xa00000 | (ushort)definitionPointer;
     for (int offset = 0; offset < 64; offset += 2)
-        WriteTestWord(bus, address + offset, unchecked((ushort)(fieldSeed + offset)));
+        WriteTestWord(bus, address + offset, unchecked((ushort)(fields.FieldSeed + offset)));
 
-    WriteTestWord(bus, address, tileDataSize);
-    WriteTestWord(bus, address + 2, palettePointer);
-    WriteTestByte(bus, address + 12, bank);
+    WriteTestWord(bus, address, fields.TileDataSize);
+    WriteTestWord(bus, address + 2, fields.PalettePointer);
+    WriteTestByte(bus, address + 12, fields.Bank);
     WriteTestByte(bus, address + 13, 0x5a);
-    WriteTestWord(bus, address + 16, bossId);
+    WriteTestWord(bus, address + 16, fields.BossId);
     WriteTestWord(bus, address + 18, 0x804c); // Bank-local no-op initialization AI.
     WriteTestWord(bus, address + 24, 0x804c); // Bank-local no-op main AI.
     WriteTestWord(bus, address + 26, (ushort)GrappleAiRoutine.Cancel); // Grapple AI must be a real routine.
-    WriteTestLong(bus, address + 54, tileDataAddress);
+    WriteTestLong(bus, address + 54, fields.TileDataAddress);
     WriteTestByte(bus, address + 57, 5);
-    WriteTestWord(bus, address + 62, namePointer);
+    WriteTestWord(bus, address + 62, fields.NamePointer);
 }
 
 /// <summary>Writes one native little-endian 24-bit long pointer into the sparse SNES-bus fixture.</summary>
@@ -1528,16 +1474,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     ushort populationPointer,
     ushort tilesetPointer)
 {
-    WriteEnemyDefinition(
-        bus,
-        definitionPointer,
-        tileDataSize: 0x0020,
-        palettePointer: 0xe14f,
-        bank: 0xa6,
-        tileDataAddress: 0xa69000,
-        bossId: 1,
-        namePointer: 0,
-        fieldSeed: 0x4000);
+    WriteEnemyDefinition(bus, definitionPointer, new EnemyDefinitionFields { TileDataSize = 0x0020, PalettePointer = 0xe14f, Bank = 0xa6, TileDataAddress = 0xa69000, BossId = 1, NamePointer = 0, FieldSeed = 0x4000 });
     SeedEnemyDefinitionWord(bus, definitionPointer, 18, 0xa0f5);
     SeedEnemyDefinitionWord(bus, definitionPointer, 24, 0xa288);
     SeedEnemyDefinitionWord(bus, definitionPointer, 8, 8);
@@ -1547,16 +1484,7 @@ static void SeedCeresRidleyRoomEntryCartridge(
     // the two Mode-7 chamber walls. Keep their real header/dispatch/list boundaries in this
     // fixture so the escape audit cannot pass by changing only Ridley's logical status.
     const EnemyDefinitionId ceresDoorDefinitionPointer = EnemyDefinitionId.CeresDoor;
-    WriteEnemyDefinition(
-        bus,
-        ceresDoorDefinitionPointer,
-        tileDataSize: 0,
-        palettePointer: 0xf4ec,
-        bank: 0xa6,
-        tileDataAddress: 0xa69000,
-        bossId: 0,
-        namePointer: 0,
-        fieldSeed: 0x4100);
+    WriteEnemyDefinition(bus, ceresDoorDefinitionPointer, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0xf4ec, Bank = 0xa6, TileDataAddress = 0xa69000, BossId = 0, NamePointer = 0, FieldSeed = 0x4100 });
     SeedEnemyDefinitionWord(bus, ceresDoorDefinitionPointer, 18, 0xf6c5);
     SeedEnemyDefinitionWord(bus, ceresDoorDefinitionPointer, 24, 0xf765);
     SeedEnemyDefinitionByte(bus, ceresDoorDefinitionPointer, 57, 2);

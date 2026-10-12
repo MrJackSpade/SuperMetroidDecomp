@@ -1,4 +1,5 @@
 using SuperMetroid.AssetExtraction;
+using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 
@@ -39,19 +40,14 @@ internal static class ImportedSpritemapOracle
     }
 
     /// <summary>Decodes only the reference artwork; production accepts typed visual parts.</summary>
-    public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam,
-        byte bank, ushort spritemapPointer, Position16<OamPixels> origin,
-        ushort paletteBits, ushort baseTileIndex,
-        bool clipVerticalWrap = false, bool originYIsOnScreen = true) =>
-        oam.AddEnemySpritemap(ReadEnemyParts(source, bank, spritemapPointer), origin,
-            paletteBits, baseTileIndex, clipVerticalWrap, originYIsOnScreen);
+    public static void DrawEnemy(IImportCartridgeSource source, OamBuffer oam, EnemySpritemapDraw draw) =>
+        oam.AddEnemySpritemap(ReadEnemyParts(source, draw.Bank, draw.Pointer), draw.Origin,
+            draw.PaletteBits, draw.BaseTileIndex, draw.ClipVerticalWrap, draw.OriginYIsOnScreen);
 
     public static void DrawEnemyProjectile(IImportCartridgeSource source, OamBuffer oam,
         ushort bank8dSpritemapPointer, Position16<OamPixels> origin,
         ushort graphicsIndex, bool originYIsOnScreen) =>
-        DrawEnemy(source, oam, 0x8d, bank8dSpritemapPointer, origin,
-            new SnesObjAttributeWord(graphicsIndex).PaletteBits, unchecked((byte)graphicsIndex),
-            clipVerticalWrap: true, originYIsOnScreen);
+        DrawEnemy(source, oam, new EnemySpritemapDraw { Bank = 0x8d, Pointer = bank8dSpritemapPointer, Origin = origin, PaletteBits = new SnesObjAttributeWord(graphicsIndex).PaletteBits, BaseTileIndex = unchecked((byte)graphicsIndex), ClipVerticalWrap = true, OriginYIsOnScreen = originYIsOnScreen });
 
     private static EnemySpritemapPart[] ReadEnemyParts(IImportCartridgeSource source,
         byte bank, ushort pointer)

@@ -53,8 +53,7 @@ internal static partial class Program
             IntroDiscoveryActorSpritePresentation.Write(output, document);
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
 
-        var guarded = NewIntroArtworkSourceReadGuard(bus,
-            blockIntroDiscoveryActors: true);
+        var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroDiscoveryActors);
         var stockState = CreateRetailIntroFixture(guarded, characterArtwork: stock);
         var editedState = CreateRetailIntroFixture(guarded, characterArtwork: edited);
         BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

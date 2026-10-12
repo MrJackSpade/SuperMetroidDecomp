@@ -56,59 +56,29 @@ internal static partial class Program
 
         object?[] processArguments =
             [shitroid, null, null, Position16<RoomPixels>.Zero, (ushort)0];
-        ExecuteShitroidProgram(
-            rom, executedOperands, enemies,
-            process,
-            processArguments,
-            shitroid,
-            ShitroidInstructionProgramDefinitions.FinishDraining,
-            callCount: 2);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.FinishDraining, callCount: 2);
         AssertEqual(ShitroidInstructionProgramDefinitions.Normal,
             shitroid.CurrentInstruction,
             "finish-draining program falls through to normal program");
 
-        ExecuteShitroidProgram(
-            rom, executedOperands, enemies,
-            process,
-            processArguments,
-            shitroid,
-            ShitroidInstructionProgramDefinitions.Normal,
-            callCount: 5);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.Normal, callCount: 5);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.Normal + 4)),
             shitroid.CurrentInstruction,
             "normal callback loops and installs its first repeated frame");
 
-        ExecuteShitroidProgram(
-            rom, executedOperands, enemies,
-            process,
-            processArguments,
-            shitroid,
-            ShitroidInstructionProgramDefinitions.LatchedOn,
-            callCount: 5);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.LatchedOn, callCount: 5);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.LatchedOn + 4)),
             shitroid.CurrentInstruction,
             "latched callback loops and installs its first repeated frame");
 
         randomNumber = 0;
-        ExecuteShitroidProgram(
-            rom, executedOperands, enemies,
-            process,
-            processArguments,
-            shitroid,
-            ShitroidInstructionProgramDefinitions.Remorse,
-            callCount: 9);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.Remorse, callCount: 9);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.Remorse + 4)),
             shitroid.CurrentInstruction,
             "clear-high-bit remorse branch follows its compiled loop target");
 
         randomNumber = 0x8000;
-        ExecuteShitroidProgram(
-            rom, executedOperands, enemies,
-            process,
-            processArguments,
-            shitroid,
-            ShitroidInstructionProgramDefinitions.Remorse,
-            callCount: 21);
+        ExecuteShitroidProgram(rom, executedOperands, new ShitroidInterpreter { Enemies = enemies, Process = process, ProcessArguments = processArguments }, shitroid, ShitroidInstructionProgramDefinitions.Remorse, callCount: 21);
         AssertEqual(unchecked((ushort)(ShitroidInstructionProgramDefinitions.Remorse + 4)),
             shitroid.CurrentInstruction,
             "set-high-bit remorse path plays every trailing frame and loops");
@@ -147,21 +117,13 @@ internal static partial class Program
             "bytes forbidden and zero live visual operand reads.");
     }
 
-    private static void ExecuteShitroidProgram(
-        SuperMetroidAddressSpace rom,
-        HashSet<ushort> executedOperands,
-        RoomEnemySystem enemies,
-        MethodInfo process,
-        object?[] processArguments,
-        RoomEnemySlot shitroid,
-        ushort program,
-        int callCount)
+    private static void ExecuteShitroidProgram(SuperMetroidAddressSpace rom, HashSet<ushort> executedOperands, ShitroidInterpreter interpreter, RoomEnemySlot shitroid, ushort program, int callCount)
     {
         shitroid.CurrentInstruction = program;
         for (int call = 0; call < callCount; call++)
         {
             shitroid.InstructionTimer = 1;
-            process.Invoke(enemies, processArguments);
+            interpreter.Process.Invoke(interpreter.Enemies, interpreter.ProcessArguments);
             if (shitroid.InstructionTimer != 0)
             {
                 ushort operand = unchecked((ushort)(shitroid.CurrentInstruction - 2));

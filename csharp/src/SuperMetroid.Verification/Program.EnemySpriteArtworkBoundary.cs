@@ -30,8 +30,7 @@ internal static partial class Program
             { (128, 96, false), (511, 1, true), (0, ushort.MaxValue, true) })
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
-            DrawImportedEnemySpritemap(source, expected, frame.Bank, frame.Pointer,
-                new(x, y), 0x0a00, 0x01ff, clip, (y & 0xff00) == 0);
+            DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (y & 0xff00) == 0 });
             drawEnemy.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (y & 0xff00) == 0 }]);
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
@@ -44,7 +43,7 @@ internal static partial class Program
             sprite.GraphicsIndex = 0x0a04;
             actual = new OamBuffer(); expected = new OamBuffer();
             drawSpriteObjects.Invoke(enemies, [actual, Position16<RoomPixels>.Zero]);
-            DrawImportedEnemySpritemap(source, expected, frame.Bank, frame.Pointer, new(x, y), 0x0a00, 4);
+            DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 4 });
             Equal(expected, actual, $"room sprite object {frame.Name}");
             sprite.Clear();
             spriteObjectCases++;

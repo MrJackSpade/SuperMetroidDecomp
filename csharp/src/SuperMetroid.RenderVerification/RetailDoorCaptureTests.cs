@@ -29,11 +29,9 @@ internal static class RetailDoorCaptureTests
         }
     }
 
-    internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer,
-        SuperMetroidRuntime runtime, ISnesAddressSpace bus, ushort door, ushort destination, string context,
-        Action<RenderFrameSnapshot>? publish = null)
+    internal static void VerifyTransition(D3D11RenderDevice device, D3D11FrameRenderer renderer, SuperMetroidRuntime runtime, ISnesAddressSpace bus, RetailDoorCase doorCase, string context, Action<RenderFrameSnapshot>? publish = null)
     {
-            PublishDoor(runtime, bus, door);
+            PublishDoor(runtime, bus, doorCase.Door);
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
             transition.Begin(runtime);
@@ -47,9 +45,9 @@ internal static class RetailDoorCaptureTests
                 packet = RenderFrameSnapshotCodec.Deserialize(RenderFrameSnapshotCodec.Serialize(packet));
                 publish?.Invoke(packet);
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
-                    $"{device.Kind}: door {door:X4}, {context}, frame={frames}, phase={transition.Phase}");
+                    $"{device.Kind}: door {doorCase.Door:X4}, {context}, frame={frames}, phase={transition.Phase}");
             }
-            if (transition.IsActive || scrollFrames < 60 || runtime.ActiveDoor?.DestinationRoomPointer != destination)
+            if (transition.IsActive || scrollFrames < 60 || runtime.ActiveDoor?.DestinationRoomPointer != doorCase.Destination)
                 throw new InvalidOperationException($"Door fixture missed complete scrolling/destination: {context}, scroll={scrollFrames}.");
             Console.WriteLine($"{device.Kind}: {context} retail door: {frames} exact frames, {scrollFrames} scroll frames, destination verified.");
     }

@@ -733,13 +733,7 @@ static void VerifyOamSpritemapPacking()
     // carry into priority is observable rather than masked away by this fixture.
     SeedTwoEntryRoomEnemySpritemap(bus);
     oam.BeginFrame();
-    DrawImportedEnemySpritemap(
-        bus, oam,
-        bank: 0xa2,
-        spritemapPointer: 0x9000,
-        origin: new(0x00fe, 0x0001),
-        paletteBits: 0x0e00,
-        baseTileIndex: 4);
+    DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0x00fe, 0x0001), PaletteBits = 0x0e00, BaseTileIndex = 4 });
     OamEntry roomEnemyFirst = oam.GetEntry(0);
     AssertEqual(0x103, roomEnemyFirst.X, "room-enemy complete encoded X addition");
     AssertEqual(0xff, roomEnemyFirst.Y, "room-enemy negative Y wraps without parking");
@@ -759,30 +753,14 @@ static void VerifyOamSpritemapPacking()
     // boundary rules: an on-screen origin parks a negative piece that failed to carry,
     // while an off-screen origin admits only the positive piece that did carry to Y=$01.
     oam.BeginFrame();
-    DrawImportedEnemySpritemap(
-        bus, oam,
-        bank: 0xa2,
-        spritemapPointer: 0x9000,
-        origin: new(0, 0x0001),
-        paletteBits: 0,
-        baseTileIndex: 0,
-        clipVerticalWrap: true,
-        originYIsOnScreen: true);
+    DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0x0001), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
     AssertEqual(0xf0, oam.GetEntry(0).Y,
         "extended enemy on-screen origin parks uncrossed negative piece");
     AssertEqual(0x03, oam.GetEntry(1).Y,
         "extended enemy on-screen origin retains positive piece");
 
     oam.BeginFrame();
-    DrawImportedEnemySpritemap(
-        bus, oam,
-        bank: 0xa2,
-        spritemapPointer: 0x9000,
-        origin: new(0, 0xffff),
-        paletteBits: 0,
-        baseTileIndex: 0,
-        clipVerticalWrap: true,
-        originYIsOnScreen: false);
+    DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = 0xa2, Pointer = 0x9000, Origin = new(0, 0xffff), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = false });
     AssertEqual(0xf0, oam.GetEntry(0).Y,
         "extended enemy off-screen origin parks negative piece that remains above screen");
     AssertEqual(0x01, oam.GetEntry(1).Y,

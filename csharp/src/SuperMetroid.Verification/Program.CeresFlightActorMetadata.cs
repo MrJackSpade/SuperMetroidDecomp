@@ -31,16 +31,13 @@ internal static partial class Program
             switch (index)
             {
                 case 0:
-                    VerifyWrappedActor(retail, actor, 0x8bbf23, 0x8bbf29, 0x8bbf2f,
-                        0x8bbf3a, 0x8bbf46, "large asteroids");
+                    VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf23, 0x8bbf29, 0x8bbf2f, 0x8bbf3a, 0x8bbf46), "large asteroids");
                     break;
                 case 1:
-                    VerifyWrappedActor(retail, actor, 0x8bbf4d, 0x8bbf53, 0x8bbf59,
-                        0x8bbf64, 0x8bbf70, "Ceres under attack");
+                    VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf4d, 0x8bbf53, 0x8bbf59, 0x8bbf64, 0x8bbf70), "Ceres under attack");
                     break;
                 case 2:
-                    VerifyWrappedActor(retail, actor, 0x8bbf77, 0x8bbf7d, 0x8bbf83,
-                        0x8bbf8e, 0x8bbf9a, "small asteroids");
+                    VerifyWrappedActor(retail, actor, new WrappedActorRomFields(0x8bbf77, 0x8bbf7d, 0x8bbf83, 0x8bbf8e, 0x8bbf9a), "small asteroids");
                     break;
                 case 3:
                     AssertEqual(ReadWord(retail, 0x8bbfb4), actor.Position.X, "rear vortex X");
@@ -94,20 +91,16 @@ internal static partial class Program
         static void VerifyWrappedActor(
             ISnesAddressSpace source,
             CeresFlightActorDefinition actor,
-            int xAddress,
-            int yAddress,
-            int attributeAddress,
-            int deltaAddress,
-            int maskAddress,
+            WrappedActorRomFields fields,
             string name)
         {
-            AssertEqual(ReadWord(source, xAddress), actor.Position.X, $"{name} X");
-            AssertEqual(ReadWord(source, yAddress), actor.Position.Y, $"{name} Y");
-            AssertEqual(ReadWord(source, attributeAddress), actor.Attributes,
+            AssertEqual(ReadWord(source, fields.XWord), actor.Position.X, $"{name} X");
+            AssertEqual(ReadWord(source, fields.YWord), actor.Position.Y, $"{name} Y");
+            AssertEqual(ReadWord(source, fields.AttributeWord), actor.Attributes,
                 $"{name} attributes");
-            AssertEqual(ReadWord(source, deltaAddress), unchecked((ushort)actor.HorizontalDelta),
+            AssertEqual(ReadWord(source, fields.DeltaWord), unchecked((ushort)actor.HorizontalDelta),
                 $"{name} speed");
-            AssertEqual((ushort)0x01ff, ReadWord(source, maskAddress), $"{name} wrap mask");
+            AssertEqual((ushort)0x01ff, ReadWord(source, fields.MaskWord), $"{name} wrap mask");
             AssertTrue(actor.WrapX, $"{name} uses 512-pixel wrapping motion");
         }
 

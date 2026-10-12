@@ -36,8 +36,6 @@ internal static partial class Program
         var options = new SuperMetroidGameOptions { Invincibility = true };
         native.RuntimeForVerification!.ApplyHostOptions(options);
         installed.RuntimeForVerification!.ApplyHostOptions(options);
-        VerifyFrontendRomFreeRoom(native, installed, roomPointer,
-            $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}",
-            frameCount, heldInput: heldInput);
+        VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = roomPointer, RoomName = $"direct retail room $8F:{roomPointer:X4}, input ${heldInput:X4}" }, frameCount, heldInput: heldInput);
     }
 }

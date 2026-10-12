@@ -101,56 +101,32 @@ internal static partial class Program
         SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingRightDestroyed + 2)), 0x0440);
         SeedPlmProgramWords(bus, unchecked((ushort)((ushort)PlmHeaderId.DraygonCannonFacingLeft + 2)), 0x0500);
 
-        SeedShieldedCannonList(
-            bus,
-            list: 0x0400,
-            hitList: 0x0420,
-            destroyedList: 0x0440,
-            damageInstruction: (ushort)RoomPlmInstruction.DamageDraygonCannonFacingRight,
-            idleDraw: 0xf000,
-            hitDraw: 0xf010,
-            destroyedDraw: 0xf020);
-        SeedShieldedCannonList(
-            bus,
-            list: 0x0500,
-            hitList: 0x0520,
-            destroyedList: 0x0540,
-            damageInstruction: (ushort)RoomPlmInstruction.DamageDraygonCannonFacingLeft,
-            idleDraw: 0xf100,
-            hitDraw: 0xf110,
-            destroyedDraw: 0xf120);
+        SeedShieldedCannonList(bus, new ShieldedCannonLists { List = 0x0400, HitList = 0x0420, DestroyedList = 0x0440, DamageInstruction = (ushort)RoomPlmInstruction.DamageDraygonCannonFacingRight, IdleDraw = 0xf000, HitDraw = 0xf010, DestroyedDraw = 0xf020 });
+        SeedShieldedCannonList(bus, new ShieldedCannonLists { List = 0x0500, HitList = 0x0520, DestroyedList = 0x0540, DamageInstruction = (ushort)RoomPlmInstruction.DamageDraygonCannonFacingLeft, IdleDraw = 0xf100, HitDraw = 0xf110, DestroyedDraw = 0xf120 });
     }
 
-    private static void SeedShieldedCannonList(
-        TestAddressSpace bus,
-        ushort list,
-        ushort hitList,
-        ushort destroyedList,
-        ushort damageInstruction,
-        ushort idleDraw,
-        ushort hitDraw,
-        ushort destroyedDraw)
+    private static void SeedShieldedCannonList(TestAddressSpace bus, ShieldedCannonLists lists)
     {
-        SeedPlmProgramBytes(bus, list, [
-            0x24, 0x8a, unchecked((byte)hitList), unchecked((byte)(hitList >> 8)),
+        SeedPlmProgramBytes(bus, lists.List, [
+            0x24, 0x8a, unchecked((byte)lists.HitList), unchecked((byte)(lists.HitList >> 8)),
             0xc1, 0x86, 0x64, 0xdb,
-            0x01, 0x00, unchecked((byte)idleDraw), unchecked((byte)(idleDraw >> 8)),
+            0x01, 0x00, unchecked((byte)lists.IdleDraw), unchecked((byte)(lists.IdleDraw >> 8)),
             0xb4, 0x86,
         ]);
-        SeedPlmProgramBytes(bus, hitList, [
+        SeedPlmProgramBytes(bus, lists.HitList, [
             0xcd, 0x8a, 0x03,
-                unchecked((byte)destroyedList), unchecked((byte)(destroyedList >> 8)),
-            0x01, 0x00, unchecked((byte)hitDraw), unchecked((byte)(hitDraw >> 8)),
-            0x24, 0x87, unchecked((byte)list), unchecked((byte)(list >> 8)),
+                unchecked((byte)lists.DestroyedList), unchecked((byte)(lists.DestroyedList >> 8)),
+            0x01, 0x00, unchecked((byte)lists.HitDraw), unchecked((byte)(lists.HitDraw >> 8)),
+            0x24, 0x87, unchecked((byte)lists.List), unchecked((byte)(lists.List >> 8)),
         ]);
-        SeedPlmProgramWords(bus, destroyedList, damageInstruction);
-        SeedPlmProgramBytes(bus, unchecked((ushort)(destroyedList + 2)), [
-            0x01, 0x00, unchecked((byte)destroyedDraw), unchecked((byte)(destroyedDraw >> 8)),
+        SeedPlmProgramWords(bus, lists.DestroyedList, lists.DamageInstruction);
+        SeedPlmProgramBytes(bus, unchecked((ushort)(lists.DestroyedList + 2)), [
+            0x01, 0x00, unchecked((byte)lists.DestroyedDraw), unchecked((byte)(lists.DestroyedDraw >> 8)),
             0xb4, 0x86,
         ]);
-        WriteOneBlockDraw(bus, idleDraw, 0xc044);
-        WriteOneBlockDraw(bus, hitDraw, 0xc044);
-        WriteOneBlockDraw(bus, destroyedDraw, 0xa003);
+        WriteOneBlockDraw(bus, lists.IdleDraw, 0xc044);
+        WriteOneBlockDraw(bus, lists.HitDraw, 0xc044);
+        WriteOneBlockDraw(bus, lists.DestroyedDraw, 0xa003);
     }
 
     private static void SettleDraygonCannonHit(

@@ -41,8 +41,7 @@ internal static partial class Program
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
-            CollectibleFixture fixture = LoadCollectible(
-                bus, 0xeed7, roomArgument: 0, precollected: false);
+            CollectibleFixture fixture = LoadCollectible(bus, 0xeed7, roomArgument: 0, precollected: false);
             fixture.Plms.CollectibleVisuals = visuals;
             fixture.Level.SetBlockDefinitionWord(0x04a * 4, 0x0123);
             fixture.Level.SetBlockDefinitionWord(0x053 * 4, 0x0456);
@@ -81,9 +80,7 @@ internal static partial class Program
         {
             var bus = new TestAddressSpace();
             SeedCollectibleRom(bus);
-            CollectibleFixture fixture = LoadCollectible(bus,
-                checked((ushort)(0xeed7 + kind * 4)),
-                checked((ushort)kind), precollected: false);
+            CollectibleFixture fixture = LoadCollectible(bus, checked((ushort)(0xeed7 + kind * 4)), checked((ushort)kind), precollected: false);
             fixture.Plms.CollectibleVisuals = stock;
             fixture.Plms.Step(NewCollectibleDrawReadGuard(bus), fixture.Level, fixture.Streamer, new PlmView { Layer1Position = new(0, 0), Bg1XOffset = 0 });
             AssertEqual(1, fixture.Plms.Collectibles.Count,

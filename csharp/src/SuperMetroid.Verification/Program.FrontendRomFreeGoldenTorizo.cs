@@ -31,11 +31,7 @@ internal static partial class Program
             PrepareRomFreeBindings(installation)(installed, false);
             native.InitializeDirectRoomVerification();
             installed.InitializeDirectRoomVerification();
-            VerifyFrontendRomFreeRoom(native, installed,
-                RoomHeaderPointers.GoldenTorizo,
-                $"focused Golden Torizo dodge and fall, input ${heldInput:X4}",
-                frameCount: frameCount,
-                setup: (nativeRoom, installedRoom) =>
+            VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { RoomPointer = RoomHeaderPointers.GoldenTorizo, RoomName = $"focused Golden Torizo dodge and fall, input ${heldInput:X4}" }, frameCount: frameCount, setup: (nativeRoom, installedRoom) =>
                 {
                     // Long neutral probes otherwise end at the frontend death
                     // screen, obscuring later enemy-list boundaries. Both
@@ -45,10 +41,7 @@ internal static partial class Program
                     installedRoom.RuntimeForVerification!.ApplyHostOptions(options);
                     ForceGoldenTorizoLeftTurn(nativeRoom, installedRoom,
                         GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge);
-                },
-                forcedGoldenLeftTurnStart:
-                    GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge,
-                heldInput: heldInput);
+                }, golden: new GoldenTorizoForcing { ForcedGoldenLeftTurnStart = GoldenTorizoLeftTurnInstructionProgramDefinitions.Dodge }, heldInput: heldInput);
         }
         finally
         {

@@ -46,7 +46,7 @@ internal static class EndingWavySamusTests
                 var vram = new SnesVram(); vram.LoadBytes(0, snapshot.Memory.Vram);
                 var cgram = new SnesCgram();
                 for (int i = 0; i < 256; i++) cgram.SetColor(i, snapshot.Memory.Cgram[i]);
-                var main = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, 0x4c00, 0x5000, new Position16<BgPlanePixels>(0, 0), new Extent16<ScreenPixels>(256, 224), new Extent16<TilemapCells>(32, 32));
+                var main = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4c00, CharacterBaseWord = 0x5000 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(256, 224), TilemapSize = new Extent16<TilemapCells>(32, 32) });
                 var sub = SnesBgTilemapRenderer.Render2Bpp(vram, cgram, 0x2400, 0x2000, rowCount: 32, transparentColorZero: true);
                 var expected = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
                 var oam = new OamBuffer();

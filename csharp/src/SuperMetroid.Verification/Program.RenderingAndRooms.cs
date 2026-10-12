@@ -1093,15 +1093,13 @@ static void VerifyFourBitBackgroundRendering()
 
     ushort[] mapEntry = [0x0800]; // Character zero, palette two, no flips.
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
-    Rgba32[] pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x5000, 0, new Position16<BgPlanePixels>(0, 0), size: new Extent16<ScreenPixels>(8, 8));
+    Rgba32[] pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x5000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) });
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BG palette pixel");
     AssertEqual(0, pixels[1].A, "4-bpp BG color zero transparency");
 
     mapEntry[0] |= 0x4000;
     vram.ExecuteWordTransfer(mapEntry, destinationWord: 0x5000, wordIncrement: 1);
-    pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x5000, 0, new Position16<BgPlanePixels>(0, 0), size: new Extent16<ScreenPixels>(8, 1));
+    pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x5000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 1) });
     AssertEqual(0, pixels[0].A, "4-bpp H-flip old pixel becomes transparent");
     AssertEqual(new Rgba32(255, 0, 0), pixels[7], "4-bpp H-flip mirrored pixel");
 
@@ -1109,9 +1107,7 @@ static void VerifyFourBitBackgroundRendering()
     // is set, the PPU selects its second $400-word screen at $4C00 rather than wrapping
     // into the first screen. Landing Site relies on this exact vertical arrangement.
     vram.ExecuteWordTransfer([0x0800], destinationWord: 0x4c00, wordIncrement: 1);
-    pixels = SnesBgTilemapRenderer.Render4BppViewport(
-        vram, cgram, 0x4800, 0, new Position16<BgPlanePixels>(0, 0x0100), size: new Extent16<ScreenPixels>(8, 1),
-        tilemapSize: new Extent16<TilemapCells>(32, 64));
+    pixels = SnesBgTilemapRenderer.Render4BppViewport(vram, cgram, new BgVramAddresses { TilemapBaseWord = 0x4800, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0x0100), Size = new Extent16<ScreenPixels>(8, 1), TilemapSize = new Extent16<TilemapCells>(32, 64) });
     AssertEqual(new Rgba32(255, 0, 0), pixels[0], "4-bpp BGSC vertical second screen");
 
     // Exercise that same BGSC geometry through the production priority compositor. Its

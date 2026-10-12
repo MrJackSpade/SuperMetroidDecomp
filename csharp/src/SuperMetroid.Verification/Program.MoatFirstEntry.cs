@@ -55,8 +55,7 @@ internal static partial class Program
             {
                 byte[] gameplayBeforePause = runtime.Vram.Bytes.ToArray();
                 var room = runtime.ActiveRoom!;
-                var pause = CreateRetailPauseFixture(bus, samus, runtime.System, room.AreaIndex,
-                    room.MapPosition, gameplayVram: runtime.Vram);
+                var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, GameplayVram = runtime.Vram });
                 // Use the real menu owner, including a map -> equipment transition.
                 // This isolates VRAM ownership rather than claiming a complete host
                 // pause-state replay. Unpause's beam publication is applied below.

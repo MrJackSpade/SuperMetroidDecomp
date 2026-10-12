@@ -239,31 +239,13 @@ internal static partial class Program
         ushort populationPointer,
         ushort tilesetPointer)
     {
-        WriteEnemyDefinition(
-            bus,
-            topDefinition,
-            tileDataSize: 0,
-            palettePointer: 0x9000,
-            bank: 0xa2,
-            tileDataAddress: 0xa28000,
-            bossId: 0,
-            namePointer: 0,
-            fieldSeed: 0x2100);
+        WriteEnemyDefinition(bus, topDefinition, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0x9000, Bank = 0xa2, TileDataAddress = 0xa28000, BossId = 0, NamePointer = 0, FieldSeed = 0x2100 });
         SeedEnemyDefinitionWord(bus, topDefinition, 8, 32);
         SeedEnemyDefinitionWord(bus, topDefinition, 10, 16);
         SeedEnemyDefinitionWord(bus, topDefinition, 18, 0xa644);
         SeedEnemyDefinitionWord(bus, topDefinition, 24, 0xa759);
 
-        WriteEnemyDefinition(
-            bus,
-            bottomDefinition,
-            tileDataSize: 0,
-            palettePointer: 0x9000,
-            bank: 0xa2,
-            tileDataAddress: 0xa28000,
-            bossId: 0,
-            namePointer: 0,
-            fieldSeed: 0x2200);
+        WriteEnemyDefinition(bus, bottomDefinition, new EnemyDefinitionFields { TileDataSize = 0, PalettePointer = 0x9000, Bank = 0xa2, TileDataAddress = 0xa28000, BossId = 0, NamePointer = 0, FieldSeed = 0x2200 });
         SeedEnemyDefinitionWord(bus, bottomDefinition, 8, 32);
         SeedEnemyDefinitionWord(bus, bottomDefinition, 10, 16);
         SeedEnemyDefinitionWord(bus, bottomDefinition, 18, 0xa6d2);

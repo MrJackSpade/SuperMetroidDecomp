@@ -28,12 +28,8 @@ internal static partial class Program
         AssertTrue(!pause.PageTransitionActive, "pause page switch completes");
     }
 
-    private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus,
-        SamusState samus, Bank80SystemState system, AreaId areaIndex,
-        Position16<MapTiles> roomMapPosition, CartridgeAudioState? audio = null,
-        SnesVram? gameplayVram = null, MapRevealMode mapRevealMode = MapRevealMode.None) =>
-        RepositoryInstallation.CreatePause(bus, samus, system, areaIndex, roomMapPosition, audio,
-            gameplayVram, mapRevealMode);
+    private static PauseMenuState CreateRetailPauseFixture(ISnesAddressSpace bus, PauseMenuEntry entry) =>
+        RepositoryInstallation.CreatePause(bus, entry);
 
     /// <summary>
     /// The shared installation's map presentation, the same extracted content contract the

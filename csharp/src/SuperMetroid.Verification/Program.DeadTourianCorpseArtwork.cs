@@ -122,8 +122,7 @@ internal static partial class Program
                 $"dead Tourian corpse program {index} has installed OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
-                nativePointer, new(128, 128), 0, 0);
+            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = DeadTourianCorpseVisualDefinitions.Bank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -155,8 +154,7 @@ internal static partial class Program
                 $"dead Sidehopper selector {index} has installed OAM");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, DeadTourianCorpseVisualDefinitions.Bank,
-                nativePointer, new(128, 128), 0, 0);
+            DrawImportedEnemySpritemap(rom, nativeOam, new EnemySpritemapDraw { Bank = DeadTourianCorpseVisualDefinitions.Bank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,

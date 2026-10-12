@@ -54,7 +54,7 @@ internal static partial class Program
             IntroEggEffectSpritePresentation.Write(output, document);
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
 
-        var guarded = NewIntroArtworkSourceReadGuard(bus, blockIntroEggEffects: true);
+        var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroEggEffects);
         var fragment = new IntroEggParticle(index: 0);
         fragment.Step();
         var stockOam = new OamBuffer();

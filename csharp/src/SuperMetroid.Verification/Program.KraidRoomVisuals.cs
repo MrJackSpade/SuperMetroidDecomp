@@ -110,18 +110,10 @@ internal static partial class Program
         var tube = new RoomPlmMaridiaElevatubeVisualCatalog(
             [new RoomPlmMaridiaElevatubeVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
-            (ushort)KraidRoomDraw.CrumbleFirst, 0,
-            0x8180, 0x0058, edited, tube, layer1X: 0));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling,
-            (ushort)KraidRoomDraw.ClearCeiling, 14,
-            0x0130, 0x0059, edited, tube, layer1X: 64));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes,
-            (ushort)KraidRoomDraw.ClearSpikes, 21,
-            0x0110, 0x005a, edited, tube, layer1X: 192));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1,
-            (ushort)KraidRoomDraw.CrumbleFirst, 0,
-            0x8180, 0x0180, null, tube, layer1X: 0));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0058, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }, layer1X: 0));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling, (ushort)KraidRoomDraw.ClearCeiling, 14, 0x0130, 0x0059, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }, layer1X: 64));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes, (ushort)KraidRoomDraw.ClearSpikes, 21, 0x0110, 0x005a, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }, layer1X: 192));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0180, new KraidRoomVisualCatalogs { Kraid = null, Tube = tube }, layer1X: 0));
 
         RoomLevelData tubeLevel = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);
@@ -150,12 +142,7 @@ internal static partial class Program
             "elevatube does not read migrated Kraid source data");
     }
 
-    private static void VerifyKraidDraw(
-        PlmHeaderId header, ushort drawPointer, int blockOffset,
-        ushort physicalWord, ushort visualWord,
-        RoomPlmKraidVisualCatalog? kraid,
-        RoomPlmMaridiaElevatubeVisualCatalog tube,
-        ushort layer1X)
+    private static void VerifyKraidDraw(PlmHeaderId header, ushort drawPointer, int blockOffset, ushort physicalWord, ushort visualWord, KraidRoomVisualCatalogs catalogs, ushort layer1X)
     {
         const int width = 32;
         ushort[] words = new ushort[width * 16];
@@ -168,8 +155,8 @@ internal static partial class Program
         level.SetBlockDefinitionWord(0x0180 * 4, 0x0180);
         var plms = new RoomPlmSystem
         {
-            KraidVisuals = kraid,
-            MaridiaElevatubeVisuals = tube,
+            KraidVisuals = catalogs.Kraid,
+            MaridiaElevatubeVisuals = catalogs.Tube,
         };
         AssertTrue(plms.TrySpawnKraidRoomMutation(level, new(5, 5), header),
             $"Kraid visual owner ${(int)header:X4} allocates");

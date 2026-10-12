@@ -23,8 +23,7 @@ internal static partial class Program
         samus.InputLocked = false;
         samus.LockIntoRefillStation();
         runtime.RunNmi(0, true);
-        var pause = CreateRetailPauseFixture(bus, samus, runtime.System, AreaId.Crateria, new(0, 0),
-            gameplayVram: runtime.Vram);
+        var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayVram = runtime.Vram });
         EnterPauseEquipment(pause);
         var game = new SuperMetroidGame(bus);
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -59,8 +59,7 @@ internal static partial class Program
             }
         }
 
-        var guard = NewIntroArtworkSourceReadGuard(bus,
-            blockCeresFlightSprites: true, blockCeresDestructionSprites: true);
+        var guard = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.CeresFlightSprites | IntroArtworkSources.CeresDestructionSprites);
         var native = CreateRetailDestructionFixture(bus);
         var installed = CreateRetailDestructionFixture(guard, artwork: stock);
         var phases = new HashSet<CeresDestructionPhase>();

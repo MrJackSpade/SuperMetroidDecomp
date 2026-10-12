@@ -35,8 +35,7 @@ internal static partial class Program
                 "native $90:AB4A blink selects palette seven only in its on phase");
             runtime.Hud.QueueUpload(bus, runtime.VramWrites);
             runtime.RunNmi(0, true);
-            var pause = CreateRetailPauseFixture(bus, samus, runtime.System, AreaId.Crateria,
-                new(28, 1), gameplayVram: runtime.Vram);
+            var pause = CreateRetailPauseFixture(bus, new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayVram = runtime.Vram });
             var nativeVram = new SnesVram();
             nativeVram.LoadBytes(0x8000, RomDataReader.ReadFixedBank(cart, 0x9ab200, 0x2000));
             nativeVram.LoadBytes(0xb000, runtime.Vram.Bytes.Slice(0xb000, 0x100));

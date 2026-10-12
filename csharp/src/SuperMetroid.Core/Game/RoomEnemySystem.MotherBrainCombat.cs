@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Mother Brain's encounter-specific projectile callbacks from bank <c>$A9</c>.</summary>
@@ -212,7 +213,7 @@ public sealed partial class RoomEnemySystem
 
         // `$B58E` indexes its reaction table with the type word's high byte masked to three
         // bits, so missile explosions (`$08`) alias beams exactly as natively.
-        var reactionProjectile = (MotherBrainProjectileType)((projectileType.Raw >> 8) & 7);
+        var reactionProjectile = (MotherBrainProjectileType)((SnesLittleEndian.HighByte(projectileType.Raw)) & 7);
         if (state.RainbowBeamSequence is { } sequence)
         {
             // Once attached, the rainbow/Baby/phase-three state machine owns walk counter

@@ -1401,7 +1401,7 @@ internal static partial class Program
             if (((componentX + 128) & 0xfe00) != 0 ||
                 ((componentY + 128) & 0xfe00) != 0)
                 continue;
-            DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = bank, Pointer = sprite, Origin = new(componentX, componentY), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (componentY >> 8) == 0 });
+            DrawImportedEnemySpritemap(bus, oam, new EnemySpritemapDraw { Bank = bank, Pointer = sprite, Origin = new(componentX, componentY), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(componentY)) == 0 });
         }
         return oam;
     }

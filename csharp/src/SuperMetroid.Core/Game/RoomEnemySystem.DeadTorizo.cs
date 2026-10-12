@@ -300,13 +300,13 @@ public sealed partial class RoomEnemySystem
         slot.Position = slot.Position.WithFractionX(unchecked((ushort)(
             (slot.Position.X.Fraction & 0x00ff) | ((xCarry & 0xff) << 8))));
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(
-            slot.Position.X.Whole + unchecked((sbyte)(slot.VariableB >> 8)) + (xCarry >> 8))));
+            slot.Position.X.Whole + unchecked((sbyte)(SnesLittleEndian.HighByte(slot.VariableB))) + (xCarry >> 8))));
 
         int yCarry = (slot.Position.Y.Fraction >> 8) + (byte)slot.VariableC;
         slot.Position = slot.Position.WithFractionY(unchecked((ushort)(
             (slot.Position.Y.Fraction & 0x00ff) | ((yCarry & 0xff) << 8))));
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(
-            slot.Position.Y.Whole + unchecked((sbyte)(slot.VariableC >> 8)) + (yCarry >> 8))));
+            slot.Position.Y.Whole + unchecked((sbyte)(SnesLittleEndian.HighByte(slot.VariableC))) + (yCarry >> 8))));
     }
 
     private void BuildDeadTorizoVramTransfers(DeadTorizoEnemyState state)

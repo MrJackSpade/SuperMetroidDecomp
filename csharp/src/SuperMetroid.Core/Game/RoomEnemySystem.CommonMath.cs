@@ -123,7 +123,7 @@ public sealed partial class RoomEnemySystem
     {
         int byteAngle = angle & 0xff;
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
-        int magnitude = sample * (radius & 0xff) >> 8;
+        int magnitude = sample * (SnesLittleEndian.LowByte(radius)) >> 8;
         return byteAngle < 0x80 ? magnitude : -magnitude;
     }
 
@@ -158,8 +158,8 @@ public sealed partial class RoomEnemySystem
     {
         int byteAngle = angle & 0xff;
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & 0x7f);
-        ushort product = unchecked((ushort)(sample * (radius & 0xff)));
-        ushort whole = unchecked((ushort)(product >> 8));
+        ushort product = unchecked((ushort)(sample * (SnesLittleEndian.LowByte(radius))));
+        ushort whole = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
         ushort fraction = unchecked((ushort)(product << 8));
         if (byteAngle >= 0x80)
         {

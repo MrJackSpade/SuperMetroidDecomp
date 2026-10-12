@@ -802,8 +802,8 @@ public static partial class SnesGameplayFrameRenderer
         }
 
         int horizontalRadius = renderedPhase == PowerBombExplosionPhase.PreExplosionWhite
-            ? explosion.RenderedPreExplosionRadius >> 8
-            : explosion.RenderedExplosionRadius >> 8;
+            ? SnesLittleEndian.HighByte(explosion.RenderedPreExplosionRadius)
+            : SnesLittleEndian.HighByte(explosion.RenderedExplosionRadius);
         int scanlineDistance = Math.Abs(yFromCenter);
         if (horizontalRadius == 0 || scanlineDistance >= 192)
             return -1;

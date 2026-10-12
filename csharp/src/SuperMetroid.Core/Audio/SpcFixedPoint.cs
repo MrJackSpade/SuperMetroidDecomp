@@ -21,7 +21,7 @@ internal static class SpcFixedPoint
     private const int NineBitSign = 0x100;
 
     /// <summary>The whole byte of an 8.8 word: a volume, pan position, note number or tempo.</summary>
-    public static byte Whole(ushort value) => unchecked((byte)(value >> FractionBits));
+    public static byte Whole(ushort value) => unchecked((byte)(SnesLittleEndian.HighByte(value)));
 
     /// <summary>The fraction byte of an 8.8 word.</summary>
     public static byte Fraction(ushort value) => unchecked((byte)value);

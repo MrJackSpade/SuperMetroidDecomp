@@ -14,11 +14,11 @@ internal static partial class Program
 /// <summary>Reference arithmetic, assertions, sparse bus fixture, and console process policy.</summary>
 static ushort ReferenceNextRandom(ushort seed)
 {
-    int hardwareProductLow = (seed & 0xff) * 5;
+    int hardwareProductLow = (SnesLittleEndian.LowByte(seed)) * 5;
     byte stackLow = (byte)hardwareProductLow;
     byte stackHigh = SnesLittleEndian.HighByte(unchecked((ushort)hardwareProductLow));
 
-    int hardwareProductHigh = ((seed >> 8) & 0xff) * 5;
+    int hardwareProductHigh = ((SnesLittleEndian.HighByte(seed)) & 0xff) * 5;
     int eightBitAdc = stackHigh + (hardwareProductHigh & 0xff) + 1;
     stackHigh = (byte)eightBitAdc;
     int carry = eightBitAdc > 0xff ? 1 : 0;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -38,7 +39,7 @@ public sealed partial class RoomEnemySystem
 
         // Mouth reopen attempts are encoded in the high byte. Incrementing the timer here
         // cancels the common interpreter's later decrement and freezes the selected arm map.
-        if ((state.MouthFlags & 0xff00) != 0)
+        if ((SnesLittleEndian.HighByteInPlace(state.MouthFlags)) != 0)
             arm.InstructionTimer = unchecked((ushort)(arm.InstructionTimer + 1));
     }
 

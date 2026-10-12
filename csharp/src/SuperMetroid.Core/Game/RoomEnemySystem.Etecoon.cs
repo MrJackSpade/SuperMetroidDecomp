@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -159,7 +160,7 @@ public sealed partial class RoomEnemySystem
     {
         // The high byte of parameter two doubles as a native 128-frame quake suspension.
         // Its low byte is the actor's permanent route (zero, one, or two) and must survive.
-        if ((slot.Parameter2 & 0xff00) != 0)
+        if ((SnesLittleEndian.HighByteInPlace(slot.Parameter2)) != 0)
         {
             slot.Parameter2 = unchecked((ushort)(slot.Parameter2 - 0x0100));
             return;
@@ -596,7 +597,7 @@ public sealed partial class RoomEnemySystem
         // that byte, preserving the low-byte facing selector used by the airborne states.
         slot.Parameter1 = unchecked((ushort)(slot.Parameter1 + 0x0100));
         bool fewerThanFourTeachingJumps =
-            unchecked((short)((slot.Parameter1 & 0xff00) - 0x0400)) < 0;
+            unchecked((short)((SnesLittleEndian.HighByteInPlace(slot.Parameter1)) - 0x0400)) < 0;
         if (!fewerThanFourTeachingJumps)
         {
             // `$A7:EDFD` clears the completed high-byte counter before testing route two.

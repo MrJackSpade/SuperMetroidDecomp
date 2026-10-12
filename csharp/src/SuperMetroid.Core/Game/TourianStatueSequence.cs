@@ -128,7 +128,7 @@ public sealed class TourianStatueSequence
                     case AnimatedTileInstruction.GotoIfAnyBossBitsSetForArea:
                         ushort bossTest = MechanicsWord(tile, operand);
                         tile.Pointer = runtime.System.HasAnyBossBits(
-                                bossTest >> 8, (BossBits)(bossTest & 255))
+                                SnesLittleEndian.HighByte(bossTest), (BossBits)(SnesLittleEndian.LowByte(bossTest)))
                             ? MechanicsWord(tile, operand + 2)
                             : (ushort)(operand + 4);
                         continue;

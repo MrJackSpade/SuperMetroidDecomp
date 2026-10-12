@@ -314,7 +314,7 @@ public sealed partial class RoomEnemySystem
         byte angle = unchecked((byte)segment.Angle);
         if (index != 0)
             angle = unchecked((byte)(angle + state.TailSegments[index - 1].Angle));
-        ushort distanceInPixels = unchecked((ushort)(segment.Distance >> 8));
+        ushort distanceInPixels = unchecked((ushort)(SnesLittleEndian.HighByte(segment.Distance)));
         // $A9:C46C reads the middle/high bytes of the signed Mode 7 product.
         // An arithmetic shift preserves its floor for negative fractional pixels.
         segment.Offset = new Offset16<RoomPixels>(

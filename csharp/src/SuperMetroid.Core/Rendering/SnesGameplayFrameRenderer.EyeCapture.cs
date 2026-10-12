@@ -21,7 +21,7 @@ public static partial class SnesGameplayFrameRenderer
         byte red = ExpandFiveBit(beam.Red), green = ExpandFiveBit(beam.Green), blue = ExpandFiveBit(beam.Blue);
         for (int y = HudHeight; y < Height; y++)
         {
-            int left = nativeWindows[y] & byte.MaxValue, right = nativeWindows[y] >> 8;
+            int left = SnesLittleEndian.LowByte(nativeWindows[y]), right = SnesLittleEndian.HighByte(nativeWindows[y]);
             if (left <= right) windows[y] = new((byte)left, (byte)right, red, green, blue);
         }
         return new(windows);

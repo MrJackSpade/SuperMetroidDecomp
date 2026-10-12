@@ -472,7 +472,7 @@ public sealed class RoomLayer3FxState
         if (!liquidMotionAlreadyAdvanced)
             AdvanceLiquidMotion(randomNumber, mainGameLoopCarry);
         waterSurfaceScreenY = unchecked((short)(CurrentYPosition - camera.Y));
-        var subscroll = new Offset16<Bg3Pixels>(unchecked((sbyte)(waterHorizontalSubscroll >> 8)), 0);
+        var subscroll = new Offset16<Bg3Pixels>(unchecked((sbyte)(SnesLittleEndian.HighByte(waterHorizontalSubscroll))), 0);
         Scroll = (camera.AsBg3Scroll() + subscroll).WithY(ComputeLiquidVerticalScroll(CurrentYPosition, camera.Y));
 
         waterBg3WaveTimer = unchecked((ushort)(waterBg3WaveTimer - 1));
@@ -708,7 +708,7 @@ public sealed class RoomLayer3FxState
         }
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
-        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(tidePhase >> 8);
+        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(SnesLittleEndian.HighByte(tidePhase));
         tideFixedOffset = sample * scale << 8;
         tidePhase = unchecked((ushort)(
             tidePhase + (sample >= 0 ? positiveDelta : negativeDelta)));

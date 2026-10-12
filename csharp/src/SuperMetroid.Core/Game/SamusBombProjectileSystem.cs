@@ -287,7 +287,7 @@ public sealed class SamusBombProjectileSystem
             // bottom 32 scanlines outside this runtime's 224-line rendered viewport.
             short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
             ushort screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
-            if (screenX < -48 || screenX >= 304 || (screenY & 0xff00) != 0)
+            if (screenX < -48 || screenX >= 304 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
                 continue;
 
             (compositions ?? throw new InvalidOperationException(
@@ -511,7 +511,7 @@ public sealed class SamusBombProjectileSystem
         // five slots or a nonzero LOW cooldown byte reject the edge. The high byte is not
         // part of this test; that oddity is intentional 65C816 SEP-width behavior.
         if (BombCounter != 0 &&
-            (BombCounter >= SlotCount || (CooldownTimer & 0x00ff) != 0))
+            (BombCounter >= SlotCount || (SnesLittleEndian.LowByte(CooldownTimer)) != 0))
         {
             return false;
         }
@@ -546,7 +546,7 @@ public sealed class SamusBombProjectileSystem
     {
         // $93:80A6 reads the HIGH byte of type, masks its low nibble, and indexes the
         // non-beam pointer table. Type $0500 therefore selects word five -> $8675.
-        int projectileTypeIndex = (slot.Type >> 8) & 0x000f;
+        int projectileTypeIndex = SamusProjectileFamilies.IndexOf(slot.Type);
         ushort dataPointer = SamusProjectileSelectionDefinitions.ReadWord(
             AddWithinBank(SamusProjectileRomData.NonBeam.DataPointers, projectileTypeIndex * 2));
         int dataAddress = SamusProjectileRomData.Banks.Projectile | dataPointer;
@@ -708,8 +708,8 @@ public sealed class SamusBombProjectileSystem
     {
         ushort swapped = unchecked((ushort)(
             (slot.BombSpreadDirectionMagnitude << 8) |
-            (slot.BombSpreadDirectionMagnitude >> 8)));
-        ushort subvelocity = unchecked((ushort)(swapped & 0xff00));
+            (SnesLittleEndian.HighByte(slot.BombSpreadDirectionMagnitude))));
+        ushort subvelocity = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(swapped)));
         ushort wholeMagnitude = unchecked((ushort)(swapped & 0x007f));
         bool movingLeft = (swapped & 0x0080) != 0;
 
@@ -791,7 +791,7 @@ public sealed class SamusBombProjectileSystem
         AreaId areaIndex,
         ushort projectileType)
     {
-        int horizontalRadius = explosionRadius >> 8;
+        int horizontalRadius = SnesLittleEndian.HighByte(explosionRadius);
         int verticalRadius = (3 * horizontalRadius) >> 2;
 
         int left = Math.Max(0, explosion.X - horizontalRadius) >> 4;

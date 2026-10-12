@@ -83,7 +83,7 @@ public static class EndingTextExtractor
             RequireWord(word, EndingTextDefinitions.CharacterDelayFrames, "ending-text character delay");
             ushort packed = ReadWord(bus, Add(cursor, 2));
             int column = packed & EndingTextDefinitions.Native.PackedPositionXMask;
-            int row = packed >> 8;
+            int row = SnesLittleEndian.HighByte(packed);
             EndingTextStyle style = sequence == EndingTextSequence.ItemPercentage
                 ? EndingTextStyle.PercentageSmall : EndingTextStyle.FinalLarge;
             if (sequence == EndingTextSequence.ItemPercentage && compiled.Count == expected.Width)

@@ -682,15 +682,15 @@ public sealed partial class RoomEnemySystem
             unchecked((byte)-angle));
         bool negative = signedSample < 0;
         ushort magnitude = unchecked((ushort)(negative ? -signedSample : signedSample));
-        ushort product = unchecked((ushort)((magnitude >> 8) * unchecked((byte)length)));
+        ushort product = unchecked((ushort)((SnesLittleEndian.HighByte(magnitude)) * unchecked((byte)length)));
         if (product == 0)
             return 0;
 
         if (!negative)
-            return unchecked((ushort)(2 * ((product & 0xff00) >> 8)));
+            return unchecked((ushort)(2 * ((SnesLittleEndian.HighByteInPlace(product)) >> 8)));
 
         ushort negatedProduct = unchecked((ushort)-product);
-        return unchecked((ushort)((2 * (negatedProduct >> 8)) | 0xff00));
+        return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | 0xff00));
     }
 
     private YappingMawEnemyState RequireYappingMawState(RoomEnemySlot slot) =>

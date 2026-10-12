@@ -69,11 +69,11 @@ internal static partial class Program
             ushort next = admitted ? decremented : (ushort)raw;
             bool sound = intercept && (next & 0x0400) == 0 && ((next + 0x0100) & 0x0400) != 0;
             if (intercept && (next & 0x0400) == 0) next = unchecked((ushort)(next + 0x0100));
-            int selection = sound ? 5 : next >> 8;
+            int selection = sound ? 5 : SnesLittleEndian.HighByte(next);
             ushort expectedTimer = intercept
                 ? unchecked((ushort)(raw + (selection == 5 ? bus.MutableDelay : rom.ReadCartridgeByte(0x910000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + selection * 2))))))
                 : (ushort)0;
-            if (intercept) next = (ushort)((next & 0xff00) | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + selection * 2)));
+            if (intercept) next = (ushort)((SnesLittleEndian.HighByteInPlace(next)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b61f + selection * 2)));
             int calls = 0;
             speed.HasRunningMomentum = momentum; speed.SpeedBoostCounter = (ushort)raw;
             speed.EchoSoundRequested = false; speed.ContactDamageIndex = SamusContactDamageIndex.None;

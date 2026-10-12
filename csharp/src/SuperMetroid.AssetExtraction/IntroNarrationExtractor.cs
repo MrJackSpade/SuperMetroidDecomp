@@ -87,7 +87,7 @@ public static class IntroNarrationExtractor
             ushort dataPointer = ReadWord(bus, Add(cursor, 4));
             int column = packedPosition &
                 IntroNarrationDefinitions.Native.PackedPositionXMask;
-            int row = packedPosition >> 8;
+            int row = SnesLittleEndian.HighByte(packedPosition);
             ushort drawFunction = ReadWord(bus, dataPointer);
             int dimensions = SnesLittleEndian.Word(ReadByte(bus, Add(dataPointer, 2)), ReadByte(bus, Add(dataPointer, 3)));
             if (drawFunction != IntroNarrationDefinitions.Native.DrawCharacterFunction ||

@@ -22,11 +22,11 @@ internal static partial class Program
                 continue; // Dropping bypasses hop initialization and uses constant speed.
             ushort time = 0, distance = 0;
             ushort height = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a07 + index));
-            ushort target = unchecked((ushort)((height << 8) | (height >> 8)));
+            ushort target = unchecked((ushort)((height << 8) | (SnesLittleEndian.HighByte(height))));
             do
             {
                 time = unchecked((ushort)(time + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa29a09 + index))));
-                distance = unchecked((ushort)(distance + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08390 + (time >> 8) * 8))));
+                distance = unchecked((ushort)(distance + CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa08390 + (SnesLittleEndian.HighByte(time)) * 8))));
             } while (unchecked((short)(target - distance)) >= 0);
             state.HopTableIndex = index;
             calculate(state);

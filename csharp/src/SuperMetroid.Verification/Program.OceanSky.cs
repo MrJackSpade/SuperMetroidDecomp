@@ -80,9 +80,9 @@ internal static partial class Program
         samus.InitializeAnimation(bus);
         runtime.StepFrame(0);
         ushort upper = unchecked((ushort)((runtime.Camera.PixelPosition.Y & 0x7F8) - 16));
-        int sourcePointer = 0x88ADA6 + (upper >> 8) * 2;
+        int sourcePointer = 0x88ADA6 + (SnesLittleEndian.HighByte(upper)) * 2;
         int sourceWord = bus.ReadCartridgeWord(sourcePointer);
-        int expectedSource = 0x8A0000 | (SnesAddressMath.OffsetInBank(sourceWord + (upper & 255) * 8));
+        int expectedSource = 0x8A0000 | (SnesAddressMath.OffsetInBank(sourceWord + (SnesLittleEndian.LowByte(upper)) * 8));
         AssertTrue(runtime.VramWrites.Entries.Any(entry => entry.SourceAddress == expectedSource && entry.SizeInBytes == 64),
             "ordinary runtime frame queues the ocean table, not the land table");
         Console.WriteLine("  Ocean sky: visible rows across 65 camera positions match ocean ROM chunks and native vertical-page rendering.");

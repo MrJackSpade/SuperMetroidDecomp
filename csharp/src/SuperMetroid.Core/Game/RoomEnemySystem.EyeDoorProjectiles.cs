@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -111,7 +112,7 @@ public sealed partial class RoomEnemySystem
         byte listOffset = unchecked((byte)parameter);
         ushort instructionList = MiscDustProjectileDefinitions.InstructionList(listOffset);
         MiscDustPlacementDefinition placement =
-            MiscDustProjectileDefinitions.SmokePlacement((ushort)(parameter >> 8));
+            MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(parameter)));
 
         ushort random = EnemyRandom.Read();
         projectile.InstructionPointer = instructionList;

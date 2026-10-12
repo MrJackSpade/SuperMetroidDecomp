@@ -29,7 +29,7 @@ internal static partial class Program
             body.Position = body.Position.WithWhole(new(origin, origin));
             PhantoonFlameSpawnType type = ClosedNativeWords.Decode<PhantoonFlameSpawnType>(
                 SnesLittleEndian.HighByte(parameter), "Phantoon flame spawn type");
-            int index = parameter & 255;
+            int index = SnesLittleEndian.LowByte(parameter);
             AssertTrue(spawn(body, type, (byte)parameter), "Real Phantoon flame allocation succeeds");
             var flame = enemies.EnemyProjectiles.Single(p => p.IsActive);
             ushort angle = type switch

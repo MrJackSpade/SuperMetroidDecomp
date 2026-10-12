@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -79,7 +80,7 @@ public static class EnemyPropertyFlagExtensions
     /// </summary>
     public static EnemyProperties ReadFlagsChecked(this ushort word)
     {
-        ushort highByte = unchecked((ushort)(word & KnownPropertyFlagMask));
+        ushort highByte = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(word)));
         EnemyProperties flags = (EnemyProperties)highByte;
         if ((highByte & ~(ushort)(EnemyProperties.Invisible |
                 EnemyProperties.Deleted |

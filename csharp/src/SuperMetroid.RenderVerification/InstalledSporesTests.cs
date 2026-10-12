@@ -95,7 +95,7 @@ internal static partial class InstalledSporesTests
                 {
                     ushort accumulator = unchecked((ushort)(-tick * 64));
                     Require(capture.Scroll == new Position16<Bg3Pixels>(camera.X,
-                        unchecked((ushort)(camera.Y + (sbyte)(accumulator >> 8)))), "Spores lost native signed 8.8 camera anchoring.");
+                        unchecked((ushort)(camera.Y + (sbyte)(SnesLittleEndian.HighByte(accumulator))))), "Spores lost native signed 8.8 camera anchoring.");
                     int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics,
                         mechanics.Frames[tick / 10 % 3].InstructionPointer);
                     Require(stock.RoomFxAnimatedTiles.TryResolve(source, 48, out var expected), "Missing stock spores frame.");

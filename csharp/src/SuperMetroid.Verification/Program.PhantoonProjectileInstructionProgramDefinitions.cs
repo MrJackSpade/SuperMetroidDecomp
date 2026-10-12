@@ -159,7 +159,7 @@ internal static partial class Program
             RoomEnemySlot body = enemies.Slots[0];
             body.Position = body.Position.WithWhole(new(128, 96));
             // Native parameter word: spawn type in the high byte, index in the low byte.
-            spawnDestroyable.Invoke(enemies, [body, (PhantoonFlameSpawnType)(parameter >> 8), (byte)parameter]);
+            spawnDestroyable.Invoke(enemies, [body, (PhantoonFlameSpawnType)(SnesLittleEndian.HighByte(parameter)), (byte)parameter]);
             return enemies.EnemyProjectiles.Single(projectile => projectile.Kind ==
                 RoomEnemyProjectileKind.PhantoonDestroyableFlame);
         }

@@ -194,7 +194,7 @@ public sealed partial class RoomEnemySystem
         // magnitude stores adjacent {right whole, right fraction, left whole, left fraction}
         // words. Keep the byte offset visible; treating it as an array index is a common
         // source of subtly wrong half-pixel speeds in ports of this AI.
-        bool startsLeft = (slot.Parameter1 & 0xff00) != 0;
+        bool startsLeft = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
         slot.CurrentInstruction = startsLeft
             ? SkulteraInstructionProgramDefinitions.SwimmingLeft
             : SkulteraInstructionProgramDefinitions.SwimmingRight;
@@ -202,7 +202,7 @@ public sealed partial class RoomEnemySystem
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
 
-        ushort speedTableOffset = unchecked((ushort)((slot.Parameter1 & 0x00ff) * 8));
+        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter1)) * 8));
         (state.RightVelocity, state.RightSubvelocity) =
             ReadLinearEnemySpeed(speedTableOffset);
         (state.LeftVelocity, state.LeftSubvelocity) =
@@ -210,8 +210,8 @@ public sealed partial class RoomEnemySystem
 
         // Parameter two packs radius in its low byte and unsigned initial angle delta in
         // its high byte. The delta becomes a signed word only when a turn negates it.
-        state.Radius = unchecked((ushort)(slot.Parameter2 & 0x00ff));
-        state.AngleDelta = unchecked((short)((slot.Parameter2 >> 8) & 0x00ff));
+        state.Radius = unchecked((ushort)(SnesLittleEndian.LowByte(slot.Parameter2)));
+        state.AngleDelta = unchecked((short)((SnesLittleEndian.HighByte(slot.Parameter2)) & 0x00ff));
         state.Angle = 0;
         state.TurnFinished = false;
         state.CurrentYOffset = 0;

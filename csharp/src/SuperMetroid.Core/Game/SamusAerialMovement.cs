@@ -675,7 +675,7 @@ public static class SamusAerialMovement
         {
             if (vertical.Collided)
                 samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Landed;
-            else if ((samus.SolidVerticalCollisionResult & 0xff) != SamusVerticalCollisionResults.WallJump)
+            else if ((SnesLittleEndian.LowByte(samus.SolidVerticalCollisionResult)) != SamusVerticalCollisionResults.WallJump)
                 samus.SolidVerticalCollisionResult = SamusVerticalCollisionResults.Falling;
         }
         else

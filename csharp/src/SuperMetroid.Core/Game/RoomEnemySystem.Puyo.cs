@@ -287,7 +287,7 @@ public sealed partial class RoomEnemySystem
         for (int guard = 0; guard <= ushort.MaxValue; guard++)
         {
             timeAccumulator = unchecked((ushort)(timeAccumulator + xSpeed));
-            int speedRow = (timeAccumulator >> 8) * QuadraticSpeedRecordSize;
+            int speedRow = (SnesLittleEndian.HighByte(timeAccumulator)) * QuadraticSpeedRecordSize;
 
             // The cartridge intentionally reads a word at table+1: the high byte of the
             // fractional speed followed by the low byte of the whole speed. Accumulating
@@ -431,7 +431,7 @@ public sealed partial class RoomEnemySystem
         if (!IsNegative16(unchecked((ushort)(cappedIndex - MaximumPuyoYSpeedTableIndex))))
             cappedIndex = MaximumPuyoYSpeedTableIndex;
 
-        int speedRow = (cappedIndex >> 8) * QuadraticSpeedRecordSize;
+        int speedRow = (SnesLittleEndian.HighByte(cappedIndex)) * QuadraticSpeedRecordSize;
         int verticalOffset = state.Falling ? 0 : 4;
         int verticalDisplacement = EnemyQuadraticSpeedDefinitions.ReadDisplacement(speedRow + verticalOffset);
         bool verticalCollision = MoveEnemyVertically(level, slot, verticalDisplacement);
@@ -542,7 +542,7 @@ public sealed partial class RoomEnemySystem
     }
 
     private static ushort SwapBytes(ushort value) =>
-        unchecked((ushort)((value << 8) | (value >> 8)));
+        unchecked((ushort)((value << 8) | (SnesLittleEndian.HighByte(value))));
 
     private static PuyoDirection Opposite(PuyoDirection direction) => direction switch
     {

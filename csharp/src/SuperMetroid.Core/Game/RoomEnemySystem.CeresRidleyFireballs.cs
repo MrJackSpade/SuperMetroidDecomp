@@ -766,7 +766,7 @@ public sealed partial class RoomEnemySystem
             oam.AddEnemySpritemap(parts.Span, screen.ToOam(),
                 new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
                 unchecked((byte)projectile.GraphicsIndex),
-                clipVerticalWrap: true, originYIsOnScreen: (screen.Y >> 8) == 0);
+                clipVerticalWrap: true, originYIsOnScreen: (SnesLittleEndian.HighByte(screen.Y)) == 0);
         }
     }
 

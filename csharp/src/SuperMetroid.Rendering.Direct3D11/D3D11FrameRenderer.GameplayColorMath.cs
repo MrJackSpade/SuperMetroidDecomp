@@ -41,16 +41,16 @@ public sealed partial class D3D11FrameRenderer
             var scroll = layer.Gameplay.Bg2ScrollAt(line);
             data[offset] = scroll.X;
             data[offset + 1] = unchecked((ushort)(scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
-            data[offset + 2] = (uint)(SnesLittleEndian.Word(layer.Lines[y].Left, layer.Lines[y].Right));
+            data[offset + 2] = D3D11ConstantPacking.Bytes(layer.Lines[y].Left, layer.Lines[y].Right, 0, 0);
             // The high half carries the main-screen enable register for this line;
             // the low half retains the independent color-window edges.
             var mainScreen = layer.Gameplay.MainScreenLayersByLine.IsEmpty
                 ? r.MainScreenLayers : (SnesMainScreenLayers)layer.Gameplay.MainScreenLayersByLine[line];
             // Draygon's TM HDMA still suppresses repeated BG2 art while X-Ray owns color math.
             if (y < r.Bg2FirstScanline || y >= r.Bg2EndScanline) mainScreen &= ~SnesMainScreenLayers.Bg2;
-            data[offset + 2] |= (uint)mainScreen << 16;
+            data[offset + 2] |= D3D11ConstantPacking.Bytes(0, 0, (byte)mainScreen, 0);
             if (layer.Subscreen is { } bg3)
-                data[offset + 3] = (uint)(bg3.Scrolls[y].X | bg3.Scrolls[y].Y << 16);
+                data[offset + 3] = D3D11ConstantPacking.Halves(bg3.Scrolls[y].X, bg3.Scrolls[y].Y);
         }
         fixed (uint* source = data) UploadBuffer(constants, (nint)source, data.Length * sizeof(uint));
         owner.Context.Dispatch(32, 28, 1);

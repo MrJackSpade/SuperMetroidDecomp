@@ -120,10 +120,10 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Owtch</c> at $A2:A3F9.</summary>
     private void InitializeOwtch(RoomEnemySlot slot)
     {
-        int initialState = slot.Parameter1 & 0x00ff;
-        int undergroundTimerIndex = slot.Parameter1 >> 8;
-        int speedIndex = slot.Parameter2 & 0x00ff;
-        int distanceIndex = slot.Parameter2 >> 8;
+        int initialState = SnesLittleEndian.LowByte(slot.Parameter1);
+        int undergroundTimerIndex = SnesLittleEndian.HighByte(slot.Parameter1);
+        int speedIndex = SnesLittleEndian.LowByte(slot.Parameter2);
+        int distanceIndex = SnesLittleEndian.HighByte(slot.Parameter2);
         if (initialState >= 5)
         {
             throw new InvalidDataException(

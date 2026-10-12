@@ -78,7 +78,7 @@ internal static class SamusProjectileInheritance
         SamusProjectileDirection direction = word.Direction;
         ProjectileInheritanceMemory memory = Memory(bus);
         ushort upward = memory.LaunchVelocityWord(SamusCollisionDirection.Up);
-        int upContribution = (upward & 0xff00) == 0 ? 0 : (upward >> 2) | 0xc000;
+        int upContribution = (SnesLittleEndian.HighByteInPlace(upward)) == 0 ? 0 : (upward >> 2) | 0xc000;
         short x = unchecked((short)(direction switch
         {
             SamusProjectileDirection.UpRight or SamusProjectileDirection.Right or SamusProjectileDirection.DownRight =>

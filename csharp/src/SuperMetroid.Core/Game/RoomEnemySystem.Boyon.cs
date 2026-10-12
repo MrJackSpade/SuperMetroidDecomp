@@ -132,8 +132,8 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports <c>InitAI_Boyon</c> at <c>$A2:871C</c>.</summary>
     private void InitializeBoyon(RoomEnemySlot slot)
     {
-        int multiplierIndex = slot.Parameter1 & 0x00ff;
-        int jumpHeightIndex = slot.Parameter1 >> 8;
+        int multiplierIndex = SnesLittleEndian.LowByte(slot.Parameter1);
+        int jumpHeightIndex = SnesLittleEndian.HighByte(slot.Parameter1);
         if (multiplierIndex >= 8 || jumpHeightIndex >= 9)
         {
             throw new InvalidDataException(

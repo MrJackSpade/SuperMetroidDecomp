@@ -226,9 +226,9 @@ public sealed partial class RoomEnemySystem
         if ((state.OrientationAndAcceleration & 0x8000) != 0)
             midpoint ^= 0x8000;
 
-        ushort directionBucket = unchecked((ushort)(((midpoint >> 8) + 8) & 0x00e0));
+        ushort directionBucket = unchecked((ushort)(((SnesLittleEndian.HighByte(midpoint)) + 8) & 0x00e0));
         state.OrientationAndAcceleration = unchecked((ushort)(
-            (state.OrientationAndAcceleration & 0xff00) | directionBucket));
+            (SnesLittleEndian.HighByteInPlace(state.OrientationAndAcceleration)) | directionBucket));
         slot.CurrentInstruction =
             ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket);
         slot.InstructionTimer = 1;
@@ -283,7 +283,7 @@ public sealed partial class RoomEnemySystem
                 slot,
                 (ShaktoolMotionFlags)slot.Parameter1 & ~ShaktoolMotionFlags.ReversedOnce);
             state.OrientationAndAcceleration = unchecked((ushort)(
-                (state.OrientationAndAcceleration >> 8) << 8));
+                (SnesLittleEndian.HighByte(state.OrientationAndAcceleration)) << 8));
         }
 
         state.OrientationAndAcceleration = unchecked((ushort)(
@@ -383,7 +383,7 @@ public sealed partial class RoomEnemySystem
             ShaktoolMotionFlags.Clockwise) != 0
             ? unchecked((ushort)(state.OrbitAngle - state.TargetAngle))
             : unchecked((ushort)(state.TargetAngle - state.OrbitAngle));
-        state.AngularVelocity = unchecked((ushort)(4 * (difference >> 8)));
+        state.AngularVelocity = unchecked((ushort)(4 * (SnesLittleEndian.HighByte(difference))));
     }
 
     /// <summary>Ports group synchronization at <c>$AA:DC6F</c>.</summary>

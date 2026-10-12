@@ -296,7 +296,7 @@ internal static partial class Program
         {
             var station = SuperMetroid.AssetExtraction.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
             var room = SuperMetroid.AssetExtraction.CartridgeRoomHeaderImporter.Load(bus, station.RoomPointer);
-            var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(station.SamusPosition.X >> 8)), checked((short)((station.SamusPosition.Y >> 8) + 1)));
+            var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(SnesLittleEndian.HighByte(station.SamusPosition.X))), checked((short)((SnesLittleEndian.HighByte(station.SamusPosition.Y)) + 1)));
             snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
         }
         saves.SaveSlot(0, snapshot);

@@ -46,7 +46,7 @@ internal static partial class Program
                 // Direct transcription of loads/LSR/ORA/ADC at $90:B218..B2F5.
                 // Do not replace these overlapping reads with idealized fixed-point math.
                 ushort upWord = records.WordBefore(SamusCollisionDirection.Up);
-                int up = (upWord & 0xff00) == 0 ? 0 : (upWord >> 2) | 0xc000;
+                int up = (SnesLittleEndian.HighByteInPlace(upWord)) == 0 ? 0 : (upWord >> 2) | 0xc000;
                 short expectedX = unchecked((short)(direction switch
                 {
                     1 or 2 or 3 => baseSpeed + records.WordBefore(SamusCollisionDirection.Right),
@@ -137,7 +137,7 @@ internal static partial class Program
         for (int frame = 0; frame < 20; frame++) runtime.StepFrame((ushort)SnesButton.Right);
         var records = new ProjectileInheritanceRecordsAccess(bus);
         ushort inherited = records.WordBefore(SamusCollisionDirection.Right);
-        AssertTrue((inherited & 0xff00) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
+        AssertTrue((SnesLittleEndian.HighByteInPlace(inherited)) != 0, "Controller-driven beta publishes nonzero preceding-frame movement");
         short expected = unchecked((short)(inherited +
             (weapon == 0 ? ReadPowerBeamLaunchSpeedSum(bus) : 0x0100)));
         using var stateStream = new MemoryStream();

@@ -232,8 +232,8 @@ public sealed class HudState
         // One area-map tile represents one 256x256 room screen. The native Y formula has
         // an intentional +1 because the HUD map convention places the room header's Y one
         // row above the screen containing Samus.
-        int centerX = (frame.RoomMap.X + (frame.Samus.X >> 8)) & 0x3f;
-        int centerY = frame.RoomMap.Y + (frame.Samus.Y >> 8) + 1;
+        int centerX = (frame.RoomMap.X + (SnesLittleEndian.HighByte(frame.Samus.X))) & 0x3f;
+        int centerY = frame.RoomMap.Y + (SnesLittleEndian.HighByte(frame.Samus.Y)) + 1;
         if ((uint)centerY >= 32)
             return;
         MinimapCenter = new((ushort)centerX, (ushort)centerY);

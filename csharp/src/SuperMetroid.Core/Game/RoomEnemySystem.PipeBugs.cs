@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -198,7 +199,7 @@ public sealed partial class RoomEnemySystem
         PipeBugEnemyState state = CreatePipeBugState(slot);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
-        state.LinearSpeedTableOffset = unchecked((ushort)((slot.Parameter2 >> 8) * 8));
+        state.LinearSpeedTableOffset = unchecked((ushort)((SnesLittleEndian.HighByte(slot.Parameter2)) * 8));
         state.DelayOrCounter = 0;
         slot.InstructionTimer = 1;
         slot.Timer = 0;
@@ -431,7 +432,7 @@ public sealed partial class RoomEnemySystem
         // Only the first record has a nonzero low parameter byte. It is the formation
         // controller and may arm itself only while all four following physical records are
         // still at the dormant function. The native code addresses them at +$40 increments.
-        if ((slot.Parameter2 & 0x00ff) == 0)
+        if ((SnesLittleEndian.LowByte(slot.Parameter2)) == 0)
             return;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
         if (formation.All(member =>

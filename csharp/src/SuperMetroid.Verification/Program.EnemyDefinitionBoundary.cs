@@ -39,7 +39,7 @@ internal static partial class Program
                 ushort cy = unchecked((ushort)(y + (short)CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 2))));
                 if (((cx + 128) & 0xfe00) != 0 || ((cy + 128) & 0xfe00) != 0)
                     continue;
-                DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = TorizoInstructionProgramDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (cy >> 8) == 0 });
+                DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = TorizoInstructionProgramDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = (SnesLittleEndian.HighByte(cy)) == 0 });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
             AssertTrue(expected.ImageEquals(actual), "Torizo composed OAM bytes and origin arithmetic");

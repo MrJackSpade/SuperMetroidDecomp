@@ -42,8 +42,8 @@ internal static partial class Program
             AssertEqual(4, queue.Entries.Count, "Sky publishes four row transfers");
             ushort upper = unchecked((ushort)((camera & 0x07f8) - 16));
             ushort lower = unchecked((ushort)((camera & 0x07f8) + 240));
-            int upperSource = 0x8a0000 | unchecked((ushort)(Original(upper >> 8) + (upper & 255) * 8));
-            int lowerSource = 0x8a0000 | unchecked((ushort)(Original(lower >> 8) + (lower & 255) * 8));
+            int upperSource = 0x8a0000 | unchecked((ushort)(Original(SnesLittleEndian.HighByte(upper)) + (SnesLittleEndian.LowByte(upper)) * 8));
+            int lowerSource = 0x8a0000 | unchecked((ushort)(Original(SnesLittleEndian.HighByte(lower)) + (SnesLittleEndian.LowByte(lower)) * 8));
             AssertEqual(upperSource, queue.Entries[0].SourceAddress, "Sky upper source from native pointer");
             AssertEqual(upperSource + 64, queue.Entries[1].SourceAddress, "Sky upper continuation");
             AssertEqual(lowerSource, queue.Entries[2].SourceAddress, "Sky lower source from native pointer");

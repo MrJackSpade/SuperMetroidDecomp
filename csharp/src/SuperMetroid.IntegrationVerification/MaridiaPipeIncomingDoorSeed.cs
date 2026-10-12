@@ -23,7 +23,7 @@ internal static class MaridiaPipeIncomingDoorSeed
         ushort x = MaridiaPipeFixtureDefinitions.TubeCenterX;
         ushort y = checked((ushort)((entry / level.Size.X) * 16 - 96));
         runtime.LoadCartridgeRoomForDebug(MaridiaPipeFixtureDefinitions.PlasmaSparkRoom,
-            new Position16<RoomPixels>((ushort)(x & 0xff00), (ushort)(y & 0xff00)));
+            new Position16<RoomPixels>((ushort)(SnesLittleEndian.HighByteInPlace(x)), (ushort)(SnesLittleEndian.HighByteInPlace(y))));
         runtime.Samus!.Kinematics.Position = runtime.Samus!.Kinematics.Position.WithX(new SnesFixedPosition(x, 0));
         runtime.Samus.Kinematics.Position = runtime.Samus.Kinematics.Position.WithY(new SnesFixedPosition(y, 0));
         // Let gravity reach the authored door block. Publishing a pending door here

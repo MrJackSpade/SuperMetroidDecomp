@@ -223,7 +223,7 @@ public sealed class SamusAtmosphericEffectsState
 
         // `$90:8B83` rejects any nonzero high byte of Y. X is deliberately not clipped;
         // AddSamusSpritemap preserves its ninth hardware coordinate bit and wrap behavior.
-        if ((screenY & 0xff00) != 0)
+        if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
         oam.AddSamusSpritemap(

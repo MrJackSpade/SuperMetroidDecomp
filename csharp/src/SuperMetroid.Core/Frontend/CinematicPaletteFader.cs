@@ -99,9 +99,9 @@ public sealed class CinematicPaletteFader
             // High bytes supply the visible five-bit components. Writing through
             // SnesCgram matches the following native NMI upload into physical CGRAM.
             image[color] = new Bgr555(
-                (currentRed[color] >> 8) & Bgr555.MaxChannel,
-                (currentGreen[color] >> 8) & Bgr555.MaxChannel,
-                (currentBlue[color] >> 8) & Bgr555.MaxChannel);
+                (SnesLittleEndian.HighByte(currentRed[color])) & Bgr555.MaxChannel,
+                (SnesLittleEndian.HighByte(currentGreen[color])) & Bgr555.MaxChannel,
+                (SnesLittleEndian.HighByte(currentBlue[color])) & Bgr555.MaxChannel);
         }
         new CgramPalettes(cgram).LoadImage(image);
     }

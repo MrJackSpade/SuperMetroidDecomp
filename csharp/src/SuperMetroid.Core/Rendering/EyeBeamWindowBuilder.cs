@@ -119,7 +119,7 @@ internal static class EyeBeamWindowBuilder
         // completed LEFT accumulator), not DP_Temp25. Subsequent rows use the
         // right accumulator. Preserve this cartridge quirk rather than correcting
         // its one-row discontinuity with mathematically ideal cone geometry.
-        rows[entryRow] = (ushort)((rows[entryRow] & byte.MaxValue) |
+        rows[entryRow] = (ushort)((SnesLittleEndian.LowByte(rows[entryRow])) |
             (finalLeft & EyeWindowRenderDefinitions.FullRightEdge));
     }
 

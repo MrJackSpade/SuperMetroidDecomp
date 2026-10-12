@@ -188,7 +188,7 @@ public sealed class CeresElevatorArrivalState
             new SnesObjAttributeWord(projectile.GraphicsIndex).PaletteBits,
             unchecked((byte)projectile.GraphicsIndex),
             clipVerticalWrap: true,
-            originYIsOnScreen: (screen.Y & 0xff00) == 0);
+            originYIsOnScreen: (SnesLittleEndian.HighByteInPlace(screen.Y)) == 0);
     }
 
     private sealed class CeresElevatorProjectile

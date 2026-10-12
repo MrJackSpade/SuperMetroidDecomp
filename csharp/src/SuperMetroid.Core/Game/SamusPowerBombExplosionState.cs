@@ -260,7 +260,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.PreExplosion,
-            ((PreExplosionRadius >> 8) >> 3) & 0x0f);
+            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 0x0f);
 
         // $88:90DF uses wrapping 16-bit addition. It subtracts acceleration only while
         // the newly computed radius is still below $9200.
@@ -306,7 +306,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPreExplosionRadius = PreExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.PreExplosion,
-            ((PreExplosionRadius >> 8) >> 3) & 0x0f);
+            ((SnesUnsignedEightEight.Whole(PreExplosionRadius)) >> 3) & 0x0f);
 
         // $91A8 builds this frame's two 192-byte window tables before incrementing the
         // source pointer. Preserve that consumed pointer for a host compositor running
@@ -342,7 +342,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.Explosion,
-            (ExplosionRadius >> 8) >> 3);
+            (SnesUnsignedEightEight.Whole(ExplosionRadius)) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
         if (ExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.ExplosionYellowLimit)
@@ -364,7 +364,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.Explosion,
-            (ExplosionRadius >> 8) >> 3);
+            (SnesUnsignedEightEight.Whole(ExplosionRadius)) >> 3);
 
         RenderedShapeDefinitionPointer = ShapeDefinitionPointer;
         ShapeDefinitionPointer = unchecked((ushort)(
@@ -431,7 +431,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedExplosionRadius = ExplosionRadius;
         ReadFixedColor(
             PowerBombFixedColorSequence.Explosion,
-            (ExplosionRadius >> 8) >> 3);
+            (SnesUnsignedEightEight.Whole(ExplosionRadius)) >> 3);
 
         ExplosionRadius = unchecked((ushort)(ExplosionRadius + RadiusSpeed));
         if (ExplosionRadius < SamusSpecialSequenceRomData.PowerBomb.CrystalFlashRadiusLimit)
@@ -498,7 +498,7 @@ public sealed class SamusPowerBombExplosionState
     {
         // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
         // DEC turned zero into FFFF; retaining FF is observable, not unused scratch.
-        _afterglowTimer = (ushort)((_afterglowTimer & 0xff00) |
+        _afterglowTimer = (ushort)((SnesLittleEndian.HighByteInPlace(_afterglowTimer)) |
             SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload);
     }
 

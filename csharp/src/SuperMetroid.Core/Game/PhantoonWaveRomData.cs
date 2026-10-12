@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>Native wavy-Phantoon HDMA definitions from bank $88.</summary>
@@ -25,7 +26,7 @@ public static class PhantoonWaveRomData
         if ((offset & 1) == 0) return unchecked((short)word);
         byte next = offset == PhaseMask ? SineTrailingByte :
             unchecked((byte)EnemyTrigonometryTables.SignedSine((byte)((offset >> 1) + 1)));
-        return unchecked((short)((word >> 8) | (next << 8)));
+        return unchecked((short)((SnesLittleEndian.HighByte(word)) | (next << 8)));
     }
     /// <summary>$88:E567 PreInstruction_WavyPhantoon: phase is a nine-bit byte offset into signed word samples.</summary>
     public const int PhaseMask = 0x01ff;

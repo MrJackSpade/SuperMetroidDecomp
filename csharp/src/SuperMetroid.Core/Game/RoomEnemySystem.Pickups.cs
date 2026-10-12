@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -135,7 +136,7 @@ public sealed partial class RoomEnemySystem
         if (forcePirateBigExplosion)
             return 4;
 
-        ushort causeOfDeath = unchecked((ushort)((projectileType >> 8) & 0x000f));
+        ushort causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType);
         if (causeOfDeath != 2)
             return enemy.Definition.DeathAnimation;
 

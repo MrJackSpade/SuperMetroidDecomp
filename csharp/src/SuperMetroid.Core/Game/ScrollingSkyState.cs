@@ -117,8 +117,8 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         ushort upperPosition = unchecked((ushort)(
             (layer1YPosition & RoomFxRomData.ScrollingSky.SourcePositionMask) -
             RoomFxRomData.ScrollingSky.UpperRowCameraOffset));
-        int upperChunk = upperPosition >> 8;
-        int upperByteOffset = (upperPosition & 0x00ff) * 8;
+        int upperChunk = SnesLittleEndian.HighByte(upperPosition);
+        int upperByteOffset = (SnesLittleEndian.LowByte(upperPosition)) * 8;
         int upperSource = RoomFxRomData.Banks.Tilemaps |
             unchecked((ushort)(ScrollingSkyChunkPointerDefinitions.Get(
                 pointerTable, upperChunk) + upperByteOffset));
@@ -127,8 +127,8 @@ public sealed class ScrollingSkyState(bool horizontalHdmaConfigured = true)
         ushort lowerPosition = unchecked((ushort)(
             (layer1YPosition & RoomFxRomData.ScrollingSky.SourcePositionMask) +
             RoomFxRomData.ScrollingSky.LowerRowCameraOffset));
-        int lowerChunk = lowerPosition >> 8;
-        int lowerByteOffset = (lowerPosition & 0x00ff) * 8;
+        int lowerChunk = SnesLittleEndian.HighByte(lowerPosition);
+        int lowerByteOffset = (SnesLittleEndian.LowByte(lowerPosition)) * 8;
         int lowerSource = RoomFxRomData.Banks.Tilemaps |
             unchecked((ushort)(ScrollingSkyChunkPointerDefinitions.Get(
                 pointerTable, lowerChunk) + lowerByteOffset));

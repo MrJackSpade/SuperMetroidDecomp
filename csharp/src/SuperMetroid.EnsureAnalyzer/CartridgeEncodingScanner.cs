@@ -243,12 +243,39 @@ internal static class CartridgeEncodingScanner
             return false;
         if (model.GetConstantValue(binary, cancellationToken).HasValue)
             return false;
-        object? value = model.GetConstantValue(binary.Right, cancellationToken).Value ??
-            (mask ? model.GetConstantValue(binary.Left, cancellationToken).Value : null);
+        // A named constant already states the width's meaning; only literal widths are raw.
+        ExpressionSyntax? width = IsRawWidth(binary.Right, model, cancellationToken) ? binary.Right
+            : mask && IsRawWidth(binary.Left, model, cancellationToken) ? binary.Left : null;
+        if (width is null)
+            return false;
+        object? value = model.GetConstantValue(width, cancellationToken).Value;
         if (value is null or bool or string or char)
             return false;
         long constant = Convert.ToInt64(value, CultureInfo.InvariantCulture);
         return mask ? StorageWidthMasks.Contains(constant) : StorageWidthShifts.Contains(constant);
+    }
+
+    // A numeric literal, or a primitive type's MaxValue, which names a storage width rather than a domain fact.
+    private static bool IsRawWidth(ExpressionSyntax expression, SemanticModel model, CancellationToken cancellationToken)
+    {
+        while (expression is ParenthesizedExpressionSyntax or CastExpressionSyntax or CheckedExpressionSyntax)
+        {
+            expression = expression switch
+            {
+                ParenthesizedExpressionSyntax parenthesized => parenthesized.Expression,
+                CastExpressionSyntax cast => cast.Expression,
+                CheckedExpressionSyntax wrapped => wrapped.Expression,
+                _ => expression,
+            };
+        }
+        return expression switch
+        {
+            LiteralExpressionSyntax literal => literal.IsKind(SyntaxKind.NumericLiteralExpression),
+            MemberAccessExpressionSyntax { Name.Identifier.ValueText: "MaxValue" } access =>
+                model.GetTypeInfo(access.Expression, cancellationToken).Type?.SpecialType is SpecialType.System_Byte or
+                    SpecialType.System_UInt16 or SpecialType.System_Int32 or SpecialType.System_UInt32,
+            _ => false,
+        };
     }
 
     // (x >> 8) & 0xff is one operation: only the outermost of a nested width chain is counted.

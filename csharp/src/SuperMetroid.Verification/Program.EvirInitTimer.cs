@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Runtime;
 
@@ -30,7 +31,7 @@ internal static partial class Program
                 0x3f => aliased.Parameter2,
                 _ => throw new InvalidOperationException($"Unexpected aliased Evir byte +{byteOffset:X2}."),
             };
-            AssertEqual((ushort)((word >> 8) >> 1), runtime.Enemies.EvirStates[slot.SlotIndex]!.MovementTimer,
+            AssertEqual((ushort)((SnesLittleEndian.HighByte(word)) >> 1), runtime.Enemies.EvirStates[slot.SlotIndex]!.MovementTimer,
                 $"Evir body in slot {slot.SlotIndex} takes its first half-cycle from aliased enemy RAM");
             checkedBodies++;
         }

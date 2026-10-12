@@ -87,18 +87,18 @@ internal static partial class Program
             {
                 short speed = (short)(direction is 1 or 3 or 6 or 8 ? 0x02ab : 0x0400);
                 // These overlapping words are a native load across adjacent fields, not net displacement.
-                int upward = snapshot[4] >> 8 | snapshot[5] << 8;
+                int upward = SnesLittleEndian.HighByte(snapshot[4]) | snapshot[5] << 8;
                 int up = (upward & 0xff00) == 0 ? 0 : ((upward & 0xffff) >> 2) | 0xc000;
                 short x = unchecked((short)(direction switch
                 {
-                    1 or 2 or 3 => speed + (snapshot[2] >> 8 | snapshot[3] << 8),
-                    6 or 7 or 8 => -speed + (snapshot[0] >> 8 | snapshot[1] << 8),
+                    1 or 2 or 3 => speed + (SnesLittleEndian.HighByte(snapshot[2]) | snapshot[3] << 8),
+                    6 or 7 or 8 => -speed + (SnesLittleEndian.HighByte(snapshot[0]) | snapshot[1] << 8),
                     _ => 0,
                 }));
                 short y = unchecked((short)(direction switch
                 {
                     0 or 1 or 8 or 9 => -speed + up,
-                    3 or 4 or 5 or 6 => speed + (snapshot[6] >> 8 | snapshot[7] << 8),
+                    3 or 4 or 5 or 6 => speed + (SnesLittleEndian.HighByte(snapshot[6]) | snapshot[7] << 8),
                     _ => 0,
                 }));
                 AssertEqual(new EightEightVector<RoomPixels>(x, y), SamusProjectileInheritance.ReadVelocity(memory, direction, speed),

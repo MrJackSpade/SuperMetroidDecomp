@@ -36,7 +36,7 @@ internal sealed class EndingShootingStars
             }
             else
             {
-                int multiplier = (star.IndexAndFrame & 0xff00) >= EndingShootingStarDefinitions.DoubleAccelerationFrame ? 2 : 1;
+                int multiplier = (SnesLittleEndian.HighByteInPlace(star.IndexAndFrame)) >= EndingShootingStarDefinitions.DoubleAccelerationFrame ? 2 : 1;
                 star.Velocity += definition.Acceleration * multiplier;
                 star.Position = star.Position.Advance(star.Velocity.ToSixteenSixteen());
             }
@@ -61,7 +61,7 @@ internal sealed class EndingShootingStars
     {
         foreach (var star in stars)
         {
-            if ((short)star.IndexAndFrame < 0 || (star.IndexAndFrame & 0xff00) == 0) continue;
+            if ((short)star.IndexAndFrame < 0 || (SnesLittleEndian.HighByteInPlace(star.IndexAndFrame)) == 0) continue;
             int frame = star.IndexAndFrame >> 9;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
             oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attributes[frame]);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -192,7 +193,7 @@ public sealed class EscapeTimer
         {
             // STZ TimerXPosition-1 clears only the aliased counter/subpixel byte. The
             // visible high-byte X coordinate remains $80 until movement begins.
-            Position = Position.WithX((ushort)(Position.X & 0xff00));
+            Position = Position.WithX((ushort)(SnesLittleEndian.HighByteInPlace(Position.X)));
             IncrementStatusLowByte();
         }
 
@@ -268,13 +269,13 @@ public sealed class EscapeTimer
     private void IncrementXLowByte()
     {
         byte nextCounter = unchecked((byte)((byte)Position.X + 1));
-        Position = Position.WithX((ushort)((Position.X & 0xff00) | nextCounter));
+        Position = Position.WithX((ushort)((SnesLittleEndian.HighByteInPlace(Position.X)) | nextCounter));
     }
 
     private void IncrementStatusLowByte()
     {
         byte nextState = unchecked((byte)((byte)RawStatus + 1));
-        RawStatus = (ushort)((RawStatus & 0xff00) | nextState);
+        RawStatus = (ushort)((SnesLittleEndian.HighByteInPlace(RawStatus)) | nextState);
     }
 
     private static void ValidateBcd(byte value, string parameterName)

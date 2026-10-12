@@ -840,7 +840,7 @@ public sealed partial class MotherBrainRainbowBeamAttackSequence
                 // its high byte as this frame's whole-pixel displacement, and accumulate Y.
                 // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
                 FunctionTimer = unchecked((ushort)(FunctionTimer + 0x0020));
-                ushort fallingDisplacement = (ushort)(FunctionTimer >> 8);
+                ushort fallingDisplacement = (ushort)(SnesLittleEndian.HighByte(FunctionTimer));
                 ushort candidateBrainY = unchecked((ushort)(BrainPosition.Y + fallingDisplacement));
                 if (candidateBrainY >= 0x00c4)
                 {

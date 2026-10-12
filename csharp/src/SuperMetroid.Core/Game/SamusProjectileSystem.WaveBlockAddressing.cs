@@ -21,7 +21,7 @@ public sealed partial class SamusProjectileSystem
         // the lower half of every screen, including ordinary blue-door caps.
         if (remaining >= 16 || unchecked((short)slot.Position.Y.Whole) < 0 ||
             (SnesEightEight.WholeOf(slot.Position.Y.Whole)) >= (level.Size.Y + 15) / 16 ||
-            (targetX >> 8) >= (level.Size.X + 15) / 16)
+            (SnesLittleEndian.HighByte(targetX)) >= (level.Size.X + 15) / 16)
             return;
 
         int product = unchecked((byte)(top >> 4)) * unchecked((byte)level.Size.X);
@@ -39,7 +39,7 @@ public sealed partial class SamusProjectileSystem
                     ushort next = level.GetCollisionBlockByIndex(index + 1).LevelWord;
                     // Dispatch consumes the unaligned word; BTS and PLM setup
                     // still use floor(byteOffset / 2), including aligned writes.
-                    block = block with { LevelWord = unchecked((ushort)((block.LevelWord >> 8) | (next << 8))) };
+                    block = block with { LevelWord = unchecked((ushort)((SnesLittleEndian.HighByte(block.LevelWord)) | (next << 8))) };
                 }
                 RunShotReaction(level, slot, block, roomPlms, new ShotSpan(span, remaining, targetX), out bool endSpan);
                 // Wave discards collision carry, but still honors PLM scan termination.
@@ -69,7 +69,7 @@ public sealed partial class SamusProjectileSystem
             : slot.Position.Y.Whole + slot.Radius.Y - 1));
         int centerScreenX = SnesEightEight.WholeOf(slot.Position.X.Whole);
         if (centerScreenX >= (level.Size.X + 15) / 16 ||
-            (targetY >> 8) >= (level.Size.Y + 15) / 16)
+            (SnesLittleEndian.HighByte(targetY)) >= (level.Size.Y + 15) / 16)
             return;
 
         // The hardware multiplier consumes bytes. The following addition and

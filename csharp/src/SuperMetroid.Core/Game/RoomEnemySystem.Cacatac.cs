@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -169,8 +170,8 @@ public sealed partial class RoomEnemySystem
     private void InitializeCacatac(RoomEnemySlot slot)
     {
         var direction = (CacatacDirection)(slot.Parameter1 & 0x00ff);
-        int distanceIndex = slot.Parameter2 & 0x00ff;
-        int speedIndex = slot.Parameter2 >> 8;
+        int distanceIndex = SnesLittleEndian.LowByte(slot.Parameter2);
+        int speedIndex = SnesLittleEndian.HighByte(slot.Parameter2);
         if (!Enum.IsDefined(direction))
         {
             throw new InvalidDataException(
@@ -190,7 +191,7 @@ public sealed partial class RoomEnemySystem
                 $"index {speedIndex}, outside the NTSC retail table.");
         }
 
-        bool upsideUp = (slot.Parameter1 & 0xff00) != 0;
+        bool upsideUp = (SnesLittleEndian.HighByteInPlace(slot.Parameter1)) != 0;
         slot.SpritemapPointer = 0x804d;
         SetCacatacInstructionList(
             slot,

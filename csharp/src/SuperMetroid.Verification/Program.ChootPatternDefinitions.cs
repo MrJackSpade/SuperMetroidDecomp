@@ -57,7 +57,7 @@ internal static partial class Program
 
                 ChootEnemyState state = enemies.ChootStates[0]!;
                 ushort jumpHeight = unchecked((ushort)(
-                    loopCount * (definition.FallingPatternYDistance & 0x00ff)));
+                    loopCount * (SnesLittleEndian.LowByte(definition.FallingPatternYDistance))));
                 AssertEqual((ushort)definition.FallingPatternPointer, state.FallingPatternPointer,
                     $"Choot production pattern pointer {patternIndex}/{loopCount}");
                 AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,

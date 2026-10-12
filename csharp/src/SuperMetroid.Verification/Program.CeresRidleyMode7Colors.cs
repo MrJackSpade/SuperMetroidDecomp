@@ -74,7 +74,7 @@ internal static partial class Program
         for (ushort byteIndex = 0; byteIndex < 224; byteIndex += 2)
         {
             CeresRidleyGetawayFrame frame = CeresRidleyGetawayDefinitions.FromByteIndex(byteIndex);
-            int row = frame.Zoom >> 8;
+            int row = SnesLittleEndian.HighByte(frame.Zoom);
             visited.Add(row);
             select(frame.Zoom);
             for (int color = 0; color < CeresRidleyPaletteRomData.Mode7ZoomColorCount; color++)

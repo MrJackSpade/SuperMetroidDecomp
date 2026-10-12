@@ -89,7 +89,7 @@ internal static partial class Program
                             level.GetCollisionBlock(new(checked((ushort)(drawX + cell)), checked((ushort)drawY))).LevelWord,
                             "Station native physical word at original absolute run position");
                     drawX = 8 + unchecked((sbyte)offset);
-                    drawY = 8 + unchecked((sbyte)(offset >> 8));
+                    drawY = 8 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
                     int selectedRun = run;
                     foreach (int invalid in new[] {int.MinValue,-1,count,int.MaxValue})
                         AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(selectedRun, invalid), "Station layout cell bounds");

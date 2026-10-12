@@ -78,7 +78,7 @@ public sealed partial class SamusProjectileSystem
         short screenX = unchecked((short)(slot.Position.X.Whole - layer1.X));
         ushort screenY = unchecked((ushort)(slot.Position.Y.Whole - layer1.Y));
         if (horizontalMargin is int margin && (screenX < -margin || screenX >= 256 + margin) ||
-            (screenY & 0xff00) != 0)
+            (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
         {
             return;
         }
@@ -166,7 +166,7 @@ public sealed partial class SamusProjectileSystem
         // `$90:BC98` clips only by the origin's Y high byte. The shared bank-$81 loader
         // deliberately allows individual entries to wrap, matching charge sparks near an
         // edge instead of applying the generic on-screen-origin parking rule.
-        if ((screenY & 0xff00) != 0)
+        if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
 
@@ -174,7 +174,7 @@ public sealed partial class SamusProjectileSystem
             ? component switch { 0 => 0, 1 => 0x2a, _ => 0x30 }
             : component switch { 0 => 0, 1 => 0x1e, _ => 0x24 }));
         // `$90:BBEA` keeps only the low byte of the frame word before adding the offset.
-        ushort tableIndex = unchecked((ushort)(indexOffset + (_flareFrames[component] & 0x00ff)));
+        ushort tableIndex = unchecked((ushort)(indexOffset + (SnesLittleEndian.LowByte(_flareFrames[component]))));
         var catalog = artwork.Compositions ?? throw new InvalidOperationException(
             "Charge flare requires installed sprite compositions.");
         // A frame that wrapped to $FF selects a pointer past the end of $93:A1A1. Native then

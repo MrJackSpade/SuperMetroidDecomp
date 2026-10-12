@@ -236,7 +236,7 @@ public static partial class SamusGrappleMovement
         ushort screenY = unchecked((ushort)(grapple.BeamStart.Y - layer1.Y));
         // The assembly tests only Y's high byte. X is allowed to wrap into high OAM, while
         // any Y outside unsigned screen rows `$00-$FF` suppresses the whole spritemap.
-        if ((screenY & 0xff00) != 0)
+        if ((SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return false;
 
         // The first word of both native facing rows is zero. Grapple uses the

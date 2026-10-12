@@ -32,7 +32,7 @@ internal static partial class Program
         {
             fx.Step(bus, vram, new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = false, MainGameLoopCarry = true });
             int expectedIndex = (frame / 6) % 12;
-            int shade = flash[expectedIndex] >> 8;
+            int shade = SnesLittleEndian.HighByte(flash[expectedIndex]);
             AssertEqual(expectedIndex, bus.ReadByte(0x177A), $"Fireflea index frame {frame}");
             AssertEqual(shade | 0x20, fixedColor.Red, $"Fireflea red frame {frame}");
             AssertEqual(shade | 0x80, fixedColor.Green, $"Fireflea second COLDATA write frame {frame}");

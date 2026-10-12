@@ -17,7 +17,7 @@ internal static partial class Program
         DrawImportedSpritemap(bus, oam,
             ((int)new SnesAddress(            IntroCinematicRomData.Banks.Spritemaps, actor.SpriteMapPointer)),
             new(actor.WholePosition.X, y), actor.PaletteBits,
-            originIsOnScreen: (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0);
+            originIsOnScreen: ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0);
     }
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyIntroRinkaSpriteArtwork(SuperMetroidAddressSpace bus,
@@ -30,7 +30,7 @@ internal static partial class Program
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
+                    ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer);
                 var native = new OamBuffer();

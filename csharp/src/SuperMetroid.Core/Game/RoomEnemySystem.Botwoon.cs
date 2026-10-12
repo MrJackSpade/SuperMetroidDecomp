@@ -861,7 +861,7 @@ public sealed partial class RoomEnemySystem
     private void RunBotwoonHeadFall(RoomEnemySlot head, BotwoonEnemyState state)
     {
         int displacement = ReadQuadraticEnemySpeed(
-            unchecked((ushort)(state.DeathFallAccumulator >> 8)),
+            unchecked((ushort)(SnesLittleEndian.HighByte(state.DeathFallAccumulator))),
             negative: false);
         head.Position = head.Position.AdvanceY(SnesSignedSixteenSixteen.FromRaw(displacement));
         if (unchecked((short)(head.Position.Y.Whole - 200)) < 0)

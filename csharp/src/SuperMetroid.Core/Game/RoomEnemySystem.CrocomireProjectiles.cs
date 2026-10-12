@@ -159,7 +159,7 @@ public sealed partial class RoomEnemySystem
         // The 65816 switches to 8-bit A here. The high acceleration byte is added to the
         // fractional velocity byte; carry advances the signed integral velocity byte, which
         // is then capped by this physical slot's maximum.
-        int velocityFractionSum = (SnesEightEight.FractionOf(projectile.Velocity.X.RawValue)) + (acceleration >> 8);
+        int velocityFractionSum = (SnesEightEight.FractionOf(projectile.Velocity.X.RawValue)) + (SnesLittleEndian.HighByte(acceleration));
         byte velocityFraction = unchecked((byte)velocityFractionSum);
         byte velocityWhole = unchecked((byte)(
             (SnesEightEight.WholeOf(projectile.Velocity.X.RawValue)) + (velocityFractionSum >> 8)));

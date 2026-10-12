@@ -65,7 +65,7 @@ public sealed class MotherBrainRainbowBeamHdmaState
     private void BuildWindows(Position16<RoomPixels> head,
         SnesAngle angle, ushort angularWidth)
     {
-        int halfWidth = (angularWidth >> 8) / 2;
+        int halfWidth = (SnesLittleEndian.HighByte(angularWidth)) / 2;
         int a = unchecked((byte)(angle.TableIndex - halfWidth));
         int b = unchecked((byte)(angle.TableIndex + halfWidth));
         int quadrant = (a / SnesAngle.QuarterTurn.TableIndex) * 4 + b / SnesAngle.QuarterTurn.TableIndex;

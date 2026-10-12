@@ -926,7 +926,7 @@ public sealed partial class RoomEnemySystem
                             continue;
                         oam.AddEnemySpritemap(component.Parts, componentOrigin, drawPaletteIndex, slot.VramTilesIndex,
                             clipVerticalWrap: true,
-                            originYIsOnScreen: (componentOrigin.Y >> 8) == 0);
+                            originYIsOnScreen: (SnesLittleEndian.HighByte(componentOrigin.Y)) == 0);
                     }
                     continue;
                 }
@@ -2474,7 +2474,7 @@ public sealed partial class RoomEnemySystem
             throw new InvalidOperationException("Escaping gunship lost Samus.");
         RoomEnemySlot bottom = _slots[top.SlotIndex + 1];
         bottom.VariableF = unchecked((ushort)(bottom.VariableF + 0x0040));
-        if ((bottom.VariableF & 0xff00) >= 0x0a00)
+        if ((SnesLittleEndian.HighByteInPlace(bottom.VariableF)) >= 0x0a00)
             bottom.VariableF = 0x0900;
 
         uint samusY = samus.Kinematics.Position.Y.RawValue;

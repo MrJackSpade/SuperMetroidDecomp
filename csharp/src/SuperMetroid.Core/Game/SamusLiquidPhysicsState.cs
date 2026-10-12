@@ -567,10 +567,10 @@ public sealed partial class SamusLiquidPhysicsState
             // whole-damage low byte. Shifting that 8.8 quantity and splitting it back is not
             // equivalent to independently shifting both 16-bit words when a carry crosses.
             ushort overlappingDamage = unchecked((ushort)(
-                (PeriodicSubDamage >> 8) | ((PeriodicDamage & 0x00ff) << 8)));
+                (SnesLittleEndian.HighByte(PeriodicSubDamage)) | ((SnesLittleEndian.LowByte(PeriodicDamage)) << 8)));
             overlappingDamage = unchecked((ushort)(overlappingDamage >> divisorShift));
-            appliedSubDamage = unchecked((ushort)((overlappingDamage & 0x00ff) << 8));
-            appliedDamage = unchecked((ushort)(overlappingDamage >> 8));
+            appliedSubDamage = unchecked((ushort)((SnesLittleEndian.LowByte(overlappingDamage)) << 8));
+            appliedDamage = unchecked((ushort)(SnesLittleEndian.HighByte(overlappingDamage)));
         }
 
         // `$90:EA11` deliberately jumps to the native crash handler if the signed whole

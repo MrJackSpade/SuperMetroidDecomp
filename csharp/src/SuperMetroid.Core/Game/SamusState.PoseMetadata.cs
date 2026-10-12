@@ -683,7 +683,7 @@ public sealed partial class SamusState
     /// <returns>True when the pending low-byte direction was rejected and cleared.</returns>
     public bool RejectUnsupportedPublishedBombJump(ISnesAddressSpace bus, bool timeIsFrozen)
     {
-        if (BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
+        if (BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(BombJumpDirection)) != 0)
             return false;
         SamusMovementType movement = ReadMovementKind(bus);
         bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
@@ -708,7 +708,7 @@ public sealed partial class SamusState
         Ensure.NotNull(bus);
         Ensure.NotNull(level);
         if (RejectUnsupportedPublishedBombJump(bus, timeIsFrozen) ||
-            BombJumpDirection == 0 || (BombJumpDirection & 0xff00) != 0)
+            BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(BombJumpDirection)) != 0)
             return false;
 
         SamusMovementType movementType = ReadMovementKind(bus);

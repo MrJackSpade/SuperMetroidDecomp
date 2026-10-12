@@ -40,7 +40,7 @@ internal static partial class Program
             nextState.OrbitAngle = midpoint;
             orient(center, centerState);
             AssertEqual(bucket, unchecked((ushort)(
-                    centerState.OrientationAndAcceleration & 0x00ff)),
+                    SnesLittleEndian.LowByte(centerState.OrientationAndAcceleration))),
                 $"Shaktool production orientation bucket {bucket:X2}");
             AssertEqual(ShaktoolInstructionDefinitions.ForOrientationBucket(bucket),
                 center.CurrentInstruction,

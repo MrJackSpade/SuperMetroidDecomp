@@ -197,7 +197,7 @@ internal sealed class IntroDiscoverySprite
         // A negative origin still has visible component tiles, but their low-byte Y
         // arithmetic needs the opposite clipping branch to prevent bottom-edge wrap.
         bool originIsOnScreen =
-            (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
+            ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
             .Draw(SpriteMapPointer, oam, origin.ToOam(), PaletteBits, originIsOnScreen);

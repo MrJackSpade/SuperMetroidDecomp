@@ -214,7 +214,7 @@ internal static partial class Program
                     AssertEqual(count, dtoRun.DirectionAndCount, "plant DTO count");
                     AssertEqual(count, exportedRun.DirectionAndCount, "plant export count");
                     ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
-                    sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(offset >> 8));
+                    sbyte x = unchecked((sbyte)offset), y = unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
                     AssertEqual(x, SamusEaterPlmDrawDefinitions.Draw.NextX(run), "plant signed horizontal offset");
                     AssertEqual(y, draw.NextY(run), "plant signed vertical offset");
                     AssertEqual(x, dtoRun.Next.X, "plant DTO horizontal offset");
@@ -272,7 +272,7 @@ internal static partial class Program
                     "plant live placement follows native signed run offsets");
             ushort offset = ReadSamusEaterPlmWord(rom, nativeCursor + 2 + count * 2);
             expectedX = 8 + unchecked((sbyte)offset);
-            expectedY = 8 + unchecked((sbyte)(offset >> 8));
+            expectedY = 8 + unchecked((sbyte)(SnesLittleEndian.HighByte(offset)));
             nativeCursor += 4 + count * 2;
         }
         AssertEqual(0, guard.ForbiddenReadAttempts,

@@ -66,7 +66,7 @@ public sealed partial class SamusProjectileSystem
             // A live Super Missile stores its invisible collision-link byte index in the
             // variable's low byte. `$90:BE17` clears that exact slot before repurposing the
             // owner; it does not broadly delete unrelated Super Missile records.
-            int linkIndex = (slot.Variable & 0x00ff) >> 1;
+            int linkIndex = (SnesLittleEndian.LowByte(slot.Variable)) >> 1;
             if ((uint)linkIndex < SlotCount && linkIndex != slotIndex && _slots[linkIndex].IsActive)
                 ClearProjectile(_slots[linkIndex]);
         }
@@ -91,7 +91,7 @@ public sealed partial class SamusProjectileSystem
         else if (family is SamusProjectileFamily.Missile or SamusProjectileFamily.SuperMissile)
         {
             dataPointerTable = SamusProjectileRomData.NonBeam.DataPointers;
-            dataPointerIndex = slot.PackedType.FamilyValue >> 8;
+            dataPointerIndex = SnesLittleEndian.HighByte(slot.PackedType.FamilyValue);
         }
         else
         {
@@ -243,7 +243,7 @@ public sealed partial class SamusProjectileSystem
         {
             // Missiles and supers map families $01/$02 to table entries $20/$21. Other
             // projectile families return carry set and do not consume a trail slot.
-            int family = projectile.PackedType.FamilyValue >> 8;
+            int family = SnesLittleEndian.HighByte(projectile.PackedType.FamilyValue);
             if (family >= 3)
                 return;
             pointerIndex = family + 0x001f;
@@ -386,7 +386,7 @@ public sealed partial class SamusProjectileSystem
         // are skipped rather than wrapped or parked.
         ushort screenX = unchecked((ushort)(side.Position.X - layer1.X));
         ushort screenY = unchecked((ushort)(side.Position.Y - layer1.Y));
-        if ((screenX & 0xff00) != 0 || (screenY & 0xff00) != 0)
+        if ((SnesLittleEndian.HighByteInPlace(screenX)) != 0 || (SnesLittleEndian.HighByteInPlace(screenY)) != 0)
             return;
 
         oam.AddProjectileTrailSprite(

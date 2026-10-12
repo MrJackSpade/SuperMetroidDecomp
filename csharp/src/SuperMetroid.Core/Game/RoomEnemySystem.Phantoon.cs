@@ -579,7 +579,7 @@ public sealed partial class RoomEnemySystem
         byte remainingSteps = unchecked((byte)(denominator - numerator + 1));
         int quotient = remainingSteps == 0 ? ushort.MaxValue : (Math.Abs(target - current) << 8) / remainingSteps;
         int signedStep = target < current ? -quotient : quotient;
-        return unchecked((ushort)((current << 8) + signedStep)) >> 8;
+        return SnesLittleEndian.HighByte((ushort)((current << 8) + signedStep));
     }
 
     private static bool AdvancePhantoonWaveAmplitude(

@@ -164,7 +164,7 @@ public sealed partial class RoomPlmSystem
         ColoredDoorOrientation orientation)
     {
         ushort rawRoomArgument = slot.RoomArgument;
-        int conditionOffset = ((rawRoomArgument >> 8) & 0x7c) >> 1;
+        int conditionOffset = ((SnesLittleEndian.HighByte(rawRoomArgument)) & 0x7c) >> 1;
         if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {
             throw new InvalidDataException(

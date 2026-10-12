@@ -135,7 +135,7 @@ public sealed partial class RoomEnemySystem
     {
         // SetCeresRidleyPaletteAccordingToZoomLevel uses this wrapped bank-$A6 expression.
         // There are fifteen colors; palette entry zero remains the shared transparent color.
-        int zoomHighByte = zoom >> 8;
+        int zoomHighByte = SnesLittleEndian.HighByte(zoom);
         if (CeresRidleyMode7Colors is { } installed &&
             zoomHighByte < CeresRidleyPaletteRomData.Mode7ZoomRowCount)
         {

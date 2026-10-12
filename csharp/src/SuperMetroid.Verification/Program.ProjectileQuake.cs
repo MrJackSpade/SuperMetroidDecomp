@@ -45,7 +45,7 @@ internal static partial class Program
             // Independent native $86:83D6 origin culling and spritemap dispatch.
             if (((x + 128) & 0xfe00) == 0 && ((y + 128) & 0xfe00) == 0)
                 DrawImportedEnemyProjectileSpritemap(bus, expected, nativeSpritemap, new(x, y),
-                    actor.GraphicsIndex, originYIsOnScreen: (y >> 8) == 0);
+                    actor.GraphicsIndex, originYIsOnScreen: (SnesLittleEndian.HighByte(y)) == 0);
             expected.FinalizeFrame();
             var actual = new OamBuffer();
             actual.BeginFrame();

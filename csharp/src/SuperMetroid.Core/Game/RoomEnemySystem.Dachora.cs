@@ -325,7 +325,7 @@ public sealed partial class RoomEnemySystem
             state.PaletteAnimationTimer = unchecked((ushort)(state.PaletteAnimationTimer - 1));
             if ((byte)state.PaletteAnimationTimer == 0)
             {
-                int paletteIndex = state.PaletteAnimationTimer >> 8;
+                int paletteIndex = SnesLittleEndian.HighByte(state.PaletteAnimationTimer);
                 if ((uint)paletteIndex >= 4)
                 {
                     throw new InvalidDataException(
@@ -533,7 +533,7 @@ public sealed partial class RoomEnemySystem
     /// <summary>Ports the four-frame shine palette loop at $A7:F90A.</summary>
     private void StepDachoraShinePalette(RoomEnemySlot slot, DachoraEnemyState state)
     {
-        int paletteIndex = state.PaletteAnimationTimer >> 8;
+        int paletteIndex = SnesLittleEndian.HighByte(state.PaletteAnimationTimer);
         if ((uint)paletteIndex >= 4)
         {
             throw new InvalidDataException(

@@ -24,6 +24,13 @@ public enum SamusProjectileFamily : ushort
     MissileExplosion = 0x0800,
 }
 
+/// <summary>Reads the projectile family stored in a projectile type word.</summary>
+public static class SamusProjectileFamilies
+{
+    /// <summary>The family's table index: bits 8-11 of the type word, the nibble <see cref="SamusProjectileFamily"/> names.</summary>
+    public static int IndexOf(ushort type) => (type >> 8) & 0x0f;
+}
+
 /// <summary>
 /// Ten valid direction-table indices stored in a projectile direction word's low nibble.
 /// The duplicated vertical directions retain Samus's facing side, which selects distinct

@@ -186,13 +186,13 @@ public sealed partial class SamusProjectileSystem
             unchecked((short)SamusProjectileMotionDefinitions.ReadWord(
                 SamusProjectileRomData.Beams.YAccelerations + direction * 2))))));
 
-        if ((slot.Variable & 0xff00) == 0)
+        if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) == 0)
         {
             // `$90:C301` is the literal `$0100` ignition increment. Crossing into a nonzero
             // high byte re-runs `$90:B1F3` with that word as base 8.8 speed. A normal missile
             // crosses on its first alpha pass: one pixel/frame plus native inheritance.
             slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
-            if ((slot.Variable & 0xff00) != 0)
+            if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
                 InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
         }
         else
@@ -251,13 +251,13 @@ public sealed partial class SamusProjectileSystem
         }
 
         int direction = slot.PackedDirection.DirectionIndex;
-        if ((slot.Variable & 0xff00) == 0)
+        if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) == 0)
         {
             // The shared missile accelerator crosses `$0100` on its first alpha pass. Only
             // the Super family immediately allocates `$90:BF46`'s invisible collision link;
             // the link's native byte index is retained in the variable's low byte.
             slot.Variable = unchecked((ushort)(slot.Variable + 0x0100));
-            if ((slot.Variable & 0xff00) != 0)
+            if ((SnesLittleEndian.HighByteInPlace(slot.Variable)) != 0)
             {
                 InitializeDirectionalVelocity(bus, slot, unchecked((short)slot.Variable));
                 SpawnSuperMissileLink(bus, samus, slot);
@@ -353,7 +353,7 @@ public sealed partial class SamusProjectileSystem
         link.InstructionTimer = 1;
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
-        owner.Variable = unchecked((ushort)((owner.Variable & 0xff00) + link.NativeByteIndex));
+        owner.Variable = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(owner.Variable)) + link.NativeByteIndex));
         ProjectileCounter = unchecked((ushort)(ProjectileCounter + 1));
     }
 
@@ -374,10 +374,10 @@ public sealed partial class SamusProjectileSystem
         SamusBombProjectileSystem sharedProjectiles,
         RoomPlmSystem? roomPlms)
     {
-        if ((owner.Variable & 0xff00) == 0)
+        if ((SnesLittleEndian.HighByteInPlace(owner.Variable)) == 0)
             return;
 
-        int linkIndex = (owner.Variable & 0x00ff) >> 1;
+        int linkIndex = (SnesLittleEndian.LowByte(owner.Variable)) >> 1;
         if ((uint)linkIndex >= (uint)_slots.Length)
             return;
         SamusProjectileSlot link = _slots[linkIndex];

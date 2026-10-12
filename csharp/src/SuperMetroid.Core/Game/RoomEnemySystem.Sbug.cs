@@ -543,7 +543,7 @@ public sealed partial class RoomEnemySystem
         byte tableAngle = unchecked((byte)(angle + phase));
         int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & 0x7f);
         ushort product = unchecked((ushort)(sineMagnitude * speed));
-        ushort pixel = unchecked((ushort)(product >> 8));
+        ushort pixel = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
         ushort subpixel = unchecked((ushort)(product << 8));
         if ((tableAngle & 0x80) != 0)
         {

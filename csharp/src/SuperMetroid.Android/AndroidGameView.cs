@@ -107,7 +107,7 @@ internal sealed class AndroidGameView : View
         for (int i = 0; i < frame.Length; i++)
         {
             Rgba32 p = frame[i];
-            argb[i] = unchecked((int)((uint)p.A << 24 | (uint)p.R << 16 | (uint)p.G << 8 | p.B));
+            argb[i] = AndroidPixelPacking.Argb(p);
         }
         bitmap.SetPixels(argb, 0, FrontendFrame.Width, 0, 0, FrontendFrame.Width, FrontendFrame.Height);
         Interlocked.Add(ref uploadTicks, Stopwatch.GetTimestamp() - uploadStart);

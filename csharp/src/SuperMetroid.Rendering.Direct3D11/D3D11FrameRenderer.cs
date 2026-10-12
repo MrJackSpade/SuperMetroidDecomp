@@ -105,7 +105,7 @@ public sealed partial class D3D11FrameRenderer : IDisposable
         Rgba32 color = packet.SolidColor ?? throw new NotSupportedException("This compute path does not yet support the requested composition.");
         if (packet.BrightnessPasses.Length > D3D11ShaderLayout.MaximumBrightnessPasses) throw new ArgumentOutOfRangeException(nameof(packet));
         uint[] data = ClearUploadConstants();
-        data[0] = (uint)(SnesLittleEndian.Word(color.R, color.G) | color.B << 16 | color.A << 24);
+        data[0] = D3D11ConstantPacking.Bytes(color.R, color.G, color.B, color.A);
         data[1] = (uint)packet.BrightnessPasses.Length;
         data[2] = packet.Size.X; data[3] = packet.Size.Y;
         for (int i = 0; i < packet.BrightnessPasses.Length; i++) data[D3D11ShaderLayout.SolidHeaderWords + i] = packet.BrightnessPasses[i];

@@ -94,7 +94,7 @@ public sealed partial class RoomEnemySystem
         // The peculiar BIT #$FEFF direction test is preserved literally: every retail word
         // with a nonzero speed field selects the positive pair, even when bit eight is set.
         ushort packedSelector = slot.CurrentInstruction;
-        state.SpeedTableByteOffset = unchecked((ushort)((packedSelector & 0x00ff) * 8));
+        state.SpeedTableByteOffset = unchecked((ushort)((SnesLittleEndian.LowByte(packedSelector)) * 8));
         bool selectsPositiveVelocity = (packedSelector & 0xfeff) != 0;
         LoadRipperVelocity(slot, selectsPositiveVelocity);
         SetRipperInstructionList(

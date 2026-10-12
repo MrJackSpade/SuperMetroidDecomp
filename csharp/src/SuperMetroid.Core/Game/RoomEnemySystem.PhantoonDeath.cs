@@ -129,7 +129,7 @@ public sealed partial class RoomEnemySystem
             }
 
             mosaic = unchecked((byte)(mosaic + 0x10));
-            eye.VariableC = unchecked((ushort)((eye.VariableC & 0xff00) | mosaic));
+            eye.VariableC = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(eye.VariableC)) | mosaic));
             state.MosaicRegister = mosaic;
             return;
         }

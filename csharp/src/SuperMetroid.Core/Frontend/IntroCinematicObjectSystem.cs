@@ -500,7 +500,7 @@ internal sealed class IntroCinematicObjectSystem
 
     // A native BG record packs the tile column in the low byte and the row in the high byte.
     private static Position16<TilemapCells> UnpackCell(ushort packedPosition) =>
-        new(checked((ushort)(packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask)), checked((ushort)(packedPosition >> 8)));
+        new(checked((ushort)(packedPosition & IntroCinematicRomData.ObjectSystem.PackedPositionXMask)), checked((ushort)(SnesLittleEndian.HighByte(packedPosition))));
 
     private void CopyRectangleToPortrait(Position16<TilemapCells> destination, Extent16<TilemapCells> size,
         ReadOnlySpan<ushort> source)

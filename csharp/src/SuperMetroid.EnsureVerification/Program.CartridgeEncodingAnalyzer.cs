@@ -83,6 +83,11 @@ internal static partial class Program
         ExpectEncoding("", [(functional, "class C { int M(int value) => (value >> 3) + (value & 7) + (value << 4); }")]);
         ExpectEncoding("", [(functional, "class C { const int Bank = 126 << 16; int M() => Bank; }")]);
         ExpectEncoding("", [(catalog, "static class WalkerInstructionLists { static int M(int pointer) => pointer >> 16; }")]);
+        // A named catalog mask or shift states the width's meaning; byte.MaxValue only names a storage width.
+        ExpectEncoding("", [(catalog, "static class WalkerLayout { public const int PackedXMask = 255; }"),
+            (functional, "class C { int M(int packed) => packed & WalkerLayout.PackedXMask; }")]);
+        ExpectEncoding("", [(functional, "class C { int M(int value) => value & byte.MaxValue; }")],
+            (CartridgeEncodingAnalyzer.RawWidthId, "keeps a byte, word or bank lane"));
         ExpectEncoding("", [(functional,
             "[System.AttributeUsage(System.AttributeTargets.All)] sealed class SnesEncodingOwnerAttribute : System.Attribute { } " +
             "[SnesEncodingOwner] readonly struct Word(ushort raw) { public byte High => (byte)(raw >> 8); }")]);

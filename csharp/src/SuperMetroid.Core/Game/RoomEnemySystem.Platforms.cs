@@ -245,7 +245,7 @@ public sealed partial class RoomEnemySystem
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
-        ushort speedTableOffset = unchecked((ushort)((slot.Parameter2 & 0x00ff) * 8));
+        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter2)) * 8));
         (state.RightVelocity, state.RightSubvelocity) =
             ReadLinearEnemySpeed(speedTableOffset);
         (state.LeftVelocity, state.LeftSubvelocity) =
@@ -257,7 +257,7 @@ public sealed partial class RoomEnemySystem
         state.VerticallyStillArtInstalled = false;
         state.TargetYPosition = unchecked((ushort)(slot.Position.Y.Whole + 1));
         state.YSpeedTableIndex = 0;
-        state.MaximumYSpeedTableIndex = unchecked((ushort)(slot.Parameter2 >> 8));
+        state.MaximumYSpeedTableIndex = unchecked((ushort)(SnesLittleEndian.HighByte(slot.Parameter2)));
     }
 
     /// <summary>Ports <c>MainAI_Tripper_Kamer2</c> at $A3:9D16.</summary>

@@ -142,7 +142,7 @@ public sealed partial class RoomEnemySystem
         // rejects bomb, power-bomb, and already-converted impact families.
         foreach (SamusProjectileSlot projectile in projectiles.Slots)
         {
-            int typeNibble = (projectile.Type >> 8) & 0x0f;
+            int typeNibble = SamusProjectileFamilies.IndexOf(projectile.Type);
             if (!projectile.HasEnemyCollisionPayload ||
                 unchecked((short)projectile.Type) >= 0 ||
                 typeNibble >= 3)

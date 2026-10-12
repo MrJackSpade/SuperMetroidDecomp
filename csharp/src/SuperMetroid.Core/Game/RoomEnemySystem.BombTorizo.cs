@@ -294,7 +294,7 @@ public sealed partial class RoomEnemySystem
         // $84:8000 selects one of eight 16-color rows using bits 11..14 of health, clamping
         // the upper half to row seven. Deriving the row start algebraically preserves the
         // original descending copy while keeping the loop natural for debugger inspection.
-        int selector = (health >> 8) & 0x78;
+        int selector = (SnesLittleEndian.HighByte(health)) & 0x78;
         if ((selector & 0x40) != 0)
             selector = 56;
         int sourceWord = selector * 2;

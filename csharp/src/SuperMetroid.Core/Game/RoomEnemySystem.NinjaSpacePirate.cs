@@ -621,7 +621,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemyProjectileSlot projectile,
         Position16<RoomPixels> camera)
     {
-        int pixels = projectile.Variable0 >> 8;
+        int pixels = SnesLittleEndian.HighByte(projectile.Variable0);
         bool outbound = projectile.Variable1 != 0;
         bool thrownRight = ClosedNativeWords.Decode<EnemyProjectilePreInstruction>(
             projectile.PreInstruction, "enemy-projectile pre-instruction") ==

@@ -21,7 +21,7 @@ internal static partial class Program
             // $88:E5CF-E63E/$E65A-E6C9, including the final AND $FF00 / XBA.
             int magnitude = Math.Abs((int)sample);
             int low = magnitude & 255, high = magnitude >> 8;
-            int amplitudeLow = amplitude & 255, amplitudeHigh = amplitude >> 8;
+            int amplitudeLow = SnesLittleEndian.LowByte(amplitude), amplitudeHigh = SnesLittleEndian.HighByte(amplitude);
             ushort temp16 = (ushort)((low * amplitudeLow >> 8) + high * amplitudeLow);
             ushort temp18 = (ushort)(low * amplitudeHigh);
             temp16 = unchecked((ushort)(temp16 + temp18));

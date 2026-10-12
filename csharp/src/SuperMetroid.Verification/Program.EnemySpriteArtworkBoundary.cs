@@ -30,8 +30,8 @@ internal static partial class Program
             { (128, 96, false), (511, 1, true), (0, ushort.MaxValue, true) })
         {
             var expected = new OamBuffer(); var actual = new OamBuffer();
-            DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (y & 0xff00) == 0 });
-            drawEnemy.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (y & 0xff00) == 0 }]);
+            DrawImportedEnemySpritemap(source, expected, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 });
+            drawEnemy.Invoke(enemies, [actual, new EnemySpritemapDraw { Bank = frame.Bank, Pointer = frame.Pointer, Origin = new Position16<OamPixels>(x, y), PaletteBits = 0x0a00, BaseTileIndex = 0x01ff, ClipVerticalWrap = clip, OriginYIsOnScreen = (SnesLittleEndian.HighByteInPlace(y)) == 0 }]);
             Equal(expected, actual, $"enemy {frame.Name}");
             enemyCases++;
 
@@ -60,7 +60,7 @@ internal static partial class Program
             roomSlot.SpritemapPointer = EnemyProjectileSpritemapDefinitions.BlankSpritemap;
             roomSlot.Position = roomSlot.Position.WithWhole(new(x, y)); roomSlot.GraphicsIndex = 0x0a04;
             var expected = new OamBuffer(); var actual = new OamBuffer();
-            DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(x, y), 0x0a04, (y & 0xff00) == 0);
+            DrawImportedEnemyProjectileSpritemap(source, expected, pointer, new(x, y), 0x0a04, (SnesLittleEndian.HighByteInPlace(y)) == 0);
             drawProjectile.Invoke(enemies, [actual, Position16<RoomPixels>.Zero, EnemyProjectileDrawPriority.High, false]);
             Equal(expected, actual, $"room projectile {frame.Name}");
 
@@ -93,7 +93,7 @@ internal static partial class Program
             ushort Read(string property) => (ushort)actor.GetType().GetProperty(property)!.GetValue(actor)!;
             var position = (Position16<RoomPixels>)actor.GetType().GetProperty("Position")!.GetValue(actor)!;
             DrawImportedEnemyProjectileSpritemap(source, elevatorExpected, Read("SpritemapPointer"),
-                position.ToScreen(Position16<RoomPixels>.Zero).ToOam(), Read("GraphicsIndex"), (position.Y & 0xff00) == 0);
+                position.ToScreen(Position16<RoomPixels>.Zero).ToOam(), Read("GraphicsIndex"), (SnesLittleEndian.HighByteInPlace(position.Y)) == 0);
         }
         Equal(elevatorExpected, elevatorActual, "Ceres elevator owner ordering and placements");
 

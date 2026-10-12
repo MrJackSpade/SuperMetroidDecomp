@@ -320,7 +320,7 @@ public sealed class ScrollBoundaryCamera
             }
 
             proposed = candidate;
-            int candidateRightCell = row + (proposed >> 8) + 1;
+            int candidateRightCell = row + (SnesLittleEndian.HighByte(proposed)) + 1;
             SetWholeX(Scrolls.ReadNativeState(candidateRightCell) != RoomScrollState.RedBoundary
                 ? proposed
                 : ScreenStart(proposed));
@@ -342,7 +342,7 @@ public sealed class ScrollBoundaryCamera
         }
 
         proposed = leftCandidate;
-        int candidateCell = row + (proposed >> 8);
+        int candidateCell = row + (SnesLittleEndian.HighByte(proposed));
         SetWholeX(Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
             : NextScreenStart(proposed));
@@ -388,7 +388,7 @@ public sealed class ScrollBoundaryCamera
             }
 
             proposed = candidate;
-            int belowCandidate = ((candidate >> 8) + 1) * Scrolls.Size.X + centeredXScreen;
+            int belowCandidate = ((SnesLittleEndian.HighByte(candidate)) + 1) * Scrolls.Size.X + centeredXScreen;
             SetWholeY(Scrolls.ReadNativeState(belowCandidate) != RoomScrollState.RedBoundary
                 ? proposed
                 : ScreenStart(proposed));
@@ -414,7 +414,7 @@ public sealed class ScrollBoundaryCamera
         }
 
         proposed = upwardCandidate;
-        int candidateCell = (upwardCandidate >> 8) * Scrolls.Size.X + centeredXScreen;
+        int candidateCell = (SnesLittleEndian.HighByte(upwardCandidate)) * Scrolls.Size.X + centeredXScreen;
         SetWholeY(Scrolls.ReadNativeState(candidateCell) != RoomScrollState.RedBoundary
             ? proposed
             : NextScreenStart(proposed));
@@ -559,7 +559,7 @@ public sealed class ScrollBoundaryCamera
     private static int SignedDifference(ushort left, ushort right) => unchecked((short)(left - right));
 
     /// <summary>The first pixel of the 256-pixel scroll screen holding <paramref name="pixel"/> (the AND #$FF00 alignment).</summary>
-    private static ushort ScreenStart(ushort pixel) => (ushort)(pixel & 0xff00);
+    private static ushort ScreenStart(ushort pixel) => (ushort)(SnesLittleEndian.HighByteInPlace(pixel));
 
     /// <summary>The first pixel of the following scroll screen, wrapping at sixteen bits.</summary>
     private static ushort NextScreenStart(ushort pixel) => unchecked((ushort)(ScreenStart(pixel) + 0x0100));

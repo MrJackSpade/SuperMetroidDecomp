@@ -91,7 +91,7 @@ public static class SamusInsideBlockReactions
                             // The original compares the middle word of the 16.16 speed.
                             if ((ushort)(SnesEightEight.WholeOf(body.VerticalSpeedFixed)) > limit)
                             {
-                                body.YSpeed = (ushort)(limit >> 8);
+                                body.YSpeed = (ushort)(SnesLittleEndian.HighByte(limit));
                                 body.YSubspeed = unchecked((ushort)(limit << 8));
                             }
                             SetExtra(SnesEightEight.FromWhole(physics.MovingDisplacement));

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -193,7 +194,7 @@ public sealed partial class RoomEnemySystem
         // The table stores +whole,+fraction,-whole,-fraction. Reading both signed records
         // retains retail's independently encoded negative fraction rather than negating a
         // host 32-bit value and accidentally repairing a possible ROM rounding quirk.
-        ushort speedOffset = unchecked((ushort)((slot.Parameter2 >> 8) * 8));
+        ushort speedOffset = unchecked((ushort)((SnesLittleEndian.HighByte(slot.Parameter2)) * 8));
         (short positiveWhole, ushort positiveFraction) = ReadLinearEnemySpeed(speedOffset);
         (short negativeWhole, ushort negativeFraction) = ReadLinearEnemySpeed(
             unchecked((ushort)(speedOffset + 4)));

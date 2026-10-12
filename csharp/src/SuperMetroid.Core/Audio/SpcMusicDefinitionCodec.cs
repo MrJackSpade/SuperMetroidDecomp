@@ -98,7 +98,7 @@ internal static class SpcMusicDefinitionCodec
             switch (instruction.Operation)
             {
                 case AudioMusicInstructionOperations.PlayPhrase:
-                    if ((instruction.Value >> 8) < SpcDriverData.Music.PatternPointerHighByteMinimum ||
+                    if ((SnesLittleEndian.HighByte(instruction.Value)) < SpcDriverData.Music.PatternPointerHighByteMinimum ||
                         instruction.Target is not null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
@@ -122,7 +122,7 @@ internal static class SpcMusicDefinitionCodec
                     WriteWord(bytes, instruction.Value);
                     break;
                 case AudioMusicInstructionOperations.Repeat:
-                    if ((instruction.Value >> 8) != 0 || instruction.Value == 0 ||
+                    if ((SnesLittleEndian.HighByte(instruction.Value)) != 0 || instruction.Value == 0 ||
                         MusicTrackControls.TryDecode(instruction.Value, out _) || instruction.Target is null)
                         throw InvalidTrackInstruction(track, instruction);
                     WriteWord(bytes, instruction.Value);
@@ -254,7 +254,7 @@ internal static class SpcMusicDefinitionCodec
         for (int count = 0; count < SpcDriverData.ApuRamSize; count++)
         {
             ushort value = ReadWord(ram, written, ref cursor, id);
-            if ((value >> 8) >= SpcDriverData.Music.PatternPointerHighByteMinimum)
+            if ((SnesLittleEndian.HighByte(value)) >= SpcDriverData.Music.PatternPointerHighByteMinimum)
             {
                 instructions.Add(new(AudioMusicInstructionOperations.PlayPhrase, value, null));
                 phrases.Add(value);

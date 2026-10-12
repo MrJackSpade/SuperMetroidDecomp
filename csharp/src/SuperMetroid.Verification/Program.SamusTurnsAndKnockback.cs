@@ -246,7 +246,7 @@ static void VerifySamusAerialTurnsAndWallJump()
     AssertEqual(0x0a, earlyContact.AnimationFrame, "early wall contact rewinds to frame A");
     // Carry clear at $90:90BD lets $90:90BF's vertical movement run and write its own
     // result; only a triggered launch publishes the wall-jump result.
-    AssertTrue((earlyContact.SolidVerticalCollisionResult & 0xff) != SamusVerticalCollisionResults.WallJump,
+    AssertTrue((SnesLittleEndian.LowByte(earlyContact.SolidVerticalCollisionResult)) != SamusVerticalCollisionResults.WallJump,
         "early wall contact does not publish launch collision result");
 
     // Merely holding Jump after the eligible frame is still contact, not a launch. In

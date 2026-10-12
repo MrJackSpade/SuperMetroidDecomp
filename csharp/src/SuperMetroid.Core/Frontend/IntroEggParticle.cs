@@ -30,7 +30,7 @@ internal sealed class IntroEggParticle
         if (!sprite.IsActive)
             return;
         if (sprite.PreInstructionPointer != IntroEggEffectDefinitions.Particle(
-                sprite.GeneralTimer & 0x00ff).PreInstruction)
+                SnesLittleEndian.LowByte(sprite.GeneralTimer)).PreInstruction)
         {
             throw new InvalidDataException(
                 $"Intro egg particle names invalid pre-instruction $8B:{sprite.PreInstructionPointer:X4}.");
@@ -39,10 +39,10 @@ internal sealed class IntroEggParticle
         // $A994 uses the low timer byte as the immutable fragment number and the high byte
         // as a gravity-table index. Each velocity is a signed 16.16 pair stored high-word
         // first in ROM, exactly matching the actor's whole/subposition addition order.
-        int xIndex = sprite.GeneralTimer & 0x00ff;
+        int xIndex = SnesLittleEndian.LowByte(sprite.GeneralTimer);
         AddSixteenSixteenVelocity(sprite, horizontal: true, IntroEggMotionDefinitions.FragmentX(xIndex));
 
-        int yIndex = sprite.GeneralTimer >> 8;
+        int yIndex = SnesLittleEndian.HighByte(sprite.GeneralTimer);
         AddSixteenSixteenVelocity(sprite, horizontal: false, IntroEggMotionDefinitions.FragmentY(yIndex));
         if (unchecked((short)(sprite.WholePosition.Y - 0x00a8)) >= 0)
         {

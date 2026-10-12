@@ -136,7 +136,7 @@ public static partial class SamusGrappleMovement
         ushort relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
-        if (!swinging && (relativeY & SamusGrappleRomData.Rendering.SegmentOutsideViewportMask) != 0)
+        if (!swinging && (SnesLittleEndian.HighByteInPlace(relativeY)) != 0)
             return;
 
         // Only the swinging routine omits SEC between its two SBC operations.

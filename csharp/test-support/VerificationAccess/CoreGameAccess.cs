@@ -439,7 +439,7 @@ internal static class EnemyPropertyFlagExtensionsAccess
     /// </summary>
     internal static EnemyProperties ReadFlagsChecked(this ushort word)
     {
-        ushort highByte = unchecked((ushort)(word & EnemyPropertyFlagExtensions.KnownPropertyFlagMask));
+        ushort highByte = unchecked((ushort)(SnesLittleEndian.HighByteInPlace(word)));
         EnemyProperties flags = (EnemyProperties)highByte;
         if ((highByte & ~(ushort)(EnemyProperties.Invisible |
                 EnemyProperties.Deleted |

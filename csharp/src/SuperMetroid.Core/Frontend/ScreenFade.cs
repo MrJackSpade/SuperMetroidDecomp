@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
@@ -113,12 +114,12 @@ public sealed class ScreenFade
     private bool ConsumeSlowDelay()
     {
         byte next = unchecked((byte)(Delay - 1));
-        Delay = (ushort)((Delay & 0xff00) | next);
+        Delay = (ushort)((SnesLittleEndian.HighByteInPlace(Delay)) | next);
         return next is > 0 and < 0x80;
     }
 
     /// <summary>8-bit LDA $0725 : STA $0723.</summary>
-    private void ReloadSlowDelay() => Delay = (ushort)((Delay & 0xff00) | (Counter & 0xff));
+    private void ReloadSlowDelay() => Delay = (ushort)((SnesLittleEndian.HighByteInPlace(Delay)) | (SnesLittleEndian.LowByte(Counter)));
 
     /// <summary>8-bit STZ $0723 and $0725 on reaching the fade's end.</summary>
     private void ClearSlowTiming()

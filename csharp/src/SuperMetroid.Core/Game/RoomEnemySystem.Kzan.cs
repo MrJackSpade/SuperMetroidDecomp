@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Game;
 
 /// <summary>
@@ -160,7 +161,7 @@ public sealed partial class RoomEnemySystem
         // init0's low byte is a logical speed-table index. The 65C816 multiplies it by
         // eight with three ASLs and permits word wrapping; do the same before reading the
         // cartridge table. Retail values include $40, selecting its final NTSC entry.
-        ushort speedTableOffset = unchecked((ushort)((slot.Parameter1 & 0x00ff) << 3));
+        ushort speedTableOffset = unchecked((ushort)((SnesLittleEndian.LowByte(slot.Parameter1)) << 3));
         state.FallingYSpeedTableIndex = speedTableOffset;
         (short initialWhole, ushort initialFraction) = ReadLinearEnemySpeed(speedTableOffset);
         state.InitialFallingYSubspeed = initialFraction;
@@ -170,7 +171,7 @@ public sealed partial class RoomEnemySystem
         // low byte is the top wait countdown. A zero countdown deliberately wraps to $FFFF
         // on its first DEC rather than triggering immediately.
         state.FallingTargetYPosition = unchecked((ushort)(
-            slot.Position.Y.Whole + (slot.Parameter2 >> 8)));
+            slot.Position.Y.Whole + (SnesLittleEndian.HighByte(slot.Parameter2))));
         state.RisingTargetYPosition = slot.Position.Y.Whole;
         state.FallWaitTimerResetValue = unchecked((byte)slot.Parameter2);
         state.FallWaitTimer = state.FallWaitTimerResetValue;
@@ -235,7 +236,7 @@ public sealed partial class RoomEnemySystem
 
         state.FallWaitTimer = state.FallWaitTimerResetValue;
         state.FallingYSpeedTableIndex = unchecked((ushort)(
-            (slot.Parameter1 & 0x00ff) << 3));
+            (SnesLittleEndian.LowByte(slot.Parameter1)) << 3));
         state.Function = KzanEnemyFunction.Falling;
     }
 

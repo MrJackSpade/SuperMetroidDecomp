@@ -262,7 +262,7 @@ public sealed partial class RoomEnemySystem
     {
         RoomEnemySlot tentacles = state.Tentacles!;
         bool restoreHealthPalette = body.FlashTimer == 8 ||
-            (body.FrameCounter & 2) == 0 && (tentacles.Parameter2 & 0xff00) != 0;
+            (body.FrameCounter & 2) == 0 && (SnesLittleEndian.HighByteInPlace(tentacles.Parameter2)) != 0;
         if (restoreHealthPalette)
         {
             CopyPhantoonHealthPalette(body);
@@ -270,7 +270,7 @@ public sealed partial class RoomEnemySystem
             return;
         }
 
-        if ((body.FrameCounter & 2) == 0 || (tentacles.Parameter2 & 0xff00) != 0)
+        if ((body.FrameCounter & 2) == 0 || (SnesLittleEndian.HighByteInPlace(tentacles.Parameter2)) != 0)
             return;
 
         BossPalettes.PhantoonBody.Fill(Bgr555.White);

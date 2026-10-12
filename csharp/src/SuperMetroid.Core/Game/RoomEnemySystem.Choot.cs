@@ -169,7 +169,7 @@ public sealed partial class RoomEnemySystem
         // The SNES multiplier consumes only the low bytes. Retail loop counts are nonzero,
         // but byte multiplication also preserves the native result for debugger corruption.
         ushort jumpHeight = unchecked((ushort)(
-            (slot.Parameter1 & 0x00ff) * (state.FallingPatternYDistance & 0x00ff)));
+            (SnesLittleEndian.LowByte(slot.Parameter1)) * (SnesLittleEndian.LowByte(state.FallingPatternYDistance))));
         state.InitialYSpeedTableIndex = CalculateInitialChootYSpeedTableIndex(jumpHeight);
         state.InitialFallingPosition = state.SpawnPosition.WithY(unchecked((ushort)(
             state.SpawnPosition.Y - jumpHeight)));
@@ -255,14 +255,14 @@ public sealed partial class RoomEnemySystem
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternIndex = 0;
         state.FallingPatternLoopCounter = unchecked((ushort)(
-            (slot.Parameter1 & 0x00ff) - 1));
+            (SnesLittleEndian.LowByte(slot.Parameter1)) - 1));
         SetChootInstructionList(slot, ChootInstructionProgramDefinitions.Falling);
         state.Function = ChootEnemyFunction.Falling;
     }
 
     private static void RunChootFall(RoomEnemySlot slot, ChootEnemyState state)
     {
-        int frameIndex = (state.FallingPatternIndex >> 8) & 0xff;
+        int frameIndex = (SnesLittleEndian.HighByte(state.FallingPatternIndex)) & 0xff;
         ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
             state.FallingPatternPointer,
             frameIndex);
@@ -298,7 +298,7 @@ public sealed partial class RoomEnemySystem
         for (int iteration = 0; iteration < 128; iteration++)
         {
             encodedIndex = unchecked((ushort)(encodedIndex + 0x0200));
-            ushort tableIndex = unchecked((ushort)(encodedIndex >> 8));
+            ushort tableIndex = unchecked((ushort)(SnesLittleEndian.HighByte(encodedIndex)));
             accumulatedDistance = unchecked(accumulatedDistance +
                 (uint)ReadQuadraticEnemySpeed(tableIndex, negative: false));
             ushort wholeDistance = SnesFixedPosition.WholeOf(unchecked((int)accumulatedDistance));

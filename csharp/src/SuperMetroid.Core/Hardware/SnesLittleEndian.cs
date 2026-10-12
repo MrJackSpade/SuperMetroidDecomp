@@ -23,6 +23,12 @@ public static class SnesLittleEndian
     /// <summary>The 16-bit word whose low byte is <paramref name="low"/> and high byte is <paramref name="high"/>.</summary>
     public static ushort Word(byte low, byte high) => (ushort)(low | high << BitsPerByte);
 
+    /// <summary>The byte stored first (at the word's address): a packed word's low byte field.</summary>
+    public static byte LowByte(ushort word) => unchecked((byte)word);
+
+    /// <summary>A packed word's high byte field kept in place, the low byte cleared.</summary>
+    public static int HighByteInPlace(ushort word) => word & 0xff00;
+
     /// <summary>The byte stored second (at the word's address + 1).</summary>
     public static byte HighByte(ushort word) => unchecked((byte)(word >> BitsPerByte));
 

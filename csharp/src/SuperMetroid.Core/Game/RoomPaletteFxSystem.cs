@@ -369,7 +369,7 @@ public sealed class RoomPaletteFxSystem
                 case PaletteFxInstruction.SetTimer:
                     // The assembly writes only the low byte addressed by the physical
                     // object index. The high byte was cleared at spawn and remains intact.
-                    slot.Timer = (ushort)((slot.Timer & 0xff00) |
+                    slot.Timer = (ushort)((SnesLittleEndian.HighByteInPlace(slot.Timer)) |
                         ReadBank8dByte(unchecked((ushort)(cursor + 2))));
                     cursor = unchecked((ushort)(cursor + 3));
                     break;

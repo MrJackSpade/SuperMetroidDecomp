@@ -24,12 +24,12 @@ internal static partial class Program
             var installedOam = new OamBuffer();
             nativeOam.BeginFrame();
             installedOam.BeginFrame();
-            bool onScreen = (originY & 0xff00) == 0;
+            bool onScreen = (SnesLittleEndian.HighByteInPlace(originY)) == 0;
             DrawImportedEnemyProjectileSpritemap(bus, nativeOam, pointer,
                 new(originX, originY), graphicsIndex, onScreen);
             installedOam.AddEnemySpritemap(installed.Get(pointer).Span,
                 new Position16<OamPixels>(originX, originY),
-                unchecked((ushort)(graphicsIndex & 0xff00)),
+                unchecked((ushort)(SnesLittleEndian.HighByteInPlace(graphicsIndex))),
                 unchecked((byte)graphicsIndex),
                 clipVerticalWrap: true, originYIsOnScreen: onScreen);
             AssertEqual(nativeOam.NextByteOffset, installedOam.NextByteOffset,

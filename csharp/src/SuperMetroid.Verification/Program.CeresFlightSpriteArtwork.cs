@@ -17,7 +17,7 @@ internal static partial class Program
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
-                    (y & CinematicSpriteDrawDefinitions.OriginYHighByteMask) == 0;
+                    ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
                     IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
                 var native = new OamBuffer();

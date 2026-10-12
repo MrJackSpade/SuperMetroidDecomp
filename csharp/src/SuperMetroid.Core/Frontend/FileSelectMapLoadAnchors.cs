@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Game;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
@@ -24,8 +25,8 @@ public static class FileSelectMapLoadAnchors
         LoadStationEntry station = LoadStationDefinitions.Get(area, (byte)stationIndex);
         RoomHeaderDefinition room = RoomHeaderDefinitions.Get(station.RoomPointer);
         Position16<RoomPixels> samus = station.SamusPosition;
-        return new((ushort)((room.MapPosition.X + (samus.X >> 8)) << 3),
-            (ushort)((room.MapPosition.Y + (samus.Y >> 8) + 1) << 3));
+        return new((ushort)((room.MapPosition.X + (SnesLittleEndian.HighByte(samus.X))) << 3),
+            (ushort)((room.MapPosition.Y + (SnesLittleEndian.HighByte(samus.Y)) + 1) << 3));
     }
 }
 

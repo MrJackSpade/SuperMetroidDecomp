@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -293,7 +294,7 @@ public sealed partial class RoomEnemySystem
     {
         int byteAngle = angle & 255;
         int sample = EnemyTrigonometryTables.SignedSine((byte)(byteAngle & 127));
-        int magnitude = ((sample & 255) * (radius & 255) >> 8) + (sample >> 8) * (radius & 255);
+        int magnitude = ((sample & 255) * (SnesLittleEndian.LowByte(radius)) >> 8) + (sample >> 8) * (SnesLittleEndian.LowByte(radius));
         return byteAngle < 128 ? magnitude : -magnitude;
     }
 

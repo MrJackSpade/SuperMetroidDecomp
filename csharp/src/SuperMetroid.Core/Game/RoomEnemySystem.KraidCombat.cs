@@ -132,7 +132,7 @@ public sealed partial class RoomEnemySystem
             if ((state.MouthFlags & 4) != 0)
             {
                 state.MouthFlags = unchecked((ushort)(state.MouthFlags - 0x0100));
-                if ((state.MouthFlags & 0xff00) != 0)
+                if ((SnesLittleEndian.HighByteInPlace(state.MouthFlags)) != 0)
                 {
                     body.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
                     body.VariableF = 64;
@@ -217,7 +217,7 @@ public sealed partial class RoomEnemySystem
         if ((state.MouthFlags & 4) != 0)
         {
             state.MouthFlags = unchecked((ushort)(state.MouthFlags - 0x0100));
-            if ((state.MouthFlags & 0xff00) != 0)
+            if ((SnesLittleEndian.HighByteInPlace(state.MouthFlags)) != 0)
             {
                 body.VariableA = (ushort)KraidAiFunction.HandleFunctionTimer;
                 body.VariableF = 64;

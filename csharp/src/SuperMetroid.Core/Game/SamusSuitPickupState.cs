@@ -341,7 +341,7 @@ public sealed class SamusSuitPickupState
     private void StepLightBeamDissipates()
     {
         byte left = unchecked((byte)(LightBeamPosition + 8));
-        byte right = unchecked((byte)((LightBeamPosition >> 8) - 8));
+        byte right = unchecked((byte)((SnesLittleEndian.HighByte(LightBeamPosition)) - 8));
         LightBeamPosition = unchecked((ushort)(SnesLittleEndian.Word(left, right)));
         _windowTable[128] = LightBeamPosition;
         if (unchecked((sbyte)(left - 112)) >= 0)

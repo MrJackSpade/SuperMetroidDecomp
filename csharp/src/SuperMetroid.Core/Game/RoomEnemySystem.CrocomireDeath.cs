@@ -244,7 +244,7 @@ public sealed partial class RoomEnemySystem
         int subpositionSum = subpositionHigh + speedFraction;
         subpositionHigh = unchecked((byte)subpositionSum);
         state.ProjectileCounter = unchecked((ushort)(
-            (state.ProjectileCounter & 0x00ff) | (subpositionHigh << 8)));
+            (SnesLittleEndian.LowByte(state.ProjectileCounter)) | (subpositionHigh << 8)));
         int yDelta = speedWhole + (subpositionSum > 0xff ? 1 : 0);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + yDelta)));
     }
@@ -264,7 +264,7 @@ public sealed partial class RoomEnemySystem
         UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
         int acceleration = state.StepCounter + 0x0100;
         state.StepCounter = unchecked((ushort)Math.Min(acceleration, 0x1f00));
-        int accelerationWhole = state.StepCounter >> 8;
+        int accelerationWhole = SnesLittleEndian.HighByte(state.StepCounter);
 
         byte speedFraction = (byte)state.ReactionTimer;
         bool speedBorrow = speedFraction < accelerationWhole;
@@ -281,7 +281,7 @@ public sealed partial class RoomEnemySystem
         bool subpositionBorrow = subpositionHigh < speedFraction;
         subpositionHigh = unchecked((byte)(subpositionHigh - speedFraction));
         state.ProjectileCounter = unchecked((ushort)(
-            (state.ProjectileCounter & 0x00ff) | (subpositionHigh << 8)));
+            (SnesLittleEndian.LowByte(state.ProjectileCounter)) | (subpositionHigh << 8)));
         int yDelta = speedWhole + (subpositionBorrow ? 1 : 0);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - yDelta)));
     }

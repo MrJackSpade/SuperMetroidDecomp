@@ -198,7 +198,7 @@ public sealed partial class RoomEnemySystem
         // A standalone projectile pass has no bomb owner, which is the radius-zero case.
         if (_audioPowerBomb is not { } powerBomb)
             return;
-        int horizontalRadius = powerBomb.ExplosionRadius >> 8;
+        int horizontalRadius = SnesLittleEndian.HighByte(powerBomb.ExplosionRadius);
         if (horizontalRadius == 0)
             return;
         // `LSR; ADC $12; LSR` carries the first shift's low bit into the addition.

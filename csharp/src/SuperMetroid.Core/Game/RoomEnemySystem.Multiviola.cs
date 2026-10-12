@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Game;
@@ -112,7 +113,7 @@ public sealed partial class RoomEnemySystem
         RoomEnemySlot slot,
         MultiviolaEnemyState state)
     {
-        ushort magnitude = (ushort)(slot.Parameter2 & 0x00ff);
+        ushort magnitude = (ushort)(SnesLittleEndian.LowByte(slot.Parameter2));
         int xProduct = ReadUnsignedSineMagnitudeProduct(
             slot.Parameter1,
             magnitude,

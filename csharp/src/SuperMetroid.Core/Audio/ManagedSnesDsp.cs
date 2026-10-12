@@ -118,7 +118,7 @@ public sealed class ManagedSnesDsp
                     (SnesDspRegisterMap.Fields.PitchHighMask << 8)) | value));
                 break;
             case DspVoiceRegister.PitchHigh:
-                voice.Pitch = unchecked((ushort)(((voice.Pitch & byte.MaxValue) | (value << 8)) &
+                voice.Pitch = unchecked((ushort)(((SnesLittleEndian.LowByte(voice.Pitch)) | (value << 8)) &
                     SnesDspRegisterMap.Fields.PitchMask));
                 break;
             case DspVoiceRegister.SourceNumber:

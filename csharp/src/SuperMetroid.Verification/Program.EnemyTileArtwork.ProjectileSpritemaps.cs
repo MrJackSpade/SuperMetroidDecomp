@@ -999,8 +999,8 @@ internal static partial class Program
         new CartridgeReadGuard(source).Forbid(address =>
             {
                 ushort low = unchecked((ushort)address);
-                return (address & 0xff0000) == 0x8d0000 ||
-                    (address & 0xff0000) == 0x860000 &&
+                return (SnesAddressMath.BankBase(address)) == 0x8d0000 ||
+                    (SnesAddressMath.BankBase(address)) == 0x860000 &&
                     (EnemyProjectilePresentationFrameDefinitions.Contains(low) ||
                      EnemyProjectilePresentationFrameDefinitions.Contains(
                          unchecked((ushort)(low - 1))) ||

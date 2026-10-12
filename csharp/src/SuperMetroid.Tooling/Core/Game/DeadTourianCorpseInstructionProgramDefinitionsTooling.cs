@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -11,7 +12,7 @@ internal abstract class DeadTourianCorpseInstructionProgramDefinitionsTooling : 
     internal static ushort PresentationWordAddress(int index) => (ushort)(DeadTourianCorpseInstructionProgramDefinitions.Program(index)+2);
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa90000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa90000)
             return false;
 
         ushort bankAddress = unchecked((ushort)address);

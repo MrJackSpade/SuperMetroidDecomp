@@ -155,7 +155,7 @@ internal static partial class Program
         var guard = new CartridgeReadGuard(source)
             .Forbid(NorfairLavaJumperInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled lava-jumper mechanics byte ${address:X6}.");
-        return guard.Observe(address => (address & 0xff0000) == 0xa20000, address =>
+        return guard.Observe(address => (SnesAddressMath.BankBase(address)) == 0xa20000, address =>
         {
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0;

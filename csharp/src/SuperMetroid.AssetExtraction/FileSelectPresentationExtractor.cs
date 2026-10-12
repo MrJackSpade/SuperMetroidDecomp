@@ -229,7 +229,7 @@ public static class FileSelectPresentationExtractor
         while (true)
         {
             ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            address = FileSelectTilemapFormat.Bank | ((address + 2) & 0xffff);
+            address = FileSelectTilemapFormat.Bank | (SnesAddressMath.OffsetInBank(address + 2));
             if (word == FileSelectTilemapFormat.End)
                 return new(cells.ToArray());
             if (word == FileSelectTilemapFormat.NextRow)

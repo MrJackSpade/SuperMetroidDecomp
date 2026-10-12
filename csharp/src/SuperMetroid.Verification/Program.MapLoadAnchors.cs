@@ -207,8 +207,8 @@ internal static partial class Program
         int record = 0x800000 | (list + station * 14);
         int room = 0x8f0000 | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record);
         AssertEqual((byte)area, bus.ReadCartridgeByte(room + 1), "valid saved-map station remains in its requested area");
-        int worldX = (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6) + 128 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 12)) & ushort.MaxValue;
-        int worldY = (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8) + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 10)) & ushort.MaxValue;
+        int worldX = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 6) + 128 + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 12));
+        int worldY = SnesAddressMath.OffsetInBank(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 8) + RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), record + 10));
         return new((ushort)((bus.ReadCartridgeByte(room + 2) + (worldX >> 8)) << 3),
             (ushort)((bus.ReadCartridgeByte(room + 3) + (worldY >> 8) + 1) << 3));
     }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -21,7 +22,7 @@ internal abstract class ElevatorInstructionProgramDefinitionsTooling : IInstruct
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
         int offset = unchecked((ushort)address) - ElevatorInstructionProgramDefinitions.Loop;
         return (uint)offset < 12 && (offset >= 8 || offset % 4 < 2);
     }

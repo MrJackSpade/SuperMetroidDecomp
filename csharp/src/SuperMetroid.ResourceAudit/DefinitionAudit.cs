@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Game;
 
@@ -49,8 +50,8 @@ internal static class DefinitionAudit
         {
             CompiledEnemyVisualSelector selector = CompiledEnemyVisualSelectorsTooling.At(index);
             exports.Add(ResourceDomains.CompiledSelector,
-                ResourceIndex.Address(selector.Address >> 16, selector.Address & 0xffff));
-            int bank = selector.Address >> 16;
+                ResourceIndex.Address(SnesAddressMath.BankNumber(selector.Address), SnesAddressMath.OffsetInBank(selector.Address)));
+            int bank = SnesAddressMath.BankNumber(selector.Address);
             string source = SelectorSource(root, bank, selector.Address);
             if (bank == ResourceBanks.EnemyProjectilePrograms)
             {

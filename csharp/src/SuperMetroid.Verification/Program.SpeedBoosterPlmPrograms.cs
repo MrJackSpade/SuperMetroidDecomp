@@ -209,8 +209,8 @@ internal static partial class Program
     private static CartridgeReadGuard NewSpeedBoosterPlmReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
             {
-                int pointer = address & 0xffff;
-                return (address >> 16) == 0x84 &&
+                int pointer = SnesAddressMath.OffsetInBank(address);
+                return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     ((pointer >= 0xc928 && pointer < 0xc92e) ||
                      (pointer >= 0xc951 && pointer < 0xc9ba) ||
                      (pointer >= 0xc9cf && pointer < 0xc9f9) ||

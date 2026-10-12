@@ -41,7 +41,7 @@ internal static partial class Program
             for (ushort index = 0; index <= 10; index++)
             {
                 int address = 0x910000 | unchecked((ushort)(pointer + index));
-                byte expected = (address & 0xffff) < 0x8000
+                byte expected = (SnesAddressMath.OffsetInBank(address)) < 0x8000
                     ? bus.ReadUncompiledByte(address)
                     : rom.ReadCartridgeByte(address);
                 AssertEqual(expected, speed.ReadSpeedBoosterAnimationByte(bus, index), "Native Max6 cadence byte selection");
@@ -217,7 +217,7 @@ internal static partial class Program
             SnesDmaSourceKind.SaveRam => SourceMemory.ReadSaveRamByte(address),
             SnesDmaSourceKind.Cartridge => source.ReadCartridgeByte(address),
             _ => throw new InvalidOperationException(
-                $"CPU read ${address >> 16:X2}:{address & 0xffff:X4} is outside the runtime address map."),
+                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };
     }
 }

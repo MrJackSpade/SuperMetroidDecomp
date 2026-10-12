@@ -35,8 +35,7 @@ public sealed partial class ManagedSpcPlayer
 
     /// <summary>The little-endian pointer word at <paramref name="address"/>; the high byte wraps at 16 bits.</summary>
     [SpcMemoryBoundary("driver-memory view: little-endian pointer words")]
-    private ushort ReadWord(int address) => unchecked((ushort)(
-        SnesLittleEndian.Word(ram[address & ushort.MaxValue], ram[(address + 1) & ushort.MaxValue])));
+    private ushort ReadWord(int address) => SpcRamWords.Read(ram, address);
 
     /// <summary>Entry <paramref name="index"/> of the pointer table at <paramref name="table"/> (two bytes per entry).</summary>
     [SpcMemoryBoundary("driver-memory view: pointer tables")]

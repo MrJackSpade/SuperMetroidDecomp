@@ -219,7 +219,7 @@ internal static partial class Program
 
     private static bool IsFakeKraidSelectorByte(int address)
     {
-        if ((address & 0xff0000) != 0xa60000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa60000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
         for (int index = 0; index < FakeKraidInstructionProgramDefinitionsTooling.PresentationWordCount; index++)

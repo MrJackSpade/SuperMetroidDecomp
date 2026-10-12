@@ -215,7 +215,7 @@ internal static partial class Program
     private static CartridgeReadGuard NewMagdolliteInstructionProgramGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => MagdolliteInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                (address & 0xff0000) == 0xa80000 &&
+                (SnesAddressMath.BankBase(address)) == 0xa80000 &&
                 (MagdolliteInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)address)) ||
                  MagdolliteInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)(address - 1)))),
             address => $"Production read compiled Magdollite instruction byte ${address:X6}.");

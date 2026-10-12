@@ -783,7 +783,7 @@ internal static partial class Program
         var guard = new MutableCartridgeReadGuard(source);
         guard.Forbid(blocked.Contains,
                 address => $"Installed frontend reread BG2 visual stream byte ${address:X6}.")
-            .Forbid(address => address >> 16 is not (0x7e or 0x7f) && (address & 0x8000) != 0,
+            .Forbid(address => SnesAddressMath.BankNumber(address) is not (0x7e or 0x7f) && (address & 0x8000) != 0,
                 address => $"Installed frontend reread cartridge byte ${address:X6}.");
         return guard;
     }

@@ -21,7 +21,7 @@ internal static partial class Program
         Suite(nameof(VerifyFuneNamiheFireballVisualSelectors), () => VerifyFuneNamiheFireballVisualSelectors(rom));
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
-            address => (address & 0xff0000) == 0x860000 && (uint)(unchecked((ushort)address) - 0xde96) < 32,
+            address => (SnesAddressMath.BankBase(address)) == 0x860000 && (uint)(unchecked((ushort)address) - 0xde96) < 32,
             address => $"Production read compiled Fune/Namihe mechanics byte ${address:X6}.");
         var observedVisuals = new HashSet<ushort>();
         var enemies = new RoomEnemySystem();

@@ -154,7 +154,7 @@ internal class CartridgeReadGuard : ISnesMemoryBus, IImportCartridgeSource
 
     private static ushort? FindWord(int address, int bankBase, int count, Func<int, ushort> wordAddress)
     {
-        if ((address & 0xff0000) != bankBase)
+        if ((SnesAddressMath.BankBase(address)) != bankBase)
             return null;
         ushort bankAddress = unchecked((ushort)address);
         for (int index = 0; index < count; index++)

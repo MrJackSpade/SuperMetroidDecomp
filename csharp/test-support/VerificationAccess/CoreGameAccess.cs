@@ -118,7 +118,7 @@ internal static class CeresBabyInstructionProgramDefinitionsAccess
     {
         internal static bool IsCompiledSpritemapByte(int address)
         {
-            if ((address & 0xff0000) != 0xa60000)
+            if ((SnesAddressMath.BankBase(address)) != 0xa60000)
                 return false;
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0; index < CeresBabyInstructionProgramDefinitions.SpritemapOperandCount; index++)
@@ -132,7 +132,7 @@ internal static class CeresBabyInstructionProgramDefinitionsAccess
 
         internal static bool IsCompiledPaletteByte(int address)
         {
-            if ((address & 0xff0000) != 0xa60000)
+            if ((SnesAddressMath.BankBase(address)) != 0xa60000)
                 return false;
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0; index < CeresBabyInstructionProgramDefinitions.PaletteOperandCount; index++)
@@ -162,7 +162,7 @@ internal static class CeresEscapeVramTransferDefinitionsAccess
     {
         internal static bool IsDescriptorByteAddress(int address)
         {
-            if ((address & 0xff0000) != 0xa60000)
+            if ((SnesAddressMath.BankBase(address)) != 0xa60000)
                 return false;
             ushort offset = unchecked((ushort)address);
             foreach (CeresEscapeVramTransferDefinition record in PrivateState.StaticField<IReadOnlyList<CeresEscapeVramTransferDefinition>>(typeof(CeresEscapeVramTransferDefinitions), "Records"))
@@ -720,8 +720,8 @@ internal static class InstructionProgramLayoutAccess
         internal bool TryGetPresentationWord(int longAddress, out ushort wordAddress)
         {
             wordAddress = 0;
-            if (longAddress >> 16 != self.Bank) return false;
-            int bankAddress = longAddress & ushort.MaxValue;
+            if (SnesAddressMath.BankNumber(longAddress) != self.Bank) return false;
+            int bankAddress = SnesAddressMath.OffsetInBank(longAddress);
             // Words never overlap, so the byte belongs to the word starting one byte before it or at it.
             object?[] containing = [bankAddress, null, null];
             if ((bool)PrivateState.InvokeWithOut(self, "TryWordContaining", containing)! &&
@@ -1006,7 +1006,7 @@ internal static class MotherBrainHandBeamInstructionProgramDefinitionsAccess
 
         internal static bool IsPresentationByte(int address)
         {
-            if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+            if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
             int bankAddress = (ushort)address;
             if (bankAddress < MotherBrainHandBeamInstructionProgramDefinitions.Initial || bankAddress >= PrivateState.StaticField<ushort>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "TerminalDelete")) return false;
             int offset = (bankAddress - MotherBrainHandBeamInstructionProgramDefinitions.Initial) % PrivateState.StaticField<int>(typeof(MotherBrainHandBeamInstructionProgramDefinitions), "StageBytes");
@@ -1133,7 +1133,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
 
         internal static bool IsCompiledMechanicsByte(int address)
         {
-            if ((address & 0xff0000) != 0xa90000) return false;
+            if ((SnesAddressMath.BankBase(address)) != 0xa90000) return false;
             int offset = (ushort)address - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
             return (uint)offset < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 && offset % 4 < 2 ||
                 offset >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 && offset < MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 + 4;
@@ -1142,7 +1142,7 @@ internal static class MotherBrainRoomPaletteProgramDefinitionsAccess
         internal static bool TryGetPresentationWord(int address, out ushort wordAddress)
         {
             wordAddress = 0;
-            if ((address & 0xff0000) != 0xa90000) return false;
+            if ((SnesAddressMath.BankBase(address)) != 0xa90000) return false;
             int offset = (ushort)address - MotherBrainRoomPaletteProgramDefinitions.FlashStart;
             if ((uint)offset >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount * 4 || offset % 4 < 2) return false;
             wordAddress = (ushort)(address & 0xfffe);
@@ -2286,7 +2286,7 @@ internal static class SkreeMetareeInstructionProgramDefinitionsAccess
     {
         internal static bool IsCompiledMechanicsByte(int address)
         {
-            if ((address & 0xff0000) != 0xa30000) return false;
+            if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
             ushort bankAddress = unchecked((ushort)address);
             for (int species = 0; species < 2; species++)
             for (int index = 0; index < 20; index++)

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -12,7 +13,7 @@ internal abstract class MagdolliteLavaInstructionProgramDefinitionsTooling : IIn
     public static ushort PresentationWordAddress(int index) => MagdolliteLavaInstructionProgramDefinitions.PresentationWordAddress(index);
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
             return false;
 
         ushort bankAddress = unchecked((ushort)address);

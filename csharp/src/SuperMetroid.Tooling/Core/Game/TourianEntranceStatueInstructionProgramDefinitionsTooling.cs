@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -10,7 +11,7 @@ internal abstract class TourianEntranceStatueInstructionProgramDefinitionsToolin
     public static InstructionMechanicsWord MechanicsWord(int index) => TourianEntranceStatueInstructionProgramDefinitions.MechanicsWord(index);
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000)
+        if ((SnesAddressMath.BankBase(address)) != 0xaa0000)
             return false;
 
         ushort bankAddress = unchecked((ushort)address);

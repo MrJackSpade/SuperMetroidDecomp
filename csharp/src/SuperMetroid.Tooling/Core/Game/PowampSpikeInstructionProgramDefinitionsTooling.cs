@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -17,8 +18,8 @@ internal abstract class PowampSpikeInstructionProgramDefinitionsTooling : IInstr
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int offset = (address & 0xffff) - PowampSpikeInstructionProgramDefinitions.Initial;
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
+        int offset = (SnesAddressMath.OffsetInBank(address)) - PowampSpikeInstructionProgramDefinitions.Initial;
         return offset >= 0 && PowampSpikeInstructionProgramDefinitions.TryRead((ushort)(PowampSpikeInstructionProgramDefinitions.Initial + (offset & ~1)), out _);
     }
 }

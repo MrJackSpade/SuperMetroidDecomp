@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -22,7 +23,7 @@ internal abstract class BombTorizoDroolInstructionProgramDefinitionsTooling : II
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = unchecked((ushort)address) - BombTorizoDroolInstructionProgramDefinitions.StreamStart;
         return (uint)offset < (ushort)BombTorizoDroolProgram.FloorImpact + 16 - BombTorizoDroolInstructionProgramDefinitions.StreamStart &&
             !BombTorizoDroolInstructionProgramDefinitions.IsPresentationWord((ushort)(BombTorizoDroolInstructionProgramDefinitions.StreamStart + (offset & ~1)));

@@ -23,7 +23,7 @@ internal static class ImportedSpritemapOracle
 
         // Native pointers wrap within their data bank. The immutable reference side
         // deliberately accepts only import data; live-memory OAM has separate APIs.
-        int BankOffset(int offset) => (address & 0xff0000) | ((address + offset) & 0xffff);
+        int BankOffset(int offset) => SnesAddressMath.AddWithinBank(address, offset);
         byte Byte(int offset) => source.ReadCartridgeByte(BankOffset(offset));
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         ushort count = Word(0);
@@ -55,7 +55,7 @@ internal static class ImportedSpritemapOracle
     {
         Ensure.NotNull(source);
         byte Byte(int offset) => source.ReadCartridgeByte(
-            ((int)new SnesAddress(bank, checked((ushort)((pointer + offset) & 0xffff)))));
+            ((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(pointer + offset))))));
         ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
         var parts = new EnemySpritemapPart[Word(0)];
         for (int part = 0; part < parts.Length; part++)

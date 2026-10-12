@@ -167,8 +167,8 @@ internal static partial class Program
         new MutableCartridgeReadGuard(source)
             .Forbid(address =>
             {
-                int pointer = address & 0xffff;
-                return (address >> 16) == 0x84 &&
+                int pointer = SnesAddressMath.OffsetInBank(address);
+                return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     ((pointer >= BotwoonWallPlmProgramDefinitions.Crumble &&
                       pointer < BotwoonWallPlmProgramDefinitions.CrumbleEndExclusive) ||
                      (pointer >= BotwoonWallPlmProgramDefinitions.Clear &&

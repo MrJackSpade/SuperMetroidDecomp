@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -21,7 +22,7 @@ internal abstract class GrowingShutterInstructionProgramDefinitionsTooling : IIn
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;
         int offset = unchecked((ushort)address) - GrowingShutterInstructionProgramDefinitions.TenPixels;
         return (uint)offset < 24 && (offset % 6 < 2 || offset % 6 >= 4);
     }

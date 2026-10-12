@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -39,7 +40,7 @@ internal abstract class BeetomInstructionProgramDefinitionsTooling : IInstructio
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;
         int offset = unchecked((ushort)address) - BeetomInstructionProgramDefinitions.CrawlingLeft;
         return (uint)offset < 2 * BeetomInstructionProgramDefinitions.FacingStride && BeetomInstructionProgramDefinitions.IsMechanicsPosition((offset % BeetomInstructionProgramDefinitions.FacingStride) & ~1);
     }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -28,7 +29,7 @@ internal abstract class KraidFootInstructionProgramDefinitionsTooling : IInstruc
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa70000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa70000) return false;
         var words = new KraidFootInstructionProgramDefinitions.MechanicsSelection(-1, unchecked((ushort)address), true);
         var presentation = new KraidFootInstructionProgramDefinitions.PresentationSelection(-1);
         KraidFootInstructionProgramDefinitions.Generate(ref words, ref presentation);

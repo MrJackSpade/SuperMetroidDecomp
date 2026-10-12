@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -22,7 +23,7 @@ internal abstract class WorkRobotLaserInstructionProgramDefinitionsTooling : IIn
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
             return false;
         int offset = unchecked((ushort)address) - WorkRobotLaserInstructionProgramDefinitions.Initial;
         return offset >= 0 && offset < 28 && offset % 4 < 2 || offset >= 28 && offset < 32;

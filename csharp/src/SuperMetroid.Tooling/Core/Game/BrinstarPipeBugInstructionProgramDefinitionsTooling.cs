@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -38,6 +39,6 @@ internal abstract class BrinstarPipeBugInstructionProgramDefinitionsTooling : II
         throw new IndexOutOfRangeException();
     }
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xb30000 &&
+        (SnesAddressMath.BankBase(address)) == 0xb30000 &&
         (BrinstarPipeBugInstructionProgramDefinitions.TryRead((ushort)address, out _) || BrinstarPipeBugInstructionProgramDefinitions.TryRead((ushort)address - 1, out _));
 }

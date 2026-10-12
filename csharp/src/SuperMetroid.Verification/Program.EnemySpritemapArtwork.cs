@@ -3718,7 +3718,7 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewBankB4ReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => (address >> 16) == 0xb4,
+            .Forbid(address => (SnesAddressMath.BankNumber(address)) == 0xb4,
                 address => $"Installed room sprite object reread bank-$B4 byte ${address:X6}.");
 
     private static CartridgeReadGuard NewMotherBrainFrameReadGuard(ISnesAddressSpace source) =>

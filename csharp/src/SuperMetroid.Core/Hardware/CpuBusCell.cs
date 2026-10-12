@@ -72,6 +72,6 @@ public sealed record CpuBusCell(string Name, CpuBusRegion Region, int Address, i
 
     /// <inheritdoc />
     public override string ToString() =>
-        $"{Name} ({Region} ${Address >> 16:X2}:{Address & 0xffff:X4}, {ByteCount} bytes, {Encoding}" +
+        $"{Name} ({Region} ${SnesAddressMath.BankNumber(Address):X2}:{SnesAddressMath.OffsetInBank(Address):X4}, {ByteCount} bytes, {Encoding}" +
         (AliasOf is { } target ? $", alias of {target.Name})" : ")");
 }

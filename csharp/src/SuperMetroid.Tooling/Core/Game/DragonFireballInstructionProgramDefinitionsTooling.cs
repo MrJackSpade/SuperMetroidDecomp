@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -17,6 +18,6 @@ internal abstract class DragonFireballInstructionProgramDefinitionsTooling : IIn
         return new(address, DragonFireballInstructionProgramDefinitions.ReadMechanicsWord(address));
     }
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        (SnesAddressMath.BankBase(address)) == EnemyProjectileCodePointers.BankBase &&
         (DragonFireballInstructionProgramDefinitions.TryRead((ushort)address, out _) || DragonFireballInstructionProgramDefinitions.TryRead((ushort)address - 1, out _));
 }

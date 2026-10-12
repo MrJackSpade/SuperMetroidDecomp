@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -26,7 +27,7 @@ internal abstract class MochtroidInstructionProgramDefinitionsTooling : IInstruc
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000)
             return false;
         int offset = unchecked((ushort)address) - MochtroidInstructionProgramDefinitions.FreeFlight;
         if (offset is < 0 or >= 40)

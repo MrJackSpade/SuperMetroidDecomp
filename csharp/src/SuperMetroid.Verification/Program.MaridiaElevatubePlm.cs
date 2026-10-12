@@ -52,8 +52,8 @@ internal static partial class Program
     private static CartridgeReadGuard NewMaridiaElevatubeSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
         {
-            int pointer = address & 0xffff;
-            return (address >> 16) == 0x84 &&
+            int pointer = SnesAddressMath.OffsetInBank(address);
+            return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 ((pointer >= MaridiaElevatubePlmDefinitions.InstructionList &&
                   pointer < MaridiaElevatubePlmDefinitions.InstructionList + 9) ||
                  (pointer >= MaridiaElevatubePlmDefinitions.DrawPointer &&

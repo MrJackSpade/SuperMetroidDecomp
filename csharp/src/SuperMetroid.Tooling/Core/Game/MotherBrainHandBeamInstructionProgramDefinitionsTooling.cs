@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -21,7 +22,7 @@ internal abstract class MotherBrainHandBeamInstructionProgramDefinitionsTooling 
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
         int bankAddress = (ushort)address;
         if (bankAddress is MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete or (MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete + 1)) return true;
         if (bankAddress is < MotherBrainHandBeamInstructionProgramDefinitions.Initial or >= MotherBrainHandBeamInstructionProgramDefinitions.TerminalDelete) return false;

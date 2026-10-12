@@ -31,8 +31,8 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
     public byte ReadWorkRamByte(int cpuAddress)
     {
         ValidateAddress(cpuAddress);
-        int bank = cpuAddress >> 16;
-        int offset = cpuAddress & 0xffff;
+        int bank = SnesAddressMath.BankNumber(cpuAddress);
+        int offset = SnesAddressMath.OffsetInBank(cpuAddress);
         if (bank is 0x7e or 0x7f)
             return _workRam[(bank - 0x7e) * 0x10000 + offset];
         if (IsSystemBank(bank) && offset < LoRomExpansionReadMap.WorkRamMirrorEnd)
@@ -45,8 +45,8 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
     public byte ReadSaveRamByte(int cpuAddress)
     {
         ValidateAddress(cpuAddress);
-        int bank = cpuAddress >> 16;
-        int offset = cpuAddress & 0xffff;
+        int bank = SnesAddressMath.BankNumber(cpuAddress);
+        int offset = SnesAddressMath.OffsetInBank(cpuAddress);
         if (!IsSaveRamBank(bank) || offset >= LoRomExpansionReadMap.RomStart)
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
                 "SRAM reads require a lower-window bank $70-$7D or $F0-$FF address.");
@@ -59,8 +59,8 @@ public class SuperMetroidAddressSpace : ISnesMemoryBus
     public void WriteByte(int address, byte value)
     {
         ValidateAddress(address);
-        int bank = address >> 16;
-        int offset = address & 0xffff;
+        int bank = SnesAddressMath.BankNumber(address);
+        int offset = SnesAddressMath.OffsetInBank(address);
 
         if (bank is 0x7e or 0x7f)
         {

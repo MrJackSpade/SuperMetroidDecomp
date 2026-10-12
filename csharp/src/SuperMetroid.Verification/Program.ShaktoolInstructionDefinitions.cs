@@ -223,7 +223,7 @@ internal static partial class Program
             .Forbid(address => address is >= 0xaadd15 and < 0xaadd25 or >= 0xaadf13 and < 0xaadf2f,
                 address => $"Shaktool attempted migrated instruction-selector read ${address:X6}.");
         // Every table word whose bytes are read is recorded, including repeated table entries.
-        return guard.Observe(address => (address & 0xff0000) == 0xaa0000, address =>
+        return guard.Observe(address => (SnesAddressMath.BankBase(address)) == 0xaa0000, address =>
         {
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0; index < ShaktoolInstructionProgramDefinitionsTooling.PresentationWordCount; index++)

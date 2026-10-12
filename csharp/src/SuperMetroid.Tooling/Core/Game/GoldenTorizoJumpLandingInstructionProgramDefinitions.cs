@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// Bank-$AA Golden Torizo backward-jump landing lists at $AA:CDAF-CDD6.
@@ -48,7 +49,7 @@ internal abstract class GoldenTorizoJumpLandingInstructionProgramDefinitions : I
 
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000)
+        if ((SnesAddressMath.BankBase(address)) != 0xaa0000)
             return false;
         ushort offset = unchecked((ushort)address);
         for (int index = 0; index < MechanicsWordCount; index++)

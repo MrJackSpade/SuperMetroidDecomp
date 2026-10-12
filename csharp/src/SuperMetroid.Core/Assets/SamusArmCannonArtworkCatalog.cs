@@ -204,8 +204,8 @@ public sealed class SamusArmCannonArtworkCatalog
     {
         if (byteCount == SamusRenderingRomData.ArmCannon.TileUploadByteCount)
         {
-            int source = sourceAddress & 0xffff;
-            if ((sourceAddress & 0xff0000) == SamusRenderingRomData.Banks.CharacterData &&
+            int source = SnesAddressMath.OffsetInBank(sourceAddress);
+            if ((SnesAddressMath.BankBase(sourceAddress)) == SamusRenderingRomData.Banks.CharacterData &&
                 SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(
                     unchecked((ushort)source)) is int index and >= 0)
             {

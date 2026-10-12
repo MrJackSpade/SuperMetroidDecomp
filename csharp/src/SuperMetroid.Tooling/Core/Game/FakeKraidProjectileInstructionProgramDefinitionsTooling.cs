@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -19,7 +20,7 @@ internal abstract class FakeKraidProjectileInstructionProgramDefinitionsTooling 
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
             return false;
         int offset = (ushort)address - FakeKraidProjectileInstructionProgramDefinitions.Spit;
         return (uint)offset < 18 && offset % 6 is 0 or 1 or 4 or 5;

@@ -487,11 +487,12 @@ public sealed class ManagedSnesDsp
             voice.PreviousFlags = sample.LoopSampleIndex.HasValue ? (byte)3 : (byte)1;
     }
 
+    [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM sample directory loop pointers")]
     private ushort ReadLoopAddress(byte source)
     {
         int directory = (registers[(byte)DspGlobalRegister.SourceDirectory] << 8) +
             source * DspBrrLayout.DirectoryEntryBytes + DspBrrLayout.LoopPointerOffset;
-        return unchecked((ushort)(SnesLittleEndian.Word(apuRam[directory & ushort.MaxValue], apuRam[(directory + 1) & ushort.MaxValue])));
+        return SpcRamWords.Read(apuRam, directory);
     }
 
     /// <summary>
@@ -576,14 +577,11 @@ public sealed class ManagedSnesDsp
         }
     }
 
-    private ushort ReadWord(int address) => unchecked((ushort)(
-        SnesLittleEndian.Word(apuRam[address & 0xffff], apuRam[(address + 1) & 0xffff])));
+    [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM BRR directory and echo-buffer words")]
+    private ushort ReadWord(int address) => SpcRamWords.Read(apuRam, address);
 
-    private void WriteWord(int address, ushort value)
-    {
-        apuRam[address & 0xffff] = unchecked((byte)value);
-        apuRam[(address + 1) & 0xffff] = SnesLittleEndian.HighByte(value);
-    }
+    [SpcMemoryBoundary("DSP hardware: reads and writes audio RAM echo-buffer samples")]
+    private void WriteWord(int address, ushort value) => SpcRamWords.Write(apuRam, address, value);
 
     private static int Clamp16(int value) => Math.Clamp(value, short.MinValue, short.MaxValue);
 

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -31,5 +32,5 @@ internal abstract class CacatacInstructionProgramDefinitionsTooling : IInstructi
         return (ushort)(CacatacInstructionProgramDefinitions.UpsideUpIdle + index / 12 * 80 + (pose < 8 ? 4 + pose * 4 : 40 + (pose - 8) * 4));
     }
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xa20000 && CacatacInstructionProgramDefinitions.TryRead((ushort)(address & ~1), out _);
+        (SnesAddressMath.BankBase(address)) == 0xa20000 && CacatacInstructionProgramDefinitions.TryRead((ushort)(address & ~1), out _);
 }

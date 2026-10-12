@@ -19,9 +19,9 @@ internal static class CpuBusRegionRead
             SnesDmaSourceKind.SaveRam => (source as ISnesMutableMemory ?? throw Missing(source, address, "SRAM"))
                 .ReadSaveRamByte(address),
             _ => throw new InvalidOperationException(
-                $"CPU read ${address >> 16:X2}:{address & 0xffff:X4} is outside the runtime address map."),
+                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };
 
     private static InvalidOperationException Missing(ISnesAddressSpace source, int address, string region) =>
-        new($"{source.GetType().FullName} cannot serve the {region} read at ${address >> 16:X2}:{address & 0xffff:X4}.");
+        new($"{source.GetType().FullName} cannot serve the {region} read at ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4}.");
 }

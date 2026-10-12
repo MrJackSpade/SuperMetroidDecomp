@@ -2786,7 +2786,7 @@ internal static partial class Program
         int opcodeAddress) =>
         new(
             $"Door callback $8F:{pointer:X4} uses unsupported reference-audit opcode " +
-            $"${opcode:X2} at ${opcodeAddress >> 16:X2}:{opcodeAddress & 0xffff:X4}.");
+            $"${opcode:X2} at ${SnesAddressMath.BankNumber(opcodeAddress):X2}:{SnesAddressMath.OffsetInBank(opcodeAddress):X4}.");
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for phase two rear leg")]
     private static void VerifyStream3PhaseTwoRearLeg(ISnesAddressSpace rom)

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -23,7 +24,7 @@ internal abstract class SciserInstructionProgramDefinitionsTooling : IInstructio
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
         int offset = (ushort)address - SciserInstructionProgramDefinitions.UpsideRight;
         return (uint)offset < SciserInstructionProgramDefinitions.SurfaceCount * SciserInstructionProgramDefinitions.ProgramBytes &&
             ((offset % SciserInstructionProgramDefinitions.ProgramBytes & ~1) is 0 or 2 or 4 or 8 or 12 or 16 or 20 or 22);

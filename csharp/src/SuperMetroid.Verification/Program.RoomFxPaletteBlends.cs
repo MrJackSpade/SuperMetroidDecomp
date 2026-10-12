@@ -206,6 +206,6 @@ internal static partial class Program
         ?? throw new InvalidDataException($"No compiled default room-FX record selects blend ${selection:X2}.");
 
     private static CartridgeReadGuard NewForbiddenRoomFxPaletteBus(TestAddressSpace inner) =>
-        new CartridgeReadGuard(inner).Forbid(address => (address >> 16) == 0x89,
+        new CartridgeReadGuard(inner).Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x89,
             address => $"Installed room-FX blend read ROM ${address:X6}.");
 }

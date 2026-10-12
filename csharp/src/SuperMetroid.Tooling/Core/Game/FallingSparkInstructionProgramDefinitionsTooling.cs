@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -19,8 +20,8 @@ internal abstract class FallingSparkInstructionProgramDefinitionsTooling : IInst
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
-        int offset = (address & 0xffff) - FallingSparkInstructionProgramDefinitions.Falling;
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
+        int offset = (SnesAddressMath.OffsetInBank(address)) - FallingSparkInstructionProgramDefinitions.Falling;
         return offset >= 0 && FallingSparkInstructionProgramDefinitions.TryRead((ushort)(FallingSparkInstructionProgramDefinitions.Falling + (offset & ~1)), out _);
     }
 }

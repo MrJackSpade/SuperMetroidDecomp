@@ -21,18 +21,18 @@
   },
   "classification": "Each occurrence\u0027s class is proposed by the scanner from its syntax (array element, address range, enum or [Flags] member, switch arm, bitwise operand, pointer-named context, equality or arithmetic); the subsystem migration confirms or corrects it.",
   "totals": {
-    "RawHexLiteral": 46976,
+    "RawHexLiteral": 46779,
     "PointerDispatch": 1298,
     "OpaqueWordArray": 1152,
-    "CatalogHexLiteral": 88359,
+    "CatalogHexLiteral": 88329,
     "JustifiedHexLiteral": 61,
-    "RawWidthOperation": 1238,
-    "OwnedWidthOperation": 188,
-    "class:NumericQuantity": 56286,
+    "RawWidthOperation": 982,
+    "OwnedWidthOperation": 154,
+    "class:NumericQuantity": 56287,
     "class:DomainIdentity": 6976,
-    "class:ComposableBits": 3494,
+    "class:ComposableBits": 3141,
     "class:StructuredInstruction": 44563,
-    "class:CartridgeAddress": 26918,
+    "class:CartridgeAddress": 26753,
     "class:Unknown": 1035,
     "storageWidthMembers": 1959
   },
@@ -43,10 +43,10 @@
         "RawHexLiteral": 306,
         "PointerDispatch": 21,
         "CatalogHexLiteral": 10648,
-        "OwnedWidthOperation": 3,
+        "OwnedWidthOperation": 2,
         "class:NumericQuantity": 498,
         "class:DomainIdentity": 496,
-        "class:ComposableBits": 26,
+        "class:ComposableBits": 25,
         "class:CartridgeAddress": 9844,
         "class:Unknown": 114,
         "storageWidthMembers": 8
@@ -154,9 +154,7 @@
           "totals": {
             "PointerDispatch": 2,
             "CatalogHexLiteral": 13,
-            "OwnedWidthOperation": 1,
             "class:DomainIdentity": 13,
-            "class:ComposableBits": 1,
             "class:CartridgeAddress": 2
           }
         },
@@ -1143,15 +1141,15 @@
     {
       "name": "Asset extraction (encoded boundary)",
       "totals": {
-        "RawHexLiteral": 105,
+        "RawHexLiteral": 100,
         "PointerDispatch": 9,
         "CatalogHexLiteral": 16,
-        "RawWidthOperation": 17,
+        "RawWidthOperation": 8,
         "OwnedWidthOperation": 3,
         "class:NumericQuantity": 31,
         "class:DomainIdentity": 12,
-        "class:ComposableBits": 67,
-        "class:CartridgeAddress": 38,
+        "class:ComposableBits": 54,
+        "class:CartridgeAddress": 37,
         "class:Unknown": 2,
         "storageWidthMembers": 1
       },
@@ -1184,22 +1182,11 @@
           "path": "csharp/src/SuperMetroid.AssetExtraction/CartridgeImportAddressSpace.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 12,
-            "RawWidthOperation": 3,
+            "RawHexLiteral": 11,
             "class:NumericQuantity": 2,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 9,
+            "class:ComposableBits": 5,
             "class:CartridgeAddress": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/CartridgeTables/CartridgeBankWindow.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
-            "RawHexLiteral": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 1
           }
         },
         {
@@ -1381,19 +1368,8 @@
           "path": "csharp/src/SuperMetroid.AssetExtraction/FileSelectPresentationExtractor.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 2
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.AssetExtraction/GameOverPresentationExtractor.cs",
-          "project": "SuperMetroid.AssetExtraction",
-          "totals": {
             "RawHexLiteral": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 2
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -1575,9 +1551,8 @@
           "path": "csharp/src/SuperMetroid.AssetExtraction/SpcUploadStreamReader.cs",
           "project": "SuperMetroid.AssetExtraction",
           "totals": {
-            "RawHexLiteral": 1,
-            "RawWidthOperation": 5,
-            "class:ComposableBits": 6
+            "RawWidthOperation": 2,
+            "class:ComposableBits": 2
           }
         },
         {
@@ -1638,15 +1613,15 @@
     {
       "name": "Audio",
       "totals": {
-        "RawHexLiteral": 198,
-        "CatalogHexLiteral": 773,
+        "RawHexLiteral": 194,
+        "CatalogHexLiteral": 772,
         "JustifiedHexLiteral": 45,
-        "RawWidthOperation": 25,
-        "OwnedWidthOperation": 5,
+        "RawWidthOperation": 17,
+        "OwnedWidthOperation": 9,
         "class:NumericQuantity": 386,
         "class:DomainIdentity": 571,
-        "class:ComposableBits": 57,
-        "class:CartridgeAddress": 30,
+        "class:ComposableBits": 49,
+        "class:CartridgeAddress": 29,
         "class:Unknown": 2,
         "storageWidthMembers": 162
       },
@@ -1665,9 +1640,9 @@
           "path": "csharp/src/SuperMetroid.Core/Audio/AudioRomData.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 17,
+            "CatalogHexLiteral": 16,
             "class:NumericQuantity": 12,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
@@ -1691,19 +1666,11 @@
           "path": "csharp/src/SuperMetroid.Core/Audio/ManagedSnesDsp.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 22,
-            "RawWidthOperation": 14,
+            "RawHexLiteral": 18,
+            "RawWidthOperation": 8,
             "class:NumericQuantity": 15,
-            "class:ComposableBits": 21,
+            "class:ComposableBits": 11,
             "storageWidthMembers": 26
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Audio/ManagedSpcPlayer.Memory.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 2
           }
         },
         {
@@ -1837,6 +1804,14 @@
           "totals": {
             "RawHexLiteral": 31,
             "class:DomainIdentity": 31
+          }
+        },
+        {
+          "path": "csharp/src/SuperMetroid.Core/Audio/SpcRamWords.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "OwnedWidthOperation": 4,
+            "class:ComposableBits": 4
           }
         },
         {
@@ -2591,10 +2566,10 @@
         "RawHexLiteral": 143,
         "PointerDispatch": 28,
         "CatalogHexLiteral": 171,
-        "RawWidthOperation": 8,
+        "RawWidthOperation": 7,
         "class:NumericQuantity": 135,
         "class:DomainIdentity": 42,
-        "class:ComposableBits": 27,
+        "class:ComposableBits": 26,
         "class:CartridgeAddress": 131,
         "class:Unknown": 15,
         "storageWidthMembers": 18
@@ -2730,14 +2705,6 @@
             "class:NumericQuantity": 2,
             "class:CartridgeAddress": 2,
             "class:Unknown": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Game/KraidLowBankAliasMemory.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1
           }
         },
         {
@@ -8561,14 +8528,14 @@
         "RawHexLiteral": 10,
         "PointerDispatch": 60,
         "OpaqueWordArray": 102,
-        "CatalogHexLiteral": 1692,
+        "CatalogHexLiteral": 1688,
         "RawWidthOperation": 2,
-        "OwnedWidthOperation": 7,
+        "OwnedWidthOperation": 3,
         "class:NumericQuantity": 583,
         "class:DomainIdentity": 8,
-        "class:ComposableBits": 23,
+        "class:ComposableBits": 17,
         "class:StructuredInstruction": 655,
-        "class:CartridgeAddress": 604,
+        "class:CartridgeAddress": 602,
         "storageWidthMembers": 3
       },
       "addressInterpretingTypes": [
@@ -8791,13 +8758,13 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "OpaqueWordArray": 101,
-            "CatalogHexLiteral": 724,
-            "OwnedWidthOperation": 6,
+            "CatalogHexLiteral": 720,
+            "OwnedWidthOperation": 2,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 8,
+            "class:ComposableBits": 2,
             "class:StructuredInstruction": 629,
-            "class:CartridgeAddress": 191
+            "class:CartridgeAddress": 189
           }
         },
         {
@@ -9699,17 +9666,17 @@
     {
       "name": "Hosts and GPU renderer",
       "totals": {
-        "RawHexLiteral": 28038,
+        "RawHexLiteral": 27857,
         "PointerDispatch": 438,
         "OpaqueWordArray": 1013,
-        "CatalogHexLiteral": 5388,
-        "RawWidthOperation": 546,
-        "OwnedWidthOperation": 105,
+        "CatalogHexLiteral": 5365,
+        "RawWidthOperation": 322,
+        "OwnedWidthOperation": 75,
         "class:NumericQuantity": 10483,
         "class:DomainIdentity": 619,
-        "class:ComposableBits": 1258,
+        "class:ComposableBits": 960,
         "class:StructuredInstruction": 14312,
-        "class:CartridgeAddress": 8329,
+        "class:CartridgeAddress": 8169,
         "class:Unknown": 527,
         "storageWidthMembers": 316
       },
@@ -9941,9 +9908,9 @@
           "project": "SuperMetroid.DesktopVerification",
           "totals": {
             "RawHexLiteral": 6,
-            "RawWidthOperation": 3,
+            "RawWidthOperation": 2,
             "class:NumericQuantity": 3,
-            "class:ComposableBits": 6
+            "class:ComposableBits": 5
           }
         },
         {
@@ -10379,10 +10346,8 @@
           "path": "csharp/src/SuperMetroid.ResourceAudit/DefinitionAudit.cs",
           "project": "SuperMetroid.ResourceAudit",
           "totals": {
-            "RawHexLiteral": 11,
-            "RawWidthOperation": 3,
-            "class:DomainIdentity": 10,
-            "class:ComposableBits": 4
+            "RawHexLiteral": 10,
+            "class:DomainIdentity": 10
           }
         },
         {
@@ -10470,14 +10435,6 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.ResourceAudit/PaletteDefinitionAudit.cs",
-          "project": "SuperMetroid.ResourceAudit",
-          "totals": {
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.ResourceAudit/PlmProgramAudit.cs",
           "project": "SuperMetroid.ResourceAudit",
           "totals": {
@@ -10552,11 +10509,8 @@
           "path": "csharp/src/SuperMetroid.ResourceAudit/VramDmaOwnership.cs",
           "project": "SuperMetroid.ResourceAudit",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -10595,55 +10549,44 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/AlcoonFireballInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/AlcoonInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 5
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/AtomicInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BeetomInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 7,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 9
+            "class:CartridgeAddress": 8
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BlueBrinstarFaceBlockInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 5,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 6
           }
         },
         {
@@ -10651,182 +10594,143 @@
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 3,
-            "CatalogHexLiteral": 5,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 4,
             "class:NumericQuantity": 3,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BombTorizoDroolInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 5,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 5
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BombTorizoStatueInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BoulderInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BoyonInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BrinstarPipeBugInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/BullInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CacatacInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CacatacProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CeresBabyInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CeresDoorInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CeresFallingDebrisInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CeresRidleyProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CeresSteamInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ChootInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ChozoStatueInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ChozoTourianDustInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -10842,33 +10746,25 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CommonEnemyProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CrocomireProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/CrocomireTongueInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 1,
             "PointerDispatch": 8,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 10
+            "class:CartridgeAddress": 9
           }
         },
         {
@@ -10884,248 +10780,192 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/DeadTourianCorpseInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/DownwardGateProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/DragonFireballInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/DragonInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/DraygonProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 8,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 9
+            "class:CartridgeAddress": 8
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ElevatorInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EnemyDeathInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 7,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 8
+            "class:CartridgeAddress": 7
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EnemyPickupInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EnemyProjectileInstructionMechanicsDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 5,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 6
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EscapeDachoraInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EscapeEtecoonInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EvirInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EyeDoorProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/EyeDoorSweatInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/FakeKraidInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 6,
+            "RawHexLiteral": 5,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
             "class:NumericQuantity": 2,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/FakeKraidProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/FallingSparkInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
             "PointerDispatch": 6,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 6
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/FirefleaInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 5
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/FlyInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/FuneNamiheFireballInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/FuneNamiheInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/GoldenTorizoAwakeningInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/GoldenTorizoEggInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -11141,11 +10981,8 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/GoldenTorizoEyeBeamInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -11153,11 +10990,9 @@
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 1,
-            "CatalogHexLiteral": 5,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 4,
             "class:NumericQuantity": 3,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -11165,11 +11000,9 @@
           "project": "SuperMetroid.Tooling",
           "totals": {
             "PointerDispatch": 1,
-            "CatalogHexLiteral": 3,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 2,
             "class:NumericQuantity": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -11194,75 +11027,60 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/GrowingShutterInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/GunshipDustInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/GunshipInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/HZoomerInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/HibashiInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/HopperInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/HorizontalShutterInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
@@ -11273,109 +11091,80 @@
           }
         },
         {
-          "path": "csharp/src/SuperMetroid.Tooling/Core/Game/InstructionProgramLayoutTooling.cs",
-          "project": "SuperMetroid.Tooling",
-          "totals": {
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 2
-          }
-        },
-        {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KagoBugProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KagoInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KiHunterAcidSpitInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidArmInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidFootInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidLintInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidNailInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KraidRockProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/KzanInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 2,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
             "class:NumericQuantity": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3,
+            "class:CartridgeAddress": 2,
             "storageWidthMembers": 1
           }
         },
@@ -11383,65 +11172,53 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/LowerNorfairRioInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MagdolliteLavaInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MamaTurtleInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 2,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 3
+            "class:ComposableBits": 1,
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MetroidInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MochtroidInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MorphBallEyeInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -11468,11 +11245,8 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MotherBrainGlassInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
@@ -11487,11 +11261,8 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MotherBrainHandBeamInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
@@ -11506,161 +11277,127 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MotherBrainTurretInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/MultiviolaInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/NinjaSpacePirateInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/NoobTubeProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/NorfairLavaJumperInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/NorfairPipeBugInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/NorfairRioInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/NuclearWaffleInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/NuclearWaffleProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/OldTourianEscapeShaftWallExplosionDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 10,
+            "RawHexLiteral": 9,
             "PointerDispatch": 1,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
             "class:StructuredInstruction": 10,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/OwtchInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PhantoonInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PhantoonProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PlatformInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PolypInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 6,
-            "RawWidthOperation": 1,
+            "RawHexLiteral": 5,
             "class:DomainIdentity": 4,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2,
+            "class:CartridgeAddress": 1,
             "storageWidthMembers": 1
           }
         },
@@ -11668,11 +11405,8 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PolypRockInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2,
+            "class:CartridgeAddress": 1,
             "storageWidthMembers": 1
           }
         },
@@ -11680,32 +11414,24 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PowampInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PowampSpikeInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
             "PointerDispatch": 5,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 6
+            "class:CartridgeAddress": 5
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PrePhantoonRoomProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2,
+            "class:CartridgeAddress": 1,
             "storageWidthMembers": 1
           }
         },
@@ -11713,11 +11439,9 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/PuyoInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 6,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 8
+            "class:CartridgeAddress": 7
           }
         },
         {
@@ -11734,31 +11458,26 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/RinkaInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 2,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 4
+            "class:ComposableBits": 1,
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/RioInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/RipperInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -11773,75 +11492,63 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SaveStationElectricityInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SbugInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SciserInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ShaktoolInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 2,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 6
+            "class:ComposableBits": 1,
+            "class:CartridgeAddress": 5
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ShaktoolProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 4,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 5
+            "class:ComposableBits": 1,
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SharedCrawlerInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 2,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 5
+            "class:ComposableBits": 1,
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ShitroidInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -11856,276 +11563,215 @@
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SkreeMetareeParticleInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SkulteraInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SpacePirateProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SparkInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/SporeSpawnProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/StokeInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/StokeProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/TorizoChozoOrbInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/TorizoExplosionInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/TorizoExplosiveSwipeInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/TourianEntranceStatueInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/TourianStatueProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/VerticalShutterInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 5,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 6
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ViolaInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/WalkingSpacePirateInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/WaverInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/WorkRobotInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/WorkRobotLaserInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/WreckedShipGhostInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/YappingMawBodyProjectileInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/YappingMawInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/YellowPipeBugInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
+            "RawHexLiteral": 1,
             "PointerDispatch": 3,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ZebetiteInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ZeroInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 2
+            "RawHexLiteral": 1,
+            "class:CartridgeAddress": 1
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Game/ZoaInstructionProgramDefinitionsTooling.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 3,
+            "RawHexLiteral": 1,
             "PointerDispatch": 1,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Tooling/Core/Hardware/CpuBusCatalogInventory.cs",
           "project": "SuperMetroid.Tooling",
           "totals": {
-            "RawHexLiteral": 10,
-            "RawWidthOperation": 4,
+            "RawHexLiteral": 8,
             "class:NumericQuantity": 4,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 8
+            "class:ComposableBits": 2
           }
         },
         {
@@ -12342,12 +11988,11 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "OpaqueWordArray": 4,
-            "CatalogHexLiteral": 41,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 40,
             "class:NumericQuantity": 5,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:StructuredInstruction": 26,
-            "class:CartridgeAddress": 13
+            "class:CartridgeAddress": 12
           }
         },
         {
@@ -12355,13 +12000,12 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "OpaqueWordArray": 2,
-            "CatalogHexLiteral": 134,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 133,
             "class:NumericQuantity": 4,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:StructuredInstruction": 118,
-            "class:CartridgeAddress": 11
+            "class:CartridgeAddress": 10
           }
         },
         {
@@ -12606,9 +12250,8 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 4,
-            "RawWidthOperation": 1,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:CartridgeAddress": 2
           }
         },
@@ -12878,13 +12521,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.BotwoonWallPlms.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 36,
+            "RawHexLiteral": 35,
             "PointerDispatch": 2,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 4,
             "class:DomainIdentity": 7,
-            "class:ComposableBits": 3,
             "class:StructuredInstruction": 19,
             "class:CartridgeAddress": 8
           }
@@ -12950,11 +12591,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.BrinstarPipeBugInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 20,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 19,
             "class:NumericQuantity": 11,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 9
+            "class:CartridgeAddress": 8
           }
         },
         {
@@ -13057,11 +12696,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.CeresDestruction.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 42,
+            "RawHexLiteral": 41,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 3,
+            "RawWidthOperation": 1,
             "class:NumericQuantity": 29,
-            "class:ComposableBits": 7,
+            "class:ComposableBits": 4,
             "class:StructuredInstruction": 5,
             "class:CartridgeAddress": 5
           }
@@ -13175,10 +12814,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.CeresEscapeVramTransferDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 13,
-            "OwnedWidthOperation": 2,
+            "CatalogHexLiteral": 12,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 3,
             "class:StructuredInstruction": 3,
             "class:CartridgeAddress": 7
           }
@@ -13835,12 +13472,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.CrocomireArenaPlms.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 17,
+            "RawHexLiteral": 16,
             "PointerDispatch": 2,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 5,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 4,
+            "class:ComposableBits": 1,
             "class:CartridgeAddress": 2,
             "class:Unknown": 8
           }
@@ -14432,10 +14068,10 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 11,
-            "RawWidthOperation": 6,
+            "RawWidthOperation": 2,
             "class:NumericQuantity": 7,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 7,
+            "class:ComposableBits": 3,
             "class:CartridgeAddress": 1
           }
         },
@@ -14682,10 +14318,10 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 34,
-            "RawWidthOperation": 3,
+            "RawWidthOperation": 2,
             "class:NumericQuantity": 2,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 4,
+            "class:ComposableBits": 3,
             "class:CartridgeAddress": 27,
             "class:Unknown": 2
           }
@@ -14759,9 +14395,7 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.EndingTextPresentation.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 3,
+            "RawHexLiteral": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -14778,9 +14412,6 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.EnemyAnimationIsolation.Fixture.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 2,
             "storageWidthMembers": 1
           }
         },
@@ -14906,11 +14537,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.EnemyExtendedFrameArtwork.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 339,
-            "RawWidthOperation": 3,
+            "RawHexLiteral": 338,
+            "RawWidthOperation": 2,
             "class:NumericQuantity": 261,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 6,
+            "class:ComposableBits": 4,
             "class:CartridgeAddress": 74
           }
         },
@@ -15000,12 +14631,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.EnemyProjectileInstructionMechanicsDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 40,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 39,
             "class:NumericQuantity": 25,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 13
+            "class:CartridgeAddress": 12
           }
         },
         {
@@ -15063,10 +14692,8 @@
             "RawHexLiteral": 231,
             "PointerDispatch": 1,
             "OpaqueWordArray": 2,
-            "RawWidthOperation": 1,
             "class:NumericQuantity": 98,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 1,
             "class:StructuredInstruction": 17,
             "class:CartridgeAddress": 118
           }
@@ -15210,12 +14837,12 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.EnemyTileArtwork.ProjectileSpritemaps.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 36,
+            "RawHexLiteral": 34,
             "PointerDispatch": 1,
-            "RawWidthOperation": 4,
+            "RawWidthOperation": 2,
             "class:NumericQuantity": 27,
-            "class:ComposableBits": 6,
-            "class:CartridgeAddress": 6,
+            "class:ComposableBits": 4,
+            "class:CartridgeAddress": 4,
             "class:Unknown": 2
           }
         },
@@ -15318,11 +14945,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.EscapeDachoraInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 7,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 6,
             "class:NumericQuantity": 4,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
@@ -15445,11 +15070,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.ExtendedBg2Reference.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 6,
-            "RawWidthOperation": 1,
+            "RawHexLiteral": 5,
             "class:NumericQuantity": 2,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 2,
             "class:Unknown": 1
           }
         },
@@ -15517,11 +15140,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.FakeKraidInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 18,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 17,
             "class:NumericQuantity": 10,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 6,
+            "class:CartridgeAddress": 5,
             "class:Unknown": 2
           }
         },
@@ -15734,11 +15355,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.FirefleaInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 5,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 4,
             "class:NumericQuantity": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 4
+            "class:CartridgeAddress": 3
           }
         },
         {
@@ -15789,10 +15408,9 @@
           "totals": {
             "RawHexLiteral": 13,
             "PointerDispatch": 10,
-            "RawWidthOperation": 1,
             "class:NumericQuantity": 8,
             "class:DomainIdentity": 3,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:StructuredInstruction": 1,
             "class:CartridgeAddress": 10
           }
@@ -15862,12 +15480,11 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "OpaqueWordArray": 4,
-            "CatalogHexLiteral": 51,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 50,
             "class:NumericQuantity": 4,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:StructuredInstruction": 36,
-            "class:CartridgeAddress": 14
+            "class:CartridgeAddress": 13
           }
         },
         {
@@ -16442,12 +16059,11 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "OpaqueWordArray": 3,
-            "CatalogHexLiteral": 28,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 27,
             "class:NumericQuantity": 4,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:StructuredInstruction": 19,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 6
           }
         },
         {
@@ -16924,10 +16540,8 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.IntroNarrationPresentation.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 9,
-            "RawWidthOperation": 2,
+            "RawHexLiteral": 8,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 3,
             "class:CartridgeAddress": 7
           }
         },
@@ -17333,22 +16947,19 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidLintInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 5,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 4,
             "class:NumericQuantity": 2,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 3
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidMouthHitboxes.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 20,
+            "RawHexLiteral": 19,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 2,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 5,
+            "class:ComposableBits": 2,
             "class:StructuredInstruction": 7,
             "class:CartridgeAddress": 9
           }
@@ -17401,11 +17012,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidNailInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 7,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 6,
             "class:NumericQuantity": 2,
-            "class:ComposableBits": 2,
-            "class:CartridgeAddress": 4
+            "class:ComposableBits": 1,
+            "class:CartridgeAddress": 3
           }
         },
         {
@@ -17470,12 +17080,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.KraidRoomPlms.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 24,
+            "RawHexLiteral": 18,
             "PointerDispatch": 3,
-            "RawWidthOperation": 7,
             "class:NumericQuantity": 12,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 13,
             "class:CartridgeAddress": 3,
             "class:Unknown": 5
           }
@@ -18435,10 +18043,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.LookupRoomFxFields.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 300,
+            "RawHexLiteral": 299,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 3,
+            "RawWidthOperation": 1,
+            "class:ComposableBits": 1,
             "class:StructuredInstruction": 298,
             "class:CartridgeAddress": 2
           }
@@ -18593,13 +18201,13 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.LookupStream3.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 468,
+            "RawHexLiteral": 467,
             "PointerDispatch": 4,
             "OpaqueWordArray": 19,
-            "RawWidthOperation": 6,
+            "RawWidthOperation": 4,
             "class:NumericQuantity": 79,
             "class:DomainIdentity": 29,
-            "class:ComposableBits": 22,
+            "class:ComposableBits": 19,
             "class:StructuredInstruction": 208,
             "class:CartridgeAddress": 152,
             "class:Unknown": 7
@@ -18773,11 +18381,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.MagdolliteInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 12,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 11,
             "class:NumericQuantity": 5,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 7
+            "class:CartridgeAddress": 6
           }
         },
         {
@@ -18890,8 +18496,8 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 4,
-            "RawWidthOperation": 4,
-            "class:ComposableBits": 5,
+            "RawWidthOperation": 2,
+            "class:ComposableBits": 3,
             "class:CartridgeAddress": 3
           }
         },
@@ -18961,11 +18567,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.MaridiaElevatubePlm.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "RawWidthOperation": 2,
+            "RawHexLiteral": 3,
             "class:NumericQuantity": 2,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 3
+            "class:DomainIdentity": 1
           }
         },
         {
@@ -19337,12 +18941,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainFakeDeathPlms.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 5,
+            "RawHexLiteral": 4,
             "PointerDispatch": 3,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 2,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 4,
+            "class:ComposableBits": 1,
             "class:CartridgeAddress": 3
           }
         },
@@ -19456,11 +19059,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.MotherBrainHeadInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 26,
-            "OwnedWidthOperation": 3,
+            "CatalogHexLiteral": 24,
             "class:NumericQuantity": 3,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 5,
             "class:CartridgeAddress": 20
           }
         },
@@ -19780,11 +19381,9 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.NorfairLavaJumperInstructionProgramDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 11,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 10,
             "class:NumericQuantity": 6,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 5
+            "class:CartridgeAddress": 4
           }
         },
         {
@@ -19847,10 +19446,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.OceanSky.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 9,
-            "RawWidthOperation": 5,
+            "RawHexLiteral": 8,
+            "RawWidthOperation": 3,
             "class:NumericQuantity": 1,
-            "class:ComposableBits": 9,
+            "class:ComposableBits": 6,
             "class:CartridgeAddress": 4
           }
         },
@@ -20743,13 +20342,13 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.ProjectileTrailCoordinates.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 68,
+            "RawHexLiteral": 65,
             "OpaqueWordArray": 2,
-            "RawWidthOperation": 8,
+            "RawWidthOperation": 4,
             "class:NumericQuantity": 7,
-            "class:ComposableBits": 18,
+            "class:ComposableBits": 12,
             "class:StructuredInstruction": 26,
-            "class:CartridgeAddress": 27
+            "class:CartridgeAddress": 26
           }
         },
         {
@@ -21209,10 +20808,8 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 12,
-            "RawWidthOperation": 1,
             "class:NumericQuantity": 11,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 1
+            "class:DomainIdentity": 1
           }
         },
         {
@@ -21220,9 +20817,7 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 1,
-            "RawWidthOperation": 1,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 1
+            "class:DomainIdentity": 1
           }
         },
         {
@@ -21230,10 +20825,8 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "RawHexLiteral": 6,
-            "RawWidthOperation": 1,
             "class:NumericQuantity": 5,
-            "class:DomainIdentity": 1,
-            "class:ComposableBits": 1
+            "class:DomainIdentity": 1
           }
         },
         {
@@ -21374,11 +20967,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.RoomSkyTilemaps.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 18,
+            "RawHexLiteral": 16,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 8,
-            "class:ComposableBits": 6,
+            "class:ComposableBits": 2,
             "class:StructuredInstruction": 7
           }
         },
@@ -21425,10 +21017,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.RunningCadence.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 47,
-            "RawWidthOperation": 9,
+            "RawHexLiteral": 45,
+            "RawWidthOperation": 6,
             "class:NumericQuantity": 10,
-            "class:ComposableBits": 16,
+            "class:ComposableBits": 11,
             "class:CartridgeAddress": 29,
             "class:Unknown": 1,
             "storageWidthMembers": 1
@@ -21636,10 +21228,9 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 8,
-            "OwnedWidthOperation": 1,
             "class:NumericQuantity": 1,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:CartridgeAddress": 5
           }
         },
@@ -21682,8 +21273,6 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "CatalogHexLiteral": 2,
-            "OwnedWidthOperation": 2,
-            "class:ComposableBits": 2,
             "class:CartridgeAddress": 2
           }
         },
@@ -21896,11 +21485,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.ShaktoolInstructionDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 20,
-            "OwnedWidthOperation": 3,
+            "CatalogHexLiteral": 19,
+            "OwnedWidthOperation": 2,
             "class:NumericQuantity": 9,
-            "class:ComposableBits": 5,
-            "class:CartridgeAddress": 9
+            "class:ComposableBits": 4,
+            "class:CartridgeAddress": 8
           }
         },
         {
@@ -21982,12 +21571,12 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.ShotCallbackDefinitions.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "CatalogHexLiteral": 12,
-            "OwnedWidthOperation": 7,
+            "CatalogHexLiteral": 10,
+            "OwnedWidthOperation": 3,
             "class:NumericQuantity": 7,
             "class:DomainIdentity": 2,
-            "class:ComposableBits": 7,
-            "class:CartridgeAddress": 3
+            "class:ComposableBits": 3,
+            "class:CartridgeAddress": 1
           }
         },
         {
@@ -22287,12 +21876,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.SpeedBoosterPlmPrograms.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 65,
+            "RawHexLiteral": 64,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 26,
             "class:DomainIdentity": 1,
-            "class:ComposableBits": 3,
             "class:StructuredInstruction": 6,
             "class:CartridgeAddress": 30,
             "class:Unknown": 2
@@ -22345,13 +21932,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.SporeSpawnCeilingPlms.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 45,
+            "RawHexLiteral": 44,
             "PointerDispatch": 1,
             "OpaqueWordArray": 4,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 2,
             "class:DomainIdentity": 7,
-            "class:ComposableBits": 3,
             "class:StructuredInstruction": 31,
             "class:CartridgeAddress": 8,
             "class:Unknown": 1
@@ -22588,11 +22173,10 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.TitleGradient.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 13,
+            "RawHexLiteral": 12,
             "PointerDispatch": 1,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 11,
-            "class:ComposableBits": 4,
+            "class:ComposableBits": 1,
             "class:CartridgeAddress": 1
           }
         },
@@ -22660,9 +22244,8 @@
           "totals": {
             "RawHexLiteral": 11,
             "PointerDispatch": 1,
-            "RawWidthOperation": 1,
             "class:NumericQuantity": 3,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:CartridgeAddress": 7,
             "class:Unknown": 1
           }
@@ -22735,13 +22318,11 @@
           "path": "csharp/src/SuperMetroid.Verification/Program.TourianAccessPlmPrograms.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 58,
+            "RawHexLiteral": 57,
             "PointerDispatch": 4,
             "OpaqueWordArray": 5,
-            "RawWidthOperation": 2,
             "class:NumericQuantity": 4,
             "class:DomainIdentity": 3,
-            "class:ComposableBits": 3,
             "class:StructuredInstruction": 46,
             "class:CartridgeAddress": 13
           }
@@ -22863,13 +22444,12 @@
           "project": "SuperMetroid.Verification",
           "totals": {
             "OpaqueWordArray": 7,
-            "CatalogHexLiteral": 75,
-            "OwnedWidthOperation": 1,
+            "CatalogHexLiteral": 74,
             "class:NumericQuantity": 8,
             "class:DomainIdentity": 7,
-            "class:ComposableBits": 2,
+            "class:ComposableBits": 1,
             "class:StructuredInstruction": 44,
-            "class:CartridgeAddress": 22
+            "class:CartridgeAddress": 21
           }
         },
         {
@@ -23479,25 +23059,6 @@
           }
         },
         {
-          "path": "csharp/test-support/CpuBusTestDoubles/CartridgeReadGuard.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 1,
-            "RawWidthOperation": 1,
-            "class:ComposableBits": 1,
-            "class:CartridgeAddress": 1
-          }
-        },
-        {
-          "path": "csharp/test-support/CpuBusTestDoubles/CpuBusRegionRead.cs",
-          "project": "SuperMetroid.Verification",
-          "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 4,
-            "class:ComposableBits": 6
-          }
-        },
-        {
           "path": "csharp/test-support/D3D11FrameReadback.cs",
           "project": "SuperMetroid.DebugRunner",
           "totals": {
@@ -23517,11 +23078,8 @@
           "path": "csharp/test-support/ImportedSpritemapOracle.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 4,
-            "RawWidthOperation": 3,
-            "class:NumericQuantity": 1,
-            "class:ComposableBits": 5,
-            "class:CartridgeAddress": 1
+            "RawHexLiteral": 1,
+            "class:NumericQuantity": 1
           }
         },
         {
@@ -23697,14 +23255,14 @@
           "path": "csharp/test-support/VerificationAccess/CoreGameAccess.cs",
           "project": "SuperMetroid.Verification",
           "totals": {
-            "RawHexLiteral": 141,
+            "RawHexLiteral": 134,
             "PointerDispatch": 11,
             "OpaqueWordArray": 1,
-            "RawWidthOperation": 11,
+            "RawWidthOperation": 2,
             "class:NumericQuantity": 52,
-            "class:ComposableBits": 12,
+            "class:ComposableBits": 3,
             "class:StructuredInstruction": 50,
-            "class:CartridgeAddress": 49,
+            "class:CartridgeAddress": 42,
             "class:Unknown": 1,
             "storageWidthMembers": 11
           }
@@ -25791,15 +25349,15 @@
     {
       "name": "Rendering and hardware",
       "totals": {
-        "RawHexLiteral": 121,
+        "RawHexLiteral": 115,
         "PointerDispatch": 1,
-        "CatalogHexLiteral": 75,
-        "RawWidthOperation": 43,
-        "OwnedWidthOperation": 19,
-        "class:NumericQuantity": 118,
+        "CatalogHexLiteral": 77,
+        "RawWidthOperation": 31,
+        "OwnedWidthOperation": 22,
+        "class:NumericQuantity": 119,
         "class:DomainIdentity": 7,
-        "class:ComposableBits": 115,
-        "class:CartridgeAddress": 8,
+        "class:ComposableBits": 100,
+        "class:CartridgeAddress": 9,
         "class:Unknown": 11,
         "storageWidthMembers": 31
       },
@@ -25814,15 +25372,6 @@
             "RawHexLiteral": 1,
             "class:NumericQuantity": 1,
             "storageWidthMembers": 1
-          }
-        },
-        {
-          "path": "csharp/src/SuperMetroid.Core/Hardware/CpuBusCell.cs",
-          "project": "SuperMetroid.Core",
-          "totals": {
-            "RawHexLiteral": 1,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 3
           }
         },
         {
@@ -25922,6 +25471,14 @@
           }
         },
         {
+          "path": "csharp/src/SuperMetroid.Core/Hardware/SnesAddressMath.cs",
+          "project": "SuperMetroid.Core",
+          "totals": {
+            "OwnedWidthOperation": 3,
+            "class:ComposableBits": 3
+          }
+        },
+        {
           "path": "csharp/src/SuperMetroid.Core/Hardware/SnesAngle.cs",
           "project": "SuperMetroid.Core",
           "totals": {
@@ -25936,18 +25493,19 @@
           "path": "csharp/src/SuperMetroid.Core/Hardware/SnesCpuAddressLayout.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 1,
-            "class:CartridgeAddress": 1
+            "CatalogHexLiteral": 3,
+            "class:NumericQuantity": 1,
+            "class:CartridgeAddress": 2
           }
         },
         {
           "path": "csharp/src/SuperMetroid.Core/Hardware/SnesCpuOperandRead.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 6,
-            "RawWidthOperation": 4,
+            "RawHexLiteral": 5,
+            "RawWidthOperation": 2,
             "class:NumericQuantity": 4,
-            "class:ComposableBits": 6
+            "class:ComposableBits": 3
           }
         },
         {
@@ -25963,9 +25521,8 @@
           "path": "csharp/src/SuperMetroid.Core/Hardware/SnesIndirectLongDataRead.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 1,
-            "RawWidthOperation": 4,
-            "class:ComposableBits": 5
+            "RawWidthOperation": 2,
+            "class:ComposableBits": 2
           }
         },
         {
@@ -26023,11 +25580,10 @@
           "path": "csharp/src/SuperMetroid.Core/Hardware/SuperMetroidAddressSpace.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 25,
-            "RawWidthOperation": 6,
+            "RawHexLiteral": 22,
             "class:NumericQuantity": 6,
             "class:DomainIdentity": 4,
-            "class:ComposableBits": 11,
+            "class:ComposableBits": 2,
             "class:CartridgeAddress": 3,
             "class:Unknown": 7
           }
@@ -27087,18 +26643,18 @@
     {
       "name": "Samus: movement, poses and projectiles",
       "totals": {
-        "RawHexLiteral": 387,
+        "RawHexLiteral": 386,
         "PointerDispatch": 24,
         "OpaqueWordArray": 9,
-        "CatalogHexLiteral": 30846,
+        "CatalogHexLiteral": 30842,
         "JustifiedHexLiteral": 1,
-        "RawWidthOperation": 159,
-        "OwnedWidthOperation": 21,
+        "RawWidthOperation": 157,
+        "OwnedWidthOperation": 15,
         "class:NumericQuantity": 1007,
         "class:DomainIdentity": 617,
-        "class:ComposableBits": 397,
+        "class:ComposableBits": 386,
         "class:StructuredInstruction": 28757,
-        "class:CartridgeAddress": 620,
+        "class:CartridgeAddress": 618,
         "class:Unknown": 49,
         "storageWidthMembers": 224
       },
@@ -27158,11 +26714,10 @@
           "path": "csharp/src/SuperMetroid.Core/Assets/SamusArmCannonArtworkCatalog.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 66,
-            "OwnedWidthOperation": 2,
+            "CatalogHexLiteral": 64,
             "class:NumericQuantity": 5,
-            "class:ComposableBits": 5,
-            "class:CartridgeAddress": 58
+            "class:ComposableBits": 2,
+            "class:CartridgeAddress": 57
           }
         },
         {
@@ -27292,12 +26847,9 @@
           "path": "csharp/src/SuperMetroid.Core/Game/ChargeFlareAnimationDefinitions.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "CatalogHexLiteral": 7,
-            "OwnedWidthOperation": 2,
+            "CatalogHexLiteral": 5,
             "class:NumericQuantity": 3,
-            "class:DomainIdentity": 2,
-            "class:ComposableBits": 3,
-            "class:CartridgeAddress": 1
+            "class:DomainIdentity": 2
           }
         },
         {
@@ -27422,9 +26974,7 @@
           "project": "SuperMetroid.Core",
           "totals": {
             "CatalogHexLiteral": 132,
-            "OwnedWidthOperation": 2,
             "class:NumericQuantity": 127,
-            "class:ComposableBits": 2,
             "class:CartridgeAddress": 5
           }
         },
@@ -27850,9 +27400,8 @@
           "path": "csharp/src/SuperMetroid.Core/Game/SamusOverreadMemory.cs",
           "project": "SuperMetroid.Core",
           "totals": {
-            "RawHexLiteral": 2,
-            "RawWidthOperation": 2,
-            "class:ComposableBits": 4
+            "RawHexLiteral": 1,
+            "class:ComposableBits": 1
           }
         },
         {

@@ -139,7 +139,7 @@ internal static partial class Program
                 if (door == 0) { fallback = (ushort)cursor; break; }
                 if (door == ushort.MaxValue) break;
                 firstByDoor.TryAdd(door, (ushort)cursor);
-                cursor = (cursor + 16) & 0xffff;
+                cursor = SnesAddressMath.OffsetInBank(cursor + 16);
             }
             for (int value = 0; value <= ushort.MaxValue; value++)
             {

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -28,7 +29,7 @@ internal abstract class PuyoInstructionProgramDefinitionsTooling : IInstructionP
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa20000) return false;
         int offset = (ushort)address - PuyoInstructionProgramDefinitions.GroundedFast;
         if ((uint)offset < 60) return offset % 20 >= 16 || offset % 20 % 4 < 2;
         offset = (ushort)address - PuyoInstructionProgramDefinitions.RightFrame0LeftFrame4;

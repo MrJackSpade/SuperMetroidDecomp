@@ -13,7 +13,7 @@ internal static partial class Program
         {
             if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out byte value))
             { AssertEqual(ReadRetailTrailOperandByte(bus, address), value, "Compiled trail pointer/coordinate byte matches pinned ROM"); bytes++; }
-            int next = (address & 0xff0000) | ((address + 1) & 0xffff);
+            int next = SnesAddressMath.AddWithinBank(address, 1);
             if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, out _) &&
                 ProjectileTrailCoordinateDefinitions.TryReadByte(next, out _))
                 AssertEqual(ReadRetailTrailWord(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address), "Compiled trail pointer word preserves authored odd and wrapped words");
@@ -203,8 +203,8 @@ internal static partial class Program
         int address = (0x9b0000 + operand + index) & SnesCpuAddressLayout.AddressMask;
         byte ReadData(int source, byte memoryDataRegister)
         {
-            int bank = source >> 16;
-            int offset = source & 0xffff;
+            int bank = SnesAddressMath.BankNumber(source);
+            int offset = SnesAddressMath.OffsetInBank(source);
             if ((bank & 0x40) == 0 &&
                 (offset >= SnesCpuOpenBusWindows.ReservedBBusStart &&
                  offset <= SnesCpuOpenBusWindows.ReservedBBusEnd ||

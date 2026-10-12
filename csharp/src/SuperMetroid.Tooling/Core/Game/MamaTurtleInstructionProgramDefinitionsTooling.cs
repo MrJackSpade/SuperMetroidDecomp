@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -18,5 +19,5 @@ internal abstract class MamaTurtleInstructionProgramDefinitionsTooling : IInstru
         throw new InvalidDataException("Turtle control layout is incomplete.");
     }
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xa20000 && MamaTurtleInstructionProgramDefinitions.TryControl((ushort)(address & 0xfffe), out _);
+        (SnesAddressMath.BankBase(address)) == 0xa20000 && MamaTurtleInstructionProgramDefinitions.TryControl((ushort)(address & 0xfffe), out _);
 }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -12,7 +13,7 @@ internal abstract class YappingMawInstructionProgramDefinitionsTooling : IInstru
     public static ushort PresentationWordAddress(int index) => YappingMawInstructionProgramDefinitions.PresentationWordAddress(index);
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;
         ushort offset = unchecked((ushort)address);
         for (int index = 0; index < YappingMawInstructionProgramDefinitions.MechanicsWordCount; index++)
         {

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -39,6 +40,6 @@ internal abstract class FakeKraidInstructionProgramDefinitionsTooling : IInstruc
             facing * (FakeKraidInstructionProgramDefinitions.ChooseActionFacingRight - FakeKraidInstructionProgramDefinitions.ChooseActionFacingLeft) + offset);
     }
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xa60000 &&
+        (SnesAddressMath.BankBase(address)) == 0xa60000 &&
         FakeKraidInstructionProgramDefinitions.TryReadMechanicsWord(unchecked((ushort)(address & ~1)), out _);
 }

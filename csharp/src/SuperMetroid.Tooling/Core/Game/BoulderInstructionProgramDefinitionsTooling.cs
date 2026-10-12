@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -22,7 +23,7 @@ internal abstract class BoulderInstructionProgramDefinitionsTooling : IInstructi
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa60000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa60000) return false;
         int offset = (ushort)address - BoulderInstructionProgramDefinitions.Left;
         if ((uint)offset >= 72) return false;
         int stage = offset % 36;

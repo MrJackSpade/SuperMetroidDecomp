@@ -180,9 +180,9 @@ static void WriteRepeatedCompressedStream(
 static void WriteSequentialRomByte(byte[] rom, ref int snesAddress, byte value)
 {
     rom[SuperMetroid.AssetExtraction.CartridgeImportAddressSpace.ToRomOffset(snesAddress)] = value;
-    int offset = snesAddress & 0xffff;
+    int offset = SnesAddressMath.OffsetInBank(snesAddress);
     snesAddress = offset == 0xffff
-        ? ((((snesAddress >> 16) + 1) & 0xff) << 16) | 0x8000
+        ? ((((SnesAddressMath.BankNumber(snesAddress)) + 1) & 0xff) << 16) | 0x8000
         : snesAddress + 1;
 }
 

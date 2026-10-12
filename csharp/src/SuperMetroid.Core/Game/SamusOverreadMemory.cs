@@ -67,8 +67,8 @@ internal readonly struct SamusOverreadMemory(ISnesAddressSpace bus)
     /// </summary>
     internal byte TrailCoordinateOperandByte(int address, byte memoryDataRegister)
     {
-        int bank = address >> 16;
-        int offset = address & 0xffff;
+        int bank = SnesAddressMath.BankNumber(address);
+        int offset = SnesAddressMath.OffsetInBank(address);
         if ((bank & 0x40) == 0 &&
             (offset >= SnesCpuOpenBusWindows.ReservedBBusStart &&
              offset <= SnesCpuOpenBusWindows.ReservedBBusEnd ||

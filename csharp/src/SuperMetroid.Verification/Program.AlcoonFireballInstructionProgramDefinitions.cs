@@ -231,7 +231,7 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewAlcoonFireballInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(address =>
-                ((address & 0xff0000) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
+                ((SnesAddressMath.BankBase(address)) == 0x860000 && (ushort)address is >= 0x9e9e and <= 0x9eb1) ||
                 CommonEnemyProjectileInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address),
             address => $"Production read migrated Alcoon-fireball program byte ${address:X6}.");
 }

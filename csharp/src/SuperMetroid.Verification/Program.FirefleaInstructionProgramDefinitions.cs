@@ -35,7 +35,7 @@ internal static partial class Program
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
             address => FirefleaInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte(address) ||
-                (address & 0xff0000) == 0xa30000 &&
+                (SnesAddressMath.BankBase(address)) == 0xa30000 &&
                 (FirefleaInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)address)) ||
                  FirefleaInstructionProgramDefinitions.IsPresentationWord(unchecked((ushort)(address - 1)))),
             address => $"Production read compiled Fireflea instruction byte ${address:X6}.");

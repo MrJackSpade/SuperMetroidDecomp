@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -44,7 +45,7 @@ internal abstract class AlcoonInstructionProgramDefinitionsTooling : IInstructio
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;
         int offset = (ushort)address - AlcoonInstructionProgramDefinitions.WalkingLeft;
         return (uint)offset < 224 &&
             AlcoonInstructionProgramDefinitions.TryReadMechanicsWord((ushort)(AlcoonInstructionProgramDefinitions.WalkingLeft + (offset & ~1)), out _);

@@ -100,7 +100,7 @@ public static class GameOverPresentationExtractor
             while (true)
             {
                 ushort word = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), sourceAddress);
-                sourceAddress = GameOverRomData.TextBank | ((sourceAddress + 2) & 0xffff);
+                sourceAddress = GameOverRomData.TextBank | (SnesAddressMath.OffsetInBank(sourceAddress + 2));
                 if (word == GameOverRomData.TextEnd)
                     return;
                 if (word == GameOverRomData.TextNextLine)

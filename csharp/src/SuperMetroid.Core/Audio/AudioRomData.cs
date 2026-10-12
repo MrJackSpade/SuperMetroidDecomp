@@ -64,8 +64,6 @@ public static class AudioRomData
         public const int LoRomUpperWindowBit = 0x8000;
         /// <summary>Eight-bit mask for extracting or wrapping the bank byte when advancing an import stream.</summary>
         public const int AddressBankMask = 0xff;
-        /// <summary>Sixteen-bit mask isolating a SNES address's within-bank offset.</summary>
-        public const int AddressOffsetMask = 0xffff;
         /// <summary>Final mapped source offset in a LoROM bank; the following physical cartridge byte lies at the next bank's $8000.</summary>
         public const int LastBankOffset = 0xffff;
         /// <summary>First mapped source offset selected in the next bank when an upload stream crosses $FFFF.</summary>

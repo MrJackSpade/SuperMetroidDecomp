@@ -54,7 +54,7 @@ internal static partial class Program
                 // Ocean's wrapped top-of-room pointer deliberately selects the
                 // low-half bank-$8A WRAM mirror, not an editable ROM sky page.
                 // That transfer must remain live bus data at NMI time.
-                if ((transfer.SourceAddress & 0xffff) < LoRomExpansionReadMap.WorkRamMirrorEnd)
+                if ((SnesAddressMath.OffsetInBank(transfer.SourceAddress)) < LoRomExpansionReadMap.WorkRamMirrorEnd)
                 {
                     AssertTrue(callback == RoomMainCallback.ScrollingSkyOcean && cameraY < 16,
                         $"only ocean's wrapped top row may stream live WRAM (${transfer.SourceAddress:X6})");
@@ -191,7 +191,7 @@ internal static partial class Program
     /// <summary>Marks the bank-$7E byte an ocean sky row's wrapped NMI source reads, so its live WRAM is observable.</summary>
     [CpuBusBoundary("exact bus test: seeds the live WRAM byte a wrapped ocean sky-row transfer reads")]
     private static void MarkWrappedSkyRowWram(SuperMetroidAddressSpace bus, VramWriteEntry wrappedRow) =>
-        bus.WriteByte(0x7e0000 | (wrappedRow.SourceAddress & 0xffff), 0x5a);
+        bus.WriteByte(0x7e0000 | (SnesAddressMath.OffsetInBank(wrappedRow.SourceAddress)), 0x5a);
 
     [CpuBusBoundary("exact bus test: retail ROM oracle for scrolling-sky tilemap pages and Landing Site transfers")]
     private static byte[] ReadRetailSkyBytes(ISnesAddressSpace bus, int address, int count) =>

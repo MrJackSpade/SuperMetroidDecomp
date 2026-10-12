@@ -44,7 +44,7 @@ public static class SpcUploadStreamReader
         }
 
         throw new InvalidDataException(
-            $"SPC upload at ${sourceAddress >> 16:X2}:{sourceAddress & 0xffff:X4} " +
+            $"SPC upload at ${SnesAddressMath.BankNumber(sourceAddress):X2}:{SnesAddressMath.OffsetInBank(sourceAddress):X4} " +
             $"did not terminate within ${AudioRomData.SpcUpload.MaximumStreamBytes:X} bytes.");
     }
 
@@ -72,8 +72,8 @@ public static class SpcUploadStreamReader
     /// </summary>
     private static int AdvanceLoRom(int address)
     {
-        int bank = (address >> 16) & AudioRomData.SpcUpload.AddressBankMask;
-        int offset = address & AudioRomData.SpcUpload.AddressOffsetMask;
+        int bank = (SnesAddressMath.BankNumber(address)) & AudioRomData.SpcUpload.AddressBankMask;
+        int offset = SnesAddressMath.OffsetInBank(address);
         return offset == AudioRomData.SpcUpload.LastBankOffset
             ? ((int)new SnesAddress(checked((byte)((bank + 1) & AudioRomData.SpcUpload.AddressBankMask)), checked((ushort)AudioRomData.SpcUpload.FirstMappedBankOffset)))
             : address + 1;

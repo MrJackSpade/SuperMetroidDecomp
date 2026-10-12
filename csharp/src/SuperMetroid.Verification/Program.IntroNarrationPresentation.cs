@@ -235,8 +235,8 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewIntroNarrationGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
-            address => address >> 16 == 0x8c &&
-                (address & 0xffff) is >= 0xc383 and <= 0xd5dd or >= 0xd67d and <= 0xd780,
+            address => SnesAddressMath.BankNumber(address) == 0x8c &&
+                (SnesAddressMath.OffsetInBank(address)) is >= 0xc383 and <= 0xd5dd or >= 0xd67d and <= 0xd780,
             address => $"Installed opening narration read cartridge text address ${address:X6}.");
 
     private static CartridgeReadGuard NewIntroFontGuard(ISnesAddressSpace source) =>

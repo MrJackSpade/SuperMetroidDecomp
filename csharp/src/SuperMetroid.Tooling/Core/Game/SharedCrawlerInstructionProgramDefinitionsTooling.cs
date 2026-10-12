@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -26,7 +27,7 @@ internal abstract class SharedCrawlerInstructionProgramDefinitionsTooling : IIns
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
         ushort word = (ushort)(address & 0xfffe);
         int relative = word - SharedCrawlerInstructionProgramDefinitions.UpsideRight;
         return (uint)relative < SharedCrawlerInstructionProgramDefinitions.SurfaceCount * SharedCrawlerInstructionProgramDefinitions.ListBytes && !SharedCrawlerInstructionProgramDefinitions.IsPresentationWord(word);

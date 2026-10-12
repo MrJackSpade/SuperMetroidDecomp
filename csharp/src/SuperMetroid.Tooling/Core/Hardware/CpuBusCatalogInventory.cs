@@ -103,7 +103,7 @@ internal static class CpuBusCatalogInventory
     /// </summary>
     internal static int PhysicalStart(CpuBusCell cell)
     {
-        int bank = cell.Address >> 16, offset = cell.Address & 0xffff;
+        int bank = SnesAddressMath.BankNumber(cell.Address), offset = SnesAddressMath.OffsetInBank(cell.Address);
         return cell.Region switch
         {
             CpuBusRegion.WorkRam when bank is 0x7e or 0x7f => (bank - 0x7e) * 0x10000 + offset,
@@ -116,7 +116,7 @@ internal static class CpuBusCatalogInventory
     }
 
     /// <summary>The <c>$BB:OOOO</c> form of a 24-bit CPU address.</summary>
-    internal static string FormatAddress(int address) => $"${address >> 16:X2}:{address & 0xffff:X4}";
+    internal static string FormatAddress(int address) => $"${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4}";
 
     /// <summary>
     /// Renders the inventory: one record per cell with its owner, name, store, address, size,

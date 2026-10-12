@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -12,7 +13,7 @@ internal abstract class WalkingSpacePirateInstructionProgramDefinitionsTooling :
     public static ushort PresentationWordAddress(int index) => WalkingSpacePirateInstructionProgramDefinitions.PresentationWordAddress(index);
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xb20000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xb20000) return false;
         ushort offset = unchecked((ushort)address);
         for (int index = 0; index < WalkingSpacePirateInstructionProgramDefinitions.MechanicsWordCount; index++)
         {

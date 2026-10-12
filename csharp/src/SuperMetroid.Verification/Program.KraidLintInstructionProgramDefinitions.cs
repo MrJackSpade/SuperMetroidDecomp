@@ -113,7 +113,7 @@ internal static partial class Program
             .Forbid(KraidLintInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                     address => $"Production read compiled Kraid lint mechanics byte ${address:X6}.");
         // Records every presentation word whose low or high byte is read.
-        guard.Observe(address => (address & 0xff0000) == 0xa70000, address =>
+        guard.Observe(address => (SnesAddressMath.BankBase(address)) == 0xa70000, address =>
         {
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0; index < KraidLintInstructionProgramDefinitions.PresentationWordCount; index++)

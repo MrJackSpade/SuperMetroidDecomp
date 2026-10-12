@@ -249,7 +249,7 @@ internal static partial class Program
     private static MutableCartridgeReadGuard NewRoomFxArtworkForbiddenBus(ISnesAddressSpace inner)
     {
         var guard = new MutableCartridgeReadGuard(inner);
-        guard.Forbid(address => (address >> 16) == 0x87,
+        guard.Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x87,
             address => $"Installed room-FX artwork read ROM ${address:X6}.");
         return guard;
     }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -27,7 +28,7 @@ internal abstract class ShaktoolInstructionProgramDefinitionsTooling : IInstruct
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xaa0000) return false;
         ushort bankAddress = (ushort)(address & 0xfffe);
         return bankAddress >= ShaktoolInstructionProgramDefinitions.SawHandAttackPrimaryPiece && bankAddress < ShaktoolInstructionProgramDefinitions.FirstAdjacentCodeRoutine && !ShaktoolInstructionProgramDefinitions.IsPresentationWord(bankAddress);
     }

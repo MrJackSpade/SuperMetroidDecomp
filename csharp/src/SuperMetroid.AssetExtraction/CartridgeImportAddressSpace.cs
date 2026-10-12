@@ -40,7 +40,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
     /// <exception cref="InvalidOperationException">The mapped byte falls beyond the loaded image.</exception>
     public byte ReadCartridgeByte(int cpuAddress)
     {
-        int bank = cpuAddress >> 16;
+        int bank = SnesAddressMath.BankNumber(cpuAddress);
         if ((uint)cpuAddress > 0x00ff_ffff || bank is 0x7e or 0x7f ||
             (cpuAddress & 0x8000) == 0)
             throw new ArgumentOutOfRangeException(nameof(cpuAddress), cpuAddress,
@@ -49,7 +49,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
         int offset = ToRomOffset(cpuAddress);
         if ((uint)offset >= _rom.Length)
             throw new InvalidOperationException(
-                $"Cartridge address ${bank:X2}:{cpuAddress & 0xffff:X4} is not populated.");
+                $"Cartridge address ${bank:X2}:{SnesAddressMath.OffsetInBank(cpuAddress):X4} is not populated.");
         return _rom[offset];
     }
 
@@ -63,7 +63,7 @@ public sealed class CartridgeImportAddressSpace : SuperMetroidAddressSpace,
         if ((uint)address > 0x00ff_ffff || (address & 0x8000) == 0)
             throw new ArgumentOutOfRangeException(nameof(address), address,
                 "Address is outside the upper LoROM window.");
-        int bank = address >> 16;
+        int bank = SnesAddressMath.BankNumber(address);
         return ((bank << 15) | (address & 0x7fff)) & 0x3f_ffff;
     }
 }

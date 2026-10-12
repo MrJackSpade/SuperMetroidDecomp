@@ -34,7 +34,7 @@ internal readonly struct KraidLowBankAliasMemory(ISnesAddressSpace bus)
                 .ReadSaveRamByte(address),
             SnesDmaSourceKind.Unmapped => (bus as ISnesCpuPeripheralSource ??
                 throw new InvalidOperationException(
-                    $"CPU read ${address >> 16:X2}:{(ushort)address:X4} is outside the runtime address map."))
+                    $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{(ushort)address:X4} is outside the runtime address map."))
                 .ReadPeripheralByte(address),
             _ => throw new InvalidDataException(
                 $"Kraid mouth alias ${address:X6} requires a compiled cartridge definition."),

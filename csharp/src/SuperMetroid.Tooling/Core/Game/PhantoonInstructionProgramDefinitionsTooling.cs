@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
@@ -13,7 +14,7 @@ internal abstract class PhantoonInstructionProgramDefinitionsTooling : IInstruct
     public static ushort PresentationWordAddress(int index) => PhantoonInstructionProgramDefinitions.PresentationWordAddress(index);
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa70000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa70000)
             return false;
 
         ushort bankAddress = unchecked((ushort)address);

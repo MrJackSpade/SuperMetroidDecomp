@@ -11,5 +11,5 @@ namespace SuperMetroid.AssetExtraction;
 internal static class CartridgeBankWindow
 {
     /// <summary>The CPU address of bank-local <paramref name="offset"/> in the bank holding <paramref name="window"/>.</summary>
-    internal static int At(CpuBusCell window, int offset) => (window.Address & 0xff0000) | offset;
+    internal static int At(CpuBusCell window, int offset) => (SnesAddressMath.BankBase(window.Address)) | offset;
 }

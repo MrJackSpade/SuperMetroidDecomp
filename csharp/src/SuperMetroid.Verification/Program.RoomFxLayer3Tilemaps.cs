@@ -113,7 +113,7 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewForbiddenRoomFxTilemapBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
-            address => (address >> 16) == 0x8a ||
+            address => (SnesAddressMath.BankNumber(address)) == 0x8a ||
                 address >= RoomFxRomData.Tables.Layer3TilemapPointers &&
                 address < RoomFxRomData.Tables.Layer3TilemapPointers + 14,
             address => $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");

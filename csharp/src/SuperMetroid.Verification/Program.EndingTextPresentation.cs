@@ -179,7 +179,7 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewEndingTextReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => address >> 16 == EndingTextDefinitions.Native.Bank &&
-                    (address & 0xffff) is >= EndingTextDefinitions.Native.ResultPanel and <= 0xe1e8,
+            .Forbid(address => SnesAddressMath.BankNumber(address) == EndingTextDefinitions.Native.Bank &&
+                    (SnesAddressMath.OffsetInBank(address)) is >= EndingTextDefinitions.Native.ResultPanel and <= 0xe1e8,
                 address => $"Installed ending text read cartridge address ${address:X6}.");
 }

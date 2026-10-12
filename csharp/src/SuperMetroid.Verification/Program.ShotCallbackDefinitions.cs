@@ -42,8 +42,8 @@ internal static partial class Program
                 for (int box = 0; box < count; box++)
                 {
                     int hitbox = address + 2 + box * 12;
-                    touchCallbacks.Add((address & 0xff0000) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 8)));
-                    shotCallbacks.Add((address & 0xff0000) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)));
+                    touchCallbacks.Add((SnesAddressMath.BankBase(address)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 8)));
+                    shotCallbacks.Add((SnesAddressMath.BankBase(address)) | CartridgeImportSource.Require(rom).ReadCartridgeWord((hitbox + 10)));
                     boxes++;
                 }
             }
@@ -55,10 +55,10 @@ internal static partial class Program
         AssertEqual(80, shotCallbacks.Count, "distinct header and hitbox shot callbacks");
         AssertEqual(71, touchCallbacks.Count, "distinct header and hitbox touch callbacks");
         var expectedShotNoOps = shotCallbacks
-            .Where(address => (address & 65535) != 0 && rom.ReadCartridgeByte(address) == 0x6b)
+            .Where(address => (SnesAddressMath.OffsetInBank(address)) != 0 && rom.ReadCartridgeByte(address) == 0x6b)
             .ToHashSet();
         var expectedTouchNoOps = touchCallbacks
-            .Where(address => (address & 65535) != 0 && rom.ReadCartridgeByte(address) == 0x6b)
+            .Where(address => (SnesAddressMath.OffsetInBank(address)) != 0 && rom.ReadCartridgeByte(address) == 0x6b)
             .ToHashSet();
         AssertEqual(12, expectedShotNoOps.Count, "native literal shot no-op count");
         AssertEqual(15, expectedTouchNoOps.Count, "native literal touch no-op count");

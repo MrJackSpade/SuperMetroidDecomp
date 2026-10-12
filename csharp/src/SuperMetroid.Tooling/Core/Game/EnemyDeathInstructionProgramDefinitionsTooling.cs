@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -28,6 +29,6 @@ internal abstract class EnemyDeathInstructionProgramDefinitionsTooling : IInstru
         : index <= frameCount ? 4 * (index - 1) + 2
         : 4 * frameCount + 2 + 2 * (index - frameCount - 1);
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        (SnesAddressMath.BankBase(address)) == EnemyProjectileCodePointers.BankBase &&
         (EnemyDeathInstructionProgramDefinitions.TryWord(unchecked((ushort)address), out _) || EnemyDeathInstructionProgramDefinitions.TryWord(unchecked((ushort)(address - 1)), out _));
 }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -27,7 +28,7 @@ internal abstract class WorkRobotInstructionProgramDefinitionsTooling : IInstruc
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;
         ushort bankAddress = (ushort)address;
         if (bankAddress is < WorkRobotInstructionProgramDefinitions.NoPowerNeutral or >= WorkRobotInstructionProgramDefinitions.EndAddress) return false;
         ushort wordAddress = (ushort)(bankAddress - ((bankAddress - WorkRobotInstructionProgramDefinitions.NoPowerNeutral) & 1));

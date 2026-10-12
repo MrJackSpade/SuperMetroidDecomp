@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -23,7 +24,7 @@ internal abstract class BlueBrinstarFaceBlockInstructionProgramDefinitionsToolin
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;
         int offset = unchecked((ushort)address) - BlueBrinstarFaceBlockInstructionProgramDefinitions.SamusLeft;
         if ((uint)offset < 28) return offset % 14 % 4 < 2;
         int initialOffset = unchecked((ushort)address) - BlueBrinstarFaceBlockInstructionProgramDefinitions.Initial;

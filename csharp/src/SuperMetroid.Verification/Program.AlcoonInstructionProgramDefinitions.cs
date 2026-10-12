@@ -254,7 +254,7 @@ internal static partial class Program
 
         static ushort? PresentationWord(int address)
         {
-            if ((address & 0xff0000) != 0xa80000)
+            if ((SnesAddressMath.BankBase(address)) != 0xa80000)
                 return null;
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0; index < AlcoonInstructionProgramDefinitionsTooling.PresentationWordCount; index++)

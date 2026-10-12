@@ -101,7 +101,7 @@ internal static partial class Program
     private static MutableCartridgeReadGuard NewBeamArtworkReadGuard(ISnesAddressSpace source)
     {
         var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => (address >> 16) == 0x9a || address is >= 0x90c3b1 and < 0x90c3c9,
+        guard.Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x9a || address is >= 0x90c3b1 and < 0x90c3c9,
                 _ => new InvalidDataException("Authored beam queue still reads ROM graphics or selection pointers."))
             .RejectWrites(_ => "Artwork queue wrote the bus.");
         return guard;

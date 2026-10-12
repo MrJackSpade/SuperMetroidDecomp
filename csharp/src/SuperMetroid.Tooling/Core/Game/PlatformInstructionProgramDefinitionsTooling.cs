@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -23,7 +24,7 @@ internal abstract class PlatformInstructionProgramDefinitionsTooling : IInstruct
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
         int offset = unchecked((ushort)address) - PlatformInstructionProgramDefinitions.KamerMovingLeft;
         if ((uint)offset >= 176) return false;
         int local = offset % 22;

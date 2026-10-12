@@ -162,7 +162,7 @@ internal static partial class Program
 
     private static bool IsKraidNailSelectorByte(int address)
     {
-        if ((address & 0xff0000) != 0xa70000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa70000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
         for (int index = 0; index < KraidNailInstructionProgramDefinitions.PresentationWordCount; index++)

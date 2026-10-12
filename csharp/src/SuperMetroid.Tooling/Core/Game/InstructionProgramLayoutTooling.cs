@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>Development-tool instance members of <see cref="InstructionProgramLayout"/>.</summary>
 internal static class InstructionProgramLayoutToolingExtensions
@@ -32,8 +33,8 @@ internal static class InstructionProgramLayoutToolingExtensions
         /// <summary>True when either byte of a mechanics word lies at <paramref name="longAddress"/>.</summary>
         internal bool IsCompiledMechanicsByte(int longAddress)
         {
-            if (longAddress >> 16 != self.Bank) return false;
-            int bankAddress = longAddress & ushort.MaxValue;
+            if (SnesAddressMath.BankNumber(longAddress) != self.Bank) return false;
+            int bankAddress = SnesAddressMath.OffsetInBank(longAddress);
             return self.TryWordContaining(bankAddress, out _, out InstructionWord word) && !word.IsPresentation;
         }
     }

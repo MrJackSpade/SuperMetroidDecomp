@@ -33,7 +33,7 @@ internal static partial class Program
         CartridgeReadGuard guard = new CartridgeReadGuard(rom)
             .Forbid(BrinstarPipeBugInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
                 address => $"Production read compiled Pipe Bug mechanics byte ${address:X6}.")
-            .Observe(address => (address & 0xff0000) == 0xb30000 &&
+            .Observe(address => (SnesAddressMath.BankBase(address)) == 0xb30000 &&
                     Enumerable.Range(0, BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordCount)
                         .Select(BrinstarPipeBugInstructionProgramDefinitionsTooling.PresentationWordAddress)
                         .Any(word => unchecked((ushort)address) == word ||

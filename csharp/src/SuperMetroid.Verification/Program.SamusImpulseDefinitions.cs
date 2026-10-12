@@ -83,7 +83,7 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewImpulsePoseReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => address >> 16 != 0x91,
+            .Forbid(address => SnesAddressMath.BankNumber(address) != 0x91,
                 address => $"Impulse test permits only remaining pose/animation reads, got ${address:X6}.")
             .RejectWrites(_ => "Unexpected impulse bus write.");
 }

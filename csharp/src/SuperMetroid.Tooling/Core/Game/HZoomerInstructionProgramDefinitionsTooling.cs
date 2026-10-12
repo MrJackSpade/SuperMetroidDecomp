@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -17,7 +18,7 @@ internal abstract class HZoomerInstructionProgramDefinitionsTooling : IInstructi
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
         for (int index = 0; index < HZoomerInstructionProgramDefinitions.MechanicsWordCount; index++)

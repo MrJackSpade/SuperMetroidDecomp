@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Game;
+﻿using SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Game;
 
 /// <summary>
 /// The cartridge's $AA:B879 dormant Bomb Torizo entry, through its first sleep.
@@ -51,7 +52,7 @@ internal abstract class BombTorizoDormantInstructionProgramDefinitions : IInstru
 
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xaa0000) return false;
         int offset = unchecked((ushort)address) - Initial;
         return (uint)offset < 14 && (offset < 6 || offset >= 8);
     }

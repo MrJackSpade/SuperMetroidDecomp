@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -32,8 +33,8 @@ internal abstract class ZoaInstructionProgramDefinitionsTooling : IInstructionPr
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000) return false;
-        int relative = (address & 0xffff) - ZoaInstructionProgramDefinitions.FacingLeftShooting;
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
+        int relative = (SnesAddressMath.OffsetInBank(address)) - ZoaInstructionProgramDefinitions.FacingLeftShooting;
         if ((uint)relative >= 76) return false;
         int offset = relative % 38;
         // Exclude the two presentation bytes in each timed frame. Both bytes of

@@ -26,7 +26,7 @@ internal static partial class Program
         int bank = body.Definition.Bank << 16;
         // Installed gameplay has no cartridge; the reference words come from a separate import.
         var rom = draygonReferenceRom.Value;
-        int Word(int pointer) => rom.ReadCartridgeWordFixedBank(bank | (pointer & 65535));
+        int Word(int pointer) => rom.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(pointer)));
         int components = Word(body.SpritemapPointer);
         if (components > 32) throw new InvalidOperationException("Unexpected Draygon extended map size.");
         int checkedWords = 0;

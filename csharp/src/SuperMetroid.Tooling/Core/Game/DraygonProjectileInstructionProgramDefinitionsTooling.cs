@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -27,6 +28,6 @@ internal abstract class DraygonProjectileInstructionProgramDefinitionsTooling : 
         return new((ushort)address, DraygonProjectileInstructionProgramDefinitions.ReadMechanicsWord((ushort)address));
     }
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        (SnesAddressMath.BankBase(address)) == EnemyProjectileCodePointers.BankBase &&
         DraygonProjectileInstructionProgramDefinitions.TryRead((ushort)(address & ~1), out _);
 }

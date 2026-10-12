@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -11,7 +12,7 @@ internal abstract class PolypInstructionProgramDefinitionsTooling : IInstruction
     static ushort ISinglePresentationOperand.PresentationWord => PolypInstructionProgramDefinitions.PresentationWord;
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa20000)
             return false;
         ushort bankAddress = unchecked((ushort)address);
         return bankAddress is 0xb51a or 0xb51b or 0xb51e or 0xb51f;

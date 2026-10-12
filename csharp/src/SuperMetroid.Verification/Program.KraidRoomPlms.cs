@@ -91,12 +91,12 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewKraidRoomSourceGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
-            address => (address >> 16) == 0x84 &&
-                (((address & 0xffff) >= KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1 &&
-                  (address & 0xffff) < KraidRoomPlmProgramDefinitions.MoveRightCallback) ||
-                 ((address & 0xffff) >= KraidRoomPlmProgramDefinitions.ClearSpikes &&
-                  (address & 0xffff) < KraidRoomPlmProgramDefinitions.EndExclusive) ||
-                 ((address & 0xffff) >= (ushort)KraidRoomDraw.CrumbleFirst &&
-                  (address & 0xffff) < KraidRoomPlmDrawDefinitions.EndExclusive)),
+            address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
+                (((SnesAddressMath.OffsetInBank(address)) >= KraidRoomPlmProgramDefinitions.CrumbleCeilingBackground1 &&
+                  (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmProgramDefinitions.MoveRightCallback) ||
+                 ((SnesAddressMath.OffsetInBank(address)) >= KraidRoomPlmProgramDefinitions.ClearSpikes &&
+                  (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmProgramDefinitions.EndExclusive) ||
+                 ((SnesAddressMath.OffsetInBank(address)) >= (ushort)KraidRoomDraw.CrumbleFirst &&
+                  (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");
 }

@@ -9,7 +9,7 @@ internal static partial class Program
     private static byte[] ReadReferenceExtendedBg2Vram(
         ISnesAddressSpace rom, byte bank, ushort pointer, bool newInstructionFrame)
     {
-        byte ReadByte(int address) => rom.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(address & 0xffff)))));
+        byte ReadByte(int address) => rom.ReadCartridgeByte(((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(address))))));
         ushort ReadWord(int address) => SnesLittleEndian.Word(ReadByte(address), ReadByte(address + 1));
         var vram = new byte[0x10000];
         if (!newInstructionFrame)

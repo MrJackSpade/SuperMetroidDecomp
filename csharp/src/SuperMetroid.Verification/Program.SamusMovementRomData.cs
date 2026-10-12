@@ -121,7 +121,7 @@ internal static partial class Program
     {
         AssertTrue(byteCount > 0, $"{description} has a positive byte count");
         int finalAddress = checked(address + byteCount - 1);
-        AssertEqual(address >> 16, finalAddress >> 16,
+        AssertEqual(SnesAddressMath.BankNumber(address), SnesAddressMath.BankNumber(finalAddress),
             $"{description} remains inside its native bank");
         bus.ReadCartridgeByte(address);
         bus.ReadCartridgeByte(finalAddress);

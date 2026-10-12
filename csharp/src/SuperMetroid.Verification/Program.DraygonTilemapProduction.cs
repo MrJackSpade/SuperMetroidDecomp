@@ -50,17 +50,17 @@ internal static partial class Program
                 int count = bus.ReadCartridgeByte(bank | slot.SpritemapPointer);
                 for (int component = 0; component < count; component++)
                 {
-                    int stream = bus.ReadCartridgeWordFixedBank(bank | ((slot.SpritemapPointer + 2 + component * 8 + 4) & 65535));
+                    int stream = bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(slot.SpritemapPointer + 2 + component * 8 + 4)));
                     if (bus.ReadCartridgeWordFixedBank(bank | (stream & 65535)) != 0xfffe) continue;
                     streams.Add(bank | stream); queuedTransfer = true;
                     int cursor = stream + 2;
                     for (int command = 0; ; command++)
                     {
-                        int destination = bus.ReadCartridgeWordFixedBank(bank | (cursor & 65535)); if (destination == 0xffff) break;
-                        int words = bus.ReadCartridgeWordFixedBank(bank | ((cursor + 2) & 65535)), first = (destination - 0x2000) / 2;
+                        int destination = bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(cursor))); if (destination == 0xffff) break;
+                        int words = bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(cursor + 2))), first = (destination - 0x2000) / 2;
                         if (command >= 128 || (destination & 1) != 0 || words <= 0 || first < 0 || first + words > staging.Length)
                             throw new InvalidDataException("Invalid native Draygon command in independent producer audit.");
-                        for (int i = 0; i < words; i++) { staging[first + i] = (ushort)bus.ReadCartridgeWordFixedBank(bank | ((cursor + 4 + i * 2) & 65535)); destinations.Add(first + i); }
+                        for (int i = 0; i < words; i++) { staging[first + i] = (ushort)bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(cursor + 4 + i * 2))); destinations.Add(first + i); }
                         commands++; cursor += 4 + words * 2;
                     }
                 }

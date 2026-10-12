@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -17,7 +18,7 @@ internal abstract class GoldenTorizoEggInstructionProgramDefinitionsTooling : II
         {
             return true;
         }
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
         ushort bankAddress = unchecked((ushort)address);
         for (int index = 0; index < GoldenTorizoEggInstructionProgramDefinitions.MechanicsWordCount; index++)
         {

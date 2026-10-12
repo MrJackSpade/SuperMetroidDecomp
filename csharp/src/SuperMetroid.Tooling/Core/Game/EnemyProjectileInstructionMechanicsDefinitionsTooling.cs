@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -20,7 +21,7 @@ internal abstract class EnemyProjectileInstructionMechanicsDefinitionsTooling : 
             return count;
         }
     }
-    public static bool IsCompiledMechanicsByte(int address) => (address & 0xff0000) == 0x860000 &&
+    public static bool IsCompiledMechanicsByte(int address) => (SnesAddressMath.BankBase(address)) == 0x860000 &&
         (EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord((ushort)address, out _) || EnemyProjectileInstructionMechanicsDefinitions.TryReadMechanicsWord(unchecked((ushort)(address - 1)), out _));
     public static InstructionMechanicsWord MechanicsWord(int index)
     {

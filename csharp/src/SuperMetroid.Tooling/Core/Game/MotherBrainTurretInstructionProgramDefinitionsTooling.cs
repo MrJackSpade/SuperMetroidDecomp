@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -30,7 +31,7 @@ internal abstract class MotherBrainTurretInstructionProgramDefinitionsTooling : 
         };
     }
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == EnemyProjectileCodePointers.BankBase &&
+        (SnesAddressMath.BankBase(address)) == EnemyProjectileCodePointers.BankBase &&
         (MotherBrainTurretInstructionProgramDefinitions.TryRead(unchecked((ushort)address), out _) ||
          MotherBrainTurretInstructionProgramDefinitions.TryRead(unchecked((ushort)(address - 1)), out _));
     internal static InstructionMechanicsWord PoseWord(ushort first, int index) =>

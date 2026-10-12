@@ -18,9 +18,9 @@ internal static partial class Program
             int address = 0xa60000 | record.Pointer;
             AssertEqual(record.ByteCount, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                 $"Ceres transfer ${record.Pointer:X4} byte count");
-            AssertEqual(record.SourceAddress & 0xffff, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)),
+            AssertEqual(SnesAddressMath.OffsetInBank(record.SourceAddress), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2)),
                 $"Ceres transfer ${record.Pointer:X4} source offset");
-            AssertEqual(record.SourceAddress >> 16, rom.ReadCartridgeByte(address + 4),
+            AssertEqual(SnesAddressMath.BankNumber(record.SourceAddress), rom.ReadCartridgeByte(address + 4),
                 $"Ceres transfer ${record.Pointer:X4} source bank");
             AssertEqual(record.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 5)),
                 $"Ceres transfer ${record.Pointer:X4} VRAM destination");

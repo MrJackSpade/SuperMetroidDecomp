@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -16,7 +17,7 @@ internal abstract class GoldenTorizoAwakeningInstructionProgramDefinitionsToolin
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xaa0000)
+        if ((SnesAddressMath.BankBase(address)) != 0xaa0000)
             return false;
         ushort offset = unchecked((ushort)address);
         for (int index = 0; index < MechanicsWordCount; index++)

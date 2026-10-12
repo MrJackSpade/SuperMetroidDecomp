@@ -49,7 +49,7 @@ internal static class ChargeFlareAnimationDefinitions
     }
 
     internal static ushort ReadWord(int address) =>
-        SnesLittleEndian.Word(ReadByte(address), ReadByte((address & 0xff0000) | ((address + 1) & 0xffff)));
+        SnesLittleEndian.Word(ReadByte(address), ReadByte(SnesAddressMath.AddWithinBank(address, 1)));
 }
 
 /// <summary>Command bytes in a charge-flare delay stream; every other byte is a delay.</summary>

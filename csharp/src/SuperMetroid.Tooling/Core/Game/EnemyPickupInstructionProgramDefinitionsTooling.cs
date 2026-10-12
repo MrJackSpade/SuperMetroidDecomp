@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -24,7 +25,7 @@ internal abstract class EnemyPickupInstructionProgramDefinitionsTooling : IInstr
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase)
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase)
             return false;
         ushort bankAddress = unchecked((ushort)address);
         return EnemyPickupInstructionProgramDefinitions.TryRead(bankAddress, out _) || EnemyPickupInstructionProgramDefinitions.TryRead(unchecked((ushort)(bankAddress - 1)), out _);

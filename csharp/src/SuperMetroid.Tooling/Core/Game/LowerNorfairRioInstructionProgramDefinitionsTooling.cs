@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -32,7 +33,7 @@ internal abstract class LowerNorfairRioInstructionProgramDefinitionsTooling : II
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa20000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa20000)
             return false;
         ushort word = (ushort)(address & ~1);
         return LowerNorfairRioInstructionProgramDefinitions.ProgramAt(word) is not null && !LowerNorfairRioInstructionProgramDefinitions.IsPresentationWord(word);

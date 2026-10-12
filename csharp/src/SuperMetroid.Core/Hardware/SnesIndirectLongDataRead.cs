@@ -33,8 +33,8 @@ public static class SnesIndirectLongDataRead
     private static byte ReadDataByte(ISnesAddressSpace bus, int address, byte busLatch,
         ReadOnlySpan<byte> cartridgeDefinition, int definitionAddress)
     {
-        int bank = address >> 16;
-        int offset = address & 0xffff;
+        int bank = SnesAddressMath.BankNumber(address);
+        int offset = SnesAddressMath.OffsetInBank(address);
         if ((bank & LoRomExpansionReadMap.MirrorBankMask) < LoRomExpansionReadMap.SystemBankLimit &&
             offset >= LoRomExpansionReadMap.ExpansionStart && offset < LoRomExpansionReadMap.RomStart)
             return busLatch;

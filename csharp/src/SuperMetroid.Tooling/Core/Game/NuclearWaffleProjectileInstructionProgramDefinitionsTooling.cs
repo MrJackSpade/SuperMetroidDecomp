@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -17,7 +18,7 @@ internal abstract class NuclearWaffleProjectileInstructionProgramDefinitionsTool
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (ushort)address - NuclearWaffleProjectileInstructionProgramDefinitions.Initial;
         return (uint)offset < NuclearWaffleProjectileInstructionProgramDefinitions.FrameCount * 4 + 4 && (offset >= NuclearWaffleProjectileInstructionProgramDefinitions.FrameCount * 4 || offset % 4 < 2);
     }

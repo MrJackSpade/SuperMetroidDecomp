@@ -145,8 +145,8 @@ internal static partial class Program
 
     private static CartridgeReadGuard NewMotherBrainHeadInstructionReadGuard(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source)
-            .Forbid(address => (address >> 16) == 0xa9 && MotherBrainHeadRegions.Any(region =>
-                (address & 0xffff) >= region.Start &&
-                (address & 0xffff) <= region.End + 1),
+            .Forbid(address => (SnesAddressMath.BankNumber(address)) == 0xa9 && MotherBrainHeadRegions.Any(region =>
+                (SnesAddressMath.OffsetInBank(address)) >= region.Start &&
+                (SnesAddressMath.OffsetInBank(address)) <= region.End + 1),
                 address => $"Mother Brain reread compiled head instruction at ${address:X6}.");
 }

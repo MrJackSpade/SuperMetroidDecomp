@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -17,6 +18,6 @@ internal abstract class KzanInstructionProgramDefinitionsTooling : IInstructionP
         _ => throw new IndexOutOfRangeException(),
     };
     public static bool IsCompiledMechanicsByte(int address) =>
-        (address & 0xff0000) == 0xa60000 &&
+        (SnesAddressMath.BankBase(address)) == 0xa60000 &&
         ((ushort)address - KzanInstructionProgramDefinitions.Idle is 0 or 1 or 4 or 5);
 }

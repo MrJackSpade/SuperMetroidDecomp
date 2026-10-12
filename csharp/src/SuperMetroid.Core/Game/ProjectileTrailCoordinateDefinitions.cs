@@ -756,7 +756,7 @@ internal static class ProjectileTrailCoordinateDefinitions
 
     internal static ushort ReadCompiledWord(int address)
     {
-        int next = (address & 0xff0000) | ((address + 1) & 0xffff);
+        int next = SnesAddressMath.AddWithinBank(address, 1);
         if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
             return (ushort)(SnesLittleEndian.Word(low, high));
 
@@ -773,7 +773,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// </summary>
     internal static ushort ReadDirectionPointer(ISnesAddressSpace bus, int address)
     {
-        int next = (address & 0xff0000) | ((address + 1) & 0xffff);
+        int next = SnesAddressMath.AddWithinBank(address, 1);
         if (TryReadByte(address, out byte low) && TryReadByte(next, out byte high))
             return (ushort)(SnesLittleEndian.Word(low, high));
 

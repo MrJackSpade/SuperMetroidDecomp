@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -30,8 +31,8 @@ internal abstract class CrocomireTongueInstructionProgramDefinitionsTooling : II
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa40000) return false;
-        int bankAddress = address & 0xffff;
+        if ((SnesAddressMath.BankBase(address)) != 0xa40000) return false;
+        int bankAddress = SnesAddressMath.OffsetInBank(address);
         if (bankAddress is CrocomireTongueInstructionProgramDefinitions.Sleep or (CrocomireTongueInstructionProgramDefinitions.Sleep + 1)) return true;
         int offset = bankAddress < CrocomireTongueInstructionProgramDefinitions.Melting ? bankAddress - CrocomireTongueInstructionProgramDefinitions.Fight : bankAddress - CrocomireTongueInstructionProgramDefinitions.Melting;
         int frameCount = bankAddress < CrocomireTongueInstructionProgramDefinitions.Melting ? 4 : 5;

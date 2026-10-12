@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -24,7 +25,7 @@ internal abstract class MotherBrainGlassInstructionProgramDefinitionsTooling : I
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != EnemyProjectileCodePointers.BankBase) return false;
+        if ((SnesAddressMath.BankBase(address)) != EnemyProjectileCodePointers.BankBase) return false;
         int offset = (ushort)address - MotherBrainGlassInstructionProgramDefinitions.ShardGroup0;
         if (offset is >= 0 and < (8 * 36))
         {

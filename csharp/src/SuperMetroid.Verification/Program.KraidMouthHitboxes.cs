@@ -121,7 +121,7 @@ internal static partial class Program
             SnesDmaSourceKind.SaveRam => rom.ReadSaveRamByte(address),
             SnesDmaSourceKind.Cartridge => rom.ReadCartridgeByte(address),
             _ => throw new InvalidOperationException(
-                $"CPU read ${address >> 16:X2}:{address & 0xffff:X4} is outside the runtime address map."),
+                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };
 
     private static MutableCartridgeReadGuard NewKraidMouthLowHalfGuard(ISnesAddressSpace source)

@@ -524,7 +524,7 @@ internal static partial class Program
                 address => $"Production read compiled enemy-projectile mechanics byte ${address:X6}.")
             .Observe(address =>
                     MotherBrainHandBeamInstructionProgramDefinitions.IsPresentationByte(address) ||
-                    (address & 0xff0000) == 0x860000 &&
+                    (SnesAddressMath.BankBase(address)) == 0x860000 &&
                     (EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand((ushort)address) ||
                      EnemyProjectileInstructionMechanicsDefinitions.IsVisualOperand(unchecked((ushort)(address - 1)))),
                 address => presentationReadBytes.Add(address));

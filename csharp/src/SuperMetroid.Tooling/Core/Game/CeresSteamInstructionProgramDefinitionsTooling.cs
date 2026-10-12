@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -19,7 +20,7 @@ internal abstract class CeresSteamInstructionProgramDefinitionsTooling : IInstru
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa60000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa60000)
             return false;
 
         ushort bankAddress = unchecked((ushort)address);

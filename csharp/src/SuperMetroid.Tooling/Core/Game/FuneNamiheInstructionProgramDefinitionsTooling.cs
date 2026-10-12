@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -39,7 +40,7 @@ internal abstract class FuneNamiheInstructionProgramDefinitionsTooling : IInstru
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa80000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa80000) return false;
         ushort bankAddress = unchecked((ushort)address);
         if (!FuneNamiheInstructionProgramDefinitions.TryLocate(bankAddress, out _, out _, out int local)) return false;
         // Every program begins at an odd bank address; align relative to that start.

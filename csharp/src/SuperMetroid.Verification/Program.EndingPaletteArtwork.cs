@@ -621,7 +621,7 @@ internal static partial class Program
         foreach ((EndingPaletteId id, int start, int end) in EndingPaletteSourceRanges)
             guard.Forbid(address => address >= start && address < end,
                 address => $"Ending reread {id} palette source ${address:X6}.");
-        guard.Observe(address => rejectAllCartridgeReads() && address >> 16 is not (0x7e or 0x7f) &&
+        guard.Observe(address => rejectAllCartridgeReads() && SnesAddressMath.BankNumber(address) is not (0x7e or 0x7f) &&
                 (address & 0x8000) != 0,
             address => throw new InvalidOperationException(
                 $"Installed ending reread cartridge byte ${address:X6}."));

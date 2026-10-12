@@ -518,6 +518,6 @@ internal static partial class Program
     private static CartridgeReadGuard NewTitlePresentationReadBus(ISnesAddressSpace source, HashSet<int> addresses, bool forbidReads) =>
         forbidReads
             ? new CartridgeReadGuard(source).Forbid(addresses.Contains,
-                address => $"Production title gradient reread cartridge byte {address >> 16:X2}:{address & 0xffff:X4}.")
+                address => $"Production title gradient reread cartridge byte {SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4}.")
             : new CartridgeReadGuard(source).Observe(_ => true, address => addresses.Add(address));
 }

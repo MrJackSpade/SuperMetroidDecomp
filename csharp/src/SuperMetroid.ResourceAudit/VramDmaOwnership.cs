@@ -21,7 +21,7 @@ internal static class VramDmaOwnership
         if (source == StandardObjectArtworkAddresses.Source && count == StandardObjectArtworkFormat.TransferByteCount) return true;
         if (SamusSpecialSequenceRomData.Death.TileSegments.ToArray().Any(segment => segment.SourceAddress == source &&
                 count == SamusSpecialSequenceRomData.Death.TileSegmentByteCount)) return true;
-        if ((source & 0xff0000) == SamusRenderingRomData.Banks.CharacterData &&
+        if ((SnesAddressMath.BankBase(source)) == SamusRenderingRomData.Banks.CharacterData &&
             SamusArmCannonArtworkFormat.TileSourcePointers.Contains((ushort)source) &&
             count == SamusRenderingRomData.ArmCannon.TileUploadByteCount) return true;
         if (GunshipLiftoffTransferDefinitions.Frames.ToArray().Any(frame => frame.SourceAddress == source &&

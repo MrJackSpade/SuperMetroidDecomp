@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -25,7 +26,7 @@ internal abstract class MetroidInstructionProgramDefinitionsTooling : IInstructi
     }
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa30000) return false;
+        if ((SnesAddressMath.BankBase(address)) != 0xa30000) return false;
         int pointer = (ushort)address;
         bool chasing = pointer < MetroidInstructionProgramDefinitions.DrainingSamus;
         int offset = pointer - (chasing ? MetroidInstructionProgramDefinitions.ChasingSamus : MetroidInstructionProgramDefinitions.DrainingSamus);

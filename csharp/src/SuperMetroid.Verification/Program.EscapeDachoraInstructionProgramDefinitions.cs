@@ -146,7 +146,7 @@ internal static partial class Program
             EscapeDachoraInstructionProgramDefinitionsTooling.IsCompiledMechanicsByte,
             address => $"Production read compiled escape-Dachora mechanics byte ${address:X6}.");
         // Every presentation word whose low or high byte is read is recorded, not just the first.
-        guard.Observe(address => (address & 0xff0000) == 0xb30000, address =>
+        guard.Observe(address => (SnesAddressMath.BankBase(address)) == 0xb30000, address =>
         {
             ushort bankAddress = unchecked((ushort)address);
             for (int index = 0; index < EscapeDachoraInstructionProgramDefinitions.PresentationWordCount; index++)

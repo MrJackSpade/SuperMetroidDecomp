@@ -20,7 +20,7 @@ public static class SnesCpuOperandRead
 
     private static byte ReadData(ISnesAddressSpace bus, int address, byte memoryDataRegister)
     {
-        int bank = address >> 16, offset = address & 0xffff;
+        int bank = SnesAddressMath.BankNumber(address), offset = SnesAddressMath.OffsetInBank(address);
         // Neither the console nor this game's unenhanced LoROM cartridge drives
         // these reserved B-bus and expansion A-bus windows. This is not a generic
         // mapping for enhancement-chip cartridges, which can decode expansion I/O.

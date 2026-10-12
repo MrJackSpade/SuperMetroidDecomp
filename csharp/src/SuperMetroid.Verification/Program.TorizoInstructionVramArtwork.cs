@@ -84,7 +84,7 @@ internal static partial class Program
             int source = (CartridgeImportSource.Require(rom).ReadCartridgeLong(descriptor + 2));
             ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5));
             if (byteCount is 0 or > 0x2000 ||
-                (source >> 16) < 0x80 || destination > 0x7fff)
+                (SnesAddressMath.BankNumber(source)) < 0x80 || destination > 0x7fff)
                 continue;
             AssertTrue(authoredOpcodes.Contains(unchecked((ushort)address)),
                 $"native Torizo $814B descriptor $AA:{address:X4} is catalogued");

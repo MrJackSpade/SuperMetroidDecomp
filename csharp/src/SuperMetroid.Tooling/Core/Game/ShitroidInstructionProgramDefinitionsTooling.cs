@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Tooling;
+﻿using SuperMetroid.Core.Hardware;
+using SuperMetroid.Tooling;
 
 namespace SuperMetroid.Core.Game;
 
@@ -12,7 +13,7 @@ internal abstract class ShitroidInstructionProgramDefinitionsTooling : IInstruct
     public static ushort PresentationWordAddress(int index) => ShitroidInstructionProgramDefinitions.PresentationWordAddress(index);
     public static bool IsCompiledMechanicsByte(int address)
     {
-        if ((address & 0xff0000) != 0xa90000)
+        if ((SnesAddressMath.BankBase(address)) != 0xa90000)
             return false;
 
         ushort bankAddress = unchecked((ushort)address);

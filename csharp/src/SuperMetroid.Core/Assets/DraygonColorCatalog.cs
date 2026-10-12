@@ -87,21 +87,21 @@ public sealed class DraygonColorCatalog
 
     /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
     public void ApplyIntro(SnesCgram cgram) =>
-        ApplyCalculated(cgram, DraygonColorRomData.IntroCount, DraygonColorRomData.IntroDestination, ResolveIntro);
+        ApplyCalculated(new BossPalettes(cgram).DraygonIntro, DraygonColorRomData.IntroCount, ResolveIntro);
 
     /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
     public void ApplyHurt(SnesCgram cgram, bool whiteFrame, ushort healthTableByteIndex)
     {
         if (whiteFrame)
-            ApplyCalculated(cgram, DraygonColorRomData.WhiteFlashCount, DraygonColorRomData.BackgroundDestination, ResolveWhiteFlash);
+            ApplyCalculated(new BossPalettes(cgram).DraygonBackground, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
         else
-            ApplyCalculated(cgram, DraygonColorRomData.BackgroundCount, DraygonColorRomData.BackgroundDestination, ResolveBackground);
+            ApplyCalculated(new BossPalettes(cgram).DraygonBackground, DraygonColorRomData.BackgroundCount, ResolveBackground);
         if (!whiteFrame)
             ApplyHealthBand(cgram, healthTableByteIndex);
         if (whiteFrame)
-            ApplyCalculated(cgram, DraygonColorRomData.WhiteFlashCount, DraygonColorRomData.SpriteDestination, ResolveWhiteFlash);
+            ApplyCalculated(new BossPalettes(cgram).DraygonSprite, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
         else
-            ApplyCalculated(cgram, DraygonColorRomData.SpriteCount, DraygonColorRomData.SpriteDestination, ResolveSprite);
+            ApplyCalculated(new BossPalettes(cgram).DraygonSprite, DraygonColorRomData.SpriteCount, ResolveSprite);
     }
 
     /// <summary>Installs the four-color health band selected by its even native table byte index.</summary>
@@ -113,7 +113,7 @@ public sealed class DraygonColorCatalog
                 $"Draygon health palette byte index ${tableByteIndex:X4} is not authored.");
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < DraygonColorRomData.HealthBandColorCount; color++)
-            cgram.SetColor(DraygonColorRomData.HealthDestination + color,
+            new BossPalettes(cgram).DraygonHealth.Write(color,
                 ResolveHealthBand(tableByteIndex / Bgr555.ByteCount, color));
     }
 
@@ -161,10 +161,9 @@ public sealed class DraygonColorCatalog
             ? band
             : throw new ArgumentOutOfRangeException(nameof(band));
 
-    private static void ApplyCalculated(SnesCgram cgram, int count, int destination, Func<int, Bgr555> resolve)
+    private static void ApplyCalculated(CgramPalette destination, int count, Func<int, Bgr555> resolve)
     {
-        ArgumentNullException.ThrowIfNull(cgram);
-        for (int color = 0; color < count; color++) cgram.SetColor(destination + color, resolve(color));
+        for (int color = 0; color < count; color++) destination.Write(color, resolve(color));
     }
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name)
     {

@@ -53,10 +53,10 @@ public static class RoomStaticPaletteExtractor
                 new MemoryStream(serialized, writable: false));
             var nativeCgram = new SnesCgram();
             var compiledCgram = new SnesCgram();
-            nativeCgram.LoadBytes(decompressed.AsSpan(
+            new CgramPalettes(nativeCgram).All.LoadPortBytes(decompressed.AsSpan(
                 0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
             compiled.LoadTo(compiledCgram);
-            if (!nativeCgram.Colors.SequenceEqual(compiledCgram.Colors))
+            if (!new CgramPalettes(nativeCgram).All.Colors.SequenceEqual(new CgramPalettes(compiledCgram).All.Colors))
                 throw new InvalidDataException(
                     $"Room palette JSON {name} changed base CGRAM colors at extraction.");
             files.Add(name, serialized);

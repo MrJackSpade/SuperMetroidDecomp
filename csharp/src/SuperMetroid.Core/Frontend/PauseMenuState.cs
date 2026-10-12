@@ -84,7 +84,7 @@ internal sealed partial class PauseMenuState
         mapPresentation.Tiles.LoadTo(vram, 0);
         mapPresentation.PauseTiles.LoadTo(vram, PauseTileAtlasFormat.DestinationByte);
         mapPresentation.Sprites.LoadArtworkTo(vram, MapSpriteFormat.PauseDestination);
-        mapPresentation.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
+        mapPresentation.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
         if (gameplayVram is not null)
         {

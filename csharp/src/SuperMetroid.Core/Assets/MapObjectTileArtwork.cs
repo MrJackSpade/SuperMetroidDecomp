@@ -136,6 +136,6 @@ internal sealed class MapObjectTileArtwork
                 transfer[tile * 32 + plane / 2 * 16 + y * 2 + plane % 2] = encoded;
             }
         }
-        vram.LoadBytes(destinationByte, transfer);
+        new VramStore(vram).All.Load(transfer, destinationByte);
     }
 }

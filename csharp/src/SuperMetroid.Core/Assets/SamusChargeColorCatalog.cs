@@ -68,7 +68,7 @@ public sealed class SamusChargeColorCatalog
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
         for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color, ResolveHyper(frame, color));
+            new SamusPalettes(cgram).Suit.Write(color, ResolveHyper(frame, color));
     }
 
     /// <summary>Loads version-1 <c>samus-charge-colors.json</c>, validating three suits with six phases each, ten Hyper-shot frames, sixteen colors per row, and RGB5 channels from 0 through 31.</summary>
@@ -174,7 +174,7 @@ public sealed class SamusChargeColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)
-            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + color,
+            new SamusPalettes(cgram).Suit.Write(color,
                 source.Resolve(suit, phase, color));
     }
     private static ChargeInputs CompileCharge(PaletteRgb5[][][]? source, string name, bool pseudo)

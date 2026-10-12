@@ -27,7 +27,7 @@ public sealed class GameplayBasePaletteCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < initial.Length; color++)
-            cgram.SetColor(color, initial[color]);
+            new CgramPalettes(cgram).All.Write(color, initial[color]);
     }
 
     /// <summary>Loads the selected 16-color common-sprite palette at a CGRAM color index.</summary>
@@ -35,7 +35,7 @@ public sealed class GameplayBasePaletteCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < commonSprites.Length; color++)
-            cgram.SetColor(destination + color, commonSprites[color]);
+            new CgramPalettes(cgram).All.Write(destination + color, commonSprites[color]);
     }
 
     /// <summary>Copies the 16 enemy-projectile colors from the initial image to a CGRAM color index.</summary>
@@ -43,7 +43,7 @@ public sealed class GameplayBasePaletteCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < GameplayBasePaletteFormat.SpriteColorCount; color++)
-            cgram.SetColor(destination + color,
+            new CgramPalettes(cgram).All.Write(destination + color,
                 initial[GameplayBasePaletteFormat.EnemyProjectileInitialColor + color]);
     }
 
@@ -55,7 +55,7 @@ public sealed class GameplayBasePaletteCatalog
         if (document.Version != GameplayBasePaletteFormat.Version)
             throw new InvalidDataException("Gameplay base palette has an unsupported version.");
         return new GameplayBasePaletteCatalog(
-            Compile(document.Initial, SnesCgram.ColorCount, "initial"),
+            Compile(document.Initial, CgramPalettes.ColorCount, "initial"),
             Compile(document.CommonSprites, GameplayBasePaletteFormat.SpriteColorCount,
                 "commonSprites"));
     }

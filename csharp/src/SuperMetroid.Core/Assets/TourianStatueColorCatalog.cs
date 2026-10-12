@@ -57,8 +57,8 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Installs all sixteen base-decoration inks at CGRAM 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two OBJ palette bands.</summary>
     public void ApplyEntrance(SnesCgram cgram)
     {
-        baseColors.Apply(cgram, TourianStatuePaletteRomData.BaseCgramIndex);
-        statueColors.Apply(cgram, TourianStatuePaletteRomData.StatueCgramIndex);
+        baseColors.Apply(new BossPalettes(cgram).TourianStatueBase);
+        statueColors.Apply(new BossPalettes(cgram).TourianStatue);
     }
 
     /// <summary>Installs the selected four-color eye glow at CGRAM 249–252 without altering boss completion or animated-tile state.</summary>
@@ -70,14 +70,14 @@ public sealed class TourianStatueColorCatalog
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
-            cgram.SetColor(TourianStatuePaletteRomData.EyeCgramIndex + color, ResolveEye(doubledBossParameter >> 1, color));
+            new BossPalettes(cgram).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
     }
 
     /// <summary>Installs the eight selected grey inks in current CGRAM at the animation instruction's destination; this method does not own target-palette fade progression.</summary>
     /// <param name="cgram">Current palette to update.</param>
     /// <param name="destinationColor">First CGRAM color index, obtained by dividing the native byte-index operand by two.</param>
     public void ApplyGrey(SnesCgram cgram, int destinationColor) =>
-        greyColors.Apply(cgram, destinationColor);
+        greyColors.Apply(new CgramPalettes(cgram).All.Slice(destinationColor, TourianStatuePaletteRomData.GreyColorCount));
 
     /// <summary>Loads version-1 <c>tourian-statue-colors.json</c>, validating sixteen-color base/statue bands, four four-color eye rows, eight grey inks, and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -158,10 +158,9 @@ public sealed class TourianStatueColorCatalog
             for (int color = 0; color < count; color++) result[color] = Read(color);
             return result;
         }
-        internal void Apply(SnesCgram destination, int firstColor)
+        internal void Apply(CgramPalette destination)
         {
-            ArgumentNullException.ThrowIfNull(destination);
-            for (int color = 0; color < count; color++) destination.SetColor(firstColor + color, Read(color));
+            for (int color = 0; color < count; color++) destination.Write(color, Read(color));
         }
     }
     private static void RejectDuplicates(JsonElement value) =>

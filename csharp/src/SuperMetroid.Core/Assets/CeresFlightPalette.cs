@@ -26,15 +26,15 @@ public sealed class CeresFlightPalette
     /// <summary>Selected BGR555 color, including independent resource edits.</summary>
     public Bgr555 ColorAt(int index)
     {
-        if ((uint)index >= SnesCgram.ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= CgramPalettes.ColorCount) throw new ArgumentOutOfRangeException(nameof(index));
         return edits.TryGetValue(index, out Bgr555 edited) ? edited : Calculate(index);
     }
 
     /// <summary>Writes serialization/hash bytes without retaining a runtime palette image.</summary>
     public void CopyTransferTo(Span<byte> destination)
     {
-        if (destination.Length < SnesCgram.ByteCount) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
-        for (int index = 0; index < SnesCgram.ColorCount; index++)
+        if (destination.Length < CgramPalettes.ByteCount) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
+        for (int index = 0; index < CgramPalettes.ColorCount; index++)
             BinaryPrimitives.WriteUInt16LittleEndian(destination.Slice(index * Bgr555.ByteCount), ColorAt(index).ToWord());
     }
 
@@ -73,10 +73,10 @@ public sealed class CeresFlightPalette
         CeresFlightPaletteDocument document = JsonAssetDocument.Read<CeresFlightPaletteDocument>(
             json, MapPresentationFormat.JsonOptions, "Ceres flight palette");
         if (document.Version != CeresFlightPaletteFormat.Version ||
-            document.Colors is not { Length: SnesCgram.ColorCount })
+            document.Colors is not { Length: CgramPalettes.ColorCount })
             throw new InvalidDataException("Ceres flight palette requires 256 RGB5 colors.");
 
-        var native = new Bgr555[SnesCgram.ColorCount];
+        var native = new Bgr555[CgramPalettes.ColorCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];
@@ -106,7 +106,7 @@ public sealed class CeresFlightPalette
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        for (int index = 0; index < SnesCgram.ColorCount; index++) cgram.SetColor(index, ColorAt(index));
+        for (int index = 0; index < CgramPalettes.ColorCount; index++) new CgramPalettes(cgram).All.Write(index, ColorAt(index));
     }
 }
 

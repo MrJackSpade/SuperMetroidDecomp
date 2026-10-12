@@ -76,7 +76,7 @@ public sealed class SamusSuitColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)
-            cgram.SetColor(SamusPaletteRomData.Common.SamusObjPaletteStart + index,
+            new SamusPalettes(cgram).Suit.Write(index,
                 Resolve(suitTableOffset, index));
     }
 

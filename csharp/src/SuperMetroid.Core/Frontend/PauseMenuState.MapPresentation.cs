@@ -23,7 +23,7 @@ internal sealed partial class PauseMenuState
                 not PauseReserveArrowRomData.Color6Index and not PauseReserveArrowRomData.Color11Index)
                 cgram.SetColor(color, catalog.Palettes.Pause[color]);
         catalog.Tiles.LoadTo(vram, 0);
-        catalog.HudTiles.LoadTo(vram, HudTileAtlasFormat.DestinationWord * 2);
+        catalog.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();
         RefreshPauseButtonArtwork();
         // Refresh the authored base and rebuild the now-semantic inventory layer. The

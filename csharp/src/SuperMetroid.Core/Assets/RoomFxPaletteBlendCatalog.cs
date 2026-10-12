@@ -117,7 +117,7 @@ public sealed class RoomFxPaletteBlendCatalog
         ArgumentNullException.ThrowIfNull(cgram);
         if (selection == RoomFxPaletteBlend.None)
         {
-            cgram.SetColor(RoomFxRomData.Layer3.EmptyPaletteColorIndex, Bgr555.Black);
+            new RoomFxPalettes(cgram).Layer3Empty.Write(0, Bgr555.Black);
             return;
         }
         SelectColors(selection).Apply(cgram);
@@ -171,9 +171,9 @@ internal sealed class RoomFxBlendColors
 
     public void Apply(SnesCgram cgram)
     {
-        cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex, primary.CreateColor());
-        cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + 1, secondary.CreateColor());
-        cgram.SetColor(RoomFxRomData.Layer3.PaletteBlendDestinationIndex + 2, thirdOverride?.CreateColor() ?? Bgr555.Black);
+        new RoomFxPalettes(cgram).Layer3Blend.Write(0, primary.CreateColor());
+        new RoomFxPalettes(cgram).Layer3Blend.Write(1, secondary.CreateColor());
+        new RoomFxPalettes(cgram).Layer3Blend.Write(2, thirdOverride?.CreateColor() ?? Bgr555.Black);
     }
 }
 /// <summary>One of the first two blend colors, separating shared tint rules from edits.</summary>

@@ -34,13 +34,14 @@ public sealed class PauseBackdropPresentation
     public void LoadTo(SnesVram vram, int destinationByteAddress, AreaId area)
     {
         var selected = areas[AreaIds.ToIndex(area)];
-        Ensure.BetweenInclusive(0, SnesVram.ByteCount - PauseBackdropDefinitions.ByteCount, destinationByteAddress);
+        VramRegion all = new VramStore(vram).All;
+        Ensure.BetweenInclusive(0, all.ByteCount - PauseBackdropDefinitions.ByteCount, destinationByteAddress);
         Span<byte> wordBytes = stackalloc byte[sizeof(ushort)];
         for (int cell = 0; cell < PauseBackdropDefinitions.Cells; cell++)
         {
             ushort word = selected.TryGetValue(cell, out ushort value) ? value : PauseBackdropDefinitions.StockAreaWord(area, cell);
             BinaryPrimitives.WriteUInt16LittleEndian(wordBytes, word);
-            vram.LoadBytes(destinationByteAddress + cell * sizeof(ushort), wordBytes);
+            all.Load(wordBytes, destinationByteAddress + cell * sizeof(ushort));
         }
     }
 

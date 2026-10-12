@@ -116,7 +116,7 @@ public sealed class PauseReserveUiPresentation
     public void ApplyArrowColors(SnesCgram cgram, bool animated, int frame, int color6Index, int color11Index)
     {
         var colors = animated ? (ArrowColor(frame, false), ArrowColor(frame, true)) : (solidColor6, solidColor11);
-        cgram.SetColor(color6Index, colors.Item1); cgram.SetColor(color11Index, colors.Item2);
+        new CgramPalettes(cgram).All.Write(color6Index, colors.Item1); new CgramPalettes(cgram).All.Write(color11Index, colors.Item2);
     }
 
     /// <summary>

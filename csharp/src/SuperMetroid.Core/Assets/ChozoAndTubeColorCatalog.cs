@@ -88,7 +88,7 @@ public sealed class ChozoAndTubeColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
-            cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveTubeCracks(color));
+            new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveTubeCracks(color));
     }
     /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>
     public void ApplyWreckedShip(SnesCgram cgram) => Apply(cgram, ChozoStatuePalette.WreckedShip);
@@ -133,7 +133,7 @@ public sealed class ChozoAndTubeColorCatalog
     {
         ArgumentNullException.ThrowIfNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
-            cgram.SetColor(ChozoAndTubeColorRomData.Destination + color, ResolveStatue(palette, color));
+            new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveStatue(palette, color));
     }
 
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)

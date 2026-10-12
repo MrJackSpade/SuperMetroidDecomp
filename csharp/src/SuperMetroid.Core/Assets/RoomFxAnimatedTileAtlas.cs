@@ -98,6 +98,7 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
     }
 
     /// <summary>Publishes a selected installed frame through the synchronous liquid/rain owner.</summary>
+    [PpuLayoutBoundary("codec: executes a native room-FX transfer record's encoded VRAM destination")]
     public void LoadFrame(SnesVram vram, int sourceAddress, ushort byteCount,
         ushort encodedVramDestination)
     {

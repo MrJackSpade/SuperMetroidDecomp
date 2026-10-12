@@ -131,7 +131,7 @@ public sealed class MotherBrainRainbowPalettePresentation
 
     /// <summary>Restores the two fixed normal-palette sources after the beam finishes.</summary>
     public void ApplyNormal(SnesCgram cgram) =>
-        ApplyColors(cgram, normal, MotherBrainRainbowPaletteRomData.SecondaryColor);
+        ApplyColors(cgram, normal);
 
     /// <summary>Copies a drain fade and publishes its trailing palette word to WRAM $017C.</summary>
     public void ApplyToGrey(ISnesAddressSpace bus, SnesCgram cgram, int frame) =>
@@ -148,7 +148,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         if ((uint)frame >= fakeDeathToGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death grey frame {frame} is outside the authored sequence.");
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color,
+            new MotherBrainPalettes(cgram).FakeDeathBrain.Write(color,
                 fakeDeathToGrey.Body(frame, color));
     }
 
@@ -159,7 +159,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         if ((uint)frame >= fromGrey.Length)
             throw new InvalidDataException($"Mother Brain fake-death revival frame {frame} is outside the authored sequence.");
         for (int color = 0; color < MotherBrainFakeDeathPaletteRomData.ColorCount; color++)
-            cgram.SetColor(MotherBrainFakeDeathPaletteRomData.BrainColor + color, fromGrey.Body(frame, color));
+            new MotherBrainPalettes(cgram).FakeDeathBrain.Write(color, fromGrey.Body(frame, color));
     }
 
     private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
@@ -167,7 +167,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         ArgumentNullException.ThrowIfNull(cgram);
         if ((uint)frame >= frames.Length)
             throw new InvalidDataException($"Mother Brain rainbow frame {frame} is outside the authored loop.");
-        ApplyColors(cgram, frames[frame], MotherBrainRainbowPaletteRomData.SecondaryColor);
+        ApplyColors(cgram, frames[frame]);
     }
 
     private static void ApplyGrey(ISnesAddressSpace bus, SnesCgram cgram,
@@ -180,25 +180,25 @@ public sealed class MotherBrainRainbowPalettePresentation
         for (int color = 0; color < frames.BodyCount; color++)
         {
             Bgr555 value = frames.Body(frame, color);
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, value);
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, value);
+            new MotherBrainPalettes(cgram).Body.Write(color, value);
+            new MotherBrainPalettes(cgram).Brain.Write(color, value);
         }
         for (int color = 0; color < frames.LegCount; color++)
-            cgram.SetColor(MotherBrainDrainedPaletteRomData.BackLegColor + color, frames.Leg(frame, color));
+            new MotherBrainPalettes(cgram).DrainedRearLegs.Write(color, frames.Leg(frame, color));
         var spill = new MotherBrainPaletteMemory(
             SnesMemoryBusRequirement.Require(bus, "Mother Brain's grey palette spill requires live WRAM."));
         spill.GreyTrailingWord = frames.Trailing(frame)!.Value;
     }
 
-    private static void ApplyColors(SnesCgram cgram, PaletteFrame selected, int legDestination)
+    private static void ApplyColors(SnesCgram cgram, PaletteFrame selected)
     {
         for (int color = 0; color < selected.Body.Length; color++)
         {
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BodyColor + color, selected.Body[color]);
-            cgram.SetColor(MotherBrainRainbowPaletteRomData.BrainColor + color, selected.Body[color]);
+            new MotherBrainPalettes(cgram).Body.Write(color, selected.Body[color]);
+            new MotherBrainPalettes(cgram).Brain.Write(color, selected.Body[color]);
         }
         for (int color = 0; color < selected.LegCount; color++)
-            cgram.SetColor(legDestination + color, selected.Leg(color));
+            new MotherBrainPalettes(cgram).RearLegs.Write(color, selected.Leg(color));
     }
 
     /// <summary>Loads and compiles bounded RGB5 rainbow, drain, revival, restoration, and beam-backdrop colors; validates frame geometry and channels without importing engine timers or signed loop terminators.</summary>

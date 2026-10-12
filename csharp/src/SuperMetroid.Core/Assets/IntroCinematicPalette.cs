@@ -12,7 +12,7 @@ public sealed class IntroCinematicPalette
     private IntroCinematicPalette(byte[] nativeBytes)
     {
         if (IntroCinematicPaintDefinitions.Matches(nativeBytes)) { rows = []; return; }
-        rows = new PaletteRow[SnesCgram.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
+        rows = new PaletteRow[CgramPalettes.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow];
         for (int row = 0; row < rows.Length; row++)
         {
             var colors = new Bgr555[IntroCinematicPaletteFormat.ColorsPerRow];
@@ -43,8 +43,8 @@ public sealed class IntroCinematicPalette
     {
         get
         {
-            var output = new byte[SnesCgram.ByteCount];
-            for (int row = 0; row < SnesCgram.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow; row++)
+            var output = new byte[CgramPalettes.ByteCount];
+            for (int row = 0; row < CgramPalettes.ColorCount / IntroCinematicPaletteFormat.ColorsPerRow; row++)
             for (int color = 0; color < IntroCinematicPaletteFormat.ColorsPerRow; color++)
                 BinaryPrimitives.WriteUInt16LittleEndian(output.AsSpan(2 * (row * IntroCinematicPaletteFormat.ColorsPerRow + color)), (rows.Length == 0 ? IntroCinematicPaintDefinitions.Color(row, color) : rows[row].Resolve(color)).ToWord());
             return output;
@@ -56,7 +56,7 @@ public sealed class IntroCinematicPalette
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        cgram.LoadBytes(Transfer.Span);
+        new CgramPalettes(cgram).All.LoadPortBytes(Transfer.Span);
     }
 
     private sealed class PaletteRow
@@ -126,10 +126,10 @@ public sealed class IntroCinematicPalette
         IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(
             json, MapPresentationFormat.JsonOptions, "opening palette");
         if (document.Version != IntroCinematicPaletteFormat.Version ||
-            document.Colors is not { Length: SnesCgram.ColorCount })
+            document.Colors is not { Length: CgramPalettes.ColorCount })
             throw new InvalidDataException("Opening palette requires 256 RGB5 colors.");
 
-        var native = new byte[SnesCgram.ByteCount];
+        var native = new byte[CgramPalettes.ByteCount];
         for (int index = 0; index < document.Colors.Length; index++)
         {
             PaletteRgb5? color = document.Colors[index];

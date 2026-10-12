@@ -63,7 +63,7 @@ public sealed class RoomStaticPalette
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        cgram.LoadBytes(nativeBytes);
+        new CgramPalettes(cgram).Background.LoadPortBytes(nativeBytes);
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()

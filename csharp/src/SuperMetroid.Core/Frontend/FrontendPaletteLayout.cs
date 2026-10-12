@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Frontend;
@@ -28,6 +29,21 @@ public static class FrontendPaletteLayout
     /// <summary>CGADD $0E: BG palette 0 colour 14, held black through the file-select map entry fade.</summary>
     public static readonly PpuLayoutCell FileSelectEntryBlackFirst = PpuMemoryLayout.Colors(nameof(FileSelectEntryBlackFirst), 0x0e, 1,
         "Bgr555 BG palette 0 colour 14");
+
+    /// <summary>
+    /// CGADD $B0-$B3: the map highlight colours (OBJ palette 3) that the map palette cycle animates;
+    /// static map palette loads leave them to the cycle so its phase survives.
+    /// </summary>
+    public static readonly PpuLayoutCell MapHighlightCycle = PpuMemoryLayout.Colors(nameof(MapHighlightCycle),
+        MapAnimationRomData.PaletteDestination, MapPaletteCycleFormat.ColorCount, "Bgr555 animated map highlights");
+
+    /// <summary>CGADD $66: pause reserve-arrow colour 6, owned by the reserve-arrow animation.</summary>
+    public static readonly PpuLayoutCell PauseReserveArrowColor6 = PpuMemoryLayout.Colors(nameof(PauseReserveArrowColor6),
+        PauseReserveArrowRomData.Color6Index, 1, "Bgr555 animated reserve arrow");
+
+    /// <summary>CGADD $6B: pause reserve-arrow colour 11, owned by the reserve-arrow animation.</summary>
+    public static readonly PpuLayoutCell PauseReserveArrowColor11 = PpuMemoryLayout.Colors(nameof(PauseReserveArrowColor11),
+        PauseReserveArrowRomData.Color11Index, 1, "Bgr555 animated reserve arrow");
 
     /// <summary>CGADD $1E: BG palette 1 colour 14, held black through the file-select map entry fade.</summary>
     public static readonly PpuLayoutCell FileSelectEntryBlackSecond = PpuMemoryLayout.Colors(nameof(FileSelectEntryBlackSecond), 0x1e, 1,

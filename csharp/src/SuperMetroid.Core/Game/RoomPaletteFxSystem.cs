@@ -462,6 +462,7 @@ public sealed class RoomPaletteFxSystem
             $"Palette-FX object $8D:{slot.Id:X4} exceeded 256 leading commands at $8D:{cursor:X4}.");
     }
 
+    [PpuLayoutBoundary("codec: palette-FX instruction colour-index operands ($8D SetColorIndex)")]
     private static void WritePaletteRecord(
         SnesCgram cgram,
         IPaletteFxColorSource colors,

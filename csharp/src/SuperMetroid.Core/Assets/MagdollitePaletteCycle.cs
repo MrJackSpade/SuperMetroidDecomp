@@ -69,6 +69,7 @@ public sealed class MagdollitePaletteCycle
     /// <param name="destination">First CGRAM color-word index 0..252; the native hook supplies its selected OBJ palette base plus nine.</param>
     /// <exception cref="ArgumentNullException">The CGRAM target is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The row index or four-color destination range is invalid.</exception>
+    [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
     public void ApplyFrame(SnesCgram cgram, int frame, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);

@@ -70,9 +70,7 @@ public sealed partial class FileSelectRoomMapGraphics
         icons.BindSprites(sprites);
         ppu.BindMapSprites(sprites);
         if (catalog is not null)
-            for (int color = 0; color < CgramPalettes.ColorCount; color++)
-                if (color is < MapAnimationRomData.PaletteDestination or >= (MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount))
-                    new CgramPalettes(Cgram).All.Write(color, catalog.Palettes.FileSelect[color]);
+            new CgramPalettes(Cgram).LoadImageExcept(catalog.Palettes.FileSelect, FrontendPaletteLayout.MapHighlightCycle);
         (catalog ?? throw new InvalidOperationException(
             "Room-map graphics require installed map presentation assets."))
             .Tiles.LoadTo(new MenuVram(Vram).MapCharacters);

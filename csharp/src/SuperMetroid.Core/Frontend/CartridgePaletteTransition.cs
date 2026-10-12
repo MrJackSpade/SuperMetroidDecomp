@@ -43,14 +43,20 @@ internal sealed class CartridgePaletteTransition
             return true;
         }
 
-        CgramPalette palette = new CgramPalettes(cgram).All;
-        for (int color = 0; color < palette.Count; color++)
+        var palettes = new CgramPalettes(cgram);
+        for (int row = 0; row < CgramPalettes.RowCount; row++)
         {
-            if ((paletteMask & (1 << (color / PpuMemoryLayout.ColorsPerRow))) == 0)
+            // Each mask bit selects one 16-colour row, as the native row loop does.
+            if ((paletteMask & (1 << row)) == 0)
                 continue;
-            Bgr555 current = palette[color];
-            if (current != target[color])
-                palette.Write(color, CalculateColor(transitionNumber, current, target[color]));
+            CgramPalette palette = palettes.Row(row);
+            for (int index = 0; index < palette.Count; index++)
+            {
+                Bgr555 current = palette[index];
+                Bgr555 goal = target[row * palette.Count + index];
+                if (current != goal)
+                    palette.Write(index, CalculateColor(transitionNumber, current, goal));
+            }
         }
         numerator.Numerator = unchecked((ushort)(transitionNumber + 1));
         return false;

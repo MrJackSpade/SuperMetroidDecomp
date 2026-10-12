@@ -24,7 +24,7 @@ internal sealed class EndingPostShot
     {
         ArgumentNullException.ThrowIfNull(fontAtlas);
         this.bus = bus;
-        sourcePalette = new CgramPalettes(cgram).All.Colors.ToArray();
+        sourcePalette = new CgramPalettes(cgram).Image.ToArray();
         BindArtwork(artwork);
         font = fontAtlas.Transfer.ToArray();
     }
@@ -105,6 +105,7 @@ internal sealed class EndingPostShot
         }
     }
 
+    [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
     private void ApplyFade(SnesCgram cgram, int start, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;

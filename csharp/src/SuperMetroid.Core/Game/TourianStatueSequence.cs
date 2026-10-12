@@ -85,6 +85,7 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>Runs AnimtilesHandler in native spawn order, retaining bytecode durations and branches.</summary>
+    [PpuLayoutBoundary("codec: animated-tile instruction CGRAM index operand")]
     public void StepTiles(SuperMetroidRuntime runtime)
     {
         if (!Enabled) return;

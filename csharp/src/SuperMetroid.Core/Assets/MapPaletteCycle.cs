@@ -58,6 +58,7 @@ public sealed class MapPaletteCycle
     /// <remarks>Writes all sixteen colors including the row's first color. Destination bounds are checked per write, so an invalid range can leave earlier colors already written.</remarks>
     /// <exception cref="IndexOutOfRangeException"><paramref name="frame"/> is outside the selected cycle.</exception>
     /// <exception cref="ArgumentOutOfRangeException">A destination color index falls outside CGRAM's 256 slots.</exception>
+    [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
     public void Apply(SnesCgram destination, int frame, int firstColor)
     {
         CheckFrame(frame);

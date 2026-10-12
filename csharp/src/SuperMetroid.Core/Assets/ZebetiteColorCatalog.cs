@@ -81,6 +81,7 @@ public sealed class ZebetiteColorCatalog
     /// <param name="cgram">Destination color memory to update.</param>
     /// <param name="frame">Zero-based pulse row from 0 through 7.</param>
     /// <param name="destinationColor">CGRAM color-entry index for the first color, not a byte offset; the next entry receives the second color.</param>
+    [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
     public void Apply(SnesCgram cgram, int frame, int destinationColor)
     {
         ArgumentNullException.ThrowIfNull(cgram);

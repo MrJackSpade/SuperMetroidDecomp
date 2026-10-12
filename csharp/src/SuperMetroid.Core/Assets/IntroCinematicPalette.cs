@@ -9,6 +9,7 @@ public sealed class IntroCinematicPalette
 {
     private readonly PaletteRow[] rows;
 
+    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     private IntroCinematicPalette(byte[] nativeBytes)
     {
         if (IntroCinematicPaintDefinitions.Matches(nativeBytes)) { rows = []; return; }
@@ -39,6 +40,7 @@ public sealed class IntroCinematicPalette
     }
 
     /// <summary>Exact BGR555 bytes copied by the cartridge's opening setup.</summary>
+    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     public ReadOnlyMemory<byte> Transfer
     {
         get
@@ -53,6 +55,7 @@ public sealed class IntroCinematicPalette
 
     /// <summary>Replaces all 256 CGRAM colors with the installed opening palette, corresponding to native $8C:E3E9-E5E8; does not advance or reset cinematic fade timers.</summary>
     /// <param name="cgram">Destination CGRAM image, receiving the complete $0200-byte BGR555 transfer.</param>
+    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
@@ -121,6 +124,7 @@ public sealed class IntroCinematicPalette
     /// <param name="json">Caller-owned stream containing the supported editable opening-palette document.</param>
     /// <returns>The installed palette used for opening setup and subsequent cinematic fade targets, without changing fade scheduling.</returns>
     /// <exception cref="InvalidDataException">The schema version, complete color count, or RGB components are invalid.</exception>
+    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
     public static IntroCinematicPalette Load(Stream json)
     {
         IntroCinematicPaletteDocument document = JsonAssetDocument.Read<IntroCinematicPaletteDocument>(

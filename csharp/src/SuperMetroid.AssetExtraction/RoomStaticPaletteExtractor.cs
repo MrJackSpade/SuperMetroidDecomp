@@ -16,6 +16,7 @@ public static class RoomStaticPaletteExtractor
     /// <remarks>Discards the unused high color bit and trailing source data, then verifies equivalent CGRAM colors after recompilation. Shared sources are deduplicated; files are not written.</remarks>
     /// <exception cref="ArgumentNullException"><paramref name="bus"/> is null.</exception>
     /// <exception cref="InvalidDataException">A source is invalid, contains fewer than 256 palette bytes, or fails palette or CGRAM roundtrip validation.</exception>
+    [PpuLayoutBoundary("codec: native room palette CGDATA stream compared with the compiled palette")]
     public static IReadOnlyDictionary<string, byte[]> Extract(ISnesAddressSpace bus)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -56,7 +57,7 @@ public static class RoomStaticPaletteExtractor
             new CgramPalettes(nativeCgram).All.LoadPortBytes(decompressed.AsSpan(
                 0, RoomAssetRomData.GraphicsLayout.BackgroundPaletteByteCount));
             compiled.LoadTo(compiledCgram);
-            if (!new CgramPalettes(nativeCgram).All.Colors.SequenceEqual(new CgramPalettes(compiledCgram).All.Colors))
+            if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                 throw new InvalidDataException(
                     $"Room palette JSON {name} changed base CGRAM colors at extraction.");
             files.Add(name, serialized);

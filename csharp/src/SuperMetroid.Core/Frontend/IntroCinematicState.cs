@@ -88,7 +88,7 @@ public sealed partial class IntroCinematicState
             // targets must use the currently selected installed palette.
             var baseline = new SnesCgram();
             value.Palette.LoadTo(baseline);
-            new CgramPalettes(baseline).All.Colors.CopyTo(introPalette);
+            new CgramPalettes(baseline).Image.CopyTo(introPalette);
             if (Phase is IntroCinematicPhase.Initial or IntroCinematicPhase.WaitForInitialMusicQueue)
                 value.Palette.LoadTo(cgram);
             if (Phase is >= IntroCinematicPhase.WaitForPageOneMusicQueue and
@@ -193,7 +193,7 @@ public sealed partial class IntroCinematicState
         this.beamArtwork = beamArtwork;
         this.samusBodyArtwork = samusBodyArtwork;
         characterArtwork.Palette.LoadTo(cgram);
-        new CgramPalettes(cgram).All.Colors.CopyTo(introPalette);
+        new CgramPalettes(cgram).Image.CopyTo(introPalette);
 
         byte[] bgCharacters = characterArtwork.BackgroundCharacters.Transfer.ToArray();
         byte[] fontOne = introFont.Transfer.ToArray();

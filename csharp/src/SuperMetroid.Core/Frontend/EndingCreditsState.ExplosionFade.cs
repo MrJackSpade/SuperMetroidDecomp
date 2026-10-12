@@ -14,7 +14,7 @@ internal sealed partial class EndingCreditsState
         // Func115 clears the previous cloud palette programs before taking its source
         // snapshot; otherwise their next instruction can overwrite the new OBJ fade.
         ResetPaletteFx();
-        explosionFadeSource = new CgramPalettes(cgram).All.Colors.ToArray();
+        explosionFadeSource = new CgramPalettes(cgram).Image.ToArray();
         explosionFadeStep = 0;
         ApplyExplosionFade(EndingExplosionFadeDefinitions.FirstObjectStart, 0);
         ApplyExplosionFade(EndingExplosionFadeDefinitions.SecondObjectStart, 0);
@@ -40,6 +40,7 @@ internal sealed partial class EndingCreditsState
         }
     }
 
+    [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
     private void ApplyExplosionFade(int start, int factor)
     {
         for (int i = start; i < start + EndingExplosionFadeDefinitions.Colors; i++)

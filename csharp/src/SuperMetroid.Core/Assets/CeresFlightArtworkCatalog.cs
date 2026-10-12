@@ -36,6 +36,7 @@ public sealed class CeresFlightArtworkCatalog
     public CeresFlightActorLayout Actors { get; }
 
     /// <summary>Identity of all selected approach maps, characters, colors, OAM frames and placements.</summary>
+    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the Ceres flight palette")]
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(CeresFlightArtworkCatalog), content =>
     {
         content.Append("mode7-characters", Mode7Characters.Span);

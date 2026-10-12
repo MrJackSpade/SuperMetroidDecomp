@@ -68,6 +68,7 @@ public sealed class EndingPalette
     /// <param name="destinationColor">Zero-based starting CGRAM color index; the complete transfer must fit its 256 colors.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The source range or destination range is outside its color memory.</exception>
+    [PpuLayoutBoundary("codec: native ending palette transfers at their CGRAM index operands")]
     public void LoadTo(SnesCgram cgram, int sourceColor, int count, int destinationColor)
     {
         ArgumentNullException.ThrowIfNull(cgram);

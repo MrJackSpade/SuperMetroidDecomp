@@ -44,8 +44,7 @@ public sealed class TitlePalettePresentation : IPaletteFxColorSource
     public void Apply(SnesCgram destination)
     {
         ArgumentNullException.ThrowIfNull(destination);
-        for (int index = 0; index < colors.Length; index++)
-            new CgramPalettes(destination).All.Write(index, colors[index]);
+        new CgramPalettes(destination).LoadImage(colors);
     }
 
     /// <summary>Validates initial, ambient-animation and skip-only RGB5 colors and compiles independently owned native palette words.</summary>

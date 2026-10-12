@@ -36,9 +36,8 @@ public sealed class FileSelectMapEntry
     public FileSelectMapEntry(MapStaticPalettes mapPalettes)
     {
         ArgumentNullException.ThrowIfNull(mapPalettes);
-        for (int color = 0; color < CgramPalettes.ColorCount; color++)
-            new CgramPalettes(Cgram).All.Write(color, mapPalettes.FileSelect[color]);
-        Bgr555[] target = new CgramPalettes(Cgram).All.Colors.ToArray();
+        new CgramPalettes(Cgram).LoadImage(mapPalettes.FileSelect);
+        Bgr555[] target = new CgramPalettes(Cgram).Image.ToArray();
         target[14] = target[30] = Bgr555.Black;
         // File select runs outside gameplay; no other fade advances the counter meanwhile.
         palette = new CartridgePaletteTransition(

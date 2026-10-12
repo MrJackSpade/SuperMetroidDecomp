@@ -28,6 +28,7 @@ public static class EnemyTileArtworkFiles
     /// <param name="sourceCartridgeSha256">Nonempty source-cartridge SHA-256 recorded in the manifest alongside each stock resource's hash.</param>
     /// <remarks>Deduplicates ordinary sheets by enemy-definition identity and verifies retail coverage and native pixel/color roundtrips. Indexed PNG colors are diagnostic; RGB5 palettes and visual JSON remain separate. Does not read or modify player overrides.</remarks>
     /// <exception cref="InvalidDataException">Native definitions, coverage, artwork sizes, palette representation, or resource roundtrip validation are invalid.</exception>
+    [PpuLayoutBoundary("codec: native enemy palette CGDATA stream compared with the compiled sheet")]
     public static void Extract(ISnesAddressSpace bus, string directory, string sourceCartridgeSha256)
     {
         ArgumentNullException.ThrowIfNull(bus);
@@ -91,7 +92,7 @@ public static class EnemyTileArtworkFiles
                 new CgramPalettes(nativeCgram).All.LoadPortBytes(nativeColors);
                 EnemyPaletteSheet.Load(new MemoryStream(paletteJson, writable: false))
                     .LoadTo(new CgramPalettes(compiledCgram).BackgroundRow(0));
-                if (!new CgramPalettes(nativeCgram).All.Colors.SequenceEqual(new CgramPalettes(compiledCgram).All.Colors))
+                if (!new CgramPalettes(nativeCgram).Image.SequenceEqual(new CgramPalettes(compiledCgram).Image))
                     throw new InvalidDataException($"Enemy ${headerWord:X4} palette JSON changed native colors.");
                 File.WriteAllBytes(Path.Combine(directory,
                     EnemyTileArtworkFormat.PaletteFileName(definitionPointer)), paletteJson);

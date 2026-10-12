@@ -98,16 +98,17 @@ public sealed class CinematicPaletteFader
     public void ComposeInto(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        CgramPalette palette = new CgramPalettes(cgram).All;
-        for (int color = 0; color < CgramPalettes.ColorCount; color++)
+        Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
+        for (int color = 0; color < image.Length; color++)
         {
             // High bytes supply the visible five-bit components. Writing through
             // SnesCgram matches the following native NMI upload into physical CGRAM.
-            palette.Write(color, new Bgr555(
+            image[color] = new Bgr555(
                 (currentRed[color] >> 8) & Bgr555.MaxChannel,
                 (currentGreen[color] >> 8) & Bgr555.MaxChannel,
-                (currentBlue[color] >> 8) & Bgr555.MaxChannel));
+                (currentBlue[color] >> 8) & Bgr555.MaxChannel);
         }
+        new CgramPalettes(cgram).LoadImage(image);
     }
 
     private static (int FirstColor, int ExclusiveEnd) ValidateRange(

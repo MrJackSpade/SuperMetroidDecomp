@@ -58,8 +58,7 @@ internal sealed class MenuPpuState
     {
         MapStaticPalettes palettes = mapPalettes ?? throw new InvalidOperationException(
             "Menu PPU requires installed palettes.");
-        for (int color = 0; color < CgramPalettes.ColorCount; color++)
-            new CgramPalettes(Cgram).All.Write(color, palettes.FileSelect[color]);
+        new CgramPalettes(Cgram).LoadImage(palettes.FileSelect);
     }
 
     public SnesCgram Cgram { get; } = new();

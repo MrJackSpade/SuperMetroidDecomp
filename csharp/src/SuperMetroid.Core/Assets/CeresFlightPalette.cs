@@ -31,6 +31,7 @@ public sealed class CeresFlightPalette
     }
 
     /// <summary>Writes serialization/hash bytes without retaining a runtime palette image.</summary>
+    [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the Ceres flight palette")]
     public void CopyTransferTo(Span<byte> destination)
     {
         if (destination.Length < CgramPalettes.ByteCount) throw new ArgumentException("Palette output requires 512 bytes.", nameof(destination));
@@ -106,7 +107,10 @@ public sealed class CeresFlightPalette
     public void LoadTo(SnesCgram cgram)
     {
         ArgumentNullException.ThrowIfNull(cgram);
-        for (int index = 0; index < CgramPalettes.ColorCount; index++) new CgramPalettes(cgram).All.Write(index, ColorAt(index));
+        Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
+        for (int index = 0; index < image.Length; index++)
+            image[index] = ColorAt(index);
+        new CgramPalettes(cgram).LoadImage(image);
     }
 }
 

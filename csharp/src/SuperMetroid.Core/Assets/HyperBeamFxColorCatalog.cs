@@ -195,6 +195,7 @@ public sealed class HyperBeamFxColorCatalog
     /// <param name="cgram">Destination color memory to update.</param>
     /// <param name="frame">Zero-based palette row, from 0 through 9.</param>
     /// <param name="destination">CGRAM color-entry index of the first output color, not a byte offset; the following seven entries are also written.</param>
+    [PpuLayoutBoundary("codec: Hyper Beam FX colours at their native CGRAM index operand")]
     public void Apply(SnesCgram cgram, int frame, int destination)
     {
         ArgumentNullException.ThrowIfNull(cgram);

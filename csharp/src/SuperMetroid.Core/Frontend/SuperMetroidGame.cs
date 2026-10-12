@@ -1490,7 +1490,7 @@ public sealed partial class SuperMetroidGame
             throw new InvalidOperationException("Death palette setup requires a runtime.");
 
         var target = new Bgr555[CgramPalettes.ColorCount];
-        ReadOnlySpan<Bgr555> current = new CgramPalettes(runtime.Cgram).All.Colors;
+        ReadOnlySpan<Bgr555> current = new CgramPalettes(runtime.Cgram).Image;
         // `$82:DCA3-$DCB3` restores only palette-buffer colors $C0-$CF into the otherwise
         // black target. Suitless row $F0 and all room/OBJ rows therefore fade away.
         current.Slice(0xc0, 0x10).CopyTo(target.AsSpan(0xc0, 0x10));

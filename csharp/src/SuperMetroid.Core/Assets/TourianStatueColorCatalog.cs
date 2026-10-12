@@ -76,6 +76,7 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Installs the eight selected grey inks in current CGRAM at the animation instruction's destination; this method does not own target-palette fade progression.</summary>
     /// <param name="cgram">Current palette to update.</param>
     /// <param name="destinationColor">First CGRAM color index, obtained by dividing the native byte-index operand by two.</param>
+    [PpuLayoutBoundary("codec: Tourian grey ink at its native CGRAM index operand")]
     public void ApplyGrey(SnesCgram cgram, int destinationColor) =>
         greyColors.Apply(new CgramPalettes(cgram).All.Slice(destinationColor, TourianStatuePaletteRomData.GreyColorCount));
 

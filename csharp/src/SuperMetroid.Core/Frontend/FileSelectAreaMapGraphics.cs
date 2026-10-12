@@ -111,7 +111,7 @@ public sealed partial class FileSelectAreaMapGraphics
     private void LoadInstalledPalette(AreaId selectedArea)
     {
         var colors = palettes!.World(selectedArea);
-        new CgramPalettes(Cgram).All.CopyFrom(colors);
+        new CgramPalettes(Cgram).LoadImage(colors);
     }
 
     /// <summary>

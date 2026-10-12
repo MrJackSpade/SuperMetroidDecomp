@@ -16,12 +16,10 @@ internal sealed partial class PauseMenuState
         paletteAnimation.Bind(catalog.HighlightCycle);
         catalog.PauseTiles.LoadTo(new PauseVram(vram).InterfaceCharacters);
         catalog.Sprites.LoadArtworkTo(new PauseVram(vram).ObjectCharacters);
-        for (int color = 0; color < CgramPalettes.ColorCount; color++)
-            // Live highlights and reserve-arrow colors belong to their animation
-            // owners. Replacing the static base must not reset their phase.
-            if (color is (< MapAnimationRomData.PaletteDestination or >= (MapAnimationRomData.PaletteDestination + MapPaletteCycleFormat.ColorCount)) and
-                not PauseReserveArrowRomData.Color6Index and not PauseReserveArrowRomData.Color11Index)
-                new CgramPalettes(cgram).All.Write(color, catalog.Palettes.Pause[color]);
+        // Live highlights and reserve-arrow colors belong to their animation
+        // owners. Replacing the static base must not reset their phase.
+        new CgramPalettes(cgram).LoadImageExcept(catalog.Palettes.Pause, FrontendPaletteLayout.MapHighlightCycle,
+            FrontendPaletteLayout.PauseReserveArrowColor6, FrontendPaletteLayout.PauseReserveArrowColor11);
         catalog.Tiles.LoadTo(new PauseVram(vram).MapCharacters);
         catalog.HudTiles.LoadTo(vram);
         LoadPauseBackdrop();

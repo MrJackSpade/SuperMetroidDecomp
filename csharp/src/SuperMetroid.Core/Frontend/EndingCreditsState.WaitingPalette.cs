@@ -22,6 +22,7 @@ internal sealed partial class EndingCreditsState
                 EndingCreditsRomData.Rendering.WaitingPaletteCount, rewardPaletteStep);
     }
 
+    [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
     private void ApplyPostCreditsPaletteRange(int start, int count, int step)
     {
         // E110 saves Intro4 as its target, clears colors $20-$2F, then E158 runs the

@@ -112,6 +112,7 @@ public sealed class CeresDoorVisualCatalog
     /// <summary>Installs fifteen normal nontransparent inks corresponding to $A6:F4EE in current CGRAM, exposing the native completed setup-fade target directly.</summary>
     /// <param name="cgram">Current palette receiving the setup image.</param>
     /// <param name="destination">First CGRAM color index, not a byte offset; the actor uses 161 for the inactive variant-three target or 241 for the active door palette.</param>
+    [PpuLayoutBoundary("codec: Ceres door colours written at their native CGRAM index operand")]
     public void LoadNormalColors(SnesCgram cgram, int destination)
     {
         Ensure.NotNull(cgram);
@@ -124,6 +125,7 @@ public sealed class CeresDoorVisualCatalog
     /// <summary>Installs fifteen escape-state nontransparent inks corresponding to $A6:F50E in current CGRAM; escape-state selection remains actor-owned.</summary>
     /// <param name="cgram">Current palette receiving the setup image.</param>
     /// <param name="destination">First CGRAM color index, not a byte offset; the active door uses 241, leaving its transparent slot unchanged.</param>
+    [PpuLayoutBoundary("codec: Ceres door colours written at their native CGRAM index operand")]
     public void LoadEscapeColors(SnesCgram cgram, int destination)
     {
         Ensure.NotNull(cgram);
